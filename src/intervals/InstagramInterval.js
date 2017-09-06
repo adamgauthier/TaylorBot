@@ -41,6 +41,9 @@ class InstagramInterval extends Interval {
             const guild = taylorbot.resolveGuild(current.serverId);
             if (!guild) throw new Error(`Guild ID '${current.serverId}' could not be resolved`);
 
+            const channel = guild.channels.get(current.channelId);
+            if (!channel) throw new Error(`Channel ID '${current.channelId}' could not be resolved`);
+
             const options = Object.assign({ 'uri': `${current.instagramUsername}/media` }, rpOptions);
             const body = await rp(options);
 
@@ -51,7 +54,7 @@ class InstagramInterval extends Interval {
 
             const item = body.items[0];
             if (item.link !== current.lastLink) {
-                taylorbot.sendEmbed(guild.defaultChannel, InstagramInterval.getRichEmbed(item));
+                taylorbot.sendEmbed(channel, InstagramInterval.getRichEmbed(item));
                 database.updateInstagram(item.link, current.instagramUsername, current.serverId);                
             }
         } 

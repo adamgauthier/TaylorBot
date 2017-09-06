@@ -143,7 +143,7 @@ class DatabaseDriver {
     async getInstagrams() {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.all('SELECT `serverId`, `instagramUsername`, `lastLink` FROM instagramChecker;', (err, rows) => {
+                this._db.all('SELECT `serverId`, `channelId`, `instagramUsername`, `lastLink` FROM instagramChecker;', (err, rows) => {
                     if (err) reject(err);
                     else resolve(rows);
                 });
