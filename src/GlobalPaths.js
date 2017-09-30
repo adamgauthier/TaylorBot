@@ -2,10 +2,12 @@
 
 const path = require('path');
 
-const pathMapper = require(path.join(__dirname, 'PathMapper'));
+const PathMapper = require(path.join(__dirname, 'tools', 'PathMapper'));
 
 class GlobalPaths {
     constructor() {
+        const pathMapper = new PathMapper(__dirname);
+
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
