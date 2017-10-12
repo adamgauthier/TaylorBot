@@ -4,9 +4,11 @@ const Discord = require('discord.js');
 const path = require('path');
 
 const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
+
 const eventLoader = require(GlobalPaths.eventLoader);
 const database = require(GlobalPaths.databaseDriver);
 const Config = require(GlobalPaths.Config);
+const Log = require(GlobalPaths.Logger);
 
 const discordMax = 2000;
 
@@ -14,14 +16,14 @@ class TaylorBotClient extends Discord.Client {
     async start() {
         await eventLoader.loadAll(this);
 
-        console.log('Loading guild settings...');
+        Log.info('Loading guild settings...');
         this.guildSettings = new Map();
         const gSettings = await database.getAllGuildSettings();
         gSettings.forEach(gs => this.guildSettings.set(gs.id, { 'prefix': gs.prefix }));
-        console.log('Guild settings loaded!');
+        Log.info('Guild settings loaded!');
 
         const token = await this.login(Config.loginToken);
-        console.log(`Bot logged in successfully! \nToken: ${token}`);
+        Log.info(`Bot logged in successfully! Token: ${token}`);
         return token;
     }
 
@@ -192,7 +194,7 @@ class TaylorBotClient extends Discord.Client {
             return await this._sendMessage(tbc, text, options);
         }
         catch (e) {
-            console.log(`Sending message error in recipient ${recipient} : ${e}`);
+            Log.error(`Sending message error in recipient ${recipient} : ${e}`);
         }
     }
 
@@ -234,7 +236,7 @@ class TaylorBotClient extends Discord.Client {
             return await currentCallback(msg);
         }
         catch (e) {
-            console.log(`Sending message error in recipient ${recipient} : ${e}`);
+            Log.error(`Sending message error in recipient ${recipient} : ${e}`);
             return Promise.reject(`${e} when trying to send message.`);
         }
     }

@@ -2,7 +2,10 @@
 
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const Discord = require('discord.js');
+
+const GlobalPaths = require(path.join(__dirname, '..', '..', 'GlobalPaths'));
+
+const Log = require(GlobalPaths.Logger);
 
 class DatabaseDriver {
     constructor() {
@@ -19,7 +22,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Getting all guild settings: ${e}`);
+            Log.error(`Getting all guild settings: ${e}`);
         }
     }
 
@@ -29,7 +32,7 @@ class DatabaseDriver {
             return await this._guildUserExists(u.id, g.id);
         }
         catch (e) {
-            console.error(`ERR Getting UserByServer ${u.username} (${u.id}) for guild ${g.name} (${g.id}) : ${e}`);
+            Log.error(`Getting UserByServer ${u.username} (${u.id}) for guild ${g.name} (${g.id}) : ${e}`);
         }
     }
 
@@ -48,7 +51,7 @@ class DatabaseDriver {
             return await this._userExists(user.id);
         }
         catch (e) {
-            console.error(`ERR Checking User ${user.username} (${user.id}): ${e}`);
+            Log.error(`Checking User ${user.username} (${user.id}): ${e}`);
         }
     }
 
@@ -65,11 +68,11 @@ class DatabaseDriver {
     async addNewUser(user) {
         try {
             await this._addNewGlobalUser(user.id);
-            console.log(`Sucessfully added Global User ${user.username} (${user.id})`);
+            Log.info(`Sucessfully added Global User ${user.username} (${user.id})`);
             return await this.addNewUsername(user);
         }
         catch (e) {
-            console.error(`ERR Adding Global User ${user.username} (${user.id}): ${e}`);
+            Log.error(`Adding Global User ${user.username} (${user.id}): ${e}`);
         }        
     }
 
@@ -77,11 +80,11 @@ class DatabaseDriver {
         try {
             await this.addNewUser(member.user);
             const result = await this._addNewUserByGuild(member.id, member.guild.id, member.joinedAt.getTime());
-            console.log(`Added New Member ${member.user.username} (${member.id}) in ${member.guild.name} (${member.guild.id})`);
+            Log.info(`Added New Member ${member.user.username} (${member.id}) in ${member.guild.name} (${member.guild.id})`);
             return result;
         }
         catch (e) {
-            console.error(`ERR Adding Member ${member.user.username} (${member.id}): ${e}`);
+            Log.error(`Adding Member ${member.user.username} (${member.id}): ${e}`);
         }
     }
 
@@ -109,16 +112,16 @@ class DatabaseDriver {
 
             if (lastUsername && lastUsername.username === user.username) {
                 if (!silent)
-                    console.warn(`New Username is already saved for ${user.username} (${user.id})`); 
+                    Log.warn(`New Username is already saved for ${user.username} (${user.id})`); 
             }
             else {
                 const result = await this._addNewUsername(user.id, user.username, since);
-                console.log(`Added New Username for ${user.username} (${user.id}), old was ${lastUsername.username}`);
+                Log.info(`Added New Username for ${user.username} (${user.id}), old was ${lastUsername.username}`);
                 return result;
             }
         }
         catch (e) {
-            console.error(`ERR Adding New Username ${user.username} (${user.id}): ${e}`);
+            Log.error(`Adding New Username ${user.username} (${user.id}): ${e}`);
         }
     }
 
@@ -150,7 +153,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Getting Instagrams: ${e}`);
+            Log.error(`Getting Instagrams: ${e}`);
             return [];
         }
     }
@@ -165,7 +168,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Getting Reddits: ${e}`);
+            Log.error(`Getting Reddits: ${e}`);
             return [];
         }
     }
@@ -180,7 +183,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Getting Youtube Channels: ${e}`);
+            Log.error(`Getting Youtube Channels: ${e}`);
             return [];
         }
     }
@@ -195,7 +198,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Getting Tumblrs: ${e}`);
+            Log.error(`Getting Tumblrs: ${e}`);
             return [];
         }
     }
@@ -210,7 +213,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Updating Tumblr for guild ${guildId} and user ${tumblrUser}: ${e}`);
+            Log.error(`Updating Tumblr for guild ${guildId} and user ${tumblrUser}: ${e}`);
         }
     }
 
@@ -224,7 +227,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Updating Reddit for guild ${guildId} and playlistId ${playlistId}: ${e}`);
+            Log.error(`Updating Reddit for guild ${guildId} and playlistId ${playlistId}: ${e}`);
         }
     }
 
@@ -238,7 +241,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Updating Reddit for guild ${guildId} and subreddit ${subreddit}: ${e}`);
+            Log.error(`Updating Reddit for guild ${guildId} and subreddit ${subreddit}: ${e}`);
         }
     }
 
@@ -252,7 +255,7 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            console.error(`ERR Updating Instagram for guild ${serverId}: ${e}`);
+            Log.error(`Updating Instagram for guild ${serverId}: ${e}`);
         }
     }
 
@@ -262,7 +265,7 @@ class DatabaseDriver {
             return await this._updateMinutesMilestone(minutesForReward, pointsToAdd);
         }
         catch (e) {
-            console.error(`ERR Updating minutes: ${e}`);
+            Log.error(`Updating minutes: ${e}`);
         }    
     }   
 

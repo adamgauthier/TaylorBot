@@ -11,6 +11,7 @@ const Interval = require(GlobalPaths.Interval);
 const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const StringUtil = require(GlobalPaths.StringUtil);
+const Log = require(GlobalPaths.Logger);
 
 const intervalTime = 60000;
 const rpOptions = {
@@ -57,7 +58,7 @@ class YoutubeInterval extends Interval {
             }
         }
         catch (e) {
-            console.error(`ERR: Checking Youtube Videos for playlistId '${current.playlistId}' for guild ${current.guildId}: ${e}.`);
+            Log.error(`Checking Youtube Videos for playlistId '${current.playlistId}' for guild ${current.guildId}: ${e}.`);
         }
         finally {
             this.checkSingleYoutube(iterator);

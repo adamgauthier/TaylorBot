@@ -10,6 +10,7 @@ const Interval = require(GlobalPaths.Interval);
 const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const StringUtil = require(GlobalPaths.StringUtil);
+const Log = require(GlobalPaths.Logger);
 
 const intervalTime = 60000;
 const redditBaseURL = 'https://www.reddit.com/r/';
@@ -53,7 +54,7 @@ class RedditInterval extends Interval {
             }
         } 
         catch (e) {
-            console.error(`ERR: Checking Reddit Posts for subreddit '${current.subreddit}' for guild ${current.guildId}: ${e}.`);
+            Log.error(`Checking Reddit Posts for subreddit '${current.subreddit}' for guild ${current.guildId}: ${e}.`);
         }
         finally {
             this.checkSingleReddit(iterator);

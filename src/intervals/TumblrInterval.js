@@ -7,6 +7,7 @@ const Interval = require(GlobalPaths.Interval);
 const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const TumblrModule = require(GlobalPaths.TumblrModule);
+const Log = require(GlobalPaths.Logger);
 
 const intervalTime = 60000;
 
@@ -34,7 +35,7 @@ class TumblrInterval extends Interval {
             if (!channel) throw new Error(`Channel ID '${current.channelId}' could not be resolved`);
 
             const result = await TumblrModule.getLatestPost(current.tumblrUser);
-            const {post, blog} = result;
+            const { post, blog } = result;
 
             if (post.short_url !== current.lastLink) {
                 taylorbot.sendEmbed(channel, TumblrModule.getEmbed(post, blog));
@@ -42,7 +43,7 @@ class TumblrInterval extends Interval {
             }
         }
         catch (e) {
-            console.error(`ERR: Checking Tumblr Posts for user '${current.tumblrUser}' for guild ${current.guildId}: ${e}.`);
+            Log.error(`Checking Tumblr Posts for user '${current.tumblrUser}' for guild ${current.guildId}: ${e}.`);
         }
         finally {
             return TumblrInterval.checkSingleTumblr(iterator);

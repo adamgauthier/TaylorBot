@@ -12,6 +12,7 @@ const Interval = require(GlobalPaths.Interval);
 const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const StringUtil = require(GlobalPaths.StringUtil);
+const Log = require(GlobalPaths.Logger);
 
 const intervalTime = 60000;
 const instagramBaseURL = 'https://www.instagram.com/';
@@ -59,7 +60,7 @@ class InstagramInterval extends Interval {
             }
         } 
         catch (e) {
-            console.error(`ERR: Checking Instagram Posts for user '${current.instagramUsername}' for guild ${current.serverId}: ${e}.`);
+            Log.error(`Checking Instagram Posts for user '${current.instagramUsername}' for guild ${current.serverId}: ${e}.`);
         }
         finally {
             this.checkSingleInstagram(iterator);
