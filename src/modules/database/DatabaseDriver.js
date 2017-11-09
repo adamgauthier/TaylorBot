@@ -146,7 +146,7 @@ class DatabaseDriver {
     async getInstagrams() {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.all('SELECT `serverId`, `channelId`, `instagramUsername`, `lastLink` FROM instagramChecker;', (err, rows) => {
+                this._db.all('SELECT `serverId`, `channelId`, `instagramUsername`, `lastCode` FROM instagramChecker;', (err, rows) => {
                     if (err) reject(err);
                     else resolve(rows);
                 });
@@ -245,10 +245,10 @@ class DatabaseDriver {
         }
     }
 
-    async updateInstagram(lastLink, instagramUsername, serverId) {
+    async updateInstagram(lastCode, instagramUsername, serverId) {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.run('UPDATE instagramChecker SET `lastLink` = ? WHERE serverId = ? AND instagramUsername = ?;', [lastLink, serverId, instagramUsername], err => {
+                this._db.run('UPDATE instagramChecker SET `lastCode` = ? WHERE serverId = ? AND instagramUsername = ?;', [lastCode, serverId, instagramUsername], err => {
                     if (err) reject(err);
                     else resolve({'lastID': this.lastID, 'changes': this.changes});
                 });

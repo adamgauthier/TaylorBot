@@ -45,20 +45,25 @@ class InstagramInterval extends Interval {
             const channel = guild.channels.get(current.channelId);
             if (!channel) throw new Error(`Channel ID '${current.channelId}' could not be resolved`);
 
-            const options = Object.assign({ 'uri': `${current.instagramUsername}/media` }, rpOptions);
+            const options = Object.assign({ 'uri': `${current.instagramUsername}/?__a=1` }, rpOptions);
             const body = await rp(options);
 
-            if (body.status !== 'ok') 
-                throw new Error(`The returned JSON object status property was not ok (${body.status})`);
-            if (body.items.length <= 0)
-                throw new Error('Items list was empty (user is private or has no posts)');
+            const { user } = body;
 
-            const item = body.items[0];
-            if (item.link !== current.lastLink) {
-                taylorbot.sendEmbed(channel, InstagramInterval.getRichEmbed(item));
-                database.updateInstagram(item.link, current.instagramUsername, current.serverId);                
+            if (user.is_private)
+                throw new Error('User is private');
+
+            const { media } = user;
+
+            if (media.nodes.length <= 0)
+                throw new Error('Media list was empty');
+
+            const item = media.nodes[0];            
+            if (item.code !== current.lastCode) {
+                await taylorbot.sendEmbed(channel, InstagramInterval.getRichEmbed(item, user));
+                database.updateInstagram(item.code, current.instagramUsername, current.serverId);
             }
-        } 
+        }
         catch (e) {
             Log.error(`Checking Instagram Posts for user '${current.instagramUsername}' for guild ${current.serverId}: ${e}.`);
         }
@@ -67,16 +72,15 @@ class InstagramInterval extends Interval {
         }
     }
 
-    static getRichEmbed(item) {
+    static getRichEmbed(item, user) {
         const re = new RichEmbed({
             'description': `\`${item.likes.count}\` likes \u2764, \`${item.comments.count}\` comments \uD83D\uDCAC`,
-            'thumbnail': item.images.thumbnail,
-            'url': item.link,
-            'timestamp': new Date(item.created_time * 1000),
+            'url': `https://www.instagram.com/p/${item.code}/`,
+            'timestamp': new Date(item.date * 1000),
             'author': {
-                'name': (item.user.full_name ? item.user.full_name : item.user.username),
-                'url': instagramBaseURL + item.user.username,
-                'icon_url': item.user.profile_picture
+                'name': (user.full_name ? user.full_name : user.username),
+                'url': instagramBaseURL + user.username,
+                'icon_url': user.profile_pic_url
             },
             'footer': {
                 'text': 'Instagram',
@@ -85,21 +89,11 @@ class InstagramInterval extends Interval {
             'color': 0xbc2a8d
         });
 
-        let title = item.caption ? StringUtil.shrinkString(item.caption.text, 65, ' ...') : '[No Caption]';
+        let title = item.caption ? StringUtil.shrinkString(item.caption, 65, ' ...') : '[No Caption]';
 
         re.setTitle(title);
+        re.setThumbnail(item.thumbnail_src);
         return re;
-    }
-
-    static getText(item) {
-        return stripIndents`
-        **\uD83D\uDCF7 Instagram \uD83D\uDCF7
-        New post by ${item.user.full_name}**:
-        ${item.caption ? item.caption.text : '[No Caption]'}
-        __Posted on:__ ${moment(item.created_time, 'X').format('MMMM Do, YYYY \\at H:mm:ss')} UTC
-        \`${item.likes.count}\` likes \u2665, \`${item.comments.count}\` comments \uD83D\uDCAC
-        __Link to post:__ <${item.link}>
-        __Link to media:__ ${item.images.standard_resolution.url}`;
     }
 }
 
