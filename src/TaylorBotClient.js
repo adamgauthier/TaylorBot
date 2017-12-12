@@ -236,7 +236,6 @@ class TaylorBotClient extends Discord.Client {
             return await currentCallback(msg);
         }
         catch (e) {
-            Log.error(`Sending message error in recipient ${recipient} : ${e}`);
             return Promise.reject(`${e} when trying to send message.`);
         }
     }
