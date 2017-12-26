@@ -7,7 +7,7 @@ const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
 
 const eventLoader = require(GlobalPaths.eventLoader);
 const database = require(GlobalPaths.databaseDriver);
-const Config = require(GlobalPaths.Config);
+const DiscordConfig = require(GlobalPaths.DiscordConfig);
 const Log = require(GlobalPaths.Logger);
 
 const discordMax = 2000;
@@ -22,7 +22,7 @@ class TaylorBotClient extends Discord.Client {
         gSettings.forEach(gs => this.guildSettings.set(gs.id, { 'prefix': gs.prefix }));
         Log.info('Guild settings loaded!');
 
-        const token = await this.login(Config.loginToken);
+        const token = await this.login(DiscordConfig.loginToken);
         Log.info(`Bot logged in successfully! Token: ${token}`);
         return token;
     }

@@ -15,6 +15,7 @@ class GlobalPaths {
         this.Logger = path.join(pathMapper.tools.path, 'Logger');
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
         this.Config = path.join(pathMapper.path, 'auth.json');
+        this.DiscordConfig = path.join(pathMapper.config.path, 'discord.json');
 
         this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
         this.eventLoader = path.join(pathMapper.modules.path, 'EventLoader');
