@@ -6,7 +6,7 @@ const RichEmbed = require('discord.js').RichEmbed;
 const path = require('path');
 const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
 
-const Config = require(GlobalPaths.Config);
+const { googleAPIKey } = require(GlobalPaths.GoogleConfig);
 const Interval = require(GlobalPaths.Interval);
 const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
@@ -18,7 +18,7 @@ const rpOptions = {
     'uri': 'https://www.googleapis.com/youtube/v3/playlistItems',
     'qs': {
         'part': 'snippet',
-        'key': Config.googleAPIKey
+        'key': googleAPIKey
     },
     'json': true,
     'headers': {
@@ -54,7 +54,7 @@ class YoutubeInterval extends Interval {
             const link = `https://youtu.be/${video.resourceId.videoId}`;
             if (link !== current.lastLink) {
                 taylorbot.sendEmbed(channel, YoutubeInterval.getRichEmbed(video));
-                database.updateYoutube(link, current.playlistId, current.guildId);                
+                database.updateYoutube(link, current.playlistId, current.guildId);
             }
         }
         catch (e) {
