@@ -15,6 +15,7 @@ class GlobalPaths {
         this.DiscordConfig = path.join(pathMapper.config.path, 'discord.json');
         this.TumblrConfig = path.join(pathMapper.config.path, 'tumblr.json');
         this.GoogleConfig = path.join(pathMapper.config.path, 'google.json');
+        this.CleverBotConfig = path.join(pathMapper.config.path, 'cleverbot.json');
 
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
