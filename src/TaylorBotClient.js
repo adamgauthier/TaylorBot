@@ -14,6 +14,7 @@ const discordMax = 2000;
 
 class TaylorBotClient extends Discord.Client {
     async start() {
+        await database.load();
         await eventLoader.loadAll(this);
 
         Log.info('Loading guild settings...');

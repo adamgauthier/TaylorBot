@@ -37,15 +37,16 @@ class InstagramInterval extends Interval {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
+        const { guild_id, channel_id, instagram_username, last_post_code } = current;
 
         try {
-            const guild = taylorbot.resolveGuild(current.serverId);
-            if (!guild) throw new Error(`Guild ID '${current.serverId}' could not be resolved`);
+            const guild = taylorbot.resolveGuild(guild_id);
+            if (!guild) throw new Error(`Guild ID '${guild_id}' could not be resolved`);
 
-            const channel = guild.channels.get(current.channelId);
-            if (!channel) throw new Error(`Channel ID '${current.channelId}' could not be resolved`);
+            const channel = guild.channels.get(channel_id);
+            if (!channel) throw new Error(`Channel ID '${channel_id}' could not be resolved`);
 
-            const options = Object.assign({ 'uri': `${current.instagramUsername}/?__a=1` }, rpOptions);
+            const options = Object.assign({ 'uri': `${instagram_username}/?__a=1` }, rpOptions);
             const body = await rp(options);
 
             const { user } = body;
@@ -59,13 +60,13 @@ class InstagramInterval extends Interval {
                 throw new Error('Media list was empty');
 
             const item = media.nodes[0];            
-            if (item.code !== current.lastCode) {
+            if (item.code !== last_post_code) {
                 await taylorbot.sendEmbed(channel, InstagramInterval.getRichEmbed(item, user));
-                database.updateInstagram(item.code, current.instagramUsername, current.serverId);
+                await database.updateInstagram(instagram_username, guild_id, channel_id, item.code);
             }
         }
         catch (e) {
-            Log.error(`Checking Instagram Posts for user '${current.instagramUsername}' for guild ${current.serverId}: ${e}.`);
+            Log.error(`Checking Instagram Posts for user '${instagram_username}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
             this.checkSingleInstagram(iterator);

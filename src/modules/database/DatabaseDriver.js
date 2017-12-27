@@ -1,21 +1,27 @@
 'use strict';
 
 const sqlite3 = require('sqlite3').verbose();
+const massive = require('massive');
 const path = require('path');
 
 const GlobalPaths = require(path.join(__dirname, '..', '..', 'GlobalPaths'));
 
 const Log = require(GlobalPaths.Logger);
+const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 
 class DatabaseDriver {
     constructor() {
-        this._db = new sqlite3.Database(path.join(__dirname, 'database.db'));
+        this._sqlite_db = new sqlite3.Database(path.join(__dirname, 'database.db'));
+    }
+
+    async load() {
+        this._db = await massive(PostgreSQLConfig);
     }
 
     async getAllGuildSettings() {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.all('SELECT * FROM server;', (err, rows) => {
+                this._sqlite_db.all('SELECT * FROM server;', (err, rows) => {
                     if (err) reject(err);
                     else resolve(rows);
                 });
@@ -27,7 +33,7 @@ class DatabaseDriver {
     }
 
     async guildUserExists(member) {
-        const {user: u, guild: g} = member;
+        const { user: u, guild: g } = member;
         try {
             return await this._guildUserExists(u.id, g.id);
         }
@@ -38,7 +44,7 @@ class DatabaseDriver {
 
     _guildUserExists(userId, guildId) {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT `id` FROM userByServer WHERE `id` = ? AND `serverId` = ? LIMIT 1;', [userId, guildId], (err, row) => {
+            this._sqlite_db.get('SELECT `id` FROM userByServer WHERE `id` = ? AND `serverId` = ? LIMIT 1;', [userId, guildId], (err, row) => {
                 if (err) reject(err);
                 else if (!row) resolve(false);
                 else resolve(true);
@@ -57,7 +63,7 @@ class DatabaseDriver {
 
     _userExists(userId) {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT `id` FROM user WHERE `id` = ? LIMIT 1;', userId, (err, row) => {
+            this._sqlite_db.get('SELECT `id` FROM user WHERE `id` = ? LIMIT 1;', userId, (err, row) => {
                 if (err) reject(err);
                 else if (!row) resolve(false);
                 else resolve(true);
@@ -73,7 +79,7 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Adding Global User ${user.username} (${user.id}): ${e}`);
-        }        
+        }
     }
 
     async addNewMember(member) {
@@ -90,18 +96,18 @@ class DatabaseDriver {
 
     _addNewGlobalUser(userId) {
         return new Promise((resolve, reject) => {
-            this._db.run('INSERT INTO user (`id`) VALUES (?);', userId, err => {
+            this._sqlite_db.run('INSERT INTO user (`id`) VALUES (?);', userId, err => {
                 if (err) reject(err);
-                else resolve({'lastID': this.lastID, 'changes': this.changes});
+                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
             });
         });
     }
 
     _addNewUserByGuild(userId, guildId, joinedAt = new Date().getTime()) {
         return new Promise((resolve, reject) => {
-            this._db.run('INSERT INTO userByServer (`id`, `serverId`, `firstJoinedAt`) VALUES (?, ?, ?);', [userId, guildId, joinedAt], err => {
+            this._sqlite_db.run('INSERT INTO userByServer (`id`, `serverId`, `firstJoinedAt`) VALUES (?, ?, ?);', [userId, guildId, joinedAt], err => {
                 if (err) reject(err);
-                else resolve({'lastID': this.lastID, 'changes': this.changes});
+                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
             });
         });
     }
@@ -112,7 +118,7 @@ class DatabaseDriver {
 
             if (lastUsername && lastUsername.username === user.username) {
                 if (!silent)
-                    Log.warn(`New Username is already saved for ${user.username} (${user.id})`); 
+                    Log.warn(`New Username is already saved for ${user.username} (${user.id})`);
             }
             else {
                 const result = await this._addNewUsername(user.id, user.username, since);
@@ -127,7 +133,7 @@ class DatabaseDriver {
 
     _getLastUsername(userId) {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT `username` FROM usernames WHERE `userId` = ? GROUP BY `userId` LIMIT 1;', userId, (err, row) => {
+            this._sqlite_db.get('SELECT `username` FROM usernames WHERE `userId` = ? GROUP BY `userId` LIMIT 1;', userId, (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
             });
@@ -136,21 +142,16 @@ class DatabaseDriver {
 
     _addNewUsername(userId, newUsername, since = new Date().getTime()) {
         return new Promise((resolve, reject) => {
-            this._db.run('INSERT INTO usernames (`userId`, `username`, `since`) VALUES (?, ?, ?);', [userId, newUsername, since], err => {
+            this._sqlite_db.run('INSERT INTO usernames (`userId`, `username`, `since`) VALUES (?, ?, ?);', [userId, newUsername, since], err => {
                 if (err) reject(err);
-                else resolve({'lastID': this.lastID, 'changes': this.changes});
+                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
             });
         });
     }
 
     async getInstagrams() {
         try {
-            return await new Promise((resolve, reject) => {
-                this._db.all('SELECT `serverId`, `channelId`, `instagramUsername`, `lastCode` FROM instagramChecker;', (err, rows) => {
-                    if (err) reject(err);
-                    else resolve(rows);
-                });
-            });
+            return await this._db.instagram_checker.find();
         }
         catch (e) {
             Log.error(`Getting Instagrams: ${e}`);
@@ -161,7 +162,7 @@ class DatabaseDriver {
     async getReddits() {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.all('SELECT `guildId`, `channelId`, `subreddit`, `lastLink`, `lastCreated` FROM redditChecker;', (err, rows) => {
+                this._sqlite_db.all('SELECT `guildId`, `channelId`, `subreddit`, `lastLink`, `lastCreated` FROM redditChecker;', (err, rows) => {
                     if (err) reject(err);
                     else resolve(rows);
                 });
@@ -176,7 +177,7 @@ class DatabaseDriver {
     async getYoutubeChannels() {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.all('SELECT `guildId`, `channelId`, `playlistId`, `lastLink` FROM youtubeChecker;', (err, rows) => {
+                this._sqlite_db.all('SELECT `guildId`, `channelId`, `playlistId`, `lastLink` FROM youtubeChecker;', (err, rows) => {
                     if (err) reject(err);
                     else resolve(rows);
                 });
@@ -191,7 +192,7 @@ class DatabaseDriver {
     async getTumblrs() {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.all('SELECT `guildId`, `channelId`, `tumblrUser`, `lastLink` FROM tumblrChecker;', (err, rows) => {
+                this._sqlite_db.all('SELECT `guildId`, `channelId`, `tumblrUser`, `lastLink` FROM tumblrChecker;', (err, rows) => {
                     if (err) reject(err);
                     else resolve(rows);
                 });
@@ -206,9 +207,9 @@ class DatabaseDriver {
     async updateTumblr(lastLink, tumblrUser, guildId) {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.run('UPDATE tumblrChecker SET `lastLink` = ? WHERE guildId = ? AND tumblrUser = ?;', [lastLink, guildId, tumblrUser], err => {
+                this._sqlite_db.run('UPDATE tumblrChecker SET `lastLink` = ? WHERE guildId = ? AND tumblrUser = ?;', [lastLink, guildId, tumblrUser], err => {
                     if (err) reject(err);
-                    else resolve({'lastID': this.lastID, 'changes': this.changes});
+                    else resolve({ 'lastID': this.lastID, 'changes': this.changes });
                 });
             });
         }
@@ -220,9 +221,9 @@ class DatabaseDriver {
     async updateYoutube(lastLink, playlistId, guildId) {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.run('UPDATE youtubeChecker SET `lastLink` = ? WHERE guildId = ? AND playlistId = ?;', [lastLink, guildId, playlistId], err => {
+                this._sqlite_db.run('UPDATE youtubeChecker SET `lastLink` = ? WHERE guildId = ? AND playlistId = ?;', [lastLink, guildId, playlistId], err => {
                     if (err) reject(err);
-                    else resolve({'lastID': this.lastID, 'changes': this.changes});
+                    else resolve({ 'lastID': this.lastID, 'changes': this.changes });
                 });
             });
         }
@@ -234,9 +235,9 @@ class DatabaseDriver {
     async updateReddit(lastLink, lastCreated, subreddit, guildId) {
         try {
             return await new Promise((resolve, reject) => {
-                this._db.run('UPDATE redditChecker SET `lastLink` = ?, `lastCreated` = ? WHERE guildId = ? AND subreddit = ?;', [lastLink, lastCreated, guildId, subreddit], err => {
+                this._sqlite_db.run('UPDATE redditChecker SET `lastLink` = ?, `lastCreated` = ? WHERE guildId = ? AND subreddit = ?;', [lastLink, lastCreated, guildId, subreddit], err => {
                     if (err) reject(err);
-                    else resolve({'lastID': this.lastID, 'changes': this.changes});
+                    else resolve({ 'lastID': this.lastID, 'changes': this.changes });
                 });
             });
         }
@@ -245,17 +246,21 @@ class DatabaseDriver {
         }
     }
 
-    async updateInstagram(lastCode, instagramUsername, serverId) {
+    async updateInstagram(instagramUsername, guildId, channelId, lastCode) {
         try {
-            return await new Promise((resolve, reject) => {
-                this._db.run('UPDATE instagramChecker SET `lastCode` = ? WHERE serverId = ? AND instagramUsername = ?;', [lastCode, serverId, instagramUsername], err => {
-                    if (err) reject(err);
-                    else resolve({'lastID': this.lastID, 'changes': this.changes});
-                });
-            });
+            return await this._db.instagram_checker.update(
+                {
+                    'instagram_username': instagramUsername,
+                    'guild_id': guildId,
+                    'channel_id': channelId
+                },
+                {
+                    'last_post_code': lastCode
+                }
+            );
         }
         catch (e) {
-            Log.error(`Updating Instagram for guild ${serverId}: ${e}`);
+            Log.error(`Updating Instagram for guild ${guildId}, channel ${channelId}, username ${instagramUsername}: ${e}`);
         }
     }
 
@@ -266,23 +271,23 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating minutes: ${e}`);
-        }    
-    }   
+        }
+    }
 
     _updateMinutes(minutesToAdd, minimumLastSpoke) {
         return new Promise((resolve, reject) => {
-            this._db.run("UPDATE userByServer SET `minutes` = `minutes`+? WHERE `lastSpoke` > ?;", [minutesToAdd, minimumLastSpoke], err => {
+            this._sqlite_db.run("UPDATE userByServer SET `minutes` = `minutes`+? WHERE `lastSpoke` > ?;", [minutesToAdd, minimumLastSpoke], err => {
                 if (err) reject(err);
-                else resolve({'lastID': this.lastID, 'changes': this.changes});
+                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
             });
         });
     }
 
     _updateMinutesMilestone(minutesForReward, pointsToAdd) {
         return new Promise((resolve, reject) => {
-            this._db.run("UPDATE userByServer SET `minutesMilestone` = (`minutes`-(`minutes`%?)), `taypoints`=`taypoints`+? WHERE `minutes` >= `minutesMilestone`+?;", [minutesForReward, pointsToAdd, minutesForReward], err => {
+            this._sqlite_db.run("UPDATE userByServer SET `minutesMilestone` = (`minutes`-(`minutes`%?)), `taypoints`=`taypoints`+? WHERE `minutes` >= `minutesMilestone`+?;", [minutesForReward, pointsToAdd, minutesForReward], err => {
                 if (err) reject(err);
-                else resolve({'lastID': this.lastID, 'changes': this.changes});
+                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
             });
         });
     }
