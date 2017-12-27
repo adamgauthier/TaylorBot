@@ -7,7 +7,7 @@ const { combine, printf, colorize } = format;
 const path = require('path');
 const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
 
-const { minLogLevel } = require(GlobalPaths.Config);
+const { minLogLevel } = require(GlobalPaths.TaylorBotConfig);
 
 const logger = createLogger({
     level: minLogLevel,

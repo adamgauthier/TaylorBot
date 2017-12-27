@@ -11,6 +11,7 @@ class GlobalPaths {
 
         // Config
         this.Config = path.join(pathMapper.path, 'auth.json');
+        this.TaylorBotConfig = path.join(pathMapper.config.path, 'config.json');
         this.DiscordConfig = path.join(pathMapper.config.path, 'discord.json');
         this.TumblrConfig = path.join(pathMapper.config.path, 'tumblr.json');
 
