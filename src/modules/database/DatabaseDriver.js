@@ -161,12 +161,7 @@ class DatabaseDriver {
 
     async getReddits() {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.all('SELECT `guildId`, `channelId`, `subreddit`, `lastLink`, `lastCreated` FROM redditChecker;', (err, rows) => {
-                    if (err) reject(err);
-                    else resolve(rows);
-                });
-            });
+            return await this._db.reddit_checker.find();
         }
         catch (e) {
             Log.error(`Getting Reddits: ${e}`);
@@ -228,21 +223,27 @@ class DatabaseDriver {
             });
         }
         catch (e) {
-            Log.error(`Updating Reddit for guild ${guildId} and playlistId ${playlistId}: ${e}`);
+            Log.error(`Updating Youtube for guild ${guildId} and playlistId ${playlistId}: ${e}`);
         }
     }
 
-    async updateReddit(lastLink, lastCreated, subreddit, guildId) {
+    async updateReddit(subreddit, guildId, channelId, lastLink, lastCreated) {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.run('UPDATE redditChecker SET `lastLink` = ?, `lastCreated` = ? WHERE guildId = ? AND subreddit = ?;', [lastLink, lastCreated, guildId, subreddit], err => {
-                    if (err) reject(err);
-                    else resolve({ 'lastID': this.lastID, 'changes': this.changes });
-                });
-            });
+            return await this._db.reddit_checker.update(
+                {
+                    'subreddit': subreddit,
+                    'guild_id': guildId,
+                    'channel_id': channelId
+                },
+                {
+                    'last_link': lastLink,
+                    'last_created': lastCreated
+                }
+            );
         }
         catch (e) {
             Log.error(`Updating Reddit for guild ${guildId} and subreddit ${subreddit}: ${e}`);
+            return Promise.reject(e);
         }
     }
 
@@ -261,6 +262,7 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating Instagram for guild ${guildId}, channel ${channelId}, username ${instagramUsername}: ${e}`);
+            return Promise.reject(e);
         }
     }
 

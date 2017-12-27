@@ -35,26 +35,27 @@ class RedditInterval extends Interval {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
+        const { guild_id, channel_id, subreddit, last_link, last_created } = current;
 
         try {
-            const guild = taylorbot.resolveGuild(current.guildId);
-            if (!guild) throw new Error(`Guild ID '${current.guildId}' could not be resolved`);
+            const guild = taylorbot.resolveGuild(guild_id);
+            if (!guild) throw new Error(`Guild ID '${guild_id}' could not be resolved`);
 
-            const channel = guild.channels.get(current.channelId);
-            if (!channel) throw new Error(`Channel ID '${current.channelId}' could not be resolved`);
+            const channel = guild.channels.get(channel_id);
+            if (!channel) throw new Error(`Channel ID '${channel_id}' could not be resolved`);
 
-            const options = Object.assign({ 'uri': `${current.subreddit}/new/.json` }, rpOptions);
+            const options = Object.assign({ 'uri': `${subreddit}/new/.json` }, rpOptions);
             const body = await rp(options);
 
             const post = body.data.children[0].data;
             const link = `https://redd.it/${post.id}`;
-            if (link !== current.lastLink && post.created_utc > current.lastCreated) {
-                taylorbot.sendEmbed(channel, RedditInterval.getRichEmbed(post));
-                database.updateReddit(link, post.created_utc, current.subreddit, current.guildId);                
+            if (link !== last_link && post.created_utc > last_created) {
+                await taylorbot.sendEmbed(channel, RedditInterval.getRichEmbed(post));
+                await database.updateReddit(subreddit, guild_id, channel_id, link, post.created_utc);                
             }
         } 
         catch (e) {
-            Log.error(`Checking Reddit Posts for subreddit '${current.subreddit}' for guild ${current.guildId}: ${e}.`);
+            Log.error(`Checking Reddit Posts for subreddit '${subreddit}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
             this.checkSingleReddit(iterator);
