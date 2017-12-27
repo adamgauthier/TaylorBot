@@ -6,11 +6,11 @@ const tumblr = require('tumblr.js');
 const path = require('path');
 const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
 
-const Config = require(GlobalPaths.Config);
+const TumblrConfig = require(GlobalPaths.TumblrConfig);
 const StringUtil = require(GlobalPaths.StringUtil);
 
 const client = tumblr.createClient({
-    credentials: Config.tumblrCredentials,
+    credentials: TumblrConfig.tumblrCredentials,
     returnPromises: true
 });
 
