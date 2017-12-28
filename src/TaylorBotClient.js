@@ -7,7 +7,7 @@ const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
 
 const eventLoader = require(GlobalPaths.eventLoader);
 const database = require(GlobalPaths.databaseDriver);
-const DiscordConfig = require(GlobalPaths.DiscordConfig);
+const { loginToken } = require(GlobalPaths.DiscordConfig);
 const Log = require(GlobalPaths.Logger);
 
 const discordMax = 2000;
@@ -20,12 +20,11 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Loading guild settings...');
         this.guildSettings = new Map();
         const gSettings = await database.getAllGuildSettings();
-        gSettings.forEach(gs => this.guildSettings.set(gs.id, { 'prefix': gs.prefix }));
+        gSettings.forEach(gs => this.guildSettings.set(gs.guild_id, { 'prefix': gs.prefix }));
         Log.info('Guild settings loaded!');
 
-        const token = await this.login(DiscordConfig.loginToken);
+        const token = await this.login(loginToken);
         Log.info(`Bot logged in successfully! Token: ${token}`);
-        return token;
     }
 
     resolveTextBasedChannel(textBasedResolvable) {

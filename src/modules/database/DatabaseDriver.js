@@ -20,15 +20,11 @@ class DatabaseDriver {
 
     async getAllGuildSettings() {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.all('SELECT * FROM server;', (err, rows) => {
-                    if (err) reject(err);
-                    else resolve(rows);
-                });
-            });
+            return await this._db.servers.find();
         }
         catch (e) {
             Log.error(`Getting all guild settings: ${e}`);
+            throw e;
         }
     }
 
