@@ -7,6 +7,7 @@ const path = require('path');
 const GlobalPaths = require(path.join(__dirname, '..', '..', 'GlobalPaths'));
 
 const Log = require(GlobalPaths.Logger);
+const Format = require(GlobalPaths.DiscordFormatter);
 const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 
 class DatabaseDriver {
@@ -34,7 +35,7 @@ class DatabaseDriver {
             return await this._guildUserExists(u.id, g.id);
         }
         catch (e) {
-            Log.error(`Getting UserByServer ${u.username} (${u.id}) for guild ${g.name} (${g.id}) : ${e}`);
+            Log.error(`Getting UserByServer ${Format.formatUser(u)} for guild ${Format.formatGuild(g)} : ${e}`);
         }
     }
 
@@ -53,7 +54,7 @@ class DatabaseDriver {
             return await this._userExists(user.id);
         }
         catch (e) {
-            Log.error(`Checking User ${user.username} (${user.id}): ${e}`);
+            Log.error(`Checking User ${Format.formatUser(user)}: ${e}`);
         }
     }
 
@@ -70,23 +71,24 @@ class DatabaseDriver {
     async addNewUser(user) {
         try {
             await this._addNewGlobalUser(user.id);
-            Log.info(`Sucessfully added Global User ${user.username} (${user.id})`);
+            Log.info(`Sucessfully added Global User ${Format.formatUser(user)}`);
             return await this.addNewUsername(user);
         }
         catch (e) {
-            Log.error(`Adding Global User ${user.username} (${user.id}): ${e}`);
+            Log.error(`Adding Global User ${Format.formatUser(user)}: ${e}`);
         }
     }
 
     async addNewMember(member) {
+        const { user, guild } = member;
         try {
-            await this.addNewUser(member.user);
-            const result = await this._addNewUserByGuild(member.id, member.guild.id, member.joinedAt.getTime());
-            Log.info(`Added New Member ${member.user.username} (${member.id}) in ${member.guild.name} (${member.guild.id})`);
+            await this.addNewUser(user);
+            const result = await this._addNewUserByGuild(user.id, guild.id, member.joinedAt.getTime());
+            Log.info(`Added New Member ${Format.formatUser(user)} in ${Format.formatGuild(guild)}`);
             return result;
         }
         catch (e) {
-            Log.error(`Adding Member ${member.user.username} (${member.id}): ${e}`);
+            Log.error(`Adding Member ${Format.formatUser(user)}: ${e}`);
         }
     }
 
@@ -114,16 +116,16 @@ class DatabaseDriver {
 
             if (lastUsername && lastUsername.username === user.username) {
                 if (!silent)
-                    Log.warn(`New Username is already saved for ${user.username} (${user.id})`);
+                    Log.warn(`New Username is already saved for ${Format.formatUser(user)}`);
             }
             else {
                 const result = await this._addNewUsername(user.id, user.username, since);
-                Log.info(`Added New Username for ${user.username} (${user.id}), old was ${lastUsername.username}`);
+                Log.info(`Added New Username for ${Format.formatUser(user)}, old was ${lastUsername.username}`);
                 return result;
             }
         }
         catch (e) {
-            Log.error(`Adding New Username ${user.username} (${user.id}): ${e}`);
+            Log.error(`Adding New Username ${Format.formatUser(user)}: ${e}`);
         }
     }
 

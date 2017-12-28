@@ -25,6 +25,7 @@ class GlobalPaths {
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
         this.TimeUtil = path.join(pathMapper.modules.path, 'TimeUtil');
+        this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
         this.Logger = path.join(pathMapper.tools.path, 'Logger');
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
 

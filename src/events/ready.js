@@ -5,6 +5,7 @@ const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
 
 const EventHandler = require(GlobalPaths.EventHandler);
 const Log = require(GlobalPaths.Logger);
+const Format = require(GlobalPaths.DiscordFormatter);
 const intervalRunner = require(GlobalPaths.intervalRunner);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const database = require(GlobalPaths.databaseDriver);
@@ -33,7 +34,7 @@ class Ready extends EventHandler {
                 const { user: u, guild: g } = m;
                 const guildUserExists = await database.guildUserExists(m);
                 if (guildUserExists === false) {
-                    Log.info(`${u.username} (${u.id}) for guild ${g.name} (${g.id}) did not exist, adding.`);
+                    Log.info(`${Format.formatUser(u)} for guild ${Format.formatGuild(g)} did not exist, adding.`);
                     return await database.addNewMember(m);
                 }
             }));
@@ -45,7 +46,7 @@ class Ready extends EventHandler {
         return Promise.all(taylorbot.users.map(async user => {
             const userExists = await database.userExists(user);
             if (userExists === false) {
-                Log.info(`${user.username} (${user.id}) did not exists, adding.`);
+                Log.info(`${Format.formatUser(u)} did not exists, adding.`);
                 await database.addNewUser(user);
             }
             return await database.addNewUsername(user, initTime, true);
