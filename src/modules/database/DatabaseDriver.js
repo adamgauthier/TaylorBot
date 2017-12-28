@@ -171,12 +171,7 @@ class DatabaseDriver {
 
     async getYoutubeChannels() {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.all('SELECT `guildId`, `channelId`, `playlistId`, `lastLink` FROM youtubeChecker;', (err, rows) => {
-                    if (err) reject(err);
-                    else resolve(rows);
-                });
-            });
+            return await this._db.youtube_checker.find();
         }
         catch (e) {
             Log.error(`Getting Youtube Channels: ${e}`);
@@ -213,17 +208,21 @@ class DatabaseDriver {
         }
     }
 
-    async updateYoutube(lastLink, playlistId, guildId) {
+    async updateYoutube(playlistId, guildId, channelId, lastLink) {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.run('UPDATE youtubeChecker SET `lastLink` = ? WHERE guildId = ? AND playlistId = ?;', [lastLink, guildId, playlistId], err => {
-                    if (err) reject(err);
-                    else resolve({ 'lastID': this.lastID, 'changes': this.changes });
-                });
-            });
+            return await this._db.youtube_checker.update(
+                {
+                    'playlist_id': playlistId,
+                    'guild_id': guildId,
+                    'channel_id': channelId
+                },
+                {
+                    'last_link': lastLink
+                }
+            );
         }
         catch (e) {
-            Log.error(`Updating Youtube for guild ${guildId} and playlistId ${playlistId}: ${e}`);
+            Log.error(`Updating Youtube for guild ${guildId}, channel ${channelId}, playlistId ${playlistId}: ${e}`);
             throw e;
         }
     }

@@ -39,26 +39,27 @@ class YoutubeInterval extends Interval {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
+        const { guild_id, channel_id, playlist_id, last_link } = current;
 
         try {
-            const guild = taylorbot.resolveGuild(current.guildId);
-            if (!guild) throw new Error(`Guild ID '${current.guildId}' could not be resolved`);
+            const guild = taylorbot.resolveGuild(guild_id);
+            if (!guild) throw new Error(`Guild ID '${guild_id}' could not be resolved`);
 
-            const channel = guild.channels.get(current.channelId);
-            if (!channel) throw new Error(`Channel ID '${current.channelId}' could not be resolved`);
+            const channel = guild.channels.get(channel_id);
+            if (!channel) throw new Error(`Channel ID '${channel_id}' could not be resolved`);
 
-            rpOptions.qs.playlistId = current.playlistId;
+            rpOptions.qs.playlistId = playlist_id;
             const body = await rp(rpOptions);
 
             const video = body.items[0].snippet;
             const link = `https://youtu.be/${video.resourceId.videoId}`;
-            if (link !== current.lastLink) {
-                taylorbot.sendEmbed(channel, YoutubeInterval.getRichEmbed(video));
-                database.updateYoutube(link, current.playlistId, current.guildId);
+            if (link !== last_link) {
+                await taylorbot.sendEmbed(channel, YoutubeInterval.getRichEmbed(video));
+                await database.updateYoutube(playlist_id, guild_id, channel_id, link);
             }
         }
         catch (e) {
-            Log.error(`Checking Youtube Videos for playlistId '${current.playlistId}' for guild ${current.guildId}: ${e}.`);
+            Log.error(`Checking Youtube Videos for playlistId '${playlist_id}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
             this.checkSingleYoutube(iterator);
