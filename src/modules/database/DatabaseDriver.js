@@ -186,12 +186,7 @@ class DatabaseDriver {
 
     async getTumblrs() {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.all('SELECT `guildId`, `channelId`, `tumblrUser`, `lastLink` FROM tumblrChecker;', (err, rows) => {
-                    if (err) reject(err);
-                    else resolve(rows);
-                });
-            });
+            return await this._db.tumblr_checker.find();
         }
         catch (e) {
             Log.error(`Getting Tumblrs: ${e}`);
@@ -199,17 +194,22 @@ class DatabaseDriver {
         }
     }
 
-    async updateTumblr(lastLink, tumblrUser, guildId) {
+    async updateTumblr(tumblrUser, guildId, channelId, lastLink) {
         try {
-            return await new Promise((resolve, reject) => {
-                this._sqlite_db.run('UPDATE tumblrChecker SET `lastLink` = ? WHERE guildId = ? AND tumblrUser = ?;', [lastLink, guildId, tumblrUser], err => {
-                    if (err) reject(err);
-                    else resolve({ 'lastID': this.lastID, 'changes': this.changes });
-                });
-            });
+            return await this._db.tumblr_checker.update(
+                {
+                    'tumblr_user': tumblrUser,
+                    'guild_id': guildId,
+                    'channel_id': channelId
+                },
+                {
+                    'last_link': lastLink
+                }
+            );
         }
         catch (e) {
-            Log.error(`Updating Tumblr for guild ${guildId} and user ${tumblrUser}: ${e}`);
+            Log.error(`Updating Tumblr for guild ${guildId}, channel ${channelId}, user ${tumblrUser}: ${e}`);
+            throw e;
         }
     }
 
@@ -224,6 +224,7 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating Youtube for guild ${guildId} and playlistId ${playlistId}: ${e}`);
+            throw e;
         }
     }
 
@@ -242,8 +243,8 @@ class DatabaseDriver {
             );
         }
         catch (e) {
-            Log.error(`Updating Reddit for guild ${guildId} and subreddit ${subreddit}: ${e}`);
-            return Promise.reject(e);
+            Log.error(`Updating Reddit for guild ${guildId}, channel ${channelId}, subreddit ${subreddit}: ${e}`);
+            throw e;
         }
     }
 
@@ -262,7 +263,7 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating Instagram for guild ${guildId}, channel ${channelId}, username ${instagramUsername}: ${e}`);
-            return Promise.reject(e);
+            throw e;
         }
     }
 
@@ -273,6 +274,7 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating minutes: ${e}`);
+            throw e;
         }
     }
 
