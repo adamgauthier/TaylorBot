@@ -54,6 +54,7 @@ class YoutubeInterval extends Interval {
             const video = body.items[0].snippet;
             const link = `https://youtu.be/${video.resourceId.videoId}`;
             if (link !== last_link) {
+                Log.info(`Detected new Youtube Video for playlistId '${playlist_id}', guild ${guild_id}, channel ${channel_id}: ${link}.`);
                 await taylorbot.sendEmbed(channel, YoutubeInterval.getRichEmbed(video));
                 await database.updateYoutube(playlist_id, guild_id, channel_id, link);
             }

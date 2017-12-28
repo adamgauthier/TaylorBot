@@ -61,6 +61,7 @@ class InstagramInterval extends Interval {
 
             const item = media.nodes[0];            
             if (item.code !== last_post_code) {
+                Log.info(`Detected new Instagram Post for user '${instagram_username}', guild ${guild_id}, channel ${channel_id}: ${item.code}.`);
                 await taylorbot.sendEmbed(channel, InstagramInterval.getRichEmbed(item, user));
                 await database.updateInstagram(instagram_username, guild_id, channel_id, item.code);
             }

@@ -39,6 +39,7 @@ class TumblrInterval extends Interval {
             const { post, blog } = result;
 
             if (post.short_url !== last_link) {
+                Log.info(`Detected new Tumblr Post for user '${tumblr_user}', guild ${guild_id}, channel ${channel_id}: ${post.short_url}.`);
                 await taylorbot.sendEmbed(channel, TumblrModule.getEmbed(post, blog));
                 await database.updateTumblr(tumblr_user, guild_id, channel_id, post.short_url);
             }
