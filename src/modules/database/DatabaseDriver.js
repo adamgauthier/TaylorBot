@@ -19,12 +19,32 @@ class DatabaseDriver {
         this._db = await massive(PostgreSQLConfig);
     }
 
-    async getAllGuildSettings() {
+    async getAllGuilds() {
         try {
-            return await this._db.servers.find();
+            return await this._db.guilds.find();
         }
         catch (e) {
-            Log.error(`Getting all guild settings: ${e}`);
+            Log.error(`Getting all guilds: ${e}`);
+            throw e;
+        }
+    }
+
+    async updateGuild(databaseGuild) {
+        try {
+            return await this._db.guilds.update(databaseGuild);
+        }
+        catch (e) {
+            Log.error(`Updating guild ${JSON.stringify(databaseGuild)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async addGuild(databaseGuild) {
+        try {
+            return await this._db.guilds.insert(databaseGuild);
+        }
+        catch (e) {
+            Log.error(`Adding guild ${JSON.stringify(databaseGuild)}: ${e}`);
             throw e;
         }
     }

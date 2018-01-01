@@ -10,7 +10,6 @@ class GlobalPaths {
         this.pathMapper = pathMapper;
 
         // Config
-        this.Config = path.join(pathMapper.path, 'auth.json');
         this.TaylorBotConfig = path.join(pathMapper.config.path, 'config.json');
         this.DiscordConfig = path.join(pathMapper.config.path, 'discord.json');
         this.TumblrConfig = path.join(pathMapper.config.path, 'tumblr.json');
@@ -28,6 +27,7 @@ class GlobalPaths {
         this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
         this.Logger = path.join(pathMapper.tools.path, 'Logger');
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
+        this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
 
         this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
         this.eventLoader = path.join(pathMapper.modules.path, 'EventLoader');

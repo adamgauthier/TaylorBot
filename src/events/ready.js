@@ -18,6 +18,10 @@ class Ready extends EventHandler {
             intervalRunner.startAll();
             Log.info('Intervals started!');
 
+            Log.info('Checking new guilds...');
+            await this._checkNewGuilds();
+            Log.info('New guilds checked!');
+
             Log.info('Checking new users...');
             await this._checkNewUsers();
             Log.info('New users checked!');
@@ -26,6 +30,17 @@ class Ready extends EventHandler {
             await this._checkNewMembers();
             Log.info('New members checked!');
         });
+    }
+
+    _checkNewGuilds() {
+        return Promise.all(
+            taylorbot.guilds.map(guild => {
+                if (!taylorbot.guildSettings.has(guild.id)) {
+                    Log.warn(`Found new guild ${Format.formatGuild(guild)}.`);
+                    return taylorbot.guildSettings.addGuild(guild);
+                }
+            })
+        );
     }
 
     _checkNewMembers() {
