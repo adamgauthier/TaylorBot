@@ -27,16 +27,16 @@ class UserSettings extends Map {
     }
 
     async addUser(user) {
-        Log.verbose(`Adding user ${Format.formatUser(user)}.`);
+        Log.verbose(`Adding user ${Format.user(user)}.`);
 
         let databaseUser = await this.database.getUser(user);
         if (!databaseUser) {
             databaseUser = await this.database.addUser(user);
-            Log.verbose(`Added user ${Format.formatUser(user)} to database.`);
+            Log.verbose(`Added user ${Format.user(user)} to database.`);
         }
 
         if (this.has(databaseUser.user_id)) {
-            Log.warn(`Adding user ${Format.formatUser(user)}, already cached, overwriting with database user.`);
+            Log.warn(`Adding user ${Format.user(user)}, already cached, overwriting with database user.`);
         }
 
         this.cacheUser(databaseUser);

@@ -8,6 +8,7 @@ const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const TumblrModule = require(GlobalPaths.TumblrModule);
 const Log = require(GlobalPaths.Logger);
+const Format = require(GlobalPaths.DiscordFormatter);
 
 const intervalTime = 60000;
 
@@ -39,7 +40,7 @@ class TumblrInterval extends Interval {
             const { post, blog } = result;
 
             if (post.short_url !== last_link) {
-                Log.info(`Detected new Tumblr Post for user '${tumblr_user}', guild ${guild_id}, channel ${channel_id}: ${post.short_url}.`);
+                Log.info(`New Tumblr Post for user '${tumblr_user}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.short_url}.`);
                 await taylorbot.sendEmbed(channel, TumblrModule.getEmbed(post, blog));
                 await database.updateTumblr(tumblr_user, guild_id, channel_id, post.short_url);
             }

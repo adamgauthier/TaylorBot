@@ -36,7 +36,7 @@ class Ready extends EventHandler {
         return Promise.all(
             taylorbot.guilds.map(async guild => {
                 if (!taylorbot.guildSettings.has(guild.id)) {
-                    Log.warn(`Found new guild ${Format.formatGuild(guild)}.`);
+                    Log.warn(`Found new guild ${Format.guild(guild)}.`);
                     await taylorbot.guildSettings.addGuild(guild);
                 }
             })
@@ -51,14 +51,14 @@ class Ready extends EventHandler {
             for (const member of members.values()) {
                 if (!taylorbot.userSettings.has(member.id)) {
                     const { user } = member;
-                    Log.warn(`Found new user ${Format.formatUser(user)} in guild ${Format.formatGuild(guild)}.`);
+                    Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
                     await taylorbot.userSettings.addUser(user);
                 }
 
                 if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
-                    Log.warn(`Found new member ${Format.formatMember(member)}.`);
+                    Log.warn(`Found new member ${Format.member(member)}.`);
                     await database.addGuildMember(member);
-                    Log.verbose(`Added new member ${Format.formatMember(member)}.`);
+                    Log.verbose(`Added new member ${Format.member(member)}.`);
                 }
             }
         }
@@ -69,7 +69,7 @@ class Ready extends EventHandler {
         return Promise.all(taylorbot.users.map(async user => {
             const userExists = await database.userExists(user);
             if (userExists === false) {
-                Log.info(`${Format.formatUser(u)} did not exists, adding.`);
+                Log.info(`${Format.user(u)} did not exists, adding.`);
                 await database.addNewUser(user);
             }
             return await database.addNewUsername(user, initTime, true);

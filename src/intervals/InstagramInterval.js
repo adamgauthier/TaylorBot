@@ -13,6 +13,7 @@ const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const StringUtil = require(GlobalPaths.StringUtil);
 const Log = require(GlobalPaths.Logger);
+const Format = require(GlobalPaths.DiscordFormatter);
 
 const intervalTime = 60000;
 const instagramBaseURL = 'https://www.instagram.com/';
@@ -61,7 +62,7 @@ class InstagramInterval extends Interval {
 
             const item = media.nodes[0];            
             if (item.code !== last_post_code) {
-                Log.info(`Detected new Instagram Post for user '${instagram_username}', guild ${guild_id}, channel ${channel_id}: ${item.code}.`);
+                Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.code}.`);
                 await taylorbot.sendEmbed(channel, InstagramInterval.getRichEmbed(item, user));
                 await database.updateInstagram(instagram_username, guild_id, channel_id, item.code);
             }

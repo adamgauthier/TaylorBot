@@ -41,7 +41,7 @@ class DatabaseDriver {
             return await this._db.guilds.findOne(databaseGuild);
         }
         catch (e) {
-            Log.error(`Getting guild ${Format.formatGuild(guild)}: ${e}`);
+            Log.error(`Getting guild ${Format.guild(guild)}: ${e}`);
             throw e;
         }
     }
@@ -52,7 +52,7 @@ class DatabaseDriver {
             return await this._db.guilds.insert(databaseGuild);
         }
         catch (e) {
-            Log.error(`Adding guild ${Format.formatGuild(guild)}: ${e}`);
+            Log.error(`Adding guild ${Format.guild(guild)}: ${e}`);
             throw e;
         }
     }
@@ -81,7 +81,7 @@ class DatabaseDriver {
             return await this._db.users.findOne(databaseUser);
         }
         catch (e) {
-            Log.error(`Getting user ${Format.formatUser(user)}: ${e}`);
+            Log.error(`Getting user ${Format.user(user)}: ${e}`);
             throw e;
         }
     }
@@ -92,7 +92,7 @@ class DatabaseDriver {
             return await this._db.users.insert(databaseUser);
         }
         catch (e) {
-            Log.error(`Adding user ${Format.formatUser(user)}: ${e}`);
+            Log.error(`Adding user ${Format.user(user)}: ${e}`);
             throw e;
         }
     }
@@ -123,7 +123,7 @@ class DatabaseDriver {
             return await this._db.guild_members.insert(databaseMember);
         }
         catch (e) {
-            Log.error(`Adding member ${Format.formatMember(guildMember)}: ${e}`);
+            Log.error(`Adding member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
@@ -134,7 +134,7 @@ class DatabaseDriver {
             return await this._guildUserExists(u.id, g.id);
         }
         catch (e) {
-            Log.error(`Getting UserByServer ${Format.formatUser(u)} for guild ${Format.formatGuild(g)} : ${e}`);
+            Log.error(`Getting UserByServer ${Format.user(u)} for guild ${Format.guild(g)} : ${e}`);
         }
     }
 
@@ -153,7 +153,7 @@ class DatabaseDriver {
             return await this._userExists(user.id);
         }
         catch (e) {
-            Log.error(`Checking User ${Format.formatUser(user)}: ${e}`);
+            Log.error(`Checking User ${Format.user(user)}: ${e}`);
         }
     }
 
@@ -170,11 +170,11 @@ class DatabaseDriver {
     async addNewUser(user) {
         try {
             await this._addNewGlobalUser(user.id);
-            Log.info(`Sucessfully added Global User ${Format.formatUser(user)}`);
+            Log.info(`Sucessfully added Global User ${Format.user(user)}`);
             return await this.addNewUsername(user);
         }
         catch (e) {
-            Log.error(`Adding Global User ${Format.formatUser(user)}: ${e}`);
+            Log.error(`Adding Global User ${Format.user(user)}: ${e}`);
         }
     }
 
@@ -183,11 +183,11 @@ class DatabaseDriver {
         try {
             await this.addNewUser(user);
             const result = await this._addNewUserByGuild(user.id, guild.id, member.joinedAt.getTime());
-            Log.info(`Added New Member ${Format.formatUser(user)} in ${Format.formatGuild(guild)}`);
+            Log.info(`Added New Member ${Format.user(user)} in ${Format.guild(guild)}`);
             return result;
         }
         catch (e) {
-            Log.error(`Adding Member ${Format.formatUser(user)}: ${e}`);
+            Log.error(`Adding Member ${Format.user(user)}: ${e}`);
         }
     }
 
@@ -215,16 +215,16 @@ class DatabaseDriver {
 
             if (lastUsername && lastUsername.username === user.username) {
                 if (!silent)
-                    Log.warn(`New Username is already saved for ${Format.formatUser(user)}`);
+                    Log.warn(`New Username is already saved for ${Format.user(user)}`);
             }
             else {
                 const result = await this._addNewUsername(user.id, user.username, since);
-                Log.info(`Added New Username for ${Format.formatUser(user)}, old was ${lastUsername.username}`);
+                Log.info(`Added New Username for ${Format.user(user)}, old was ${lastUsername.username}`);
                 return result;
             }
         }
         catch (e) {
-            Log.error(`Adding New Username ${Format.formatUser(user)}: ${e}`);
+            Log.error(`Adding New Username ${Format.user(user)}: ${e}`);
         }
     }
 

@@ -12,6 +12,7 @@ const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const StringUtil = require(GlobalPaths.StringUtil);
 const Log = require(GlobalPaths.Logger);
+const Format = require(GlobalPaths.DiscordFormatter);
 
 const intervalTime = 60000;
 const rpOptions = {
@@ -54,7 +55,7 @@ class YoutubeInterval extends Interval {
             const video = body.items[0].snippet;
             const link = `https://youtu.be/${video.resourceId.videoId}`;
             if (link !== last_link) {
-                Log.info(`Detected new Youtube Video for playlistId '${playlist_id}', guild ${guild_id}, channel ${channel_id}: ${link}.`);
+                Log.info(`New Youtube Video for playlistId '${playlist_id}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${link}.`);
                 await taylorbot.sendEmbed(channel, YoutubeInterval.getRichEmbed(video));
                 await database.updateYoutube(playlist_id, guild_id, channel_id, link);
             }

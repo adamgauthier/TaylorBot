@@ -25,16 +25,16 @@ class GuildSettings extends Map {
     }
 
     async addGuild(guild) {
-        Log.verbose(`Adding guild ${Format.formatGuild(guild)}.`);
+        Log.verbose(`Adding guild ${Format.guild(guild)}.`);
 
         let databaseGuild = await this.database.getGuild(guild);
         if (!databaseGuild) {
             databaseGuild = await this.database.addGuild(guild);
-            Log.verbose(`Added guild ${Format.formatGuild(guild)} to database.`);
+            Log.verbose(`Added guild ${Format.guild(guild)} to database.`);
         }
 
         if (this.has(databaseGuild.guild_id)) {
-            Log.warn(`Adding guild ${Format.formatGuild(guild)}, already cached, overwriting with database guild.`);
+            Log.warn(`Adding guild ${Format.guild(guild)}, already cached, overwriting with database guild.`);
         }
 
         this.cacheGuild(databaseGuild);

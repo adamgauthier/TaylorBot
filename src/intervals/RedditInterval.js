@@ -11,6 +11,7 @@ const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const StringUtil = require(GlobalPaths.StringUtil);
 const Log = require(GlobalPaths.Logger);
+const Format = require(GlobalPaths.DiscordFormatter);
 
 const intervalTime = 60000;
 const redditBaseURL = 'https://www.reddit.com/r/';
@@ -50,7 +51,7 @@ class RedditInterval extends Interval {
             const post = body.data.children[0].data;
             const link = `https://redd.it/${post.id}`;
             if (link !== last_link && post.created_utc > last_created) {
-                Log.info(`Detected new Reddit Post for subreddit '${subreddit}', guild ${guild_id}, channel ${channel_id}: ${link}.`);
+                Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${link}.`);
                 await taylorbot.sendEmbed(channel, RedditInterval.getRichEmbed(post));
                 await database.updateReddit(subreddit, guild_id, channel_id, link, post.created_utc);                
             }
