@@ -28,6 +28,7 @@ class GlobalPaths {
         this.Logger = path.join(pathMapper.tools.path, 'Logger');
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
         this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
+        this.UserSettings = path.join(pathMapper.modules.path, 'UserSettings');
 
         this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
         this.eventLoader = path.join(pathMapper.modules.path, 'EventLoader');

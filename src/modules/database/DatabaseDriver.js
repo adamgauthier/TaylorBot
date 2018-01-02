@@ -29,22 +29,101 @@ class DatabaseDriver {
         }
     }
 
-    async updateGuild(databaseGuild) {
+    mapGuildToDatabase(guild) {
+        return {
+            'guild_id': guild.id
+        };
+    }
+
+    async getGuild(guild) {
+        const databaseGuild = this.mapGuildToDatabase(guild);
         try {
-            return await this._db.guilds.update(databaseGuild);
+            return await this._db.guilds.findOne(databaseGuild);
         }
         catch (e) {
-            Log.error(`Updating guild ${JSON.stringify(databaseGuild)}: ${e}`);
+            Log.error(`Getting guild ${Format.formatGuild(guild)}: ${e}`);
             throw e;
         }
     }
 
-    async addGuild(databaseGuild) {
+    async addGuild(guild) {
+        const databaseGuild = this.mapGuildToDatabase(guild);
         try {
             return await this._db.guilds.insert(databaseGuild);
         }
         catch (e) {
-            Log.error(`Adding guild ${JSON.stringify(databaseGuild)}: ${e}`);
+            Log.error(`Adding guild ${Format.formatGuild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAllUsers() {
+        try {
+            return await this._db.users.find({}, {
+                fields: ['user_id', 'last_command', 'last_answered', 'ignore_until']
+            });
+        }
+        catch (e) {
+            Log.error(`Getting all users: ${e}`);
+            throw e;
+        }
+    }
+
+    mapUserToDatabase(user) {
+        return {
+            'user_id': user.id
+        };
+    }
+
+    async getUser(user) {
+        const databaseUser = this.mapUserToDatabase(user);
+        try {
+            return await this._db.users.findOne(databaseUser);
+        }
+        catch (e) {
+            Log.error(`Getting user ${Format.formatUser(user)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async addUser(user) {
+        const databaseUser = this.mapUserToDatabase(user);
+        try {
+            return await this._db.users.insert(databaseUser);
+        }
+        catch (e) {
+            Log.error(`Adding user ${Format.formatUser(user)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAllGuildMembers() {
+        try {
+            return await this._db.guild_members.find({}, {
+                fields: ['user_id', 'guild_id']
+            });
+        }
+        catch (e) {
+            Log.error(`Getting all guild members: ${e}`);
+            throw e;
+        }
+    }
+
+    mapMemberToDatabase(guildMember) {
+        return {
+            'guild_id': guildMember.guild.id,
+            'user_id': guildMember.id,
+            'first_joined_at': guildMember.joinedTimestamp
+        }
+    }
+
+    async addGuildMember(guildMember) {
+        const databaseMember = this.mapMemberToDatabase(guildMember);
+        try {
+            return await this._db.guild_members.insert(databaseMember);
+        }
+        catch (e) {
+            Log.error(`Adding member ${Format.formatMember(guildMember)}: ${e}`);
             throw e;
         }
     }

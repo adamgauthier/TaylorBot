@@ -11,6 +11,7 @@ const { loginToken } = require(GlobalPaths.DiscordConfig);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const GuildSettings = require(GlobalPaths.GuildSettings);
+const UserSettings = require(GlobalPaths.UserSettings);
 
 const discordMax = 2000;
 
@@ -23,6 +24,11 @@ class TaylorBotClient extends Discord.Client {
         this.guildSettings = new GuildSettings(database);
         await this.guildSettings.load();
         Log.info('Guild settings loaded!');
+
+        Log.info('Loading user settings...');
+        this.userSettings = new UserSettings(database);
+        await this.userSettings.load();
+        Log.info('User settings loaded!');
 
         await this.login(loginToken);
     }
@@ -247,4 +253,7 @@ class TaylorBotClient extends Discord.Client {
     }
 }
 
-module.exports = new TaylorBotClient({ 'fetchAllMembers': true });
+module.exports = new TaylorBotClient({
+     'fetchAllMembers': true,
+     'disabledEvents': [ 'TYPING_START' ]
+});

@@ -24,27 +24,20 @@ class GuildSettings extends Map {
         });
     }
 
-    mapGuildToDatabase(guild) {
-        return {
-            'guild_id': guild.id
-        };
-    }
-
     async addGuild(guild) {
         Log.verbose(`Adding guild ${Format.formatGuild(guild)}.`);
-        const databaseGuild = this.mapGuildToDatabase(guild);
 
-        let savedGuild = await this.database.updateGuild(databaseGuild);
-        if (!savedGuild) {
-            Log.verbose(`Adding guild ${Format.formatGuild(guild)}, not in database, attempting to insert.`);
-            savedGuild = await this.database.addGuild(databaseGuild);
-        }            
+        let databaseGuild = await this.database.getGuild(guild);
+        if (!databaseGuild) {
+            databaseGuild = await this.database.addGuild(guild);
+            Log.verbose(`Added guild ${Format.formatGuild(guild)} to database.`);
+        }
 
-        if (this.has(savedGuild.guild_id)) {
+        if (this.has(databaseGuild.guild_id)) {
             Log.warn(`Adding guild ${Format.formatGuild(guild)}, already cached, overwriting with database guild.`);
         }
 
-        this.cacheGuild(savedGuild);
+        this.cacheGuild(databaseGuild);
     }
 }
 

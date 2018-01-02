@@ -19,41 +19,49 @@ class Ready extends EventHandler {
             Log.info('Intervals started!');
 
             Log.info('Checking new guilds...');
-            await this._checkNewGuilds();
+            await this.checkNewGuilds();
             Log.info('New guilds checked!');
 
             Log.info('Checking new users...');
-            await this._checkNewUsers();
+            await this.checkNewUsers();
             Log.info('New users checked!');
 
-            Log.info('Checking new members...');
-            await this._checkNewMembers();
-            Log.info('New members checked!');
+            // Log.info('Checking new users...');
+            // await this._checkNewUsers();
+            // Log.info('New users checked!');
         });
     }
 
-    _checkNewGuilds() {
+    checkNewGuilds() {
         return Promise.all(
-            taylorbot.guilds.map(guild => {
+            taylorbot.guilds.map(async guild => {
                 if (!taylorbot.guildSettings.has(guild.id)) {
                     Log.warn(`Found new guild ${Format.formatGuild(guild)}.`);
-                    return taylorbot.guildSettings.addGuild(guild);
+                    await taylorbot.guildSettings.addGuild(guild);
                 }
             })
         );
     }
 
-    _checkNewMembers() {
-        return Promise.all(taylorbot.guilds.map(guild => {
-            return Promise.all(guild.members.map(async m => {
-                const { user: u, guild: g } = m;
-                const guildUserExists = await database.guildUserExists(m);
-                if (guildUserExists === false) {
-                    Log.info(`${Format.formatUser(u)} for guild ${Format.formatGuild(g)} did not exist, adding.`);
-                    return await database.addNewMember(m);
+    async checkNewUsers() {
+        const guildMembers = await database.getAllGuildMembers();
+
+        for (const guild of taylorbot.guilds.values()) {
+            const { members } = await guild.fetchMembers();
+            for (const member of members.values()) {
+                if (!taylorbot.userSettings.has(member.id)) {
+                    const { user } = member;
+                    Log.warn(`Found new user ${Format.formatUser(user)} in guild ${Format.formatGuild(guild)}.`);
+                    await taylorbot.userSettings.addUser(user);
                 }
-            }));
-        }));
+
+                if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
+                    Log.warn(`Found new member ${Format.formatMember(member)}.`);
+                    await database.addGuildMember(member);
+                    Log.verbose(`Added new member ${Format.formatMember(member)}.`);
+                }
+            }
+        }
     }
 
     _checkNewUsers() {
