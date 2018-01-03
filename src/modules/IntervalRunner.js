@@ -77,4 +77,4 @@ class IntervalRunner {
     }
 }
 
-module.exports = new IntervalRunner();
+module.exports = IntervalRunner;

@@ -6,7 +6,6 @@ const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
 const EventHandler = require(GlobalPaths.EventHandler);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const intervalRunner = require(GlobalPaths.intervalRunner);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const database = require(GlobalPaths.databaseDriver);
 
@@ -15,7 +14,7 @@ class Ready extends EventHandler {
         super(async () => {
             Log.info('Client is ready!');
 
-            intervalRunner.startAll();
+            taylorbot.intervalRunner.startAll();
             Log.info('Intervals started!');
 
             Log.info('Checking new guilds, users and usernames...');

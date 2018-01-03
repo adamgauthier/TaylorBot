@@ -29,8 +29,8 @@ class GlobalPaths {
         this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
         this.UserSettings = path.join(pathMapper.modules.path, 'UserSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
+        this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
 
-        this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');        
         this.taylorBotClient = path.join(pathMapper.path, 'TaylorBotClient');
         this.databaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
 

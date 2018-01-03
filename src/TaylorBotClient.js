@@ -12,12 +12,18 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const GuildSettings = require(GlobalPaths.GuildSettings);
 const UserSettings = require(GlobalPaths.UserSettings);
+const IntervalRunner = require(GlobalPaths.IntervalRunner);
 
 const discordMax = 2000;
 
 class TaylorBotClient extends Discord.Client {
     async start() {
         await database.load();
+
+        Log.info('Loading intervals...');
+        this.intervalRunner = new IntervalRunner();
+        Log.info('Intervals loaded!');
+        
 
         Log.info('Loading events...');
         this.eventLoader = new EventLoader();
