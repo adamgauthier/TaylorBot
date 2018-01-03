@@ -5,7 +5,7 @@ const path = require('path');
 
 const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
 
-const eventLoader = require(GlobalPaths.eventLoader);
+const EventLoader = require(GlobalPaths.EventLoader);
 const database = require(GlobalPaths.databaseDriver);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
 const Log = require(GlobalPaths.Logger);
@@ -18,7 +18,11 @@ const discordMax = 2000;
 class TaylorBotClient extends Discord.Client {
     async start() {
         await database.load();
-        await eventLoader.loadAll(this);
+
+        Log.info('Loading events...');
+        this.eventLoader = new EventLoader();
+        await this.eventLoader.loadAll(this);
+        Log.info('Events loaded!');
 
         Log.info('Loading guild settings...');
         this.guildSettings = new GuildSettings(database);

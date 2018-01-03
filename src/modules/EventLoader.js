@@ -24,10 +24,10 @@ class EventLoader {
                         }
                     });
                     resolve();
-                }                
+                }
             });
         });
     }
 }
 
-module.exports = new EventLoader();
+module.exports = EventLoader;

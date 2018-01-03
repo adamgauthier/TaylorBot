@@ -29,9 +29,9 @@ class GlobalPaths {
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
         this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
         this.UserSettings = path.join(pathMapper.modules.path, 'UserSettings');
+        this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
 
-        this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
-        this.eventLoader = path.join(pathMapper.modules.path, 'EventLoader');
+        this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');        
         this.taylorBotClient = path.join(pathMapper.path, 'TaylorBotClient');
         this.databaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
     }
