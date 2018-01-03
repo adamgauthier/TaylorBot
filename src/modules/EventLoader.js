@@ -5,7 +5,7 @@ const path = require('path');
 
 const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
 
-const eventsPath = GlobalPaths.pathMapper.events.path;
+const eventsPath = GlobalPaths.eventsFolderPath;
 
 const requireEvent = eventName => require(path.join(eventsPath, eventName));
 

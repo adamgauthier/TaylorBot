@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
-const intervalsPath = GlobalPaths.pathMapper.intervals.path;
+const intervalsPath = GlobalPaths.intervalsFolderPath;
 
 const Log = require(GlobalPaths.Logger);
 

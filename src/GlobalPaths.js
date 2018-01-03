@@ -7,7 +7,6 @@ const PathMapper = require(path.join(__dirname, 'tools', 'PathMapper'));
 class GlobalPaths {
     constructor() {
         const pathMapper = new PathMapper(__dirname);
-        this.pathMapper = pathMapper;
 
         // Config
         this.TaylorBotConfig = path.join(pathMapper.config.path, 'config.json');
@@ -34,6 +33,9 @@ class GlobalPaths {
         this.intervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');        
         this.taylorBotClient = path.join(pathMapper.path, 'TaylorBotClient');
         this.databaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
+
+        this.eventsFolderPath = pathMapper.events.path;
+        this.intervalsFolderPath = pathMapper.intervals.path;
     }
 }
 
