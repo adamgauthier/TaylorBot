@@ -25,10 +25,6 @@ class Ready extends EventHandler {
             Log.info('Checking new users...');
             await this.checkNewUsers();
             Log.info('New users checked!');
-
-            // Log.info('Checking new users...');
-            // await this._checkNewUsers();
-            // Log.info('New users checked!');
         });
     }
 
@@ -44,13 +40,15 @@ class Ready extends EventHandler {
     }
 
     async checkNewUsers() {
+        const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
+        let latestUsernames = await database.getLatestUsernames();
 
         for (const guild of taylorbot.guilds.values()) {
             const { members } = await guild.fetchMembers();
             for (const member of members.values()) {
+                const { user } = member;
                 if (!taylorbot.userSettings.has(member.id)) {
-                    const { user } = member;
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
                     await taylorbot.userSettings.addUser(user);
                 }
@@ -60,20 +58,17 @@ class Ready extends EventHandler {
                     await database.addGuildMember(member);
                     Log.verbose(`Added new member ${Format.member(member)}.`);
                 }
+
+                const latestUsername = latestUsernames.find(u => u.user_id === user.id);
+                if (!latestUsername || latestUsername.username !== user.username) {
+                    Log.warn(`Found new username for ${Format.user(user)}.`);
+                    await database.addUsername(user, startupTime);
+                    latestUsernames = latestUsernames.filter(u => u.user_id !== user.id);
+                    latestUsernames.push({ 'user_id': user.id, 'username': user.username });
+                    Log.verbose(`Added new username for ${Format.user(user)}.`);
+                }
             }
         }
-    }
-
-    _checkNewUsers() {
-        const initTime = new Date().getTime();
-        return Promise.all(taylorbot.users.map(async user => {
-            const userExists = await database.userExists(user);
-            if (userExists === false) {
-                Log.info(`${Format.user(u)} did not exists, adding.`);
-                await database.addNewUser(user);
-            }
-            return await database.addNewUsername(user, initTime, true);
-        }));
     }
 }
 

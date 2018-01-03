@@ -16,7 +16,7 @@ class DatabaseDriver {
     }
 
     async load() {
-        this._db = await massive(PostgreSQLConfig);
+        this._db = await massive(PostgreSQLConfig, { 'scripts': __dirname });
     }
 
     async getAllGuilds() {
@@ -128,41 +128,33 @@ class DatabaseDriver {
         }
     }
 
-    async addNewUsername(user, since, silent = false) {
+    async getLatestUsernames() {
         try {
-            const lastUsername = await this._getLastUsername(user.id);
-
-            if (lastUsername && lastUsername.username === user.username) {
-                if (!silent)
-                    Log.warn(`New Username is already saved for ${Format.user(user)}`);
-            }
-            else {
-                const result = await this._addNewUsername(user.id, user.username, since);
-                Log.info(`Added New Username for ${Format.user(user)}, old was ${lastUsername.username}`);
-                return result;
-            }
+            return await this._db.usernames.getLatestUsernames();
         }
         catch (e) {
-            Log.error(`Adding New Username ${Format.user(user)}: ${e}`);
+            Log.error(`Getting all usernames: ${e}`);
+            throw e;
         }
     }
 
-    _getLastUsername(userId) {
-        return new Promise((resolve, reject) => {
-            this._sqlite_db.get('SELECT `username` FROM usernames WHERE `userId` = ? GROUP BY `userId` LIMIT 1;', userId, (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
+    mapUserToUsernameDatabase(user, changedAt) {
+        return {
+            'user_id': user.id,
+            'username': user.username,
+            'changed_at': changedAt
+        }
     }
 
-    _addNewUsername(userId, newUsername, since = new Date().getTime()) {
-        return new Promise((resolve, reject) => {
-            this._sqlite_db.run('INSERT INTO usernames (`userId`, `username`, `since`) VALUES (?, ?, ?);', [userId, newUsername, since], err => {
-                if (err) reject(err);
-                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
-            });
-        });
+    async addUsername(user, changedAt) {
+        const databaseUsername = this.mapUserToUsernameDatabase(user, changedAt);
+        try {
+            return await this._db.usernames.insert(databaseUsername);
+        }
+        catch (e) {
+            Log.error(`Adding username for ${Format.user(user)}: ${e}`);
+            throw e;
+        }
     }
 
     async getInstagrams() {
