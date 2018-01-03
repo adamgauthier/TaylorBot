@@ -274,33 +274,19 @@ class DatabaseDriver {
         }
     }
 
-    async updateMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsToAdd) {
+    async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
-            await this._updateMinutes(minutesToAdd, minimumLastSpoke);
-            return await this._updateMinutesMilestone(minutesForReward, pointsToAdd);
+            return this._db.guild_members.addMinutes({
+                'minutes_to_add': minutesToAdd,
+                'min_spoke_at': minimumLastSpoke,
+                'minutes_for_reward': minutesForReward,
+                'reward_count': pointsReward
+            });
         }
         catch (e) {
-            Log.error(`Updating minutes: ${e}`);
+            Log.error(`Adding minutes: ${e}`);
             throw e;
         }
-    }
-
-    _updateMinutes(minutesToAdd, minimumLastSpoke) {
-        return new Promise((resolve, reject) => {
-            this._sqlite_db.run("UPDATE userByServer SET `minutes` = `minutes`+? WHERE `lastSpoke` > ?;", [minutesToAdd, minimumLastSpoke], err => {
-                if (err) reject(err);
-                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
-            });
-        });
-    }
-
-    _updateMinutesMilestone(minutesForReward, pointsToAdd) {
-        return new Promise((resolve, reject) => {
-            this._sqlite_db.run("UPDATE userByServer SET `minutesMilestone` = (`minutes`-(`minutes`%?)), `taypoints`=`taypoints`+? WHERE `minutes` >= `minutesMilestone`+?;", [minutesForReward, pointsToAdd, minutesForReward], err => {
-                if (err) reject(err);
-                else resolve({ 'lastID': this.lastID, 'changes': this.changes });
-            });
-        });
     }
 }
 
