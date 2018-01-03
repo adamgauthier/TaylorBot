@@ -18,33 +18,23 @@ class Ready extends EventHandler {
             intervalRunner.startAll();
             Log.info('Intervals started!');
 
-            Log.info('Checking new guilds...');
-            await this.checkNewGuilds();
-            Log.info('New guilds checked!');
-
-            Log.info('Checking new users...');
-            await this.checkNewUsers();
-            Log.info('New users checked!');
+            Log.info('Checking new guilds, users and usernames...');
+            await this.syncDatabase();
+            Log.info('New guilds, users and usernames checked!');
         });
     }
 
-    checkNewGuilds() {
-        return Promise.all(
-            taylorbot.guilds.map(async guild => {
-                if (!taylorbot.guildSettings.has(guild.id)) {
-                    Log.warn(`Found new guild ${Format.guild(guild)}.`);
-                    await taylorbot.guildSettings.addGuild(guild);
-                }
-            })
-        );
-    }
-
-    async checkNewUsers() {
+    async syncDatabase() {
         const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
         let latestUsernames = await database.getLatestUsernames();
 
         for (const guild of taylorbot.guilds.values()) {
+            if (!taylorbot.guildSettings.has(guild.id)) {
+                Log.warn(`Found new guild ${Format.guild(guild)}.`);
+                await taylorbot.guildSettings.addGuild(guild);
+            }
+
             const { members } = await guild.fetchMembers();
             for (const member of members.values()) {
                 const { user } = member;
