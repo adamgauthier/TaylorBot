@@ -1,6 +1,5 @@
 'use strict';
 
-const sqlite3 = require('sqlite3').verbose();
 const massive = require('massive');
 const path = require('path');
 
@@ -11,10 +10,6 @@ const Format = require(GlobalPaths.DiscordFormatter);
 const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 
 class DatabaseDriver {
-    constructor() {
-        this._sqlite_db = new sqlite3.Database(path.join(__dirname, 'database.db'));
-    }
-
     async load() {
         this._db = await massive(PostgreSQLConfig, { 'scripts': __dirname });
     }
