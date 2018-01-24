@@ -1,6 +1,5 @@
 'use strict';
 
-const stripIndents = require('common-tags').stripIndents;
 const rp = require('request-promise');
 const moment = require('moment');
 const RichEmbed = require('discord.js').RichEmbed;
