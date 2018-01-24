@@ -26,6 +26,7 @@ class GlobalPaths {
         this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
         this.Logger = path.join(pathMapper.tools.path, 'Logger');
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
+        this.InstagramModule = path.join(pathMapper.modules.path, 'InstagramModule');
         this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
         this.UserSettings = path.join(pathMapper.modules.path, 'UserSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');

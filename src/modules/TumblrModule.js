@@ -15,15 +15,14 @@ const client = tumblr.createClient({
 });
 
 class TumblrModule {
-
     static async getLatestPost(tumblrUser) {
         const data = await TumblrModule.getDataFromUser(tumblrUser);
 
         return { 'post': data.posts[0], 'blog': data.blog };
     }
 
-    static async getDataFromUser(tumblrUser) {
-        return await client.blogPosts(tumblrUser, { 'filter': 'text' });
+    static getDataFromUser(tumblrUser) {
+        return client.blogPosts(tumblrUser, { 'filter': 'text' });
     }
 
     static getEmbed(post, blog) {

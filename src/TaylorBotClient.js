@@ -23,7 +23,7 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Loading intervals...');
         this.intervalRunner = new IntervalRunner();
         Log.info('Intervals loaded!');
-        
+
 
         Log.info('Loading events...');
         this.eventLoader = new EventLoader();
@@ -257,13 +257,13 @@ class TaylorBotClient extends Discord.Client {
     }
 
     async sendEmbed(recipient, embed) {
-        const options = { 'embed' : embed };
-        
+        const options = { 'embed': embed };
+
         return await this.sendMessage(recipient, '', options);
     }
 }
 
 module.exports = new TaylorBotClient({
-     'fetchAllMembers': true,
-     'disabledEvents': [ 'TYPING_START' ]
+    'fetchAllMembers': true,
+    'disabledEvents': ['TYPING_START']
 });
