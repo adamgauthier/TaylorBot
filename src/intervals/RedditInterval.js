@@ -25,7 +25,7 @@ class RedditInterval extends Interval {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
-        const { guild_id, channel_id, subreddit, last_link, last_created } = current;
+        const { guild_id, channel_id, subreddit, last_post_id, last_created } = current;
 
         try {
             const guild = taylorbot.resolveGuild(guild_id);
@@ -35,12 +35,11 @@ class RedditInterval extends Interval {
             if (!channel) throw new Error(`Channel ID '${channel_id}' could not be resolved`);
 
             const post = await RedditModule.getLatestPost(subreddit);
-            const link = `https://redd.it/${post.id}`;
 
-            if (link !== last_link && post.created_utc > last_created) {
-                Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${link}.`);
+            if (post.id !== last_post_id && post.created_utc > last_created) {
+                Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.id}.`);
                 await taylorbot.sendEmbed(channel, RedditModule.getRichEmbed(post));
-                await database.updateReddit(subreddit, guild_id, channel_id, link, post.created_utc);                
+                await database.updateReddit(subreddit, guild_id, channel_id, post.id, post.created_utc);                
             }
         } 
         catch (e) {

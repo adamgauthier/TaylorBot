@@ -239,7 +239,7 @@ class DatabaseDriver {
                     'channel_id': channelId
                 },
                 {
-                    'last_link': lastLink,
+                    'last_post_id': lastLink,
                     'last_created': lastCreated
                 }
             );
