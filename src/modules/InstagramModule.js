@@ -39,7 +39,7 @@ class InstagramModule {
 
     static getRichEmbed(item, user) {
         const re = new RichEmbed({
-            'description': `\`${item.likes.count}\` likes \u2764, \`${item.comments.count}\` comments \uD83D\uDCAC`,
+            'description': `\`${item.likes.count}\` likes ❤, \`${item.comments.count}\` comments 💬`,
             'url': `https://www.instagram.com/p/${item.code}/`,
             'timestamp': new Date(item.date * 1000),
             'author': {
