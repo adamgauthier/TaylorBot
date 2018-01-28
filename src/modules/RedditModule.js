@@ -1,7 +1,7 @@
 'use strict';
 
 const rp = require('request-promise');
-const RichEmbed = require('discord.js').RichEmbed;
+const { RichEmbed } = require('discord.js');
 
 const path = require('path');
 const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));

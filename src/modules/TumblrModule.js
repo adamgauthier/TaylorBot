@@ -1,6 +1,6 @@
 'use strict';
 
-const RichEmbed = require('discord.js').RichEmbed;
+const { RichEmbed } = require('discord.js');
 const tumblr = require('tumblr.js');
 
 const path = require('path');
