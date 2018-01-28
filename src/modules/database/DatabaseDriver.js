@@ -240,7 +240,7 @@ class DatabaseDriver {
         }
     }
 
-    async updateYoutube(playlistId, guildId, channelId, lastLink) {
+    async updateYoutube(playlistId, guildId, channelId, lastVideoId) {
         try {
             return await this._db.youtube_checker.update(
                 {
@@ -249,7 +249,7 @@ class DatabaseDriver {
                     'channel_id': channelId
                 },
                 {
-                    'last_link': lastLink
+                    'last_video_id': lastVideoId
                 }
             );
         }

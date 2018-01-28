@@ -28,6 +28,7 @@ class GlobalPaths {
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
         this.InstagramModule = path.join(pathMapper.modules.path, 'InstagramModule');
         this.RedditModule = path.join(pathMapper.modules.path, 'RedditModule');
+        this.YoutubeModule = path.join(pathMapper.modules.path, 'YoutubeModule');
         this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
         this.UserSettings = path.join(pathMapper.modules.path, 'UserSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
