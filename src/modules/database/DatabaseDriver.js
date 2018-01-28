@@ -104,6 +104,23 @@ class DatabaseDriver {
         }
     }
 
+    async getAllGuildMembersInGuild(guild) {
+        try {
+            return await this._db.guild_members.find(
+                {
+                    'guild_id': guild.id
+                },
+                {
+                    fields: ['user_id']
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting all guild members for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
     async doesGuildMemberExist(guildMember) {
         const databaseMember = { 'guild_id': guildMember.guild.id, 'user_id': guildMember.id };
         try {
