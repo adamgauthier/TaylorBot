@@ -104,6 +104,18 @@ class DatabaseDriver {
         }
     }
 
+    async doesGuildMemberExist(guildMember) {
+        const databaseMember = { 'guild_id': guildMember.guild.id, 'user_id': guildMember.id };
+        try {
+            const matchingMembersCount = await this._db.guild_members.count(databaseMember);
+            return matchingMembersCount > 0;
+        }
+        catch (e) {
+            Log.error(`Checking if guild member ${Format.member(guildMember)} exists: ${e}`);
+            throw e;
+        }
+    }
+
     mapMemberToDatabase(guildMember) {
         return {
             'guild_id': guildMember.guild.id,
@@ -129,6 +141,23 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Getting all usernames: ${e}`);
+            throw e;
+        }
+    }
+
+    async getLatestUsername(user) {
+        try {
+            return await this._db.usernames.getLatestUsername(
+                {
+                    'user_id': user.id
+                },
+                {
+                    'single': true
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting latest username for user ${Format.user(user)}: ${e}`);
             throw e;
         }
     }
