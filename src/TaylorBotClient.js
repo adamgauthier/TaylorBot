@@ -1,9 +1,7 @@
 'use strict';
 
 const Discord = require('discord.js');
-const path = require('path');
-
-const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 
 const EventLoader = require(GlobalPaths.EventLoader);
 const database = require(GlobalPaths.databaseDriver);

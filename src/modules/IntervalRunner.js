@@ -3,7 +3,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 const intervalsPath = GlobalPaths.intervalsFolderPath;
 
 const Log = require(GlobalPaths.Logger);

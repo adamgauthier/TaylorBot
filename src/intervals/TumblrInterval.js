@@ -1,7 +1,6 @@
 'use strict';
 
-const path = require('path');
-const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
 const database = require(GlobalPaths.databaseDriver);

@@ -2,9 +2,7 @@
 
 const { RichEmbed } = require('discord.js');
 const tumblr = require('tumblr.js');
-
-const path = require('path');
-const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 
 const TumblrConfig = require(GlobalPaths.TumblrConfig);
 const StringUtil = require(GlobalPaths.StringUtil);

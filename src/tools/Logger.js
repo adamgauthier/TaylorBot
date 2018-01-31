@@ -3,9 +3,7 @@
 const moment = require('moment');
 const { createLogger, format, transports } = require('winston');
 const { combine, printf, colorize } = format;
-
-const path = require('path');
-const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 
 const { minLogLevel } = require(GlobalPaths.TaylorBotConfig);
 

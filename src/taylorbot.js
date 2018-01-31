@@ -2,9 +2,12 @@
 
 const path = require('path');
 const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
+const globalObjects = require('globalobjects');
 
-const taylorbot = require(GlobalPaths.taylorBotClient);
-const TimeUtil = require(GlobalPaths.TimeUtil);
+globalObjects.GlobalPaths = new GlobalPaths();
+
+const taylorbot = require(globalObjects.GlobalPaths.taylorBotClient);
+const TimeUtil = require(globalObjects.GlobalPaths.TimeUtil);
 
 const msBeforeLogin = 6000;
 

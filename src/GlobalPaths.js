@@ -42,4 +42,4 @@ class GlobalPaths {
     }
 }
 
-module.exports = new GlobalPaths();
+module.exports = GlobalPaths;

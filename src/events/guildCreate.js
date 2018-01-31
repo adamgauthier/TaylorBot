@@ -1,7 +1,6 @@
 'use strict';
 
-const path = require('path');
-const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 
 const EventHandler = require(GlobalPaths.EventHandler);
 const taylorbot = require(GlobalPaths.taylorBotClient);

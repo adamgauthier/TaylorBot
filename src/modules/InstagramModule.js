@@ -2,9 +2,7 @@
 
 const rp = require('request-promise');
 const { RichEmbed } = require('discord.js');
-
-const path = require('path');
-const GlobalPaths = require(path.join(__dirname, '..', 'GlobalPaths'));
+const { GlobalPaths } = require('globalobjects');
 
 const StringUtil = require(GlobalPaths.StringUtil);
 
