@@ -2,11 +2,11 @@
 
 const path = require('path');
 
-const PathMapper = require(path.join(__dirname, 'tools', 'PathMapper'));
+const PathMapper = require(path.join(__dirname, 'PathMapper'));
 
 class GlobalPaths {
-    constructor() {
-        const pathMapper = new PathMapper(__dirname);
+    constructor(rootPath) {
+        const pathMapper = new PathMapper(rootPath);
 
         // Config
         this.TaylorBotConfig = path.join(pathMapper.config.path, 'config.json');

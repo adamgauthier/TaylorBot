@@ -1,10 +1,10 @@
 'use strict';
 
 const path = require('path');
-const GlobalPaths = require(path.join(__dirname, 'GlobalPaths'));
+const GlobalPaths = require(path.join(__dirname, 'tools', 'GlobalPaths'));
 const globalObjects = require('globalobjects');
 
-globalObjects.GlobalPaths = new GlobalPaths();
+globalObjects.GlobalPaths = new GlobalPaths(__dirname);
 
 const taylorbot = require(globalObjects.GlobalPaths.taylorBotClient);
 const TimeUtil = require(globalObjects.GlobalPaths.TimeUtil);
