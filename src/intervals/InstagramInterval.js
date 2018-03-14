@@ -36,10 +36,10 @@ class InstagramInterval extends Interval {
             const result = await InstagramModule.getLatestPost(instagram_username);
             const { item, user } = result;
 
-            if (item.code !== last_post_code) {
-                Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.code}.`);
+            if (item.shortcode !== last_post_code) {
+                Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.shortcode}.`);
                 await taylorbot.sendEmbed(channel, InstagramModule.getRichEmbed(item, user));
-                await database.updateInstagram(instagram_username, guild_id, channel_id, item.code);
+                await database.updateInstagram(instagram_username, guild_id, channel_id, item.shortcode);
             }
         }
         catch (e) {

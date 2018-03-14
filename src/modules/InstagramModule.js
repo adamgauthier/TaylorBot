@@ -20,26 +20,28 @@ class InstagramModule {
         const options = { ...rpOptions, 'uri': `${instagramUsername}/?__a=1` };
         const body = await rp(options);
 
-        const { user } = body;
+        const { user } = body.graphql;
 
         if (user.is_private)
             throw new Error('User is private');
 
-        const { media } = user;
+        const { edge_owner_to_timeline_media } = user;
 
-        if (media.nodes.length <= 0)
+        if (edge_owner_to_timeline_media.count <= 0)
             throw new Error('Media list was empty');
 
-        const item = media.nodes[0];
+        const { edges } = edge_owner_to_timeline_media;
+
+        const item = edges[0].node;
 
         return { item, user };
     }
 
     static getRichEmbed(item, user) {
         const re = new RichEmbed({
-            'description': `\`${item.likes.count}\` likes ❤, \`${item.comments.count}\` comments 💬`,
-            'url': `https://www.instagram.com/p/${item.code}/`,
-            'timestamp': new Date(item.date * 1000),
+            'description': `\`${item.edge_liked_by.count}\` likes ❤, \`${item.edge_media_to_comment.count}\` comments 💬`,
+            'url': `https://www.instagram.com/p/${item.shortcode}/`,
+            'timestamp': new Date(item.taken_at_timestamp * 1000),
             'author': {
                 'name': (user.full_name ? user.full_name : user.username),
                 'url': instagramBaseURL + user.username,
@@ -52,7 +54,9 @@ class InstagramModule {
             'color': 0xbc2a8d
         });
 
-        let title = item.caption ? StringUtil.shrinkString(item.caption, 65, ' ...') : '[No Caption]';
+        const { edges } = item.edge_media_to_caption;
+
+        let title = edges.length > 0 ? StringUtil.shrinkString(edges[0].node.text, 65, ' ...') : '[No Caption]';
 
         re.setTitle(title);
         re.setThumbnail(item.thumbnail_src);
