@@ -34,7 +34,7 @@ class GlobalPaths {
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
 
-        this.taylorBotClient = path.join(pathMapper.path, 'TaylorBotClient');
+        this.taylorBotClient = path.join(pathMapper.client.path, 'TaylorBotClient');
         this.databaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
 
         this.eventsFolderPath = pathMapper.events.path;
