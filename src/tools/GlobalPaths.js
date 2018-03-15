@@ -29,8 +29,8 @@ class GlobalPaths {
         this.InstagramModule = path.join(pathMapper.modules.path, 'InstagramModule');
         this.RedditModule = path.join(pathMapper.modules.path, 'RedditModule');
         this.YoutubeModule = path.join(pathMapper.modules.path, 'YoutubeModule');
-        this.GuildSettings = path.join(pathMapper.modules.path, 'GuildSettings');
-        this.UserSettings = path.join(pathMapper.modules.path, 'UserSettings');
+        this.GuildSettings = path.join(pathMapper.client.path, 'GuildSettings');
+        this.UserSettings = path.join(pathMapper.client.path, 'UserSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
 
