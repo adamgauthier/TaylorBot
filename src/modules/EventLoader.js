@@ -20,7 +20,7 @@ class EventLoader {
                         if (filePath.ext === '.js') {
                             const event = requireEvent(filePath.base);
                             if (event.enabled)
-                                client.on(filePath.name, event.handler);
+                                client.on(filePath.name, (...args) => event.handler(client, ...args));
                         }
                     });
                     resolve();

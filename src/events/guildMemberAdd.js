@@ -3,14 +3,13 @@
 const { GlobalPaths } = require('globalobjects');
 
 const EventHandler = require(GlobalPaths.EventHandler);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const database = require(GlobalPaths.databaseDriver);
 
 class GuildMemberAdd extends EventHandler {
     constructor() {
-        super(async member => {
+        super(async (taylorbot, member) => {
             const { user } = member;
 
             if (!taylorbot.userSettings.has(member.id)) {

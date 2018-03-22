@@ -3,11 +3,10 @@
 const { GlobalPaths } = require('globalobjects');
 
 const EventHandler = require(GlobalPaths.EventHandler);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 
 class Message extends EventHandler {
     constructor() {
-        super(message => {
+        super((taylorbot, message) => {
             taylorbot.watcherFeeder.feedAll(message);
         });
     }

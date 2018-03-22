@@ -5,24 +5,23 @@ const { GlobalPaths } = require('globalobjects');
 const EventHandler = require(GlobalPaths.EventHandler);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 const database = require(GlobalPaths.databaseDriver);
 
 class Ready extends EventHandler {
     constructor() {
-        super(async () => {
+        super(async (taylorbot) => {
             Log.info('Client is ready!');
 
             taylorbot.intervalRunner.startAll();
             Log.info('Intervals started!');
 
             Log.info('Checking new guilds, users and usernames...');
-            await this.syncDatabase();
+            await this.syncDatabase(taylorbot);
             Log.info('New guilds, users and usernames checked!');
         });
     }
 
-    async syncDatabase() {
+    async syncDatabase(taylorbot) {
         const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
         let latestUsernames = await database.getLatestUsernames();

@@ -9,7 +9,7 @@ const database = require(GlobalPaths.databaseDriver);
 
 class UserUpdate extends EventHandler {
     constructor() {
-        super(async (oldUser, newUser) => {
+        super(async (taylorbot, oldUser, newUser) => {
             if (oldUser.username !== newUser.username) {
                 const changedAt = new Date().getTime();
                 await database.addUsername(newUser, changedAt);
