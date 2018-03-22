@@ -5,7 +5,6 @@ const { GlobalPaths } = require('globalobjects');
 const EventHandler = require(GlobalPaths.EventHandler);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const database = require(GlobalPaths.databaseDriver);
 
 class Ready extends EventHandler {
     constructor() {
@@ -22,6 +21,8 @@ class Ready extends EventHandler {
     }
 
     async syncDatabase(taylorbot) {
+        const { database } = taylorbot;
+
         const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
         let latestUsernames = await database.getLatestUsernames();

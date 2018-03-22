@@ -5,12 +5,12 @@ const { GlobalPaths } = require('globalobjects');
 const EventHandler = require(GlobalPaths.EventHandler);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const database = require(GlobalPaths.databaseDriver);
 
 class GuildMemberAdd extends EventHandler {
     constructor() {
         super(async (taylorbot, member) => {
             const { user } = member;
+            const { database } = taylorbot;
 
             if (!taylorbot.userSettings.has(member.id)) {
                 Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(member.guild)}.`);

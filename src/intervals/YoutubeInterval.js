@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
@@ -14,7 +13,7 @@ const intervalTime = 60000;
 class YoutubeInterval extends Interval {
     constructor() {
         super(intervalTime, async () => {
-            const youtubeChannels = await database.getYoutubeChannels();
+            const youtubeChannels = await taylorbot.database.getYoutubeChannels();
             const it = youtubeChannels.entries();
             this.checkSingleYoutube(it);
         });
@@ -39,7 +38,7 @@ class YoutubeInterval extends Interval {
             if (videoId !== last_video_id) {
                 Log.info(`New Youtube Video for playlistId '${playlist_id}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${videoId}.`);
                 await taylorbot.sendEmbed(channel, YoutubeModule.getRichEmbed(video));
-                await database.updateYoutube(playlist_id, guild_id, channel_id, videoId);
+                await taylorbot.database.updateYoutube(playlist_id, guild_id, channel_id, videoId);
             }
         }
         catch (e) {

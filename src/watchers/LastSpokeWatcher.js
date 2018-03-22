@@ -3,7 +3,7 @@
 const { GlobalPaths } = require('globalobjects');
 
 const MessageWatcher = require(GlobalPaths.MessageWatcher);
-const database = require(GlobalPaths.databaseDriver);
+const taylorbot = require(GlobalPaths.taylorBotClient);
 
 class LastSpokeWatcher extends MessageWatcher {
     constructor() {
@@ -12,7 +12,7 @@ class LastSpokeWatcher extends MessageWatcher {
             if (channel.type === 'text') {
                 const { author, guild } = message;
 
-                await database.updateLastSpoke(author, guild, message.createdAt.getTime());
+                await taylorbot.database.updateLastSpoke(author, guild, message.createdAt.getTime());
             }
         });
     }

@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const TumblrModule = require(GlobalPaths.TumblrModule);
 const Log = require(GlobalPaths.Logger);
@@ -17,7 +16,7 @@ class TumblrInterval extends Interval {
     }
 
     static async intervalHandler() {
-        const tumblrs = await database.getTumblrs();
+        const tumblrs = await taylorbot.database.getTumblrs();
         const it = tumblrs.entries();
         return TumblrInterval.checkSingleTumblr(it);
     }
@@ -41,7 +40,7 @@ class TumblrInterval extends Interval {
             if (post.short_url !== last_link) {
                 Log.info(`New Tumblr Post for user '${tumblr_user}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.short_url}.`);
                 await taylorbot.sendEmbed(channel, TumblrModule.getEmbed(post, blog));
-                await database.updateTumblr(tumblr_user, guild_id, channel_id, post.short_url);
+                await taylorbot.database.updateTumblr(tumblr_user, guild_id, channel_id, post.short_url);
             }
         }
         catch (e) {

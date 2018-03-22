@@ -348,4 +348,4 @@ class DatabaseDriver {
     }
 }
 
-module.exports = new DatabaseDriver();
+module.exports = DatabaseDriver;

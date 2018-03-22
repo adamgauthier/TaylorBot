@@ -5,12 +5,13 @@ const { GlobalPaths } = require('globalobjects');
 const EventHandler = require(GlobalPaths.EventHandler);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const database = require(GlobalPaths.databaseDriver);
 
 class GuildCreate extends EventHandler {
     constructor() {
         super(async (taylorbot, guild) => {
             Log.info(`Joined guild ${Format.guild(guild)}.`);
+
+            const { database } = taylorbot;
 
             const clientMember = await guild.fetchMember(taylorbot.user);
             const joinTime = clientMember.joinedTimestamp;

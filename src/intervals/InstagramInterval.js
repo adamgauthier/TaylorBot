@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const database = require(GlobalPaths.databaseDriver);
 const taylorbot = require(GlobalPaths.taylorBotClient);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
@@ -14,7 +13,7 @@ const intervalTime = 60000;
 class InstagramInterval extends Interval {
     constructor() {
         super(intervalTime, async () => {
-            const instagrams = await database.getInstagrams();
+            const instagrams = await taylorbot.database.getInstagrams();
             const it = instagrams.entries();
             this.checkSingleInstagram(it);
         });
@@ -39,7 +38,7 @@ class InstagramInterval extends Interval {
             if (item.shortcode !== last_post_code) {
                 Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.shortcode}.`);
                 await taylorbot.sendEmbed(channel, InstagramModule.getRichEmbed(item, user));
-                await database.updateInstagram(instagram_username, guild_id, channel_id, item.shortcode);
+                await taylorbot.database.updateInstagram(instagram_username, guild_id, channel_id, item.shortcode);
             }
         }
         catch (e) {

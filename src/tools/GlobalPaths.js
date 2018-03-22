@@ -19,6 +19,7 @@ class GlobalPaths {
         this.MyApiFilmsConfig = path.join(pathMapper.config.path, 'myapifilms.json');
         this.PostgreSQLConfig = path.join(pathMapper.config.path, 'postgresql.json');
 
+        this.DatabaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.MessageWatcher = path.join(pathMapper.structures.path, 'MessageWatcher');
@@ -37,7 +38,6 @@ class GlobalPaths {
         this.MessageWatcherFeeder = path.join(pathMapper.modules.path, 'MessageWatcherFeeder');
 
         this.taylorBotClient = path.join(pathMapper.client.path, 'TaylorBotClient');
-        this.databaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
 
         this.eventsFolderPath = pathMapper.events.path;
         this.intervalsFolderPath = pathMapper.intervals.path;

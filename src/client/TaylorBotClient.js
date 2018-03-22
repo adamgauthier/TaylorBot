@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const { GlobalPaths } = require('globalobjects');
 
 const EventLoader = require(GlobalPaths.EventLoader);
-const database = require(GlobalPaths.databaseDriver);
+const DatabaseDriver = require(GlobalPaths.DatabaseDriver);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
@@ -17,7 +17,10 @@ const discordMax = 2000;
 
 class TaylorBotClient extends Discord.Client {
     async start() {
-        await database.load();
+        Log.info('Loading database...');
+        this.database = new DatabaseDriver();
+        await this.database.load();
+        Log.info('Database loaded!');
 
         Log.info('Loading intervals...');
         this.intervalRunner = new IntervalRunner();
