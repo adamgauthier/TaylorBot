@@ -27,9 +27,9 @@ class MessageWatcherFeeder {
         });
     }
 
-    feedAll(message) {
+    feedAll(client, message) {
         this._watchers.forEach(watcher => {
-            watcher.messageHandler(message);
+            watcher.messageHandler(client, message);
         });
     }
 }

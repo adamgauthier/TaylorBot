@@ -7,7 +7,7 @@ const EventHandler = require(GlobalPaths.EventHandler);
 class Message extends EventHandler {
     constructor() {
         super((taylorbot, message) => {
-            taylorbot.watcherFeeder.feedAll(message);
+            taylorbot.watcherFeeder.feedAll(taylorbot, message);
         });
     }
 }
