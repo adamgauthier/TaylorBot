@@ -23,7 +23,7 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Database loaded!');
 
         Log.info('Loading intervals...');
-        this.intervalRunner = new IntervalRunner();
+        this.intervalRunner = new IntervalRunner(this);
         Log.info('Intervals loaded!');
 
 

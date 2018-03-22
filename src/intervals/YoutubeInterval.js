@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const YoutubeModule = require(GlobalPaths.YoutubeModule);
@@ -12,14 +11,14 @@ const intervalTime = 60000;
 
 class YoutubeInterval extends Interval {
     constructor() {
-        super(intervalTime, async () => {
+        super(intervalTime, async taylorbot => {
             const youtubeChannels = await taylorbot.database.getYoutubeChannels();
             const it = youtubeChannels.entries();
-            this.checkSingleYoutube(it);
+            this.checkSingleYoutube(taylorbot, it);
         });
     }
 
-    async checkSingleYoutube(iterator) {
+    async checkSingleYoutube(taylorbot, iterator) {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
@@ -45,7 +44,7 @@ class YoutubeInterval extends Interval {
             Log.error(`Checking Youtube Videos for playlistId '${playlist_id}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            this.checkSingleYoutube(iterator);
+            this.checkSingleYoutube(taylorbot, iterator);
         }
     }
 }

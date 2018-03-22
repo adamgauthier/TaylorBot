@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 
 const minutesToAdd = 1;
 const msBeforeAdd = 1 * 60 * 1000;
@@ -13,10 +12,10 @@ const msBeforeInactive = 10 * 60 * 1000;
 
 class MinutesInterval extends Interval {
     constructor() {
-        super(msBeforeAdd, async () => {
+        super(msBeforeAdd, async ({ database }) => {
             const minimumLastSpoke = new Date().getTime() - msBeforeInactive;
 
-            await taylorbot.database.addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward);
+            await database.addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward);
         });
     }
 }

@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 const TumblrModule = require(GlobalPaths.TumblrModule);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
@@ -15,13 +14,13 @@ class TumblrInterval extends Interval {
         super(intervalTime, TumblrInterval.intervalHandler);
     }
 
-    static async intervalHandler() {
+    static async intervalHandler(taylorbot) {
         const tumblrs = await taylorbot.database.getTumblrs();
         const it = tumblrs.entries();
-        return TumblrInterval.checkSingleTumblr(it);
+        return TumblrInterval.checkSingleTumblr(taylorbot, it);
     }
 
-    static async checkSingleTumblr(iterator) {
+    static async checkSingleTumblr(taylorbot, iterator) {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
@@ -47,7 +46,7 @@ class TumblrInterval extends Interval {
             Log.error(`Checking Tumblr Posts for user '${tumblr_user}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            return TumblrInterval.checkSingleTumblr(iterator);
+            return TumblrInterval.checkSingleTumblr(taylorbot, iterator);
         }
     }
 }

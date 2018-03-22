@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const RedditModule = require(GlobalPaths.RedditModule);
@@ -12,14 +11,14 @@ const intervalTime = 60000;
 
 class RedditInterval extends Interval {
     constructor() {
-        super(intervalTime, async () => {
+        super(intervalTime, async taylorbot => {
             const reddits = await taylorbot.database.getReddits();
             const it = reddits.entries();
-            this.checkSingleReddit(it);
+            this.checkSingleReddit(taylorbot, it);
         });
     }
 
-    async checkSingleReddit(iterator) {
+    async checkSingleReddit(taylorbot, iterator) {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
@@ -44,7 +43,7 @@ class RedditInterval extends Interval {
             Log.error(`Checking Reddit Posts for subreddit '${subreddit}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            this.checkSingleReddit(iterator);
+            this.checkSingleReddit(taylorbot, iterator);
         }
     }
 }

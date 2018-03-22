@@ -3,7 +3,6 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Interval = require(GlobalPaths.Interval);
-const taylorbot = require(GlobalPaths.taylorBotClient);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const InstagramModule = require(GlobalPaths.InstagramModule);
@@ -12,14 +11,14 @@ const intervalTime = 60000;
 
 class InstagramInterval extends Interval {
     constructor() {
-        super(intervalTime, async () => {
+        super(intervalTime, async taylorbot => {
             const instagrams = await taylorbot.database.getInstagrams();
             const it = instagrams.entries();
-            this.checkSingleInstagram(it);
+            this.checkSingleInstagram(taylorbot, it);
         });
     }
 
-    async checkSingleInstagram(iterator) {
+    async checkSingleInstagram(taylorbot, iterator) {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
@@ -45,7 +44,7 @@ class InstagramInterval extends Interval {
             Log.error(`Checking Instagram Posts for user '${instagram_username}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            this.checkSingleInstagram(iterator);
+            this.checkSingleInstagram(taylorbot, iterator);
         }
     }
 }

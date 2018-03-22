@@ -9,7 +9,8 @@ const intervalsPath = GlobalPaths.intervalsFolderPath;
 const Log = require(GlobalPaths.Logger);
 
 class IntervalRunner {
-    constructor() {
+    constructor(client) {
+        this._client = client;
         this._intervals = new Map();
         this._loadAll();
     }
@@ -24,7 +25,7 @@ class IntervalRunner {
                 Log.warn(`Attempted to start Interval ${interval.name} when it was already running.`);
                 this._stop(interval);
             }
-            interval.runningInterval = setInterval(interval.interval, interval.intervalTime);
+            interval.runningInterval = setInterval(() => interval.interval(this._client), interval.intervalTime);
             Log.verbose(`Started Interval ${interval.name}.`);
         }
     }
