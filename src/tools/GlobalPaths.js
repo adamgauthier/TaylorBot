@@ -21,6 +21,7 @@ class GlobalPaths {
 
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
+        this.MessageWatcher = path.join(pathMapper.structures.path, 'MessageWatcher');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
         this.TimeUtil = path.join(pathMapper.modules.path, 'TimeUtil');
         this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
@@ -33,12 +34,14 @@ class GlobalPaths {
         this.UserSettings = path.join(pathMapper.client.path, 'UserSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
+        this.MessageWatcherFeeder = path.join(pathMapper.modules.path, 'MessageWatcherFeeder');
 
         this.taylorBotClient = path.join(pathMapper.client.path, 'TaylorBotClient');
         this.databaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
 
         this.eventsFolderPath = pathMapper.events.path;
         this.intervalsFolderPath = pathMapper.intervals.path;
+        this.watchersFolderPath = pathMapper.watchers.path;
     }
 }
 

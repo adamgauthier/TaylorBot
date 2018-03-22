@@ -316,7 +316,7 @@ class DatabaseDriver {
 
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
-            return this._db.guild_members.addMinutes({
+            return await this._db.guild_members.addMinutes({
                 'minutes_to_add': minutesToAdd,
                 'min_spoke_at': minimumLastSpoke,
                 'minutes_for_reward': minutesForReward,
@@ -325,6 +325,24 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Adding minutes: ${e}`);
+            throw e;
+        }
+    }
+
+    async updateLastSpoke(user, guild, lastSpokeAt) {
+        try {
+            return await this._db.guild_members.update(
+                {
+                    'guild_id': guild.id,
+                    'user_id': user.id
+                },
+                {
+                    'last_spoke_at': lastSpokeAt
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Updating Last Spoke for ${Format.user(user)}, ${Format.guild(guild)}: ${e}`);
             throw e;
         }
     }
