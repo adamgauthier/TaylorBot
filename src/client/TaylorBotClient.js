@@ -37,12 +37,12 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Message watchers loaded!');
 
         Log.info('Loading guild settings...');
-        this.guildSettings = new GuildSettings(database);
+        this.guildSettings = new GuildSettings(this.database);
         await this.guildSettings.load();
         Log.info('Guild settings loaded!');
 
         Log.info('Loading user settings...');
-        this.userSettings = new UserSettings(database);
+        this.userSettings = new UserSettings(this.database);
         await this.userSettings.load();
         Log.info('User settings loaded!');
 
