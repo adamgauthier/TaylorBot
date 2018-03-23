@@ -23,6 +23,7 @@ class GlobalPaths {
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.MessageWatcher = path.join(pathMapper.structures.path, 'MessageWatcher');
+        this.AccessLevels = path.join(pathMapper.structures.path, 'AccessLevels.json');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
         this.TimeUtil = path.join(pathMapper.modules.path, 'TimeUtil');
         this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
@@ -33,6 +34,7 @@ class GlobalPaths {
         this.YoutubeModule = path.join(pathMapper.modules.path, 'YoutubeModule');
         this.GuildSettings = path.join(pathMapper.client.path, 'GuildSettings');
         this.UserSettings = path.join(pathMapper.client.path, 'UserSettings');
+        this.CommandSettings = path.join(pathMapper.client.path, 'CommandSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
         this.MessageWatcherFeeder = path.join(pathMapper.modules.path, 'MessageWatcherFeeder');

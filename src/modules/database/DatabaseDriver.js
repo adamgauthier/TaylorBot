@@ -346,6 +346,26 @@ class DatabaseDriver {
             throw e;
         }
     }
+
+    async getAllGuildCommands() {
+        try {
+            return await this._db.guild_commands.find();
+        }
+        catch (e) {
+            Log.error(`Getting all guild commands: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAllCommands() {
+        try {
+            return await this._db.commands.find();
+        }
+        catch (e) {
+            Log.error(`Getting all commands: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = DatabaseDriver;
