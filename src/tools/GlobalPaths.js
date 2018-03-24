@@ -36,6 +36,7 @@ class GlobalPaths {
         this.UserSettings = path.join(pathMapper.client.path, 'UserSettings');
         this.CommandSettings = path.join(pathMapper.client.path, 'CommandSettings');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
+        this.CommandLoader = path.join(pathMapper.modules.path, 'CommandLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
         this.MessageWatcherFeeder = path.join(pathMapper.modules.path, 'MessageWatcherFeeder');
 
@@ -44,6 +45,7 @@ class GlobalPaths {
         this.eventsFolderPath = pathMapper.events.path;
         this.intervalsFolderPath = pathMapper.intervals.path;
         this.watchersFolderPath = pathMapper.watchers.path;
+        this.commandsFolderPath = pathMapper.commands.path;
     }
 }
 

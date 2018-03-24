@@ -366,6 +366,16 @@ class DatabaseDriver {
             throw e;
         }
     }
+
+    async addCommands(databaseCommands) {
+        try {
+            return await this._db.commands.insert(databaseCommands);
+        }
+        catch (e) {
+            Log.error(`Adding commands: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = DatabaseDriver;

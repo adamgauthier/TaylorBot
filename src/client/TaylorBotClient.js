@@ -39,7 +39,7 @@ class TaylorBotClient extends Discord.Client {
 
         Log.info('Loading command settings...');
         this.commandSettings = new CommandSettings(this.database);
-        await this.commandSettings.load();
+        await this.commandSettings.loadAll();
         Log.info('Command settings loaded!');
 
         Log.info('Loading guild settings...');
