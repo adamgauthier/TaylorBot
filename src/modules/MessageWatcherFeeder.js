@@ -28,8 +28,13 @@ class MessageWatcherFeeder {
     }
 
     feedAll(client, message) {
-        this._watchers.forEach(watcher => {
-            watcher.messageHandler(client, message);
+        this._watchers.forEach((watcher, name) => {
+            try {
+                watcher.messageHandler(client, message);
+            }
+            catch (e) {
+                Log.error(`Message Watcher ${name} Error: ${e}`);
+            }            
         });
     }
 }
