@@ -39,6 +39,26 @@ class UserSettings extends Map {
 
         this.cacheUser(databaseUser);
     }
+
+    updateLastCommand(user, lastCommand) {
+        const settings = this.get(user.id);
+
+        if (!settings)
+            throw new Error(`Can't update lastCommand of user ${Format.user(user)} because it wasn't cached.`);
+        
+        settings.lastCommand = lastCommand;
+        this.set(user.id, settings);
+    }
+
+    updateLastAnswered(user, lastAnswered) {
+        const settings = this.get(user.id);
+
+        if (!settings)
+            throw new Error(`Can't update lastAnswered of user ${Format.user(user)} because it wasn't cached.`);
+        
+        settings.lastAnswered = lastAnswered;
+        this.set(user.id, settings);
+    }
 }
 
 module.exports = UserSettings;

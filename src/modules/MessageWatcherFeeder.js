@@ -5,6 +5,7 @@ const path = require('path');
 
 const { GlobalPaths } = require('globalobjects');
 
+const Log = require(GlobalPaths.Logger);
 const watchersPath = GlobalPaths.watchersFolderPath;
 
 const requireWatcher = watcherName => require(path.join(watchersPath, watcherName));
@@ -28,9 +29,9 @@ class MessageWatcherFeeder {
     }
 
     feedAll(client, message) {
-        this._watchers.forEach((watcher, name) => {
+        this._watchers.forEach(async (watcher, name) => {
             try {
-                watcher.messageHandler(client, message);
+                await watcher.messageHandler(client, message);
             }
             catch (e) {
                 Log.error(`Message Watcher ${name} Error: ${e}`);

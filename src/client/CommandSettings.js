@@ -17,8 +17,8 @@ class CommandSettings extends Map {
 
         const fileCommandNames = Object.keys(fileCommands);
 
-        const databaseCommandsNotInFiles = commands.filter(n =>
-            !fileCommandNames.some(fc => fc.name === n)
+        const databaseCommandsNotInFiles = commands.filter(c =>
+            !fileCommandNames.some(name => name === c.name)
         );
         if (databaseCommandsNotInFiles.length > 0)
             throw new Error(`Found database commands not in files: ${databaseCommandsNotInFiles.join(',')}.`);

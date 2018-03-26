@@ -23,6 +23,7 @@ class GlobalPaths {
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.MessageWatcher = path.join(pathMapper.structures.path, 'MessageWatcher');
+        this.Command = path.join(pathMapper.structures.path, 'Command');
         this.AccessLevels = path.join(pathMapper.structures.path, 'AccessLevels.json');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
         this.TimeUtil = path.join(pathMapper.modules.path, 'TimeUtil');
