@@ -11,6 +11,8 @@ const Format = require(GlobalPaths.DiscordFormatter);
 const GuildSettings = require(GlobalPaths.GuildSettings);
 const UserSettings = require(GlobalPaths.UserSettings);
 const CommandSettings = require(GlobalPaths.CommandSettings);
+const GroupSettings = require(GlobalPaths.GroupSettings);
+const GuildRoleSettings = require(GlobalPaths.GuildRoleSettings);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const WatcherFeeder = require(GlobalPaths.MessageWatcherFeeder);
 
@@ -36,6 +38,16 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Loading message watchers...');
         this.watcherFeeder = new WatcherFeeder();
         Log.info('Message watchers loaded!');
+
+        Log.info('Loading group settings...');
+        this.groupSettings = new GroupSettings(this.database);
+        await this.groupSettings.loadAll();
+        Log.info('Group settings loaded!');
+
+        Log.info('Loading guild role settings...');
+        this.guildRoleSettings = new GuildRoleSettings(this.database);
+        await this.guildRoleSettings.load();
+        Log.info('Guild role settings loaded!');
 
         Log.info('Loading command settings...');
         this.commandSettings = new CommandSettings(this.database);

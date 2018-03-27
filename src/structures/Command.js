@@ -2,17 +2,17 @@
 
 const { GlobalPaths } = require('globalobjects');
 
-const AccessLevels = require(GlobalPaths.AccessLevels);
+const DefaultGroups = require(GlobalPaths.DefaultGroups);
 
 class Command {
-    constructor(handler, alternateNames = [], accessLevel = AccessLevels.EVERYONE) {
+    constructor(handler, alternateNames = [], minimumGroupLevel = DefaultGroups.Everyone) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract Command class.`);
         }
 
         this.handler = handler;
         this.alternateNames = alternateNames;
-        this.accessLevel = accessLevel;
+        this.minimumGroupLevel = minimumGroupLevel;
     }
 }
 

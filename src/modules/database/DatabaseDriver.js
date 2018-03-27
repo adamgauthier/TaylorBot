@@ -376,6 +376,36 @@ class DatabaseDriver {
             throw e;
         }
     }
+
+    async getAllUserGroups() {
+        try {
+            return await this._db.user_groups.find();
+        }
+        catch (e) {
+            Log.error(`Getting all user groups: ${e}`);
+            throw e;
+        }
+    }
+
+    async addUserGroups(userGroups) {
+        try {
+            return await this._db.user_groups.insert(userGroups);
+        }
+        catch (e) {
+            Log.error(`Adding user groups: ${e}`);
+            throw e;
+        }
+    }
+
+    async getAllGuildRoleGroups() {
+        try {
+            return await this._db.guild_role_groups.find();
+        }
+        catch (e) {
+            Log.error(`Getting all guild role groups: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = DatabaseDriver;

@@ -6,6 +6,8 @@ const { GlobalPaths } = require('globalobjects');
 const MessageWatcher = require(GlobalPaths.MessageWatcher);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
+const { masterId } = require(GlobalPaths.DiscordConfig);
+const DefaultGroups = require(GlobalPaths.DefaultGroups);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {
@@ -41,8 +43,31 @@ class CommandsWatcher extends MessageWatcher {
                         return;
                     }
 
-                    // TODO: Check access levels
-                    // TODO: Check channel restrictions ?
+                    if (!hasAccess()) {
+
+                    }
+
+                    hasAccess = (member, minimumGroupLevel, guildRoleSettings, groupSettings) => {
+                        let accessLevel = member.id === masterId ? DefaultGroups.Master : DefaultGroups.Everyone;
+                        if (accessLevel >= minimumGroupLevel)
+                            return true;
+
+                        const guildRoles = guildRoleSettings.get(guild.id);
+                        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
+                        if (ownedGroups.length > 0) {
+                            // TODO: foreach until you find one?
+                            accessLevel = ownedGroups.reduce((a, b) =>
+                                Math.max(groupSettings.get(a), groupSettings.get(b))
+                            );
+
+                            if (accessLevel >= minimumGroupLevel)
+                                return true;
+                        }
+
+                        return false;
+                    };
+
+                    // TODO: Command Groups
 
                     const commandTime = new Date().getTime();
                     const { lastCommand, lastAnswered, ignoreUntil } = taylorbot.userSettings.get(author.id);
