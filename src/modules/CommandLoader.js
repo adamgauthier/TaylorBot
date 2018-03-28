@@ -20,7 +20,9 @@ class CommandLoader {
                         const filePath = path.parse(filename);
                         if (filePath.ext === '.js') {
                             const command = requireCommand(filePath.base);
-                            commands[filePath.name] = command;
+                            const commandName = filePath.name.toLowerCase();
+                            command.name = commandName;
+                            commands[commandName] = command;
                         }
                     });
                     resolve(commands);
