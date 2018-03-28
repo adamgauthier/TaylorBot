@@ -18,7 +18,8 @@ class GuildSettings extends Map {
 
     cacheGuild(databaseGuild) {
         this.set(databaseGuild.guild_id, {
-            'prefix': databaseGuild.prefix
+            'prefix': databaseGuild.prefix,
+            'roleGroups': {}
         });
     }
 

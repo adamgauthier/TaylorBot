@@ -5,9 +5,10 @@ const { GlobalPaths } = require('globalobjects');
 const Log = require(GlobalPaths.Logger);
 
 class GuildRoleSettings extends Map {
-    constructor(database) {
+    constructor(database, guildSettings) {
         super();
         this.database = database;
+        this.guildSettings = guildSettings;
     }
 
     async load() {
@@ -16,13 +17,12 @@ class GuildRoleSettings extends Map {
     }
 
     cacheRoleGroup(databaseRoleGroup) {
-        let guildRole = this.get(databaseRoleGroup.guild_id);
+        const guild = this.guildSettings.get(databaseRoleGroup.guild_id);
+        if (!guild)
+            throw new Error(`Could not cache role group ${databaseRoleGroup.group_name} because the guild ${databaseRoleGroup.guild_id} was not cached.`);
 
-        if (!guildRole)
-            guildRole = {};
-
-        guildRole[databaseRoleGroup.role_id] = databaseRoleGroup.group_name;
-        this.set(databaseRoleGroup.guild_id, guildRole);
+        guild.roleGroups[databaseRoleGroup.role_id] = databaseRoleGroup.group_name;
+        this.set(databaseRoleGroup.guild_id, guild);
     }
 }
 

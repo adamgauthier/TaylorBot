@@ -1,5 +1,17 @@
 {
-    "Everyone": 0,
-    "Moderator": 10000,
-    "Master": 32768
+    "Everyone": {
+        "name": "Everyone",
+        "accessLevel": 0,
+        "isSpecial": true
+    },
+    "Moderators": {
+        "name": "Moderators",
+        "accessLevel": 10000,
+        "isSpecial": false
+    },
+    "Master": {
+        "name": "Master",
+        "accessLevel": 32768,
+        "isSpecial": true
+    }
 }

@@ -13,17 +13,17 @@ class GroupSettings extends Map {
 
     async loadAll() {
         let userGroups = await this.database.getAllUserGroups();
-        const defaults = Object.keys(DefaultGroups);
+        const defaults = Object.values(DefaultGroups).filter(d => !d.isSpecial);
 
         const defaultGroupsNotInDatabase = defaults.filter(d =>
-            !userGroups.some(ug => ug.name === d)
+            !userGroups.some(ug => ug.name === d.name)
         );
 
         if (defaultGroupsNotInDatabase.length > 0) {
-            Log.info(`Found new default user groups ${defaultGroupsNotInDatabase.join(',')}. Adding to database.`);
+            Log.info(`Found new default user groups ${defaultGroupsNotInDatabase.map(g => g.name).join(',')}. Adding to database.`);
 
             await this.database.addUserGroups(defaultGroupsNotInDatabase.map(d => {
-                return { 'name': d, 'access_level': DefaultGroups[d] };
+                return { 'name': d.name, 'access_level': d.accessLevel };
             }));
 
             userGroups = await this.database.getAllUserGroups();

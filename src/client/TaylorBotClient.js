@@ -44,8 +44,13 @@ class TaylorBotClient extends Discord.Client {
         await this.groupSettings.loadAll();
         Log.info('Group settings loaded!');
 
+        Log.info('Loading guild settings...');
+        this.guildSettings = new GuildSettings(this.database);
+        await this.guildSettings.load();
+        Log.info('Guild settings loaded!');
+
         Log.info('Loading guild role settings...');
-        this.guildRoleSettings = new GuildRoleSettings(this.database);
+        this.guildRoleSettings = new GuildRoleSettings(this.database, this.guildSettings);
         await this.guildRoleSettings.load();
         Log.info('Guild role settings loaded!');
 
@@ -53,11 +58,6 @@ class TaylorBotClient extends Discord.Client {
         this.commandSettings = new CommandSettings(this.database);
         await this.commandSettings.loadAll();
         Log.info('Command settings loaded!');
-
-        Log.info('Loading guild settings...');
-        this.guildSettings = new GuildSettings(this.database);
-        await this.guildSettings.load();
-        Log.info('Guild settings loaded!');
 
         Log.info('Loading user settings...');
         this.userSettings = new UserSettings(this.database);

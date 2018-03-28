@@ -6,7 +6,7 @@ const { GlobalPaths } = require('globalobjects');
 const MessageWatcher = require(GlobalPaths.MessageWatcher);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const { masterId } = require(GlobalPaths.DiscordConfig);
+const { masterId } = require(GlobalPaths.TaylorBotConfig);
 const DefaultGroups = require(GlobalPaths.DefaultGroups);
 
 class CommandsWatcher extends MessageWatcher {
@@ -18,15 +18,18 @@ class CommandsWatcher extends MessageWatcher {
 
             const { channel } = message;
             if (channel.type === 'text') {
-                const { guild, content } = message;
-                const { prefix } = taylorbot.guildSettings.get(guild.id);
+                const { guild, member, content } = message;
+                const { guildSettings } = taylorbot;
+                const { prefix } = guildSettings.get(guild.id);
 
                 let text = content.trim();
                 if (text.startsWith(prefix)) {
                     text = text.substring(prefix.length);
                     const args = text.split(' ');
                     const commandName = args.shift().toLowerCase();
-                    const command = taylorbot.commandSettings.getCommand(commandName);
+
+                    const { commandSettings, groupSettings } = taylorbot;
+                    const command = commandSettings.getCommand(commandName);
 
                     if (!command)
                         return;
@@ -43,29 +46,10 @@ class CommandsWatcher extends MessageWatcher {
                         return;
                     }
 
-                    if (!hasAccess()) {
-
+                    if (!CommandsWatcher.groupHasAccess(member, command.minimumGroup.accessLevel, guildSettings, groupSettings)) {
+                        Log.verbose(`Command '${commandName}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.minimumGroup.name}'.`);
+                        return;
                     }
-
-                    hasAccess = (member, minimumGroupLevel, guildRoleSettings, groupSettings) => {
-                        let accessLevel = member.id === masterId ? DefaultGroups.Master : DefaultGroups.Everyone;
-                        if (accessLevel >= minimumGroupLevel)
-                            return true;
-
-                        const guildRoles = guildRoleSettings.get(guild.id);
-                        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
-                        if (ownedGroups.length > 0) {
-                            // TODO: foreach until you find one?
-                            accessLevel = ownedGroups.reduce((a, b) =>
-                                Math.max(groupSettings.get(a), groupSettings.get(b))
-                            );
-
-                            if (accessLevel >= minimumGroupLevel)
-                                return true;
-                        }
-
-                        return false;
-                    };
 
                     // TODO: Command Groups
 
@@ -104,6 +88,23 @@ class CommandsWatcher extends MessageWatcher {
             }
         });
     }
+
+    static groupHasAccess(member, minimumGroupLevel, guildSettings, groupSettings) {
+        let { accessLevel } = member.id === masterId ? DefaultGroups.Master : DefaultGroups.Everyone;
+        if (accessLevel >= minimumGroupLevel)
+            return true;
+
+        const guildRoles = guildSettings.get(member.guild.id).roleGroups;
+        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
+
+        for (const group of ownedGroups) {
+            accessLevel = groupSettings.get(group);
+            if (accessLevel >= minimumGroupLevel)
+                return true;
+        }
+
+        return false;
+    };
 }
 
 module.exports = new CommandsWatcher();
