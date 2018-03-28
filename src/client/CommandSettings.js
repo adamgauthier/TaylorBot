@@ -40,9 +40,9 @@ class CommandSettings extends Map {
         }
 
         fileCommandNames.forEach(name => {
-            const { alternateNames, ...command } = fileCommands[name];
+            const { aliases, ...command } = fileCommands[name];
             this.cacheCommand(name, command);
-            alternateNames.forEach(alt => this.cacheAlternateName(alt, name));
+            aliases.forEach(alias => this.cacheAlternateName(alias, name));
         });
 
         commands.forEach(c => this.cacheDatabaseCommand(c));
