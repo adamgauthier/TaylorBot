@@ -46,7 +46,7 @@ class GlobalPaths {
         this.CommandLoader = path.join(pathMapper.modules.path, 'CommandLoader');
         this.TypeLoader = path.join(pathMapper.modules.path, 'TypeLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
-        this.MessageWatcherFeeder = path.join(pathMapper.modules.path, 'MessageWatcherFeeder');
+        this.MessageWatcherRegistry = path.join(pathMapper.modules.path, 'MessageWatcherRegistry');
 
         this.taylorBotClient = path.join(pathMapper.client.path, 'TaylorBotClient');
 

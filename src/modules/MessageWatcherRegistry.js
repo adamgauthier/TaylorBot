@@ -10,13 +10,12 @@ const watchersPath = GlobalPaths.watchersFolderPath;
 
 const requireWatcher = watcherName => require(path.join(watchersPath, watcherName));
 
-class MessageWatcherFeeder {
+class MessageWatcherRegistry {
     constructor() {
         this._watchers = new Map();
-        this._loadAll();
     }
 
-    _loadAll() {
+    loadAll() {
         const files = fs.readdirSync(watchersPath);
         files.forEach(filename => {
             const filePath = path.parse(filename);
@@ -40,4 +39,4 @@ class MessageWatcherFeeder {
     }
 }
 
-module.exports = MessageWatcherFeeder;
+module.exports = MessageWatcherRegistry;
