@@ -24,7 +24,7 @@ class GlobalPaths {
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.MessageWatcher = path.join(pathMapper.structures.path, 'MessageWatcher');
         this.Command = path.join(pathMapper.structures.path, 'Command');
-        this.DefaultGroups = path.join(pathMapper.structures.path, 'DefaultGroups.json');
+        this.DefaultGroups = path.join(pathMapper.client.path, 'DefaultGroups.json');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
         this.TimeUtil = path.join(pathMapper.modules.path, 'TimeUtil');
         this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
