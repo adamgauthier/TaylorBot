@@ -18,8 +18,8 @@ class UserSettings extends Map {
 
     cacheUser(databaseUser) {
         this.set(databaseUser.user_id, {
-            'lastCommand': databaseUser.last_command,
-            'lastAnswered': databaseUser.last_answered,
+            'lastCommand': 0,
+            'lastAnswered': 1,
             'ignoreUntil': databaseUser.ignore_until
         });
     }

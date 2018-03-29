@@ -54,7 +54,7 @@ class DatabaseDriver {
     async getAllUsers() {
         try {
             return await this._db.users.find({}, {
-                fields: ['user_id', 'last_command', 'last_answered', 'ignore_until']
+                fields: ['user_id', 'ignore_until']
             });
         }
         catch (e) {
