@@ -7,12 +7,14 @@ const Log = require(GlobalPaths.Logger);
 
 class Disconnect extends EventHandler {
     constructor() {
-        super((taylorbot, closeEvent) => {
-            Log.info(`Client was disconnected! Reason: ${closeEvent.code} - ${closeEvent.reason}`);
+        super();
+    }
 
-            taylorbot.intervalRunner.stopAll();
-            Log.info('Intervals stopped!');
-        });
+    handler(taylorbot, closeEvent) {
+        Log.info(`Client was disconnected! Reason: ${closeEvent.code} - ${closeEvent.reason}`);
+
+        taylorbot.intervalRunner.stopAll();
+        Log.info('Intervals stopped!');
     }
 }
 

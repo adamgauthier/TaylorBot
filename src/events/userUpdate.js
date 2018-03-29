@@ -8,13 +8,15 @@ const Format = require(GlobalPaths.DiscordFormatter);
 
 class UserUpdate extends EventHandler {
     constructor() {
-        super(async (taylorbot, oldUser, newUser) => {
-            if (oldUser.username !== newUser.username) {
-                const changedAt = new Date().getTime();
-                await taylorbot.database.addUsername(newUser, changedAt);
-                Log.info(`Added new username for ${Format.user(newUser)}. Old username was ${oldUser.username}.`);
-            }
-        });
+        super();
+    }
+
+    async handler(taylorbot, oldUser, newUser) {
+        if (oldUser.username !== newUser.username) {
+            const changedAt = new Date().getTime();
+            await taylorbot.database.addUsername(newUser, changedAt);
+            Log.info(`Added new username for ${Format.user(newUser)}. Old username was ${oldUser.username}.`);
+        }
     }
 }
 

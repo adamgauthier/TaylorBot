@@ -8,16 +8,18 @@ const Format = require(GlobalPaths.DiscordFormatter);
 
 class Ready extends EventHandler {
     constructor() {
-        super(async (taylorbot) => {
-            Log.info('Client is ready!');
+        super();
+    }
 
-            taylorbot.intervalRunner.startAll();
-            Log.info('Intervals started!');
+    async handler(taylorbot) {
+        Log.info('Client is ready!');
 
-            Log.info('Checking new guilds, users and usernames...');
-            await this.syncDatabase(taylorbot);
-            Log.info('New guilds, users and usernames checked!');
-        });
+        taylorbot.intervalRunner.startAll();
+        Log.info('Intervals started!');
+
+        Log.info('Checking new guilds, users and usernames...');
+        await this.syncDatabase(taylorbot);
+        Log.info('New guilds, users and usernames checked!');
     }
 
     async syncDatabase(taylorbot) {
