@@ -91,7 +91,7 @@ class CommandSettings extends Map {
 
     getCommand(name) {
         let command = this.get(name);
-        if (typeof (command) === 'string')
+        if (typeof command === 'string')
             return this.get(command);
 
         return command;

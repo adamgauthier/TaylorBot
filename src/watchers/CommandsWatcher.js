@@ -73,7 +73,7 @@ class CommandsWatcher extends MessageWatcher {
                     for (let i = 0; i < command.args.length; ++i) {
                         const argInfo = command.args[i];
                         const val = args[i];
-                        const type = taylorbot.typeSettings.get(argInfo.typeId);
+                        const type = taylorbot.registry.types.get(argInfo.typeId);
 
                         const result = await type.validate(val, message, argInfo);
                         if (result === false || typeof result === 'string') {

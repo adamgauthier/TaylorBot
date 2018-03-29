@@ -4,7 +4,7 @@ const { GlobalPaths } = require('globalobjects');
 
 const TypeLoader = require(GlobalPaths.TypeLoader);
 
-class TypeSettings extends Map {
+class TypeRegistry extends Map {
     constructor() {
         super();
     }
@@ -25,4 +25,4 @@ class TypeSettings extends Map {
     }
 }
 
-module.exports = TypeSettings;
+module.exports = TypeRegistry;

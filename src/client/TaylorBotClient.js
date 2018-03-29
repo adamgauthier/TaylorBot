@@ -13,7 +13,7 @@ const UserSettings = require(GlobalPaths.UserSettings);
 const CommandSettings = require(GlobalPaths.CommandSettings);
 const GroupSettings = require(GlobalPaths.GroupSettings);
 const GuildRoleSettings = require(GlobalPaths.GuildRoleSettings);
-const TypeSettings = require(GlobalPaths.TypeSettings);
+const TypeRegistry = require(GlobalPaths.TypeRegistry);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const WatcherFeeder = require(GlobalPaths.MessageWatcherFeeder);
 
@@ -35,10 +35,12 @@ class TaylorBotClient extends Discord.Client {
         await this.eventLoader.loadAll(this);
         Log.info('Events loaded!');
 
-        Log.info('Loading type settings...');
-        this.typeSettings = new TypeSettings();
-        await this.typeSettings.loadAll(this);
-        Log.info('Type settings loaded!');
+        this.registry = {};
+
+        Log.info('Loading type registry...');
+        this.registry.types = new TypeRegistry();
+        await this.registry.types.loadAll(this);
+        Log.info('Type registry loaded!');
 
         Log.info('Loading message watchers...');
         this.watcherFeeder = new WatcherFeeder();
