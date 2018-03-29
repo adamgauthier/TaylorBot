@@ -42,7 +42,7 @@ class CommandSettings extends Map {
         fileCommandNames.forEach(name => {
             const { aliases, ...command } = fileCommands[name];
             this.cacheCommand(name, command);
-            aliases.forEach(alias => this.cacheAlternateName(alias, name));
+            aliases.forEach(alias => this.cacheAlias(alias, name));
         });
 
         commands.forEach(c => this.cacheDatabaseCommand(c));
@@ -58,14 +58,14 @@ class CommandSettings extends Map {
         this.set(name, fileCommand);
     }
 
-    cacheAlternateName(alternateName, commandName) {
+    cacheAlias(alias, commandName) {
         if (!this.has(commandName))
-            throw new Error(`Can't cache alternate name of command ${commandName}, because it is not cached.`);
+            throw new Error(`Can't cache alias of command ${commandName}, because it is not cached.`);
 
-        if (this.has(alternateName))
-            throw new Error(`Can't cache alternate name ${alternateName} for ${commandName} because it is already cached.`);
+        if (this.has(alias))
+            throw new Error(`Can't cache alias ${alias} for ${commandName} because it is already cached.`);
 
-        this.set(alternateName, commandName);
+        this.set(alias, commandName);
     }
 
     cacheDatabaseCommand(databaseCommand) {
