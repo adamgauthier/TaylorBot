@@ -18,4 +18,4 @@ class Disconnect extends EventHandler {
     }
 }
 
-module.exports = new Disconnect();
+module.exports = Disconnect;

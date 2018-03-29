@@ -62,4 +62,4 @@ class Ready extends EventHandler {
     }
 }
 
-module.exports = new Ready();
+module.exports = Ready;

@@ -14,4 +14,4 @@ class Message extends EventHandler {
     }
 }
 
-module.exports = new Message();
+module.exports = Message;

@@ -18,7 +18,8 @@ class EventLoader {
                     files.forEach(filename => {
                         const filePath = path.parse(filename);
                         if (filePath.ext === '.js') {
-                            const event = requireEvent(filePath.base);
+                            const Event = requireEvent(filePath.base);
+                            const event = new Event();
                             if (event.enabled)
                                 client.on(filePath.name, (...args) => event.handler(client, ...args));
                         }

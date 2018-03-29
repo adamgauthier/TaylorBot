@@ -34,4 +34,4 @@ class GuildMemberAdd extends EventHandler {
     }
 }
 
-module.exports = new GuildMemberAdd();
+module.exports = GuildMemberAdd;

@@ -20,4 +20,4 @@ class UserUpdate extends EventHandler {
     }
 }
 
-module.exports = new UserUpdate();
+module.exports = UserUpdate;
