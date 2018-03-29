@@ -16,6 +16,7 @@ const GuildRoleSettings = require(GlobalPaths.GuildRoleSettings);
 const TypeRegistry = require(GlobalPaths.TypeRegistry);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const WatcherFeeder = require(GlobalPaths.MessageWatcherFeeder);
+const Registry = require(GlobalPaths.Registry);
 
 const discordMax = 2000;
 
@@ -35,12 +36,8 @@ class TaylorBotClient extends Discord.Client {
         await this.eventLoader.loadAll(this);
         Log.info('Events loaded!');
 
-        this.registry = {};
-
-        Log.info('Loading type registry...');
-        this.registry.types = new TypeRegistry();
-        await this.registry.types.loadAll(this);
-        Log.info('Type registry loaded!');
+        this.registry = new Registry();
+        await this.registry.loadAll();
 
         Log.info('Loading message watchers...');
         this.watcherFeeder = new WatcherFeeder();

@@ -41,6 +41,7 @@ class GlobalPaths {
         this.TypeRegistry = path.join(pathMapper.client.path, 'TypeRegistry');
         this.GroupSettings = path.join(pathMapper.client.path, 'GroupSettings');
         this.GuildRoleSettings = path.join(pathMapper.client.path, 'GuildRoleSettings');
+        this.Registry = path.join(pathMapper.client.path, 'Registry');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
         this.CommandLoader = path.join(pathMapper.modules.path, 'CommandLoader');
         this.TypeLoader = path.join(pathMapper.modules.path, 'TypeLoader');
