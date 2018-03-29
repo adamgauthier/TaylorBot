@@ -68,13 +68,31 @@ class CommandsWatcher extends MessageWatcher {
 
                     userSettings.updateLastCommand(author, commandTime);
 
+                    const parsedArgs = {};
+
+                    for (let i = 0; i < command.args.length; ++i) {
+                        const argInfo = command.args[i];
+                        const val = args[i];
+                        const type = taylorbot.typeSettings.get(argInfo.typeId);
+
+                        const result = await type.validate(val, message, argInfo);
+                        if (result === false || typeof result === 'string') {
+                            const errorMessage = `Argument '${argInfo.name}' is invalid. ${result || ''}`;
+                            await taylorbot.sendMessage(channel, errorMessage);
+                            return;
+                        }
+                        else {
+                            parsedArgs[argInfo.name] = type.parse(val, message, argInfo);
+                        }
+                    }
+
                     try {
                         await command.handler({
                             message,
                             author,
                             channel,
                             guild,
-                            args
+                            parsedArgs
                         });
                     }
                     catch (e) {
