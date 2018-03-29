@@ -11,11 +11,13 @@ const intervalTime = 60000;
 
 class YoutubeInterval extends Interval {
     constructor() {
-        super(intervalTime, async taylorbot => {
-            const youtubeChannels = await taylorbot.database.getYoutubeChannels();
-            const it = youtubeChannels.entries();
-            this.checkSingleYoutube(taylorbot, it);
-        });
+        super(intervalTime);
+    }
+
+    async interval(taylorbot) {
+        const youtubeChannels = await taylorbot.database.getYoutubeChannels();
+        const it = youtubeChannels.entries();
+        this.checkSingleYoutube(taylorbot, it);
     }
 
     async checkSingleYoutube(taylorbot, iterator) {
@@ -49,4 +51,4 @@ class YoutubeInterval extends Interval {
     }
 }
 
-module.exports = new YoutubeInterval();
+module.exports = YoutubeInterval;

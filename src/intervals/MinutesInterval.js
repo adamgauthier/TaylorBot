@@ -12,12 +12,14 @@ const msBeforeInactive = 10 * 60 * 1000;
 
 class MinutesInterval extends Interval {
     constructor() {
-        super(msBeforeAdd, async ({ database }) => {
-            const minimumLastSpoke = new Date().getTime() - msBeforeInactive;
+        super(msBeforeAdd);
+    }
 
-            await database.addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward);
-        });
+    async interval({ database }) {
+        const minimumLastSpoke = new Date().getTime() - msBeforeInactive;
+
+        await database.addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward);
     }
 }
 
-module.exports = new MinutesInterval();
+module.exports = MinutesInterval;

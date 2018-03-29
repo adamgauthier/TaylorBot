@@ -70,7 +70,8 @@ class IntervalRunner {
         if (this._intervals.has(intervalName))
             throw new Error(`Interval ${intervalName} is already loaded.`);
         
-        const interval = require(path.join(intervalsPath, intervalName));
+        const Interval = require(path.join(intervalsPath, intervalName));
+        const interval = new Interval();
         interval.name = intervalName;
         this._intervals.set(intervalName, interval);
         Log.verbose(`Loaded Interval ${intervalName}.`);

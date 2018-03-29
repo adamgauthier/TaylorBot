@@ -11,11 +11,13 @@ const intervalTime = 60000;
 
 class RedditInterval extends Interval {
     constructor() {
-        super(intervalTime, async taylorbot => {
-            const reddits = await taylorbot.database.getReddits();
-            const it = reddits.entries();
-            this.checkSingleReddit(taylorbot, it);
-        });
+        super(intervalTime);
+    }
+
+    async interval(taylorbot) {
+        const reddits = await taylorbot.database.getReddits();
+        const it = reddits.entries();
+        this.checkSingleReddit(taylorbot, it);
     }
 
     async checkSingleReddit(taylorbot, iterator) {
@@ -48,4 +50,4 @@ class RedditInterval extends Interval {
     }
 }
 
-module.exports = new RedditInterval();
+module.exports = RedditInterval;

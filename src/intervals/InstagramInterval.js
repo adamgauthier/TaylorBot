@@ -11,11 +11,13 @@ const intervalTime = 60000;
 
 class InstagramInterval extends Interval {
     constructor() {
-        super(intervalTime, async taylorbot => {
-            const instagrams = await taylorbot.database.getInstagrams();
-            const it = instagrams.entries();
-            this.checkSingleInstagram(taylorbot, it);
-        });
+        super(intervalTime);
+    }
+
+    async interval(taylorbot) {
+        const instagrams = await taylorbot.database.getInstagrams();
+        const it = instagrams.entries();
+        this.checkSingleInstagram(taylorbot, it);
     }
 
     async checkSingleInstagram(taylorbot, iterator) {
@@ -49,4 +51,4 @@ class InstagramInterval extends Interval {
     }
 }
 
-module.exports = new InstagramInterval();
+module.exports = InstagramInterval;

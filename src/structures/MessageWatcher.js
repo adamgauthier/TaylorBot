@@ -1,7 +1,7 @@
 'use strict';
 
 class MessageWatcher {
-    constructor(messageHandler, enabled = true) {
+    constructor(enabled = true) {
         if (new.target === MessageWatcher) {
             throw new Error(`Can't instantiate abstract MessageWatcher class.`);
         }
@@ -10,7 +10,7 @@ class MessageWatcher {
     }
 
     messageHandler() {
-        throw new Error(`${this.constructor.name} doesn't have a handler() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a messageHandler() method.`);
     }
 }
 

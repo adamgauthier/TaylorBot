@@ -14,7 +14,7 @@ class TumblrInterval extends Interval {
         super(intervalTime, TumblrInterval.intervalHandler);
     }
 
-    static async intervalHandler(taylorbot) {
+    async interval(taylorbot) {
         const tumblrs = await taylorbot.database.getTumblrs();
         const it = tumblrs.entries();
         return TumblrInterval.checkSingleTumblr(taylorbot, it);
@@ -51,4 +51,4 @@ class TumblrInterval extends Interval {
     }
 }
 
-module.exports = new TumblrInterval();
+module.exports = TumblrInterval;
