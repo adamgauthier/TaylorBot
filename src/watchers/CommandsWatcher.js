@@ -11,8 +11,11 @@ const DefaultGroups = require(GlobalPaths.DefaultGroups);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {
-        super(async (taylorbot, message) => {
-            const { author } = message;
+        super();
+    }
+
+    async messageHandler(taylorbot, message) {
+        const { author } = message;
             if (author.bot)
                 return;
 
@@ -102,7 +105,6 @@ class CommandsWatcher extends MessageWatcher {
                     }
                 }
             }
-        });
     }
 
     static groupHasAccess(member, minimumGroupLevel, guilds, groups) {
@@ -123,4 +125,4 @@ class CommandsWatcher extends MessageWatcher {
     };
 }
 
-module.exports = new CommandsWatcher();
+module.exports = CommandsWatcher;

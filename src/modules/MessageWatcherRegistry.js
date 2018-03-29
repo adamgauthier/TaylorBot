@@ -20,7 +20,8 @@ class MessageWatcherRegistry {
         files.forEach(filename => {
             const filePath = path.parse(filename);
             if (filePath.ext === '.js') {
-                const watcher = requireWatcher(filePath.base);
+                const Watcher = requireWatcher(filePath.base);
+                const watcher = new Watcher();
                 if (watcher.enabled)
                     this._watchers.set(filePath.name, watcher);
             }

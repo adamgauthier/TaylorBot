@@ -6,15 +6,17 @@ const MessageWatcher = require(GlobalPaths.MessageWatcher);
 
 class LastSpokeWatcher extends MessageWatcher {
     constructor() {
-        super(async ({ database }, message) => {
-            const { channel } = message;
-            if (channel.type === 'text') {
-                const { author, guild } = message;
+        super();
+    }
 
-                await database.updateLastSpoke(author, guild, message.createdAt.getTime());
-            }
-        });
+    async messageHandler({ database }, message) {
+        const { channel } = message;
+        if (channel.type === 'text') {
+            const { author, guild } = message;
+
+            await database.updateLastSpoke(author, guild, message.createdAt.getTime());
+        }
     }
 }
 
-module.exports = new LastSpokeWatcher();
+module.exports = LastSpokeWatcher;
