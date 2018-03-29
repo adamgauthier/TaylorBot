@@ -19,7 +19,7 @@ class GlobalPaths {
         this.MyApiFilmsConfig = path.join(pathMapper.config.path, 'myapifilms.json');
         this.PostgreSQLConfig = path.join(pathMapper.config.path, 'postgresql.json');
 
-        this.DatabaseDriver = path.join(pathMapper.modules.database.path, 'DatabaseDriver');
+        this.DatabaseDriver = path.join(pathMapper.database.path, 'DatabaseDriver');
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
         this.Interval = path.join(pathMapper.structures.path, 'Interval');
         this.MessageWatcher = path.join(pathMapper.structures.path, 'MessageWatcher');
