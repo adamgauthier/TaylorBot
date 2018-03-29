@@ -5,7 +5,7 @@ const { GlobalPaths } = require('globalobjects');
 const Log = require(GlobalPaths.Logger);
 const CommandLoader = require(GlobalPaths.CommandLoader);
 
-class CommandSettings extends Map {
+class CommandRegistry extends Map {
     constructor(database) {
         super();
         this.database = database;
@@ -98,4 +98,4 @@ class CommandSettings extends Map {
     }
 }
 
-module.exports = CommandSettings;
+module.exports = CommandRegistry;

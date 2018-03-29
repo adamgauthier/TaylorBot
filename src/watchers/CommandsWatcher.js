@@ -19,17 +19,15 @@ class CommandsWatcher extends MessageWatcher {
             const { channel } = message;
             if (channel.type === 'text') {
                 const { guild, member, content } = message;
-                const { guildSettings } = taylorbot;
-                const { prefix } = guildSettings.get(guild.id);
+                const { registry } = taylorbot;
+                const { prefix } = registry.guilds.get(guild.id);
 
                 let text = content.trim();
                 if (text.startsWith(prefix)) {
                     text = text.substring(prefix.length);
                     const args = text.split(' ');
                     const commandName = args.shift().toLowerCase();
-
-                    const { commandSettings, groupSettings, userSettings } = taylorbot;
-                    const command = commandSettings.getCommand(commandName);
+                    const command = registry.commands.getCommand(commandName);
 
                     if (!command)
                         return;
@@ -46,7 +44,7 @@ class CommandsWatcher extends MessageWatcher {
                         return;
                     }
 
-                    if (!CommandsWatcher.groupHasAccess(member, command.minimumGroup.accessLevel, guildSettings, groupSettings)) {
+                    if (!CommandsWatcher.groupHasAccess(member, command.minimumGroup.accessLevel, registry.guilds, registry.groups)) {
                         Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.minimumGroup.name}'.`);
                         return;
                     }
@@ -54,7 +52,7 @@ class CommandsWatcher extends MessageWatcher {
                     // TODO: Command Groups
 
                     const commandTime = new Date().getTime();
-                    const { lastCommand, lastAnswered, ignoreUntil } = userSettings.get(author.id);
+                    const { lastCommand, lastAnswered, ignoreUntil } = registry.users.get(author.id);
 
                     if (commandTime < ignoreUntil) {
                         Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they are ignored until ${moment(ignoreUntil, 'x').format('MMM Do YY, H:mm:ss Z')}.`);
@@ -66,14 +64,14 @@ class CommandsWatcher extends MessageWatcher {
                         return;
                     }
 
-                    userSettings.updateLastCommand(author, commandTime);
+                    registry.users.updateLastCommand(author, commandTime);
 
                     const parsedArgs = {};
 
                     for (let i = 0; i < command.args.length; ++i) {
                         const argInfo = command.args[i];
                         const val = args[i];
-                        const type = taylorbot.registry.types.get(argInfo.typeId);
+                        const type = registry.types.get(argInfo.typeId);
 
                         const result = await type.validate(val, message, argInfo);
                         if (result === false || typeof result === 'string') {
@@ -100,23 +98,23 @@ class CommandsWatcher extends MessageWatcher {
                     }
                     finally {
                         const answeredTime = new Date().getTime();
-                        userSettings.updateLastAnswered(author, answeredTime);
+                        registry.users.updateLastAnswered(author, answeredTime);
                     }
                 }
             }
         });
     }
 
-    static groupHasAccess(member, minimumGroupLevel, guildSettings, groupSettings) {
+    static groupHasAccess(member, minimumGroupLevel, guilds, groups) {
         let { accessLevel } = member.id === masterId ? DefaultGroups.Master : DefaultGroups.Everyone;
         if (accessLevel >= minimumGroupLevel)
             return true;
 
-        const guildRoles = guildSettings.get(member.guild.id).roleGroups;
+        const guildRoles = guilds.get(member.guild.id).roleGroups;
         const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
 
         for (const group of ownedGroups) {
-            accessLevel = groupSettings.get(group);
+            accessLevel = groups.get(group);
             if (accessLevel >= minimumGroupLevel)
                 return true;
         }

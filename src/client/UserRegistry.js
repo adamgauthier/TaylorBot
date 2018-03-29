@@ -5,7 +5,7 @@ const { GlobalPaths } = require('globalobjects');
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
-class UserSettings extends Map {
+class UserRegistry extends Map {
     constructor(database) {
         super();
         this.database = database;
@@ -41,24 +41,22 @@ class UserSettings extends Map {
     }
 
     updateLastCommand(user, lastCommand) {
-        const settings = this.get(user.id);
+        const cachedUser = this.get(user.id);
 
-        if (!settings)
+        if (!cachedUser)
             throw new Error(`Can't update lastCommand of user ${Format.user(user)} because it wasn't cached.`);
         
-        settings.lastCommand = lastCommand;
-        this.set(user.id, settings);
+        cachedUser.lastCommand = lastCommand;
     }
 
     updateLastAnswered(user, lastAnswered) {
-        const settings = this.get(user.id);
+        const cacheUser = this.get(user.id);
 
-        if (!settings)
+        if (!cacheUser)
             throw new Error(`Can't update lastAnswered of user ${Format.user(user)} because it wasn't cached.`);
         
-        settings.lastAnswered = lastAnswered;
-        this.set(user.id, settings);
+        cacheUser.lastAnswered = lastAnswered;
     }
 }
 
-module.exports = UserSettings;
+module.exports = UserRegistry;

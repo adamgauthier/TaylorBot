@@ -11,24 +11,24 @@ class GuildCreate extends EventHandler {
         super(async (taylorbot, guild) => {
             Log.info(`Joined guild ${Format.guild(guild)}.`);
 
-            const { database } = taylorbot;
+            const { database, registry } = taylorbot;
 
             const clientMember = await guild.fetchMember(taylorbot.user);
             const joinTime = clientMember.joinedTimestamp;
             const guildMembers = await database.getAllGuildMembersInGuild(guild);
             let latestUsernames = await database.getLatestUsernames();
 
-            if (!taylorbot.guildSettings.has(guild.id)) {
+            if (!registry.guilds.has(guild.id)) {
                 Log.info(`Adding new guild ${Format.guild(guild)}.`);
-                await taylorbot.guildSettings.addGuild(guild);
+                await registry.guilds.addGuild(guild);
             }
 
             const { members } = await guild.fetchMembers();
             for (const member of members.values()) {
                 const { user } = member;
-                if (!taylorbot.userSettings.has(member.id)) {
+                if (!registry.users.has(member.id)) {
                     Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                    await taylorbot.userSettings.addUser(user);
+                    await registry.users.addUser(user);
                 }
 
                 if (!guildMembers.some(gm => gm.user_id === member.id)) {

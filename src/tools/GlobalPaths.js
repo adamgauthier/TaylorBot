@@ -35,12 +35,12 @@ class GlobalPaths {
         this.InstagramModule = path.join(pathMapper.modules.path, 'InstagramModule');
         this.RedditModule = path.join(pathMapper.modules.path, 'RedditModule');
         this.YoutubeModule = path.join(pathMapper.modules.path, 'YoutubeModule');
-        this.GuildSettings = path.join(pathMapper.client.path, 'GuildSettings');
-        this.UserSettings = path.join(pathMapper.client.path, 'UserSettings');
-        this.CommandSettings = path.join(pathMapper.client.path, 'CommandSettings');
+        this.GuildRegistry = path.join(pathMapper.client.path, 'GuildRegistry');
+        this.UserRegistry = path.join(pathMapper.client.path, 'UserRegistry');
+        this.CommandRegistry = path.join(pathMapper.client.path, 'CommandRegistry');
         this.TypeRegistry = path.join(pathMapper.client.path, 'TypeRegistry');
-        this.GroupSettings = path.join(pathMapper.client.path, 'GroupSettings');
-        this.GuildRoleSettings = path.join(pathMapper.client.path, 'GuildRoleSettings');
+        this.GroupRegistry = path.join(pathMapper.client.path, 'GroupRegistry');
+        this.GuildRoleGroupRegistry = path.join(pathMapper.client.path, 'GuildRoleGroupRegistry');
         this.Registry = path.join(pathMapper.client.path, 'Registry');
         this.EventLoader = path.join(pathMapper.modules.path, 'EventLoader');
         this.CommandLoader = path.join(pathMapper.modules.path, 'CommandLoader');

@@ -8,11 +8,6 @@ const DatabaseDriver = require(GlobalPaths.DatabaseDriver);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
-const GuildSettings = require(GlobalPaths.GuildSettings);
-const UserSettings = require(GlobalPaths.UserSettings);
-const CommandSettings = require(GlobalPaths.CommandSettings);
-const GroupSettings = require(GlobalPaths.GroupSettings);
-const GuildRoleSettings = require(GlobalPaths.GuildRoleSettings);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const Registry = require(GlobalPaths.Registry);
 
@@ -34,33 +29,8 @@ class TaylorBotClient extends Discord.Client {
         await this.eventLoader.loadAll(this);
         Log.info('Events loaded!');
 
-        this.registry = new Registry();
+        this.registry = new Registry(this);
         await this.registry.loadAll();
-
-        Log.info('Loading group settings...');
-        this.groupSettings = new GroupSettings(this.database);
-        await this.groupSettings.loadAll();
-        Log.info('Group settings loaded!');
-
-        Log.info('Loading guild settings...');
-        this.guildSettings = new GuildSettings(this.database);
-        await this.guildSettings.load();
-        Log.info('Guild settings loaded!');
-
-        Log.info('Loading guild role settings...');
-        this.guildRoleSettings = new GuildRoleSettings(this.database, this.guildSettings);
-        await this.guildRoleSettings.load();
-        Log.info('Guild role settings loaded!');
-
-        Log.info('Loading command settings...');
-        this.commandSettings = new CommandSettings(this.database);
-        await this.commandSettings.loadAll();
-        Log.info('Command settings loaded!');
-
-        Log.info('Loading user settings...');
-        this.userSettings = new UserSettings(this.database);
-        await this.userSettings.load();
-        Log.info('User settings loaded!');
 
         await this.login(loginToken);
     }

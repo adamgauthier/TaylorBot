@@ -5,7 +5,7 @@ const { GlobalPaths } = require('globalobjects');
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
-class GuildSettings extends Map {
+class GuildRegistry extends Map {
     constructor(database) {
         super();
         this.database = database;
@@ -40,4 +40,4 @@ class GuildSettings extends Map {
     }
 }
 
-module.exports = GuildSettings;
+module.exports = GuildRegistry;

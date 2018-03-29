@@ -5,7 +5,7 @@ const { GlobalPaths } = require('globalobjects');
 const Log = require(GlobalPaths.Logger);
 const DefaultGroups = require(GlobalPaths.DefaultGroups);
 
-class GroupSettings extends Map {
+class GroupRegistry extends Map {
     constructor(database) {
         super();
         this.database = database;
@@ -40,4 +40,4 @@ class GroupSettings extends Map {
     }
 }
 
-module.exports = GroupSettings;
+module.exports = GroupRegistry;
