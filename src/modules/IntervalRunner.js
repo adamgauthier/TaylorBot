@@ -12,7 +12,6 @@ class IntervalRunner {
     constructor(client) {
         this._client = client;
         this._intervals = new Map();
-        this._loadAll();
     }
 
     startAll() {
@@ -42,7 +41,7 @@ class IntervalRunner {
         }
     }
 
-    _loadAll() {
+    loadAll() {
         const files = fs.readdirSync(intervalsPath);
         files.forEach(filename => {
             const filePath = path.parse(filename);

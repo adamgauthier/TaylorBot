@@ -14,22 +14,26 @@ const Registry = require(GlobalPaths.Registry);
 const discordMax = 2000;
 
 class TaylorBotClient extends Discord.Client {
+    constructor() {
+        this.database = new DatabaseDriver();
+        this.intervalRunner = new IntervalRunner(this);
+        this.eventLoader = new EventLoader();
+        this.registry = new Registry(this);
+    }
+
     async start() {
         Log.info('Loading database...');
-        this.database = new DatabaseDriver();
         await this.database.load();
         Log.info('Database loaded!');
 
         Log.info('Loading intervals...');
-        this.intervalRunner = new IntervalRunner(this);
+        this.intervalRunner.loadAll();
         Log.info('Intervals loaded!');
 
         Log.info('Loading events...');
-        this.eventLoader = new EventLoader();
         await this.eventLoader.loadAll(this);
         Log.info('Events loaded!');
 
-        this.registry = new Registry(this);
         await this.registry.loadAll();
 
         await this.login(loginToken);
