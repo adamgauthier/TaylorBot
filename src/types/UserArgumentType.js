@@ -9,14 +9,14 @@ class UserArgumentType extends ArgumentType {
         super(taylorbot, 'user');
     }
 
-    validate(val, arg, message) {
+    validate(val, message, arg) {
         // TODO: actually validate
         return false;
     }
 
-    parse(val, arg, message) {
+    parse(val, message, arg) {
         // TODO: actually parse
-        return val;
+        return message.author;
     }
 }
 
