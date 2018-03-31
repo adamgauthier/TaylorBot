@@ -15,6 +15,7 @@ const discordMax = 2000;
 
 class TaylorBotClient extends Discord.Client {
     constructor() {
+        super();
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();

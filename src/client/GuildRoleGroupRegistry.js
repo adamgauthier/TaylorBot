@@ -6,7 +6,6 @@ const Log = require(GlobalPaths.Logger);
 
 class GuildRoleGroupRegistry {
     constructor(database, guildRegistry) {
-        super();
         this.database = database;
         this.guildRegistry = guildRegistry;
     }
