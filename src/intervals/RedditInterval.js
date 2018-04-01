@@ -37,7 +37,7 @@ class RedditInterval extends Interval {
 
             if (post.id !== last_post_id && post.created_utc > last_created) {
                 Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.id}.`);
-                await taylorbot.sendEmbed(channel, RedditModule.getRichEmbed(post));
+                await taylorbot.sendEmbed(channel, RedditModule.getEmbed(post));
                 await taylorbot.database.updateReddit(subreddit, guild_id, channel_id, post.id, post.created_utc);                
             }
         } 

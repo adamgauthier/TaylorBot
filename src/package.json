@@ -4,7 +4,8 @@
   "description": "Discord bot created for the /r/TaylorSwift Discord server",
   "main": "taylorbot.js",
   "dependencies": {
-    "discord.js": "^11.3.0",
+    "discord.js": "github:discordjs/discord.js",
+    "discord.js-commando": "github:discordjs/Commando",
     "erlpack": "github:discordapp/erlpack",
     "globalobjects": "file:tools/GlobalObjects",
     "massive": "^4.6.3",

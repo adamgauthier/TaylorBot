@@ -1,11 +1,13 @@
 'use strict';
 
 const Discord = require('discord.js');
+const Commando = require('discord.js-commando');
 const { GlobalPaths } = require('globalobjects');
 
 const EventLoader = require(GlobalPaths.EventLoader);
 const DatabaseDriver = require(GlobalPaths.DatabaseDriver);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
+const { masterId } = require(GlobalPaths.TaylorBotConfig);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
@@ -13,9 +15,9 @@ const Registry = require(GlobalPaths.Registry);
 
 const discordMax = 2000;
 
-class TaylorBotClient extends Discord.Client {
-    constructor() {
-        super();
+class TaylorBotClient extends Commando.Client {
+    constructor(options) {
+        super(options);
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();
@@ -260,7 +262,19 @@ class TaylorBotClient extends Discord.Client {
     }
 }
 
-module.exports = new TaylorBotClient({
+const taylorbot = new TaylorBotClient({
     'fetchAllMembers': true,
-    'disabledEvents': ['TYPING_START']
+    'disabledEvents': ['TYPING_START'],
+    'owner': masterId,
+    'commandPrefix': '!'
 });
+
+taylorbot.registry
+    .registerDefaultGroups()
+    .registerDefaultTypes()
+    .registerDefaultCommands({
+        'ping': false
+    })
+    .registerCommandsIn(GlobalPaths.commandsFolderPath);
+
+module.exports = taylorbot;

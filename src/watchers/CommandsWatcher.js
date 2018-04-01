@@ -7,11 +7,11 @@ const MessageWatcher = require(GlobalPaths.MessageWatcher);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const { masterId } = require(GlobalPaths.TaylorBotConfig);
-const DefaultGroups = require(GlobalPaths.DefaultGroups);
+const UserGroups = require(GlobalPaths.UserGroups);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {
-        super();
+        super(false);
     }
 
     async messageHandler(taylorbot, message) {
@@ -108,7 +108,7 @@ class CommandsWatcher extends MessageWatcher {
     }
 
     static groupHasAccess(member, minimumGroupLevel, guilds, groups) {
-        let { accessLevel } = member.id === masterId ? DefaultGroups.Master : DefaultGroups.Everyone;
+        let { accessLevel } = member.id === masterId ? UserGroups.Master : UserGroups.Everyone;
         if (accessLevel >= minimumGroupLevel)
             return true;
 

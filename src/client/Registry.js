@@ -46,7 +46,7 @@ class Registry {
         Log.info('Role groups loaded!');
 
         Log.info('Loading commands...');
-        await this.commands.loadAll();
+        await this.commands.loadAll(this.client);
         Log.info('Commands loaded!');
 
         Log.info('Loading users...');

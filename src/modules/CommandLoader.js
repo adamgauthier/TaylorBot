@@ -10,21 +10,19 @@ const commandsPath = GlobalPaths.commandsFolderPath;
 const requireCommand = commandName => require(path.join(commandsPath, commandName));
 
 class CommandLoader {
-    static loadAll() {
+    static loadAll(client) {
         return new Promise((resolve, reject) => {
             fs.readdir(commandsPath, (err, files) => {
                 if (err) reject(err);
                 else {
+                    const obj = require('require-all')(commandsPath);
                     const commands = {};
-                    files.forEach(filename => {
-                        const filePath = path.parse(filename);
-                        if (filePath.ext === '.js') {
-                            const command = requireCommand(filePath.base);
-                            const commandName = filePath.name.toLowerCase();
-                            command.name = commandName;
-                            commands[commandName] = command;
+                    for (const group of Object.values(obj)) {
+                        for (const Command of Object.values(group)) {
+                            const command = new Command(client);
+                            commands[command.name] = command;
                         }
-                    });
+                    }
                     resolve(commands);
                 }
             });

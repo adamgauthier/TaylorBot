@@ -1,7 +1,7 @@
 'use strict';
 
 const rp = require('request-promise');
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { GlobalPaths } = require('globalobjects');
 
 const StringUtil = require(GlobalPaths.StringUtil);
@@ -37,8 +37,8 @@ class InstagramModule {
         return { item, user };
     }
 
-    static getRichEmbed(item, user) {
-        const re = new RichEmbed({
+    static getEmbed(item, user) {
+        const re = new MessageEmbed({
             'description': `\`${item.edge_liked_by.count}\` likes ❤, \`${item.edge_media_to_comment.count}\` comments 💬`,
             'url': `https://www.instagram.com/p/${item.shortcode}/`,
             'timestamp': new Date(item.taken_at_timestamp * 1000),

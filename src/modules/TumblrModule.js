@@ -1,6 +1,6 @@
 'use strict';
 
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const tumblr = require('tumblr.js');
 const { GlobalPaths } = require('globalobjects');
 
@@ -24,7 +24,7 @@ class TumblrModule {
     }
 
     static getEmbed(post, blog) {
-        const re = new RichEmbed({
+        const re = new MessageEmbed({
             'url': post.short_url,
             'title': post.summary ? StringUtil.shrinkString(post.summary.replace(/\r?\n/g, ' '), 65, ' ...') : '(no title)',
             'timestamp': new Date(post.timestamp * 1000),

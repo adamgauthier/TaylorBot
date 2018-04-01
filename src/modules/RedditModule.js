@@ -1,7 +1,7 @@
 'use strict';
 
 const rp = require('request-promise');
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { GlobalPaths } = require('globalobjects');
 
 const StringUtil = require(GlobalPaths.StringUtil);
@@ -24,8 +24,8 @@ class RedditModule {
         return post;
     }
 
-    static getRichEmbed(post) {
-        const re = new RichEmbed({
+    static getEmbed(post) {
+        const re = new MessageEmbed({
             'title': StringUtil.shrinkString(post.title, 65, ' ...'),
             'url': `https://redd.it/${post.id}`,
             'timestamp': new Date(post.created_utc * 1000),

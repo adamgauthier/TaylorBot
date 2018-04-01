@@ -2,10 +2,10 @@
 
 const { GlobalPaths } = require('globalobjects');
 
-const DefaultGroups = require(GlobalPaths.DefaultGroups);
+const UserGroups = require(GlobalPaths.UserGroups);
 
 class Command {
-    constructor(handler, args = [], aliases = [], minimumGroup = DefaultGroups.Everyone) {
+    constructor(handler, args = [], aliases = [], minimumGroup = UserGroups.Everyone) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract Command class.`);
         }

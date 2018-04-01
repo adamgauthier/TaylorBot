@@ -1,7 +1,7 @@
 'use strict';
 
 const rp = require('request-promise');
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { GlobalPaths } = require('globalobjects');
 
 const { googleAPIKey } = require(GlobalPaths.GoogleConfig);
@@ -29,8 +29,8 @@ class YoutubeModule {
         return video;
     }
 
-    static getRichEmbed(video) {
-        const re = new RichEmbed({
+    static getEmbed(video) {
+        const re = new MessageEmbed({
             'title': StringUtil.shrinkString(video.title, 65, ' ...'),
             'description': StringUtil.shrinkString(video.description, 200, ' ...'),
             'url': `https://youtu.be/${video.resourceId.videoId}`,

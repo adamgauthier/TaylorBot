@@ -3,7 +3,7 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Log = require(GlobalPaths.Logger);
-const DefaultGroups = require(GlobalPaths.DefaultGroups);
+const UserGroups = require(GlobalPaths.UserGroups);
 
 class GroupRegistry extends Map {
     constructor(database) {
@@ -13,7 +13,7 @@ class GroupRegistry extends Map {
 
     async loadAll() {
         let userGroups = await this.database.getAllUserGroups();
-        const defaults = Object.values(DefaultGroups).filter(d => !d.isSpecial);
+        const defaults = Object.values(UserGroups).filter(d => !d.isSpecial);
 
         const defaultGroupsNotInDatabase = defaults.filter(d =>
             !userGroups.some(ug => ug.name === d.name)

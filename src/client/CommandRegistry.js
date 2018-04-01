@@ -11,8 +11,8 @@ class CommandRegistry extends Map {
         this.database = database;
     }
 
-    async loadAll() {
-        const fileCommands = await CommandLoader.loadAll();
+    async loadAll(client) {
+        const fileCommands = await CommandLoader.loadAll(client);
         let commands = await this.database.getAllCommands();
 
         const fileCommandNames = Object.keys(fileCommands);

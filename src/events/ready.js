@@ -35,7 +35,7 @@ class Ready extends EventHandler {
                 await oldRegistry.guilds.addGuild(guild);
             }
 
-            const { members } = await guild.fetchMembers();
+            const members = await guild.members.fetch();
             for (const member of members.values()) {
                 const { user } = member;
                 if (!oldRegistry.users.has(member.id)) {

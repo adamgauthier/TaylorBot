@@ -26,10 +26,11 @@ class GlobalPaths {
         this.Command = path.join(pathMapper.structures.path, 'Command');
         this.ArgumentInfo = path.join(pathMapper.structures.path, 'ArgumentInfo');
         this.ArgumentType = path.join(pathMapper.structures.path, 'ArgumentType');
-        this.DefaultGroups = path.join(pathMapper.client.path, 'DefaultGroups.json');
+        this.UserGroups = path.join(pathMapper.client.path, 'UserGroups.json');
         this.StringUtil = path.join(pathMapper.modules.path, 'StringUtil');
         this.TimeUtil = path.join(pathMapper.modules.path, 'TimeUtil');
         this.DiscordFormatter = path.join(pathMapper.modules.path, 'DiscordFormatter');
+        this.DiscordEmbedFormatter = path.join(pathMapper.modules.path, 'DiscordEmbedFormatter');
         this.Logger = path.join(pathMapper.tools.path, 'Logger');
         this.TumblrModule = path.join(pathMapper.modules.path, 'TumblrModule');
         this.InstagramModule = path.join(pathMapper.modules.path, 'InstagramModule');
@@ -47,6 +48,7 @@ class GlobalPaths {
         this.TypeLoader = path.join(pathMapper.modules.path, 'TypeLoader');
         this.IntervalRunner = path.join(pathMapper.modules.path, 'IntervalRunner');
         this.MessageWatcherRegistry = path.join(pathMapper.modules.path, 'MessageWatcherRegistry');
+        this.ArgumentInfos = path.join(pathMapper.constants.path, 'ArgumentInfos');
 
         this.taylorBotClient = path.join(pathMapper.client.path, 'TaylorBotClient');
 
