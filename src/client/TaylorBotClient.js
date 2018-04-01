@@ -19,7 +19,7 @@ class TaylorBotClient extends Discord.Client {
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();
-        this.registry = new Registry(this);
+        this.oldRegistry = new Registry(this);
     }
 
     async start() {
@@ -35,7 +35,7 @@ class TaylorBotClient extends Discord.Client {
         await this.eventLoader.loadAll(this);
         Log.info('Events loaded!');
 
-        await this.registry.loadAll();
+        await this.oldRegistry.loadAll();
 
         await this.login(loginToken);
     }

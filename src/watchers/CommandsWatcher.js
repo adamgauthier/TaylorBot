@@ -22,15 +22,15 @@ class CommandsWatcher extends MessageWatcher {
             const { channel } = message;
             if (channel.type === 'text') {
                 const { guild, member, content } = message;
-                const { registry } = taylorbot;
-                const { prefix } = registry.guilds.get(guild.id);
+                const { oldRegistry } = taylorbot;
+                const { prefix } = oldRegistry.guilds.get(guild.id);
 
                 let text = content.trim();
                 if (text.startsWith(prefix)) {
                     text = text.substring(prefix.length);
                     const args = text.split(' ');
                     const commandName = args.shift().toLowerCase();
-                    const command = registry.commands.getCommand(commandName);
+                    const command = oldRegistry.commands.getCommand(commandName);
 
                     if (!command)
                         return;
@@ -47,7 +47,7 @@ class CommandsWatcher extends MessageWatcher {
                         return;
                     }
 
-                    if (!CommandsWatcher.groupHasAccess(member, command.minimumGroup.accessLevel, registry.guilds, registry.groups)) {
+                    if (!CommandsWatcher.groupHasAccess(member, command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {
                         Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.minimumGroup.name}'.`);
                         return;
                     }
@@ -55,7 +55,7 @@ class CommandsWatcher extends MessageWatcher {
                     // TODO: Command Groups
 
                     const commandTime = new Date().getTime();
-                    const { lastCommand, lastAnswered, ignoreUntil } = registry.users.get(author.id);
+                    const { lastCommand, lastAnswered, ignoreUntil } = oldRegistry.users.get(author.id);
 
                     if (commandTime < ignoreUntil) {
                         Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they are ignored until ${moment(ignoreUntil, 'x').format('MMM Do YY, H:mm:ss Z')}.`);
@@ -67,14 +67,14 @@ class CommandsWatcher extends MessageWatcher {
                         return;
                     }
 
-                    registry.users.updateLastCommand(author, commandTime);
+                    oldRegistry.users.updateLastCommand(author, commandTime);
 
                     const parsedArgs = {};
 
                     for (let i = 0; i < command.args.length; ++i) {
                         const argInfo = command.args[i];
                         const val = args[i];
-                        const type = registry.types.get(argInfo.typeId);
+                        const type = oldRegistry.types.get(argInfo.typeId);
 
                         const result = await type.validate(val, message, argInfo);
                         if (result === false || typeof result === 'string') {
@@ -101,7 +101,7 @@ class CommandsWatcher extends MessageWatcher {
                     }
                     finally {
                         const answeredTime = new Date().getTime();
-                        registry.users.updateLastAnswered(author, answeredTime);
+                        oldRegistry.users.updateLastAnswered(author, answeredTime);
                     }
                 }
             }

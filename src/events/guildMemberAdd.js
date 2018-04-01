@@ -13,11 +13,11 @@ class GuildMemberAdd extends EventHandler {
 
     async handler(taylorbot, member) {
         const { user } = member;
-        const { database, registry } = taylorbot;
+        const { database, oldRegistry } = taylorbot;
 
-        if (!registry.users.has(member.id)) {
+        if (!oldRegistry.users.has(member.id)) {
             Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(member.guild)}.`);
-            await registry.users.addUser(user);
+            await oldRegistry.users.addUser(user);
         }
 
         const guildMemberExists = await database.doesGuildMemberExist(member);

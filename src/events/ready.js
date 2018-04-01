@@ -23,24 +23,24 @@ class Ready extends EventHandler {
     }
 
     async syncDatabase(taylorbot) {
-        const { database, registry } = taylorbot;
+        const { database, oldRegistry } = taylorbot;
 
         const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
         let latestUsernames = await database.getLatestUsernames();
 
         for (const guild of taylorbot.guilds.values()) {
-            if (!registry.guilds.has(guild.id)) {
+            if (!oldRegistry.guilds.has(guild.id)) {
                 Log.warn(`Found new guild ${Format.guild(guild)}.`);
-                await registry.guilds.addGuild(guild);
+                await oldRegistry.guilds.addGuild(guild);
             }
 
             const { members } = await guild.fetchMembers();
             for (const member of members.values()) {
                 const { user } = member;
-                if (!registry.users.has(member.id)) {
+                if (!oldRegistry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                    await registry.users.addUser(user);
+                    await oldRegistry.users.addUser(user);
                 }
 
                 if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {

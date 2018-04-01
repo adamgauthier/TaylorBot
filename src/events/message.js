@@ -10,7 +10,7 @@ class Message extends EventHandler {
     }
 
     handler(taylorbot, message) {
-        taylorbot.registry.watchers.feedAll(taylorbot, message);
+        taylorbot.oldRegistry.watchers.feedAll(taylorbot, message);
     }
 }
 
