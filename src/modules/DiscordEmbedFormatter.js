@@ -3,30 +3,46 @@
 const { MessageEmbed } = require('discord.js');
 const { GlobalPaths } = require('globalobjects');
 
+const TimeUtil = require(GlobalPaths.TimeUtil);
 const StringUtil = require(GlobalPaths.StringUtil);
 
 class DiscordEmbedFormatter {
     static member(member) {
-        const { user } = member;
-        const { status } = user.presence;
-        const avatarURL = user.avatarURL();
+        const { user, client } = member;
+        const { presence } = user;
+        const { status } = presence;
 
-        const embed = new MessageEmbed({
-            'url': avatarURL,
-            'author': {
-                'name': user.tag,
-                'url': avatarURL
-            }
+        const avatarURL = user.displayAvatarURL({
+            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined
         });
 
-        embed.setColor(DiscordEmbedFormatter.getColor(status));
-        embed.setThumbnail(avatarURL);
-        embed.addField('ID', user.id, true);
+        const shared = client.guilds.filterArray(g =>
+            g.members.exists('id', member.id)
+        ).map(g => g.name);
+
+        const roles = member.roles.map(r => r.name);
+
+        const embed = new MessageEmbed()
+            .setURL(avatarURL)
+            .setAuthor(`${(user.bot ? '🤖' : '👤')} ${user.tag}`, undefined, avatarURL)
+            .setColor(DiscordEmbedFormatter.getStatusColor(status))
+            .setThumbnail(avatarURL)
+            .addField('ID', `\`${user.id}\``, true);
+
+        if (presence.activity)
+            embed.addField('Activity', presence.activity.name, true);
+
+        // TODO: Timezones
+        embed
+            .addField('Server Joined', TimeUtil.formatFull(member.joinedTimestamp))
+            .addField('Account Created', TimeUtil.formatFull(user.createdTimestamp))
+            .addField(`${roles.length} Role${roles.length > 1 ? 's' : ''}`, StringUtil.shrinkString(roles.join(', '), 75, ', ...', [',']))
+            .addField(`Shares ${shared.length} Server${shared.length > 1 ? 's' : ''}`, StringUtil.shrinkString(shared.join(', '), 75, ', ...', [',']));
 
         return embed;
     }
 
-    static getColor(status) {
+    static getStatusColor(status) {
         switch (status) {
             case 'online':
                 return '#43b581';
