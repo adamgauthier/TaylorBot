@@ -8,16 +8,29 @@ class GlobalPaths {
     constructor(rootPath) {
         const pathMapper = new PathMapper(rootPath);
 
-        // Config
-        this.TaylorBotConfig = path.join(pathMapper.config.path, 'config.json');
-        this.DiscordConfig = path.join(pathMapper.config.path, 'discord.json');
-        this.TumblrConfig = path.join(pathMapper.config.path, 'tumblr.json');
-        this.GoogleConfig = path.join(pathMapper.config.path, 'google.json');
-        this.CleverBotConfig = path.join(pathMapper.config.path, 'cleverbot.json');
-        this.WolframConfig = path.join(pathMapper.config.path, 'wolfram.json');
-        this.ImgurConfig = path.join(pathMapper.config.path, 'imgur.json');
-        this.MyApiFilmsConfig = path.join(pathMapper.config.path, 'myapifilms.json');
-        this.PostgreSQLConfig = path.join(pathMapper.config.path, 'postgresql.json');
+        const mappedPaths = [
+            {
+                'directory': pathMapper.config.path,
+                'files': {
+                    'TaylorBotConfig': 'config.json',
+                    'DiscordConfig': 'discord.json',
+                    'TumblrConfig': 'tumblr.json',
+                    'GoogleConfig': 'google.json',
+                    'CleverBotConfig': 'cleverbot.json',
+                    'WolframConfig': 'wolfram.json',
+                    'ImgurConfig': 'imgur.json',
+                    'MyApiFilmsConfig': 'myapifilms.json',
+                    'PostgreSQLConfig': 'postgresql.json'
+                }
+            }
+        ];
+
+        for (const mappedPath of mappedPaths) {
+            for (const propertyName in mappedPath.files) {
+                this[propertyName] = path.join(mappedPath.directory, mappedPath.files[propertyName]);
+            }
+        }
+
 
         this.DatabaseDriver = path.join(pathMapper.database.path, 'DatabaseDriver');
         this.EventHandler = path.join(pathMapper.structures.path, 'EventHandler');
