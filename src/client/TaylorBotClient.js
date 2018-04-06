@@ -16,8 +16,26 @@ const Registry = require(GlobalPaths.Registry);
 const discordMax = 2000;
 
 class TaylorBotClient extends Commando.Client {
-    constructor(options) {
-        super(options);
+    constructor() {
+        super({
+            'fetchAllMembers': true,
+            'disabledEvents': ['TYPING_START'],
+            'owner': masterId,
+            'commandPrefix': '.',
+            'unknownCommandResponse': false
+        });
+
+        this.registry
+            .registerDefaultGroups()
+            .registerDefaultTypes()
+            .registerDefaultCommands({
+                'ping': false
+            })
+            .registerCommandsIn(GlobalPaths.commandsFolderPath);
+
+        const CooldownInhibitor = require('../inhibitors/CooldownInhibitor');
+        this.dispatcher.addInhibitor(new CooldownInhibitor().shouldBeBlocked);
+
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();
@@ -262,19 +280,4 @@ class TaylorBotClient extends Commando.Client {
     }
 }
 
-const taylorbot = new TaylorBotClient({
-    'fetchAllMembers': true,
-    'disabledEvents': ['TYPING_START'],
-    'owner': masterId,
-    'commandPrefix': '!'
-});
-
-taylorbot.registry
-    .registerDefaultGroups()
-    .registerDefaultTypes()
-    .registerDefaultCommands({
-        'ping': false
-    })
-    .registerCommandsIn(GlobalPaths.commandsFolderPath);
-
-module.exports = taylorbot;
+module.exports = new TaylorBotClient();

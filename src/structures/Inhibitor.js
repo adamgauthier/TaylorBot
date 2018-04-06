@@ -1,12 +1,10 @@
 'use strict';
 
 class Inhibitor {
-    constructor(client) {
+    constructor() {
         if (new.target === Inhibitor) {
             throw new Error(`Can't instantiate abstract Inhibitor class.`);
         }
-
-        this.client = client;
     }
 
     shouldBeBlocked() {
