@@ -3,98 +3,77 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Log = require(GlobalPaths.Logger);
-const CommandLoader = require(GlobalPaths.CommandLoader);
 
-class CommandRegistry extends Map {
-    constructor(database) {
-        super();
-        this.database = database;
+class CommandRegistry {
+    constructor(client) {
+        this.client = client;
     }
 
-    async loadAll(client) {
-        const fileCommands = await CommandLoader.loadAll(client);
-        let commands = await this.database.getAllCommands();
+    async loadAll() {
+        const { registry, database } = this.client;
+        let databaseCommands = await database.getAllCommands();
 
-        const fileCommandNames = Object.keys(fileCommands);
+        const { commands } = registry;
 
-        const databaseCommandsNotInFiles = commands.filter(c =>
-            !fileCommandNames.some(name => name === c.name)
+        const databaseCommandsNotInFiles = databaseCommands.filter(c =>
+            !commands.has(c.name)
         );
         if (databaseCommandsNotInFiles.length > 0)
             throw new Error(`Found database commands not in files: ${databaseCommandsNotInFiles.join(',')}.`);
 
-        const fileCommandsNotInDatabase = fileCommandNames.filter(name =>
-            !commands.some(c => c.name === name)
+        const fileCommandsNotInDatabase = commands.filterArray(command =>
+            !databaseCommands.some(c => c.name === command.name) && !command.guarded
         );
 
         if (fileCommandsNotInDatabase.length > 0) {
-            Log.info(`Found new file commands ${fileCommandsNotInDatabase.join(',')}. Adding to database.`);
+            Log.info(`Found new file commands ${fileCommandsNotInDatabase.map(c => c.name).join(',')}. Adding to database.`);
 
-            await this.database.addCommands(
-                fileCommandsNotInDatabase.map(name => {
-                    return { 'name': name };
+            await database.addCommands(
+                fileCommandsNotInDatabase.map(command => {
+                    return { 'name': command.name };
                 })
             );
 
-            commands = await this.database.getAllCommands();
+            databaseCommands = await database.getAllCommands();
         }
 
-        fileCommandNames.forEach(name => {
-            const { aliases, ...command } = fileCommands[name];
-            this.cacheCommand(name, command);
-            aliases.forEach(alias => this.cacheAlias(alias, name));
+        for (const command of commands.values()) {
+            command.disabledIn = {};
+        }
+
+        databaseCommands.forEach(c => {
+            const command = registry.resolveCommand(c.name);
+            command._globalEnabled = c.enabled;
         });
 
-        commands.forEach(c => this.cacheDatabaseCommand(c));
-
-        const guildCommands = await this.database.getAllGuildCommands();
-        guildCommands.forEach(gc => this.cacheGuildCommand(gc));
+        const guildCommands = await database.getAllGuildCommands();
+        guildCommands.forEach(gc => {
+            const command = registry.resolveCommand(gc.command_name);
+            if (gc.disabled) {
+                command.disabledIn[gc.guild_id] = true;
+            }
+        });
     }
 
-    cacheCommand(name, fileCommand) {
-        if (this.has(name))
-            Log.warn(`Caching command ${name}, was already cached, overwriting.`);
-
-        this.set(name, fileCommand);
+    syncDisabledGuildCommands() {
+        const { registry, guilds } = this.client;
+        for (const command of registry.commands.values()) {
+            for (const guildId in command.disabledIn) {
+                const guild = guilds.resolve(guildId);
+                if (!guild._commandsEnabled)
+                    guild._commandsEnabled = {};
+                guild._commandsEnabled[command.name] = false;
+            }
+        }
     }
 
-    cacheAlias(alias, commandName) {
-        if (!this.has(commandName))
-            throw new Error(`Can't cache alias of command ${commandName}, because it is not cached.`);
-
-        if (this.has(alias))
-            throw new Error(`Can't cache alias ${alias} for ${commandName} because it is already cached.`);
-
-        this.set(alias, commandName);
+    setCommandEnabled(command, enabled) {
+        return this.client.database.setCommandEnabled(command.name, enabled);
     }
 
-    cacheDatabaseCommand(databaseCommand) {
-        const command = this.get(databaseCommand.name);
-        if (command === undefined)
-            throw new Error(`Caching database command ${databaseCommand.name}, command was not already cached.`);
-
-        command.enabled = databaseCommand.enabled;
-        command.disabledIn = {};
-
-        this.set(databaseCommand.name, command);
-    }
-
-    cacheGuildCommand(databaseGuildCommand) {
-        const command = this.get(databaseGuildCommand.command_name);
-        if (command === undefined)
-            throw new Error(`Caching guild command ${databaseGuildCommand.command_name} (${databaseGuildCommand.guild_id}), command was not already cached.`);
-
-        command.disabledIn[databaseGuildCommand.guild_id] = true;
-
-        this.set(databaseGuildCommand.command_name, command);
-    }
-
-    getCommand(name) {
-        let command = this.get(name);
-        if (typeof command === 'string')
-            return this.get(command);
-
-        return command;
+    async setGuildCommandEnabled(guild, command, enabled) {
+        await this.client.database.setGuildCommandDisabled(guild, command.name, !enabled);
+        command.disabledIn[guild.id] = !enabled;
     }
 }
 

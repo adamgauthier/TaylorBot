@@ -11,14 +11,17 @@ class Ready extends EventHandler {
         super();
     }
 
-    async handler(taylorbot) {
+    async handler(client) {
         Log.info('Client is ready!');
 
-        taylorbot.intervalRunner.startAll();
+        client.oldRegistry.commands.syncDisabledGuildCommands();
+        Log.info('Synced disabled guild commands!');
+
+        client.intervalRunner.startAll();
         Log.info('Intervals started!');
 
         Log.info('Checking new guilds, users and usernames...');
-        await this.syncDatabase(taylorbot);
+        await this.syncDatabase(client);
         Log.info('New guilds, users and usernames checked!');
     }
 

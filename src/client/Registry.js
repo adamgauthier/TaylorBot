@@ -20,7 +20,7 @@ class Registry {
         this.groups = new GroupRegistry(this.client.database);
         this.guilds = new GuildRegistry(this.client.database);
         this.roleGroups = new GuildRoleGroupRegistry(this.client.database, this.guilds);
-        this.commands = new CommandRegistry(this.client.database);
+        this.commands = new CommandRegistry(this.client);
         this.users = new UserRegistry(this.client.database);
     }
 
@@ -46,7 +46,7 @@ class Registry {
         Log.info('Role groups loaded!');
 
         Log.info('Loading commands...');
-        await this.commands.loadAll(this.client);
+        await this.commands.loadAll();
         Log.info('Commands loaded!');
 
         Log.info('Loading users...');

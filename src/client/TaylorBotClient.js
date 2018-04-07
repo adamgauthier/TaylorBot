@@ -34,7 +34,9 @@ class TaylorBotClient extends Commando.Client {
             .registerCommandsIn(GlobalPaths.commandsFolderPath);
 
         const CooldownInhibitor = require('../inhibitors/CooldownInhibitor');
+        const DisabledGuildCommandInhibitor = require('../inhibitors/DisabledGuildCommandInhibitor');
         this.dispatcher.addInhibitor(new CooldownInhibitor().shouldBeBlocked);
+        this.dispatcher.addInhibitor(new DisabledGuildCommandInhibitor().shouldBeBlocked);
 
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);

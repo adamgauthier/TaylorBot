@@ -406,6 +406,37 @@ class DatabaseDriver {
             throw e;
         }
     }
+
+    async setGuildCommandDisabled(guild, commandName, disabled) {
+        try {
+            return await this._db.guild_commands.upsertDisabledCommand({
+                'guild_id': guild.id,
+                'command_name': commandName,
+                'disabled': disabled
+            });
+        }
+        catch (e) {
+            Log.error(`Upserting guild command ${Format.guild(guild)} for '${commandName}' disabled to '${disabled}': ${e}`);
+            throw e;
+        }
+    }
+
+    async setCommandEnabled(commandName, enabled) {
+        try {
+            return await this._db.commands.update(
+                {
+                    'name': commandName
+                },
+                {
+                    'enabled': enabled
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Setting command '${commandName}' enabled to '${enabled}': ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = DatabaseDriver;

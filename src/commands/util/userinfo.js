@@ -6,7 +6,6 @@ const { GlobalPaths } = require('globalobjects');
 const ArgumentInfos = require(GlobalPaths.ArgumentInfos);
 const UserGroups = require(GlobalPaths.UserGroups);
 const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
-const TimeUtil = require(GlobalPaths.TimeUtil);
 
 class UserInfoCommand extends Commando.Command {
 	constructor(client) {

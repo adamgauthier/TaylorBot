@@ -22,7 +22,7 @@ class CommandRun extends EventHandler {
             oldRegistry.users.updateLastAnswered(author, answeredTime);
         };
 
-        promise.then(final);
+        promise.then(final).catch(final);
     }
 }
 
