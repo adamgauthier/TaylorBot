@@ -4,24 +4,11 @@ const { GlobalPaths } = require('globalobjects');
 
 const TypeLoader = require(GlobalPaths.TypeLoader);
 
-class TypeRegistry extends Map {
-    constructor() {
-        super();
-    }
+class TypeRegistry {
+    async loadAll(client) {
+        const types = await TypeLoader.loadAll();
 
-    async loadAll(taylorbot) {
-        const types = await TypeLoader.loadAll(taylorbot);
-
-        for (const type of types) {
-            this.registerType(type.id, type);
-        }
-    }
-
-    registerType(id, type) {
-        if (this.has(id))
-            throw new Error(`Registering type ${id}, was already registered.`);
-
-        this.set(id, type);
+        client.registry.registerTypes(types);
     }
 }
 

@@ -11,6 +11,8 @@ class CommandRegistry {
 
     async loadAll() {
         const { registry, database } = this.client;
+        registry.registerCommandsIn(GlobalPaths.commandsFolderPath);
+
         let databaseCommands = await database.getAllCommands();
 
         const { commands } = registry;

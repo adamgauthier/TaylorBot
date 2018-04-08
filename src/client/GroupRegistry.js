@@ -34,9 +34,12 @@ class GroupRegistry extends Map {
 
     cacheGroup(name, accessLevel) {
         if (this.has(name))
-            Log.warn(`Caching user group ${name}, was already cached, overwriting.`);
+            throw new Error(`Caching user group ${name}, was already cached.`);
 
-        this.set(name, accessLevel);
+        this.set(name, {
+            name,
+            accessLevel
+        });
     }
 }
 

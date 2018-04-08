@@ -10,7 +10,7 @@ const typesPath = GlobalPaths.typesFolderPath;
 const requireType = typeName => require(path.join(typesPath, typeName));
 
 class TypeLoader {
-    static loadAll(client) {
+    static loadAll() {
         return new Promise((resolve, reject) => {
             fs.readdir(typesPath, (err, files) => {
                 if (err) reject(err);
@@ -20,7 +20,7 @@ class TypeLoader {
                         const filePath = path.parse(filename);
                         if (filePath.ext === '.js') {
                             const Type = requireType(filePath.base);
-                            types.push(new Type(client));
+                            types.push(Type);
                         }
                     });
                     resolve(types);

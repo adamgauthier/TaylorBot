@@ -36,7 +36,6 @@ class GlobalPaths {
                     'Interval': 'Interval',
                     'MessageWatcher': 'MessageWatcher',
                     'Command': 'Command',
-                    'ArgumentType': 'ArgumentType',
                     'Inhibitor': 'Inhibitor'
                 }
             },

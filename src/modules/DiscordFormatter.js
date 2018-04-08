@@ -30,6 +30,14 @@ class DiscordFormatter {
             .replace('#gName', guildChannel.guild.name)
             .replace('#gId', guildChannel.guild.id);
     }
+
+    static role(role, formatString = '#name (#id)') {
+        return formatString
+            .replace('#name', role.name)
+            .replace('#id', role.id)
+            .replace('#gName', role.guild.name)
+            .replace('#gId', role.guild.id);
+    }
 }
 
 module.exports = DiscordFormatter;

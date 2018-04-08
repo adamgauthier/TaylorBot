@@ -407,6 +407,22 @@ class DatabaseDriver {
         }
     }
 
+    async setGuildRoleGroup(role, group) {
+        try {
+            return await this._db.guild_role_groups.insert(
+                {
+                    'guild_id': role.guild.id,
+                    'role_id': role.id,
+                    'group_name': group.name
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Setting guild '${Format.guild(role.guild)}' role '${Format.role(role)}' group '${group.name}': ${e}`);
+            throw e;
+        }
+    }
+
     async setGuildCommandDisabled(guild, commandName, disabled) {
         try {
             return await this._db.guild_commands.upsertDisabledCommand({

@@ -32,7 +32,9 @@ class TaylorBotClient extends Commando.Client {
             .registerDefaultCommands({
                 'ping': false
             })
-            .registerCommandsIn(GlobalPaths.commandsFolderPath);
+            .registerGroup(
+                'admin', 'Administration', true
+            );
 
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);

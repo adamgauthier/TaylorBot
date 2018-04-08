@@ -33,7 +33,7 @@ class GroupAccessInhibitor extends Inhibitor {
         const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
 
         for (const group of ownedGroups) {
-            accessLevel = groups.get(group);
+            accessLevel = groups.get(group).accessLevel;
             if (accessLevel >= minimumGroupLevel)
                 return true;
         }
