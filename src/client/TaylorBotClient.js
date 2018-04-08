@@ -12,6 +12,7 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const Registry = require(GlobalPaths.Registry);
+const InhibitorLoader = require(GlobalPaths.InhibitorLoader);
 
 const discordMax = 2000;
 
@@ -33,11 +34,6 @@ class TaylorBotClient extends Commando.Client {
             })
             .registerCommandsIn(GlobalPaths.commandsFolderPath);
 
-        const CooldownInhibitor = require('../inhibitors/CooldownInhibitor');
-        const DisabledGuildCommandInhibitor = require('../inhibitors/DisabledGuildCommandInhibitor');
-        this.dispatcher.addInhibitor(new CooldownInhibitor().shouldBeBlocked);
-        this.dispatcher.addInhibitor(new DisabledGuildCommandInhibitor().shouldBeBlocked);
-
         this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();
@@ -45,6 +41,13 @@ class TaylorBotClient extends Commando.Client {
     }
 
     async start() {
+        Log.info('Loading inhibitors...');
+        const inhibitors = await InhibitorLoader.loadAll();
+        inhibitors.forEach(inhibitor => {
+            this.dispatcher.addInhibitor(inhibitor.shouldBeBlocked);
+        });
+        Log.info('Inhibitors loaded!');
+
         Log.info('Loading database...');
         await this.database.load();
         Log.info('Database loaded!');
@@ -59,7 +62,7 @@ class TaylorBotClient extends Commando.Client {
 
         await this.oldRegistry.loadAll();
 
-        await this.login(loginToken);
+        return this.login(loginToken);
     }
 
     resolveTextBasedChannel(textBasedResolvable) {

@@ -18,7 +18,6 @@ class UserInfoCommand extends Commando.Command {
 			examples: ['uinfo @Enchanted13#1989', 'uinfo Enchanted13'],
 			guildOnly: true,
 			argsPromptLimit: 0,
-			minimumGroup: UserGroups.Everyone,
 
 			args: [
 				{
@@ -31,7 +30,6 @@ class UserInfoCommand extends Commando.Command {
 	}
 
 	run(message, { member }) {
-		const { user } = member;
 		return this.client.sendEmbed(message.channel, DiscordEmbedFormatter.member(member));
 	}
 };

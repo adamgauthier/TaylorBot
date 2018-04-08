@@ -20,6 +20,8 @@ class DisabledGuildCommandInhibitor extends Inhibitor {
             Log.verbose(`Command '${command.name}' can't be used in ${Format.guild(guild)} because it is disabled.`);
             return true;
         }
+
+        return false;
     }
 }
 

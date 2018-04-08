@@ -25,6 +25,8 @@ class CooldownInhibitor extends Inhibitor {
             Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they have not been answered. LastAnswered:${lastAnswered}, LastCommand:${lastCommand}.`);
             return true;
         }
+
+        return false;
     }
 }
 

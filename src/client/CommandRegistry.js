@@ -55,6 +55,10 @@ class CommandRegistry {
         });
     }
 
+    onReregister(newCommand, oldCommand) {
+        newCommand.disabledIn = oldCommand.disabledIn;
+    }
+
     syncDisabledGuildCommands() {
         const { registry, guilds } = this.client;
         for (const command of registry.commands.values()) {

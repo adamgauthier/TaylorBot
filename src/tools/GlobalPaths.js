@@ -72,9 +72,9 @@ class GlobalPaths {
                     'TumblrModule': 'TumblrModule',
                     'RedditModule': 'RedditModule',
                     'YoutubeModule': 'YoutubeModule',
-                    'CommandLoader': 'CommandLoader',
                     'TypeLoader': 'TypeLoader',
                     'IntervalRunner': 'IntervalRunner',
+                    'InhibitorLoader': 'InhibitorLoader',
                     'MessageWatcherRegistry': 'MessageWatcherRegistry'
                 }
             },
@@ -97,6 +97,7 @@ class GlobalPaths {
         this.watchersFolderPath = pathMapper.watchers.path;
         this.commandsFolderPath = pathMapper.commands.path;
         this.typesFolderPath = pathMapper.types.path;
+        this.inhibitorsFolderPath = pathMapper.inhibitors.path;
     }
 }
 

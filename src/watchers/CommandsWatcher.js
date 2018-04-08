@@ -41,31 +41,9 @@ class CommandsWatcher extends MessageWatcher {
                         Log.verbose(`Command '${command.name}' can't be used because it is disabled.`);
                         return;
                     }
-
-                    if (!CommandsWatcher.groupHasAccess(member, command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {
-                        Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.minimumGroup.name}'.`);
-                        return;
-                    }
                 }
             }
     }
-
-    static groupHasAccess(member, minimumGroupLevel, guilds, groups) {
-        let { accessLevel } = member.id === masterId ? UserGroups.Master : UserGroups.Everyone;
-        if (accessLevel >= minimumGroupLevel)
-            return true;
-
-        const guildRoles = guilds.get(member.guild.id).roleGroups;
-        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
-
-        for (const group of ownedGroups) {
-            accessLevel = groups.get(group);
-            if (accessLevel >= minimumGroupLevel)
-                return true;
-        }
-
-        return false;
-    };
 }
 
 module.exports = CommandsWatcher;
