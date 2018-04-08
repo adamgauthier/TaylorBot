@@ -1,13 +1,12 @@
 'use strict';
 
-const Commando = require('discord.js-commando');
 const { GlobalPaths } = require('globalobjects');
 
-const ArgumentInfos = require(GlobalPaths.ArgumentInfos);
 const UserGroups = require(GlobalPaths.UserGroups);
 const Format = require(GlobalPaths.DiscordFormatter);
+const Command = require(GlobalPaths.Command);
 
-class SetRoleGroupCommand extends Commando.Command {
+class SetRoleGroupCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'setrolegroup',
@@ -32,8 +31,7 @@ class SetRoleGroupCommand extends Commando.Command {
                     prompt: 'What group would you like to attach to the role?'
                 }
             ]
-        });
-        this.minimumGroup = UserGroups.Master;
+        }, UserGroups.Master);
     }
 
     async run(message, { role, group }) {

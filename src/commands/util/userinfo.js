@@ -1,13 +1,12 @@
 'use strict';
 
-const Commando = require('discord.js-commando');
 const { GlobalPaths } = require('globalobjects');
 
 const ArgumentInfos = require(GlobalPaths.ArgumentInfos);
-const UserGroups = require(GlobalPaths.UserGroups);
 const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
+const Command = require(GlobalPaths.Command);
 
-class UserInfoCommand extends Commando.Command {
+class UserInfoCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'userinfo',
@@ -32,6 +31,6 @@ class UserInfoCommand extends Commando.Command {
 	run(message, { member }) {
 		return this.client.sendEmbed(message.channel, DiscordEmbedFormatter.member(member));
 	}
-};
+}
 
 module.exports = UserInfoCommand;

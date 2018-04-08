@@ -1,18 +1,17 @@
 'use strict';
 
+const Commando = require('discord.js-commando');
 const { GlobalPaths } = require('globalobjects');
 
 const UserGroups = require(GlobalPaths.UserGroups);
 
-class Command {
-    constructor(handler, args = [], aliases = [], minimumGroup = UserGroups.Everyone) {
+class Command extends Commando.Command {
+    constructor(client, info, minimumGroup = UserGroups.Everyone) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract Command class.`);
         }
+        super(client, info);
 
-        this.handler = handler;
-        this.args = args;
-        this.aliases = aliases;
         this.minimumGroup = minimumGroup;
     }
 }
