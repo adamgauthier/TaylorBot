@@ -11,7 +11,7 @@ class UserInfoCommand extends Command {
 		super(client, {
 			name: 'userinfo',
 			aliases: ['uinfo'],
-			group: 'util',
+			group: 'info',
 			memberName: 'userinfo',
 			description: 'Gets information about a user.',
 			examples: ['uinfo @Enchanted13#1989', 'uinfo Enchanted13'],

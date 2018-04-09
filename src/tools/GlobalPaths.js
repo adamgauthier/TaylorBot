@@ -64,6 +64,7 @@ class GlobalPaths {
                 'files': {
                     'StringUtil': 'StringUtil',
                     'TimeUtil': 'TimeUtil',
+                    'MathUtil': 'MathUtil',
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
                     'EventLoader': 'EventLoader',

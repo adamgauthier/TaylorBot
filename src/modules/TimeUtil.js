@@ -11,7 +11,7 @@ class TimeUtil {
 
     static formatFull(unixTime) {
         const m = moment(unixTime, 'x');
-        return m.format('MMMM Do, YYYY \\at H:mm:ss.SSS') + ` (${m.fromNow()})`;
+        return `${m.format('MMMM Do, YYYY \\at H:mm:ss.SSS')} (${m.fromNow()})`;
     }
 }
 

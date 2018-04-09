@@ -7,14 +7,20 @@ const TimeUtil = require(GlobalPaths.TimeUtil);
 const StringUtil = require(GlobalPaths.StringUtil);
 
 class DiscordEmbedFormatter {
+    static baseUserHeader(user) {
+        const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
+        return new MessageEmbed()
+            .setURL(avatarURL)
+            .setAuthor(user.tag, avatarURL, avatarURL)
+            .setColor(DiscordEmbedFormatter.getStatusColor(user.presence.status));
+    }
+
     static member(member) {
         const { user, client } = member;
         const { presence } = user;
         const { status } = presence;
 
-        const avatarURL = user.displayAvatarURL({
-            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined
-        });
+        const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
 
         const shared = client.guilds.filterArray(g =>
             g.members.exists('id', member.id)
@@ -55,6 +61,12 @@ class DiscordEmbedFormatter {
             default:
                 return 'RANDOM';
         }
+    }
+
+    static getAvatarURL(user) {
+        return user.displayAvatarURL({
+            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined
+        });
     }
 }
 

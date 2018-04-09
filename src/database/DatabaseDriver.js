@@ -453,6 +453,22 @@ class DatabaseDriver {
             throw e;
         }
     }
+
+    async getRankedFirstJoinedAt(guildMember) {
+        try {
+            return await this._db.guild_members.getRankedFirstJoinedAt(
+                {
+                    'guild_id': guildMember.guild.id,
+                    'user_id': guildMember.id
+                },
+                { single: true }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting ranked first joined at for guild member ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = DatabaseDriver;
