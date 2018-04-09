@@ -18,7 +18,7 @@ class Registry {
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
         this.groups = new GroupRegistry(this.client.database);
-        this.guilds = new GuildRegistry(this.client.database);
+        this.guilds = new GuildRegistry(this.client);
         this.roleGroups = new GuildRoleGroupRegistry(this.client.database, this.guilds);
         this.commands = new CommandRegistry(this.client);
         this.users = new UserRegistry(this.client.database);

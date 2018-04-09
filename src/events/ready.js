@@ -7,10 +7,6 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class Ready extends EventHandler {
-    constructor() {
-        super();
-    }
-
     async handler(client) {
         Log.info('Client is ready!');
 
@@ -23,16 +19,19 @@ class Ready extends EventHandler {
         Log.info('Checking new guilds, users and usernames...');
         await this.syncDatabase(client);
         Log.info('New guilds, users and usernames checked!');
+
+        client.oldRegistry.guilds.syncPrefixes();
+        Log.info('Synced guild prefixes!');
     }
 
-    async syncDatabase(taylorbot) {
-        const { database, oldRegistry } = taylorbot;
+    async syncDatabase(client) {
+        const { database, oldRegistry } = client;
 
         const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
         let latestUsernames = await database.getLatestUsernames();
 
-        for (const guild of taylorbot.guilds.values()) {
+        for (const guild of client.guilds.values()) {
             if (!oldRegistry.guilds.has(guild.id)) {
                 Log.warn(`Found new guild ${Format.guild(guild)}.`);
                 await oldRegistry.guilds.addGuild(guild);

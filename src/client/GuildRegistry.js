@@ -6,13 +6,13 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class GuildRegistry extends Map {
-    constructor(database) {
+    constructor(client) {
         super();
-        this.database = database;
+        this.client = client;
     }
 
     async load() {
-        const guilds = await this.database.getAllGuilds();
+        const guilds = await this.client.database.getAllGuilds();
         guilds.forEach(g => this.cacheGuild(g));
     }
 
@@ -26,9 +26,11 @@ class GuildRegistry extends Map {
     async addGuild(guild) {
         Log.verbose(`Adding guild ${Format.guild(guild)}.`);
 
-        let databaseGuild = await this.database.getGuild(guild);
+        const { database } = this.client;
+
+        let databaseGuild = await database.getGuild(guild);
         if (!databaseGuild) {
-            databaseGuild = await this.database.addGuild(guild);
+            databaseGuild = await database.addGuild(guild);
             Log.verbose(`Added guild ${Format.guild(guild)} to database.`);
         }
 
@@ -37,6 +39,26 @@ class GuildRegistry extends Map {
         }
 
         this.cacheGuild(databaseGuild);
+    }
+
+    async changePrefix(guild, prefix) {
+        const cachedGuild = this.get(guild.id);
+
+        if (!cachedGuild)
+            throw new Error(`Could not change prefix of ${Format.guild(guild)} to '${prefix}', because it wasn't cached.`);
+
+        const inserted = await this.client.database.setPrefix(guild, prefix);
+        cachedGuild.prefix = inserted.prefix;
+    }
+
+    syncPrefixes() {
+        const { guilds } = this.client;
+        for (const guild of guilds.values()) {
+            const cachedGuild = this.get(guild.id);
+            if (!cachedGuild)
+                throw new Error(`Syncing Prefixes, ${Format.guild(guild)} was not cached.`);
+            guild.commandPrefix = cachedGuild.prefix;
+        }
     }
 }
 

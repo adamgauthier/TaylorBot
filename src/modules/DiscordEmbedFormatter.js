@@ -63,9 +63,10 @@ class DiscordEmbedFormatter {
         }
     }
 
-    static getAvatarURL(user) {
+    static getAvatarURL(user, size = 128) {
         return user.displayAvatarURL({
-            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined
+            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined,
+            size
         });
     }
 }

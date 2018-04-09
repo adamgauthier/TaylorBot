@@ -66,9 +66,11 @@ class CommandRegistry {
         for (const command of registry.commands.values()) {
             for (const guildId in command.disabledIn) {
                 const guild = guilds.resolve(guildId);
-                if (!guild._commandsEnabled)
-                    guild._commandsEnabled = {};
-                guild._commandsEnabled[command.name] = false;
+                if (guild) {
+                    if (!guild._commandsEnabled)
+                        guild._commandsEnabled = {};
+                    guild._commandsEnabled[command.name] = false;
+                }
             }
         }
     }
