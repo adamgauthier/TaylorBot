@@ -22,7 +22,7 @@ class TaylorBotClient extends Commando.Client {
             'fetchAllMembers': true,
             'disabledEvents': ['TYPING_START'],
             'owner': masterId,
-            'commandPrefix': '.',
+            'commandPrefix': '!',
             'unknownCommandResponse': false
         });
 

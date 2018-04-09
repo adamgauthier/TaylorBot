@@ -27,7 +27,7 @@ class JoinedCommand extends Command {
         });
     }
 
-    async run(message, { member }) {
+    run(message, { member }) {
         const { user } = member;
         const embed = DiscordEmbedFormatter
             .baseUserHeader(user)
