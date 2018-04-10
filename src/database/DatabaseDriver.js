@@ -486,6 +486,22 @@ class DatabaseDriver {
             throw e;
         }
     }
+
+    
+    async getUsernameHistory(user, limit) {
+        try {
+            return await this._db.usernames.getUsernameHistory(
+                {
+                    'user_id': user.id,
+                    'max_rows': limit
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting username history for ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = DatabaseDriver;

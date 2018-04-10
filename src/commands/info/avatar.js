@@ -10,6 +10,7 @@ class JoinedCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'avatar',
+            aliases: ['av', 'avi'],
             group: 'info',
             memberName: 'avatar',
             description: 'Gets the avatar of a user in the current server.',
