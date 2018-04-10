@@ -7,10 +7,6 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class GuildMemberAdd extends EventHandler {
-    constructor() {
-        super();
-    }
-
     async handler(taylorbot, member) {
         const { user } = member;
         const { database, oldRegistry } = taylorbot;

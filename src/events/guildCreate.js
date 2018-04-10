@@ -7,10 +7,6 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class GuildCreate extends EventHandler {
-    constructor() {
-        super();
-    }
-
     async handler(taylorbot, guild) {
         Log.info(`Joined guild ${Format.guild(guild)}.`);
 
