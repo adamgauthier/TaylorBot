@@ -199,7 +199,7 @@ class DatabaseDriver {
 
     async getInstagrams() {
         try {
-            return await this._db.instagram_checker.find();
+            return await this._db.checkers.instagram_checker.find();
         }
         catch (e) {
             Log.error(`Getting Instagrams: ${e}`);
@@ -209,7 +209,7 @@ class DatabaseDriver {
 
     async getReddits() {
         try {
-            return await this._db.reddit_checker.find();
+            return await this._db.checkers.reddit_checker.find();
         }
         catch (e) {
             Log.error(`Getting Reddits: ${e}`);
@@ -219,7 +219,7 @@ class DatabaseDriver {
 
     async getYoutubeChannels() {
         try {
-            return await this._db.youtube_checker.find();
+            return await this._db.checkers.youtube_checker.find();
         }
         catch (e) {
             Log.error(`Getting Youtube Channels: ${e}`);
@@ -229,7 +229,7 @@ class DatabaseDriver {
 
     async getTumblrs() {
         try {
-            return await this._db.tumblr_checker.find();
+            return await this._db.checkers.tumblr_checker.find();
         }
         catch (e) {
             Log.error(`Getting Tumblrs: ${e}`);
@@ -239,7 +239,7 @@ class DatabaseDriver {
 
     async updateTumblr(tumblrUser, guildId, channelId, lastLink) {
         try {
-            return await this._db.tumblr_checker.update(
+            return await this._db.checkers.tumblr_checker.update(
                 {
                     'tumblr_user': tumblrUser,
                     'guild_id': guildId,
@@ -258,7 +258,7 @@ class DatabaseDriver {
 
     async updateYoutube(playlistId, guildId, channelId, lastVideoId) {
         try {
-            return await this._db.youtube_checker.update(
+            return await this._db.checkers.youtube_checker.update(
                 {
                     'playlist_id': playlistId,
                     'guild_id': guildId,
@@ -277,7 +277,7 @@ class DatabaseDriver {
 
     async updateReddit(subreddit, guildId, channelId, lastLink, lastCreated) {
         try {
-            return await this._db.reddit_checker.update(
+            return await this._db.checkers.reddit_checker.update(
                 {
                     'subreddit': subreddit,
                     'guild_id': guildId,
@@ -297,7 +297,7 @@ class DatabaseDriver {
 
     async updateInstagram(instagramUsername, guildId, channelId, lastCode) {
         try {
-            return await this._db.instagram_checker.update(
+            return await this._db.checkers.instagram_checker.update(
                 {
                     'instagram_username': instagramUsername,
                     'guild_id': guildId,
