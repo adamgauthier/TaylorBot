@@ -16,7 +16,9 @@
     "uws": "^0.14.5",
     "winston": "^3.0.0-rc1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^4.19.1"
+  },
   "scripts": {
     "start": "node taylorbot.js"
   },
