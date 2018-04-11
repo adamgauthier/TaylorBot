@@ -40,7 +40,7 @@ class YoutubeModule {
                 'url': `https://www.youtube.com/channel/${video.channelId}`
             },
             'footer': {
-                'text': `YouTube`,
+                'text': 'YouTube',
                 'icon_url': 'http://i.imgur.com/ZQUERxd.png'
             },
             'thumbnail': video.thumbnails.medium,

@@ -54,15 +54,19 @@ class TumblrModule {
                 thumbnail = post.thumbnail_url ? post.thumbnail_url : 'http://i.imgur.com/R8x5Qp6.png';
                 break;
 
-            case 'photo':
+            case 'photo': {
                 if (post.tags && post.tags.length > 0) description = post.tags.map(e => `#${e}`).join(' ');
                 else if (post.image_permalink) description = post.image_permalink;
                 const altSizes = post.photos[0].alt_sizes;
                 thumbnail = altSizes[altSizes.length - 2].url;
                 break;
+            }
 
             case 'text':
                 thumbnail = 'http://i.imgur.com/QEi1hXM.png';
+                description = post.body;
+                break;
+
             case 'chat':
                 description = post.body;
                 break;

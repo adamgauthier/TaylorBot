@@ -7,10 +7,10 @@ const UserGroups = require(GlobalPaths.UserGroups);
 
 class Command extends Commando.Command {
     constructor(client, info, minimumGroup = UserGroups.Everyone) {
-        if (new.target === Command) {
-            throw new Error(`Can't instantiate abstract Command class.`);
-        }
         super(client, info);
+        if (new.target === Command) {
+            throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
+        }
 
         this.minimumGroup = minimumGroup;
     }

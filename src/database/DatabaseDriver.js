@@ -137,7 +137,7 @@ class DatabaseDriver {
             'guild_id': guildMember.guild.id,
             'user_id': guildMember.id,
             'first_joined_at': guildMember.joinedTimestamp
-        }
+        };
     }
 
     async addGuildMember(guildMember) {
@@ -183,7 +183,7 @@ class DatabaseDriver {
             'user_id': user.id,
             'username': user.username,
             'changed_at': changedAt
-        }
+        };
     }
 
     async addUsername(user, changedAt) {

@@ -3,7 +3,7 @@
 class Interval {
     constructor(intervalTime, enabled = true) {
         if (new.target === Interval) {
-            throw new Error(`Can't instantiate abstract Interval class.`);
+            throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
         this.intervalTime = intervalTime;

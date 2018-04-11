@@ -16,33 +16,33 @@ class CommandsWatcher extends MessageWatcher {
 
     async messageHandler(taylorbot, message) {
         const { author } = message;
-            if (author.bot)
-                return;
+        if (author.bot)
+            return;
 
-            const { channel } = message;
-            if (channel.type === 'text') {
-                const { guild, member, content } = message;
-                const { oldRegistry } = taylorbot;
-                const { prefix } = oldRegistry.guilds.get(guild.id);
+        const { channel } = message;
+        if (channel.type === 'text') {
+            const { guild, member, content } = message;
+            const { oldRegistry } = taylorbot;
+            const { prefix } = oldRegistry.guilds.get(guild.id);
 
-                let text = content.trim();
-                if (text.startsWith(prefix)) {
-                    text = text.substring(prefix.length);
-                    const args = text.split(' ');
-                    const commandName = args.shift().toLowerCase();
-                    const command = oldRegistry.commands.getCommand(commandName);
+            let text = content.trim();
+            if (text.startsWith(prefix)) {
+                text = text.substring(prefix.length);
+                const args = text.split(' ');
+                const commandName = args.shift().toLowerCase();
+                const command = oldRegistry.commands.getCommand(commandName);
 
-                    if (!command)
-                        return;
+                if (!command)
+                    return;
 
-                    Log.verbose(`${Format.user(author)} attempting to use '${command.name}' with args '${args.join(';')}' in ${Format.guildChannel(channel)} on ${Format.guild(guild)}.`);
+                Log.verbose(`${Format.user(author)} attempting to use '${command.name}' with args '${args.join(';')}' in ${Format.guildChannel(channel)} on ${Format.guild(guild)}.`);
 
-                    if (!command.enabled) {
-                        Log.verbose(`Command '${command.name}' can't be used because it is disabled.`);
-                        return;
-                    }
+                if (!command.enabled) {
+                    Log.verbose(`Command '${command.name}' can't be used because it is disabled.`);
+                    return;
                 }
             }
+        }
     }
 }
 

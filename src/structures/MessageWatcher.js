@@ -3,7 +3,7 @@
 class MessageWatcher {
     constructor(enabled = true) {
         if (new.target === MessageWatcher) {
-            throw new Error(`Can't instantiate abstract MessageWatcher class.`);
+            throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
         this.enabled = enabled;

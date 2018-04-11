@@ -1,18 +1,18 @@
 'use strict';
 
-const moment = require('moment');
 const { createLogger, format, transports } = require('winston');
 const { combine, printf, colorize } = format;
 const { GlobalPaths } = require('globalobjects');
 
 const { minLogLevel } = require(GlobalPaths.TaylorBotConfig);
+const TimeUtil = require(GlobalPaths.TimeUtil);
 
 const logger = createLogger({
     level: minLogLevel,
     format: combine(
         colorize(),
         printf(info => {
-            return `[${moment().format('MMM Do YY, H:mm:ss Z')}] ${info.level}: ${info.message}`;
+            return `[${TimeUtil.formatLog()}] ${info.level}: ${info.message}`;
         })
     ),
     transports: [new transports.Console()]

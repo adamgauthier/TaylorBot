@@ -18,6 +18,11 @@ class TimeUtil {
         const m = moment(unixTime, 'x').utc();
         return m.format('MMMM Do, YYYY');
     }
+
+    static formatLog(unixTime = null) {
+        const m = unixTime === null ? moment() : moment(unixTime, 'x');
+        return m.format('MMM Do YY, H:mm:ss Z');
+    }
 }
 
 module.exports = TimeUtil;

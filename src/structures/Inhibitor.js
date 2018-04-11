@@ -3,7 +3,7 @@
 class Inhibitor {
     constructor() {
         if (new.target === Inhibitor) {
-            throw new Error(`Can't instantiate abstract Inhibitor class.`);
+            throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
     }
 

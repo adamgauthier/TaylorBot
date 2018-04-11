@@ -39,7 +39,7 @@ class GroupAccessInhibitor extends Inhibitor {
         }
 
         return false;
-    };
+    }
 }
 
 module.exports = GroupAccessInhibitor;

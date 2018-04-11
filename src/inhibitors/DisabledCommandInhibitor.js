@@ -6,7 +6,7 @@ const Inhibitor = require(GlobalPaths.Inhibitor);
 const Log = require(GlobalPaths.Logger);
 
 class DisabledCommandInhibitor extends Inhibitor {
-    shouldBeBlocked({ message, command }) {
+    shouldBeBlocked({ command }) {
         if (!command)
             return false;
 

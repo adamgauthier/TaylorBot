@@ -2,7 +2,6 @@
 
 const { GlobalPaths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class GuildRoleGroupRegistry {

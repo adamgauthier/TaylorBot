@@ -44,6 +44,6 @@ class SetRoleGroupCommand extends Command {
             return this.client.sendMessage(message.channel, `Attached User Group '${group.name}' to Role ${Format.role(role, '#name (`#id`)')}.`);
         }
     }
-};
+}
 
 module.exports = SetRoleGroupCommand;

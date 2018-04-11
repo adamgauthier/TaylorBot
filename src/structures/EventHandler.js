@@ -3,7 +3,7 @@
 class EventHandler {
     constructor(enabled = true) {
         if (new.target === EventHandler) {
-            throw new Error(`Can't instantiate abstract EventHandler class.`);
+            throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
         this.enabled = enabled;

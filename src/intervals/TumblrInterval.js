@@ -11,13 +11,13 @@ const intervalTime = 60000;
 
 class TumblrInterval extends Interval {
     constructor() {
-        super(intervalTime, TumblrInterval.intervalHandler);
+        super(intervalTime);
     }
 
     async interval(taylorbot) {
         const tumblrs = await taylorbot.database.getTumblrs();
         const it = tumblrs.entries();
-        return TumblrInterval.checkSingleTumblr(taylorbot, it);
+        TumblrInterval.checkSingleTumblr(taylorbot, it);
     }
 
     static async checkSingleTumblr(taylorbot, iterator) {
@@ -46,7 +46,7 @@ class TumblrInterval extends Interval {
             Log.error(`Checking Tumblr Posts for user '${tumblr_user}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            return TumblrInterval.checkSingleTumblr(taylorbot, iterator);
+            TumblrInterval.checkSingleTumblr(taylorbot, iterator);
         }
     }
 }

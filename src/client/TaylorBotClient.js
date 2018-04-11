@@ -9,7 +9,6 @@ const DatabaseDriver = require(GlobalPaths.DatabaseDriver);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
 const { masterId } = require(GlobalPaths.TaylorBotConfig);
 const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const Registry = require(GlobalPaths.Registry);
 const InhibitorLoader = require(GlobalPaths.InhibitorLoader);
@@ -169,7 +168,7 @@ class TaylorBotClient extends Commando.Client {
         if (userResolvable instanceof Discord.User) {
             return userResolvable;
         }
-        else if (userResolvable instanceof Discord.GuildMember || userResolvable instanceof Discord.Client) {
+        else if ((userResolvable instanceof Discord.GuildMember) || (userResolvable instanceof Discord.Client)) {
             return userResolvable.user;
         }
         else if (userResolvable instanceof Discord.Guild) {
@@ -196,7 +195,7 @@ class TaylorBotClient extends Commando.Client {
             return messageResolvable;
         }
         else if (messageResolvable instanceof Discord.Guild) {
-            return this.resolveMessage(messageResolvable.defaultChannel)
+            return this.resolveMessage(messageResolvable.defaultChannel);
         }
         else if (typeof messageResolvable === 'string') {
             const m = this.idToMessage(messageResolvable);
@@ -262,7 +261,7 @@ class TaylorBotClient extends Commando.Client {
             firstPart = text.substring(0, lastIndex);
             const lastPart = text.substring(lastIndex);
 
-            currentCallback = msg => {
+            currentCallback = () => {
                 return this._sendMessage(recipient, lastPart, options);
             };
         }
