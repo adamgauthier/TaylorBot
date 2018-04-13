@@ -11,7 +11,7 @@ const intervalTime = 60000;
 
 class InstagramInterval extends Interval {
     constructor() {
-        super(intervalTime);
+        super(intervalTime, false);
     }
 
     async interval(taylorbot) {
