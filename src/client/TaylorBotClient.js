@@ -29,7 +29,8 @@ class TaylorBotClient extends Commando.Client {
             .registerDefaultGroups()
             .registerDefaultTypes()
             .registerDefaultCommands({
-                'ping': false
+                'ping': false,
+                'help': false
             })
             .registerGroup(
                 'admin', 'Administration', true
