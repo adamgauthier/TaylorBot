@@ -4,6 +4,11 @@ const massive = require('massive');
 const sqlite3 = require('sqlite3').verbose();
 const PostgreSQLConfig = require('../postgresql.json');
 
+function wait(msToWait) {
+    return new Promise(resolve => {
+        setTimeout(resolve, msToWait);
+    });
+}
 
 const migrate = async () => {
     const pg_db = await massive(PostgreSQLConfig);
@@ -38,6 +43,8 @@ const migrate = async () => {
             await pg_db.guilds.insert(pg_guilds);
         }
     });
+
+    await wait(10000);
 
     sqlite_db.all('SELECT id, serverId, firstJoinedAt FROM userByServer;', async (err, rows) => {
         if (err) {
