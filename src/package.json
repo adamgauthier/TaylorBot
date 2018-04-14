@@ -6,7 +6,6 @@
   "dependencies": {
     "discord.js": "github:discordjs/discord.js",
     "discord.js-commando": "github:discordjs/Commando",
-    "erlpack": "github:discordapp/erlpack",
     "globalobjects": "file:tools/GlobalObjects",
     "massive": "^4.6.3",
     "moment": "^2.20.1",
@@ -37,5 +36,8 @@
   "bugs": {
     "url": "https://github.com/Enchanted13/TaylorBot/issues"
   },
-  "homepage": "https://github.com/Enchanted13/TaylorBot#readme"
+  "homepage": "https://github.com/Enchanted13/TaylorBot#readme",
+  "optionalDependencies": {
+    "erlpack": "github:discordapp/erlpack"
+  }
 }
