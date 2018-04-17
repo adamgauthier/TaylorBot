@@ -8,9 +8,11 @@ class LastSpokeWatcher extends MessageWatcher {
     async messageHandler({ database }, message) {
         const { channel } = message;
         if (channel.type === 'text') {
-            const { author, guild } = message;
+            const { member } = message;
 
-            await database.updateLastSpoke(author, guild, message.createdAt.getTime());
+            if (member) {
+                await database.updateLastSpoke(member.user, member.guild, message.createdAt.getTime());
+            }
         }
     }
 }
