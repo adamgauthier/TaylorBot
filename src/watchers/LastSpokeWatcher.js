@@ -11,7 +11,7 @@ class LastSpokeWatcher extends MessageWatcher {
             const { member } = message;
 
             if (member) {
-                await database.updateLastSpoke(member.user, member.guild, message.createdAt.getTime());
+                await database.updateLastSpoke(member.user, member.guild, message.createdTimestamp);
             }
         }
     }
