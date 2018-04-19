@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "dependencies": {
         "massive": "^4.7.1",
+        "moment": "^2.22.1",
         "sqlite3": "^4.0.0"
     }
 }
