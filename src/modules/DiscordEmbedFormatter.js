@@ -15,6 +15,28 @@ class DiscordEmbedFormatter {
             .setColor(DiscordEmbedFormatter.getStatusColor(user.presence.status));
     }
 
+    static getStatusColor(status) {
+        switch (status) {
+            case 'online':
+                return '#43b581';
+            case 'idle':
+                return '#faa61a';
+            case 'dnd':
+                return '#f04747';
+            case 'offline':
+                return '#747f8d';
+            default:
+                return 'RANDOM';
+        }
+    }
+
+    static getAvatarURL(user, size = 128) {
+        return user.displayAvatarURL({
+            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined,
+            size
+        });
+    }
+
     static member(member) {
         const { user, client } = member;
         const { presence } = user;
@@ -48,26 +70,10 @@ class DiscordEmbedFormatter {
         return embed;
     }
 
-    static getStatusColor(status) {
-        switch (status) {
-            case 'online':
-                return '#43b581';
-            case 'idle':
-                return '#faa61a';
-            case 'dnd':
-                return '#f04747';
-            case 'offline':
-                return '#747f8d';
-            default:
-                return 'RANDOM';
-        }
-    }
+    static guild(guild) {
+        const embed = new MessageEmbed().setAuthor(guild.name);
 
-    static getAvatarURL(user, size = 128) {
-        return user.displayAvatarURL({
-            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined,
-            size
-        });
+        return embed;
     }
 }
 

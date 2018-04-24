@@ -23,6 +23,19 @@ class DiscordFormatter {
             .replace('#gId', guildMember.guild.id);
     }
 
+    static dmChannel(channel, formatString = 'DM with [#rName (#rId)] (#id)') {
+        return formatString
+            .replace('#rName', channel.recipient.username)
+            .replace('#rId', channel.recipient.id)
+            .replace('#id', channel.id);
+    }
+
+    static groupChannel(channel, formatString = 'Group DM [#name] (#id)') {
+        return formatString
+            .replace('#name', channel.name)
+            .replace('#id', channel.id);
+    }
+
     static guildChannel(guildChannel, formatString = '#name (#id)') {
         return formatString
             .replace('#name', guildChannel.name)

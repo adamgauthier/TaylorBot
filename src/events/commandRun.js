@@ -9,10 +9,15 @@ const Format = require(GlobalPaths.DiscordFormatter);
 class CommandRun extends EventHandler {
     handler({ oldRegistry }, command, promise, { message, argString }) {
         const { author, channel } = message;
-        let logMessage = `${Format.user(author)} using '${command.name}' with args '${argString}' in ${Format.guildChannel(channel)}`;
-        if (channel.type === 'text')
-            logMessage += ` on ${Format.guild(message.guild)}`;
-        Log.verbose(`${logMessage}.`);
+        Log.verbose(
+            `${Format.user(author)} using '${command.name}' with args '${argString}' in ${
+                channel.type === 'dm' ?
+                    Format.dmChannel(channel) :
+                    channel.type === 'group' ?
+                        Format.groupChannel(channel) :
+                        Format.guildChannel(channel, '#name (#id) on #gName (#gId)')
+            }.`
+        );
 
         const commandTime = new Date().getTime();
         oldRegistry.users.updateLastCommand(author, commandTime);
