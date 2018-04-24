@@ -52,7 +52,7 @@ class DiscordEmbedFormatter {
 
         const embed = new MessageEmbed()
             .setURL(avatarURL)
-            .setAuthor(`${(user.bot ? '🤖' : '👤')} ${user.tag}`, undefined, avatarURL)
+            .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL)
             .setColor(DiscordEmbedFormatter.getStatusColor(status))
             .setThumbnail(avatarURL)
             .addField('ID', `\`${user.id}\``, true);
@@ -64,14 +64,40 @@ class DiscordEmbedFormatter {
         embed
             .addField('Server Joined', TimeUtil.formatFull(member.joinedTimestamp))
             .addField('Account Created', TimeUtil.formatFull(user.createdTimestamp))
-            .addField(`${roles.length} Role${roles.length > 1 ? 's' : ''}`, StringUtil.shrinkString(roles.join(', '), 75, ', ...', [',']))
-            .addField(`Shares ${shared.length} Server${shared.length > 1 ? 's' : ''}`, StringUtil.shrinkString(shared.join(', '), 75, ', ...', [',']));
+            .addField(StringUtil.plural(roles.length, 'Role'), StringUtil.shrinkString(roles.join(', '), 75, ', ...', [',']))
+            .addField(`Shares ${StringUtil.plural(shared.length, 'Server')}`, StringUtil.shrinkString(shared.join(', '), 75, ', ...', [',']));
 
         return embed;
     }
 
     static guild(guild) {
-        const embed = new MessageEmbed().setAuthor(guild.name);
+        const iconURL = guild.iconURL({ format: 'png' });
+
+        const { channels, roles, owner, region, createdTimestamp, memberCount, presences, verified, features } = guild;
+        const categories = channels.findAll('type', 'category');
+        const textChannels = channels.findAll('type', 'text');
+        const voiceChannels = channels.findAll('type', 'voice');
+
+        const isVip = features.includes('VIP_REGIONS');
+
+        const embed = new MessageEmbed()
+            .setAuthor(`${guild.name} ${verified ? '✅' : ''} ${isVip ? '⭐' : ''}`, iconURL, iconURL)
+            .setColor(roles.highest.color)
+            .addField('ID', `\`${guild.id}\``, true)
+            .addField('Owner', owner.toString(), true)
+            .addField(StringUtil.plural(memberCount, 'Member'), `\`${presences.findAll('status', 'online').length}\` Online`, true)
+            .addField('Region', region, true)
+            .addField('Created', TimeUtil.formatFull(createdTimestamp))
+            .addField(
+                StringUtil.plural(channels.size, 'Channel'),
+                `\`${StringUtil.plural(categories.length, 'Category', '` ')}, \`${textChannels.length}\` Text, \`${voiceChannels.length}\` Voice`)
+            .addField(StringUtil.plural(roles.size, 'Role'), StringUtil.shrinkString(roles.array().join(', '), 75, ', ...', [',']));
+
+        if (iconURL) {
+            embed.setThumbnail(iconURL);
+            embed.setURL(iconURL);
+        }
+
 
         return embed;
     }
