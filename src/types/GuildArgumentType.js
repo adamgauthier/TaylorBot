@@ -2,6 +2,14 @@
 
 const { ArgumentType } = require('discord.js-commando');
 
+const guildFilterExact = search => {
+    return guild => guild.name.toLowerCase() === search;
+};
+
+const guildFilterInexact = search => {
+    return guild => guild.name.toLowerCase().includes(search);
+};
+
 class GuildArgumentType extends ArgumentType {
     constructor(client) {
         super(client, 'guild');
@@ -50,14 +58,6 @@ class GuildArgumentType extends ArgumentType {
 
         return null;
     }
-}
-
-function guildFilterExact(search) {
-    return guild => guild.name.toLowerCase() === search;
-}
-
-function guildFilterInexact(search) {
-    return guild => guild.name.toLowerCase().includes(search);
 }
 
 module.exports = GuildArgumentType;

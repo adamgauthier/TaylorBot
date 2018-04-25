@@ -14,18 +14,21 @@ class GuildMemberAdd extends EventHandler {
         if (!oldRegistry.users.has(member.id)) {
             Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(member.guild)}.`);
             await oldRegistry.users.addUser(user);
-        }
-
-        const guildMemberExists = await database.doesGuildMemberExist(member);
-        if (!guildMemberExists) {
             await database.addGuildMember(member);
-            Log.info(`Added new member ${Format.member(member)}.`);
-        }
-
-        const latestUsername = await database.getLatestUsername(user);
-        if (!latestUsername || latestUsername.username !== user.username) {
             await database.addUsername(user, member.joinedTimestamp);
-            Log.info(`Added new username for ${Format.user(user)}.`);
+        }
+        else {
+            const guildMemberExists = await database.doesGuildMemberExist(member);
+            if (!guildMemberExists) {
+                await database.addGuildMember(member);
+                Log.info(`Added new member ${Format.member(member)}.`);
+            }
+
+            const latestUsername = await database.getLatestUsername(user);
+            if (!latestUsername || latestUsername.username !== user.username) {
+                await database.addUsername(user, member.joinedTimestamp);
+                Log.info(`Added new username for ${Format.user(user)}.`);
+            }
         }
     }
 }

@@ -29,12 +29,21 @@ class Ready extends EventHandler {
 
         const startupTime = new Date().getTime();
         const guildMembers = await database.getAllGuildMembers();
+        const latestGuildNames = await database.getLatestGuildNames();
         let latestUsernames = await database.getLatestUsernames();
 
         for (const guild of client.guilds.values()) {
             if (!oldRegistry.guilds.has(guild.id)) {
                 Log.warn(`Found new guild ${Format.guild(guild)}.`);
                 await oldRegistry.guilds.addGuild(guild);
+                await database.addGuildName(guild, startupTime);
+            }
+            else {
+                const latestGuildName = latestGuildNames.find(gn => gn.guild_id === guild.id);
+                if (guild.name !== latestGuildName) {
+                    await database.addGuildName(guild, startupTime);
+                    Log.info(`Added new Guild Name for ${Format.guild(guild)}. Old Guild Name was ${latestGuildName.guild_name}.`);
+                }
             }
 
             const members = await guild.members.fetch();
@@ -43,21 +52,23 @@ class Ready extends EventHandler {
                 if (!oldRegistry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
                     await oldRegistry.users.addUser(user);
-                }
-
-                if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
-                    Log.warn(`Found new member ${Format.member(member)}.`);
                     await database.addGuildMember(member);
-                    Log.verbose(`Added new member ${Format.member(member)}.`);
-                }
-
-                const latestUsername = latestUsernames.find(u => u.user_id === user.id);
-                if (!latestUsername || latestUsername.username !== user.username) {
-                    Log.warn(`Found new username for ${Format.user(user)}.`);
                     await database.addUsername(user, startupTime);
-                    latestUsernames = latestUsernames.filter(u => u.user_id !== user.id);
-                    latestUsernames.push({ 'user_id': user.id, 'username': user.username });
-                    Log.verbose(`Added new username for ${Format.user(user)}.`);
+                }
+                else {
+                    if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
+                        Log.warn(`Found new member ${Format.member(member)}.`);
+                        await database.addGuildMember(member);
+                    }
+
+                    const latestUsername = latestUsernames.find(u => u.user_id === user.id);
+                    if (!latestUsername || latestUsername.username !== user.username) {
+                        Log.warn(`Found new username for ${Format.user(user)}.`);
+                        await database.addUsername(user, startupTime);
+                        latestUsernames = latestUsernames.filter(u => u.user_id !== user.id);
+                        latestUsernames.push({ 'user_id': user.id, 'username': user.username });
+                        Log.verbose(`Added new username for ${Format.user(user)}.`);
+                    }
                 }
             }
         }
