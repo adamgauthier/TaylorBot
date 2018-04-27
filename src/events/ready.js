@@ -40,9 +40,9 @@ class Ready extends EventHandler {
             }
             else {
                 const latestGuildName = latestGuildNames.find(gn => gn.guild_id === guild.id);
-                if (guild.name !== latestGuildName) {
+                if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
                     await database.addGuildName(guild, startupTime);
-                    Log.info(`Added new Guild Name for ${Format.guild(guild)}. Old Guild Name was ${latestGuildName.guild_name}.`);
+                    Log.info(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
                 }
             }
 

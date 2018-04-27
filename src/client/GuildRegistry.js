@@ -24,7 +24,7 @@ class GuildRegistry extends Map {
     }
 
     async addGuild(guild) {
-        if (this.has(databaseGuild.guild_id)) {
+        if (this.has(guild.id)) {
             throw new Error(`Adding guild ${Format.guild(guild)}, already cached.`);
         }
 

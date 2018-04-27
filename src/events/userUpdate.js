@@ -7,10 +7,6 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class UserUpdate extends EventHandler {
-    constructor() {
-        super();
-    }
-
     async handler(taylorbot, oldUser, newUser) {
         if (oldUser.username !== newUser.username) {
             const changedAt = new Date().getTime();

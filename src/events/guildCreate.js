@@ -13,7 +13,7 @@ class GuildCreate extends EventHandler {
         const { database, oldRegistry } = taylorbot;
 
         const members = await guild.members.fetch();
-        const joinTime = members.get(taylorbot.user.id);
+        const joinTime = members.get(taylorbot.user.id).joinedTimestamp;
 
         if (!oldRegistry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);
@@ -22,9 +22,9 @@ class GuildCreate extends EventHandler {
         }
         else {
             const latestGuildName = await database.getLatestGuildName(guild);
-            if (guild.name !== latestGuildName) {
+            if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
                 await database.addGuildName(guild, joinTime);
-                Log.info(`Added new Guild Name for ${Format.guild(guild)}. Old Guild Name was ${latestGuildName.guild_name}.`);
+                Log.info(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
             }
         }
 
