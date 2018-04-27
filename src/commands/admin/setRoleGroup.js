@@ -5,6 +5,7 @@ const { GlobalPaths } = require('globalobjects');
 const UserGroups = require(GlobalPaths.UserGroups);
 const Format = require(GlobalPaths.DiscordFormatter);
 const Command = require(GlobalPaths.Command);
+const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class SetRoleGroupCommand extends Command {
     constructor(client) {
@@ -37,11 +38,13 @@ class SetRoleGroupCommand extends Command {
     async run(message, { role, group }) {
         const { roleGroups } = this.client.oldRegistry;
         if (roleGroups.getRoleGroup(role, group)) {
-            return this.client.sendMessage(message.channel, `User Group '${group.name}' is already attached to Role ${Format.role(role, '#name (`#id`)')}.`);
+            return this.client.sendEmbed(message.channel,
+                EmbedUtil.error(`User Group '${group.name}' is already attached to Role ${Format.role(role, '#name (`#id`)')}.`));
         }
         else {
             await roleGroups.addRoleGroup(role, group);
-            return this.client.sendMessage(message.channel, `Attached User Group '${group.name}' to Role ${Format.role(role, '#name (`#id`)')}.`);
+            return this.client.sendEmbed(message.channel,
+                EmbedUtil.success(`Attached User Group '${group.name}' to Role ${Format.role(role, '#name (`#id`)')}.`));
         }
     }
 }

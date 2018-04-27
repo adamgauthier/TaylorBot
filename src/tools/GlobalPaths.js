@@ -75,7 +75,8 @@ class GlobalPaths {
                     'TypeLoader': 'TypeLoader',
                     'IntervalRunner': 'IntervalRunner',
                     'InhibitorLoader': 'InhibitorLoader',
-                    'MessageWatcherRegistry': 'MessageWatcherRegistry'
+                    'MessageWatcherRegistry': 'MessageWatcherRegistry',
+                    'EmbedUtil': 'EmbedUtil'
                 }
             },
             {
