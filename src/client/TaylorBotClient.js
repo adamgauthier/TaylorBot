@@ -37,6 +37,9 @@ class TaylorBotClient extends Commando.Client {
             )
             .registerGroup(
                 'info', 'Information'
+            )
+            .registerGroup(
+                'util', 'Utility'
             );
 
         this.database = new DatabaseDriver();

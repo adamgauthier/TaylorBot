@@ -532,7 +532,7 @@ class DatabaseDriver {
             throw e;
         }
     }
-    
+
     async getUsernameHistory(user, limit) {
         try {
             return await this._db.usernames.getUsernameHistory(
@@ -544,6 +544,37 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Getting username history for ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
+
+    mapRoleToDatabase(role) {
+        return {
+            'role_id': role.id,
+            'guild_id': role.guild.id
+        };
+    }
+
+    async getSpecialRole(role) {
+        const databaseRole = this.mapRoleToDatabase(role);
+        try {
+            return await this._db.guild_special_roles.findOne(databaseRole);
+        }
+        catch (e) {
+            Log.error(`Getting special role ${Format.role(role)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async setAccessibleRole(role) {
+        const databaseRole = this.mapRoleToDatabase(role);
+        const fields = { 'accessible': true };
+        try {
+            const inserted = await this._db.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
+            return inserted ? inserted : await this._db.guild_special_roles.update(databaseRole, fields);
+        }
+        catch (e) {
+            Log.error(`Setting accessible special role ${Format.role(role)}: ${e}`);
             throw e;
         }
     }
