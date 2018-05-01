@@ -10,7 +10,7 @@ const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 
 class DatabaseDriver {
     async load() {
-        this._db = await massive(PostgreSQLConfig, { 'scripts': __dirname });
+        this._db = await massive(PostgreSQLConfig, { 'scripts': GlobalPaths.databaseScriptsPath });
     }
 
     async getAllGuilds() {
