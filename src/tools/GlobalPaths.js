@@ -44,7 +44,8 @@ class GlobalPaths {
                     'GuildCommandRepository': 'GuildCommandRepository',
                     'CommandRepository': 'CommandRepository',
                     'UserGroupRepository': 'UserGroupRepository',
-                    'RoleGroupRepository': 'RoleGroupRepository'
+                    'RoleGroupRepository': 'RoleGroupRepository',
+                    'SpecialRoleRepository': 'SpecialRoleRepository'
                 }
             },
             {

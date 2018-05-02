@@ -31,14 +31,14 @@ class SetAccessibleRoleCommand extends Command {
 
     async run(message, { role }) {
         const { database } = this.client;
-        const specialRole = await database.getSpecialRole(role);
+        const specialRole = await database.specialRoles.get(role);
 
         if (specialRole && specialRole.accessible) {
             return this.client.sendEmbed(message.channel,
                 EmbedUtil.error(`Role ${Format.role(role, '#name (`#id`)')} is already accessible.`));
         }
         else {
-            await database.setAccessibleRole(role);
+            await database.specialRoles.setAccessible(role);
             return this.client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`));
         }

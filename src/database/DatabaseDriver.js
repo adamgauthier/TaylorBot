@@ -4,8 +4,6 @@ const massive = require('massive');
 
 const { GlobalPaths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
 const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 const GuildRepository = require(GlobalPaths.GuildRepository);
 const UserRepository = require(GlobalPaths.UserRepository);
@@ -20,6 +18,7 @@ const GuildCommandRepository = require(GlobalPaths.GuildCommandRepository);
 const CommandRepository = require(GlobalPaths.CommandRepository);
 const UserGroupRepository = require(GlobalPaths.UserGroupRepository);
 const RoleGroupRepository = require(GlobalPaths.RoleGroupRepository);
+const SpecialRoleRepository = require(GlobalPaths.SpecialRoleRepository);
 
 class DatabaseDriver {
     async load() {
@@ -40,37 +39,7 @@ class DatabaseDriver {
         this.commands = new CommandRepository(this._db);
         this.userGroups = new UserGroupRepository(this._db);
         this.roleGroups = new RoleGroupRepository(this._db);
-    }
-
-    mapRoleToDatabase(role) {
-        return {
-            'role_id': role.id,
-            'guild_id': role.guild.id
-        };
-    }
-
-    async getSpecialRole(role) {
-        const databaseRole = this.mapRoleToDatabase(role);
-        try {
-            return await this._db.guild_special_roles.findOne(databaseRole);
-        }
-        catch (e) {
-            Log.error(`Getting special role ${Format.role(role)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async setAccessibleRole(role) {
-        const databaseRole = this.mapRoleToDatabase(role);
-        const fields = { 'accessible': true };
-        try {
-            const inserted = await this._db.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
-            return inserted ? inserted : await this._db.guild_special_roles.update(databaseRole, fields);
-        }
-        catch (e) {
-            Log.error(`Setting accessible special role ${Format.role(role)}: ${e}`);
-            throw e;
-        }
+        this.specialRoles = new SpecialRoleRepository(this._db);
     }
 }
 
