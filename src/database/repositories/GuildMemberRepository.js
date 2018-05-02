@@ -69,6 +69,52 @@ class GuildMemberRepository {
             throw e;
         }
     }
+
+    async getRankedFirstJoinedAt(guildMember) {
+        try {
+            return await this._db.guild_members.getRankedFirstJoinedAt(
+                {
+                    'guild_id': guildMember.guild.id,
+                    'user_id': guildMember.id
+                },
+                { single: true }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting ranked first joined at for guild member ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
+        try {
+            return await this._db.guild_members.addMinutes({
+                'minutes_to_add': minutesToAdd,
+                'min_spoke_at': minimumLastSpoke,
+                'minutes_for_reward': minutesForReward,
+                'reward_count': pointsReward
+            });
+        }
+        catch (e) {
+            Log.error(`Adding minutes: ${e}`);
+            throw e;
+        }
+    }
+
+    async updateLastSpoke(guildMember, lastSpokeAt) {
+        const databaseMember = this.mapMemberToDatabase(guildMember);
+        try {
+            return await this._db.guild_members.update(databaseMember,
+                {
+                    'last_spoke_at': lastSpokeAt
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Updating Last Spoke for ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = GuildMemberRepository;
