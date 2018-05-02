@@ -13,6 +13,7 @@ const GuildMemberRepository = require(GlobalPaths.GuildMemberRepository);
 const UsernameRepository = require(GlobalPaths.UsernameRepository);
 const GuildNameRepository = require(GlobalPaths.GuildNameRepository);
 const InstagramRepository = require(GlobalPaths.InstagramRepository);
+const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
 
 class DatabaseDriver {
     async load() {
@@ -26,16 +27,7 @@ class DatabaseDriver {
         this.usernames = new UsernameRepository(this._db);
         this.guildNames = new GuildNameRepository(this._db);
         this.instagrams = new InstagramRepository(this._db);
-    }
-
-    async getReddits() {
-        try {
-            return await this._db.checkers.reddit_checker.find();
-        }
-        catch (e) {
-            Log.error(`Getting Reddits: ${e}`);
-            return [];
-        }
+        this.redditCheckers = new RedditCheckerRepository(this._db);
     }
 
     async getYoutubeChannels() {
@@ -92,26 +84,6 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating Youtube for guild ${guildId}, channel ${channelId}, playlistId ${playlistId}: ${e}`);
-            throw e;
-        }
-    }
-
-    async updateReddit(subreddit, guildId, channelId, lastLink, lastCreated) {
-        try {
-            return await this._db.checkers.reddit_checker.update(
-                {
-                    'subreddit': subreddit,
-                    'guild_id': guildId,
-                    'channel_id': channelId
-                },
-                {
-                    'last_post_id': lastLink,
-                    'last_created': lastCreated
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Updating Reddit for guild ${guildId}, channel ${channelId}, subreddit ${subreddit}: ${e}`);
             throw e;
         }
     }

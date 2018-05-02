@@ -15,7 +15,7 @@ class RedditInterval extends Interval {
     }
 
     async interval(taylorbot) {
-        const reddits = await taylorbot.database.getReddits();
+        const reddits = await taylorbot.database.redditCheckers.getAll();
         const it = reddits.entries();
         this.checkSingleReddit(taylorbot, it);
     }
@@ -38,7 +38,7 @@ class RedditInterval extends Interval {
             if (post.id !== last_post_id && post.created_utc > last_created) {
                 Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.id}.`);
                 await taylorbot.sendEmbed(channel, RedditModule.getEmbed(post));
-                await taylorbot.database.updateReddit(subreddit, guild_id, channel_id, post.id, post.created_utc);                
+                await taylorbot.database.redditCheckers.update(subreddit, guild_id, channel_id, post.id, post.created_utc);                
             }
         } 
         catch (e) {
