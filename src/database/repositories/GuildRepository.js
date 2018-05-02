@@ -47,6 +47,23 @@ class GuildRepository {
             throw e;
         }
     }
+
+    async setPrefix(guild, prefix) {
+        try {
+            return await this._db.guilds.update(
+                {
+                    'guild_id': guild.id
+                },
+                {
+                    'prefix': prefix
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Setting guild prefix for ${Format.guild(guild)} to '${prefix}': ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = GuildRepository;

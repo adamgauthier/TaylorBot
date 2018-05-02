@@ -40,7 +40,7 @@ class GuildRegistry extends Map {
         if (!cachedGuild)
             throw new Error(`Could not change prefix of ${Format.guild(guild)} to '${prefix}', because it wasn't cached.`);
 
-        const inserted = await this.client.database.setPrefix(guild, prefix);
+        const inserted = await this.client.database.guilds.setPrefix(guild, prefix);
         cachedGuild.prefix = inserted.prefix;
     }
 
