@@ -12,7 +12,7 @@ class GuildRegistry extends Map {
     }
 
     async load() {
-        const guilds = await this.client.database.getAllGuilds();
+        const guilds = await this.client.database.guilds.getAll();
         guilds.forEach(g => this.cacheGuild(g));
     }
 
@@ -28,7 +28,7 @@ class GuildRegistry extends Map {
             throw new Error(`Adding guild ${Format.guild(guild)}, already cached.`);
         }
 
-        const databaseGuild = await this.client.database.addGuild(guild);
+        const databaseGuild = await this.client.database.guilds.add(guild);
         Log.verbose(`Added guild ${Format.guild(guild)} to database.`);
 
         this.cacheGuild(databaseGuild);

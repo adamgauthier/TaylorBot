@@ -30,6 +30,12 @@ class GlobalPaths {
                 }
             },
             {
+                'directory': pathMapper.database.repositories.path,
+                'files': {
+                    'GuildRepository': 'GuildRepository'
+                }
+            },
+            {
                 'directory': pathMapper.structures.path,
                 'files': {
                     'EventHandler': 'EventHandler',
