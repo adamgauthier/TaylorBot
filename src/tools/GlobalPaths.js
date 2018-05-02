@@ -34,7 +34,8 @@ class GlobalPaths {
                 'files': {
                     'GuildRepository': 'GuildRepository',
                     'UserRepository': 'UserRepository',
-                    'GuildMemberRepository': 'GuildMemberRepository'
+                    'GuildMemberRepository': 'GuildMemberRepository',
+                    'UsernameRepository': 'UsernameRepository'
                 }
             },
             {

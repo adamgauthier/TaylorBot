@@ -10,6 +10,7 @@ const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 const GuildRepository = require(GlobalPaths.GuildRepository);
 const UserRepository = require(GlobalPaths.UserRepository);
 const GuildMemberRepository = require(GlobalPaths.GuildMemberRepository);
+const UsernameRepository = require(GlobalPaths.UsernameRepository);
 
 class DatabaseDriver {
     async load() {
@@ -20,52 +21,7 @@ class DatabaseDriver {
         this.guilds = new GuildRepository(this._db);
         this.users = new UserRepository(this._db);
         this.guildMembers = new GuildMemberRepository(this._db);
-    }
-
-    async getLatestUsernames() {
-        try {
-            return await this._db.usernames.getLatestUsernames();
-        }
-        catch (e) {
-            Log.error(`Getting all usernames: ${e}`);
-            throw e;
-        }
-    }
-
-    async getLatestUsername(user) {
-        try {
-            return await this._db.usernames.getLatestUsername(
-                {
-                    'user_id': user.id
-                },
-                {
-                    'single': true
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting latest username for user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
-    mapUserToUsernameDatabase(user, changedAt) {
-        return {
-            'user_id': user.id,
-            'username': user.username,
-            'changed_at': changedAt
-        };
-    }
-
-    async addUsername(user, changedAt) {
-        const databaseUsername = this.mapUserToUsernameDatabase(user, changedAt);
-        try {
-            return await this._db.usernames.insert(databaseUsername);
-        }
-        catch (e) {
-            Log.error(`Adding username for ${Format.user(user)}: ${e}`);
-            throw e;
-        }
+        this.usernames = new UsernameRepository(this._db);
     }
 
     async getLatestGuildNames() {
@@ -400,21 +356,6 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Setting guild prefix for ${Format.guild(guild)} to '${prefix}': ${e}`);
-            throw e;
-        }
-    }
-
-    async getUsernameHistory(user, limit) {
-        try {
-            return await this._db.usernames.getUsernameHistory(
-                {
-                    'user_id': user.id,
-                    'max_rows': limit
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting username history for ${Format.user(user)}: ${e}`);
             throw e;
         }
     }
