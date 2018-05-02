@@ -16,6 +16,7 @@ const InstagramCheckerRepository = require(GlobalPaths.InstagramCheckerRepositor
 const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
 const YoutubeCheckerRepository = require(GlobalPaths.YoutubeCheckerRepository);
 const TumblrCheckerRepository = require(GlobalPaths.TumblrCheckerRepository);
+const GuildCommandRepository = require(GlobalPaths.GuildCommandRepository);
 
 class DatabaseDriver {
     async load() {
@@ -32,16 +33,7 @@ class DatabaseDriver {
         this.redditCheckers = new RedditCheckerRepository(this._db);
         this.youtubeCheckers = new YoutubeCheckerRepository(this._db);
         this.tumblrCheckers = new TumblrCheckerRepository(this._db);
-    }
-
-    async getAllGuildCommands() {
-        try {
-            return await this._db.guild_commands.find();
-        }
-        catch (e) {
-            Log.error(`Getting all guild commands: ${e}`);
-            throw e;
-        }
+        this.guildCommands = new GuildCommandRepository(this._db);
     }
 
     async getAllCommands() {
@@ -106,20 +98,6 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Setting guild '${Format.guild(role.guild)}' role '${Format.role(role)}' group '${group.name}': ${e}`);
-            throw e;
-        }
-    }
-
-    async setGuildCommandDisabled(guild, commandName, disabled) {
-        try {
-            return await this._db.guild_commands.upsertDisabledCommand({
-                'guild_id': guild.id,
-                'command_name': commandName,
-                'disabled': disabled
-            });
-        }
-        catch (e) {
-            Log.error(`Upserting guild command ${Format.guild(guild)} for '${commandName}' disabled to '${disabled}': ${e}`);
             throw e;
         }
     }

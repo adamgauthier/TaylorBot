@@ -48,7 +48,7 @@ class CommandRegistry {
             command._globalEnabled = c.enabled;
         });
 
-        const guildCommands = await database.getAllGuildCommands();
+        const guildCommands = await database.guildCommands.getAll();
         guildCommands.forEach(gc => {
             const command = registry.resolveCommand(gc.command_name);
             if (gc.disabled) {
@@ -80,7 +80,7 @@ class CommandRegistry {
     }
 
     async setGuildCommandEnabled(guild, command, enabled) {
-        await this.client.database.setGuildCommandDisabled(guild, command.name, !enabled);
+        await this.client.database.guildCommands.setDisabled(guild, command.name, !enabled);
         command.disabledIn[guild.id] = !enabled;
     }
 }
