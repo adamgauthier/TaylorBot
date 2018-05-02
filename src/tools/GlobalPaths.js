@@ -33,7 +33,8 @@ class GlobalPaths {
                 'directory': pathMapper.database.repositories.path,
                 'files': {
                     'GuildRepository': 'GuildRepository',
-                    'UserRepository': 'UserRepository'
+                    'UserRepository': 'UserRepository',
+                    'GuildMemberRepository': 'GuildMemberRepository'
                 }
             },
             {

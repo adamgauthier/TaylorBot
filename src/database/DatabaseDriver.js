@@ -9,72 +9,17 @@ const Format = require(GlobalPaths.DiscordFormatter);
 const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 const GuildRepository = require(GlobalPaths.GuildRepository);
 const UserRepository = require(GlobalPaths.UserRepository);
+const GuildMemberRepository = require(GlobalPaths.GuildMemberRepository);
 
 class DatabaseDriver {
     async load() {
-        this._db = await massive(PostgreSQLConfig, { 'scripts': GlobalPaths.databaseScriptsPath });
+        this._db = await massive(PostgreSQLConfig, {
+            'scripts': GlobalPaths.databaseScriptsPath
+        });
+
         this.guilds = new GuildRepository(this._db);
         this.users = new UserRepository(this._db);
-    }
-
-    async getAllGuildMembers() {
-        try {
-            return await this._db.guild_members.find({}, {
-                fields: ['user_id', 'guild_id']
-            });
-        }
-        catch (e) {
-            Log.error(`Getting all guild members: ${e}`);
-            throw e;
-        }
-    }
-
-    async getAllGuildMembersInGuild(guild) {
-        try {
-            return await this._db.guild_members.find(
-                {
-                    'guild_id': guild.id
-                },
-                {
-                    fields: ['user_id']
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting all guild members for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async doesGuildMemberExist(guildMember) {
-        const databaseMember = { 'guild_id': guildMember.guild.id, 'user_id': guildMember.id };
-        try {
-            const matchingMembersCount = await this._db.guild_members.count(databaseMember);
-            return matchingMembersCount > 0;
-        }
-        catch (e) {
-            Log.error(`Checking if guild member ${Format.member(guildMember)} exists: ${e}`);
-            throw e;
-        }
-    }
-
-    mapMemberToDatabase(guildMember) {
-        return {
-            'guild_id': guildMember.guild.id,
-            'user_id': guildMember.id,
-            'first_joined_at': guildMember.joinedTimestamp
-        };
-    }
-
-    async addGuildMember(guildMember) {
-        const databaseMember = this.mapMemberToDatabase(guildMember);
-        try {
-            return await this._db.guild_members.insert(databaseMember);
-        }
-        catch (e) {
-            Log.error(`Adding member ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
+        this.guildMembers = new GuildMemberRepository(this._db);
     }
 
     async getLatestUsernames() {

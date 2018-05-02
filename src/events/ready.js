@@ -28,7 +28,7 @@ class Ready extends EventHandler {
         const { database, oldRegistry } = client;
 
         const startupTime = new Date().getTime();
-        const guildMembers = await database.getAllGuildMembers();
+        const guildMembers = await database.guildMembers.getAll();
         const latestGuildNames = await database.getLatestGuildNames();
         let latestUsernames = await database.getLatestUsernames();
 
@@ -52,13 +52,13 @@ class Ready extends EventHandler {
                 if (!oldRegistry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
                     await oldRegistry.users.addUser(user);
-                    await database.addGuildMember(member);
+                    await database.guildMembers.add(member);
                     await database.addUsername(user, startupTime);
                 }
                 else {
                     if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
                         Log.warn(`Found new member ${Format.member(member)}.`);
-                        await database.addGuildMember(member);
+                        await database.guildMembers.add(member);
                     }
 
                     const latestUsername = latestUsernames.find(u => u.user_id === user.id);

@@ -28,7 +28,7 @@ class GuildCreate extends EventHandler {
             }
         }
 
-        const guildMembers = await database.getAllGuildMembersInGuild(guild);
+        const guildMembers = await database.guildMembers.getAllInGuild(guild);
         let latestUsernames = await database.getLatestUsernames();
 
         for (const member of members.values()) {
@@ -36,12 +36,12 @@ class GuildCreate extends EventHandler {
             if (!oldRegistry.users.has(member.id)) {
                 Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
                 await oldRegistry.users.addUser(user);
-                await database.addGuildMember(member);
+                await database.guildMembers.add(member);
                 await database.addUsername(user, joinTime);
             }
             else {
                 if (!guildMembers.some(gm => gm.user_id === member.id)) {
-                    await database.addGuildMember(member);
+                    await database.guildMembers.add(member);
                     Log.info(`Added new member ${Format.member(member)}.`);
                 }
 
