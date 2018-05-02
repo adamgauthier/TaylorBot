@@ -15,6 +15,7 @@ const GuildNameRepository = require(GlobalPaths.GuildNameRepository);
 const InstagramCheckerRepository = require(GlobalPaths.InstagramCheckerRepository);
 const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
 const YoutubeCheckerRepository = require(GlobalPaths.YoutubeCheckerRepository);
+const TumblrCheckerRepository = require(GlobalPaths.TumblrCheckerRepository);
 
 class DatabaseDriver {
     async load() {
@@ -30,35 +31,7 @@ class DatabaseDriver {
         this.instagramCheckers = new InstagramCheckerRepository(this._db);
         this.redditCheckers = new RedditCheckerRepository(this._db);
         this.youtubeCheckers = new YoutubeCheckerRepository(this._db);
-    }
-
-    async getTumblrs() {
-        try {
-            return await this._db.checkers.tumblr_checker.find();
-        }
-        catch (e) {
-            Log.error(`Getting Tumblrs: ${e}`);
-            return [];
-        }
-    }
-
-    async updateTumblr(tumblrUser, guildId, channelId, lastLink) {
-        try {
-            return await this._db.checkers.tumblr_checker.update(
-                {
-                    'tumblr_user': tumblrUser,
-                    'guild_id': guildId,
-                    'channel_id': channelId
-                },
-                {
-                    'last_link': lastLink
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Updating Tumblr for guild ${guildId}, channel ${channelId}, user ${tumblrUser}: ${e}`);
-            throw e;
-        }
+        this.tumblrCheckers = new TumblrCheckerRepository(this._db);
     }
 
     async getAllGuildCommands() {

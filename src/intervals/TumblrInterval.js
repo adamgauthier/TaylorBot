@@ -15,7 +15,7 @@ class TumblrInterval extends Interval {
     }
 
     async interval(taylorbot) {
-        const tumblrs = await taylorbot.database.getTumblrs();
+        const tumblrs = await taylorbot.database.tumblrCheckers.getAll();
         const it = tumblrs.entries();
         TumblrInterval.checkSingleTumblr(taylorbot, it);
     }
@@ -39,7 +39,7 @@ class TumblrInterval extends Interval {
             if (post.short_url !== last_link) {
                 Log.info(`New Tumblr Post for user '${tumblr_user}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.short_url}.`);
                 await taylorbot.sendEmbed(channel, TumblrModule.getEmbed(post, blog));
-                await taylorbot.database.updateTumblr(tumblr_user, guild_id, channel_id, post.short_url);
+                await taylorbot.database.tumblrCheckers.update(tumblr_user, guild_id, channel_id, post.short_url);
             }
         }
         catch (e) {

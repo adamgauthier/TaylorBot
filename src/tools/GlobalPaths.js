@@ -39,7 +39,8 @@ class GlobalPaths {
                     'GuildNameRepository': 'GuildNameRepository',
                     'InstagramCheckerRepository': 'InstagramCheckerRepository',
                     'RedditCheckerRepository': 'RedditCheckerRepository',
-                    'YoutubeCheckerRepository': 'YoutubeCheckerRepository'
+                    'YoutubeCheckerRepository': 'YoutubeCheckerRepository',
+                    'TumblrCheckerRepository': 'TumblrCheckerRepository'
                 }
             },
             {
