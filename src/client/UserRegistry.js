@@ -12,7 +12,7 @@ class UserRegistry extends Map {
     }
 
     async load() {
-        const users = await this.database.getAllUsers();
+        const users = await this.database.users.getAll();
         users.forEach(u => this.cacheUser(u));
     }
 
@@ -27,9 +27,9 @@ class UserRegistry extends Map {
     async addUser(user) {
         Log.verbose(`Adding user ${Format.user(user)}.`);
 
-        let databaseUser = await this.database.getUser(user);
+        let databaseUser = await this.database.users.get(user);
         if (!databaseUser) {
-            databaseUser = await this.database.addUser(user);
+            databaseUser = await this.database.users.add(user);
             Log.verbose(`Added user ${Format.user(user)} to database.`);
         }
 

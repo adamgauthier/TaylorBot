@@ -8,51 +8,13 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
 const GuildRepository = require(GlobalPaths.GuildRepository);
+const UserRepository = require(GlobalPaths.UserRepository);
 
 class DatabaseDriver {
     async load() {
         this._db = await massive(PostgreSQLConfig, { 'scripts': GlobalPaths.databaseScriptsPath });
         this.guilds = new GuildRepository(this._db);
-    }
-
-    async getAllUsers() {
-        try {
-            return await this._db.users.find({}, {
-                fields: ['user_id', 'ignore_until']
-            });
-        }
-        catch (e) {
-            Log.error(`Getting all users: ${e}`);
-            throw e;
-        }
-    }
-
-    mapUserToDatabase(user) {
-        return {
-            'user_id': user.id
-        };
-    }
-
-    async getUser(user) {
-        const databaseUser = this.mapUserToDatabase(user);
-        try {
-            return await this._db.users.findOne(databaseUser);
-        }
-        catch (e) {
-            Log.error(`Getting user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async addUser(user) {
-        const databaseUser = this.mapUserToDatabase(user);
-        try {
-            return await this._db.users.insert(databaseUser);
-        }
-        catch (e) {
-            Log.error(`Adding user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
+        this.users = new UserRepository(this._db);
     }
 
     async getAllGuildMembers() {
