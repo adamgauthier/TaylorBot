@@ -12,6 +12,7 @@ const UserRepository = require(GlobalPaths.UserRepository);
 const GuildMemberRepository = require(GlobalPaths.GuildMemberRepository);
 const UsernameRepository = require(GlobalPaths.UsernameRepository);
 const GuildNameRepository = require(GlobalPaths.GuildNameRepository);
+const InstagramRepository = require(GlobalPaths.InstagramRepository);
 
 class DatabaseDriver {
     async load() {
@@ -24,16 +25,7 @@ class DatabaseDriver {
         this.guildMembers = new GuildMemberRepository(this._db);
         this.usernames = new UsernameRepository(this._db);
         this.guildNames = new GuildNameRepository(this._db);
-    }
-
-    async getInstagrams() {
-        try {
-            return await this._db.checkers.instagram_checker.find();
-        }
-        catch (e) {
-            Log.error(`Getting Instagrams: ${e}`);
-            return [];
-        }
+        this.instagrams = new InstagramRepository(this._db);
     }
 
     async getReddits() {
@@ -120,25 +112,6 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Updating Reddit for guild ${guildId}, channel ${channelId}, subreddit ${subreddit}: ${e}`);
-            throw e;
-        }
-    }
-
-    async updateInstagram(instagramUsername, guildId, channelId, lastCode) {
-        try {
-            return await this._db.checkers.instagram_checker.update(
-                {
-                    'instagram_username': instagramUsername,
-                    'guild_id': guildId,
-                    'channel_id': channelId
-                },
-                {
-                    'last_post_code': lastCode
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Updating Instagram for guild ${guildId}, channel ${channelId}, username ${instagramUsername}: ${e}`);
             throw e;
         }
     }
