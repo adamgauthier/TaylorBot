@@ -39,7 +39,7 @@ class YoutubeInterval extends Interval {
             if (videoId !== last_video_id) {
                 Log.info(`New Youtube Video for playlistId '${playlist_id}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${videoId}.`);
                 await taylorbot.sendEmbed(channel, YoutubeModule.getEmbed(video));
-                await taylorbot.database.updateYoutube(playlist_id, guild_id, channel_id, videoId);
+                await taylorbot.database.youtubeCheckers.update(playlist_id, guild_id, channel_id, videoId);
             }
         }
         catch (e) {

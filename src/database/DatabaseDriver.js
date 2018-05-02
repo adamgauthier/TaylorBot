@@ -61,25 +61,6 @@ class DatabaseDriver {
         }
     }
 
-    async updateYoutube(playlistId, guildId, channelId, lastVideoId) {
-        try {
-            return await this._db.checkers.youtube_checker.update(
-                {
-                    'playlist_id': playlistId,
-                    'guild_id': guildId,
-                    'channel_id': channelId
-                },
-                {
-                    'last_video_id': lastVideoId
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Updating Youtube for guild ${guildId}, channel ${channelId}, playlistId ${playlistId}: ${e}`);
-            throw e;
-        }
-    }
-
     async getAllGuildCommands() {
         try {
             return await this._db.guild_commands.find();
