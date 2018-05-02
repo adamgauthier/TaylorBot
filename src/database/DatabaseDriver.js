@@ -18,6 +18,7 @@ const YoutubeCheckerRepository = require(GlobalPaths.YoutubeCheckerRepository);
 const TumblrCheckerRepository = require(GlobalPaths.TumblrCheckerRepository);
 const GuildCommandRepository = require(GlobalPaths.GuildCommandRepository);
 const CommandRepository = require(GlobalPaths.CommandRepository);
+const UserGroupRepository = require(GlobalPaths.UserGroupRepository);
 
 class DatabaseDriver {
     async load() {
@@ -36,26 +37,7 @@ class DatabaseDriver {
         this.tumblrCheckers = new TumblrCheckerRepository(this._db);
         this.guildCommands = new GuildCommandRepository(this._db);
         this.commands = new CommandRepository(this._db);
-    }
-
-    async getAllUserGroups() {
-        try {
-            return await this._db.user_groups.find();
-        }
-        catch (e) {
-            Log.error(`Getting all user groups: ${e}`);
-            throw e;
-        }
-    }
-
-    async addUserGroups(userGroups) {
-        try {
-            return await this._db.user_groups.insert(userGroups);
-        }
-        catch (e) {
-            Log.error(`Adding user groups: ${e}`);
-            throw e;
-        }
+        this.userGroups = new UserGroupRepository(this._db);
     }
 
     async getAllGuildRoleGroups() {

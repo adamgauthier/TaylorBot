@@ -42,7 +42,8 @@ class GlobalPaths {
                     'YoutubeCheckerRepository': 'YoutubeCheckerRepository',
                     'TumblrCheckerRepository': 'TumblrCheckerRepository',
                     'GuildCommandRepository': 'GuildCommandRepository',
-                    'CommandRepository': 'CommandRepository'
+                    'CommandRepository': 'CommandRepository',
+                    'UserGroupRepository': 'UserGroupRepository'
                 }
             },
             {
