@@ -4,7 +4,7 @@ const { GlobalPaths } = require('globalobjects');
 
 const Log = require(GlobalPaths.Logger);
 
-class InstagramRepository {
+class InstagramCheckerRepository {
     constructor(db) {
         this._db = db;
     }
@@ -39,4 +39,4 @@ class InstagramRepository {
     }
 }
 
-module.exports = InstagramRepository;
+module.exports = InstagramCheckerRepository;

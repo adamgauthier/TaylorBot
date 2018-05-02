@@ -15,7 +15,7 @@ class InstagramInterval extends Interval {
     }
 
     async interval(taylorbot) {
-        const instagrams = await taylorbot.database.instagrams.getAll();
+        const instagrams = await taylorbot.database.instagramCheckers.getAll();
         const it = instagrams.entries();
         this.checkSingleInstagram(taylorbot, it);
     }
@@ -39,7 +39,7 @@ class InstagramInterval extends Interval {
             if (item.shortcode !== last_post_code) {
                 Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.shortcode}.`);
                 await taylorbot.sendEmbed(channel, InstagramModule.getEmbed(item, user));
-                await taylorbot.database.instagrams.update(instagram_username, guild_id, channel_id, item.shortcode);
+                await taylorbot.database.instagramCheckers.update(instagram_username, guild_id, channel_id, item.shortcode);
             }
         }
         catch (e) {

@@ -12,7 +12,7 @@ const UserRepository = require(GlobalPaths.UserRepository);
 const GuildMemberRepository = require(GlobalPaths.GuildMemberRepository);
 const UsernameRepository = require(GlobalPaths.UsernameRepository);
 const GuildNameRepository = require(GlobalPaths.GuildNameRepository);
-const InstagramRepository = require(GlobalPaths.InstagramRepository);
+const InstagramCheckerRepository = require(GlobalPaths.InstagramCheckerRepository);
 const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
 
 class DatabaseDriver {
@@ -26,7 +26,7 @@ class DatabaseDriver {
         this.guildMembers = new GuildMemberRepository(this._db);
         this.usernames = new UsernameRepository(this._db);
         this.guildNames = new GuildNameRepository(this._db);
-        this.instagrams = new InstagramRepository(this._db);
+        this.instagramCheckers = new InstagramCheckerRepository(this._db);
         this.redditCheckers = new RedditCheckerRepository(this._db);
     }
 
