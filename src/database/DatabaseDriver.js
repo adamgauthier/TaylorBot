@@ -17,6 +17,7 @@ const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
 const YoutubeCheckerRepository = require(GlobalPaths.YoutubeCheckerRepository);
 const TumblrCheckerRepository = require(GlobalPaths.TumblrCheckerRepository);
 const GuildCommandRepository = require(GlobalPaths.GuildCommandRepository);
+const CommandRepository = require(GlobalPaths.CommandRepository);
 
 class DatabaseDriver {
     async load() {
@@ -34,26 +35,7 @@ class DatabaseDriver {
         this.youtubeCheckers = new YoutubeCheckerRepository(this._db);
         this.tumblrCheckers = new TumblrCheckerRepository(this._db);
         this.guildCommands = new GuildCommandRepository(this._db);
-    }
-
-    async getAllCommands() {
-        try {
-            return await this._db.commands.find();
-        }
-        catch (e) {
-            Log.error(`Getting all commands: ${e}`);
-            throw e;
-        }
-    }
-
-    async addCommands(databaseCommands) {
-        try {
-            return await this._db.commands.insert(databaseCommands);
-        }
-        catch (e) {
-            Log.error(`Adding commands: ${e}`);
-            throw e;
-        }
+        this.commands = new CommandRepository(this._db);
     }
 
     async getAllUserGroups() {
@@ -98,23 +80,6 @@ class DatabaseDriver {
         }
         catch (e) {
             Log.error(`Setting guild '${Format.guild(role.guild)}' role '${Format.role(role)}' group '${group.name}': ${e}`);
-            throw e;
-        }
-    }
-
-    async setCommandEnabled(commandName, enabled) {
-        try {
-            return await this._db.commands.update(
-                {
-                    'name': commandName
-                },
-                {
-                    'enabled': enabled
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Setting command '${commandName}' enabled to '${enabled}': ${e}`);
             throw e;
         }
     }

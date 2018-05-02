@@ -13,7 +13,7 @@ class CommandRegistry {
         const { registry, database } = this.client;
         registry.registerCommandsIn(GlobalPaths.commandsFolderPath);
 
-        let databaseCommands = await database.getAllCommands();
+        let databaseCommands = await database.commands.getAll();
 
         const { commands } = registry;
 
@@ -30,13 +30,13 @@ class CommandRegistry {
         if (fileCommandsNotInDatabase.length > 0) {
             Log.info(`Found new file commands ${fileCommandsNotInDatabase.map(c => c.name).join(',')}. Adding to database.`);
 
-            await database.addCommands(
+            await database.commands.addAll(
                 fileCommandsNotInDatabase.map(command => {
                     return { 'name': command.name };
                 })
             );
 
-            databaseCommands = await database.getAllCommands();
+            databaseCommands = await database.commands.getAll();
         }
 
         for (const command of commands.values()) {
@@ -76,7 +76,7 @@ class CommandRegistry {
     }
 
     setCommandEnabled(command, enabled) {
-        return this.client.database.setCommandEnabled(command.name, enabled);
+        return this.client.database.commands.setEnabled(command.name, enabled);
     }
 
     async setGuildCommandEnabled(guild, command, enabled) {
