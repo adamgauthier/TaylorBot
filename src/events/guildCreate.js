@@ -18,12 +18,12 @@ class GuildCreate extends EventHandler {
         if (!oldRegistry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);
             await oldRegistry.guilds.addGuild(guild);
-            await database.addGuildName(guild, joinTime);
+            await database.guildNames.add(guild, joinTime);
         }
         else {
-            const latestGuildName = await database.getLatestGuildName(guild);
+            const latestGuildName = await database.guildNames.getLatest(guild);
             if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
-                await database.addGuildName(guild, joinTime);
+                await database.guildNames.add(guild, joinTime);
                 Log.info(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
             }
         }

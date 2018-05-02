@@ -29,19 +29,19 @@ class Ready extends EventHandler {
 
         const startupTime = new Date().getTime();
         const guildMembers = await database.guildMembers.getAll();
-        const latestGuildNames = await database.getLatestGuildNames();
+        const latestGuildNames = await database.guildNames.getAllLatest();
         let latestUsernames = await database.usernames.getAllLatest();
 
         for (const guild of client.guilds.values()) {
             if (!oldRegistry.guilds.has(guild.id)) {
                 Log.warn(`Found new guild ${Format.guild(guild)}.`);
                 await oldRegistry.guilds.addGuild(guild);
-                await database.addGuildName(guild, startupTime);
+                await database.guildNames.add(guild, startupTime);
             }
             else {
                 const latestGuildName = latestGuildNames.find(gn => gn.guild_id === guild.id);
                 if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
-                    await database.addGuildName(guild, startupTime);
+                    await database.guildNames.add(guild, startupTime);
                     Log.info(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
                 }
             }
