@@ -11,7 +11,7 @@ class GuildRoleGroupRegistry {
     }
 
     async load() {
-        const guildRoleGroups = await this.database.getAllGuildRoleGroups();
+        const guildRoleGroups = await this.database.roleGroups.getAll();
         guildRoleGroups.forEach(rg => this.cacheRoleGroup(rg));
     }
 
@@ -24,7 +24,7 @@ class GuildRoleGroupRegistry {
     }
 
     async addRoleGroup(role, group) {
-        const inserted = await this.database.setGuildRoleGroup(role, group);
+        const inserted = await this.database.roleGroups.add(role, group);
         this.cacheRoleGroup(inserted);
     }
 

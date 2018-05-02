@@ -19,6 +19,7 @@ const TumblrCheckerRepository = require(GlobalPaths.TumblrCheckerRepository);
 const GuildCommandRepository = require(GlobalPaths.GuildCommandRepository);
 const CommandRepository = require(GlobalPaths.CommandRepository);
 const UserGroupRepository = require(GlobalPaths.UserGroupRepository);
+const RoleGroupRepository = require(GlobalPaths.RoleGroupRepository);
 
 class DatabaseDriver {
     async load() {
@@ -38,32 +39,7 @@ class DatabaseDriver {
         this.guildCommands = new GuildCommandRepository(this._db);
         this.commands = new CommandRepository(this._db);
         this.userGroups = new UserGroupRepository(this._db);
-    }
-
-    async getAllGuildRoleGroups() {
-        try {
-            return await this._db.guild_role_groups.find();
-        }
-        catch (e) {
-            Log.error(`Getting all guild role groups: ${e}`);
-            throw e;
-        }
-    }
-
-    async setGuildRoleGroup(role, group) {
-        try {
-            return await this._db.guild_role_groups.insert(
-                {
-                    'guild_id': role.guild.id,
-                    'role_id': role.id,
-                    'group_name': group.name
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Setting guild '${Format.guild(role.guild)}' role '${Format.role(role)}' group '${group.name}': ${e}`);
-            throw e;
-        }
+        this.roleGroups = new RoleGroupRepository(this._db);
     }
 
     async setPrefix(guild, prefix) {

@@ -43,7 +43,8 @@ class GlobalPaths {
                     'TumblrCheckerRepository': 'TumblrCheckerRepository',
                     'GuildCommandRepository': 'GuildCommandRepository',
                     'CommandRepository': 'CommandRepository',
-                    'UserGroupRepository': 'UserGroupRepository'
+                    'UserGroupRepository': 'UserGroupRepository',
+                    'RoleGroupRepository': 'RoleGroupRepository'
                 }
             },
             {
