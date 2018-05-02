@@ -14,6 +14,7 @@ const UsernameRepository = require(GlobalPaths.UsernameRepository);
 const GuildNameRepository = require(GlobalPaths.GuildNameRepository);
 const InstagramCheckerRepository = require(GlobalPaths.InstagramCheckerRepository);
 const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
+const YoutubeCheckerRepository = require(GlobalPaths.YoutubeCheckerRepository);
 
 class DatabaseDriver {
     async load() {
@@ -28,16 +29,7 @@ class DatabaseDriver {
         this.guildNames = new GuildNameRepository(this._db);
         this.instagramCheckers = new InstagramCheckerRepository(this._db);
         this.redditCheckers = new RedditCheckerRepository(this._db);
-    }
-
-    async getYoutubeChannels() {
-        try {
-            return await this._db.checkers.youtube_checker.find();
-        }
-        catch (e) {
-            Log.error(`Getting Youtube Channels: ${e}`);
-            return [];
-        }
+        this.youtubeCheckers = new YoutubeCheckerRepository(this._db);
     }
 
     async getTumblrs() {

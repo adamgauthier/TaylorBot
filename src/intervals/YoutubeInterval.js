@@ -15,7 +15,7 @@ class YoutubeInterval extends Interval {
     }
 
     async interval(taylorbot) {
-        const youtubeChannels = await taylorbot.database.getYoutubeChannels();
+        const youtubeChannels = await taylorbot.database.youtubeCheckers.getAll();
         const it = youtubeChannels.entries();
         this.checkSingleYoutube(taylorbot, it);
     }
