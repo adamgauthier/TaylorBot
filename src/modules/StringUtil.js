@@ -21,7 +21,7 @@ class StringUtil {
         return str.substring(0, lastIndex) + adder;
     }
 
-    static plural(size, itemName, between = ' ') {
+    static plural(size, itemName, surround = '') {
         const isPlural = size > 1;
 
         if (isPlural) {
@@ -31,7 +31,7 @@ class StringUtil {
                 itemName = `${itemName}s`;
         }
 
-        return `${size}${between}${itemName}`;
+        return `${surround}${size}${surround} ${itemName}`;
     }
 }
 

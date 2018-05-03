@@ -90,7 +90,7 @@ class DiscordEmbedFormatter {
             .addField('Created', TimeUtil.formatFull(createdTimestamp))
             .addField(
                 StringUtil.plural(channels.size, 'Channel'),
-                `\`${StringUtil.plural(categories.length, 'Category', '` ')}, \`${textChannels.length}\` Text, \`${voiceChannels.length}\` Voice`)
+                `${StringUtil.plural(categories.length, 'Category', '`')}, \`${textChannels.length}\` Text, \`${voiceChannels.length}\` Voice`)
             .addField(StringUtil.plural(roles.size, 'Role'), StringUtil.shrinkString(roles.array().join(', '), 75, ', ...', [',']));
 
         if (iconURL) {
