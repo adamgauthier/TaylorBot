@@ -7,11 +7,9 @@ const TimeUtil = require(GlobalPaths.TimeUtil);
 const StringUtil = require(GlobalPaths.StringUtil);
 
 class DiscordEmbedFormatter {
-    static baseUserHeader(user) {
-        const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
+    static baseUserHeader(user, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)) {
         return new MessageEmbed()
-            .setURL(avatarURL)
-            .setAuthor(user.tag, avatarURL, avatarURL)
+            .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL)
             .setColor(DiscordEmbedFormatter.getStatusColor(user.presence.status));
     }
 
@@ -37,10 +35,21 @@ class DiscordEmbedFormatter {
         });
     }
 
+    static baseGuildHeader(guild, iconURL = DiscordEmbedFormatter.getIconURL(guild)) {
+        const isVip = guild.features.includes('VIP_REGIONS');
+
+        return new MessageEmbed()
+            .setAuthor(`${guild.name} ${guild.verified ? '✅' : ''} ${isVip ? '⭐' : ''}`, iconURL, iconURL)
+            .setColor(guild.roles.highest.color);
+    }
+
+    static getIconURL(guild) {
+        return guild.iconURL({ format: 'png' });
+    }
+
     static member(member) {
         const { user, client } = member;
         const { presence } = user;
-        const { status } = presence;
 
         const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
 
@@ -50,10 +59,8 @@ class DiscordEmbedFormatter {
 
         const roles = member.roles.map(r => r.name);
 
-        const embed = new MessageEmbed()
+        const embed = DiscordEmbedFormatter.baseUserHeader(user, avatarURL)
             .setURL(avatarURL)
-            .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL)
-            .setColor(DiscordEmbedFormatter.getStatusColor(status))
             .setThumbnail(avatarURL)
             .addField('ID', `\`${user.id}\``, true);
 
@@ -71,18 +78,14 @@ class DiscordEmbedFormatter {
     }
 
     static guild(guild) {
-        const iconURL = guild.iconURL({ format: 'png' });
+        const iconURL = DiscordEmbedFormatter.getIconURL(guild);
 
-        const { channels, roles, owner, region, createdTimestamp, memberCount, presences, verified, features } = guild;
+        const { channels, roles, owner, region, createdTimestamp, memberCount, presences } = guild;
         const categories = channels.findAll('type', 'category');
         const textChannels = channels.findAll('type', 'text');
         const voiceChannels = channels.findAll('type', 'voice');
 
-        const isVip = features.includes('VIP_REGIONS');
-
-        const embed = new MessageEmbed()
-            .setAuthor(`${guild.name} ${verified ? '✅' : ''} ${isVip ? '⭐' : ''}`, iconURL, iconURL)
-            .setColor(roles.highest.color)
+        const embed = DiscordEmbedFormatter.baseGuildHeader(guild)
             .addField('ID', `\`${guild.id}\``, true)
             .addField('Owner', owner.toString(), true)
             .addField(StringUtil.plural(memberCount, 'Member'), `\`${presences.findAll('status', 'online').length}\` Online`, true)
@@ -97,7 +100,6 @@ class DiscordEmbedFormatter {
             embed.setThumbnail(iconURL);
             embed.setURL(iconURL);
         }
-
 
         return embed;
     }

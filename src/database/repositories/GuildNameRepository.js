@@ -55,6 +55,21 @@ class GuildNameRepository {
             throw e;
         }
     }
+
+    async getHistory(guild, limit) {
+        try {
+            return await this._db.guild_names.getGuildNameHistory(
+                {
+                    'guild_id': guild.id,
+                    'max_rows': limit
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting guild name history for ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = GuildNameRepository;

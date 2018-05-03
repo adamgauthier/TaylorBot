@@ -11,7 +11,7 @@ class UsernamesCommand extends Command {
     constructor(client) {
         super(client, {
             name: 'usernames',
-            aliases: ['names', 'n'],
+            aliases: ['names'],
             group: 'info',
             memberName: 'usernames',
             description: 'Gets a list of previous usernames for a user in the current server.',
