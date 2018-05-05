@@ -30,7 +30,7 @@ class Registry {
         Log.info('Types loaded!');
 
         Log.info('Loading message watchers...');
-        this.watchers.loadAll();
+        await this.watchers.loadAll();
         Log.info('Message watchers loaded!');
 
         Log.info('Loading groups...');

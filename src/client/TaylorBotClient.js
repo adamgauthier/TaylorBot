@@ -61,7 +61,7 @@ class TaylorBotClient extends Commando.Client {
         Log.info('Database loaded!');
 
         Log.info('Loading intervals...');
-        this.intervalRunner.loadAll();
+        await this.intervalRunner.loadAll();
         Log.info('Intervals loaded!');
 
         Log.info('Loading events...');

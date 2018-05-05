@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 
 const { GlobalPaths } = require('globalobjects');
@@ -15,8 +15,8 @@ class MessageWatcherRegistry {
         this._watchers = new Map();
     }
 
-    loadAll() {
-        const files = fs.readdirSync(watchersPath);
+    async loadAll() {
+        const files = await fs.readdir(watchersPath);
         files.forEach(filename => {
             const filePath = path.parse(filename);
             if (filePath.ext === '.js') {

@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs/promises');
 
 const { GlobalPaths } = require('globalobjects');
 const intervalsPath = GlobalPaths.intervalsFolderPath;
@@ -41,8 +41,8 @@ class IntervalRunner {
         }
     }
 
-    loadAll() {
-        const files = fs.readdirSync(intervalsPath);
+    async loadAll() {
+        const files = await fs.readdir(intervalsPath);
         files.forEach(filename => {
             const filePath = path.parse(filename);
             if (filePath.ext === '.js') {
