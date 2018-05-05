@@ -15,46 +15,70 @@ class GuildArgumentType extends ArgumentType {
         super(client, 'guild');
     }
 
-    validate(val, msg) {
+    async validate(val, msg) {
         const matches = val.match(/^([0-9]+)$/);
         if (matches) {
             const guild = msg.client.guilds.resolve(matches[1]);
-            if (guild)
-                return true;
+            if (guild) {
+                const member = await guild.members.fetch(msg.author);
+                if (member) {
+                    return true;
+                }
+            }
         }
 
         const search = val.toLowerCase();
         const guilds = msg.client.guilds.filterArray(guildFilterInexact(search));
         if (guilds.length === 0)
             return false;
-        if (guilds.length === 1)
-            return true;
+        if (guilds.length === 1) {
+            const guild = guilds[0];
+            const member = await guild.members.fetch(msg.author);
+            return member ? true : false;
+        }
 
         const exactGuilds = guilds.filter(guildFilterExact(search));
-        if (exactGuilds.length > 0)
-            return true;
+        if (exactGuilds.length > 0) {
+            for (const guild of exactGuilds) {
+                const member = await guild.members.fetch(msg.author);
+                if (member)
+                    return true;
+            }
+        }
 
         return false;
     }
 
-    parse(val, msg) {
+    async parse(val, msg) {
         const matches = val.match(/^([0-9]+)$/);
         if (matches) {
             const guild = msg.client.guilds.resolve(matches[1]);
-            if (guild)
-                return guild;
+            if (guild) {
+                const member = await guild.members.fetch(msg.author);
+                if (member) {
+                    return guild;
+                }
+            }
         }
 
         const search = val.toLowerCase();
         const guilds = msg.client.guilds.filterArray(guildFilterInexact(search));
         if (guilds.length === 0)
             return null;
-        if (guilds.length === 1)
-            return guilds[0];
+        if (guilds.length === 1) {
+            const guild = guilds[0];
+            const member = await guild.members.fetch(msg.author);
+            return member ? guild : null;
+        }
 
         const exactGuilds = guilds.filter(guildFilterExact(search));
-        if (exactGuilds.length > 0)
-            return exactGuilds[0];
+        if (exactGuilds.length > 0) {
+            for (const guild of exactGuilds) {
+                const member = await guild.members.fetch(msg.author);
+                if (member)
+                    return guild;
+            }
+        }
 
         return null;
     }
