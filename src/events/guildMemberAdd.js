@@ -23,6 +23,9 @@ class GuildMemberAdd extends EventHandler {
                 await database.guildMembers.add(member);
                 Log.info(`Added new member ${Format.member(member)}.`);
             }
+            else {
+                database.guildMembers.fixInvalidJoinDate(member);
+            }
 
             const latestUsername = await database.usernames.getLatest(user);
             if (!latestUsername || latestUsername.username !== user.username) {

@@ -2,6 +2,7 @@
     "name": "taylorbot-migrators",
     "version": "1.0.0",
     "dependencies": {
+        "discord.js": "github:discordjs/discord.js",
         "massive": "^4.7.1",
         "moment": "^2.22.1",
         "sqlite3": "^4.0.0"

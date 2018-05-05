@@ -115,6 +115,25 @@ class GuildMemberRepository {
             throw e;
         }
     }
+
+    async fixInvalidJoinDate(guildMember) {
+        const databaseMember = this.mapMemberToDatabase(guildMember);
+        try {
+            return await this._db.guild_members.update(
+                { 
+                    ...databaseMember,
+                    'first_joined_at': '9223372036854775807'
+                },
+                {
+                    'first_joined_at': guildMember.joinedTimestamp
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Fixing Invalid Join Date for ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = GuildMemberRepository;

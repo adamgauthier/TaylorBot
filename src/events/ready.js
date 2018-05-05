@@ -60,6 +60,9 @@ class Ready extends EventHandler {
                         Log.warn(`Found new member ${Format.member(member)}.`);
                         await database.guildMembers.add(member);
                     }
+                    else {
+                        database.guildMembers.fixInvalidJoinDate(member);
+                    }
 
                     const latestUsername = latestUsernames.find(u => u.user_id === user.id);
                     if (!latestUsername || latestUsername.username !== user.username) {
