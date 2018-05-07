@@ -10,7 +10,8 @@ class CommandRegistry {
     }
 
     async loadAll() {
-        const { registry, database } = this.client;
+        const { registry } = this.client;
+        const { database } = this.client.master;
         registry.registerCommandsIn(GlobalPaths.commandsFolderPath);
 
         let databaseCommands = await database.commands.getAll();
@@ -76,11 +77,11 @@ class CommandRegistry {
     }
 
     setCommandEnabled(command, enabled) {
-        return this.client.database.commands.setEnabled(command.name, enabled);
+        return this.client.master.database.commands.setEnabled(command.name, enabled);
     }
 
     async setGuildCommandEnabled(guild, command, enabled) {
-        await this.client.database.guildCommands.setDisabled(guild, command.name, !enabled);
+        await this.client.master.database.guildCommands.setDisabled(guild, command.name, !enabled);
         command.disabledIn[guild.id] = !enabled;
     }
 }

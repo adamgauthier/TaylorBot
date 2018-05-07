@@ -15,10 +15,10 @@ class MinutesInterval extends Interval {
         super(msBeforeAdd);
     }
 
-    async interval({ database }) {
+    async interval({ master }) {
         const minimumLastSpoke = new Date().getTime() - msBeforeInactive;
 
-        await database.guildMembers.addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward);
+        await master.database.guildMembers.addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward);
     }
 }
 

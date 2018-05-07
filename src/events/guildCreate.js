@@ -7,13 +7,14 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class GuildCreate extends EventHandler {
-    async handler(taylorbot, guild) {
+    async handler(client, guild) {
         Log.info(`Joined guild ${Format.guild(guild)}.`);
 
-        const { database, oldRegistry } = taylorbot;
+        const { oldRegistry } = client;
+        const { database } = client.master;
 
         const members = await guild.members.fetch();
-        const joinTime = members.get(taylorbot.user.id).joinedTimestamp;
+        const joinTime = members.get(client.user.id).joinedTimestamp;
 
         if (!oldRegistry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);

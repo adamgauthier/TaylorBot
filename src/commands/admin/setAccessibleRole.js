@@ -30,7 +30,7 @@ class SetAccessibleRoleCommand extends Command {
     }
 
     async run(message, { role }) {
-        const { database } = this.client;
+        const { database } = this.client.master;
         const specialRole = await database.specialRoles.get(role);
 
         if (specialRole && specialRole.accessible) {

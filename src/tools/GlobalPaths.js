@@ -69,7 +69,8 @@ class GlobalPaths {
                     'GroupRegistry': 'GroupRegistry',
                     'GuildRoleGroupRegistry': 'GuildRoleGroupRegistry',
                     'Registry': 'Registry',
-                    'taylorBotClient': 'TaylorBotClient'
+                    'TaylorBotClient': 'TaylorBotClient',
+                    'TaylorBotMasterClient': 'TaylorBotMasterClient'
                 }
             },
             {

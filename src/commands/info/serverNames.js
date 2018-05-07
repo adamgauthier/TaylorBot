@@ -30,7 +30,7 @@ class ServerNamesCommand extends Command {
     }
 
     async run(message, { guild }) {
-        const guildNames = await this.client.database.guildNames.getHistory(guild, 10);
+        const guildNames = await this.client.master.database.guildNames.getHistory(guild, 10);
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(guild)
             .setDescription(

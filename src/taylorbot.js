@@ -6,12 +6,13 @@ const globalObjects = require('globalobjects');
 
 globalObjects.GlobalPaths = new GlobalPaths(__dirname);
 
-const taylorbot = require(globalObjects.GlobalPaths.taylorBotClient);
+const TaylorBotMasterClient = require(globalObjects.GlobalPaths.TaylorBotMasterClient);
 const TimeUtil = require(globalObjects.GlobalPaths.TimeUtil);
 
-const msBeforeLogin = 6000;
+const msBeforeLogin = 6 * 1000;
 
 const main = async () => {
+    const taylorbot = new TaylorBotMasterClient();
     await TimeUtil.wait(msBeforeLogin);
     await taylorbot.start();
 };

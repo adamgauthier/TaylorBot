@@ -14,20 +14,20 @@ class InstagramInterval extends Interval {
         super(intervalTime, false);
     }
 
-    async interval(taylorbot) {
-        const instagrams = await taylorbot.database.instagramCheckers.getAll();
+    async interval(client) {
+        const instagrams = await client.master.database.instagramCheckers.getAll();
         const it = instagrams.entries();
-        this.checkSingleInstagram(taylorbot, it);
+        this.checkSingleInstagram(client, it);
     }
 
-    async checkSingleInstagram(taylorbot, iterator) {
+    async checkSingleInstagram(client, iterator) {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
         const { guild_id, channel_id, instagram_username, last_post_code } = current;
 
         try {
-            const guild = taylorbot.resolveGuild(guild_id);
+            const guild = client.resolveGuild(guild_id);
             if (!guild) throw new Error(`Guild ID '${guild_id}' could not be resolved`);
 
             const channel = guild.channels.get(channel_id);
@@ -38,15 +38,15 @@ class InstagramInterval extends Interval {
 
             if (item.shortcode !== last_post_code) {
                 Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.shortcode}.`);
-                await taylorbot.sendEmbed(channel, InstagramModule.getEmbed(item, user));
-                await taylorbot.database.instagramCheckers.update(instagram_username, guild_id, channel_id, item.shortcode);
+                await client.sendEmbed(channel, InstagramModule.getEmbed(item, user));
+                await client.master.database.instagramCheckers.update(instagram_username, guild_id, channel_id, item.shortcode);
             }
         }
         catch (e) {
             Log.error(`Checking Instagram Posts for user '${instagram_username}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            this.checkSingleInstagram(taylorbot, iterator);
+            this.checkSingleInstagram(client, iterator);
         }
     }
 }

@@ -30,7 +30,7 @@ class UsernamesCommand extends Command {
     }
 
     async run(message, { member }) {
-        const usernames = await this.client.database.usernames.getHistory(member.user, 10);
+        const usernames = await this.client.master.database.usernames.getHistory(member.user, 10);
         const embed = DiscordEmbedFormatter
             .baseUserHeader(member.user)
             .setDescription(

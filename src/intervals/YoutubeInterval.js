@@ -14,20 +14,20 @@ class YoutubeInterval extends Interval {
         super(intervalTime);
     }
 
-    async interval(taylorbot) {
-        const youtubeChannels = await taylorbot.database.youtubeCheckers.getAll();
+    async interval(client) {
+        const youtubeChannels = await client.master.database.youtubeCheckers.getAll();
         const it = youtubeChannels.entries();
-        this.checkSingleYoutube(taylorbot, it);
+        this.checkSingleYoutube(client, it);
     }
 
-    async checkSingleYoutube(taylorbot, iterator) {
+    async checkSingleYoutube(client, iterator) {
         let current = iterator.next();
         if (current.done) return;
         current = current.value[1];
         const { guild_id, channel_id, playlist_id, last_video_id } = current;
 
         try {
-            const guild = taylorbot.resolveGuild(guild_id);
+            const guild = client.resolveGuild(guild_id);
             if (!guild) throw new Error(`Guild ID '${guild_id}' could not be resolved`);
 
             const channel = guild.channels.get(channel_id);
@@ -38,15 +38,15 @@ class YoutubeInterval extends Interval {
 
             if (videoId !== last_video_id) {
                 Log.info(`New Youtube Video for playlistId '${playlist_id}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${videoId}.`);
-                await taylorbot.sendEmbed(channel, YoutubeModule.getEmbed(video));
-                await taylorbot.database.youtubeCheckers.update(playlist_id, guild_id, channel_id, videoId);
+                await client.sendEmbed(channel, YoutubeModule.getEmbed(video));
+                await client.master.database.youtubeCheckers.update(playlist_id, guild_id, channel_id, videoId);
             }
         }
         catch (e) {
             Log.error(`Checking Youtube Videos for playlistId '${playlist_id}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }
         finally {
-            this.checkSingleYoutube(taylorbot, iterator);
+            this.checkSingleYoutube(client, iterator);
         }
     }
 }

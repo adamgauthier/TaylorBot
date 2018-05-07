@@ -7,9 +7,10 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class GuildMemberAdd extends EventHandler {
-    async handler(taylorbot, member) {
+    async handler(client, member) {
         const { user } = member;
-        const { database, oldRegistry } = taylorbot;
+        const { oldRegistry } = client;
+        const { database } = client.master;
 
         if (!oldRegistry.users.has(member.id)) {
             Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(member.guild)}.`);

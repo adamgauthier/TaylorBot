@@ -5,7 +5,6 @@ const Commando = require('discord.js-commando');
 const { GlobalPaths } = require('globalobjects');
 
 const EventLoader = require(GlobalPaths.EventLoader);
-const DatabaseDriver = require(GlobalPaths.DatabaseDriver);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
 const { masterId } = require(GlobalPaths.TaylorBotConfig);
 const Log = require(GlobalPaths.Logger);
@@ -16,7 +15,7 @@ const InhibitorLoader = require(GlobalPaths.InhibitorLoader);
 const discordMax = 2000;
 
 class TaylorBotClient extends Commando.Client {
-    constructor() {
+    constructor(master) {
         super({
             'fetchAllMembers': true,
             'disabledEvents': ['TYPING_START'],
@@ -24,6 +23,8 @@ class TaylorBotClient extends Commando.Client {
             'commandPrefix': '!',
             'unknownCommandResponse': false
         });
+
+        this.master = master;
 
         this.registry
             .registerDefaultGroups()
@@ -42,7 +43,6 @@ class TaylorBotClient extends Commando.Client {
                 'util', 'Utility'
             );
 
-        this.database = new DatabaseDriver();
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();
         this.oldRegistry = new Registry(this);
@@ -56,10 +56,6 @@ class TaylorBotClient extends Commando.Client {
         });
         Log.info('Inhibitors loaded!');
 
-        Log.info('Loading database...');
-        await this.database.load();
-        Log.info('Database loaded!');
-
         Log.info('Loading intervals...');
         await this.intervalRunner.loadAll();
         Log.info('Intervals loaded!');
@@ -71,6 +67,12 @@ class TaylorBotClient extends Commando.Client {
         await this.oldRegistry.loadAll();
 
         return this.login(loginToken);
+    }
+
+    get database() {
+        Log.warn('Using client.database is deprecated.');
+
+        return this.master.database;
     }
 
     resolveTextBasedChannel(textBasedResolvable) {
@@ -293,4 +295,4 @@ class TaylorBotClient extends Commando.Client {
     }
 }
 
-module.exports = new TaylorBotClient();
+module.exports = TaylorBotClient;

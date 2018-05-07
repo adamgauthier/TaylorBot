@@ -17,11 +17,11 @@ class Registry {
 
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
-        this.groups = new GroupRegistry(this.client.database);
+        this.groups = new GroupRegistry(this.client.master.database);
         this.guilds = new GuildRegistry(this.client);
-        this.roleGroups = new GuildRoleGroupRegistry(this.client.database, this.guilds);
+        this.roleGroups = new GuildRoleGroupRegistry(this.client.master.database, this.guilds);
         this.commands = new CommandRegistry(this.client);
-        this.users = new UserRegistry(this.client.database);
+        this.users = new UserRegistry(this.client.master.database);
     }
 
     async loadAll() {
