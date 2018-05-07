@@ -1,6 +1,6 @@
 'use strict';
 
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, GuildChannel, TextChannel, DMChannel, VoiceChannel, CategoryChannel } = require('discord.js');
 const { GlobalPaths } = require('globalobjects');
 
 const TimeUtil = require(GlobalPaths.TimeUtil);
@@ -99,6 +99,45 @@ class DiscordEmbedFormatter {
         if (iconURL) {
             embed.setThumbnail(iconURL);
             embed.setURL(iconURL);
+        }
+
+        return embed;
+    }
+
+    static channel(channel) {
+        const embed = new MessageEmbed()
+            .addField('ID', `\`${channel.id}\``, true)
+            .addField('Type', channel.type, true)
+            .addField('Created', TimeUtil.formatFull(channel.createdTimestamp));
+
+        if (channel instanceof GuildChannel) {
+            const { guild, parent } = channel;
+            if (parent) {
+                embed.addField('Category', `${parent.name} (\`${parent.id}\`)`, true);
+            }
+
+            embed
+                .setAuthor(`${channel.name} ${channel.nsfw ? '🔞' : ''}`)
+                .addField('Server', `${guild.name} (\`${guild.id}\`)`, true);
+
+            if (channel instanceof TextChannel) {
+                embed.addField('Topic', channel.topic ? channel.topic : '[Empty]');
+            }
+            else if (channel instanceof VoiceChannel) {
+                embed
+                    .addField('Bitrate', `${channel.bitrate} bps`, true)
+                    .addField('User Limit', channel.userLimit, true);
+            }
+            else if (channel instanceof CategoryChannel) {
+                const { children } = channel;
+                if (children) {
+                    embed
+                        .addField(`${children.size} Children`, StringUtil.shrinkString(children.map(c => c.name).join(', '), 75, ', ...', [',']));
+                }
+            }
+        }
+        else if (channel instanceof DMChannel) {
+            embed.addField('Recipient', channel.recipient.toString(), true);
         }
 
         return embed;

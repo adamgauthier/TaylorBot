@@ -30,12 +30,6 @@ class DiscordFormatter {
             .replace('#id', channel.id);
     }
 
-    static groupChannel(channel, formatString = 'Group DM [#name] (#id)') {
-        return formatString
-            .replace('#name', channel.name)
-            .replace('#id', channel.id);
-    }
-
     static guildChannel(guildChannel, formatString = '#name (#id)') {
         return formatString
             .replace('#name', guildChannel.name)

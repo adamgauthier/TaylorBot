@@ -13,9 +13,7 @@ class CommandRun extends EventHandler {
             `${Format.user(author)} using '${command.name}' with args '${argString}' in ${
                 channel.type === 'dm' ?
                     Format.dmChannel(channel) :
-                    channel.type === 'group' ?
-                        Format.groupChannel(channel) :
-                        Format.guildChannel(channel, '#name (#id) on #gName (#gId)')
+                    Format.guildChannel(channel, '#name (#id) on #gName (#gId)')
             }.`
         );
 
