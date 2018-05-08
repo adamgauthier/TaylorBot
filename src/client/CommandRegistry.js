@@ -4,8 +4,9 @@ const { GlobalPaths } = require('globalobjects');
 
 const Log = require(GlobalPaths.Logger);
 
-class CommandRegistry {
+class CommandRegistry extends Map {
     constructor(client) {
+        super();
         this.client = client;
     }
 
@@ -42,11 +43,13 @@ class CommandRegistry {
 
         for (const command of commands.values()) {
             command.disabledIn = {};
+            this.set(command.name, {});
         }
 
         databaseCommands.forEach(c => {
             const command = registry.resolveCommand(c.name);
-            command._globalEnabled = c.enabled;
+            const cachedCommand = this.get(command.name);
+            cachedCommand.isEnabled = c.enabled;
         });
 
         const guildCommands = await database.guildCommands.getAll();
@@ -77,6 +80,12 @@ class CommandRegistry {
     }
 
     setCommandEnabled(command, enabled) {
+        const cachedCommand = this.get(command.name);
+
+        if (!cachedCommand)
+            throw new Error(`Command '${command.name}' wasn't cached when trying to set enable to ${enabled}.`);
+
+        cachedCommand.isEnabled = enabled;
         return this.client.master.database.commands.setEnabled(command.name, enabled);
     }
 
