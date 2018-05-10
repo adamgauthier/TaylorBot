@@ -16,7 +16,9 @@ class DisabledGuildCommandInhibitor extends Inhibitor {
         if (!guild)
             return false;
 
-        if (command.disabledIn[guild.id]) {
+        const cachedCommand = command.client.oldRegistry.commands.get(command.name);
+
+        if (cachedCommand.disabledIn[guild.id]) {
             Log.verbose(`Command '${command.name}' can't be used in ${Format.guild(guild)} because it is disabled.`);
             return true;
         }

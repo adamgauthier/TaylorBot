@@ -10,9 +10,6 @@ class Ready extends EventHandler {
     async handler(client) {
         Log.info('Client is ready!');
 
-        client.oldRegistry.commands.syncDisabledGuildCommands();
-        Log.info('Synced disabled guild commands!');
-
         client.intervalRunner.startAll();
         Log.info('Intervals started!');
 
