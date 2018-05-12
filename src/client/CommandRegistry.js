@@ -43,7 +43,6 @@ class CommandRegistry extends Map {
         }
 
         for (const command of commands.values()) {
-            command.disabledIn = {};
             this.set(command.name, {
                 'disabledIn': {}
             });
@@ -52,7 +51,8 @@ class CommandRegistry extends Map {
         databaseCommands.forEach(c => {
             const command = registry.resolveCommand(c.name);
             const cachedCommand = this.get(command.name);
-            cachedCommand.isEnabled = c.enabled;
+            if (!c.enabled)
+                cachedCommand.isDisabled = true;
         });
 
         const guildCommands = await database.guildCommands.getAll();
@@ -70,8 +70,26 @@ class CommandRegistry extends Map {
         if (!cachedCommand)
             throw new Error(`Command '${command.name}' wasn't cached when trying to set enabled to ${enabled}.`);
 
+        if (cachedCommand.isDisabled && !enabled)
+            throw new Error(`Command '${command.name}' is already disabled.`);
+
+        if (!cachedCommand.isDisabled && enabled)
+            throw new Error(`Command '${command.name}' is already enabled.`);
+
         await this.client.master.database.commands.setEnabled(command.name, enabled);
-        cachedCommand.isEnabled = enabled;
+
+        if (!enabled)
+            cachedCommand.isDisabled = true;
+        else
+            delete cachedCommand.isDisabled;
+    }
+
+    enableCommand(command) {
+        return this.setCommandEnabled(command, true);
+    }
+
+    disableCommand(command) {
+        return this.setCommandEnabled(command, false);
     }
 
     async setGuildCommandEnabled(guild, command, enabled) {
@@ -87,7 +105,11 @@ class CommandRegistry extends Map {
             throw new Error(`Command '${command.name}' is already enabled in ${Format.guild(guild)}.`);
 
         await this.client.master.database.guildCommands.setDisabled(guild, command.name, !enabled);
-        cachedCommand.disabledIn[guild.id] = !enabled;
+
+        if (!enabled)
+            cachedCommand.disabledIn[guild.id] = true;
+        else
+            delete cachedCommand.disabledIn[guild.id];
     }
 
     enableCommandIn(command, guild) {

@@ -31,14 +31,14 @@ class EnableGlobalCommand extends Command {
         const { commands } = this.client.oldRegistry;
         const cachedCommand = commands.get(command.name);
 
-        if (cachedCommand.isEnabled) {
-            return this.client.sendEmbed(message.channel,
-                EmbedUtil.error(`Command '${command.name}' is already enabled.`));
-        }
-        else {
-            await commands.setCommandEnabled(command, true);
+        if (cachedCommand.isDisabled) {
+            await commands.enableCommand(command);
             return this.client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully enabled '${command.name}' globally.`));
+        }
+        else {
+            return this.client.sendEmbed(message.channel,
+                EmbedUtil.error(`Command '${command.name}' is already enabled.`));
         }
     }
 }

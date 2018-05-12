@@ -12,7 +12,7 @@ class DisabledCommandInhibitor extends Inhibitor {
 
         const cachedCommand = command.client.oldRegistry.commands.get(command.name);
 
-        if (!cachedCommand.isEnabled) {
+        if (cachedCommand.isDisabled) {
             Log.verbose(`Command '${command.name}' can't be used because it is disabled.`);
             return true;
         }

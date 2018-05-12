@@ -31,20 +31,20 @@ class DisableGlobalCommand extends Command {
         const { commands } = this.client.oldRegistry;
         const cachedCommand = commands.get(command.name);
 
-        if (cachedCommand.isEnabled) {
+        if (cachedCommand.isDisabled) {
+            return this.client.sendEmbed(message.channel,
+                EmbedUtil.error(`Command '${command.name}' is already disabled.`));
+        }
+        else {
             if (command.minimumGroup === UserGroups.Master) {
                 return this.client.sendEmbed(message.channel,
                     EmbedUtil.error(`Can't disable '${command.name}' because it's a Master Command.`));
             }
             else {
-                await commands.setCommandEnabled(command, false);
+                await commands.disableCommand(command);
                 return this.client.sendEmbed(message.channel,
                     EmbedUtil.success(`Successfully disabled '${command.name}' globally.`));
             }
-        }
-        else {
-            return this.client.sendEmbed(message.channel,
-                EmbedUtil.error(`Command '${command.name}' is already disabled.`));
         }
     }
 }
