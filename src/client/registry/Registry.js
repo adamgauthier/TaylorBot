@@ -10,6 +10,7 @@ const GuildRegistry = require(GlobalPaths.GuildRegistry);
 const GuildRoleGroupRegistry = require(GlobalPaths.GuildRoleGroupRegistry);
 const CommandRegistry = require(GlobalPaths.CommandRegistry);
 const UserRegistry = require(GlobalPaths.UserRegistry);
+const InhibitorRegistry = require(GlobalPaths.InhibitorRegistry);
 
 class Registry {
     constructor(client) {
@@ -22,9 +23,14 @@ class Registry {
         this.roleGroups = new GuildRoleGroupRegistry(this.client.master.database, this.guilds);
         this.commands = new CommandRegistry(this.client);
         this.users = new UserRegistry(this.client.master.database);
+        this.inhibitors = new InhibitorRegistry();
     }
 
     async loadAll() {
+        Log.info('Loading inhibitors...');
+        await this.inhibitors.loadAll();
+        Log.info('Inhibitors loaded!');
+        
         Log.info('Loading types...');
         await this.types.loadAll(this.client);
         Log.info('Types loaded!');

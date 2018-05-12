@@ -71,6 +71,7 @@ class GlobalPaths {
                 'files': {
                     'GuildRegistry': 'GuildRegistry',
                     'UserRegistry': 'UserRegistry',
+                    'InhibitorRegistry': 'InhibitorRegistry',
                     'CommandRegistry': 'CommandRegistry',
                     'CachedCommand': 'CachedCommand',
                     'TypeRegistry': 'TypeRegistry',

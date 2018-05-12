@@ -13,17 +13,13 @@ class InhibitorLoader {
     static async loadAll() {
         const files = await fs.readdir(inhibitorsPath);
 
-        const inhibitors = [];
-
-        files.forEach(filename => {
-            const filePath = path.parse(filename);
-            if (filePath.ext === '.js') {
-                const Inhibitor = requireInhibitor(filePath.base);
-                inhibitors.push(new Inhibitor());
-            }
-        });
-
-        return inhibitors;
+        return files
+            .map(path.parse)
+            .filter(file => file.ext === '.js')
+            .map(file => {
+                const Inhibitor = requireInhibitor(file.base);
+                return new Inhibitor();
+            });
     }
 }
 
