@@ -20,16 +20,20 @@
             "error",
             "single",
             {
-                "avoidEscape": true
+                "avoidEscape": true,
+                "allowTemplateLiterals": true
             }
         ],
         "semi": [
             "error",
             "always"
         ],
-        "prefer-const": ["error", {
-            "destructuring": "any",
-            "ignoreReadBeforeAssign": false
-        }]
+        "prefer-const": [
+            "error",
+            {
+                "destructuring": "any",
+                "ignoreReadBeforeAssign": false
+            }
+        ]
     }
 }

@@ -5,6 +5,7 @@ const { GlobalPaths } = require('globalobjects');
 const MessageWatcher = require(GlobalPaths.MessageWatcher);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
+const ArrayUtil = require(GlobalPaths.ArrayUtil);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {
@@ -55,7 +56,65 @@ class CommandsWatcher extends MessageWatcher {
             }.`
         );
 
+        const regexString = command.args
+            .map(argInfo => {
+                return argInfo.quoted ? `(?:'|")(.*)(?:'|")` : '(.*)';
+            })
+            .join(command.separator);
 
+        const regex = new RegExp(`^${regexString}$`);
+
+        const matches = argString.trim().match(regex);
+
+        if (!matches) {
+            // SEND ERROR MESSAGE
+            return;
+        }
+
+        const parsedArgs = {};
+
+        for (const [match, argInfo] of ArrayUtil.iterateArrays(matches, command.args)) {
+            const type = oldRegistry.getType(argInfo.type);
+            if (type.isEmpty(match)) {
+                // SEND ERROR MESSAGE
+                return;
+            }
+
+            try {
+                const parsedArg = await type.parse(match, message, argInfo);
+
+                parsedArgs[argInfo.key] = parsedArg;
+            }
+            catch (e) {
+                // UPDATE ANSWERED
+
+                if (e instanceof ArgumentParsingError) {
+                    // SEND ERROR MESSAGE argInfo.label
+                    return;
+                }
+                else {
+                    // MEMES
+                    throw e;
+                }
+            }
+        }
+
+        try {
+            command.run(message, args);
+        }
+        catch (e) {
+            if (e instanceof CommandError) {
+                // SEND ERROR MESSAGE
+                return;
+            }
+            else {
+                // SEND UNKNOWN ERROR MESSAGE
+                throw e;
+            }
+        }
+        finally {
+            // UPDATE ANSWERED
+        }
     }
 }
 
