@@ -6,7 +6,7 @@ class StringUtil {
             return str;
 
         charLimit -= adder.length;
-        let substringTest = str.substring(0, charLimit);
+        const substringTest = str.substring(0, charLimit);
 
         let lastIndex = -1;
 

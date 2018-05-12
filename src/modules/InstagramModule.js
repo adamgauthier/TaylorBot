@@ -56,7 +56,7 @@ class InstagramModule {
 
         const { edges } = item.edge_media_to_caption;
 
-        let title = edges.length > 0 ? StringUtil.shrinkString(edges[0].node.text, 65, ' ...') : '[No Caption]';
+        const title = edges.length > 0 ? StringUtil.shrinkString(edges[0].node.text, 65, ' ...') : '[No Caption]';
 
         re.setTitle(title);
         re.setThumbnail(item.thumbnail_src);

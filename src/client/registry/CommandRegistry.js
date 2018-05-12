@@ -16,7 +16,7 @@ class CommandRegistry extends Map {
         const { database } = this.client.master;
         registry.registerCommandsIn(GlobalPaths.commandsFolderPath);
 
-        let databaseCommands = await database.commands.getAll();
+        const databaseCommands = await database.commands.getAll();
 
         const { commands } = registry;
 
@@ -33,13 +33,13 @@ class CommandRegistry extends Map {
         if (fileCommandsNotInDatabase.length > 0) {
             Log.info(`Found new file commands ${fileCommandsNotInDatabase.map(c => c.name).join(',')}. Adding to database.`);
 
-            await database.commands.addAll(
+            const inserted = await database.commands.addAll(
                 fileCommandsNotInDatabase.map(command => {
                     return { 'name': command.name };
                 })
             );
 
-            databaseCommands = await database.commands.getAll();
+            databaseCommands.push(...inserted);
         }
 
         for (const command of commands.values()) {
