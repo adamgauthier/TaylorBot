@@ -29,7 +29,7 @@ class DisableGlobalCommand extends Command {
 
     async run(message, { command }) {
         const { commands } = this.client.oldRegistry;
-        const cachedCommand = commands.get(command.name);
+        const cachedCommand = commands.getCommand(command.name);
 
         if (cachedCommand.isDisabled) {
             return this.client.sendEmbed(message.channel,
@@ -41,7 +41,7 @@ class DisableGlobalCommand extends Command {
                     EmbedUtil.error(`Can't disable '${command.name}' because it's a Master Command.`));
             }
             else {
-                await commands.disableCommand(command);
+                await cachedCommand.disable();
                 return this.client.sendEmbed(message.channel,
                     EmbedUtil.success(`Successfully disabled '${command.name}' globally.`));
             }

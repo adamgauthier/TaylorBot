@@ -65,6 +65,7 @@ class GlobalPaths {
                     'GuildRegistry': 'GuildRegistry',
                     'UserRegistry': 'UserRegistry',
                     'CommandRegistry': 'CommandRegistry',
+                    'CachedCommand': 'CachedCommand',
                     'TypeRegistry': 'TypeRegistry',
                     'GroupRegistry': 'GroupRegistry',
                     'GuildRoleGroupRegistry': 'GuildRoleGroupRegistry',

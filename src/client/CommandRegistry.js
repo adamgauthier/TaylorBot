@@ -3,7 +3,7 @@
 const { GlobalPaths } = require('globalobjects');
 
 const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
+const CachedCommand = require(GlobalPaths.CachedCommand);
 
 class CommandRegistry extends Map {
     constructor(client) {
@@ -43,81 +43,28 @@ class CommandRegistry extends Map {
         }
 
         for (const command of commands.values()) {
-            this.set(command.name, {
-                'disabledIn': {}
-            });
+            this.set(command.name, new CachedCommand(command.name, this.client.master.database.commands));
         }
 
         databaseCommands.forEach(c => {
-            const command = registry.resolveCommand(c.name);
-            const cachedCommand = this.get(command.name);
             if (!c.enabled)
-                cachedCommand.isDisabled = true;
+                this.getCommand(c.name).isDisabled = true;
         });
 
         const guildCommands = await database.guildCommands.getAll();
         guildCommands.forEach(gc => {
-            const command = registry.resolveCommand(gc.command_name);
-            if (gc.disabled) {
-                this.get(command.name).disabledIn[gc.guild_id] = true;
-            }
+            if (gc.disabled)
+                this.getCommand(gc.command_name).disabledIn[gc.guild_id] = true;
         });
     }
 
-    async setCommandEnabled(command, enabled) {
-        const cachedCommand = this.get(command.name);
+    getCommand(name) {
+        const cachedCommand = this.get(name);
 
         if (!cachedCommand)
-            throw new Error(`Command '${command.name}' wasn't cached when trying to set enabled to ${enabled}.`);
+            throw new Error(`Command '${name}' isn't cached.`);
 
-        if (cachedCommand.isDisabled && !enabled)
-            throw new Error(`Command '${command.name}' is already disabled.`);
-
-        if (!cachedCommand.isDisabled && enabled)
-            throw new Error(`Command '${command.name}' is already enabled.`);
-
-        await this.client.master.database.commands.setEnabled(command.name, enabled);
-
-        if (!enabled)
-            cachedCommand.isDisabled = true;
-        else
-            delete cachedCommand.isDisabled;
-    }
-
-    enableCommand(command) {
-        return this.setCommandEnabled(command, true);
-    }
-
-    disableCommand(command) {
-        return this.setCommandEnabled(command, false);
-    }
-
-    async setGuildCommandEnabled(guild, command, enabled) {
-        const cachedCommand = this.get(command.name);
-
-        if (!cachedCommand)
-            throw new Error(`Command '${command.name}' wasn't cached when trying to set enabled to ${enabled} in ${Format.guild(guild)}.`);
-
-        if (cachedCommand.disabledIn[guild.id] && !enabled)
-            throw new Error(`Command '${command.name}' is already disabled in ${Format.guild(guild)}.`);
-
-        if (!cachedCommand.disabledIn[guild.id] && enabled)
-            throw new Error(`Command '${command.name}' is already enabled in ${Format.guild(guild)}.`);
-
-        await this.client.master.database.guildCommands.setDisabled(guild, command.name, !enabled);
-
-        if (!enabled)
-            cachedCommand.disabledIn[guild.id] = true;
-        else
-            delete cachedCommand.disabledIn[guild.id];
-    }
-
-    enableCommandIn(command, guild) {
-        return this.setGuildCommandEnabled(guild, command, true);
-    }
-
-    disableCommandIn(command, guild) {
-        return this.setGuildCommandEnabled(guild, command, false);
+        return cachedCommand;
     }
 }
 
