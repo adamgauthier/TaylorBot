@@ -62,6 +62,13 @@ class GlobalPaths {
                 'directory': pathMapper.client.path,
                 'files': {
                     'UserGroups': 'UserGroups.json',
+                    'TaylorBotClient': 'TaylorBotClient',
+                    'TaylorBotMasterClient': 'TaylorBotMasterClient'
+                }
+            },
+            {
+                'directory': pathMapper.client.registry.path,
+                'files': {
                     'GuildRegistry': 'GuildRegistry',
                     'UserRegistry': 'UserRegistry',
                     'CommandRegistry': 'CommandRegistry',
@@ -69,9 +76,7 @@ class GlobalPaths {
                     'TypeRegistry': 'TypeRegistry',
                     'GroupRegistry': 'GroupRegistry',
                     'GuildRoleGroupRegistry': 'GuildRoleGroupRegistry',
-                    'Registry': 'Registry',
-                    'TaylorBotClient': 'TaylorBotClient',
-                    'TaylorBotMasterClient': 'TaylorBotMasterClient'
+                    'Registry': 'Registry'
                 }
             },
             {

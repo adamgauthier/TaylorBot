@@ -39,7 +39,7 @@ class EnableGuildCommandCommand extends Command {
         const cachedCommand = commands.get(command.name);
 
         if (cachedCommand.disabledIn[guild.id]) {
-            await commands.enableCommandIn(command, guild);
+            await cachedCommand.enableIn(guild);
             return this.client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully enabled '${command.name}' in ${guild.name}.`));
         }

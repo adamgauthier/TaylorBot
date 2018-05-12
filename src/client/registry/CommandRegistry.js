@@ -43,7 +43,11 @@ class CommandRegistry extends Map {
         }
 
         for (const command of commands.values()) {
-            this.set(command.name, new CachedCommand(command.name, this.client.master.database.commands));
+            this.set(command.name, new CachedCommand(
+                command.name,
+                this.client.master.database.commands,
+                this.client.master.database.guildCommands
+            ));
         }
 
         databaseCommands.forEach(c => {

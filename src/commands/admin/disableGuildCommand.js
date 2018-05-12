@@ -43,7 +43,7 @@ class DisableGuildCommandCommand extends Command {
                 EmbedUtil.error(`Command '${command.name}' is already disabled in ${guild.name}.`));
         }
         else {
-            await commands.disableCommandIn(command, guild);
+            await cachedCommand.disableIn(guild);
             return this.client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully disabled '${command.name}' in ${guild.name}.`));
         }
