@@ -56,6 +56,9 @@ class GuildRepository {
                 },
                 {
                     'prefix': prefix
+                },
+                {
+                    'single': true
                 }
             );
         }

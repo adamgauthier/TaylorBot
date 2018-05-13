@@ -107,6 +107,9 @@ class GuildMemberRepository {
             return await this._db.guild_members.update(databaseMember,
                 {
                     'last_spoke_at': lastSpokeAt
+                },
+                {
+                    'single': true
                 }
             );
         }
@@ -126,6 +129,9 @@ class GuildMemberRepository {
                 },
                 {
                     'first_joined_at': guildMember.joinedTimestamp
+                },
+                {
+                    'single': true
                 }
             );
         }

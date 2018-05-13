@@ -12,7 +12,7 @@ const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {
-        super(false);
+        super(true);
     }
 
     async messageHandler(client, message) {
@@ -38,7 +38,8 @@ class CommandsWatcher extends MessageWatcher {
 
         const args = text.split(' ');
         const commandName = args.shift().toLowerCase();
-        const command = oldRegistry.commands.getCommand(commandName);
+        // const command = oldRegistry.commands.getCommand(commandName);
+        const command = client.registry.resolveCommand(commandName);
 
         if (!command)
             return;
@@ -71,7 +72,7 @@ class CommandsWatcher extends MessageWatcher {
 
         if (!matches) {
             // SEND ERROR MESSAGE
-            return;
+            return client.sendEmbed(channel, EmbedUtil.error('Wrong command usage'));
         }
 
         const parsedArgs = {};
@@ -79,8 +80,7 @@ class CommandsWatcher extends MessageWatcher {
         for (const [match, argInfo] of ArrayUtil.iterateArrays(matches, command.args)) {
             const type = oldRegistry.getType(argInfo.type);
             if (type.isEmpty(match, message, argInfo)) {
-                // SEND ERROR MESSAGE
-                return;
+                return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\` must not be empty.`));
             }
 
             try {

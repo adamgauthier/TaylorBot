@@ -8,7 +8,7 @@ class InhibitorRegistry extends Set {
     async loadAll() {
         const inhibitors = await InhibitorLoader.loadAll();
 
-        inhibitors.forEach(this.add);
+        inhibitors.forEach(i => this.add(i));
     }
 }
 

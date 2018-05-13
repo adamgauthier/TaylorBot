@@ -29,6 +29,9 @@ class YoutubeCheckerRepository {
                 },
                 {
                     'last_video_id': lastVideoId
+                },
+                {
+                    'single': true
                 }
             );
         }

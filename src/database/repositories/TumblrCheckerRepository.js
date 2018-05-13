@@ -29,6 +29,9 @@ class TumblrCheckerRepository {
                 },
                 {
                     'last_link': lastLink
+                },
+                {
+                    'single': true
                 }
             );
         }

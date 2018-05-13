@@ -33,7 +33,7 @@ class SpecialRoleRepository {
         const fields = { 'accessible': true };
         try {
             const inserted = await this._db.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
-            return inserted ? inserted : await this._db.guild_special_roles.update(databaseRole, fields);
+            return inserted ? inserted : await this._db.guild_special_roles.update(databaseRole, fields, { 'single': true });
         }
         catch (e) {
             Log.error(`Setting accessible special role ${Format.role(role)}: ${e}`);

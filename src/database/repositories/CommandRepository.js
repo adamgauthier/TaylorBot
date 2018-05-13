@@ -37,6 +37,9 @@ class CommandRepository {
                 },
                 {
                     'enabled': enabled
+                },
+                {
+                    'single': true
                 }
             );
         }

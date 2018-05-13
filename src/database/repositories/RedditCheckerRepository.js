@@ -30,6 +30,9 @@ class RedditCheckerRepository {
                 {
                     'last_post_id': lastLink,
                     'last_created': lastCreated
+                },
+                {
+                    'single': true
                 }
             );
         }

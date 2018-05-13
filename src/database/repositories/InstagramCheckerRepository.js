@@ -29,6 +29,9 @@ class InstagramCheckerRepository {
                 },
                 {
                     'last_post_code': lastCode
+                },
+                {
+                    'single': true
                 }
             );
         }
