@@ -6,6 +6,9 @@ const MessageWatcher = require(GlobalPaths.MessageWatcher);
 const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 const ArrayUtil = require(GlobalPaths.ArrayUtil);
+const EmbedUtil = require(GlobalPaths.EmbedUtil);
+const CommandError = require(GlobalPaths.CommandError);
+const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {
@@ -58,9 +61,9 @@ class CommandsWatcher extends MessageWatcher {
 
         const regexString = command.args
             .map(argInfo => {
-                return argInfo.quoted ? `(?:'|")(.*)(?:'|")` : '(.*)';
+                return argInfo.quoted ? `(?:"(.*)"|'(.*)')` : '(.*)';
             })
-            .join(command.separator);
+            .join(`[\\${command.separator}]{0,1}`);
 
         const regex = new RegExp(`^${regexString}$`);
 
@@ -75,7 +78,7 @@ class CommandsWatcher extends MessageWatcher {
 
         for (const [match, argInfo] of ArrayUtil.iterateArrays(matches, command.args)) {
             const type = oldRegistry.getType(argInfo.type);
-            if (type.isEmpty(match)) {
+            if (type.isEmpty(match, message, argInfo)) {
                 // SEND ERROR MESSAGE
                 return;
             }
@@ -86,34 +89,36 @@ class CommandsWatcher extends MessageWatcher {
                 parsedArgs[argInfo.key] = parsedArg;
             }
             catch (e) {
-                // UPDATE ANSWERED
+                // UPDATE ANSWERED?
 
                 if (e instanceof ArgumentParsingError) {
-                    // SEND ERROR MESSAGE argInfo.label
-                    return;
+                    return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\`: ${e.message}`));
                 }
                 else {
-                    // MEMES
+                    await client.sendEmbed(channel, EmbedUtil.error('Oops, an unknown parsing error occured. Sorry about that. 😕'));
                     throw e;
                 }
             }
         }
 
+        const commandTime = new Date().getTime();
+        oldRegistry.users.updateLastCommand(author, commandTime);
+
         try {
-            command.run(message, args);
+            await command.run(message, args);
         }
         catch (e) {
             if (e instanceof CommandError) {
-                // SEND ERROR MESSAGE
-                return;
+                return client.sendEmbed(channel, EmbedUtil.error(e.message));
             }
             else {
-                // SEND UNKNOWN ERROR MESSAGE
+                await client.sendEmbed(channel, EmbedUtil.error('Oops, an unknown command error occured. Sorry about that. 😕'));
                 throw e;
             }
         }
         finally {
-            // UPDATE ANSWERED
+            const answeredTime = new Date().getTime();
+            oldRegistry.users.updateLastAnswered(author, answeredTime);
         }
     }
 }

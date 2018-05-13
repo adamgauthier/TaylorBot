@@ -55,7 +55,9 @@ class GlobalPaths {
                     'Interval': 'Interval',
                     'MessageWatcher': 'MessageWatcher',
                     'Command': 'Command',
-                    'Inhibitor': 'Inhibitor'
+                    'Inhibitor': 'Inhibitor',
+                    'CommandError': 'CommandError',
+                    'ArgumentParsingError': 'ArgumentParsingError',
                 }
             },
             {
