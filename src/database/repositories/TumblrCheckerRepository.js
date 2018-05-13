@@ -15,7 +15,7 @@ class TumblrCheckerRepository {
         }
         catch (e) {
             Log.error(`Getting Tumblrs: ${e}`);
-            return [];
+            throw e;
         }
     }
 

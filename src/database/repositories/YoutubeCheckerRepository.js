@@ -15,7 +15,7 @@ class YoutubeCheckerRepository {
         }
         catch (e) {
             Log.error(`Getting Youtube Channels: ${e}`);
-            return [];
+            throw e;
         }
     }
 

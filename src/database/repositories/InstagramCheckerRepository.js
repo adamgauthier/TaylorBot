@@ -15,7 +15,7 @@ class InstagramCheckerRepository {
         }
         catch (e) {
             Log.error(`Getting Instagrams: ${e}`);
-            return [];
+            throw e;
         }
     }
 

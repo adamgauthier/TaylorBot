@@ -15,7 +15,7 @@ class RedditCheckerRepository {
         }
         catch (e) {
             Log.error(`Getting Reddits: ${e}`);
-            return [];
+            throw e;
         }
     }
 
