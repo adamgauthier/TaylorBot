@@ -13,17 +13,13 @@ class TypeLoader {
     static async loadAll() {
         const files = await fs.readdir(typesPath);
 
-        const types = [];
-
-        files.forEach(filename => {
-            const filePath = path.parse(filename);
-            if (filePath.ext === '.js') {
-                const Type = requireType(filePath.base);
-                types.push(Type);
-            }
-        });
-
-        return types;
+        return files
+            .map(path.parse)
+            .filter(file => file.ext === '.js')
+            .map(file => {
+                const Type = requireType(file.base);
+                return new Type();
+            });
     }
 }
 

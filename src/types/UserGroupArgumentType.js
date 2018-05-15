@@ -1,10 +1,16 @@
 'use strict';
 
-const { ArgumentType } = require('discord.js-commando');
+const { GlobalPaths } = require('globalobjects');
+
+const ArgumentType = require(GlobalPaths.ArgumentType);
 
 class UserGroupArgumentType extends ArgumentType {
     constructor(client) {
         super(client, 'user-group');
+    }
+
+    get id() {
+        return 'user-group';
     }
 
     validate(val) {

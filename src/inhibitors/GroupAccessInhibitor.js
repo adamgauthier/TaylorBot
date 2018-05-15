@@ -9,23 +9,20 @@ const { masterId } = require(GlobalPaths.TaylorBotConfig);
 const UserGroups = require(GlobalPaths.UserGroups);
 
 class GroupAccessInhibitor extends Inhibitor {
-    shouldBeBlocked({ message, command }) {
-        if (!command || !command.minimumGroup)
-            return false;
+    shouldBeBlocked(message, command) {
+        const { author, member, client } = message;
+        const { oldRegistry } = client;
 
-        const { author, member } = message;
-        const { oldRegistry } = command.client;
-
-        if (!GroupAccessInhibitor.groupHasAccess(author, member, command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {
-            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.minimumGroup.name}'.`);
+        if (!GroupAccessInhibitor.groupHasAccess(member, command.command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {
+            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.command.minimumGroup.name}'.`);
             return true;
         }
 
         return false;
     }
 
-    static groupHasAccess(user, member, minimumGroupLevel, guilds, groups) {
-        let { accessLevel } = user.id === masterId ? UserGroups.Master : UserGroups.Everyone;
+    static groupHasAccess(member, minimumGroupLevel, guilds, groups) {
+        let { accessLevel } = member.id === masterId ? UserGroups.Master : UserGroups.Everyone;
         if (accessLevel >= minimumGroupLevel)
             return true;
 

@@ -16,9 +16,6 @@ class Ready extends EventHandler {
         Log.info('Checking new guilds, users and usernames...');
         await this.syncDatabase(client);
         Log.info('New guilds, users and usernames checked!');
-
-        client.oldRegistry.guilds.syncPrefixes();
-        Log.info('Synced guild prefixes!');
     }
 
     async syncDatabase(client) {

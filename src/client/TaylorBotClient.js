@@ -1,62 +1,31 @@
 'use strict';
 
 const Discord = require('discord.js');
-const Commando = require('discord.js-commando');
 const { GlobalPaths } = require('globalobjects');
 
 const EventLoader = require(GlobalPaths.EventLoader);
 const { loginToken } = require(GlobalPaths.DiscordConfig);
-const { masterId } = require(GlobalPaths.TaylorBotConfig);
 const Log = require(GlobalPaths.Logger);
 const IntervalRunner = require(GlobalPaths.IntervalRunner);
 const Registry = require(GlobalPaths.Registry);
-const InhibitorLoader = require(GlobalPaths.InhibitorLoader);
 
 const discordMax = 2000;
 
-class TaylorBotClient extends Commando.Client {
+class TaylorBotClient extends Discord.Client {
     constructor(master) {
         super({
             'fetchAllMembers': true,
-            'disabledEvents': ['TYPING_START'],
-            'owner': masterId,
-            'commandPrefix': '!',
-            'unknownCommandResponse': false
+            'disabledEvents': ['TYPING_START']
         });
 
         this.master = master;
 
-        this.registry
-            .registerDefaultGroups()
-            .registerDefaultTypes()
-            .registerDefaultCommands({
-                'ping': false,
-                'help': false,
-                'commandState': false
-            })
-            .registerGroup(
-                'admin', 'Administration', true
-            )
-            .registerGroup(
-                'info', 'Information'
-            )
-            .registerGroup(
-                'util', 'Utility'
-            );
-
         this.intervalRunner = new IntervalRunner(this);
         this.eventLoader = new EventLoader();
-        this.oldRegistry = new Registry(this);
+        this.oldRegistry = new Registry(this.master.database);
     }
 
     async start() {
-        Log.info('Loading inhibitors...');
-        const inhibitors = await InhibitorLoader.loadAll();
-        inhibitors.forEach(inhibitor => {
-            this.dispatcher.addInhibitor(inhibitor.shouldBeBlocked);
-        });
-        Log.info('Inhibitors loaded!');
-
         Log.info('Loading intervals...');
         await this.intervalRunner.loadAll();
         Log.info('Intervals loaded!');
@@ -70,12 +39,6 @@ class TaylorBotClient extends Commando.Client {
         return this.login(loginToken);
     }
 
-    get database() {
-        Log.warn('Using client.database is deprecated.');
-
-        return this.master.database;
-    }
-
     resolveTextBasedChannel(textBasedResolvable) {
         const tc = this.resolveTextChannel(textBasedResolvable);
         if (tc) return tc;
@@ -85,8 +48,6 @@ class TaylorBotClient extends Commando.Client {
 
         const dm = this.resolveDMChannel(textBasedResolvable);
         if (dm) return dm;
-
-        //TODO:add group dm
 
         return null;
     }
@@ -290,7 +251,7 @@ class TaylorBotClient extends Commando.Client {
     }
 
     async sendEmbed(recipient, embed) {
-        const options = { 'embed': embed };
+        const options = { embed };
 
         return await this.sendMessage(recipient, '', options);
     }

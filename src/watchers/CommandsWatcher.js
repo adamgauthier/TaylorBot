@@ -38,33 +38,34 @@ class CommandsWatcher extends MessageWatcher {
 
         const args = text.split(' ');
         const commandName = args.shift().toLowerCase();
-        // const command = oldRegistry.commands.getCommand(commandName);
-        const command = client.registry.resolveCommand(commandName);
+        const cachedCommand = oldRegistry.commands.resolve(commandName);
 
-        if (!command)
+        if (!cachedCommand)
             return;
 
         const argString = args.join(' ');
 
         for (const inhibitor of oldRegistry.inhibitors.values()) {
-            if (inhibitor.shouldBeBlocked(message, command)) {
+            if (inhibitor.shouldBeBlocked(message, cachedCommand)) {
                 return;
             }
         }
 
         Log.verbose(
-            `${Format.user(author)} using '${command.name}' with args '${argString}' in ${
+            `${Format.user(author)} using '${cachedCommand.name}' with args '${argString}' in ${
                 channel.type === 'dm' ?
                     Format.dmChannel(channel) :
                     Format.guildChannel(channel, '#name (#id) on #gName (#gId)')
             }.`
         );
 
-        const regexString = command.args
+        const { command } = cachedCommand;
+
+        const regexString = command.info.args
             .map(argInfo => {
                 return argInfo.quoted ? `(?:"(.*)"|'(.*)')` : '(.*)';
             })
-            .join(`[\\${command.separator}]{0,1}`);
+            .join(`[\\${command.info.separator}]{0,1}`);
 
         const regex = new RegExp(`^${regexString}$`);
 
@@ -75,10 +76,12 @@ class CommandsWatcher extends MessageWatcher {
             return client.sendEmbed(channel, EmbedUtil.error('Wrong command usage'));
         }
 
+        matches.shift();
+
         const parsedArgs = {};
 
-        for (const [match, argInfo] of ArrayUtil.iterateArrays(matches, command.args)) {
-            const type = oldRegistry.getType(argInfo.type);
+        for (const [match, argInfo] of ArrayUtil.iterateArrays(matches, command.info.args)) {
+            const type = oldRegistry.types.getType(argInfo.type);
             if (type.isEmpty(match, message, argInfo)) {
                 return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\` must not be empty.`));
             }

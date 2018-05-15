@@ -1,6 +1,8 @@
 'use strict';
 
-const { ArgumentType } = require('discord.js-commando');
+const { GlobalPaths } = require('globalobjects');
+
+const ArgumentType = require(GlobalPaths.ArgumentType);
 
 const ChannelArgumentType = require('./ChannelArgumentType');
 
@@ -8,6 +10,10 @@ class ChannelOrCurrentArgumentType extends ArgumentType {
     constructor(client) {
         super(client, 'channel-or-current');
         this.channelArgumentType = new ChannelArgumentType(client);
+    }
+
+    get id() {
+        return 'channel-or-current';
     }
 
     isEmpty() {

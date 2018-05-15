@@ -58,6 +58,7 @@ class GlobalPaths {
                     'Inhibitor': 'Inhibitor',
                     'CommandError': 'CommandError',
                     'ArgumentParsingError': 'ArgumentParsingError',
+                    'ArgumentType': 'ArgumentType'
                 }
             },
             {
@@ -106,7 +107,8 @@ class GlobalPaths {
                     'IntervalRunner': 'IntervalRunner',
                     'InhibitorLoader': 'InhibitorLoader',
                     'MessageWatcherRegistry': 'MessageWatcherRegistry',
-                    'EmbedUtil': 'EmbedUtil'
+                    'EmbedUtil': 'EmbedUtil',
+                    'CommandLoader': 'CommandLoader'
                 }
             },
             {

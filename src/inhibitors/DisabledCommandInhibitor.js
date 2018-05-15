@@ -6,13 +6,8 @@ const Inhibitor = require(GlobalPaths.Inhibitor);
 const Log = require(GlobalPaths.Logger);
 
 class DisabledCommandInhibitor extends Inhibitor {
-    shouldBeBlocked({ command }) {
-        if (!command)
-            return false;
-
-        const cachedCommand = command.client.oldRegistry.commands.get(command.name);
-
-        if (cachedCommand.isDisabled) {
+    shouldBeBlocked(message, command) {
+        if (command.isDisabled) {
             Log.verbose(`Command '${command.name}' can't be used because it is disabled.`);
             return true;
         }

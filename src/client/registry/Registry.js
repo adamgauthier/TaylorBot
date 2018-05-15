@@ -13,16 +13,14 @@ const UserRegistry = require(GlobalPaths.UserRegistry);
 const InhibitorRegistry = require(GlobalPaths.InhibitorRegistry);
 
 class Registry {
-    constructor(client) {
-        this.client = client;
-
+    constructor(database) {
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
-        this.groups = new GroupRegistry(this.client.master.database);
-        this.guilds = new GuildRegistry(this.client);
-        this.roleGroups = new GuildRoleGroupRegistry(this.client.master.database, this.guilds);
-        this.commands = new CommandRegistry(this.client);
-        this.users = new UserRegistry(this.client.master.database);
+        this.groups = new GroupRegistry(database);
+        this.guilds = new GuildRegistry(database);
+        this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
+        this.commands = new CommandRegistry(database);
+        this.users = new UserRegistry(database);
         this.inhibitors = new InhibitorRegistry();
     }
 
@@ -30,9 +28,9 @@ class Registry {
         Log.info('Loading inhibitors...');
         await this.inhibitors.loadAll();
         Log.info('Inhibitors loaded!');
-        
+
         Log.info('Loading types...');
-        await this.types.loadAll(this.client);
+        await this.types.loadAll();
         Log.info('Types loaded!');
 
         Log.info('Loading message watchers...');

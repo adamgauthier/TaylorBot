@@ -7,18 +7,13 @@ const Log = require(GlobalPaths.Logger);
 const Format = require(GlobalPaths.DiscordFormatter);
 
 class DisabledGuildCommandInhibitor extends Inhibitor {
-    shouldBeBlocked({ message, command }) {
-        if (!command)
-            return false;
-
+    shouldBeBlocked(message, command) {
         const { guild } = message;
 
         if (!guild)
             return false;
 
-        const cachedCommand = command.client.oldRegistry.commands.get(command.name);
-
-        if (cachedCommand.disabledIn[guild.id]) {
+        if (command.disabledIn[guild.id]) {
             Log.verbose(`Command '${command.name}' can't be used in ${Format.guild(guild)} because it is disabled.`);
             return true;
         }

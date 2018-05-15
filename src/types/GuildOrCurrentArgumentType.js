@@ -1,6 +1,8 @@
 'use strict';
 
-const { ArgumentType } = require('discord.js-commando');
+const { GlobalPaths } = require('globalobjects');
+
+const ArgumentType = require(GlobalPaths.ArgumentType);
 
 const GuildArgumentType = require('./GuildArgumentType');
 
@@ -8,6 +10,10 @@ class GuildOrCurrentArgumentType extends ArgumentType {
     constructor(client) {
         super(client, 'guild-or-current');
         this.guildArgumentType = new GuildArgumentType(client);
+    }
+
+    get id() {
+        return 'guild-or-current';
     }
 
     isEmpty(val, msg) {

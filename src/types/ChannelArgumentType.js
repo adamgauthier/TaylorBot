@@ -1,6 +1,8 @@
 'use strict';
 
-const { ArgumentType } = require('discord.js-commando');
+const { GlobalPaths } = require('globalobjects');
+
+const ArgumentType = require(GlobalPaths.ArgumentType);
 
 const channelFilterExact = search => {
     return channel => channel.name.toLowerCase() === search;
@@ -13,6 +15,10 @@ const channelFilterInexact = search => {
 class ChannelArgumentType extends ArgumentType {
     constructor(client) {
         super(client, 'channel2');
+    }
+
+    get id() {
+        return 'channel2';
     }
 
     validate(val, msg) {
