@@ -70,6 +70,15 @@ class CommandRegistry extends Map {
         cached.command = command;
 
         this.set(key, cached);
+
+        for (const alias of command.info.aliases) {
+            const aliasKey = alias.toLowerCase();
+
+            if (this.has(aliasKey))
+                throw new Error(`Command Key '${aliasKey}' is already cached when setting alias.`);
+
+            this.set(aliasKey, key);
+        }
     }
 
     getCommand(name) {

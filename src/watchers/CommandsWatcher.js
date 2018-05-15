@@ -108,7 +108,7 @@ class CommandsWatcher extends MessageWatcher {
         oldRegistry.users.updateLastCommand(author, commandTime);
 
         try {
-            await command.run(message, args);
+            await command.run(message, parsedArgs);
         }
         catch (e) {
             if (e instanceof CommandError) {

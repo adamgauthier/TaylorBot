@@ -12,6 +12,8 @@ class Command {
 
         this.info = info;
         this.info.separator = ' ';
+        if (!this.info.aliases)
+            this.info.aliases = [];
         this.minimumGroup = minimumGroup;
     }
 }

@@ -30,13 +30,14 @@ class ServerNamesCommand extends Command {
     }
 
     async run(message, { guild }) {
-        const guildNames = await this.client.master.database.guildNames.getHistory(guild, 10);
+        const { client, channel } = message;
+        const guildNames = await client.master.database.guildNames.getHistory(guild, 10);
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(guild)
             .setDescription(
                 guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at)} : ${gn.guild_name}`).join('\n')
             );
-        return this.client.sendEmbed(message.channel, embed);
+        return client.sendEmbed(channel, embed);
     }
 }
 
