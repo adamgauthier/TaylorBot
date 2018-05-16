@@ -11,6 +11,10 @@ const UserGroups = require(GlobalPaths.UserGroups);
 class GroupAccessInhibitor extends Inhibitor {
     shouldBeBlocked(message, command) {
         const { author, member, client } = message;
+
+        if (!member)
+            return false;
+
         const { oldRegistry } = client;
 
         if (!GroupAccessInhibitor.groupHasAccess(member, command.command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {

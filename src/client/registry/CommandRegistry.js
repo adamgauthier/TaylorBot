@@ -63,7 +63,7 @@ class CommandRegistry extends Map {
             throw new Error(`Command '${command.info.name}' is already cached.`);
 
         const cached = new CachedCommand(
-            command.name,
+            command.info.name,
             this.database.commands,
             this.database.guildCommands
         );

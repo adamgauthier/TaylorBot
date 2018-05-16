@@ -76,11 +76,11 @@ class CommandsWatcher extends MessageWatcher {
             return client.sendEmbed(channel, EmbedUtil.error('Wrong command usage'));
         }
 
-        matches.shift();
+        const matchedGroups = matches.slice(1);
 
         const parsedArgs = {};
 
-        for (const [match, argInfo] of ArrayUtil.iterateArrays(matches, command.info.args)) {
+        for (const [match, argInfo] of ArrayUtil.iterateArrays(matchedGroups, command.info.args)) {
             const type = oldRegistry.types.getType(argInfo.type);
             if (type.isEmpty(match, message, argInfo)) {
                 return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\` must not be empty.`));
