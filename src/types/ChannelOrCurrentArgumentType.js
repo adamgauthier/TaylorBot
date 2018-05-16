@@ -7,21 +7,14 @@ const ArgumentType = require(GlobalPaths.ArgumentType);
 const ChannelArgumentType = require('./ChannelArgumentType');
 
 class ChannelOrCurrentArgumentType extends ArgumentType {
-    constructor(client) {
-        super(client, 'channel-or-current');
-        this.channelArgumentType = new ChannelArgumentType(client);
-    }
-
-    get id() {
-        return 'channel-or-current';
+    constructor() {
+        super('channel-or-current');
+        // TODO: Get it from registry?
+        this.channelArgumentType = new ChannelArgumentType();
     }
 
     isEmpty() {
         return false;
-    }
-
-    validate() {
-        return true;
     }
 
     parse(val, msg, arg) {

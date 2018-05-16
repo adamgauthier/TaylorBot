@@ -4,21 +4,9 @@ const { GlobalPaths } = require('globalobjects');
 
 const ArgumentType = require(GlobalPaths.ArgumentType);
 
-const guildFilterExact = search => {
-    return guild => guild.name.toLowerCase() === search;
-};
-
-const guildFilterInexact = search => {
-    return guild => guild.name.toLowerCase().includes(search);
-};
-
 class GuildArgumentType extends ArgumentType {
-    constructor(client) {
-        super(client, 'guild');
-    }
-
-    get id() {
-        return 'guild';
+    constructor() {
+        super('guild');
     }
 
     async parse(val, msg) {
@@ -34,7 +22,7 @@ class GuildArgumentType extends ArgumentType {
         }
 
         const search = val.toLowerCase();
-        const guilds = msg.client.guilds.filterArray(guildFilterInexact(search));
+        const guilds = msg.client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
         if (guilds.length === 0)
             return null;
         if (guilds.length === 1) {
@@ -43,7 +31,7 @@ class GuildArgumentType extends ArgumentType {
             return member ? guild : null;
         }
 
-        const exactGuilds = guilds.filter(guildFilterExact(search));
+        const exactGuilds = guilds.filter(GuildArgumentType.guildFilterExact(search));
         if (exactGuilds.length > 0) {
             for (const guild of exactGuilds) {
                 const member = await guild.members.fetch(msg.author);
@@ -53,6 +41,14 @@ class GuildArgumentType extends ArgumentType {
         }
 
         return null;
+    }
+
+    static guildFilterExact(search) {
+        return guild => guild.name.toLowerCase() === search;
+    }
+
+    static guildFilterInexact(search) {
+        return guild => guild.name.toLowerCase().includes(search);
     }
 }
 

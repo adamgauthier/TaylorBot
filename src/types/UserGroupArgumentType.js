@@ -5,20 +5,8 @@ const { GlobalPaths } = require('globalobjects');
 const ArgumentType = require(GlobalPaths.ArgumentType);
 
 class UserGroupArgumentType extends ArgumentType {
-    constructor(client) {
-        super(client, 'user-group');
-    }
-
-    get id() {
-        return 'user-group';
-    }
-
-    validate(val) {
-        for (const name of this.client.oldRegistry.groups.keys()) {
-            if (name.toLowerCase() === val.toLowerCase())
-                return true;
-        }
-        return false;
+    constructor() {
+        super('user-group');
     }
 
     parse(val) {
