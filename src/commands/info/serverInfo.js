@@ -6,8 +6,8 @@ const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
 const Command = require(GlobalPaths.Command);
 
 class ServerInfoCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'serverinfo',
             aliases: ['sinfo', 'guildinfo', 'ginfo'],
             group: 'info',
@@ -28,8 +28,8 @@ class ServerInfoCommand extends Command {
         });
     }
 
-    run(message, { guild }) {
-        return this.client.sendEmbed(message.channel, DiscordEmbedFormatter.guild(guild));
+    run({ message, client }, { guild }) {
+        return client.sendEmbed(message.channel, DiscordEmbedFormatter.guild(guild));
     }
 }
 

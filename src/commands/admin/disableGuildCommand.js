@@ -7,8 +7,8 @@ const Command = require(GlobalPaths.Command);
 const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class DisableGuildCommandCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'disableguildcommand',
             aliases: ['disableservercommand', 'dgc', 'dsc'],
             group: 'admin',
@@ -34,17 +34,17 @@ class DisableGuildCommandCommand extends Command {
         }, UserGroups.Master);
     }
 
-    async run(message, { command, guild }) {
-        const { commands } = this.client.oldRegistry;
+    async run({ message, client }, { command, guild }) {
+        const { commands } = client.oldRegistry;
         const cachedCommand = commands.get(command.name);
 
         if (cachedCommand.disabledIn[guild.id]) {
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.error(`Command '${command.name}' is already disabled in ${guild.name}.`));
         }
         else {
             await cachedCommand.disableIn(guild);
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully disabled '${command.name}' in ${guild.name}.`));
         }
     }

@@ -8,8 +8,8 @@ const Command = require(GlobalPaths.Command);
 const TimeUtil = require(GlobalPaths.TimeUtil);
 
 class UsernamesCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'usernames',
             aliases: ['names'],
             group: 'info',
@@ -29,14 +29,14 @@ class UsernamesCommand extends Command {
         });
     }
 
-    async run(message, { member }) {
-        const usernames = await this.client.master.database.usernames.getHistory(member.user, 10);
+    async run({ message, client }, { member }) {
+        const usernames = await client.master.database.usernames.getHistory(member.user, 10);
         const embed = DiscordEmbedFormatter
             .baseUserHeader(member.user)
             .setDescription(
                 usernames.map(u => `${TimeUtil.formatSmall(u.changed_at)} : ${u.username}`).join('\n')
             );
-        return this.client.sendEmbed(message.channel, embed);
+        return client.sendEmbed(message.channel, embed);
     }
 }
 

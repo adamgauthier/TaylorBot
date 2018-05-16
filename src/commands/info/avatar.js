@@ -7,8 +7,8 @@ const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
 const Command = require(GlobalPaths.Command);
 
 class JoinedCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'avatar',
             aliases: ['av', 'avi'],
             group: 'info',
@@ -28,12 +28,12 @@ class JoinedCommand extends Command {
         });
     }
 
-    run(message, { member }) {
+    run({ message, client }, { member }) {
         const { user } = member;
         const embed = DiscordEmbedFormatter
             .baseUserHeader(user)
             .setImage(DiscordEmbedFormatter.getAvatarURL(user, 1024));
-        return this.client.sendEmbed(message.channel, embed);
+        return client.sendEmbed(message.channel, embed);
     }
 }
 

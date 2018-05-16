@@ -17,8 +17,8 @@ class GroupAccessInhibitor extends Inhibitor {
 
         const { oldRegistry } = client;
 
-        if (!GroupAccessInhibitor.groupHasAccess(member, command.command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {
-            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.command.minimumGroup.name}'.`);
+        if (!GroupAccessInhibitor.groupHasAccess(member, command.minimumGroup.accessLevel, oldRegistry.guilds, oldRegistry.groups)) {
+            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.minimumGroup.name}'.`);
             return true;
         }
 

@@ -7,8 +7,8 @@ const Command = require(GlobalPaths.Command);
 const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class EnableGlobalCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'enableglobal',
             aliases: ['eg'],
             group: 'admin',
@@ -27,17 +27,17 @@ class EnableGlobalCommand extends Command {
         }, UserGroups.Master);
     }
 
-    async run(message, { command }) {
-        const { commands } = this.client.oldRegistry;
+    async run({ message, client }, { command }) {
+        const { commands } = client.oldRegistry;
         const cachedCommand = commands.getCommand(command.name);
 
         if (cachedCommand.isDisabled) {
             await cachedCommand.enable();
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully enabled '${command.name}' globally.`));
         }
         else {
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.error(`Command '${command.name}' is already enabled.`));
         }
     }

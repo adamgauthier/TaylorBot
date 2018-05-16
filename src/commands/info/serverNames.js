@@ -7,8 +7,8 @@ const Command = require(GlobalPaths.Command);
 const TimeUtil = require(GlobalPaths.TimeUtil);
 
 class ServerNamesCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'servernames',
             aliases: ['snames', 'guildnames', 'gnames'],
             group: 'info',
@@ -29,8 +29,8 @@ class ServerNamesCommand extends Command {
         });
     }
 
-    async run(message, { guild }) {
-        const { client, channel } = message;
+    async run({ message, client }, { guild }) {
+        const { channel } = message;
         const guildNames = await client.master.database.guildNames.getHistory(guild, 10);
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(guild)

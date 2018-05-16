@@ -7,8 +7,8 @@ const Command = require(GlobalPaths.Command);
 const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class GetRoleCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'getrole',
             aliases: ['gr'],
             group: 'util',
@@ -28,18 +28,18 @@ class GetRoleCommand extends Command {
         });
     }
 
-    async run(message, { role }) {
+    async run({ message, client }, { role }) {
         const { member } = message;
-        const { database } = this.client.master;
+        const { database } = client.master;
         const specialRole = await database.specialRoles.get(role);
 
         if (specialRole && specialRole.accessible) {
             await member.edit({ 'roles': [role] }, 'Gave Role to user as per GetRole Command');
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.success(`Gave role '${Format.role(role, '#name')}' to ${member}.`));
         }
         else {
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.error(`Role ${Format.role(role, '#name (`#id`)')} is not marked as accessible.`));
         }
     }

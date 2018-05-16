@@ -8,8 +8,8 @@ const Command = require(GlobalPaths.Command);
 const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class SetAccessibleRoleCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'setaccessiblerole',
             aliases: ['sar'],
             group: 'admin',
@@ -29,17 +29,17 @@ class SetAccessibleRoleCommand extends Command {
         }, UserGroups.Moderators);
     }
 
-    async run(message, { role }) {
-        const { database } = this.client.master;
+    async run({ message, client }, { role }) {
+        const { database } = client.master;
         const specialRole = await database.specialRoles.get(role);
 
         if (specialRole && specialRole.accessible) {
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.error(`Role ${Format.role(role, '#name (`#id`)')} is already accessible.`));
         }
         else {
             await database.specialRoles.setAccessible(role);
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`));
         }
     }

@@ -8,8 +8,8 @@ const Command = require(GlobalPaths.Command);
 const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class SetRoleGroupCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'setrolegroup',
             aliases: ['srg'],
             group: 'admin',
@@ -35,15 +35,15 @@ class SetRoleGroupCommand extends Command {
         }, UserGroups.Master);
     }
 
-    async run(message, { role, group }) {
-        const { roleGroups } = this.client.oldRegistry;
+    async run({ message, client }, { role, group }) {
+        const { roleGroups } = client.oldRegistry;
         if (roleGroups.getRoleGroup(role, group)) {
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.error(`User Group '${group.name}' is already attached to Role ${Format.role(role, '#name (`#id`)')}.`));
         }
         else {
             await roleGroups.addRoleGroup(role, group);
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.success(`Attached User Group '${group.name}' to Role ${Format.role(role, '#name (`#id`)')}.`));
         }
     }

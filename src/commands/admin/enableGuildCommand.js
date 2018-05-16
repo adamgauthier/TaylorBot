@@ -7,8 +7,8 @@ const Command = require(GlobalPaths.Command);
 const EmbedUtil = require(GlobalPaths.EmbedUtil);
 
 class EnableGuildCommandCommand extends Command {
-    constructor(client) {
-        super(client, {
+    constructor() {
+        super({
             name: 'enableguildcommand',
             aliases: ['enableservercommand', 'egc', 'esc'],
             group: 'admin',
@@ -34,17 +34,17 @@ class EnableGuildCommandCommand extends Command {
         }, UserGroups.Master);
     }
 
-    async run(message, { command, guild }) {
-        const { commands } = this.client.oldRegistry;
+    async run({ message, client }, { command, guild }) {
+        const { commands } = client.oldRegistry;
         const cachedCommand = commands.get(command.name);
 
         if (cachedCommand.disabledIn[guild.id]) {
             await cachedCommand.enableIn(guild);
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.success(`Successfully enabled '${command.name}' in ${guild.name}.`));
         }
         else {
-            return this.client.sendEmbed(message.channel,
+            return client.sendEmbed(message.channel,
                 EmbedUtil.error(`Command '${command.name}' is already enabled in ${guild.name}.`));
         }
     }
