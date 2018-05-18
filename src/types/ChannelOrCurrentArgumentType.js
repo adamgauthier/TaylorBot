@@ -22,9 +22,7 @@ class ChannelOrCurrentArgumentType extends ArgumentType {
             return msg.channel;
         }
 
-        const parsed = this.channelArgumentType.parse(val, msg, arg);
-
-        return parsed || msg.channel;
+        return this.channelArgumentType.parse(val, msg, arg);
     }
 }
 

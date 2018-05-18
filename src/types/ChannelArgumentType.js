@@ -3,6 +3,7 @@
 const { GlobalPaths } = require('globalobjects');
 
 const ArgumentType = require(GlobalPaths.ArgumentType);
+const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
 
 class ChannelArgumentType extends ArgumentType {
     constructor() {
@@ -24,32 +25,33 @@ class ChannelArgumentType extends ArgumentType {
             const search = val.toLowerCase();
             const channels = guild.channels.filterArray(ChannelArgumentType.channelFilterInexact(search));
             if (channels.length === 0) {
-                return null;
+                throw new ArgumentParsingError(`Could not find channel '${val}'.`);
             }
             else if (channels.length === 1) {
                 if (channels[0].permissionsFor(member).has('VIEW_CHANNEL')) {
                     return channels[0];
                 }
+                else {
+                    throw new ArgumentParsingError(`Could not find channel '${val}' that you can view.`);
+                }
             }
 
             const exactChannels = channels.filter(ChannelArgumentType.channelFilterExact(search));
-            if (exactChannels.length > 0) {
-                for (const channel of exactChannels) {
-                    if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
-                        return channel;
-                    }
+
+            for (const channel of exactChannels) {
+                if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
+                    return channel;
                 }
             }
-            else {
-                for (const channel of channels) {
-                    if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
-                        return channel;
-                    }
+
+            for (const channel of channels) {
+                if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
+                    return channel;
                 }
             }
         }
 
-        return null;
+        throw new ArgumentParsingError(`Could not find channel '${val}' that you can view.`);
     }
 
     static channelFilterExact(search) {

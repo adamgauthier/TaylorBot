@@ -3,6 +3,7 @@
 const { GlobalPaths } = require('globalobjects');
 
 const ArgumentType = require(GlobalPaths.ArgumentType);
+const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
 
 class GuildArgumentType extends ArgumentType {
     constructor() {
@@ -23,24 +24,35 @@ class GuildArgumentType extends ArgumentType {
 
         const search = val.toLowerCase();
         const guilds = msg.client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
-        if (guilds.length === 0)
-            return null;
-        if (guilds.length === 1) {
+        if (guilds.length === 0) {
+            throw new ArgumentParsingError(`Could not find server '${val}'.`);
+        }
+        else if (guilds.length === 1) {
             const guild = guilds[0];
             const member = await guild.members.fetch(msg.author);
-            return member ? guild : null;
-        }
-
-        const exactGuilds = guilds.filter(GuildArgumentType.guildFilterExact(search));
-        if (exactGuilds.length > 0) {
-            for (const guild of exactGuilds) {
-                const member = await guild.members.fetch(msg.author);
-                if (member)
-                    return guild;
+            if (member) {
+                return guild;
+            }
+            else {
+                throw new ArgumentParsingError(`Could not find server '${val}' that you are a part of.`);
             }
         }
 
-        return null;
+        const exactGuilds = guilds.filter(GuildArgumentType.guildFilterExact(search));
+
+        for (const guild of exactGuilds) {
+            const member = await guild.members.fetch(msg.author);
+            if (member)
+                return guild;
+        }
+
+        for (const guild of guilds) {
+            const member = await guild.members.fetch(msg.author);
+            if (member)
+                return guild;
+        }
+
+        throw new ArgumentParsingError(`Could not find server '${val}' that you are a part of.`);
     }
 
     static guildFilterExact(search) {

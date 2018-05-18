@@ -3,6 +3,7 @@
 const { GlobalPaths } = require('globalobjects');
 
 const ArgumentType = require(GlobalPaths.ArgumentType);
+const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
 
 class UserGroupArgumentType extends ArgumentType {
     constructor() {
@@ -10,11 +11,12 @@ class UserGroupArgumentType extends ArgumentType {
     }
 
     parse(val) {
-        for (const name of this.client.oldRegistry.groups.keys()) {
-            if (name.toLowerCase() === val.toLowerCase())
-                return this.client.oldRegistry.groups.get(name);
+        for (const group of this.client.oldRegistry.groups.values()) {
+            if (group.name.toLowerCase() === val.toLowerCase())
+                return group;
         }
-        return false;
+
+        throw new ArgumentParsingError(`User Group '${val.toLowerCase()}' doesn't exist.`);
     }
 }
 
