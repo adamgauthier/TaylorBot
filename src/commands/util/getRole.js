@@ -40,7 +40,7 @@ class GetRoleCommand extends Command {
         }
         else {
             return client.sendEmbed(message.channel,
-                EmbedUtil.error(`Role ${Format.role(role, '#name (`#id`)')} is not marked as accessible.`));
+                EmbedUtil.error(`Role '${Format.role(role, '#name (`#id`)')}' is not marked as accessible.`));
         }
     }
 }

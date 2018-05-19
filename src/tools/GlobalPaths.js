@@ -110,12 +110,6 @@ class GlobalPaths {
                     'EmbedUtil': 'EmbedUtil',
                     'CommandLoader': 'CommandLoader'
                 }
-            },
-            {
-                'directory': pathMapper.constants.path,
-                'files': {
-                    'ArgumentInfos': 'ArgumentInfos'
-                }
             }
         ];
 

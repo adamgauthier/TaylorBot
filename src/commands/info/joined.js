@@ -2,7 +2,6 @@
 
 const { GlobalPaths } = require('globalobjects');
 
-const ArgumentInfos = require(GlobalPaths.ArgumentInfos);
 const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
 const Command = require(GlobalPaths.Command);
 const MathUtil = require(GlobalPaths.MathUtil);
@@ -23,7 +22,8 @@ class JoinedCommand extends Command {
                 {
                     key: 'member',
                     label: 'user',
-                    ...ArgumentInfos.MemberOrAuthor
+                    type: 'member-or-author',
+                    prompt: 'What user would you like to see the first joined date of?'
                 }
             ]
         });

@@ -2,7 +2,6 @@
 
 const { GlobalPaths } = require('globalobjects');
 
-const ArgumentInfos = require(GlobalPaths.ArgumentInfos);
 const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
 const Command = require(GlobalPaths.Command);
 const TimeUtil = require(GlobalPaths.TimeUtil);
@@ -23,7 +22,8 @@ class UsernamesCommand extends Command {
                 {
                     key: 'member',
                     label: 'user',
-                    ...ArgumentInfos.MemberOrAuthor
+                    type: 'member-or-author',
+                    prompt: 'What user would you like to see the usernames history of?'
                 }
             ]
         });

@@ -10,12 +10,12 @@ class GuildArgumentType extends ArgumentType {
         super('guild');
     }
 
-    async parse(val, msg) {
+    async parse(val, message) {
         const matches = val.match(/^([0-9]+)$/);
         if (matches) {
-            const guild = msg.client.guilds.resolve(matches[1]);
+            const guild = message.client.guilds.resolve(matches[1]);
             if (guild) {
-                const member = await guild.members.fetch(msg.author);
+                const member = await guild.members.fetch(message.author);
                 if (member) {
                     return guild;
                 }
@@ -23,13 +23,13 @@ class GuildArgumentType extends ArgumentType {
         }
 
         const search = val.toLowerCase();
-        const guilds = msg.client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
+        const guilds = message.client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
         if (guilds.length === 0) {
             throw new ArgumentParsingError(`Could not find server '${val}'.`);
         }
         else if (guilds.length === 1) {
             const guild = guilds[0];
-            const member = await guild.members.fetch(msg.author);
+            const member = await guild.members.fetch(message.author);
             if (member) {
                 return guild;
             }
@@ -41,13 +41,13 @@ class GuildArgumentType extends ArgumentType {
         const exactGuilds = guilds.filter(GuildArgumentType.guildFilterExact(search));
 
         for (const guild of exactGuilds) {
-            const member = await guild.members.fetch(msg.author);
+            const member = await guild.members.fetch(message.author);
             if (member)
                 return guild;
         }
 
         for (const guild of guilds) {
-            const member = await guild.members.fetch(msg.author);
+            const member = await guild.members.fetch(message.author);
             if (member)
                 return guild;
         }

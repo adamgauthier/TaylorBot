@@ -2,7 +2,6 @@
 
 const { GlobalPaths } = require('globalobjects');
 
-const ArgumentInfos = require(GlobalPaths.ArgumentInfos);
 const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
 const Command = require(GlobalPaths.Command);
 
@@ -22,7 +21,8 @@ class JoinedCommand extends Command {
                 {
                     key: 'member',
                     label: 'user',
-                    ...ArgumentInfos.MemberOrAuthor
+                    type: 'member-or-author',
+                    prompt: 'What user would you like to see the avatar of?'
                 }
             ]
         });
