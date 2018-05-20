@@ -59,7 +59,8 @@ class CommandsWatcher extends MessageWatcher {
 
         const regexString = command.info.args
             .map(argInfo => {
-                return argInfo.quoted ? `(?:"(.*)"|'(.*)')` : '(.*)';
+                const group = argInfo.includeNewLines ? '([^]*)' : '(.*)';
+                return argInfo.quoted ? `(?:"${group}"|'${group}')` : group;
             })
             .join(`[\\${command.info.separator}]{0,1}`);
 
