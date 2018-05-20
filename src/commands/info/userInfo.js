@@ -11,11 +11,9 @@ class UserInfoCommand extends Command {
             name: 'userinfo',
             aliases: ['uinfo'],
             group: 'info',
-            memberName: 'userinfo',
             description: 'Gets information about a user.',
             examples: ['uinfo @Enchanted13#1989', 'uinfo Enchanted13'],
             guildOnly: true,
-            argsPromptLimit: 0,
 
             args: [
                 {

@@ -12,11 +12,9 @@ class UsernamesCommand extends Command {
             name: 'usernames',
             aliases: ['names'],
             group: 'info',
-            memberName: 'usernames',
             description: 'Gets a list of previous usernames for a user in the current server.',
             examples: ['usernames @Enchanted13#1989', 'names Enchanted13'],
             guildOnly: true,
-            argsPromptLimit: 0,
 
             args: [
                 {

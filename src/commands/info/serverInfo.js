@@ -11,18 +11,15 @@ class ServerInfoCommand extends Command {
             name: 'serverinfo',
             aliases: ['sinfo', 'guildinfo', 'ginfo'],
             group: 'info',
-            memberName: 'serverinfo',
             description: 'Gets information about a server.',
             examples: ['sinfo'],
-            argsPromptLimit: 0,
 
             args: [
                 {
                     key: 'guild',
                     label: 'server',
                     prompt: 'What server would you like to see the info of?',
-                    type: 'guild-or-current',
-                    error: 'Could not find server'
+                    type: 'guild-or-current'
                 }
             ]
         });

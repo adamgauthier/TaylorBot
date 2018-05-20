@@ -15,12 +15,12 @@ class CooldownInhibitor extends Inhibitor {
         const { lastCommand, lastAnswered, ignoreUntil } = client.master.registry.users.get(author.id);
 
         if (commandTime < ignoreUntil) {
-            Log.verbose(`Command '${command.info.name}' can't be used by ${Format.user(author)} because they are ignored until ${TimeUtil.formatLog(ignoreUntil)}.`);
+            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they are ignored until ${TimeUtil.formatLog(ignoreUntil)}.`);
             return true;
         }
 
         if (lastAnswered < lastCommand) {
-            Log.verbose(`Command '${command.info.name}' can't be used by ${Format.user(author)} because they have not been answered. LastAnswered:${lastAnswered}, LastCommand:${lastCommand}.`);
+            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they have not been answered. LastAnswered:${lastAnswered}, LastCommand:${lastCommand}.`);
             return true;
         }
 

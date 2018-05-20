@@ -19,7 +19,7 @@ class CommandRegistry extends Map {
 
         const databaseCommandsNotInFiles = databaseCommands
             .filter(dc =>
-                !commands.some(c => c.info.name === dc.name)
+                !commands.some(c => c.name === dc.name)
             )
             .map(dc => dc.name);
 
@@ -27,7 +27,7 @@ class CommandRegistry extends Map {
             throw new Error(`Found database commands not in files: ${databaseCommandsNotInFiles.join(',')}.`);
 
         const fileCommandsNotInDatabase = commands.filter(command =>
-            !databaseCommands.some(c => c.name === command.info.name)
+            !databaseCommands.some(c => c.name === command.name)
         );
 
         if (fileCommandsNotInDatabase.length > 0) {
@@ -57,13 +57,13 @@ class CommandRegistry extends Map {
     }
 
     cacheCommand(command) {
-        const key = command.info.name.toLowerCase();
+        const key = command.name.toLowerCase();
 
         if (this.has(key))
-            throw new Error(`Command '${command.info.name}' is already cached.`);
+            throw new Error(`Command '${command.name}' is already cached.`);
 
         const cached = new CachedCommand(
-            command.info.name,
+            command.name,
             this.database.commands,
             this.database.guildCommands
         );
@@ -71,7 +71,7 @@ class CommandRegistry extends Map {
 
         this.set(key, cached);
 
-        for (const alias of command.info.aliases) {
+        for (const alias of command.aliases) {
             const aliasKey = alias.toLowerCase();
 
             if (this.has(aliasKey))

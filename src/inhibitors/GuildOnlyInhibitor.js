@@ -10,8 +10,8 @@ class GuildOnlyInhibitor extends Inhibitor {
     shouldBeBlocked(message, command) {
         const { author, channel } = message;
 
-        if (command.command.info.guildOnly && channel.type !== 'text') {
-            Log.verbose(`Command '${command.command.info.name}' can't be used by ${Format.user(author)} in ${Format.dmChannel(channel)} because it is marked as guild only.`);
+        if (command.command.guildOnly && channel.type !== 'text') {
+            Log.verbose(`Command '${command.command.name}' can't be used by ${Format.user(author)} in ${Format.dmChannel(channel)} because it is marked as guild only.`);
             return true;
         }
 

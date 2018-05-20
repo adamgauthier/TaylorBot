@@ -12,8 +12,8 @@ class EnableGuildCommandCommand extends Command {
             name: 'enableguildcommand',
             aliases: ['enableservercommand', 'egc', 'esc'],
             group: 'admin',
-            memberName: 'enableguildcommand',
             description: 'Enables a disabled command in a server.',
+            minimumGroup: UserGroups.Master,
             examples: ['enableguildcommand avatar', 'esc uinfo'],
 
             args: [
@@ -27,11 +27,10 @@ class EnableGuildCommandCommand extends Command {
                     key: 'guild',
                     label: 'server',
                     prompt: 'What server would you like to enable the command in?',
-                    type: 'guild-or-current',
-                    error: 'Could not find server'
+                    type: 'guild-or-current'
                 }
             ]
-        }, UserGroups.Master);
+        });
     }
 
     async run({ message, client }, { command, guild }) {

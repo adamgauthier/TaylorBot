@@ -12,8 +12,8 @@ class DisableGlobalCommand extends Command {
             name: 'disableglobal',
             aliases: ['dg'],
             group: 'admin',
-            memberName: 'disableglobal',
             description: 'Disables a command globally.',
+            minimumGroup: UserGroups.Master,
             examples: ['disableglobal avatar', 'dg uinfo'],
 
             args: [
@@ -24,7 +24,7 @@ class DisableGlobalCommand extends Command {
                     prompt: 'What command would you like to disable?'
                 }
             ]
-        }, UserGroups.Master);
+        });
     }
 
     async run({ message, client }, { command }) {

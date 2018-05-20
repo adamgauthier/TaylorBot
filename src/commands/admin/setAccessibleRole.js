@@ -13,8 +13,8 @@ class SetAccessibleRoleCommand extends Command {
             name: 'setaccessiblerole',
             aliases: ['sar'],
             group: 'admin',
-            memberName: 'setaccessiblerole',
             description: 'Makes a role accessible for users to get.',
+            minimumGroup: UserGroups.Moderators,
             examples: ['setaccessiblerole @tour', 'sar leaks'],
             guildOnly: true,
 
@@ -26,7 +26,7 @@ class SetAccessibleRoleCommand extends Command {
                     prompt: 'What role would you like to make accessible to anyone?'
                 }
             ]
-        }, UserGroups.Moderators);
+        });
     }
 
     async run({ message, client }, { role }) {

@@ -12,8 +12,8 @@ class EnableGlobalCommand extends Command {
             name: 'enableglobal',
             aliases: ['eg'],
             group: 'admin',
-            memberName: 'enableglobal',
             description: 'Enables a disabled command globally.',
+            minimumGroup: UserGroups.Master,
             examples: ['enableglobal avatar', 'eg uinfo'],
 
             args: [
@@ -24,7 +24,7 @@ class EnableGlobalCommand extends Command {
                     prompt: 'What command would you like to enable?'
                 }
             ]
-        }, UserGroups.Master);
+        });
     }
 
     async run({ message, client }, { command }) {

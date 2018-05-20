@@ -12,7 +12,6 @@ class GetRoleCommand extends Command {
             name: 'getrole',
             aliases: ['gr'],
             group: 'util',
-            memberName: 'getrole',
             description: 'Gives you an accessible role.',
             examples: ['getrole @tour', 'gr leaks'],
             guildOnly: true,

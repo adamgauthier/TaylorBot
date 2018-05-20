@@ -11,18 +11,15 @@ class ChannelInfoCommand extends Command {
             name: 'channelinfo',
             aliases: ['cinfo'],
             group: 'info',
-            memberName: 'channelinfo',
             description: 'Gets information about a channel.',
             examples: ['channelinfo', 'cinfo'],
-            argsPromptLimit: 0,
 
             args: [
                 {
                     key: 'channel',
                     label: 'channel',
                     prompt: 'What channel would you like to see the info of?',
-                    type: 'channel-or-current',
-                    error: 'Could not find channel'
+                    type: 'channel-or-current'
                 }
             ]
         });

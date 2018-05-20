@@ -57,12 +57,12 @@ class CommandsWatcher extends MessageWatcher {
 
         const { command } = cachedCommand;
 
-        const regexString = command.info.args
-            .map(argInfo => {
-                const group = argInfo.includeNewLines ? '([^]*)' : '(.*)';
-                return argInfo.quoted ? `(?:"${group}"|'${group}')` : group;
+        const regexString = command.args
+            .map(arg => {
+                const group = arg.includeNewLines ? '([^]*)' : '(.*)';
+                return arg.quoted ? `(?:"${group}"|'${group}')` : group;
             })
-            .join(`[\\${command.info.separator}]{0,1}`);
+            .join(`[\\${command.separator}]{0,1}`);
 
         const regex = new RegExp(`^${regexString}$`);
 
@@ -77,22 +77,22 @@ class CommandsWatcher extends MessageWatcher {
 
         const parsedArgs = {};
 
-        for (const [match, argInfo] of ArrayUtil.iterateArrays(matchedGroups, command.info.args)) {
-            const type = registry.types.getType(argInfo.type);
-            if (type.isEmpty(match, message, argInfo)) {
-                return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\` must not be empty.`));
+        for (const [match, arg] of ArrayUtil.iterateArrays(matchedGroups, command.args)) {
+            const type = registry.types.getType(arg.type);
+            if (type.isEmpty(match, message, arg)) {
+                return client.sendEmbed(channel, EmbedUtil.error(`\`<${arg.label}>\` must not be empty.`));
             }
 
             try {
-                const parsedArg = await type.parse(match, message, argInfo);
+                const parsedArg = await type.parse(match, message, arg);
 
-                parsedArgs[argInfo.key] = parsedArg;
+                parsedArgs[arg.key] = parsedArg;
             }
             catch (e) {
                 // UPDATE ANSWERED?
 
                 if (e instanceof ArgumentParsingError) {
-                    return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\`: ${e.message}`));
+                    return client.sendEmbed(channel, EmbedUtil.error(`\`<${arg.label}>\`: ${e.message}`));
                 }
                 else {
                     await client.sendEmbed(channel, EmbedUtil.error('Oops, an unknown parsing error occured. Sorry about that. 😕'));

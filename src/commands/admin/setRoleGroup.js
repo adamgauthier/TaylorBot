@@ -13,8 +13,8 @@ class SetRoleGroupCommand extends Command {
             name: 'setrolegroup',
             aliases: ['srg'],
             group: 'admin',
-            memberName: 'setrolegroup',
             description: 'Attaches a user group to a role.',
+            minimumGroup: UserGroups.Master,
             examples: ['setrolegroup @admins Moderators', 'srg owners Moderators'],
             guildOnly: true,
 
@@ -32,7 +32,7 @@ class SetRoleGroupCommand extends Command {
                     prompt: 'What group would you like to attach to the role?'
                 }
             ]
-        }, UserGroups.Master);
+        });
     }
 
     async run({ message, client }, { role, group }) {

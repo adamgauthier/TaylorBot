@@ -11,11 +11,9 @@ class JoinedCommand extends Command {
             name: 'avatar',
             aliases: ['av', 'avi'],
             group: 'info',
-            memberName: 'avatar',
             description: 'Gets the avatar of a user in the current server.',
             examples: ['avatar @Enchanted13#1989', 'avatar Enchanted13'],
             guildOnly: true,
-            argsPromptLimit: 0,
 
             args: [
                 {

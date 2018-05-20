@@ -12,11 +12,9 @@ class JoinedCommand extends Command {
         super({
             name: 'joined',
             group: 'info',
-            memberName: 'joined',
             description: 'Gets the first joined date of a user in the current server.',
             examples: ['joined @Enchanted13#1989', 'joined Enchanted13'],
             guildOnly: true,
-            argsPromptLimit: 0,
 
             args: [
                 {

@@ -12,18 +12,15 @@ class ServerNamesCommand extends Command {
             name: 'servernames',
             aliases: ['snames', 'guildnames', 'gnames'],
             group: 'info',
-            memberName: 'servernames',
             description: 'Gets a list of previous names for a server.',
             examples: ['servernames'],
-            argsPromptLimit: 0,
 
             args: [
                 {
                     key: 'guild',
                     label: 'server',
                     prompt: 'What server would you like to see the names of?',
-                    type: 'guild-or-current',
-                    error: 'Could not find server'
+                    type: 'guild-or-current'
                 }
             ]
         });

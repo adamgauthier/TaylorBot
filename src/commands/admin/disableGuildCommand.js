@@ -12,8 +12,8 @@ class DisableGuildCommandCommand extends Command {
             name: 'disableguildcommand',
             aliases: ['disableservercommand', 'dgc', 'dsc'],
             group: 'admin',
-            memberName: 'disableguildcommand',
             description: 'Disables an enabled command in a server.',
+            minimumGroup: UserGroups.Master,
             examples: ['disableguildcommand avatar', 'esc uinfo'],
 
             args: [
@@ -27,11 +27,10 @@ class DisableGuildCommandCommand extends Command {
                     key: 'guild',
                     label: 'server',
                     prompt: 'What server would you like to disable the command in?',
-                    type: 'guild-or-current',
-                    error: 'Could not find server'
+                    type: 'guild-or-current'
                 }
             ]
-        }, UserGroups.Master);
+        });
     }
 
     async run({ message, client }, { command, guild }) {
