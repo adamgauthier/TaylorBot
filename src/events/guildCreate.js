@@ -10,14 +10,14 @@ class GuildCreate extends EventHandler {
     async handler(client, guild) {
         Log.info(`Joined guild ${Format.guild(guild)}.`);
 
-        const { oldRegistry, database } = client.master;
+        const { registry, database } = client.master;
 
         const members = await guild.members.fetch();
         const joinTime = members.get(client.user.id).joinedTimestamp;
 
-        if (!oldRegistry.guilds.has(guild.id)) {
+        if (!registry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);
-            await oldRegistry.guilds.addGuild(guild);
+            await registry.guilds.addGuild(guild);
             await database.guildNames.add(guild, joinTime);
         }
         else {
@@ -33,9 +33,9 @@ class GuildCreate extends EventHandler {
 
         for (const member of members.values()) {
             const { user } = member;
-            if (!oldRegistry.users.has(member.id)) {
+            if (!registry.users.has(member.id)) {
                 Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                await oldRegistry.users.addUser(user);
+                await registry.users.addUser(user);
                 await database.guildMembers.add(member);
                 await database.usernames.add(user, joinTime);
             }

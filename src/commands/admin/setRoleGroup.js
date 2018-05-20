@@ -36,7 +36,7 @@ class SetRoleGroupCommand extends Command {
     }
 
     async run({ message, client }, { role, group }) {
-        const { roleGroups } = client.master.oldRegistry;
+        const { roleGroups } = client.master.registry;
         if (roleGroups.getRoleGroup(role, group)) {
             return client.sendEmbed(message.channel,
                 EmbedUtil.error(`User Group '${group.name}' is already attached to Role ${Format.role(role, '#name (`#id`)')}.`));

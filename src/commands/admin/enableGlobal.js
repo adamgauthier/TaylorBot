@@ -28,7 +28,7 @@ class EnableGlobalCommand extends Command {
     }
 
     async run({ message, client }, { command }) {
-        const { commands } = client.master.oldRegistry;
+        const { commands } = client.master.registry;
         const cachedCommand = commands.getCommand(command.name);
 
         if (cachedCommand.isDisabled) {

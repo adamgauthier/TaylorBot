@@ -16,13 +16,13 @@ class CommandsWatcher extends MessageWatcher {
         if (author.bot)
             return;
 
-        const { oldRegistry } = client.master;
+        const { registry } = client.master;
         const { channel } = message;
         let text = message.content;
         if (channel.type === 'text') {
             const { guild } = message;
 
-            const { prefix } = oldRegistry.guilds.get(guild.id);
+            const { prefix } = registry.guilds.get(guild.id);
 
             if (text.startsWith(prefix)) {
                 text = text.substring(prefix.length);
@@ -34,14 +34,14 @@ class CommandsWatcher extends MessageWatcher {
 
         const args = text.split(' ');
         const commandName = args.shift().toLowerCase();
-        const cachedCommand = oldRegistry.commands.resolve(commandName);
+        const cachedCommand = registry.commands.resolve(commandName);
 
         if (!cachedCommand)
             return;
 
         const argString = args.join(' ');
 
-        for (const inhibitor of oldRegistry.inhibitors.values()) {
+        for (const inhibitor of registry.inhibitors.values()) {
             if (inhibitor.shouldBeBlocked(message, cachedCommand)) {
                 return;
             }
@@ -78,7 +78,7 @@ class CommandsWatcher extends MessageWatcher {
         const parsedArgs = {};
 
         for (const [match, argInfo] of ArrayUtil.iterateArrays(matchedGroups, command.info.args)) {
-            const type = oldRegistry.types.getType(argInfo.type);
+            const type = registry.types.getType(argInfo.type);
             if (type.isEmpty(match, message, argInfo)) {
                 return client.sendEmbed(channel, EmbedUtil.error(`\`<${argInfo.label}>\` must not be empty.`));
             }
@@ -102,7 +102,7 @@ class CommandsWatcher extends MessageWatcher {
         }
 
         const commandTime = new Date().getTime();
-        oldRegistry.users.updateLastCommand(author, commandTime);
+        registry.users.updateLastCommand(author, commandTime);
 
         try {
             await command.run({ client, message }, parsedArgs);
@@ -118,7 +118,7 @@ class CommandsWatcher extends MessageWatcher {
         }
         finally {
             const answeredTime = new Date().getTime();
-            oldRegistry.users.updateLastAnswered(author, answeredTime);
+            registry.users.updateLastAnswered(author, answeredTime);
         }
     }
 }

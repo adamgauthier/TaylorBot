@@ -19,7 +19,7 @@ class Ready extends EventHandler {
     }
 
     async syncDatabase(client) {
-        const { oldRegistry, database } = client.master;
+        const { registry, database } = client.master;
 
         const startupTime = new Date().getTime();
         const guildMembers = await database.guildMembers.getAll();
@@ -27,9 +27,9 @@ class Ready extends EventHandler {
         let latestUsernames = await database.usernames.getAllLatest();
 
         for (const guild of client.guilds.values()) {
-            if (!oldRegistry.guilds.has(guild.id)) {
+            if (!registry.guilds.has(guild.id)) {
                 Log.warn(`Found new guild ${Format.guild(guild)}.`);
-                await oldRegistry.guilds.addGuild(guild);
+                await registry.guilds.addGuild(guild);
                 await database.guildNames.add(guild, startupTime);
             }
             else {
@@ -43,9 +43,9 @@ class Ready extends EventHandler {
             const members = await guild.members.fetch();
             for (const member of members.values()) {
                 const { user } = member;
-                if (!oldRegistry.users.has(member.id)) {
+                if (!registry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                    await oldRegistry.users.addUser(user);
+                    await registry.users.addUser(user);
                     await database.guildMembers.add(member);
                     await database.usernames.add(user, startupTime);
                 }

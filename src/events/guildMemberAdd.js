@@ -9,11 +9,11 @@ const Format = require(Paths.DiscordFormatter);
 class GuildMemberAdd extends EventHandler {
     async handler(client, member) {
         const { user } = member;
-        const { oldRegistry, database } = client.master;
+        const { registry, database } = client.master;
 
-        if (!oldRegistry.users.has(member.id)) {
+        if (!registry.users.has(member.id)) {
             Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(member.guild)}.`);
-            await oldRegistry.users.addUser(user);
+            await registry.users.addUser(user);
             await database.guildMembers.add(member);
             await database.usernames.add(user, member.joinedTimestamp);
         }

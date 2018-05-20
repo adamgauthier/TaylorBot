@@ -35,7 +35,7 @@ class EnableGuildCommandCommand extends Command {
     }
 
     async run({ message, client }, { command, guild }) {
-        const { commands } = client.master.oldRegistry;
+        const { commands } = client.master.registry;
         const cachedCommand = commands.get(command.name);
 
         if (cachedCommand.disabledIn[guild.id]) {

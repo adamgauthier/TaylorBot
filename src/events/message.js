@@ -6,7 +6,7 @@ const EventHandler = require(Paths.EventHandler);
 
 class Message extends EventHandler {
     handler(client, message) {
-        client.master.oldRegistry.watchers.feedAll(client, message);
+        client.master.registry.watchers.feedAll(client, message);
     }
 }
 
