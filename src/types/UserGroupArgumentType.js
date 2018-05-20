@@ -11,7 +11,7 @@ class UserGroupArgumentType extends ArgumentType {
     }
 
     parse(val, message) {
-        for (const group of message.client.oldRegistry.groups.values()) {
+        for (const group of message.client.master.oldRegistry.groups.values()) {
             if (group.name.toLowerCase() === val.toLowerCase())
                 return group;
         }

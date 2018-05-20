@@ -14,6 +14,7 @@ const InhibitorRegistry = require(Paths.InhibitorRegistry);
 
 class Registry {
     constructor(database) {
+        this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
         this.groups = new GroupRegistry(database);
@@ -21,7 +22,6 @@ class Registry {
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
         this.commands = new CommandRegistry(database);
         this.users = new UserRegistry(database);
-        this.inhibitors = new InhibitorRegistry();
     }
 
     async loadAll() {

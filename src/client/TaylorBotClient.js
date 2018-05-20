@@ -7,7 +7,6 @@ const EventLoader = require(Paths.EventLoader);
 const { loginToken } = require(Paths.DiscordConfig);
 const Log = require(Paths.Logger);
 const IntervalRunner = require(Paths.IntervalRunner);
-const Registry = require(Paths.Registry);
 
 const discordMax = 2000;
 
@@ -21,8 +20,6 @@ class TaylorBotClient extends Discord.Client {
         this.master = master;
 
         this.intervalRunner = new IntervalRunner(this);
-        this.eventLoader = new EventLoader();
-        this.oldRegistry = new Registry(this.master.database);
     }
 
     async start() {
@@ -31,10 +28,8 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Intervals loaded!');
 
         Log.info('Loading events...');
-        await this.eventLoader.loadAll(this);
+        await EventLoader.loadAll(this);
         Log.info('Events loaded!');
-
-        await this.oldRegistry.loadAll();
 
         return this.login(loginToken);
     }

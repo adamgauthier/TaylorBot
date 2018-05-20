@@ -10,18 +10,18 @@ const eventsPath = Paths.eventsFolderPath;
 const requireEvent = eventName => require(path.join(eventsPath, eventName));
 
 class EventLoader {
-    async loadAll(client) {
+    static async loadAll(client) {
         const files = await fs.readdir(eventsPath);
 
-        files.forEach(filename => {
-            const filePath = path.parse(filename);
-            if (filePath.ext === '.js') {
-                const Event = requireEvent(filePath.base);
+        return files
+            .map(path.parse)
+            .filter(file => file.ext === '.js')
+            .map(file => {
+                const Event = requireEvent(file.base);
                 const event = new Event();
                 if (event.enabled)
-                    client.on(filePath.name, (...args) => event.handler(client, ...args));
-            }
-        });
+                    client.on(file.name, (...args) => event.handler(client, ...args));
+            });
     }
 }
 

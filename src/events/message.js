@@ -5,12 +5,8 @@ const { Paths } = require('globalobjects');
 const EventHandler = require(Paths.EventHandler);
 
 class Message extends EventHandler {
-    constructor() {
-        super();
-    }
-
-    handler(taylorbot, message) {
-        taylorbot.oldRegistry.watchers.feedAll(taylorbot, message);
+    handler(client, message) {
+        client.master.oldRegistry.watchers.feedAll(client, message);
     }
 }
 

@@ -10,8 +10,7 @@ class GuildCreate extends EventHandler {
     async handler(client, guild) {
         Log.info(`Joined guild ${Format.guild(guild)}.`);
 
-        const { oldRegistry } = client;
-        const { database } = client.master;
+        const { oldRegistry, database } = client.master;
 
         const members = await guild.members.fetch();
         const joinTime = members.get(client.user.id).joinedTimestamp;

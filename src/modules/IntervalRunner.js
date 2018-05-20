@@ -43,12 +43,10 @@ class IntervalRunner {
 
     async loadAll() {
         const files = await fs.readdir(intervalsPath);
-        files.forEach(filename => {
-            const filePath = path.parse(filename);
-            if (filePath.ext === '.js') {
-                this.load(filePath.name);
-            }
-        });
+        files
+            .map(path.parse)
+            .filter(f => f.ext === '.js')
+            .forEach(f => this.load(f.name));
     }
 
     reload(intervalName) {

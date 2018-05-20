@@ -12,7 +12,7 @@ class CooldownInhibitor extends Inhibitor {
         const { author, client } = message;
 
         const commandTime = new Date().getTime();
-        const { lastCommand, lastAnswered, ignoreUntil } = client.oldRegistry.users.get(author.id);
+        const { lastCommand, lastAnswered, ignoreUntil } = client.master.oldRegistry.users.get(author.id);
 
         if (commandTime < ignoreUntil) {
             Log.verbose(`Command '${command.info.name}' can't be used by ${Format.user(author)} because they are ignored until ${TimeUtil.formatLog(ignoreUntil)}.`);

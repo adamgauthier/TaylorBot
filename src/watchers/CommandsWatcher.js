@@ -11,16 +11,12 @@ const CommandError = require(Paths.CommandError);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class CommandsWatcher extends MessageWatcher {
-    constructor() {
-        super(true);
-    }
-
     async messageHandler(client, message) {
         const { author } = message;
         if (author.bot)
             return;
 
-        const { oldRegistry } = client;
+        const { oldRegistry } = client.master;
         const { channel } = message;
         let text = message.content;
         if (channel.type === 'text') {

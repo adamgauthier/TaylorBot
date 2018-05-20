@@ -11,7 +11,7 @@ class CommandArgumentType extends ArgumentType {
     }
 
     parse(val, message) {
-        for (const command of message.client.oldRegistry.commands.values()) {
+        for (const command of message.client.master.oldRegistry.commands.values()) {
             if (command.name.toLowerCase() === val.toLowerCase())
                 return command;
         }
