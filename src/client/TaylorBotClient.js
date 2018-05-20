@@ -22,15 +22,17 @@ class TaylorBotClient extends Discord.Client {
         this.intervalRunner = new IntervalRunner(this);
     }
 
-    async start() {
-        Log.info('Loading intervals...');
-        await this.intervalRunner.loadAll();
-        Log.info('Intervals loaded!');
-
+    async load() {
         Log.info('Loading events...');
         await EventLoader.loadAll(this);
         Log.info('Events loaded!');
 
+        Log.info('Loading intervals...');
+        await this.intervalRunner.loadAll();
+        Log.info('Intervals loaded!');
+    }
+
+    start() {
         return this.login(loginToken);
     }
 

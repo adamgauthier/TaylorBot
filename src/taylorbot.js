@@ -13,6 +13,7 @@ const TimeUtil = require(Paths.TimeUtil);
 
 const main = async () => {
     const masterClient = new TaylorBotMasterClient();
+    await masterClient.load();
     await TimeUtil.waitSeconds(6);
     await masterClient.start();
 };

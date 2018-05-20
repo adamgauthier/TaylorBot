@@ -18,7 +18,7 @@ class TaylorBotMasterClient {
         this.oldRegistry = new Registry(this.database);
     }
 
-    async start() {
+    async load() {
         Log.info('Loading database...');
         await this.database.load();
         Log.info('Database loaded!');
@@ -27,6 +27,12 @@ class TaylorBotMasterClient {
         await this.oldRegistry.loadAll();
         Log.info('Registry loaded!');
 
+        return Promise.all(
+            this.clients.map(c => c.load())
+        );
+    }
+
+    start() {
         return Promise.all(
             this.clients.map(c => c.start())
         );
