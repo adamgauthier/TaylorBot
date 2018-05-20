@@ -1,9 +1,9 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const ArgumentType = require(GlobalPaths.ArgumentType);
-const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
+const ArgumentType = require(Paths.ArgumentType);
+const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class CommandArgumentType extends ArgumentType {
     constructor() {

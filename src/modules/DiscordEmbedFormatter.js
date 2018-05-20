@@ -1,10 +1,10 @@
 'use strict';
 
 const { MessageEmbed, GuildChannel, TextChannel, DMChannel, VoiceChannel, CategoryChannel } = require('discord.js');
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const TimeUtil = require(GlobalPaths.TimeUtil);
-const StringUtil = require(GlobalPaths.StringUtil);
+const TimeUtil = require(Paths.TimeUtil);
+const StringUtil = require(Paths.StringUtil);
 
 class DiscordEmbedFormatter {
     static baseUserHeader(user, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)) {

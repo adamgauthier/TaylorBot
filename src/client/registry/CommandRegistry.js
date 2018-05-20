@@ -1,10 +1,10 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
-const CachedCommand = require(GlobalPaths.CachedCommand);
-const CommandLoader = require(GlobalPaths.CommandLoader);
+const Log = require(Paths.Logger);
+const CachedCommand = require(Paths.CachedCommand);
+const CommandLoader = require(Paths.CommandLoader);
 
 class CommandRegistry extends Map {
     constructor(database) {

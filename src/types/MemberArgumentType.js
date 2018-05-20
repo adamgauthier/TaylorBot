@@ -1,11 +1,11 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const ArgumentType = require(GlobalPaths.ArgumentType);
-const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
+const ArgumentType = require(Paths.ArgumentType);
+const ArgumentParsingError = require(Paths.ArgumentParsingError);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
 
 class MemberArgumentType extends ArgumentType {
     constructor() {

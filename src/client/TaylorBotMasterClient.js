@@ -1,10 +1,10 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const DatabaseDriver = require(GlobalPaths.DatabaseDriver);
-const TaylorBotClient = require(GlobalPaths.TaylorBotClient);
-const Log = require(GlobalPaths.Logger);
+const DatabaseDriver = require(Paths.DatabaseDriver);
+const TaylorBotClient = require(Paths.TaylorBotClient);
+const Log = require(Paths.Logger);
 
 class TaylorBotMasterClient {
     constructor() {

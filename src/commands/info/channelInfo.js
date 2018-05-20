@@ -1,9 +1,9 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
-const Command = require(GlobalPaths.Command);
+const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
+const Command = require(Paths.Command);
 
 class ChannelInfoCommand extends Command {
     constructor() {

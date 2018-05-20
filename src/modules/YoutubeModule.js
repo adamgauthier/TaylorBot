@@ -2,10 +2,10 @@
 
 const rp = require('request-promise');
 const { MessageEmbed } = require('discord.js');
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const { googleAPIKey } = require(GlobalPaths.GoogleConfig);
-const StringUtil = require(GlobalPaths.StringUtil);
+const { googleAPIKey } = require(Paths.GoogleConfig);
+const StringUtil = require(Paths.StringUtil);
 
 const rpOptions = {
     'uri': 'https://www.googleapis.com/youtube/v3/playlistItems',

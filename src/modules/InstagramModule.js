@@ -2,9 +2,9 @@
 
 const rp = require('request-promise');
 const { MessageEmbed } = require('discord.js');
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const StringUtil = require(GlobalPaths.StringUtil);
+const StringUtil = require(Paths.StringUtil);
 
 const instagramBaseURL = 'https://www.instagram.com/';
 const rpOptions = {

@@ -1,11 +1,11 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
-const Command = require(GlobalPaths.Command);
-const MathUtil = require(GlobalPaths.MathUtil);
-const TimeUtil = require(GlobalPaths.TimeUtil);
+const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
+const Command = require(Paths.Command);
+const MathUtil = require(Paths.MathUtil);
+const TimeUtil = require(Paths.TimeUtil);
 
 class JoinedCommand extends Command {
     constructor() {

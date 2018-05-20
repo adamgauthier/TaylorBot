@@ -1,11 +1,11 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Inhibitor = require(GlobalPaths.Inhibitor);
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
-const TimeUtil = require(GlobalPaths.TimeUtil);
+const Inhibitor = require(Paths.Inhibitor);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
+const TimeUtil = require(Paths.TimeUtil);
 
 class CooldownInhibitor extends Inhibitor {
     shouldBeBlocked(message, command) {

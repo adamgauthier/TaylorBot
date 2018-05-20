@@ -1,8 +1,8 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Interval = require(GlobalPaths.Interval);
+const Interval = require(Paths.Interval);
 
 const minutesToAdd = 1;
 const msBeforeAdd = 1 * 60 * 1000;

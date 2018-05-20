@@ -3,9 +3,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const typesPath = GlobalPaths.typesFolderPath;
+const typesPath = Paths.typesFolderPath;
 
 const requireType = typeName => require(path.join(typesPath, typeName));
 

@@ -2,28 +2,28 @@
 
 const massive = require('massive');
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const PostgreSQLConfig = require(GlobalPaths.PostgreSQLConfig);
-const GuildRepository = require(GlobalPaths.GuildRepository);
-const UserRepository = require(GlobalPaths.UserRepository);
-const GuildMemberRepository = require(GlobalPaths.GuildMemberRepository);
-const UsernameRepository = require(GlobalPaths.UsernameRepository);
-const GuildNameRepository = require(GlobalPaths.GuildNameRepository);
-const InstagramCheckerRepository = require(GlobalPaths.InstagramCheckerRepository);
-const RedditCheckerRepository = require(GlobalPaths.RedditCheckerRepository);
-const YoutubeCheckerRepository = require(GlobalPaths.YoutubeCheckerRepository);
-const TumblrCheckerRepository = require(GlobalPaths.TumblrCheckerRepository);
-const GuildCommandRepository = require(GlobalPaths.GuildCommandRepository);
-const CommandRepository = require(GlobalPaths.CommandRepository);
-const UserGroupRepository = require(GlobalPaths.UserGroupRepository);
-const RoleGroupRepository = require(GlobalPaths.RoleGroupRepository);
-const SpecialRoleRepository = require(GlobalPaths.SpecialRoleRepository);
+const PostgreSQLConfig = require(Paths.PostgreSQLConfig);
+const GuildRepository = require(Paths.GuildRepository);
+const UserRepository = require(Paths.UserRepository);
+const GuildMemberRepository = require(Paths.GuildMemberRepository);
+const UsernameRepository = require(Paths.UsernameRepository);
+const GuildNameRepository = require(Paths.GuildNameRepository);
+const InstagramCheckerRepository = require(Paths.InstagramCheckerRepository);
+const RedditCheckerRepository = require(Paths.RedditCheckerRepository);
+const YoutubeCheckerRepository = require(Paths.YoutubeCheckerRepository);
+const TumblrCheckerRepository = require(Paths.TumblrCheckerRepository);
+const GuildCommandRepository = require(Paths.GuildCommandRepository);
+const CommandRepository = require(Paths.CommandRepository);
+const UserGroupRepository = require(Paths.UserGroupRepository);
+const RoleGroupRepository = require(Paths.RoleGroupRepository);
+const SpecialRoleRepository = require(Paths.SpecialRoleRepository);
 
 class DatabaseDriver {
     async load() {
         this._db = await massive(PostgreSQLConfig, {
-            'scripts': GlobalPaths.databaseScriptsPath
+            'scripts': Paths.databaseScriptsPath
         });
 
         this.guilds = new GuildRepository(this._db);

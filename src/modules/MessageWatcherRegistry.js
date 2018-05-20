@@ -3,10 +3,10 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
-const watchersPath = GlobalPaths.watchersFolderPath;
+const Log = require(Paths.Logger);
+const watchersPath = Paths.watchersFolderPath;
 
 const requireWatcher = watcherName => require(path.join(watchersPath, watcherName));
 

@@ -1,16 +1,16 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
-const TypeRegistry = require(GlobalPaths.TypeRegistry);
-const MessageWatcherRegistry = require(GlobalPaths.MessageWatcherRegistry);
-const GroupRegistry = require(GlobalPaths.GroupRegistry);
-const GuildRegistry = require(GlobalPaths.GuildRegistry);
-const GuildRoleGroupRegistry = require(GlobalPaths.GuildRoleGroupRegistry);
-const CommandRegistry = require(GlobalPaths.CommandRegistry);
-const UserRegistry = require(GlobalPaths.UserRegistry);
-const InhibitorRegistry = require(GlobalPaths.InhibitorRegistry);
+const Log = require(Paths.Logger);
+const TypeRegistry = require(Paths.TypeRegistry);
+const MessageWatcherRegistry = require(Paths.MessageWatcherRegistry);
+const GroupRegistry = require(Paths.GroupRegistry);
+const GuildRegistry = require(Paths.GuildRegistry);
+const GuildRoleGroupRegistry = require(Paths.GuildRoleGroupRegistry);
+const CommandRegistry = require(Paths.CommandRegistry);
+const UserRegistry = require(Paths.UserRegistry);
+const InhibitorRegistry = require(Paths.InhibitorRegistry);
 
 class Registry {
     constructor(database) {

@@ -1,8 +1,8 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const UserGroups = require(GlobalPaths.UserGroups);
+const UserGroups = require(Paths.UserGroups);
 
 class Command {
     constructor(info, minimumGroup = UserGroups.Everyone) {

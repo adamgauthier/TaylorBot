@@ -1,11 +1,11 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Interval = require(GlobalPaths.Interval);
-const TumblrModule = require(GlobalPaths.TumblrModule);
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
+const Interval = require(Paths.Interval);
+const TumblrModule = require(Paths.TumblrModule);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
 
 const intervalTime = 60000;
 

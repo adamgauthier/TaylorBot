@@ -3,9 +3,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const commandsPath = GlobalPaths.commandsFolderPath;
+const commandsPath = Paths.commandsFolderPath;
 
 class CommandLoader {
     static async loadAll() {

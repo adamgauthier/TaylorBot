@@ -3,9 +3,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const inhibitorsPath = GlobalPaths.inhibitorsFolderPath;
+const inhibitorsPath = Paths.inhibitorsFolderPath;
 
 const requireInhibitor = inhibitorName => require(path.join(inhibitorsPath, inhibitorName));
 

@@ -1,10 +1,10 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const DiscordEmbedFormatter = require(GlobalPaths.DiscordEmbedFormatter);
-const Command = require(GlobalPaths.Command);
-const TimeUtil = require(GlobalPaths.TimeUtil);
+const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
+const Command = require(Paths.Command);
+const TimeUtil = require(Paths.TimeUtil);
 
 class UsernamesCommand extends Command {
     constructor() {

@@ -1,8 +1,8 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const ArgumentType = require(GlobalPaths.ArgumentType);
+const ArgumentType = require(Paths.ArgumentType);
 
 const ChannelArgumentType = require('./ChannelArgumentType');
 

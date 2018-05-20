@@ -3,10 +3,10 @@
 const path = require('path');
 const fs = require('fs/promises');
 
-const { GlobalPaths } = require('globalobjects');
-const intervalsPath = GlobalPaths.intervalsFolderPath;
+const { Paths } = require('globalobjects');
+const intervalsPath = Paths.intervalsFolderPath;
 
-const Log = require(GlobalPaths.Logger);
+const Log = require(Paths.Logger);
 
 class IntervalRunner {
     constructor(client) {

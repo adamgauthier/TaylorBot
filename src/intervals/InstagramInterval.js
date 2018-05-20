@@ -1,11 +1,11 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Interval = require(GlobalPaths.Interval);
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
-const InstagramModule = require(GlobalPaths.InstagramModule);
+const Interval = require(Paths.Interval);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
+const InstagramModule = require(Paths.InstagramModule);
 
 const intervalTime = 60000;
 

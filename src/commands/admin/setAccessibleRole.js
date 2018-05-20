@@ -1,11 +1,11 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const UserGroups = require(GlobalPaths.UserGroups);
-const Format = require(GlobalPaths.DiscordFormatter);
-const Command = require(GlobalPaths.Command);
-const EmbedUtil = require(GlobalPaths.EmbedUtil);
+const UserGroups = require(Paths.UserGroups);
+const Format = require(Paths.DiscordFormatter);
+const Command = require(Paths.Command);
+const EmbedUtil = require(Paths.EmbedUtil);
 
 class SetAccessibleRoleCommand extends Command {
     constructor() {

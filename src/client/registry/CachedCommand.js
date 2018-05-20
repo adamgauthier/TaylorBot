@@ -1,8 +1,8 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Format = require(GlobalPaths.DiscordFormatter);
+const Format = require(Paths.DiscordFormatter);
 
 class CachedCommand {
     constructor(name, commandRepository, guildCommandRegistry) {

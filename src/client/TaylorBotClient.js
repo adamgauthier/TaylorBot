@@ -1,13 +1,13 @@
 'use strict';
 
 const Discord = require('discord.js');
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const EventLoader = require(GlobalPaths.EventLoader);
-const { loginToken } = require(GlobalPaths.DiscordConfig);
-const Log = require(GlobalPaths.Logger);
-const IntervalRunner = require(GlobalPaths.IntervalRunner);
-const Registry = require(GlobalPaths.Registry);
+const EventLoader = require(Paths.EventLoader);
+const { loginToken } = require(Paths.DiscordConfig);
+const Log = require(Paths.Logger);
+const IntervalRunner = require(Paths.IntervalRunner);
+const Registry = require(Paths.Registry);
 
 const discordMax = 2000;
 

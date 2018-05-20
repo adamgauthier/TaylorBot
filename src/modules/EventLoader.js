@@ -3,9 +3,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const eventsPath = GlobalPaths.eventsFolderPath;
+const eventsPath = Paths.eventsFolderPath;
 
 const requireEvent = eventName => require(path.join(eventsPath, eventName));
 

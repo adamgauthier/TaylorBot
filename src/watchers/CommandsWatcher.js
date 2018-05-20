@@ -1,14 +1,14 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const MessageWatcher = require(GlobalPaths.MessageWatcher);
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
-const ArrayUtil = require(GlobalPaths.ArrayUtil);
-const EmbedUtil = require(GlobalPaths.EmbedUtil);
-const CommandError = require(GlobalPaths.CommandError);
-const ArgumentParsingError = require(GlobalPaths.ArgumentParsingError);
+const MessageWatcher = require(Paths.MessageWatcher);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
+const ArrayUtil = require(Paths.ArrayUtil);
+const EmbedUtil = require(Paths.EmbedUtil);
+const CommandError = require(Paths.CommandError);
+const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class CommandsWatcher extends MessageWatcher {
     constructor() {

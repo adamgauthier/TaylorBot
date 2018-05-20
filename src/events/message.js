@@ -1,8 +1,8 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const EventHandler = require(GlobalPaths.EventHandler);
+const EventHandler = require(Paths.EventHandler);
 
 class Message extends EventHandler {
     constructor() {

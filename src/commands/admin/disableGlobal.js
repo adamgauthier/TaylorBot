@@ -1,10 +1,10 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const UserGroups = require(GlobalPaths.UserGroups);
-const Command = require(GlobalPaths.Command);
-const EmbedUtil = require(GlobalPaths.EmbedUtil);
+const UserGroups = require(Paths.UserGroups);
+const Command = require(Paths.Command);
+const EmbedUtil = require(Paths.EmbedUtil);
 
 class DisableGlobalCommand extends Command {
     constructor() {

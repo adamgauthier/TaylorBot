@@ -2,10 +2,10 @@
 
 const { createLogger, format, transports } = require('winston');
 const { combine, printf, colorize } = format;
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const { minLogLevel } = require(GlobalPaths.TaylorBotConfig);
-const TimeUtil = require(GlobalPaths.TimeUtil);
+const { minLogLevel } = require(Paths.TaylorBotConfig);
+const TimeUtil = require(Paths.TimeUtil);
 
 const logger = createLogger({
     level: minLogLevel,

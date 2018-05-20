@@ -1,10 +1,10 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const EventHandler = require(GlobalPaths.EventHandler);
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
+const EventHandler = require(Paths.EventHandler);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
 
 class GuildMemberAdd extends EventHandler {
     async handler(client, member) {

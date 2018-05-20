@@ -1,9 +1,9 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
-const UserGroups = require(GlobalPaths.UserGroups);
+const Log = require(Paths.Logger);
+const UserGroups = require(Paths.UserGroups);
 
 class GroupRegistry extends Map {
     constructor(database) {

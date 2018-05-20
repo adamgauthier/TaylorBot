@@ -2,10 +2,10 @@
 
 const { MessageEmbed } = require('discord.js');
 const tumblr = require('tumblr.js');
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const TumblrConfig = require(GlobalPaths.TumblrConfig);
-const StringUtil = require(GlobalPaths.StringUtil);
+const TumblrConfig = require(Paths.TumblrConfig);
+const StringUtil = require(Paths.StringUtil);
 
 const client = tumblr.createClient({
     credentials: TumblrConfig.tumblrCredentials,

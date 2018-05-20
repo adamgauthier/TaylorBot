@@ -1,10 +1,10 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Format = require(GlobalPaths.DiscordFormatter);
-const Command = require(GlobalPaths.Command);
-const EmbedUtil = require(GlobalPaths.EmbedUtil);
+const Format = require(Paths.DiscordFormatter);
+const Command = require(Paths.Command);
+const EmbedUtil = require(Paths.EmbedUtil);
 
 class GetRoleCommand extends Command {
     constructor() {

@@ -1,9 +1,9 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const Log = require(GlobalPaths.Logger);
-const Format = require(GlobalPaths.DiscordFormatter);
+const Log = require(Paths.Logger);
+const Format = require(Paths.DiscordFormatter);
 
 class GuildRegistry extends Map {
     constructor(database) {

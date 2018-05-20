@@ -1,8 +1,8 @@
 'use strict';
 
-const { GlobalPaths } = require('globalobjects');
+const { Paths } = require('globalobjects');
 
-const MessageWatcher = require(GlobalPaths.MessageWatcher);
+const MessageWatcher = require(Paths.MessageWatcher);
 
 class LastSpokeWatcher extends MessageWatcher {
     async messageHandler({ master }, message) {
