@@ -24,7 +24,7 @@ class Registry {
         this.users = new UserRegistry(database);
     }
 
-    async loadAll() {
+    async load() {
         Log.info('Loading inhibitors...');
         await this.inhibitors.loadAll();
         Log.info('Inhibitors loaded!');

@@ -24,7 +24,7 @@ class TaylorBotMasterClient {
         Log.info('Database loaded!');
 
         Log.info('Loading registry...');
-        await this.registry.loadAll();
+        await this.registry.load();
         Log.info('Registry loaded!');
 
         return Promise.all(
