@@ -11,12 +11,10 @@ const { Paths } = globalObjects;
 const TaylorBotMasterClient = require(Paths.TaylorBotMasterClient);
 const TimeUtil = require(Paths.TimeUtil);
 
-const msBeforeLogin = 6 * 1000;
-
 const main = async () => {
-    const taylorbot = new TaylorBotMasterClient();
-    await TimeUtil.wait(msBeforeLogin);
-    await taylorbot.start();
+    const masterClient = new TaylorBotMasterClient();
+    await TimeUtil.waitSeconds(6);
+    await masterClient.start();
 };
 
 main();

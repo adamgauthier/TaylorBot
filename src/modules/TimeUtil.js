@@ -9,6 +9,10 @@ class TimeUtil {
         });
     }
 
+    static waitSeconds(secondsToWait) {
+        return TimeUtil.wait(secondsToWait * 1000);
+    }
+
     static formatFull(unixTime) {
         const m = moment(unixTime, 'x').utc();
         return `${m.format('MMMM Do, YYYY \\at H:mm:ss.SSS')} (${m.fromNow()})`;
