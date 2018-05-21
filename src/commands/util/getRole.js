@@ -5,6 +5,7 @@ const { Paths } = require('globalobjects');
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
 const EmbedUtil = require(Paths.EmbedUtil);
+const CommandError = require(Paths.CommandError);
 
 class GetRoleCommand extends Command {
     constructor() {
@@ -32,15 +33,13 @@ class GetRoleCommand extends Command {
         const { database } = client.master;
         const specialRole = await database.specialRoles.get(role);
 
-        if (specialRole && specialRole.accessible) {
-            await member.edit({ 'roles': [role] }, 'Gave Role to user as per GetRole Command');
-            return client.sendEmbed(message.channel,
-                EmbedUtil.success(`Gave role '${Format.role(role, '#name')}' to ${member}.`));
+        if (!specialRole || !specialRole.accessible) {
+            throw new CommandError(`Role '${Format.role(role, '#name (`#id`)')}' is not marked as accessible.`);
         }
-        else {
-            return client.sendEmbed(message.channel,
-                EmbedUtil.error(`Role '${Format.role(role, '#name (`#id`)')}' is not marked as accessible.`));
-        }
+
+        await member.edit({ 'roles': [role] }, 'Gave accessible role to user as per GetRole Command');
+        return client.sendEmbed(message.channel,
+            EmbedUtil.success(`Gave role '${Format.role(role, '#name')}' to ${member}.`));
     }
 }
 

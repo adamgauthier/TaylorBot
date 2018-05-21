@@ -6,6 +6,7 @@ const UserGroups = require(Paths.UserGroups);
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
 const EmbedUtil = require(Paths.EmbedUtil);
+const CommandError = require(Paths.CommandError);
 
 class SetAccessibleRoleCommand extends Command {
     constructor() {
@@ -34,14 +35,12 @@ class SetAccessibleRoleCommand extends Command {
         const specialRole = await database.specialRoles.get(role);
 
         if (specialRole && specialRole.accessible) {
-            return client.sendEmbed(message.channel,
-                EmbedUtil.error(`Role ${Format.role(role, '#name (`#id`)')} is already accessible.`));
+            throw new CommandError(`Role ${Format.role(role, '#name (`#id`)')} is already accessible.`);
         }
-        else {
-            await database.specialRoles.setAccessible(role);
-            return client.sendEmbed(message.channel,
-                EmbedUtil.success(`Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`));
-        }
+
+        await database.specialRoles.setAccessible(role);
+        return client.sendEmbed(message.channel,
+            EmbedUtil.success(`Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`));
     }
 }
 

@@ -5,6 +5,7 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
 const EmbedUtil = require(Paths.EmbedUtil);
+const CommandError = require(Paths.CommandError);
 
 class DisableGlobalCommand extends Command {
     constructor() {
@@ -32,20 +33,16 @@ class DisableGlobalCommand extends Command {
         const cachedCommand = commands.getCommand(command.name);
 
         if (cachedCommand.isDisabled) {
-            return client.sendEmbed(message.channel,
-                EmbedUtil.error(`Command '${command.name}' is already disabled.`));
+            throw new CommandError(`Command '${command.name}' is already disabled.`);
         }
-        else {
-            if (command.minimumGroup === UserGroups.Master) {
-                return client.sendEmbed(message.channel,
-                    EmbedUtil.error(`Can't disable '${command.name}' because it's a Master Command.`));
-            }
-            else {
-                await cachedCommand.disable();
-                return client.sendEmbed(message.channel,
-                    EmbedUtil.success(`Successfully disabled '${command.name}' globally.`));
-            }
+
+        if (command.minimumGroup === UserGroups.Master) {
+            throw new CommandError(`Can't disable '${command.name}' because it's a Master Command.`);
         }
+
+        await cachedCommand.disable();
+        return client.sendEmbed(message.channel,
+            EmbedUtil.success(`Successfully disabled '${command.name}' globally.`));
     }
 }
 

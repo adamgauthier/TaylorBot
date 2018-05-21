@@ -5,6 +5,7 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
 const EmbedUtil = require(Paths.EmbedUtil);
+const CommandError = require(Paths.CommandError);
 
 class DisableGuildCommandCommand extends Command {
     constructor() {
@@ -38,14 +39,12 @@ class DisableGuildCommandCommand extends Command {
         const cachedCommand = commands.get(command.name);
 
         if (cachedCommand.disabledIn[guild.id]) {
-            return client.sendEmbed(message.channel,
-                EmbedUtil.error(`Command '${command.name}' is already disabled in ${guild.name}.`));
+            throw new CommandError(`Command '${command.name}' is already disabled in ${guild.name}.`);
         }
-        else {
-            await cachedCommand.disableIn(guild);
-            return client.sendEmbed(message.channel,
-                EmbedUtil.success(`Successfully disabled '${command.name}' in ${guild.name}.`));
-        }
+
+        await cachedCommand.disableIn(guild);
+        return client.sendEmbed(message.channel,
+            EmbedUtil.success(`Successfully disabled '${command.name}' in ${guild.name}.`));
     }
 }
 
