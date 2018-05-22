@@ -1,7 +1,7 @@
 'use strict';
 
 class ArgumentType {
-    constructor(id) {
+    constructor(id, { includesSpaces, includesNewLines } = {}) {
         if (new.target === ArgumentType) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
@@ -11,6 +11,12 @@ class ArgumentType {
         }
 
         this.id = id;
+        this.includesSpaces = includesSpaces === undefined ? false : includesSpaces;
+        this.includesNewLines = includesNewLines === undefined ? false : includesNewLines;
+    }
+
+    canBeEmpty({ message, client }, arg) { // eslint-disable-line no-unused-vars
+        return false;
     }
 
     isEmpty(val, message, arg) { // eslint-disable-line no-unused-vars

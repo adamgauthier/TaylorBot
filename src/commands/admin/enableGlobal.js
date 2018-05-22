@@ -29,14 +29,11 @@ class EnableGlobalCommand extends Command {
     }
 
     async run({ message, client }, { command }) {
-        const { commands } = client.master.registry;
-        const cachedCommand = commands.getCommand(command.name);
-
-        if (!cachedCommand.isDisabled) {
+        if (!command.isDisabled) {
             throw new CommandError(`Command '${command.name}' is already enabled.`);
         }
 
-        await cachedCommand.enable();
+        await command.enableCommand();
         return client.sendEmbed(message.channel,
             EmbedUtil.success(`Successfully enabled '${command.name}' globally.`));
     }

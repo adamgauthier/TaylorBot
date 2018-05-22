@@ -13,8 +13,8 @@ class ChannelOrCurrentArgumentType extends ArgumentType {
         this.channelArgumentType = new ChannelArgumentType();
     }
 
-    isEmpty() {
-        return false;
+    canBeEmpty() {
+        return true;
     }
 
     parse(val, msg, arg) {

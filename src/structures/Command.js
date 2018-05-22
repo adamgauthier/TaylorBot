@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 
 class Command {
-    constructor({ name, aliases, group, description, minimumGroup, guildOnly, separator, args }) {
+    constructor({ name, aliases, group, description, minimumGroup, guildOnly, args }) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
@@ -20,7 +20,6 @@ class Command {
         this.description = description;
         this.minimumGroup = minimumGroup === undefined ? UserGroups.Everyone : minimumGroup;
         this.guildOnly = guildOnly;
-        this.separator = separator === undefined ? ' ' : separator;
 
         this.args = args.map(({ key, label, type, prompt, quoted, includeNewLines }) => {
             if (!key) {

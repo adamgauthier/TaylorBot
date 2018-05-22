@@ -15,7 +15,7 @@ class DisableGuildCommandCommand extends Command {
             group: 'admin',
             description: 'Disables an enabled command in a server.',
             minimumGroup: UserGroups.Master,
-            examples: ['disableguildcommand avatar', 'esc uinfo'],
+            examples: ['disableguildcommand avatar', 'dsc uinfo'],
 
             args: [
                 {
@@ -35,14 +35,15 @@ class DisableGuildCommandCommand extends Command {
     }
 
     async run({ message, client }, { command, guild }) {
-        const { commands } = client.master.registry;
-        const cachedCommand = commands.get(command.name);
-
-        if (cachedCommand.disabledIn[guild.id]) {
+        if (command.disabledIn[guild.id]) {
             throw new CommandError(`Command '${command.name}' is already disabled in ${guild.name}.`);
         }
 
-        await cachedCommand.disableIn(guild);
+        if (command.command.minimumGroup === UserGroups.Master) {
+            throw new CommandError(`Can't disable '${command.name}' because it's a Master Command.`);
+        }
+
+        await command.disableIn(guild);
         return client.sendEmbed(message.channel,
             EmbedUtil.success(`Successfully disabled '${command.name}' in ${guild.name}.`));
     }

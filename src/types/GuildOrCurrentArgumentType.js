@@ -13,8 +13,8 @@ class GuildOrCurrentArgumentType extends ArgumentType {
         this.guildArgumentType = new GuildArgumentType();
     }
 
-    isEmpty(val, message) {
-        return message.guild ? false : !val;
+    canBeEmpty({ message }) {
+        return message.guild ? true : false;
     }
 
     parse(val, message, arg) {

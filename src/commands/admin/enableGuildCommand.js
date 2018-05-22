@@ -35,14 +35,11 @@ class EnableGuildCommandCommand extends Command {
     }
 
     async run({ message, client }, { command, guild }) {
-        const { commands } = client.master.registry;
-        const cachedCommand = commands.get(command.name);
-
-        if (!cachedCommand.disabledIn[guild.id]) {
+        if (!command.disabledIn[guild.id]) {
             throw new CommandError(`Command '${command.name}' is already enabled in ${guild.name}.`);
         }
 
-        await cachedCommand.enableIn(guild);
+        await command.enableIn(guild);
         return client.sendEmbed(message.channel,
             EmbedUtil.success(`Successfully enabled '${command.name}' in ${guild.name}.`));
     }

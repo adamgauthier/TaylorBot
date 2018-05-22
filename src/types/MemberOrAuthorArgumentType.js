@@ -13,8 +13,8 @@ class MemberOrAuthorArgumentType extends ArgumentType {
         this.memberArgumentType = new MemberArgumentType();
     }
 
-    isEmpty(val, message) {
-        return message.member ? false : !val;
+    canBeEmpty({ message }) {
+        return message.member ? true : false;
     }
 
     parse(val, message, arg) {

@@ -32,14 +32,13 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const args = text.split(' ');
-        const commandName = args.shift().toLowerCase();
+        const commandName = text.split(' ')[0].toLowerCase();
         const cachedCommand = registry.commands.resolve(commandName);
 
         if (!cachedCommand)
             return;
 
-        const argString = args.join(' ');
+        const argString = text.substring(commandName.length);
 
         for (const inhibitor of registry.inhibitors.values()) {
             if (inhibitor.shouldBeBlocked(message, cachedCommand)) {
@@ -58,15 +57,30 @@ class CommandsWatcher extends MessageWatcher {
         const { command } = cachedCommand;
 
         const regexString = command.args
-            .map(arg => {
-                const group = arg.includeNewLines ? '([^]*)' : '(.*)';
-                return arg.quoted ? `(?:"${group}"|'${group}')` : group;
-            })
-            .join(`[\\${command.separator}]{0,1}`);
+            .reduceRight((acc, arg) => {
+                // TODO: only get type once
+                const type = registry.types.getType(arg.type);
+                const canBeEmpty = type.canBeEmpty({ message, client }, arg);
+                const quantifier = canBeEmpty ? '*' : '+';
+                const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
+
+                let invalidCharacters = '';
+                if (!type.includesSpaces) {
+                    invalidCharacters += ` '"`;
+                }
+                if (!type.includesNewLines) {
+                    invalidCharacters += '\\r\\n';
+                }
+
+                const matching = `([^${invalidCharacters}]${quantifier})`;
+                const group = type.includesSpaces ? `(?:"${matching}"|'${matching}'|${matching})` : matching;
+
+                return `${separator}${group}${acc}`;
+            }, '');
 
         const regex = new RegExp(`^${regexString}$`);
 
-        const matches = argString.trim().match(regex);
+        const matches = argString.match(regex);
 
         if (!matches) {
             // SEND ERROR MESSAGE
@@ -79,7 +93,7 @@ class CommandsWatcher extends MessageWatcher {
 
         for (const [match, arg] of ArrayUtil.iterateArrays(matchedGroups, command.args)) {
             const type = registry.types.getType(arg.type);
-            if (type.isEmpty(match, message, arg)) {
+            if (type.isEmpty(match, message, arg) && !type.canBeEmpty({ message, client }, arg)) {
                 return client.sendEmbed(channel, EmbedUtil.error(`\`<${arg.label}>\` must not be empty.`));
             }
 

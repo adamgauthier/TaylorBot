@@ -11,12 +11,12 @@ class CommandArgumentType extends ArgumentType {
     }
 
     parse(val, message) {
-        for (const command of message.client.master.registry.commands.values()) {
-            if (command.name.toLowerCase() === val.toLowerCase())
-                return command;
-        }
+        const command = message.client.master.registry.commands.resolve(val);
 
-        throw new ArgumentParsingError(`Command '${val.toLowerCase()}' doesn't exist.`);
+        if (command)
+            return command;
+
+        throw new ArgumentParsingError(`Command '${val}' doesn't exist.`);
     }
 }
 

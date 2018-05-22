@@ -29,18 +29,15 @@ class DisableGlobalCommand extends Command {
     }
 
     async run({ message, client }, { command }) {
-        const { commands } = client.master.registry;
-        const cachedCommand = commands.getCommand(command.name);
-
-        if (cachedCommand.isDisabled) {
+        if (command.isDisabled) {
             throw new CommandError(`Command '${command.name}' is already disabled.`);
         }
 
-        if (command.minimumGroup === UserGroups.Master) {
+        if (command.command.minimumGroup === UserGroups.Master) {
             throw new CommandError(`Can't disable '${command.name}' because it's a Master Command.`);
         }
 
-        await cachedCommand.disable();
+        await command.disableCommand();
         return client.sendEmbed(message.channel,
             EmbedUtil.success(`Successfully disabled '${command.name}' globally.`));
     }
