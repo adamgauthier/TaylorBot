@@ -56,11 +56,19 @@ class CommandsWatcher extends MessageWatcher {
 
         const { command } = cachedCommand;
 
-        const regexString = command.args
-            .reduceRight((acc, arg) => {
-                // TODO: only get type once
-                const type = registry.types.getType(arg.type);
-                const canBeEmpty = type.canBeEmpty({ message, client }, arg);
+        const args = command.args.map(arg => {
+            const type = registry.types.getType(arg.type);
+            const canBeEmpty = type.canBeEmpty({ message, client }, arg);
+
+            return {
+                arg,
+                type,
+                canBeEmpty
+            };
+        });
+
+        const regexString = 
+            args.reduceRight((acc, { type, canBeEmpty }) => {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
 
@@ -83,17 +91,18 @@ class CommandsWatcher extends MessageWatcher {
         const matches = argString.match(regex);
 
         if (!matches) {
-            // SEND ERROR MESSAGE
-            return client.sendEmbed(channel, EmbedUtil.error('Wrong command usage'));
+            return client.sendEmbed(channel,
+                EmbedUtil.error(`Oops! Looks like something was off with your command usage. 🤔 \nCommand Format: \`${
+                    [command.name, ...args.map(({ arg, canBeEmpty }) => `<${arg.label}${canBeEmpty ? '?': ''}>`)].join(' ')
+                }\``));
         }
 
         const matchedGroups = matches.slice(1);
 
         const parsedArgs = {};
 
-        for (const [match, arg] of ArrayUtil.iterateArrays(matchedGroups, command.args)) {
-            const type = registry.types.getType(arg.type);
-            if (type.isEmpty(match, message, arg) && !type.canBeEmpty({ message, client }, arg)) {
+        for (const [match, { arg, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, args)) {
+            if (!canBeEmpty && type.isEmpty(match, message, arg)) {
                 return client.sendEmbed(channel, EmbedUtil.error(`\`<${arg.label}>\` must not be empty.`));
             }
 
