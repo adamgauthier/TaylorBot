@@ -7,7 +7,7 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class DisabledGuildCommandInhibitor extends Inhibitor {
-    shouldBeBlocked(message, command) {
+    shouldBeBlocked({ message }, command) {
         const { guild } = message;
 
         if (!guild)

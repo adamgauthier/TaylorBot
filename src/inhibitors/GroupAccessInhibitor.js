@@ -9,8 +9,8 @@ const { masterId } = require(Paths.TaylorBotConfig);
 const UserGroups = require(Paths.UserGroups);
 
 class GroupAccessInhibitor extends Inhibitor {
-    shouldBeBlocked(message, command) {
-        const { author, member, client } = message;
+    shouldBeBlocked({ message, client }, command) {
+        const { author, member } = message;
 
         if (!member)
             return false;

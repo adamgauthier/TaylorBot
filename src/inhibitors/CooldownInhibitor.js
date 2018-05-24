@@ -8,8 +8,8 @@ const Format = require(Paths.DiscordFormatter);
 const TimeUtil = require(Paths.TimeUtil);
 
 class CooldownInhibitor extends Inhibitor {
-    shouldBeBlocked(message, command) {
-        const { author, client } = message;
+    shouldBeBlocked({ message, client }, command) {
+        const { author } = message;
 
         const commandTime = new Date().getTime();
         const { lastCommand, lastAnswered, ignoreUntil } = client.master.registry.users.get(author.id);

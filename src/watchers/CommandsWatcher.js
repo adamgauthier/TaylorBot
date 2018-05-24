@@ -38,10 +38,12 @@ class CommandsWatcher extends MessageWatcher {
         if (!cachedCommand)
             return;
 
+        const commandContext = { message, client };
+
         const argString = text.substring(commandName.length);
 
         for (const inhibitor of registry.inhibitors.values()) {
-            if (inhibitor.shouldBeBlocked(message, cachedCommand)) {
+            if (inhibitor.shouldBeBlocked(commandContext, cachedCommand)) {
                 return;
             }
         }
@@ -58,7 +60,7 @@ class CommandsWatcher extends MessageWatcher {
 
         const args = command.args.map(arg => {
             const type = registry.types.getType(arg.type);
-            const canBeEmpty = type.canBeEmpty({ message, client }, arg);
+            const canBeEmpty = type.canBeEmpty(commandContext, arg);
 
             return {
                 arg,
@@ -128,7 +130,7 @@ class CommandsWatcher extends MessageWatcher {
         registry.users.updateLastCommand(author, commandTime);
 
         try {
-            await command.run({ client, message }, parsedArgs);
+            await command.run(commandContext, parsedArgs);
         }
         catch (e) {
             if (e instanceof CommandError) {

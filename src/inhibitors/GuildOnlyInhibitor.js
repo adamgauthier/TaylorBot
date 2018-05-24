@@ -7,7 +7,7 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class GuildOnlyInhibitor extends Inhibitor {
-    shouldBeBlocked(message, command) {
+    shouldBeBlocked({ message }, command) {
         const { author, channel } = message;
 
         if (command.command.guildOnly && channel.type !== 'text') {
