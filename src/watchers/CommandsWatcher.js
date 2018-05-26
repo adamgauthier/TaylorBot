@@ -38,12 +38,12 @@ class CommandsWatcher extends MessageWatcher {
         if (!cachedCommand)
             return;
 
-        const commandContext = { message, client };
+        const messageContext = { message, client };
 
         const argString = text.substring(commandName.length);
 
         for (const inhibitor of registry.inhibitors.values()) {
-            if (inhibitor.shouldBeBlocked(commandContext, cachedCommand)) {
+            if (inhibitor.shouldBeBlocked(messageContext, cachedCommand)) {
                 return;
             }
         }
@@ -60,10 +60,10 @@ class CommandsWatcher extends MessageWatcher {
 
         const args = command.args.map(arg => {
             const type = registry.types.getType(arg.type);
-            const canBeEmpty = type.canBeEmpty(commandContext, arg);
+            const canBeEmpty = type.canBeEmpty(messageContext, arg);
 
             return {
-                arg,
+                info: arg,
                 type,
                 canBeEmpty
             };
@@ -103,21 +103,21 @@ class CommandsWatcher extends MessageWatcher {
 
         const parsedArgs = {};
 
-        for (const [match, { arg, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, args)) {
-            if (!canBeEmpty && type.isEmpty(match, message, arg)) {
-                return client.sendEmbed(channel, EmbedUtil.error(`\`<${arg.label}>\` must not be empty.`));
+        for (const [match, { info, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, args)) {
+            if (!canBeEmpty && type.isEmpty(match, messageContext, info)) {
+                return client.sendEmbed(channel, EmbedUtil.error(`\`<${info.label}>\` must not be empty.`));
             }
 
             try {
-                const parsedArg = await type.parse(match, message, arg);
+                const parsedArg = await type.parse(match, messageContext, info);
 
-                parsedArgs[arg.key] = parsedArg;
+                parsedArgs[info.key] = parsedArg;
             }
             catch (e) {
                 // UPDATE ANSWERED?
 
                 if (e instanceof ArgumentParsingError) {
-                    return client.sendEmbed(channel, EmbedUtil.error(`\`<${arg.label}>\`: ${e.message}`));
+                    return client.sendEmbed(channel, EmbedUtil.error(`\`<${info.label}>\`: ${e.message}`));
                 }
                 else {
                     await client.sendEmbed(channel, EmbedUtil.error('Oops, an unknown parsing error occured. Sorry about that. 😕'));
@@ -130,7 +130,7 @@ class CommandsWatcher extends MessageWatcher {
         registry.users.updateLastCommand(author, commandTime);
 
         try {
-            await command.run(commandContext, parsedArgs);
+            await command.run(messageContext, parsedArgs);
         }
         catch (e) {
             if (e instanceof CommandError) {

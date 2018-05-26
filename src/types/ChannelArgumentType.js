@@ -10,7 +10,7 @@ class ChannelArgumentType extends ArgumentType {
         super('channel');
     }
 
-    parse(val, message) {
+    parse(val, { message }) {
         const { guild, member } = message;
 
         if (member) {

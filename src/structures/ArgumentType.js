@@ -15,15 +15,15 @@ class ArgumentType {
         this.includesNewLines = includesNewLines === undefined ? false : includesNewLines;
     }
 
-    canBeEmpty({ message, client }, arg) { // eslint-disable-line no-unused-vars
+    canBeEmpty(messageContext, arg) { // eslint-disable-line no-unused-vars
         return false;
     }
 
-    isEmpty(val, message, arg) { // eslint-disable-line no-unused-vars
+    isEmpty(val, messageContext, arg) { // eslint-disable-line no-unused-vars
         return !val;
     }
 
-    parse(val, message, arg) { // eslint-disable-line no-unused-vars
+    parse(val, messageContext, arg) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a parse() method.`);
     }
 }

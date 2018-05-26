@@ -10,10 +10,10 @@ class GuildArgumentType extends ArgumentType {
         super('guild');
     }
 
-    async parse(val, message) {
+    async parse(val, { message, client }) {
         const matches = val.match(/^([0-9]+)$/);
         if (matches) {
-            const guild = message.client.guilds.resolve(matches[1]);
+            const guild = client.guilds.resolve(matches[1]);
             if (guild) {
                 const member = await guild.members.fetch(message.author);
                 if (member) {
@@ -23,7 +23,7 @@ class GuildArgumentType extends ArgumentType {
         }
 
         const search = val.toLowerCase();
-        const guilds = message.client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
+        const guilds = client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
         if (guilds.length === 0) {
             throw new ArgumentParsingError(`Could not find server '${val}'.`);
         }

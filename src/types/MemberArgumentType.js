@@ -12,7 +12,7 @@ class MemberArgumentType extends ArgumentType {
         super('member');
     }
 
-    async parse(val, message) {
+    async parse(val, { message }) {
         const { guild } = message;
 
         if (guild) {

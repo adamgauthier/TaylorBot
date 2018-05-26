@@ -10,7 +10,7 @@ class RoleArgumentType extends ArgumentType {
         super('role');
     }
 
-    parse(val, message) {
+    parse(val, { message }) {
         const { guild } = message;
 
         if (guild) {

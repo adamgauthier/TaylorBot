@@ -17,12 +17,12 @@ class MemberOrAuthorArgumentType extends ArgumentType {
         return message.member ? true : false;
     }
 
-    parse(val, message, arg) {
+    parse(val, messageContext, arg) {
         if (!val) {
-            return message.member;
+            return messageContext.message.member;
         }
 
-        return this.memberArgumentType.parse(val, message, arg);
+        return this.memberArgumentType.parse(val, messageContext, arg);
     }
 }
 

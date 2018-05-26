@@ -17,11 +17,11 @@ class GuildOrCurrentArgumentType extends ArgumentType {
         return message.guild ? true : false;
     }
 
-    parse(val, message, arg) {
-        if (message.guild)
-            return message.guild;
+    parse(val, messageContext, arg) {
+        if (messageContext.message.guild)
+            return messageContext.message.guild;
 
-        return this.guildArgumentType.parse(val, message, arg);
+        return this.guildArgumentType.parse(val, messageContext, arg);
     }
 }
 
