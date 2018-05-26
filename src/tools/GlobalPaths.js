@@ -58,7 +58,9 @@ class GlobalPaths {
                     'Inhibitor': 'Inhibitor',
                     'CommandError': 'CommandError',
                     'ArgumentParsingError': 'ArgumentParsingError',
-                    'ArgumentType': 'ArgumentType'
+                    'ArgumentType': 'ArgumentType',
+                    'MessageContext': 'MessageContext',
+                    'CommandContext': 'CommandContext'
                 }
             },
             {

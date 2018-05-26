@@ -6,7 +6,7 @@ const Inhibitor = require(Paths.Inhibitor);
 const Log = require(Paths.Logger);
 
 class DisabledCommandInhibitor extends Inhibitor {
-    shouldBeBlocked(commandContext, command) {
+    shouldBeBlocked(messageContext, command) {
         if (command.isDisabled) {
             Log.verbose(`Command '${command.name}' can't be used because it is disabled.`);
             return true;

@@ -31,10 +31,10 @@ class JoinedCommand extends Command {
         const { first_joined_at, rank } = await client.master.database.guildMembers.getRankedFirstJoinedAt(member);
         const embed = DiscordEmbedFormatter
             .baseUserHeader(member.user)
-            .setDescription(
-                `${member.displayName} first joined the server on **${TimeUtil.formatFull(first_joined_at)}**.\n` +
+            .setDescription([
+                `${member.displayName} first joined the server on **${TimeUtil.formatFull(first_joined_at)}**.`,
                 `They were the **${MathUtil.formatNumberSuffix(rank)}** user to join.`
-            );
+            ].join('\n'));
         return client.sendEmbed(message.channel, embed);
     }
 }

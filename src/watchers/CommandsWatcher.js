@@ -9,6 +9,8 @@ const ArrayUtil = require(Paths.ArrayUtil);
 const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
+const MessageContext = require(Paths.MessageContext);
+const CommandContext = require(Paths.CommandContext);
 
 class CommandsWatcher extends MessageWatcher {
     async messageHandler(client, message) {
@@ -16,13 +18,13 @@ class CommandsWatcher extends MessageWatcher {
         if (author.bot)
             return;
 
+        const messageContext = new MessageContext(message, client);
+
         const { registry } = client.master;
         const { channel } = message;
         let text = message.content;
-        if (channel.type === 'text') {
-            const { guild } = message;
-
-            const { prefix } = registry.guilds.get(guild.id);
+        if (messageContext.isGuild) {
+            const { prefix } = messageContext.guildSettings;
 
             if (text.startsWith(prefix)) {
                 text = text.substring(prefix.length);
@@ -38,9 +40,7 @@ class CommandsWatcher extends MessageWatcher {
         if (!cachedCommand)
             return;
 
-        const messageContext = { message, client };
-
-        const argString = text.substring(commandName.length);
+        const commandContext = new CommandContext(messageContext, cachedCommand);
 
         for (const inhibitor of registry.inhibitors.values()) {
             if (inhibitor.shouldBeBlocked(messageContext, cachedCommand)) {
@@ -48,6 +48,7 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
+        const argString = text.substring(commandName.length);
         Log.verbose(
             `${Format.user(author)} using '${cachedCommand.name}' with args '${argString}' in ${
                 channel.type === 'dm' ?
@@ -58,18 +59,18 @@ class CommandsWatcher extends MessageWatcher {
 
         const { command } = cachedCommand;
 
-        const args = command.args.map(arg => {
-            const type = registry.types.getType(arg.type);
-            const canBeEmpty = type.canBeEmpty(messageContext, arg);
+        const args = command.args.map(info => {
+            const type = registry.types.getType(info.type);
+            const canBeEmpty = type.canBeEmpty(messageContext, info);
 
             return {
-                info: arg,
+                info,
                 type,
                 canBeEmpty
             };
         });
 
-        const regexString = 
+        const regexString =
             args.reduceRight((acc, { type, canBeEmpty }) => {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
@@ -94,9 +95,13 @@ class CommandsWatcher extends MessageWatcher {
 
         if (!matches) {
             return client.sendEmbed(channel,
-                EmbedUtil.error(`Oops! Looks like something was off with your command usage. 🤔 \nCommand Format: \`${
-                    [command.name, ...args.map(({ arg, canBeEmpty }) => `<${arg.label}${canBeEmpty ? '?': ''}>`)].join(' ')
-                }\``));
+                EmbedUtil.error([
+                    'Oops! Looks like something was off with your command usage. 🤔',
+                    `Command Format: \`${[
+                        commandContext.keyword, ...args.map(({ info, canBeEmpty }) => `<${info.label}${canBeEmpty ? '?' : ''}>`)
+                    ].join(' ')}\``
+                ].join('\n'))
+            );
         }
 
         const matchedGroups = matches.slice(1);
