@@ -1,5 +1,9 @@
 'use strict';
 
+process.on('unhandledRejection', reason => {
+    throw reason;
+});
+
 const path = require('path');
 const GlobalPaths = require(path.join(__dirname, 'tools', 'GlobalPaths'));
 const globalObjects = require('globalobjects');
