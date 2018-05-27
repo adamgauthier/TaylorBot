@@ -40,13 +40,13 @@ class CommandsWatcher extends MessageWatcher {
         if (!cachedCommand)
             return;
 
-        const commandContext = new CommandContext(messageContext, cachedCommand);
-
         for (const inhibitor of registry.inhibitors.values()) {
             if (inhibitor.shouldBeBlocked(messageContext, cachedCommand)) {
                 return;
             }
         }
+
+        const commandContext = new CommandContext(messageContext, cachedCommand);
 
         const argString = text.substring(commandName.length);
         Log.verbose(
@@ -59,19 +59,8 @@ class CommandsWatcher extends MessageWatcher {
 
         const { command } = cachedCommand;
 
-        const args = command.args.map(info => {
-            const type = registry.types.getType(info.type);
-            const canBeEmpty = type.canBeEmpty(messageContext, info);
-
-            return {
-                info,
-                type,
-                canBeEmpty
-            };
-        });
-
         const regexString =
-            args.reduceRight((acc, { type, canBeEmpty }) => {
+            commandContext.args.reduceRight((acc, { type, canBeEmpty }) => {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
 
@@ -97,9 +86,7 @@ class CommandsWatcher extends MessageWatcher {
             return client.sendEmbed(channel,
                 EmbedUtil.error([
                     'Oops! Looks like something was off with your command usage. 🤔',
-                    `Command Format: \`${[
-                        commandContext.keyword, ...args.map(({ info, canBeEmpty }) => `<${info.label}${canBeEmpty ? '?' : ''}>`)
-                    ].join(' ')}\``
+                    `Command Format: \`${commandContext.usage()}\``
                 ].join('\n'))
             );
         }
@@ -108,7 +95,7 @@ class CommandsWatcher extends MessageWatcher {
 
         const parsedArgs = {};
 
-        for (const [match, { info, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, args)) {
+        for (const [match, { info, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
             if (!canBeEmpty && type.isEmpty(match, messageContext, info)) {
                 return client.sendEmbed(channel, EmbedUtil.error(`\`<${info.label}>\` must not be empty.`));
             }
