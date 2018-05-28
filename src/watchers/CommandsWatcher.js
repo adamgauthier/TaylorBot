@@ -93,9 +93,10 @@ class CommandsWatcher extends MessageWatcher {
 
         const parsedArgs = {};
 
-        for (const [match, { info, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
-            if (!canBeEmpty && type.isEmpty(match, commandContext, info)) {
-                return client.sendEmbedError(channel, `\`<${info.label}>\` must not be empty.`);
+        for (const [match, { info, type }] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
+            if (match === '') {
+                parsedArgs[info.key] = type.default(commandContext, info);
+                continue;
             }
 
             try {

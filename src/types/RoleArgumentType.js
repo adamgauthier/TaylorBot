@@ -6,8 +6,8 @@ const ArgumentType = require(Paths.ArgumentType);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class RoleArgumentType extends ArgumentType {
-    constructor() {
-        super('role');
+    get id() {
+        return 'role';
     }
 
     parse(val, { message }) {

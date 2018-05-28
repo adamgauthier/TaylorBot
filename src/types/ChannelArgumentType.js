@@ -6,8 +6,8 @@ const ArgumentType = require(Paths.ArgumentType);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class ChannelArgumentType extends ArgumentType {
-    constructor() {
-        super('channel');
+    get id() {
+        return 'channel';
     }
 
     parse(val, { message }) {

@@ -1,26 +1,25 @@
 'use strict';
 
 class ArgumentType {
-    constructor(id, { includesSpaces, includesNewLines } = {}) {
+    constructor({ includesSpaces, includesNewLines } = {}) {
         if (new.target === ArgumentType) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
-        if (id === undefined) {
-            throw new Error(`An ArgumentType must have an id.`);
-        }
-
-        this.id = id;
         this.includesSpaces = includesSpaces === undefined ? false : includesSpaces;
         this.includesNewLines = includesNewLines === undefined ? false : includesNewLines;
+    }
+
+    get id() {
+        throw new Error(`${this.constructor.name} must have an id.`);
     }
 
     canBeEmpty(messageContext, arg) { // eslint-disable-line no-unused-vars
         return false;
     }
 
-    isEmpty(val, commandContext, arg) { // eslint-disable-line no-unused-vars
-        return !val;
+    default(commandContext, arg) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a default.`);
     }
 
     parse(val, commandContext, arg) { // eslint-disable-line no-unused-vars

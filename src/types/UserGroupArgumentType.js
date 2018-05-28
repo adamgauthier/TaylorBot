@@ -6,8 +6,8 @@ const ArgumentType = require(Paths.ArgumentType);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class UserGroupArgumentType extends ArgumentType {
-    constructor() {
-        super('user-group');
+    get id() {
+        return 'user-group';
     }
 
     parse(val, { client }) {

@@ -6,8 +6,8 @@ const ArgumentType = require(Paths.ArgumentType);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class CommandArgumentType extends ArgumentType {
-    constructor() {
-        super('command');
+    get id() {
+        return 'command';
     }
 
     parse(val, { client }) {

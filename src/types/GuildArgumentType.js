@@ -6,8 +6,8 @@ const ArgumentType = require(Paths.ArgumentType);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class GuildArgumentType extends ArgumentType {
-    constructor() {
-        super('guild');
+    get id() {
+        return 'guild';
     }
 
     async parse(val, { message, client }) {

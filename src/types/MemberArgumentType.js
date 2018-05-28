@@ -8,8 +8,8 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class MemberArgumentType extends ArgumentType {
-    constructor() {
-        super('member');
+    get id() {
+        return 'member';
     }
 
     async parse(val, { message }) {

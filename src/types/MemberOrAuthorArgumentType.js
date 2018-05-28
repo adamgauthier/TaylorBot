@@ -1,28 +1,18 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const ArgumentType = require(Paths.ArgumentType);
-
 const MemberArgumentType = require('./MemberArgumentType');
 
-class MemberOrAuthorArgumentType extends ArgumentType {
-    constructor() {
-        super('member-or-author');
-        // TODO: Get it from registry?
-        this.memberArgumentType = new MemberArgumentType();
+class MemberOrAuthorArgumentType extends MemberArgumentType {
+    get id() {
+        return 'member-or-author';
     }
 
     canBeEmpty({ message }) {
         return message.member ? true : false;
     }
 
-    parse(val, commandContext, arg) {
-        if (!val) {
-            return commandContext.message.member;
-        }
-
-        return this.memberArgumentType.parse(val, commandContext, arg);
+    default({ message }) {
+        return message.member;
     }
 }
 
