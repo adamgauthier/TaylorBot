@@ -1,12 +1,16 @@
 'use strict';
 
-class CommandContext {
+const { Paths } = require('globalobjects');
+
+const MessageContext = require(Paths.MessageContext);
+
+class CommandMessageContext extends MessageContext {
     constructor(messageContext, command) {
-        this.messageContext = messageContext;
+        super(messageContext.message, messageContext.client);
         this.command = command;
 
         this.args = this.command.command.args.map(info => {
-            const type = this.messageContext.client.master.registry.types.getType(info.type);
+            const type = this.client.master.registry.types.getType(info.type);
             const canBeEmpty = type.canBeEmpty(messageContext, info);
 
             return {
@@ -18,8 +22,8 @@ class CommandContext {
     }
 
     usage() {
-        const keyword = this.messageContext.isGuild ?
-            `${this.messageContext.guildSettings.prefix}${this.command.name}` :
+        const keyword = this.isGuild ?
+            `${this.guildSettings.prefix}${this.command.name}` :
             this.command.name;
 
         const args = this.args.map(({ info, canBeEmpty }) => {
@@ -31,4 +35,4 @@ class CommandContext {
     }
 }
 
-module.exports = CommandContext;
+module.exports = CommandMessageContext;

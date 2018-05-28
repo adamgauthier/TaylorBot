@@ -6,11 +6,10 @@ const MessageWatcher = require(Paths.MessageWatcher);
 const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 const ArrayUtil = require(Paths.ArrayUtil);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 const MessageContext = require(Paths.MessageContext);
-const CommandContext = require(Paths.CommandContext);
+const CommandMessageContext = require(Paths.CommandMessageContext);
 
 class CommandsWatcher extends MessageWatcher {
     async messageHandler(client, message) {
@@ -20,8 +19,6 @@ class CommandsWatcher extends MessageWatcher {
 
         const messageContext = new MessageContext(message, client);
 
-        const { registry } = client.master;
-        const { channel } = message;
         let text = message.content;
         if (messageContext.isGuild) {
             const { prefix } = messageContext.guildSettings;
@@ -33,6 +30,8 @@ class CommandsWatcher extends MessageWatcher {
                 return;
             }
         }
+
+        const { registry } = client.master;
 
         const commandName = text.split(' ')[0].toLowerCase();
         const cachedCommand = registry.commands.resolve(commandName);
@@ -46,7 +45,8 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const commandContext = new CommandContext(messageContext, cachedCommand);
+        const { channel } = message;
+        const commandContext = new CommandMessageContext(messageContext, cachedCommand);
 
         const argString = text.substring(commandName.length);
         Log.verbose(
@@ -83,12 +83,10 @@ class CommandsWatcher extends MessageWatcher {
         const matches = argString.match(regex);
 
         if (!matches) {
-            return client.sendEmbed(channel,
-                EmbedUtil.error([
-                    'Oops! Looks like something was off with your command usage. 🤔',
-                    `Command Format: \`${commandContext.usage()}\``
-                ].join('\n'))
-            );
+            return client.sendEmbedError(channel, [
+                'Oops! Looks like something was off with your command usage. 🤔',
+                `Command Format: \`${commandContext.usage()}\``
+            ].join('\n'));
         }
 
         const matchedGroups = matches.slice(1);
@@ -96,12 +94,12 @@ class CommandsWatcher extends MessageWatcher {
         const parsedArgs = {};
 
         for (const [match, { info, type, canBeEmpty }] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
-            if (!canBeEmpty && type.isEmpty(match, messageContext, info)) {
-                return client.sendEmbed(channel, EmbedUtil.error(`\`<${info.label}>\` must not be empty.`));
+            if (!canBeEmpty && type.isEmpty(match, commandContext, info)) {
+                return client.sendEmbedError(channel, `\`<${info.label}>\` must not be empty.`);
             }
 
             try {
-                const parsedArg = await type.parse(match, messageContext, info);
+                const parsedArg = await type.parse(match, commandContext, info);
 
                 parsedArgs[info.key] = parsedArg;
             }
@@ -109,10 +107,10 @@ class CommandsWatcher extends MessageWatcher {
                 // UPDATE ANSWERED?
 
                 if (e instanceof ArgumentParsingError) {
-                    return client.sendEmbed(channel, EmbedUtil.error(`\`<${info.label}>\`: ${e.message}`));
+                    return client.sendEmbedError(channel, `\`<${info.label}>\`: ${e.message}`);
                 }
                 else {
-                    await client.sendEmbed(channel, EmbedUtil.error('Oops, an unknown parsing error occured. Sorry about that. 😕'));
+                    await client.sendEmbedError(channel, 'Oops, an unknown parsing error occured. Sorry about that. 😕');
                     throw e;
                 }
             }
@@ -122,14 +120,14 @@ class CommandsWatcher extends MessageWatcher {
         registry.users.updateLastCommand(author, commandTime);
 
         try {
-            await command.run(messageContext, parsedArgs);
+            await command.run(commandContext, parsedArgs);
         }
         catch (e) {
             if (e instanceof CommandError) {
-                return client.sendEmbed(channel, EmbedUtil.error(e.message));
+                return client.sendEmbedError(channel, e.message);
             }
             else {
-                await client.sendEmbed(channel, EmbedUtil.error('Oops, an unknown command error occured. Sorry about that. 😕'));
+                await client.sendEmbedError(channel, 'Oops, an unknown command error occured. Sorry about that. 😕');
                 throw e;
             }
         }

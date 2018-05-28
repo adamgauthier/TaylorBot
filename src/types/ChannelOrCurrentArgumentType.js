@@ -17,12 +17,12 @@ class ChannelOrCurrentArgumentType extends ArgumentType {
         return true;
     }
 
-    parse(val, messageContext, arg) {
+    parse(val, commandContext, arg) {
         if (!val) {
-            return messageContext.message.channel;
+            return commandContext.message.channel;
         }
 
-        return this.channelArgumentType.parse(val, messageContext, arg);
+        return this.channelArgumentType.parse(val, commandContext, arg);
     }
 }
 

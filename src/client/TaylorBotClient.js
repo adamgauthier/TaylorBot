@@ -7,6 +7,7 @@ const EventLoader = require(Paths.EventLoader);
 const { loginToken } = require(Paths.DiscordConfig);
 const Log = require(Paths.Logger);
 const IntervalRunner = require(Paths.IntervalRunner);
+const EmbedUtil = require(Paths.EmbedUtil);
 
 const discordMax = 2000;
 
@@ -247,10 +248,14 @@ class TaylorBotClient extends Discord.Client {
         }
     }
 
-    async sendEmbed(recipient, embed) {
+    sendEmbed(recipient, embed) {
         const options = { embed };
 
-        return await this.sendMessage(recipient, '', options);
+        return this.sendMessage(recipient, '', options);
+    }
+
+    sendEmbedError(recipient, errorMessage) {
+        return this.sendEmbed(recipient, EmbedUtil.error(errorMessage));
     }
 }
 

@@ -60,7 +60,7 @@ class GlobalPaths {
                     'ArgumentParsingError': 'ArgumentParsingError',
                     'ArgumentType': 'ArgumentType',
                     'MessageContext': 'MessageContext',
-                    'CommandContext': 'CommandContext'
+                    'CommandMessageContext': 'CommandMessageContext'
                 }
             },
             {

@@ -19,11 +19,11 @@ class ArgumentType {
         return false;
     }
 
-    isEmpty(val, messageContext, arg) { // eslint-disable-line no-unused-vars
+    isEmpty(val, commandContext, arg) { // eslint-disable-line no-unused-vars
         return !val;
     }
 
-    parse(val, messageContext, arg) { // eslint-disable-line no-unused-vars
+    parse(val, commandContext, arg) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a parse() method.`);
     }
 }
