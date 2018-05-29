@@ -10,31 +10,36 @@ const UserGroups = require(Paths.UserGroups);
 
 class GroupAccessInhibitor extends Inhibitor {
     shouldBeBlocked({ message, client }, command) {
-        const { author, member } = message;
-
-        if (!member)
+        if (GroupAccessInhibitor.groupHasAccess(command.command.minimumGroup.accessLevel, message, client.master.registry)) {
             return false;
+        }
 
-        const { registry } = client.master;
+        Log.verbose(`Command '${command.name}' can't be used by ${Format.user(message.author)} because they don't have the minimum group '${command.command.minimumGroup.name}'.`);
+        return true;
+    }
 
-        if (!GroupAccessInhibitor.groupHasAccess(member, command.command.minimumGroup.accessLevel, registry.guilds, registry.groups)) {
-            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they don't have the minimum group '${command.command.minimumGroup.name}'.`);
+    static groupHasAccess(minimumGroupLevel, message, registry) {
+        const { accessLevel } = message.author.id === masterId ? UserGroups.Master : UserGroups.Everyone;
+
+        if (accessLevel >= minimumGroupLevel)
             return true;
+
+        const { member } = message;
+
+        if (member) {
+            if (GroupAccessInhibitor.roleGroupHasAccess(minimumGroupLevel, member, registry.guilds, registry.groups))
+                return true;
         }
 
         return false;
     }
 
-    static groupHasAccess(member, minimumGroupLevel, guilds, groups) {
-        let { accessLevel } = member.id === masterId ? UserGroups.Master : UserGroups.Everyone;
-        if (accessLevel >= minimumGroupLevel)
-            return true;
-
+    static roleGroupHasAccess(minimumGroupLevel, member, guilds, groups) {
         const guildRoles = guilds.get(member.guild.id).roleGroups;
         const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => g);
 
         for (const group of ownedGroups) {
-            accessLevel = groups.get(group).accessLevel;
+            const { accessLevel } = groups.get(group);
             if (accessLevel >= minimumGroupLevel)
                 return true;
         }

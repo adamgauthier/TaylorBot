@@ -64,16 +64,20 @@ class CommandsWatcher extends MessageWatcher {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
 
-                let invalidCharacters = '';
+                const invalidCharacters = [];
                 if (!type.includesSpaces) {
-                    invalidCharacters += ` '"`;
+                    invalidCharacters.push(' ');
                 }
                 if (!type.includesNewLines) {
-                    invalidCharacters += '\\r\\n';
+                    invalidCharacters.push('\\r');
+                    invalidCharacters.push('\\n');
                 }
 
-                const matching = `([^${invalidCharacters}]${quantifier})`;
-                const group = type.includesSpaces ? `(?:"${matching}"|'${matching}'|${matching})` : matching;
+                const matching = invalidChars => `([^${invalidChars.join('')}]${quantifier})`;
+
+                const group = type.includesSpaces ?
+                    `(?:"${matching(['"', ...invalidCharacters])}"|'${matching([`'`, ...invalidCharacters])}'|${matching(invalidCharacters)})` :
+                    matching(invalidCharacters);
 
                 return `${separator}${group}${acc}`;
             }, '');
@@ -89,7 +93,7 @@ class CommandsWatcher extends MessageWatcher {
             ].join('\n'));
         }
 
-        const matchedGroups = matches.slice(1);
+        const matchedGroups = matches.slice(1).filter(m => m !== undefined);
 
         const parsedArgs = {};
 
@@ -108,7 +112,10 @@ class CommandsWatcher extends MessageWatcher {
                 // UPDATE ANSWERED?
 
                 if (e instanceof ArgumentParsingError) {
-                    return client.sendEmbedError(channel, `\`<${info.label}>\`: ${e.message}`);
+                    return client.sendEmbedError(channel, [
+                        `Command Format: \`${commandContext.usage()}\``,
+                        `\`<${info.label}>\`: ${e.message}`
+                    ].join('\n'));
                 }
                 else {
                     await client.sendEmbedError(channel, 'Oops, an unknown parsing error occured. Sorry about that. 😕');

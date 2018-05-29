@@ -8,6 +8,12 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class MemberArgumentType extends ArgumentType {
+    constructor() {
+        super({
+            includesSpaces: true
+        });
+    }
+
     get id() {
         return 'member';
     }

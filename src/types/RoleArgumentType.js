@@ -6,6 +6,12 @@ const ArgumentType = require(Paths.ArgumentType);
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 
 class RoleArgumentType extends ArgumentType {
+    constructor() {
+        super({
+            includesSpaces: true
+        });
+    }
+
     get id() {
         return 'role';
     }
