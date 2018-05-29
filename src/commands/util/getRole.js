@@ -4,7 +4,6 @@ const { Paths } = require('globalobjects');
 
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class GetRoleCommand extends Command {
@@ -38,8 +37,7 @@ class GetRoleCommand extends Command {
         }
 
         await member.edit({ 'roles': [role] }, 'Gave accessible role to user as per GetRole Command');
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Gave role '${Format.role(role, '#name')}' to ${member}.`));
+        return client.sendEmbedSuccess(message.channel, `Gave role '${Format.role(role, '#name')}' to ${member}.`);
     }
 }
 

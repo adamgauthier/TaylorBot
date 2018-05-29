@@ -257,6 +257,10 @@ class TaylorBotClient extends Discord.Client {
     sendEmbedError(recipient, errorMessage) {
         return this.sendEmbed(recipient, EmbedUtil.error(errorMessage));
     }
+
+    sendEmbedSuccess(recipient, successMessage) {
+        return this.sendEmbed(recipient, EmbedUtil.success(successMessage));
+    }
 }
 
 module.exports = TaylorBotClient;

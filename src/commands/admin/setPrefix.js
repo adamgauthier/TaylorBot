@@ -5,7 +5,6 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class SetPrefixCommand extends Command {
@@ -34,7 +33,7 @@ class SetPrefixCommand extends Command {
         const { guilds } = client.master.registry;
         const { guild } = message;
 
-        const { currentPrefix } = guilds.get(guild.id);
+        const currentPrefix = guilds.get(guild.id).prefix;
 
         if (currentPrefix === prefix) {
             throw new CommandError(`The prefix for ${Format.guild(guild, '#name (`#id`)')} is already '${currentPrefix}'.`);
@@ -42,8 +41,7 @@ class SetPrefixCommand extends Command {
 
         await guilds.changePrefix(guild, prefix);
 
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Changed prefix for ${Format.guild(guild, '#name (`#id`)')} to '${prefix}'.`));
+        return client.sendEmbedSuccess(message.channel, `Changed prefix for ${Format.guild(guild, '#name (`#id`)')} to '${prefix}'.`);
     }
 }
 

@@ -4,7 +4,6 @@ const { Paths } = require('globalobjects');
 
 const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class EnableGuildCommandCommand extends Command {
@@ -40,8 +39,7 @@ class EnableGuildCommandCommand extends Command {
         }
 
         await command.enableIn(guild);
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Successfully enabled '${command.name}' in ${guild.name}.`));
+        return client.sendEmbedSuccess(message.channel, `Successfully enabled '${command.name}' in ${guild.name}.`);
     }
 }
 

@@ -5,7 +5,6 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class SetRoleGroupCommand extends Command {
@@ -44,8 +43,7 @@ class SetRoleGroupCommand extends Command {
         }
 
         await roleGroups.addRoleGroup(role, group);
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Attached User Group '${group.name}' to Role ${Format.role(role, '#name (`#id`)')}.`));
+        return client.sendEmbedSuccess(message.channel, `Attached User Group '${group.name}' to Role ${Format.role(role, '#name (`#id`)')}.`);
     }
 }
 

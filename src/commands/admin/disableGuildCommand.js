@@ -4,7 +4,6 @@ const { Paths } = require('globalobjects');
 
 const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class DisableGuildCommandCommand extends Command {
@@ -44,8 +43,7 @@ class DisableGuildCommandCommand extends Command {
         }
 
         await command.disableIn(guild);
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Successfully disabled '${command.name}' in ${guild.name}.`));
+        return client.sendEmbedSuccess(message.channel, `Successfully disabled '${command.name}' in ${guild.name}.`);
     }
 }
 

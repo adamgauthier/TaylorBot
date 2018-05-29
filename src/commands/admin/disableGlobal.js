@@ -4,7 +4,6 @@ const { Paths } = require('globalobjects');
 
 const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class DisableGlobalCommand extends Command {
@@ -38,8 +37,7 @@ class DisableGlobalCommand extends Command {
         }
 
         await command.disableCommand();
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Successfully disabled '${command.name}' globally.`));
+        return client.sendEmbedSuccess(message.channel, `Successfully disabled '${command.name}' globally.`);
     }
 }
 

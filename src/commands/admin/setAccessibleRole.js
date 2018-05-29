@@ -5,7 +5,6 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
-const EmbedUtil = require(Paths.EmbedUtil);
 const CommandError = require(Paths.CommandError);
 
 class SetAccessibleRoleCommand extends Command {
@@ -39,8 +38,7 @@ class SetAccessibleRoleCommand extends Command {
         }
 
         await database.specialRoles.setAccessible(role);
-        return client.sendEmbed(message.channel,
-            EmbedUtil.success(`Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`));
+        return client.sendEmbedSuccess(message.channel, `Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`);
     }
 }
 
