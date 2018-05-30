@@ -28,17 +28,25 @@ class SpecialRoleRepository {
         }
     }
 
-    async setAccessible(role) {
+    async _setAccessible(role, accessible) {
         const databaseRole = this.mapRoleToDatabase(role);
-        const fields = { 'accessible': true };
+        const fields = { accessible };
         try {
             const inserted = await this._db.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
             return inserted ? inserted : await this._db.guild_special_roles.update(databaseRole, fields, { 'single': true });
         }
         catch (e) {
-            Log.error(`Setting accessible special role ${Format.role(role)}: ${e}`);
+            Log.error(`Setting accessible special role ${Format.role(role)} to ${accessible}: ${e}`);
             throw e;
         }
+    }
+
+    setAccessible(role) {
+        return this._setAccessible(role, true);
+    }
+
+    removeAccessible(role) {
+        return this._setAccessible(role, false);
     }
 }
 
