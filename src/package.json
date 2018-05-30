@@ -5,7 +5,6 @@
   "main": "taylorbot.js",
   "dependencies": {
     "discord.js": "github:discordjs/discord.js",
-    "discord.js-commando": "github:discordjs/Commando",
     "globalobjects": "file:tools/GlobalObjects",
     "massive": "^4.6.3",
     "moment": "^2.20.1",
