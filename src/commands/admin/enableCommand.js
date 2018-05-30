@@ -6,15 +6,15 @@ const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
 const CommandError = require(Paths.CommandError);
 
-class EnableGlobalCommand extends Command {
+class EnableCommandCommand extends Command {
     constructor() {
         super({
-            name: 'enableglobal',
-            aliases: ['eg'],
+            name: 'enablecommand',
+            aliases: ['ec'],
             group: 'admin',
             description: 'Enables a disabled command globally.',
             minimumGroup: UserGroups.Master,
-            examples: ['enableglobal avatar', 'eg uinfo'],
+            examples: ['enablecommand avatar', 'ec uinfo'],
 
             args: [
                 {
@@ -37,4 +37,4 @@ class EnableGlobalCommand extends Command {
     }
 }
 
-module.exports = EnableGlobalCommand;
+module.exports = EnableCommandCommand;

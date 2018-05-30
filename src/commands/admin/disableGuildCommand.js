@@ -14,7 +14,7 @@ class DisableGuildCommandCommand extends Command {
             group: 'admin',
             description: 'Disables an enabled command in a server.',
             minimumGroup: UserGroups.Master,
-            examples: ['disableguildcommand avatar', 'dsc uinfo'],
+            examples: ['disableservercommand avatar', 'dsc uinfo'],
 
             args: [
                 {
