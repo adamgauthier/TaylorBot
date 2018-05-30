@@ -29,12 +29,12 @@ class GuildArgumentType extends ArgumentType {
         }
 
         const search = val.toLowerCase();
-        const guilds = client.guilds.filterArray(GuildArgumentType.guildFilterInexact(search));
-        if (guilds.length === 0) {
+        const guilds = client.guilds.filter(GuildArgumentType.guildFilterInexact(search));
+        if (guilds.size === 0) {
             throw new ArgumentParsingError(`Could not find server '${val}'.`);
         }
-        else if (guilds.length === 1) {
-            const guild = guilds[0];
+        else if (guilds.size === 1) {
+            const guild = guilds.first();
             const member = await guild.members.fetch(message.author);
             if (member) {
                 return guild;
@@ -46,13 +46,13 @@ class GuildArgumentType extends ArgumentType {
 
         const exactGuilds = guilds.filter(GuildArgumentType.guildFilterExact(search));
 
-        for (const guild of exactGuilds) {
+        for (const guild of exactGuilds.values()) {
             const member = await guild.members.fetch(message.author);
             if (member)
                 return guild;
         }
 
-        for (const guild of guilds) {
+        for (const guild of guilds.values()) {
             const member = await guild.members.fetch(message.author);
             if (member)
                 return guild;

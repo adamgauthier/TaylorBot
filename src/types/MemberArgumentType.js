@@ -24,30 +24,31 @@ class MemberArgumentType extends ArgumentType {
         if (guild) {
             const matches = val.match(/^(?:<@!?)?([0-9]+)>?$/);
             if (matches) {
+                const match = matches[1];
                 try {
-                    const member = await guild.members.fetch(matches[1]);
+                    const member = await guild.members.fetch(match);
 
                     if (member) {
                         return member;
                     }
                 }
                 catch (e) {
-                    Log.error(`Error occurred while fetching member '${matches[1]}' for guild ${Format.guild(guild)} in MemberArgumentType parsing: ${e}`);
+                    Log.error(`Error occurred while fetching member '${match}' for guild ${Format.guild(guild)} in MemberArgumentType parsing: ${e}`);
                 }
             }
 
             const search = val.toLowerCase();
-            const inexactMembers = guild.members.filterArray(MemberArgumentType.memberFilterInexact(search));
-            if (inexactMembers.length === 0) {
+            const inexactMembers = guild.members.filter(MemberArgumentType.memberFilterInexact(search));
+            if (inexactMembers.size === 0) {
                 throw new ArgumentParsingError(`Could not find member '${val}'.`);
             }
-            else if (inexactMembers.length === 1) {
-                return inexactMembers[0];
+            else if (inexactMembers.size === 1) {
+                return inexactMembers.first();
             }
 
             const exactMembers = inexactMembers.filter(MemberArgumentType.memberFilterExact(search));
 
-            return exactMembers.length > 0 ? exactMembers[0] : inexactMembers[0];
+            return exactMembers.size > 0 ? exactMembers.first() : inexactMembers.first();
         }
 
         throw new ArgumentParsingError(`Can't find member '${val}' outside of a server.`);

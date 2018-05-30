@@ -53,8 +53,8 @@ class DiscordEmbedFormatter {
 
         const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
 
-        const shared = client.guilds.filterArray(g =>
-            g.members.exists('id', member.id)
+        const shared = client.guilds.filter(g =>
+            g.members.has(member.id)
         ).map(g => g.name);
 
         const roles = member.roles.map(r => r.name);
@@ -81,19 +81,19 @@ class DiscordEmbedFormatter {
         const iconURL = DiscordEmbedFormatter.getIconURL(guild);
 
         const { channels, roles, owner, region, createdTimestamp, memberCount, presences } = guild;
-        const categories = channels.findAll('type', 'category');
-        const textChannels = channels.findAll('type', 'text');
-        const voiceChannels = channels.findAll('type', 'voice');
+        const categories = channels.filter(c => c.type === 'category');
+        const textChannels = channels.filter(c => c.type === 'text');
+        const voiceChannels = channels.filter(c => c.type === 'voice');
 
         const embed = DiscordEmbedFormatter.baseGuildHeader(guild)
             .addField('ID', `\`${guild.id}\``, true)
             .addField('Owner', owner.toString(), true)
-            .addField(StringUtil.plural(memberCount, 'Member'), `\`${presences.findAll('status', 'online').length}\` Online`, true)
+            .addField(StringUtil.plural(memberCount, 'Member'), `\`${presences.filter(p => p.status === 'online').size}\` Online`, true)
             .addField('Region', region, true)
             .addField('Created', TimeUtil.formatFull(createdTimestamp))
             .addField(
                 StringUtil.plural(channels.size, 'Channel'),
-                `${StringUtil.plural(categories.length, 'Category', '`')}, \`${textChannels.length}\` Text, \`${voiceChannels.length}\` Voice`)
+                `${StringUtil.plural(categories.size, 'Category', '`')}, \`${textChannels.size}\` Text, \`${voiceChannels.size}\` Voice`)
             .addField(StringUtil.plural(roles.size, 'Role'), StringUtil.shrinkString(roles.array().join(', '), 75, ', ...', [',']));
 
         if (iconURL) {
