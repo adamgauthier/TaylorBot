@@ -7,15 +7,15 @@ const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
 const CommandError = require(Paths.CommandError);
 
-class SetAccessibleRoleCommand extends Command {
+class AddAccessibleRoleCommand extends Command {
     constructor() {
         super({
-            name: 'setaccessiblerole',
-            aliases: ['sar'],
+            name: 'addaccessiblerole',
+            aliases: ['aar'],
             group: 'admin',
             description: 'Makes a role accessible for users to get.',
             minimumGroup: UserGroups.Moderators,
-            examples: ['setaccessiblerole @tour', 'sar leaks'],
+            examples: ['addaccessiblerole @tour', 'aar leaks'],
             guildOnly: true,
 
             args: [
@@ -42,4 +42,4 @@ class SetAccessibleRoleCommand extends Command {
     }
 }
 
-module.exports = SetAccessibleRoleCommand;
+module.exports = AddAccessibleRoleCommand;
