@@ -24,20 +24,17 @@ class UserRegistry extends Map {
         });
     }
 
-    async addUser(user) {
-        Log.verbose(`Adding user ${Format.user(user)}.`);
-
-        let databaseUser = await this.database.users.get(user);
-        if (!databaseUser) {
-            databaseUser = await this.database.users.add(user);
-            Log.verbose(`Added user ${Format.user(user)} to database.`);
+    async addUser(member, discoveredAt) {
+        const { user } = member;
+        if (this.has(user.id)) {
+            throw new Error(`User ${Format.user(user)} was already cached when attempting to add.`);
         }
 
-        if (this.has(databaseUser.user_id)) {
-            Log.warn(`Adding user ${Format.user(user)}, already cached, overwriting with database user.`);
-        }
+        Log.verbose(`Adding new user from member ${Format.member(member)}.`);
 
-        this.cacheUser(databaseUser);
+        const inserted = await this.database.users.add(member, discoveredAt);
+
+        this.cacheUser(inserted);
     }
 
     updateLastCommand(user, lastCommand) {
@@ -45,7 +42,7 @@ class UserRegistry extends Map {
 
         if (!cachedUser)
             throw new Error(`Can't update lastCommand of user ${Format.user(user)} because it wasn't cached.`);
-        
+
         cachedUser.lastCommand = lastCommand;
     }
 
@@ -54,7 +51,7 @@ class UserRegistry extends Map {
 
         if (!cacheUser)
             throw new Error(`Can't update lastAnswered of user ${Format.user(user)} because it wasn't cached.`);
-        
+
         cacheUser.lastAnswered = lastAnswered;
     }
 }

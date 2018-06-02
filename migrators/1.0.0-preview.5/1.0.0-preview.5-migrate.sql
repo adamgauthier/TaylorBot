@@ -16,3 +16,5 @@ WHERE name = 'disableglobal';
 UPDATE public.commands
 SET name = 'enablecommand'
 WHERE name = 'enableglobal';
+
+ALTER TABLE public.guild_members ALTER COLUMN first_joined_at DROP DEFAULT;

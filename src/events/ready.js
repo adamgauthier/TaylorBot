@@ -45,9 +45,7 @@ class Ready extends EventHandler {
                 const { user } = member;
                 if (!registry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                    await registry.users.addUser(user);
-                    await database.guildMembers.add(member);
-                    await database.usernames.add(user, startupTime);
+                    await registry.users.addUser(member, startupTime);
                 }
                 else {
                     if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
@@ -64,7 +62,6 @@ class Ready extends EventHandler {
                         await database.usernames.add(user, startupTime);
                         latestUsernames = latestUsernames.filter(u => u.user_id !== user.id);
                         latestUsernames.push({ 'user_id': user.id, 'username': user.username });
-                        Log.verbose(`Added new username for ${Format.user(user)}.`);
                     }
                 }
             }

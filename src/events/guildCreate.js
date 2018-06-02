@@ -35,9 +35,7 @@ class GuildCreate extends EventHandler {
             const { user } = member;
             if (!registry.users.has(member.id)) {
                 Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                await registry.users.addUser(user);
-                await database.guildMembers.add(member);
-                await database.usernames.add(user, joinTime);
+                await registry.users.addUser(member, joinTime);
             }
             else {
                 if (!guildMembers.some(gm => gm.user_id === member.id)) {
