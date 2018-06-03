@@ -37,10 +37,20 @@ class GuildRepository {
         }
     }
 
-    async add(guild) {
-        const databaseGuild = this.mapGuildToDatabase(guild);
+    async add(guild, discoveredAt) {
         try {
-            return await this._db.guilds.insert(databaseGuild);
+            return await this._db.instance.tx(async t => {
+                const inserted = await t.one(
+                    'INSERT INTO public.guilds (guild_id) VALUES ($1) RETURNING *;',
+                    [guild.id]
+                );
+                await t.none(
+                    'INSERT INTO public.guild_names (guild_id, guild_name, changed_at) VALUES ($1, $2, $3);',
+                    [guild.id, guild.name, discoveredAt]
+                );
+    
+                return inserted;
+            });
         }
         catch (e) {
             Log.error(`Adding guild ${Format.guild(guild)}: ${e}`);

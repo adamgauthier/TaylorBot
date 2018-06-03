@@ -17,8 +17,7 @@ class GuildCreate extends EventHandler {
 
         if (!registry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);
-            await registry.guilds.addGuild(guild);
-            await database.guildNames.add(guild, joinTime);
+            await registry.guilds.addGuild(guild, joinTime);
         }
         else {
             const latestGuildName = await database.guildNames.getLatest(guild);
