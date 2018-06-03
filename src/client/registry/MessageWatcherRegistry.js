@@ -35,7 +35,7 @@ class MessageWatcherRegistry {
             }
             catch (e) {
                 Log.error(`Message Watcher ${name} Error: \n${e.stack}`);
-            }            
+            }
         });
     }
 }

@@ -23,7 +23,7 @@ class PathMapper {
             if (filePath.name === 'path') throw new Error('No folder can be named path.');
             if (filePath.ext === '' && !rejectedDirectories.includes(filePath.name)) {
                 const fullPath = path.format(filePath);
-                
+
                 currentObj[filePath.name] = {
                     'path': fullPath
                 };

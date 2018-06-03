@@ -2,7 +2,6 @@
 
 const { Paths } = require('globalobjects');
 
-const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class GuildRegistry extends Map {

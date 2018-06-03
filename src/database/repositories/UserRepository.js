@@ -56,7 +56,7 @@ class UserRepository {
                     'INSERT INTO public.usernames (user_id, username, changed_at) VALUES ($1, $2, $3);',
                     [user.id, user.username, discoveredAt]
                 );
-    
+
                 return inserted;
             });
         }

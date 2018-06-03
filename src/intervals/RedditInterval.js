@@ -38,9 +38,9 @@ class RedditInterval extends Interval {
             if (post.id !== last_post_id && post.created_utc > last_created) {
                 Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.id}.`);
                 await client.sendEmbed(channel, RedditModule.getEmbed(post));
-                await client.master.database.redditCheckers.update(subreddit, guild_id, channel_id, post.id, post.created_utc);                
+                await client.master.database.redditCheckers.update(subreddit, guild_id, channel_id, post.id, post.created_utc);
             }
-        } 
+        }
         catch (e) {
             Log.error(`Checking Reddit Posts for subreddit '${subreddit}', guild ${guild_id}, channel ${channel_id}: ${e}.`);
         }

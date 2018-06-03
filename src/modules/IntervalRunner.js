@@ -58,7 +58,7 @@ class IntervalRunner {
     unload(intervalName) {
         if (!this._intervals.has(intervalName))
             throw new Error(`Interval ${intervalName} is not loaded.`);
-        
+
         this._stop(this._intervals.get(intervalName));
         this._intervals.delete(intervalName);
         Log.verbose(`Unloaded Interval ${intervalName}.`);
@@ -67,7 +67,7 @@ class IntervalRunner {
     load(intervalName) {
         if (this._intervals.has(intervalName))
             throw new Error(`Interval ${intervalName} is already loaded.`);
-        
+
         const Interval = require(path.join(intervalsPath, intervalName));
         const interval = new Interval();
         interval.name = intervalName;

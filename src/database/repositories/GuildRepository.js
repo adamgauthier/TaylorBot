@@ -48,7 +48,7 @@ class GuildRepository {
                     'INSERT INTO public.guild_names (guild_id, guild_name, changed_at) VALUES ($1, $2, $3);',
                     [guild.id, guild.name, discoveredAt]
                 );
-    
+
                 return inserted;
             });
         }

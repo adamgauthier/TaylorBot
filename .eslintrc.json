@@ -37,6 +37,7 @@
         ],
         "no-var": [
             "error"
-        ]
+        ],
+        "no-trailing-spaces": "error"
     }
 }
