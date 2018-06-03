@@ -18,3 +18,5 @@ SET name = 'enablecommand'
 WHERE name = 'enableglobal';
 
 ALTER TABLE public.guild_members ALTER COLUMN first_joined_at DROP DEFAULT;
+
+DELETE FROM public.commands WHERE name = 'prefix' OR name = 'eval';
