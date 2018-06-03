@@ -88,11 +88,18 @@ class GuildMemberRepository {
 
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
-            return await this._db.guild_members.addMinutes({
-                'minutes_to_add': minutesToAdd,
-                'min_spoke_at': minimumLastSpoke,
-                'minutes_for_reward': minutesForReward,
-                'reward_count': pointsReward
+            return await this._db.instance.tx(async t => {
+                await t.none(
+                    'UPDATE public.guild_members SET minutes_count = minutes_count + $1 WHERE last_spoke_at > $2;',
+                    [minutesToAdd, minimumLastSpoke]
+                );
+                await t.none([
+                    'UPDATE public.guild_members SET ',
+                    'minutes_milestone = (minutes_count-(minutes_count % $1)),',
+                    'taypoints_count = taypoints_count + $2',
+                    'WHERE minutes_count >= minutes_milestone + $1;'
+                ].join('\n'), [minutesForReward, pointsReward]
+                );
             });
         }
         catch (e) {
@@ -123,7 +130,7 @@ class GuildMemberRepository {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
             return await this._db.guild_members.update(
-                { 
+                {
                     ...databaseMember,
                     'first_joined_at': '9223372036854775807'
                 },
