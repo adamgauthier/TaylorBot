@@ -4,6 +4,7 @@
   "description": "Discord bot created for the /r/TaylorSwift Discord server",
   "main": "taylorbot.js",
   "dependencies": {
+    "chrono-node": "github:wanasit/chrono",
     "discord.js": "github:discordjs/discord.js",
     "globalobjects": "file:tools/GlobalObjects",
     "massive": "^4.8.3",

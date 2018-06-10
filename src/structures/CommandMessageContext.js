@@ -15,6 +15,9 @@ class CommandMessageContext extends MessageContext {
 
             return {
                 info,
+                mustBeQuoted: info.mustBeQuoted || type.mustBeQuoted,
+                includesSpaces: info.includesSpaces || type.includesSpaces,
+                includesNewLines: info.includesNewLines || type.includesNewLines,
                 type,
                 canBeEmpty
             };

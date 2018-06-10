@@ -21,7 +21,7 @@ class Command {
         this.minimumGroup = minimumGroup === undefined ? UserGroups.Everyone : minimumGroup;
         this.guildOnly = guildOnly;
 
-        this.args = args.map(({ key, label, type, prompt, quoted, includeNewLines }) => {
+        this.args = args.map(({ key, label, type, prompt, mustBeQuoted, includesSpaces, includeNewLines }) => {
             if (!key) {
                 throw new Error(`All arguments must have a key. (Command '${name}')`);
             }
@@ -31,7 +31,8 @@ class Command {
                 label,
                 type,
                 prompt,
-                quoted: quoted === undefined ? false : quoted,
+                mustBeQuoted: mustBeQuoted === undefined ? false : mustBeQuoted,
+                includesSpaces: includesSpaces === undefined ? false : includesSpaces,
                 includeNewLines: includeNewLines === undefined ? false : includeNewLines
             };
         });

@@ -60,24 +60,36 @@ class CommandsWatcher extends MessageWatcher {
         const { command } = cachedCommand;
 
         const regexString =
-            commandContext.args.reduceRight((acc, { type, canBeEmpty }) => {
+            commandContext.args.reduceRight((acc, { mustBeQuoted, includesSpaces, includesNewLines, canBeEmpty }) => {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
 
                 const invalidCharacters = [];
-                if (!type.includesSpaces) {
+                if (!includesSpaces) {
                     invalidCharacters.push(' ');
                 }
-                if (!type.includesNewLines) {
+                if (!includesNewLines) {
                     invalidCharacters.push('\\r');
                     invalidCharacters.push('\\n');
                 }
 
                 const matching = invalidChars => `([^${invalidChars.join('')}]${quantifier})`;
+                const matchingQuoted = invalidChars => [`"${matching(['"', ...invalidChars])}"`, `'${matching(["'", ...invalidChars])}'`];
 
-                const group = type.includesSpaces ?
-                    `(?:"${matching(['"', ...invalidCharacters])}"|'${matching([`'`, ...invalidCharacters])}'|${matching(invalidCharacters)})` :
-                    matching(invalidCharacters);
+                const groups = [];
+
+                if (mustBeQuoted) {
+                    groups.push(...matchingQuoted(invalidCharacters));
+                }
+                else {
+                    groups.push(matching(invalidCharacters));
+
+                    if (includesSpaces) {
+                        groups.push(...matchingQuoted(invalidCharacters));
+                    }
+                }
+
+                const group = `(?:${groups.join('|')})`;
 
                 return `${separator}${group}${acc}`;
             }, '');
