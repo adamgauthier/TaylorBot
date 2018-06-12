@@ -11,7 +11,7 @@ class IgnoredInhibitor extends Inhibitor {
     shouldBeBlocked({ message, client }, command) {
         const { author } = message;
 
-        const commandTime = new Date().getTime();
+        const commandTime = Date.now();
         const { ignoreUntil } = client.master.registry.users.get(author.id);
 
         if (commandTime < ignoreUntil) {

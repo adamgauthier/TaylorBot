@@ -136,7 +136,7 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const commandTime = new Date().getTime();
+        const commandTime = Date.now();
         registry.users.updateLastCommand(author, commandTime);
 
         try {
@@ -152,7 +152,7 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
         finally {
-            const answeredTime = new Date().getTime();
+            const answeredTime = Date.now();
             registry.users.updateLastAnswered(author, answeredTime);
         }
     }

@@ -37,6 +37,22 @@ class TaylorBotMasterClient {
             this.clients.map(c => c.start())
         );
     }
+
+    sendEmbed(textBasedChannel, embed) {
+        return textBasedChannel.send('', { embed });
+    }
+
+    resolveUser(userId) {
+        for (const client of this.clients) {
+            const user = client.users.resolve(userId);
+
+            if (user) {
+                return user;
+            }
+        }
+
+        return null;
+    }
 }
 
 module.exports = TaylorBotMasterClient;

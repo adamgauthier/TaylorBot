@@ -9,7 +9,7 @@ const Format = require(Paths.DiscordFormatter);
 class GuildUpdate extends EventHandler {
     async handler({ master }, oldGuild, newGuild) {
         if (oldGuild.name !== newGuild.name) {
-            const changedAt = new Date().getTime();
+            const changedAt = Date.now();
             await master.database.guildNames.add(newGuild, changedAt);
             Log.info(`Added new guild name for ${Format.guild(newGuild)}. Old guild name was ${oldGuild.name}.`);
         }

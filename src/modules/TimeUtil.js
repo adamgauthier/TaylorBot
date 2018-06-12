@@ -14,12 +14,12 @@ class TimeUtil {
     }
 
     static formatFull(unixTime) {
-        const m = moment(unixTime, 'x').utc();
+        const m = moment.utc(unixTime, 'x');
         return `${m.format('MMMM Do, YYYY \\at H:mm:ss.SSS')} (${m.fromNow()})`;
     }
 
     static formatSmall(unixTime) {
-        const m = moment(unixTime, 'x').utc();
+        const m = moment.utc(unixTime, 'x');
         return m.format('MMMM Do, YYYY');
     }
 

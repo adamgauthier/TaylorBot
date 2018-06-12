@@ -19,6 +19,7 @@ const CommandRepository = require(Paths.CommandRepository);
 const UserGroupRepository = require(Paths.UserGroupRepository);
 const RoleGroupRepository = require(Paths.RoleGroupRepository);
 const SpecialRoleRepository = require(Paths.SpecialRoleRepository);
+const ReminderRepository = require('./repositories/ReminderRepository');
 
 class DatabaseDriver {
     async load() {
@@ -40,6 +41,7 @@ class DatabaseDriver {
         this.userGroups = new UserGroupRepository(this._db);
         this.roleGroups = new RoleGroupRepository(this._db);
         this.specialRoles = new SpecialRoleRepository(this._db);
+        this.reminders = new ReminderRepository(this._db);
     }
 }
 

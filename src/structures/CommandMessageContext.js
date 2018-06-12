@@ -29,9 +29,9 @@ class CommandMessageContext extends MessageContext {
             `${this.guildSettings.prefix}${this.command.name}` :
             this.command.name;
 
-        const args = this.args.map(({ info, canBeEmpty }) => {
+        const args = this.args.map(({ info, canBeEmpty, mustBeQuoted }) => {
             const label = canBeEmpty ? `${info.label}?` : info.label;
-            return `<${label}>`;
+            return mustBeQuoted ? `'<${label}>'` : `<${label}>`;
         });
 
         return [keyword, ...args].join(' ');

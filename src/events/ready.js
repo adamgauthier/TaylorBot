@@ -21,7 +21,7 @@ class Ready extends EventHandler {
     async syncDatabase(client) {
         const { registry, database } = client.master;
 
-        const startupTime = new Date().getTime();
+        const startupTime = Date.now();
         const guildMembers = await database.guildMembers.getAll();
         const latestGuildNames = await database.guildNames.getAllLatest();
         let latestUsernames = await database.usernames.getAllLatest();
