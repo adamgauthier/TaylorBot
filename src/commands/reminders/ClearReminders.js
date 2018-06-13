@@ -11,7 +11,7 @@ class ClearRemindersCommand extends Command {
             aliases: ['clearreminder', 'cr'],
             group: 'reminders',
             description: 'Clears all your reminders.',
-            examples: [`clearreminders`],
+            examples: ['clearreminders'],
 
             args: []
         });
