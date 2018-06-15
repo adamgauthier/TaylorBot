@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const Inhibitor = require(Paths.Inhibitor);
 const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
-const { masterId } = require(Paths.TaylorBotConfig);
+const { MASTER_ID } = require(Paths.TaylorBotConfig);
 const UserGroups = require(Paths.UserGroups);
 
 class GroupAccessInhibitor extends Inhibitor {
@@ -19,7 +19,7 @@ class GroupAccessInhibitor extends Inhibitor {
     }
 
     static groupHasAccess(minimumGroupLevel, message, registry) {
-        const { accessLevel } = message.author.id === masterId ? UserGroups.Master : UserGroups.Everyone;
+        const { accessLevel } = message.author.id === MASTER_ID ? UserGroups.Master : UserGroups.Everyone;
 
         if (accessLevel >= minimumGroupLevel)
             return true;

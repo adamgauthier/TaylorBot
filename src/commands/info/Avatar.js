@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require(Paths.Command);
 
-class JoinedCommand extends Command {
+class AvatarCommand extends Command {
     constructor() {
         super({
             name: 'avatar',
@@ -35,4 +35,4 @@ class JoinedCommand extends Command {
     }
 }
 
-module.exports = JoinedCommand;
+module.exports = AvatarCommand;
