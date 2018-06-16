@@ -20,7 +20,7 @@ class RoleArgumentType extends ArgumentType {
         const { guild } = message;
 
         if (guild) {
-            const matches = val.match(/^(?:<@&)?([0-9]+)>?$/);
+            const matches = val.trim().match(/^(?:<@&)?([0-9]+)>?$/);
             if (matches) {
                 const role = guild.roles.get(matches[1]);
                 if (role) {

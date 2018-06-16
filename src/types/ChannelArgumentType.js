@@ -20,7 +20,7 @@ class ChannelArgumentType extends ArgumentType {
         const { guild, member } = message;
 
         if (member) {
-            const matches = val.match(/^(?:<#)?([0-9]+)>?$/);
+            const matches = val.trim().match(/^(?:<#)?([0-9]+)>?$/);
             if (matches) {
                 const channel = guild.channels.resolve(matches[1]);
                 if (channel && channel.permissionsFor(member).has('VIEW_CHANNEL')) {

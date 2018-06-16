@@ -11,7 +11,7 @@ class CommandArgumentType extends ArgumentType {
     }
 
     parse(val, { client }) {
-        const command = client.master.registry.commands.resolve(val);
+        const command = client.master.registry.commands.resolve(val.trim());
 
         if (command)
             return command;

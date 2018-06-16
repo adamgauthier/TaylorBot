@@ -22,7 +22,7 @@ class MemberArgumentType extends ArgumentType {
         const { guild } = message;
 
         if (guild) {
-            const matches = val.match(/^(?:<@!?)?([0-9]+)>?$/);
+            const matches = val.trim().match(/^(?:<@!?)?([0-9]+)>?$/);
             if (matches) {
                 const match = matches[1];
                 try {

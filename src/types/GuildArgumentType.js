@@ -17,7 +17,7 @@ class GuildArgumentType extends ArgumentType {
     }
 
     async parse(val, { message, client }) {
-        const matches = val.match(/^([0-9]+)$/);
+        const matches = val.trim().match(/^([0-9]+)$/);
         if (matches) {
             const guild = client.guilds.resolve(matches[1]);
             if (guild) {
