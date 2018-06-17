@@ -7,6 +7,10 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class Ready extends EventHandler {
+    constructor() {
+        super('ready');
+    }
+
     async handler(client) {
         Log.info('Client is ready!');
 

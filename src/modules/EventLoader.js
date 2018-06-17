@@ -7,20 +7,20 @@ const { Paths } = require('globalobjects');
 
 const eventsPath = Paths.eventsFolderPath;
 
-const requireEvent = eventName => require(path.join(eventsPath, eventName));
-
 class EventLoader {
     static async loadAll(client) {
         const files = await fs.readdir(eventsPath);
 
         return files
+            .map(file => path.join(eventsPath, file))
             .map(path.parse)
             .filter(file => file.ext === '.js')
-            .map(file => {
-                const Event = requireEvent(file.base);
-                const event = new Event();
-                if (event.enabled)
-                    client.on(file.name, (...args) => event.handler(client, ...args));
+            .map(path.format)
+            .map(file => require(file))
+            .map(EventHandler => new EventHandler())
+            .filter(event => event.enabled)
+            .forEach(event => {
+                client.on(event.eventName, (...args) => event.handler(client, ...args));
             });
     }
 }

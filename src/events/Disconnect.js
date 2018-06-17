@@ -7,7 +7,7 @@ const Log = require(Paths.Logger);
 
 class Disconnect extends EventHandler {
     constructor() {
-        super();
+        super('disconnect');
     }
 
     handler(taylorbot, closeEvent) {

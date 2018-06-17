@@ -7,6 +7,10 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class GuildCreate extends EventHandler {
+    constructor() {
+        super('guildCreate');
+    }
+
     async handler(client, guild) {
         Log.info(`Joined guild ${Format.guild(guild)}.`);
 

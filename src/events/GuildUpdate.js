@@ -7,6 +7,10 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class GuildUpdate extends EventHandler {
+    constructor() {
+        super('guildUpdate');
+    }
+
     async handler({ master }, oldGuild, newGuild) {
         if (oldGuild.name !== newGuild.name) {
             const changedAt = Date.now();

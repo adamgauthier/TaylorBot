@@ -1,12 +1,13 @@
 'use strict';
 
 class EventHandler {
-    constructor(enabled = true) {
+    constructor(eventName, enabled = true) {
         if (new.target === EventHandler) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
         this.enabled = enabled;
+        this.eventName = eventName;
     }
 
     handler() {

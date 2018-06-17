@@ -7,6 +7,10 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class UserUpdate extends EventHandler {
+    constructor() {
+        super('userUpdate');
+    }
+
     async handler({ master }, oldUser, newUser) {
         if (oldUser.username !== newUser.username) {
             const changedAt = Date.now();

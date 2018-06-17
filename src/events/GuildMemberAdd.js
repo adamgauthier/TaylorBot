@@ -7,6 +7,10 @@ const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
 
 class GuildMemberAdd extends EventHandler {
+    constructor() {
+        super('guildMemberAdd');
+    }
+
     async handler(client, member) {
         const { user } = member;
         const { registry, database } = client.master;
