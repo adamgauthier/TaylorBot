@@ -29,3 +29,29 @@ ALTER TABLE public.reminders
   SET SCHEMA reminders;
 
 GRANT ALL ON TABLE reminders.reminders TO taylorbot;
+
+CREATE SCHEMA guilds
+    AUTHORIZATION postgres;
+
+GRANT ALL ON SCHEMA guilds TO taylorbot;
+
+CREATE TABLE guilds.text_channels
+(
+    guild_id text NOT NULL,
+    channel_id text NOT NULL,
+    messages_count bigint NOT NULL DEFAULT 0,
+    is_logging boolean NOT NULL DEFAULT FALSE,
+    PRIMARY KEY (guild_id, channel_id),
+    CONSTRAINT guild_id_fk FOREIGN KEY (guild_id)
+        REFERENCES public.guilds (guild_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE guilds.text_channels
+    OWNER to postgres;
+
+GRANT ALL ON TABLE guilds.text_channels TO taylorbot;

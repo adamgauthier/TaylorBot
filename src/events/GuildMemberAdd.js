@@ -21,8 +21,8 @@ class GuildMemberAdd extends EventHandler {
             await registry.users.addUser(member, member.joinedTimestamp);
         }
         else {
-            const guildMemberExists = await database.guildMembers.exists(member);
-            if (!guildMemberExists) {
+            const databaseMember = await database.guildMembers.get(member);
+            if (!databaseMember) {
                 await database.guildMembers.add(member);
                 Log.info(`Added new member ${Format.member(member)}.`);
             }

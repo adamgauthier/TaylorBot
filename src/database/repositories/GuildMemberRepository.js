@@ -46,11 +46,10 @@ class GuildMemberRepository {
         };
     }
 
-    async exists(guildMember) {
+    async get(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            const matchingMembersCount = await this._db.guild_members.count(databaseMember);
-            return matchingMembersCount > 0;
+            return await this._db.guild_members.findOne(databaseMember);
         }
         catch (e) {
             Log.error(`Checking if guild member ${Format.member(guildMember)} exists: ${e}`);
