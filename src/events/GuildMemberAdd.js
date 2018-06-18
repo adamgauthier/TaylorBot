@@ -1,5 +1,6 @@
 'use strict';
 
+const { Events } = require('discord.js').Constants;
 const { Paths } = require('globalobjects');
 
 const EventHandler = require(Paths.EventHandler);
@@ -8,7 +9,7 @@ const Format = require(Paths.DiscordFormatter);
 
 class GuildMemberAdd extends EventHandler {
     constructor() {
-        super('guildMemberAdd');
+        super(Events.GUILD_MEMBER_ADD);
     }
 
     async handler(client, member) {

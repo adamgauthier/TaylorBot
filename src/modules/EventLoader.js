@@ -2,6 +2,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
+const { Events } = require('discord.js').Constants;
 
 const { Paths } = require('globalobjects');
 
@@ -20,6 +21,9 @@ class EventLoader {
             .map(EventHandler => new EventHandler())
             .filter(event => event.enabled)
             .forEach(event => {
+                if (!Object.values(Events).includes(event.eventName))
+                    throw new Error(`Event name ${event.eventName} does not exist.`);
+
                 client.on(event.eventName, (...args) => event.handler(client, ...args));
             });
     }

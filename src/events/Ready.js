@@ -1,5 +1,6 @@
 'use strict';
 
+const { Events } = require('discord.js').Constants;
 const { Paths } = require('globalobjects');
 
 const EventHandler = require(Paths.EventHandler);
@@ -8,7 +9,7 @@ const Format = require(Paths.DiscordFormatter);
 
 class Ready extends EventHandler {
     constructor() {
-        super('ready');
+        super(Events.READY);
     }
 
     async handler(client) {

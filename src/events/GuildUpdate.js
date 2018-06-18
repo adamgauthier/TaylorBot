@@ -1,5 +1,6 @@
 'use strict';
 
+const { Events } = require('discord.js').Constants;
 const { Paths } = require('globalobjects');
 
 const EventHandler = require(Paths.EventHandler);
@@ -8,7 +9,7 @@ const Format = require(Paths.DiscordFormatter);
 
 class GuildUpdate extends EventHandler {
     constructor() {
-        super('guildUpdate');
+        super(Events.GUILD_UPDATE);
     }
 
     async handler({ master }, oldGuild, newGuild) {
