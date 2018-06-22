@@ -37,7 +37,7 @@ class YoutubeInterval extends Interval {
             const { videoId } = video.resourceId;
 
             if (videoId !== last_video_id) {
-                Log.info(`New Youtube Video for playlistId '${playlist_id}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${videoId}.`);
+                Log.info(`New Youtube Video for playlistId '${playlist_id}', ${Format.guildChannel(channel)}: ${videoId}.`);
                 await client.sendEmbed(channel, YoutubeModule.getEmbed(video));
                 await client.master.database.youtubeCheckers.update(playlist_id, guild_id, channel_id, videoId);
             }

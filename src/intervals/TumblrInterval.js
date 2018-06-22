@@ -37,7 +37,7 @@ class TumblrInterval extends Interval {
             const { post, blog } = result;
 
             if (post.short_url !== last_link) {
-                Log.info(`New Tumblr Post for user '${tumblr_user}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${post.short_url}.`);
+                Log.info(`New Tumblr Post for user '${tumblr_user}', ${Format.guildChannel(channel)}: ${post.short_url}.`);
                 await client.sendEmbed(channel, TumblrModule.getEmbed(post, blog));
                 await client.master.database.tumblrCheckers.update(tumblr_user, guild_id, channel_id, post.short_url);
             }

@@ -37,7 +37,7 @@ class InstagramInterval extends Interval {
             const { item, user } = result;
 
             if (item.shortcode !== last_post_code) {
-                Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel, '#name (#id), #gName (#gId)')}: ${item.shortcode}.`);
+                Log.info(`New Instagram Post for user '${instagram_username}', ${Format.guildChannel(channel)}: ${item.shortcode}.`);
                 await client.sendEmbed(channel, InstagramModule.getEmbed(item, user));
                 await client.master.database.instagramCheckers.update(instagram_username, guild_id, channel_id, item.shortcode);
             }

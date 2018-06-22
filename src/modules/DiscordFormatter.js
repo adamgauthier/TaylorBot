@@ -30,7 +30,7 @@ class DiscordFormatter {
             .replace('#id', channel.id);
     }
 
-    static guildChannel(guildChannel, formatString = '#name (#id)') {
+    static guildChannel(guildChannel, formatString = '#name (#id) on #gName (#gId)') {
         return formatString
             .replace('#name', guildChannel.name)
             .replace('#id', guildChannel.id)
