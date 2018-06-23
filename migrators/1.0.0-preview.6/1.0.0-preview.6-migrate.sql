@@ -55,3 +55,6 @@ ALTER TABLE guilds.text_channels
     OWNER to postgres;
 
 GRANT ALL ON TABLE guilds.text_channels TO taylorbot;
+
+ALTER TABLE guilds.text_channels
+    ADD COLUMN registered_at bigint NOT NULL;
