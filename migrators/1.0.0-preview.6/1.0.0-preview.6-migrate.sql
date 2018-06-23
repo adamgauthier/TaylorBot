@@ -1,3 +1,5 @@
+BEGIN;
+
 CREATE EXTENSION pgcrypto;
 
 CREATE TABLE public.reminders
@@ -58,3 +60,5 @@ GRANT ALL ON TABLE guilds.text_channels TO taylorbot;
 
 ALTER TABLE guilds.text_channels
     ADD COLUMN registered_at bigint NOT NULL;
+
+COMMIT;
