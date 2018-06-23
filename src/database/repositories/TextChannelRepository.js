@@ -60,6 +60,19 @@ class TextChannelRepository {
             throw e;
         }
     }
+
+    async addMessagesCount(guildChannel, messageCount) {
+        try {
+            return await this._db.query(
+                'UPDATE guilds.text_channels SET messages_count = messages_count + $1 WHERE guild_id = $2 AND channel_id = $3 RETURNING *;',
+                [messageCount, guildChannel.guild.id, guildChannel.id]
+            );
+        }
+        catch (e) {
+            Log.error(`Adding ${messageCount} messages to text channel ${Format.guildChannel(guildChannel)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = TextChannelRepository;
