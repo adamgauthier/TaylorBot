@@ -20,6 +20,7 @@ const UserGroupRepository = require(Paths.UserGroupRepository);
 const RoleGroupRepository = require(Paths.RoleGroupRepository);
 const SpecialRoleRepository = require(Paths.SpecialRoleRepository);
 const ReminderRepository = require('./repositories/ReminderRepository');
+const TextChannelRepository = require('./repositories/TextChannelRepository');
 
 class DatabaseDriver {
     async load() {
@@ -42,6 +43,7 @@ class DatabaseDriver {
         this.roleGroups = new RoleGroupRepository(this._db);
         this.specialRoles = new SpecialRoleRepository(this._db);
         this.reminders = new ReminderRepository(this._db);
+        this.textChannels = new TextChannelRepository(this._db);
     }
 }
 

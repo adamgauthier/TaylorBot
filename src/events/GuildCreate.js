@@ -32,6 +32,14 @@ class GuildCreate extends EventHandler {
             }
         }
 
+        const channels = await database.textChannels.getAllInGuild(guild);
+        for (const textChannel of guild.channels.filter(c => c.type === 'text').values()) {
+            if (!channels.some(c => c.channel_id === textChannel.id)) {
+                Log.info(`Found new text channel ${Format.channel(textChannel)}.`);
+                await database.textChannels.add(textChannel);
+            }
+        }
+
         const guildMembers = await database.guildMembers.getAllInGuild(guild);
         let latestUsernames = await database.usernames.getAllLatest();
 

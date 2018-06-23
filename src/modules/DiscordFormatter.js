@@ -23,6 +23,13 @@ class DiscordFormatter {
             .replace('#gId', guildMember.guild.id);
     }
 
+    static channel(channel) {
+        if (channel.type === 'dm')
+            return DiscordFormatter.dmChannel(channel);
+        else
+            return DiscordFormatter.guildChannel(channel);
+    }
+
     static dmChannel(channel, formatString = 'DM with [#rName (#rId)] (#id)') {
         return formatString
             .replace('#rName', channel.recipient.username)

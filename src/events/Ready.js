@@ -28,6 +28,7 @@ class Ready extends EventHandler {
 
         const startupTime = Date.now();
         const guildMembers = await database.guildMembers.getAll();
+        const channels = await database.textChannels.getAll();
         const latestGuildNames = await database.guildNames.getAllLatest();
         let latestUsernames = await database.usernames.getAllLatest();
 
@@ -40,7 +41,14 @@ class Ready extends EventHandler {
                 const latestGuildName = latestGuildNames.find(gn => gn.guild_id === guild.id);
                 if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
                     await database.guildNames.add(guild, startupTime);
-                    Log.info(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
+                    Log.warn(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
+                }
+            }
+
+            for (const textChannel of guild.channels.filter(c => c.type === 'text').values()) {
+                if (!channels.some(c => c.channel_id === textChannel.id)) {
+                    Log.warn(`Found new text channel ${Format.channel(textChannel)}.`);
+                    await database.textChannels.add(textChannel);
                 }
             }
 
