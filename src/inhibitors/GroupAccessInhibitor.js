@@ -27,6 +27,9 @@ class GroupAccessInhibitor extends Inhibitor {
         const { member } = message;
 
         if (member) {
+            if (member.guild.ownerID === member.id && UserGroups.GuildOwners.accessLevel >= minimumGroupLevel)
+                return true;
+
             if (GroupAccessInhibitor.roleGroupHasAccess(minimumGroupLevel, member, registry.guilds, registry.groups))
                 return true;
         }

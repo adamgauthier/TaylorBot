@@ -9,6 +9,11 @@
         "accessLevel": 10000,
         "isSpecial": false
     },
+    "GuildOwners": {
+        "name": "GuildOwners",
+        "accessLevel": 20000,
+        "isSpecial": true
+    },
     "Master": {
         "name": "Master",
         "accessLevel": 32768,
