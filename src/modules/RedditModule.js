@@ -1,24 +1,14 @@
 'use strict';
 
-const rp = require('request-promise');
+const fetch = require('node-fetch');
 const { MessageEmbed } = require('discord.js');
 const { Paths } = require('globalobjects');
 
 const StringUtil = require(Paths.StringUtil);
 
-const redditBaseURL = 'https://www.reddit.com/r/';
-const rpOptions = {
-    'baseUrl': redditBaseURL,
-    'json': true,
-    'headers': {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
-    }
-};
-
 class RedditModule {
     static async getLatestPost(subreddit) {
-        const options = { ...rpOptions, 'uri': `${subreddit}/new/.json` };
-        const body = await rp(options);
+        const body = await fetch(`https://www.reddit.com/r/${subreddit}/new/.json`).then(res => res.json());
 
         const post = body.data.children[0].data;
         return post;
@@ -31,7 +21,7 @@ class RedditModule {
             'timestamp': new Date(post.created_utc * 1000),
             'author': {
                 'name': `r/${post.subreddit}`,
-                'url': `${redditBaseURL}${post.subreddit}`
+                'url': `https://www.reddit.com/r/${post.subreddit}`
             },
             'footer': {
                 'text': `u/${post.author}`,

@@ -1,24 +1,14 @@
 'use strict';
 
-const rp = require('request-promise');
+const fetch = require('node-fetch');
 const { MessageEmbed } = require('discord.js');
 const { Paths } = require('globalobjects');
 
 const StringUtil = require(Paths.StringUtil);
 
-const instagramBaseURL = 'https://www.instagram.com/';
-const rpOptions = {
-    'baseUrl': instagramBaseURL,
-    'json': true,
-    'headers': {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
-    }
-};
-
 class InstagramModule {
     static async getLatestPost(instagramUsername) {
-        const options = { ...rpOptions, 'uri': `${instagramUsername}/?__a=1` };
-        const body = await rp(options);
+        const body = await fetch(`https://www.instagram.com/${instagramUsername}/?__a=1`).then(res => res.json());
 
         const { user } = body.graphql;
 
@@ -44,7 +34,7 @@ class InstagramModule {
             'timestamp': new Date(item.taken_at_timestamp * 1000),
             'author': {
                 'name': (user.full_name ? user.full_name : user.username),
-                'url': instagramBaseURL + user.username,
+                'url': `https://www.instagram.com/${user.username}`,
                 'icon_url': user.profile_pic_url
             },
             'footer': {

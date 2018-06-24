@@ -1,29 +1,20 @@
 'use strict';
 
-const rp = require('request-promise');
+const fetch = require('node-fetch');
+const querystring = require('querystring');
 const { MessageEmbed } = require('discord.js');
 const { Paths } = require('globalobjects');
 
 const { googleAPIKey } = require(Paths.GoogleConfig);
 const StringUtil = require(Paths.StringUtil);
 
-const rpOptions = {
-    'uri': 'https://www.googleapis.com/youtube/v3/playlistItems',
-    'qs': {
-        'part': 'snippet',
-        'key': googleAPIKey
-    },
-    'json': true,
-    'headers': {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
-    }
-};
-
 class YoutubeModule {
     static async getLatestVideo(playlistId) {
-        const options = { ...rpOptions };
-        options.qs.playlistId = playlistId;
-        const body = await rp(options);
+        const body = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${querystring.stringify({
+            'key': googleAPIKey,
+            'part': 'snippet',
+            'playlistId': playlistId
+        })}`).then(res => res.json());
 
         const video = body.items[0].snippet;
         return video;
