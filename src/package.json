@@ -1,7 +1,7 @@
 {
   "name": "taylorbot",
   "version": "1.0.0-preview.7",
-  "description": "Discord bot created for the /r/TaylorSwift Discord server",
+  "description": "Discord bot created for the r/TaylorSwift Discord server",
   "main": "taylorbot.js",
   "dependencies": {
     "chrono-node": "github:wanasit/chrono",
@@ -20,11 +20,12 @@
     "node": ">=10.1.0"
   },
   "scripts": {
-    "start": "node taylorbot.js"
+    "start": "node taylorbot.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Enchanted13/TaylorBot.git"
+    "url": "git+https://github.com/louistio/TaylorBot.git"
   },
   "keywords": [
     "discord",
@@ -32,12 +33,11 @@
     "taylor",
     "swift"
   ],
-  "author": "Enchanted13",
-  "license": "ISC",
+  "author": "Adam Gauthier",
   "bugs": {
-    "url": "https://github.com/Enchanted13/TaylorBot/issues"
+    "url": "https://github.com/louistio/TaylorBot/issues"
   },
-  "homepage": "https://github.com/Enchanted13/TaylorBot#readme",
+  "homepage": "https://github.com/louistio/TaylorBot#readme",
   "optionalDependencies": {
     "erlpack": "github:discordapp/erlpack",
     "uws": "^9.148.0"
