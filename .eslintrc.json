@@ -9,6 +9,9 @@
         "sourceType": "module"
     },
     "rules": {
+        "max-classes-per-file": [
+            "error"
+        ],
         "indent": [
             "error",
             4,
@@ -29,11 +32,7 @@
             "always"
         ],
         "prefer-const": [
-            "error",
-            {
-                "destructuring": "any",
-                "ignoreReadBeforeAssign": false
-            }
+            "error"
         ],
         "no-var": [
             "error"
