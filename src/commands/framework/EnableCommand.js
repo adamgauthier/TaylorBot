@@ -11,10 +11,11 @@ class EnableCommandCommand extends Command {
         super({
             name: 'enablecommand',
             aliases: ['ec'],
-            group: 'admin',
+            group: 'framework',
             description: 'Enables a disabled command globally.',
             minimumGroup: UserGroups.Master,
             examples: ['enablecommand avatar', 'ec uinfo'],
+            guarded: true,
 
             args: [
                 {

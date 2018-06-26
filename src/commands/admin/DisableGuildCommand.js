@@ -13,8 +13,10 @@ class DisableGuildCommandCommand extends Command {
             aliases: ['disableservercommand', 'dgc', 'dsc'],
             group: 'admin',
             description: 'Disables an enabled command in a server.',
-            minimumGroup: UserGroups.Master,
+            minimumGroup: UserGroups.Moderators,
             examples: ['disableservercommand avatar', 'dsc uinfo'],
+            guildOnly: true,
+            guarded: true,
 
             args: [
                 {
@@ -26,8 +28,8 @@ class DisableGuildCommandCommand extends Command {
                 {
                     key: 'guild',
                     label: 'server',
-                    prompt: 'What server would you like to disable the command in?',
-                    type: 'guild-or-current'
+                    type: 'guild-or-current',
+                    prompt: 'What server would you like to disable the command in?'
                 }
             ]
         });
@@ -39,7 +41,11 @@ class DisableGuildCommandCommand extends Command {
         }
 
         if (command.command.minimumGroup === UserGroups.Master) {
-            throw new CommandError(`Can't disable '${command.name}' because it's a Master Command.`);
+            throw new CommandError(`Can't disable '${command.name}' because it's a Master command.`);
+        }
+
+        if (command.command.guarded) {
+            throw new CommandError(`Can't disable '${command.name}' because it's guarded.`);
         }
 
         await command.disableIn(guild);

@@ -12,11 +12,12 @@ class SetPrefixCommand extends Command {
         super({
             name: 'setprefix',
             aliases: ['sp', 'prefix'],
-            group: 'admin',
+            group: 'framework',
             description: `Changes the bot's prefix for a server.`,
             minimumGroup: UserGroups.Moderators,
             examples: ['setprefix .', 'sp !'],
             guildOnly: true,
+            guarded: true,
 
             args: [
                 {

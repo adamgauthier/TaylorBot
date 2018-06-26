@@ -12,11 +12,12 @@ class SetRoleGroupCommand extends Command {
         super({
             name: 'setrolegroup',
             aliases: ['srg'],
-            group: 'admin',
+            group: 'framework',
             description: 'Attaches a user group to a role.',
-            minimumGroup: UserGroups.Master,
+            minimumGroup: UserGroups.GuildOwners,
             examples: ['setrolegroup @admins Moderators', 'srg owners Moderators'],
             guildOnly: true,
+            guarded: true,
 
             args: [
                 {

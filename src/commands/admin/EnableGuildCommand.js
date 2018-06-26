@@ -13,8 +13,10 @@ class EnableGuildCommandCommand extends Command {
             aliases: ['enableservercommand', 'egc', 'esc'],
             group: 'admin',
             description: 'Enables a disabled command in a server.',
-            minimumGroup: UserGroups.Master,
+            minimumGroup: UserGroups.Moderators,
             examples: ['enableservercommand avatar', 'esc uinfo'],
+            guildOnly: true,
+            guarded: true,
 
             args: [
                 {
