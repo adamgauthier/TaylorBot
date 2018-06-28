@@ -21,7 +21,11 @@ class FutureTimeArgumentType extends ArgumentType {
         const results = chrono.parse(val, new Date(), { forwardDate: true });
 
         if (results.length > 0) {
-            return results[0].start.moment();
+            const moment = results[0].start.moment();
+
+            if (moment.isAfter(Date.now())) {
+                return moment;
+            }
         }
 
         throw new ArgumentParsingError(`Could not parse future date from '${val}'.`);

@@ -21,7 +21,7 @@ class ReminderInterval extends Interval {
         const reminders = await database.reminders.getAll();
 
         for (const reminder of reminders) {
-            if (moment.utc(reminder.remind_at, 'x', true).isAfter(Date.now())) {
+            if (moment().isAfter(moment.utc(reminder.remind_at, 'x', true))) {
                 const user = master.resolveUser(reminder.user_id);
 
                 if (user) {
