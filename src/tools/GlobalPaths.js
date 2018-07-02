@@ -30,25 +30,6 @@ class GlobalPaths {
                 }
             },
             {
-                'directory': pathMapper.database.repositories.path,
-                'files': {
-                    'GuildRepository': 'GuildRepository',
-                    'UserRepository': 'UserRepository',
-                    'GuildMemberRepository': 'GuildMemberRepository',
-                    'UsernameRepository': 'UsernameRepository',
-                    'GuildNameRepository': 'GuildNameRepository',
-                    'InstagramCheckerRepository': 'InstagramCheckerRepository',
-                    'RedditCheckerRepository': 'RedditCheckerRepository',
-                    'YoutubeCheckerRepository': 'YoutubeCheckerRepository',
-                    'TumblrCheckerRepository': 'TumblrCheckerRepository',
-                    'GuildCommandRepository': 'GuildCommandRepository',
-                    'CommandRepository': 'CommandRepository',
-                    'UserGroupRepository': 'UserGroupRepository',
-                    'RoleGroupRepository': 'RoleGroupRepository',
-                    'SpecialRoleRepository': 'SpecialRoleRepository'
-                }
-            },
-            {
                 'directory': pathMapper.structures.path,
                 'files': {
                     'EventHandler': 'EventHandler',
