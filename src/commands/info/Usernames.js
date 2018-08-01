@@ -6,6 +6,9 @@ const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require(Paths.Command);
 const TimeUtil = require(Paths.TimeUtil);
 
+const ArrayUtil = require('../../modules/ArrayUtil.js');
+const ArrayDescriptionPageMessage = require('../../modules/paging/ArrayDescriptionPageMessage.js');
+
 class UsernamesCommand extends Command {
     constructor() {
         super({
@@ -28,13 +31,19 @@ class UsernamesCommand extends Command {
     }
 
     async run({ message, client }, { member }) {
-        const usernames = await client.master.database.usernames.getHistory(member.user, 10);
-        const embed = DiscordEmbedFormatter
-            .baseUserHeader(member.user)
-            .setDescription(
-                usernames.map(u => `${TimeUtil.formatSmall(u.changed_at)} : ${u.username}`).join('\n')
-            );
-        return client.sendEmbed(message.channel, embed);
+        const { channel, author } = message;
+        const usernames = await client.master.database.usernames.getHistory(member.user, 75);
+        const embed = DiscordEmbedFormatter.baseUserHeader(member.user);
+
+        const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at)} : ${u.username}`);
+        const chunks = ArrayUtil.chunk(lines, 15);
+
+        return new ArrayDescriptionPageMessage(
+            client,
+            author,
+            embed,
+            chunks.map(chunk => chunk.join('\n'))
+        ).send(channel);
     }
 }
 

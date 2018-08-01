@@ -11,6 +11,17 @@ class ArrayUtil {
             currentIndex++;
         }
     }
+
+    static chunk(array, size) {
+        let index = 0;
+        let resIndex = 0;
+        const result = new Array(Math.ceil(array.length / size));
+
+        while (index < array.length) {
+            result[resIndex++] = array.slice(index, (index += size));
+        }
+        return result;
+    }
 }
 
 module.exports = ArrayUtil;

@@ -6,6 +6,9 @@ const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require(Paths.Command);
 const TimeUtil = require(Paths.TimeUtil);
 
+const ArrayUtil = require('../../modules/ArrayUtil.js');
+const ArrayDescriptionPageMessage = require('../../modules/paging/ArrayDescriptionPageMessage.js');
+
 class ServerNamesCommand extends Command {
     constructor() {
         super({
@@ -27,14 +30,19 @@ class ServerNamesCommand extends Command {
     }
 
     async run({ message, client }, { guild }) {
-        const { channel } = message;
-        const guildNames = await client.master.database.guildNames.getHistory(guild, 10);
-        const embed = DiscordEmbedFormatter
-            .baseGuildHeader(guild)
-            .setDescription(
-                guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at)} : ${gn.guild_name}`).join('\n')
-            );
-        return client.sendEmbed(channel, embed);
+        const { channel, author } = message;
+        const guildNames = await client.master.database.guildNames.getHistory(guild, 75);
+        const embed = DiscordEmbedFormatter.baseGuildHeader(guild);
+
+        const lines = guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at)} : ${gn.guild_name}`);
+        const chunks = ArrayUtil.chunk(lines, 15);
+
+        return new ArrayDescriptionPageMessage(
+            client,
+            author,
+            embed,
+            chunks.map(chunk => chunk.join('\n'))
+        ).send(channel);
     }
 }
 
