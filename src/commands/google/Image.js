@@ -6,6 +6,7 @@ const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require(Paths.Command);
 const GoogleImagesModule = require('../../modules/GoogleImagesModule');
 const CommandError = require(Paths.CommandError);
+const ImageSearchResultsPageMessage = require('../../modules/paging/ImageSearchResultsPageMessage.js');
 
 class ImageCommand extends Command {
     constructor() {
@@ -29,20 +30,17 @@ class ImageCommand extends Command {
     }
 
     async run({ message, client }, { search }) {
-        const { items, searchInformation } = await GoogleImagesModule.search(search);
+        const { author, channel } = message;
+        const { items, searchInformation } = await GoogleImagesModule.search(search, 10);
 
         if (search.totalResults === '0')
             throw new CommandError(`No results found for search '${search}'.`);
 
-        const item = items[0];
-
         const embed = DiscordEmbedFormatter
-            .baseUserHeader(message.author)
-            .setTitle(item.title)
-            .setURL(item.image.contextLink)
-            .setImage(item.link)
+            .baseUserHeader(author)
             .setFooter(`${searchInformation.formattedTotalResults} results found in ${searchInformation.formattedSearchTime} seconds`);
-        return client.sendEmbed(message.channel, embed);
+
+        return new ImageSearchResultsPageMessage(client, author, embed, items).send(channel);
     }
 }
 

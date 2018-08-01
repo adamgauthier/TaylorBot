@@ -7,12 +7,12 @@ const { Paths } = require('globalobjects');
 const { googleAPIKey, customsearchID } = require(Paths.GoogleConfig);
 
 class GoogleImagesModule {
-    static search(searchText) {
+    static search(searchText, numberOfResults) {
         return fetch(`https://www.googleapis.com/customsearch/v1?${querystring.stringify({
             'key': googleAPIKey,
             'cx': customsearchID,
             'safe': 'high',
-            'num': 1,
+            'num': numberOfResults,
             'searchType': 'image',
             'q': searchText
         })}`).then(res => res.json());
