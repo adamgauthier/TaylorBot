@@ -37,7 +37,7 @@ class ImageCommand extends Command {
             throw new CommandError(`No results found for search '${search}'.`);
 
         const embed = DiscordEmbedFormatter
-            .baseUserHeader(author)
+            .baseUserEmbed(author)
             .setFooter(`${searchInformation.formattedTotalResults} results found in ${searchInformation.formattedSearchTime} seconds`);
 
         return new ImageSearchResultsPageMessage(client, author, embed, items).send(channel);

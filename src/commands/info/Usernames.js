@@ -33,7 +33,7 @@ class UsernamesCommand extends Command {
     async run({ message, client }, { member }) {
         const { channel, author } = message;
         const usernames = await client.master.database.usernames.getHistory(member.user, 75);
-        const embed = DiscordEmbedFormatter.baseUserHeader(member.user);
+        const embed = DiscordEmbedFormatter.baseUserEmbed(member.user);
 
         const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at)} : ${u.username}`);
         const chunks = ArrayUtil.chunk(lines, 15);

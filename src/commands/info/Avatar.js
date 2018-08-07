@@ -29,7 +29,7 @@ class AvatarCommand extends Command {
     run({ message, client }, { member }) {
         const { user } = member;
         const embed = DiscordEmbedFormatter
-            .baseUserHeader(user)
+            .baseUserEmbed(user)
             .setImage(DiscordEmbedFormatter.getAvatarURL(user, 1024));
         return client.sendEmbed(message.channel, embed);
     }

@@ -9,7 +9,11 @@ const StringUtil = require(Paths.StringUtil);
 class DiscordEmbedFormatter {
     static baseUserHeader(user, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)) {
         return new MessageEmbed()
-            .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL)
+            .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL);
+    }
+
+    static baseUserEmbed(user, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)) {
+        return DiscordEmbedFormatter.baseUserHeader(user, avatarURL)
             .setColor(DiscordEmbedFormatter.getStatusColor(user.presence.status));
     }
 
@@ -59,7 +63,7 @@ class DiscordEmbedFormatter {
 
         const roles = member.roles.map(r => r.name);
 
-        const embed = DiscordEmbedFormatter.baseUserHeader(user, avatarURL)
+        const embed = DiscordEmbedFormatter.baseUserEmbed(user, avatarURL)
             .setURL(avatarURL)
             .setThumbnail(avatarURL)
             .addField('ID', `\`${user.id}\``, true);

@@ -30,7 +30,7 @@ class JoinedCommand extends Command {
     async run({ message, client }, { member }) {
         const { first_joined_at, rank } = await client.master.database.guildMembers.getRankedFirstJoinedAt(member);
         const embed = DiscordEmbedFormatter
-            .baseUserHeader(member.user)
+            .baseUserEmbed(member.user)
             .setDescription([
                 `${member.displayName} first joined the server on **${TimeUtil.formatFull(first_joined_at)}**.`,
                 `They were the **${MathUtil.formatNumberSuffix(rank)}** user to join.`

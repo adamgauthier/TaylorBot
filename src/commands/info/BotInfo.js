@@ -24,7 +24,7 @@ class BotInfoCommand extends Command {
     run({ message, client }) {
         const { user } = client;
         const embed = DiscordEmbedFormatter
-            .baseUserHeader(user)
+            .baseUserEmbed(user)
             .addField('Version', `\`${version}\``, true)
             .addField('Uptime', `\`${client.uptime}\` ms`, true)
             .addField('Voice Connections', client.voiceConnections.size, true)
