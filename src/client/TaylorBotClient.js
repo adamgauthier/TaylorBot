@@ -8,6 +8,7 @@ const { loginToken } = require(Paths.DiscordConfig);
 const Log = require(Paths.Logger);
 const IntervalRunner = require(Paths.IntervalRunner);
 const EmbedUtil = require(Paths.EmbedUtil);
+const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 
 const discordMax = 2000;
 
@@ -21,6 +22,7 @@ class TaylorBotClient extends Discord.Client {
         this.master = master;
 
         this.intervalRunner = new IntervalRunner(this);
+        this.textChannelLogger = new TextChannelLogger(this);
     }
 
     async load() {

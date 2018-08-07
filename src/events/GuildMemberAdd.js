@@ -6,6 +6,7 @@ const { Paths } = require('globalobjects');
 const EventHandler = require(Paths.EventHandler);
 const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
+const GuildMemberJoinedLoggable = require('../modules/logging/GuildMemberJoinedLoggable.js');
 
 class GuildMemberAdd extends EventHandler {
     constructor() {
@@ -13,11 +14,13 @@ class GuildMemberAdd extends EventHandler {
     }
 
     async handler(client, member) {
-        const { user } = member;
+        const { user, guild } = member;
         const { registry, database } = client.master;
 
+        const guildMemberJoinedLoggable = new GuildMemberJoinedLoggable(member);
+
         if (!registry.users.has(member.id)) {
-            Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(member.guild)}.`);
+            Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
             await registry.users.addUser(member, member.joinedTimestamp);
         }
         else {
@@ -36,6 +39,8 @@ class GuildMemberAdd extends EventHandler {
                 Log.info(`Added new username for ${Format.user(user)}.`);
             }
         }
+
+        client.textChannelLogger.log(guild, guildMemberJoinedLoggable);
     }
 }
 

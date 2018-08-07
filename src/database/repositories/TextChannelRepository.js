@@ -39,6 +39,21 @@ class TextChannelRepository {
         }
     }
 
+    async getAllLogChannelsInGuild(guild) {
+        try {
+            return await this._db.guilds.text_channels.find(
+                {
+                    'guild_id': guild.id,
+                    'is_logging': true
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting all guild log channels for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
     mapChannelToDatabase(guildChannel) {
         return {
             'guild_id': guildChannel.guild.id,
