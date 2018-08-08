@@ -31,10 +31,14 @@ class AddLogChannelCommand extends Command {
 
     async run({ message, client }, { channel }) {
         const { database } = client.master;
-        const textChannel = await database.textChannels.get(channel);
+        const logChannels = await database.textChannels.getAllLogChannelsInGuild(message.guild);
 
-        if (textChannel.is_logging) {
+        if (logChannels.some(c => c.channel_id === channel.id)) {
             throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is already a log channel.`);
+        }
+
+        if (logChannels.length > 0) {
+            throw new CommandError(`There can only be 1 log channel for a server.`);
         }
 
         await database.textChannels.setLogging(channel);
