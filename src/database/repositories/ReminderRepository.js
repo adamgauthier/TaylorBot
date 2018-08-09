@@ -12,7 +12,7 @@ class ReminderRepository {
 
     async getAll() {
         try {
-            return await this._db.reminders.reminders.find();
+            return await this._db.users.reminders.find();
         }
         catch (e) {
             Log.error(`Getting all reminders: ${e}`);
@@ -22,7 +22,7 @@ class ReminderRepository {
 
     async fromUser(user) {
         try {
-            return await this._db.reminders.reminders.find({
+            return await this._db.users.reminders.find({
                 'user_id': user.id
             });
         }
@@ -34,7 +34,7 @@ class ReminderRepository {
 
     async add(user, remindAt, reminderText) {
         try {
-            return await this._db.reminders.reminders.insert({
+            return await this._db.users.reminders.insert({
                 'user_id': user.id,
                 'created_at': Date.now(),
                 'remind_at': remindAt,
@@ -49,7 +49,7 @@ class ReminderRepository {
 
     async remove(reminderId) {
         try {
-            return await this._db.reminders.reminders.destroy(reminderId);
+            return await this._db.users.reminders.destroy(reminderId);
         }
         catch (e) {
             Log.error(`Removing reminder ${reminderId}: ${e}`);
@@ -59,7 +59,7 @@ class ReminderRepository {
 
     async removeFrom(user) {
         try {
-            return await this._db.reminders.reminders.destroy({
+            return await this._db.users.reminders.destroy({
                 'user_id': user.id
             });
         }
