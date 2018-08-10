@@ -31,9 +31,19 @@ class ImageCommand extends Command {
 
     async run({ message, client }, { search }) {
         const { author, channel } = message;
-        const { items, searchInformation } = await GoogleImagesModule.search(search, 10);
 
-        if (search.totalResults === '0')
+        const {
+            error, items, searchInformation, totalResults
+        } = await GoogleImagesModule.search(search, 10);
+
+        if (error) {
+            if (error.errors && error.errors[0].reason === 'dailyLimitExceeded')
+                throw new CommandError(`Looks like our daily limit for Google Images searches (100) was exceeded. 😭`);
+            else
+                throw new CommandError(`Something went wrong while querying Google Images, sorry about that. 😕`);
+        }
+
+        if (totalResults === '0')
             throw new CommandError(`No results found for search '${search}'.`);
 
         const embed = DiscordEmbedFormatter
