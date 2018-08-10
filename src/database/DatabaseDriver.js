@@ -21,6 +21,7 @@ const RoleGroupRepository = require('./repositories/RoleGroupRepository');
 const SpecialRoleRepository = require('./repositories/SpecialRoleRepository');
 const ReminderRepository = require('./repositories/ReminderRepository');
 const TextChannelRepository = require('./repositories/TextChannelRepository');
+const CleverBotSessionRepository = require('./repositories/CleverBotSessionRepository.js');
 
 class DatabaseDriver {
     async load() {
@@ -44,6 +45,7 @@ class DatabaseDriver {
         this.specialRoles = new SpecialRoleRepository(this._db);
         this.reminders = new ReminderRepository(this._db);
         this.textChannels = new TextChannelRepository(this._db);
+        this.cleverbotSessions = new CleverBotSessionRepository(this._db);
     }
 }
 
