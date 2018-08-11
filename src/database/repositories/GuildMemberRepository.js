@@ -52,7 +52,7 @@ class GuildMemberRepository {
             return await this._db.guild_members.findOne(databaseMember);
         }
         catch (e) {
-            Log.error(`Checking if guild member ${Format.member(guildMember)} exists: ${e}`);
+            Log.error(`Getting guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
