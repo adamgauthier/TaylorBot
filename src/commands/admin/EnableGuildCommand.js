@@ -4,7 +4,7 @@ const { Paths } = require('globalobjects');
 
 const UserGroups = require(Paths.UserGroups);
 const Command = require(Paths.Command);
-const CommandError = require(Paths.CommandError);
+const CommandError = require('../../structures/CommandError.js');
 
 class EnableGuildCommandCommand extends Command {
     constructor() {

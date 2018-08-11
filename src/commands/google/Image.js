@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require(Paths.Command);
 const GoogleImagesModule = require('../../modules/GoogleImagesModule');
-const CommandError = require(Paths.CommandError);
+const CommandError = require('../../structures/CommandError.js');
 const ImageSearchResultsPageMessage = require('../../modules/paging/ImageSearchResultsPageMessage.js');
 
 class ImageCommand extends Command {

@@ -4,7 +4,7 @@ const { Paths } = require('globalobjects');
 
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
-const CommandError = require(Paths.CommandError);
+const CommandError = require('../../structures/CommandError.js');
 
 class GetRoleCommand extends Command {
     constructor() {

@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const UserGroups = require(Paths.UserGroups);
 const Format = require(Paths.DiscordFormatter);
 const Command = require(Paths.Command);
-const CommandError = require(Paths.CommandError);
+const CommandError = require('../../structures/CommandError.js');
 
 class AddLogChannelCommand extends Command {
     constructor() {

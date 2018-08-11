@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const Command = require(Paths.Command);
-const CommandError = require(Paths.CommandError);
+const CommandError = require('../../structures/CommandError.js');
 const TimeUtil = require(Paths.TimeUtil);
 
 const REMINDERS_LIMIT = 3;
