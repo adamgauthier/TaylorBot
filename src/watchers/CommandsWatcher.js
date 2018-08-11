@@ -119,8 +119,6 @@ class CommandsWatcher extends MessageWatcher {
                 parsedArgs[info.key] = parsedArg;
             }
             catch (e) {
-                // UPDATE ANSWERED?
-
                 if (e instanceof ArgumentParsingError) {
                     return client.sendEmbedError(channel, [
                         `Command Format: \`${commandContext.usage()}\``,
