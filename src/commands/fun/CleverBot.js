@@ -27,14 +27,20 @@ class CleverBotCommand extends Command {
         const { author, channel } = message;
         const { database } = client.master;
 
-        const session = await database.cleverbotSessions.get(author);
-        if (!session) {
-            await CleverBot.create(author.id);
-            await database.cleverbotSessions.add(author);
-        }
+        channel.startTyping();
+        try {
+            const session = await database.cleverbotSessions.get(author);
+            if (!session) {
+                await CleverBot.create(author.id);
+                await database.cleverbotSessions.add(author);
+            }
 
-        const answer = await CleverBot.ask(author.id, text);
-        return client.sendEmbedSuccess(channel, answer);
+            const answer = await CleverBot.ask(author.id, text);
+            return client.sendEmbedSuccess(channel, `<@${author.id}> ${answer}`);
+        }
+        finally {
+            channel.stopTyping();
+        }
     }
 }
 
