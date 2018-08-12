@@ -83,7 +83,6 @@ class GlobalPaths {
                     'RedditModule': 'RedditModule',
                     'YoutubeModule': 'YoutubeModule',
                     'TypeLoader': 'TypeLoader',
-                    'InhibitorLoader': 'InhibitorLoader',
                     'CommandLoader': 'CommandLoader'
                 }
             }

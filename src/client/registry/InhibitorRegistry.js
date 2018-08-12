@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const InhibitorLoader = require(Paths.InhibitorLoader);
+const InhibitorLoader = require('../../modules/InhibitorLoader.js');
 
 class InhibitorRegistry extends Set {
     async loadAll() {
