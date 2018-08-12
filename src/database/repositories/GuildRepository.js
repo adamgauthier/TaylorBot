@@ -12,7 +12,7 @@ class GuildRepository {
 
     async getAll() {
         try {
-            return await this._db.guilds.find();
+            return await this._db.guilds.guilds.find();
         }
         catch (e) {
             Log.error(`Getting all guilds: ${e}`);
@@ -29,7 +29,7 @@ class GuildRepository {
     async get(guild) {
         const databaseGuild = this.mapGuildToDatabase(guild);
         try {
-            return await this._db.guilds.findOne(databaseGuild);
+            return await this._db.guilds.guilds.findOne(databaseGuild);
         }
         catch (e) {
             Log.error(`Getting guild ${Format.guild(guild)}: ${e}`);
@@ -41,7 +41,7 @@ class GuildRepository {
         try {
             return await this._db.instance.tx(async t => {
                 const inserted = await t.one(
-                    'INSERT INTO public.guilds (guild_id) VALUES ($1) RETURNING *;',
+                    'INSERT INTO guilds.guilds (guild_id) VALUES ($1) RETURNING *;',
                     [guild.id]
                 );
                 await t.none(
@@ -60,7 +60,7 @@ class GuildRepository {
 
     async setPrefix(guild, prefix) {
         try {
-            return await this._db.guilds.update(
+            return await this._db.guilds.guilds.update(
                 {
                     'guild_id': guild.id
                 },

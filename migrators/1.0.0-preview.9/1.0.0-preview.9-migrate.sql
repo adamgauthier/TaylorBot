@@ -19,3 +19,6 @@ ALTER TABLE users.cleverbot_sessions
     OWNER to postgres;
 
 GRANT ALL ON TABLE users.cleverbot_sessions TO taylorbot;
+
+ALTER TABLE public.guilds
+  SET SCHEMA guilds;
