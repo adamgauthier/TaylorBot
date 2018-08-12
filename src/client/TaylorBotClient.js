@@ -7,7 +7,7 @@ const EventLoader = require('../modules/EventLoader.js');
 const { loginToken } = require('../config/discord.json');
 const Log = require(Paths.Logger);
 const IntervalRunner = require('../modules/IntervalRunner.js');
-const EmbedUtil = require(Paths.EmbedUtil);
+const EmbedUtil = require('../modules/EmbedUtil.js');
 const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 
 const discordMax = 2000;

@@ -6,7 +6,7 @@ const { Paths } = require('globalobjects');
 const Interval = require(Paths.Interval);
 const Log = require(Paths.Logger);
 const Format = require(Paths.DiscordFormatter);
-const EmbedUtil = require(Paths.EmbedUtil);
+const EmbedUtil = require('../modules/EmbedUtil.js');
 
 const intervalTime = 120000;
 

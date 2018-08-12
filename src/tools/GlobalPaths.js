@@ -84,7 +84,6 @@ class GlobalPaths {
                     'YoutubeModule': 'YoutubeModule',
                     'TypeLoader': 'TypeLoader',
                     'InhibitorLoader': 'InhibitorLoader',
-                    'EmbedUtil': 'EmbedUtil',
                     'CommandLoader': 'CommandLoader'
                 }
             }
