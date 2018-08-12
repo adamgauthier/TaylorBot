@@ -45,7 +45,7 @@ class GuildRepository {
                     [guild.id]
                 );
                 await t.none(
-                    'INSERT INTO public.guild_names (guild_id, guild_name, changed_at) VALUES ($1, $2, $3);',
+                    'INSERT INTO guilds.guild_names (guild_id, guild_name, changed_at) VALUES ($1, $2, $3);',
                     [guild.id, guild.name, discoveredAt]
                 );
 
