@@ -69,7 +69,6 @@ class GlobalPaths {
                     'StringUtil': 'StringUtil',
                     'TimeUtil': 'TimeUtil',
                     'MathUtil': 'MathUtil',
-                    'ArrayUtil': 'ArrayUtil',
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
                     'InstagramModule': 'InstagramModule',
