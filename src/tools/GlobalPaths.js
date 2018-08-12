@@ -34,7 +34,6 @@ class GlobalPaths {
                 'files': {
                     'EventHandler': 'EventHandler',
                     'Interval': 'Interval',
-                    'Command': 'Command',
                     'Inhibitor': 'Inhibitor',
                     'ArgumentParsingError': 'ArgumentParsingError',
                     'ArgumentType': 'ArgumentType',

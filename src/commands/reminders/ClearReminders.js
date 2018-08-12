@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const Command = require(Paths.Command);
+const Command = require('../../structures/Command.js');
 
 class ClearRemindersCommand extends Command {
     constructor() {

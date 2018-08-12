@@ -4,7 +4,7 @@ const { Paths } = require('globalobjects');
 
 const UserGroups = require(Paths.UserGroups);
 const Format = require(Paths.DiscordFormatter);
-const Command = require(Paths.Command);
+const Command = require('../../structures/Command.js');
 const CommandError = require('../../structures/CommandError.js');
 
 class SetPrefixCommand extends Command {

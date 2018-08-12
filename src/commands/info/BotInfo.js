@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
-const Command = require(Paths.Command);
+const Command = require('../../structures/Command.js');
 
 const { version } = require('../../package.json');
 const { MASTER_ID } = require('../../config/config.json');

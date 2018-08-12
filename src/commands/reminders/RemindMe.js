@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Command = require(Paths.Command);
+const Command = require('../../structures/Command.js');
 const CommandError = require('../../structures/CommandError.js');
 const TimeUtil = require(Paths.TimeUtil);
 

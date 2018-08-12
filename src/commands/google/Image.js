@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
-const Command = require(Paths.Command);
+const Command = require('../../structures/Command.js');
 const GoogleImagesModule = require('../../modules/GoogleImagesModule');
 const CommandError = require('../../structures/CommandError.js');
 const ImageSearchResultsPageMessage = require('../../modules/paging/ImageSearchResultsPageMessage.js');
