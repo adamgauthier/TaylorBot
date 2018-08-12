@@ -64,12 +64,6 @@ class GlobalPaths {
                 }
             },
             {
-                'directory': pathMapper.tools.path,
-                'files': {
-                    'Logger': 'Logger'
-                }
-            },
-            {
                 'directory': pathMapper.modules.path,
                 'files': {
                     'StringUtil': 'StringUtil',

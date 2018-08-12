@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Log = require(Paths.Logger);
+const Log = require('../../tools/Logger.js');
 const TypeRegistry = require(Paths.TypeRegistry);
 const MessageWatcherRegistry = require(Paths.MessageWatcherRegistry);
 const GroupRegistry = require(Paths.GroupRegistry);

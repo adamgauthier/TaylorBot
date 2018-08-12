@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const Inhibitor = require(Paths.Inhibitor);
-const Log = require(Paths.Logger);
+const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 
 class GuildOnlyInhibitor extends Inhibitor {

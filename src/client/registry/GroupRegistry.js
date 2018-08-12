@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Log = require(Paths.Logger);
+const Log = require('../../tools/Logger.js');
 const UserGroups = require(Paths.UserGroups);
 
 class GroupRegistry extends Map {

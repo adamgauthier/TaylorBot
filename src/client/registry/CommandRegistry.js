@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Log = require(Paths.Logger);
+const Log = require('../../tools/Logger.js');
 const CachedCommand = require(Paths.CachedCommand);
 const CommandLoader = require(Paths.CommandLoader);
 

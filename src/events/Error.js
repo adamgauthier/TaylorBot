@@ -4,7 +4,7 @@ const { Events } = require('discord.js').Constants;
 const { Paths } = require('globalobjects');
 
 const EventHandler = require(Paths.EventHandler);
-const Log = require(Paths.Logger);
+const Log = require('../tools/Logger.js');
 
 class Error extends EventHandler {
     constructor() {

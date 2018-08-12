@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const Interval = require(Paths.Interval);
-const Log = require(Paths.Logger);
+const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 const YoutubeModule = require(Paths.YoutubeModule);
 

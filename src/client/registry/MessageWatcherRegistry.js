@@ -5,7 +5,7 @@ const path = require('path');
 
 const { Paths } = require('globalobjects');
 
-const Log = require(Paths.Logger);
+const Log = require('../../tools/Logger.js');
 const watchersPath = Paths.watchersFolderPath;
 
 const requireWatcher = watcherName => require(path.join(watchersPath, watcherName));

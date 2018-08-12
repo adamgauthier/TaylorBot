@@ -6,7 +6,7 @@ const fs = require('fs').promises;
 const { Paths } = require('globalobjects');
 const intervalsPath = Paths.intervalsFolderPath;
 
-const Log = require(Paths.Logger);
+const Log = require('../tools/Logger.js');
 
 class IntervalRunner {
     constructor(client) {

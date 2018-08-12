@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const Log = require(Paths.Logger);
+const Log = require('../../tools/Logger.js');
 
 class UserGroupRepository {
     constructor(db) {

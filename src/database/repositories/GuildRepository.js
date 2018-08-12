@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Log = require(Paths.Logger);
+const Log = require('../../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 
 class GuildRepository {
