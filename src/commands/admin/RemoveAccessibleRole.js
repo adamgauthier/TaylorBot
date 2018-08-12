@@ -38,7 +38,7 @@ class RemoveAccessibleRoleCommand extends Command {
         }
 
         await database.specialRoles.removeAccessible(role);
-        return client.sendEmbedSuccess(message.channel, `Successfully made role ${Format.role(role, '#name (`#id`)')} accessible to anyone.`);
+        return client.sendEmbedSuccess(message.channel, `Successfully made role ${Format.role(role, '#name (`#id`)')} inaccessible.`);
     }
 }
 
