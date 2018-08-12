@@ -6,7 +6,7 @@ const { Paths } = require('globalobjects');
 const EventLoader = require('../modules/EventLoader.js');
 const { loginToken } = require('../config/discord.json');
 const Log = require(Paths.Logger);
-const IntervalRunner = require(Paths.IntervalRunner);
+const IntervalRunner = require('../modules/IntervalRunner.js');
 const EmbedUtil = require(Paths.EmbedUtil);
 const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 
