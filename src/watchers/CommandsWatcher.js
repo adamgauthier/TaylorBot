@@ -27,7 +27,17 @@ class CommandsWatcher extends MessageWatcher {
                 text = text.substring(prefix.length);
             }
             else {
-                return;
+                const { id } = client.user;
+                const matches =
+                    text.match(new RegExp(`^<@${id}> (.+)$`)) ||
+                    text.match(new RegExp(`^(.+) <@${id}>$`));
+
+                if (matches) {
+                    text = `cleverbot ${matches.slice(1)[0]}`;
+                }
+                else {
+                    return;
+                }
             }
         }
 
