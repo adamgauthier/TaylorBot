@@ -2,9 +2,8 @@
 
 const massive = require('massive');
 
-const { Paths } = require('globalobjects');
-
 const PostgreSQLConfig = require('../config/postgresql.json');
+
 const GuildRepository = require('./repositories/GuildRepository');
 const UserRepository = require('./repositories/UserRepository');
 const GuildMemberRepository = require('./repositories/GuildMemberRepository');
@@ -26,7 +25,7 @@ const CleverBotSessionRepository = require('./repositories/CleverBotSessionRepos
 class DatabaseDriver {
     async load() {
         this._db = await massive(PostgreSQLConfig, {
-            'scripts': Paths.databaseScriptsPath
+            'scripts': `${__dirname}/scripts/`
         });
 
         this.guilds = new GuildRepository(this._db);
