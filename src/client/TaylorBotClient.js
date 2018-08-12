@@ -3,7 +3,7 @@
 const Discord = require('discord.js');
 const { Paths } = require('globalobjects');
 
-const EventLoader = require(Paths.EventLoader);
+const EventLoader = require('../modules/EventLoader.js');
 const { loginToken } = require(Paths.DiscordConfig);
 const Log = require(Paths.Logger);
 const IntervalRunner = require(Paths.IntervalRunner);

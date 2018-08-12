@@ -79,7 +79,6 @@ class GlobalPaths {
                     'ArrayUtil': 'ArrayUtil',
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
-                    'EventLoader': 'EventLoader',
                     'InstagramModule': 'InstagramModule',
                     'TumblrModule': 'TumblrModule',
                     'RedditModule': 'RedditModule',
