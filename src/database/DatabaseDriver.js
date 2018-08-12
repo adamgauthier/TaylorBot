@@ -4,7 +4,7 @@ const massive = require('massive');
 
 const { Paths } = require('globalobjects');
 
-const PostgreSQLConfig = require(Paths.PostgreSQLConfig);
+const PostgreSQLConfig = require('../config/postgresql.json');
 const GuildRepository = require('./repositories/GuildRepository');
 const UserRepository = require('./repositories/UserRepository');
 const GuildMemberRepository = require('./repositories/GuildMemberRepository');

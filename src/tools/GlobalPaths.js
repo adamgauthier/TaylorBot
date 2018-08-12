@@ -18,8 +18,7 @@ class GlobalPaths {
                     'CleverBotConfig': 'cleverbot.json',
                     'WolframConfig': 'wolfram.json',
                     'ImgurConfig': 'imgur.json',
-                    'MyApiFilmsConfig': 'myapifilms.json',
-                    'PostgreSQLConfig': 'postgresql.json'
+                    'MyApiFilmsConfig': 'myapifilms.json'
                 }
             },
             {
