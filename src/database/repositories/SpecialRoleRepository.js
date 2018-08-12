@@ -20,7 +20,7 @@ class SpecialRoleRepository {
     async get(role) {
         const databaseRole = this.mapRoleToDatabase(role);
         try {
-            return await this._db.guild_special_roles.findOne(databaseRole);
+            return await this._db.guilds.guild_special_roles.findOne(databaseRole);
         }
         catch (e) {
             Log.error(`Getting special role ${Format.role(role)}: ${e}`);
@@ -32,8 +32,8 @@ class SpecialRoleRepository {
         const databaseRole = this.mapRoleToDatabase(role);
         const fields = { accessible };
         try {
-            const inserted = await this._db.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
-            return inserted ? inserted : await this._db.guild_special_roles.update(databaseRole, fields, { 'single': true });
+            const inserted = await this._db.guilds.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
+            return inserted ? inserted : await this._db.guilds.guild_special_roles.update(databaseRole, fields, { 'single': true });
         }
         catch (e) {
             Log.error(`Setting accessible special role ${Format.role(role)} to ${accessible}: ${e}`);

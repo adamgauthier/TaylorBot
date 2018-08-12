@@ -22,3 +22,6 @@ GRANT ALL ON TABLE users.cleverbot_sessions TO taylorbot;
 
 ALTER TABLE public.guilds
   SET SCHEMA guilds;
+
+ALTER TABLE public.guild_special_roles
+  SET SCHEMA guilds;
