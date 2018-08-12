@@ -15,7 +15,7 @@ class CleverBotModule {
                     key: CleverBotConfig.key,
                     nick
                 }),
-                timeout: 15000
+                timeout: 20000
             })
             .then(res => res.json());
 
@@ -36,7 +36,7 @@ class CleverBotModule {
                     nick,
                     text
                 }),
-                timeout: 15000
+                timeout: 20000
             })
             .then(res => res.json());
 
