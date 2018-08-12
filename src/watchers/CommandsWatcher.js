@@ -60,9 +60,7 @@ class CommandsWatcher extends MessageWatcher {
 
         const argString = text.substring(commandName.length);
         Log.verbose(
-            `${Format.user(author)} using '${cachedCommand.name}' with args '${argString}' in ${
-                channel.type === 'dm' ? Format.dmChannel(channel) : Format.guildChannel(channel)
-            }.`
+            `${Format.user(author)} using '${cachedCommand.name}' with args '${argString}' in ${Format.channel(channel)}.`
         );
 
         const { command } = cachedCommand;
