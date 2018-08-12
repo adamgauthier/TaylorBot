@@ -49,7 +49,7 @@ class UserRepository {
                     [user.id]
                 );
                 await t.none(
-                    'INSERT INTO public.guild_members (guild_id, user_id, first_joined_at) VALUES ($1, $2, $3);',
+                    'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($1, $2, $3);',
                     [guild.id, user.id, joinedTimestamp]
                 );
                 await t.none(

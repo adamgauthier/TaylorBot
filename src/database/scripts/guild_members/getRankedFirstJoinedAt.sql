@@ -6,7 +6,7 @@ FROM
         first_joined_at,
         user_id,
         rank() OVER (ORDER BY first_joined_at ASC) AS rank
-    FROM public.guild_members
+    FROM guilds.guild_members
     WHERE 
         guild_id = ${guild_id}
     ) AS ranked

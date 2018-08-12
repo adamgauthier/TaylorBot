@@ -34,3 +34,6 @@ ALTER TABLE public.guild_names
 
 ALTER TABLE public.guild_commands
   SET SCHEMA guilds;
+
+ALTER TABLE public.guild_members
+  SET SCHEMA guilds;

@@ -12,7 +12,7 @@ class GuildMemberRepository {
 
     async getAll() {
         try {
-            return await this._db.guild_members.find({}, {
+            return await this._db.guilds.guild_members.find({}, {
                 fields: ['user_id', 'guild_id']
             });
         }
@@ -24,7 +24,7 @@ class GuildMemberRepository {
 
     async getAllInGuild(guild) {
         try {
-            return await this._db.guild_members.find(
+            return await this._db.guilds.guild_members.find(
                 {
                     'guild_id': guild.id
                 },
@@ -49,7 +49,7 @@ class GuildMemberRepository {
     async get(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.guild_members.findOne(databaseMember);
+            return await this._db.guilds.guild_members.findOne(databaseMember);
         }
         catch (e) {
             Log.error(`Getting guild member ${Format.member(guildMember)}: ${e}`);
@@ -61,7 +61,7 @@ class GuildMemberRepository {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         databaseMember.first_joined_at = guildMember.joinedTimestamp;
         try {
-            return await this._db.guild_members.insert(databaseMember);
+            return await this._db.guilds.guild_members.insert(databaseMember);
         }
         catch (e) {
             Log.error(`Adding member ${Format.member(guildMember)}: ${e}`);
@@ -89,11 +89,11 @@ class GuildMemberRepository {
         try {
             return await this._db.instance.tx(async t => {
                 await t.none(
-                    'UPDATE public.guild_members SET minutes_count = minutes_count + $1 WHERE last_spoke_at > $2;',
+                    'UPDATE guilds.guild_members SET minutes_count = minutes_count + $1 WHERE last_spoke_at > $2;',
                     [minutesToAdd, minimumLastSpoke]
                 );
                 await t.none([
-                    'UPDATE public.guild_members SET ',
+                    'UPDATE guilds.guild_members SET ',
                     'minutes_milestone = (minutes_count-(minutes_count % $1)),',
                     'taypoints_count = taypoints_count + $2',
                     'WHERE minutes_count >= minutes_milestone + $1;'
@@ -110,7 +110,7 @@ class GuildMemberRepository {
     async updateLastSpoke(guildMember, lastSpokeAt) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.guild_members.update(databaseMember,
+            return await this._db.guilds.guild_members.update(databaseMember,
                 {
                     'last_spoke_at': lastSpokeAt
                 },
@@ -128,7 +128,7 @@ class GuildMemberRepository {
     async fixInvalidJoinDate(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.guild_members.update(
+            return await this._db.guilds.guild_members.update(
                 {
                     ...databaseMember,
                     'first_joined_at': '9223372036854775807'
