@@ -12,7 +12,7 @@ class RoleGroupRepository {
 
     async getAll() {
         try {
-            return await this._db.guild_role_groups.find();
+            return await this._db.guilds.guild_role_groups.find();
         }
         catch (e) {
             Log.error(`Getting all guild role groups: ${e}`);
@@ -22,7 +22,7 @@ class RoleGroupRepository {
 
     async add(role, group) {
         try {
-            return await this._db.guild_role_groups.insert(
+            return await this._db.guilds.guild_role_groups.insert(
                 {
                     'guild_id': role.guild.id,
                     'role_id': role.id,
