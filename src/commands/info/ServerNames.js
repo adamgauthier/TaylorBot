@@ -4,7 +4,7 @@ const { Paths } = require('globalobjects');
 
 const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require('../../structures/Command.js');
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('../../modules/TimeUtil.js');
 
 const ArrayUtil = require('../../modules/ArrayUtil.js');
 const ArrayDescriptionPageMessage = require('../../modules/paging/ArrayDescriptionPageMessage.js');

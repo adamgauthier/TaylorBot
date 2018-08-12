@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const Inhibitor = require(Paths.Inhibitor);
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('../modules/TimeUtil.js');
 
 class IgnoredInhibitor extends Inhibitor {
     shouldBeBlocked({ message, client }, command) {

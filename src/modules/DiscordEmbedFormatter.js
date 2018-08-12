@@ -3,7 +3,7 @@
 const { MessageEmbed, GuildChannel, TextChannel, DMChannel, VoiceChannel, CategoryChannel } = require('discord.js');
 const { Paths } = require('globalobjects');
 
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('../modules/TimeUtil.js');
 const StringUtil = require(Paths.StringUtil);
 
 class DiscordEmbedFormatter {

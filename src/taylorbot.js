@@ -8,10 +8,8 @@ const globalObjects = require('globalobjects');
 
 globalObjects.Paths = new GlobalPaths(__dirname);
 
-const { Paths } = globalObjects;
-
 const TaylorBotMasterClient = require('./client/TaylorBotMasterClient.js');
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('./modules/TimeUtil.js');
 
 const main = async () => {
     const masterClient = new TaylorBotMasterClient();

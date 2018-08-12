@@ -5,7 +5,7 @@ const { combine, printf, colorize } = format;
 const { Paths } = require('globalobjects');
 
 const { minLogLevel } = require(Paths.TaylorBotConfig);
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('../modules/TimeUtil.js');
 
 const logger = createLogger({
     level: minLogLevel,

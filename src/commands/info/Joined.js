@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
 const Command = require('../../structures/Command.js');
 const MathUtil = require(Paths.MathUtil);
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('../../modules/TimeUtil.js');
 
 class JoinedCommand extends Command {
     constructor() {

@@ -1,10 +1,8 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Command = require('../../structures/Command.js');
 const CommandError = require('../../structures/CommandError.js');
-const TimeUtil = require(Paths.TimeUtil);
+const TimeUtil = require('../../modules/TimeUtil.js');
 
 const REMINDERS_LIMIT = 3;
 
