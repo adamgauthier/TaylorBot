@@ -4,7 +4,7 @@ const { Paths } = require('globalobjects');
 
 const DatabaseDriver = require(Paths.DatabaseDriver);
 const TaylorBotClient = require('./TaylorBotClient.js');
-const Registry = require(Paths.Registry);
+const Registry = require('./registry/Registry.js');
 const Log = require('../tools/Logger.js');
 
 class TaylorBotMasterClient {

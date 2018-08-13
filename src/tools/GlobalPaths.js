@@ -54,8 +54,7 @@ class GlobalPaths {
                     'TypeRegistry': 'TypeRegistry',
                     'GroupRegistry': 'GroupRegistry',
                     'GuildRoleGroupRegistry': 'GuildRoleGroupRegistry',
-                    'MessageWatcherRegistry': 'MessageWatcherRegistry',
-                    'Registry': 'Registry'
+                    'MessageWatcherRegistry': 'MessageWatcherRegistry'
                 }
             },
             {
