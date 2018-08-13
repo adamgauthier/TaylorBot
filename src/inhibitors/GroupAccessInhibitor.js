@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const Inhibitor = require('../structures/Inhibitor.js');
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
-const { MASTER_ID } = require(Paths.TaylorBotConfig);
+const { MASTER_ID } = require('../config/config.json');
 const UserGroups = require(Paths.UserGroups);
 
 class GroupAccessInhibitor extends Inhibitor {
