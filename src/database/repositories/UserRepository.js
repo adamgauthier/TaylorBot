@@ -12,7 +12,7 @@ class UserRepository {
 
     async getAll() {
         try {
-            return await this._db.users.find({}, {
+            return await this._db.users.users.find({}, {
                 fields: ['user_id', 'ignore_until']
             });
         }
@@ -31,7 +31,7 @@ class UserRepository {
     async get(user) {
         const databaseUser = this.mapUserToDatabase(user);
         try {
-            return await this._db.users.findOne(databaseUser);
+            return await this._db.users.users.findOne(databaseUser);
         }
         catch (e) {
             Log.error(`Getting user ${Format.user(user)}: ${e}`);
@@ -45,7 +45,7 @@ class UserRepository {
         try {
             return await this._db.instance.tx(async t => {
                 const inserted = await t.one(
-                    'INSERT INTO public.users (user_id) VALUES ($1) RETURNING *;',
+                    'INSERT INTO users.users (user_id) VALUES ($1) RETURNING *;',
                     [user.id]
                 );
                 await t.none(
