@@ -1,9 +1,7 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Log = require('../../tools/Logger.js');
-const UserGroups = require(Paths.UserGroups);
+const UserGroups = require('../UserGroups.json');
 
 class GroupRegistry extends Map {
     constructor(database) {

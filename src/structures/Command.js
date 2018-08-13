@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const UserGroups = require(Paths.UserGroups);
+const UserGroups = require('../client/UserGroups.json');
 
 class Command {
     constructor({ name, aliases, group, description, minimumGroup, guildOnly, guarded, args }) {

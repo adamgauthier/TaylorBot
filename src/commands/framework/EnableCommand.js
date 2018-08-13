@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const UserGroups = require(Paths.UserGroups);
+const UserGroups = require('../../client/UserGroups.json');
 const Command = require('../../structures/Command.js');
 const CommandError = require('../../structures/CommandError.js');
 

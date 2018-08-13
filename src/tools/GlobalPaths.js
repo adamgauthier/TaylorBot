@@ -29,12 +29,6 @@ class GlobalPaths {
                 }
             },
             {
-                'directory': pathMapper.client.path,
-                'files': {
-                    'UserGroups': 'UserGroups.json'
-                }
-            },
-            {
                 'directory': pathMapper.client.registry.path,
                 'files': {
                     'GuildRegistry': 'GuildRegistry',
