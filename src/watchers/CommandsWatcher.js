@@ -9,7 +9,7 @@ const ArrayUtil = require('../modules/ArrayUtil.js');
 const CommandError = require('../structures/CommandError.js');
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
 const MessageContext = require('../structures/MessageContext.js');
-const CommandMessageContext = require(Paths.CommandMessageContext);
+const CommandMessageContext = require('../structures/CommandMessageContext.js');
 
 class CommandsWatcher extends MessageWatcher {
     async messageHandler(client, message) {

@@ -27,8 +27,7 @@ class GlobalPaths {
                     'EventHandler': 'EventHandler',
                     'Interval': 'Interval',
                     'ArgumentParsingError': 'ArgumentParsingError',
-                    'ArgumentType': 'ArgumentType',
-                    'CommandMessageContext': 'CommandMessageContext'
+                    'ArgumentType': 'ArgumentType'
                 }
             },
             {
