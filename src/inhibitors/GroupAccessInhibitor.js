@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Inhibitor = require(Paths.Inhibitor);
+const Inhibitor = require('../structures/Inhibitor.js');
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 const { MASTER_ID } = require(Paths.TaylorBotConfig);
