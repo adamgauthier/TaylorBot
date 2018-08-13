@@ -8,7 +8,7 @@ const Format = require(Paths.DiscordFormatter);
 const ArrayUtil = require('../modules/ArrayUtil.js');
 const CommandError = require('../structures/CommandError.js');
 const ArgumentParsingError = require(Paths.ArgumentParsingError);
-const MessageContext = require(Paths.MessageContext);
+const MessageContext = require('../structures/MessageContext.js');
 const CommandMessageContext = require(Paths.CommandMessageContext);
 
 class CommandsWatcher extends MessageWatcher {

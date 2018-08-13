@@ -34,7 +34,6 @@ class GlobalPaths {
                     'Interval': 'Interval',
                     'ArgumentParsingError': 'ArgumentParsingError',
                     'ArgumentType': 'ArgumentType',
-                    'MessageContext': 'MessageContext',
                     'CommandMessageContext': 'CommandMessageContext'
                 }
             },

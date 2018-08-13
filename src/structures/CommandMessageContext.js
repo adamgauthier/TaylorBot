@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const MessageContext = require(Paths.MessageContext);
+const MessageContext = require('../structures/MessageContext.js');
 
 class CommandMessageContext extends MessageContext {
     constructor(messageContext, command) {
