@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const DatabaseDriver = require(Paths.DatabaseDriver);
+const DatabaseDriver = require('../database/DatabaseDriver.js');
 const TaylorBotClient = require('./TaylorBotClient.js');
 const Registry = require('./registry/Registry.js');
 const Log = require('../tools/Logger.js');

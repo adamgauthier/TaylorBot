@@ -22,12 +22,6 @@ class GlobalPaths {
                 }
             },
             {
-                'directory': pathMapper.database.path,
-                'files': {
-                    'DatabaseDriver': 'DatabaseDriver'
-                }
-            },
-            {
                 'directory': pathMapper.structures.path,
                 'files': {
                     'EventHandler': 'EventHandler',
