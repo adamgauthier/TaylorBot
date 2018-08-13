@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const DatabaseDriver = require(Paths.DatabaseDriver);
-const TaylorBotClient = require(Paths.TaylorBotClient);
+const TaylorBotClient = require('./TaylorBotClient.js');
 const Registry = require(Paths.Registry);
 const Log = require('../tools/Logger.js');
 

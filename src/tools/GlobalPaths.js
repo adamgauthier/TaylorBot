@@ -40,8 +40,7 @@ class GlobalPaths {
             {
                 'directory': pathMapper.client.path,
                 'files': {
-                    'UserGroups': 'UserGroups.json',
-                    'TaylorBotClient': 'TaylorBotClient'
+                    'UserGroups': 'UserGroups.json'
                 }
             },
             {
