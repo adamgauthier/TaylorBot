@@ -53,7 +53,7 @@ class UserRepository {
                     [guild.id, user.id, joinedTimestamp]
                 );
                 await t.none(
-                    'INSERT INTO public.usernames (user_id, username, changed_at) VALUES ($1, $2, $3);',
+                    'INSERT INTO users.usernames (user_id, username, changed_at) VALUES ($1, $2, $3);',
                     [user.id, user.username, discoveredAt]
                 );
 

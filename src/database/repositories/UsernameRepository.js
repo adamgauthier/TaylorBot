@@ -48,7 +48,7 @@ class UsernameRepository {
     async add(user, changedAt) {
         const databaseUsername = this.mapUserToUsernameDatabase(user, changedAt);
         try {
-            return await this._db.usernames.insert(databaseUsername);
+            return await this._db.users.usernames.insert(databaseUsername);
         }
         catch (e) {
             Log.error(`Adding username for ${Format.user(user)}: ${e}`);
