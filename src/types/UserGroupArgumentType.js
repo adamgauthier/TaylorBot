@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const ArgumentType = require(Paths.ArgumentType);
-const ArgumentParsingError = require(Paths.ArgumentParsingError);
+const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
 class UserGroupArgumentType extends ArgumentType {
     get id() {
