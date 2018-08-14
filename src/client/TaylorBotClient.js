@@ -9,8 +9,6 @@ const IntervalRunner = require('../modules/IntervalRunner.js');
 const EmbedUtil = require('../modules/EmbedUtil.js');
 const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 
-const discordMax = 2000;
-
 class TaylorBotClient extends Discord.Client {
     constructor(master) {
         super({
