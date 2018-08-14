@@ -5,7 +5,7 @@ const querystring = require('querystring');
 const { MessageEmbed } = require('discord.js');
 const { Paths } = require('globalobjects');
 
-const { googleAPIKey } = require(Paths.GoogleConfig);
+const { googleAPIKey } = require('../config/google.json');
 const StringUtil = require(Paths.StringUtil);
 
 class YoutubeModule {

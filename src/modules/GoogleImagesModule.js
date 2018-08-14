@@ -2,9 +2,8 @@
 
 const fetch = require('node-fetch');
 const querystring = require('querystring');
-const { Paths } = require('globalobjects');
 
-const { googleAPIKey, customsearchID } = require(Paths.GoogleConfig);
+const { googleAPIKey, customsearchID } = require('../config/google.json');
 
 class GoogleImagesModule {
     static search(searchText, numberOfResults) {
