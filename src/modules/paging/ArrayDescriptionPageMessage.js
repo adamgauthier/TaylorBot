@@ -1,8 +1,8 @@
 'use strict';
 
-const ArrayPageMessage = require('./ArrayPageMessage.js');
+const ArrayPageEmbedMessage = require('./ArrayPageEmbedMessage.js');
 
-class ArrayDescriptionPageMessage extends ArrayPageMessage {
+class ArrayDescriptionPageMessage extends ArrayPageEmbedMessage {
     update() {
         this.embed.setDescription(this.pages[this.currentPage]);
         this.embed.setFooter(`Page ${this.currentPage + 1}/${this.pages.length}`);

@@ -1,9 +1,9 @@
 'use strict';
 
-const ArrayPageMessage = require('./ArrayPageMessage.js');
+const ArrayPageEmbedMessage = require('./ArrayPageEmbedMessage.js');
 const StringUtil = require('../../modules/StringUtil.js');
 
-class UrbanDictionaryResultsPageMessage extends ArrayPageMessage {
+class UrbanDictionaryResultsPageMessage extends ArrayPageEmbedMessage {
     update() {
         const result = this.pages[this.currentPage];
 

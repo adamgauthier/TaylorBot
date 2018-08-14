@@ -4,21 +4,20 @@ const PREVIOUS_EMOJI = '◀';
 const NEXT_EMOJI = '▶';
 
 class ArrayPageMessage {
-    constructor(client, owner, embed, pages) {
+    constructor(client, owner, pages) {
         if (new.target === ArrayPageMessage) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
         this.client = client;
         this.owner = owner;
-        this.embed = embed;
         this.pages = pages;
         this.currentPage = 0;
     }
 
     async send(channel, timeout = 30000) {
         this.update();
-        this.message = await this.client.sendEmbed(channel, this.embed);
+        this.message = await this.sendMessage(channel);
 
         if (this.pages.length > 1) {
             this.message
@@ -78,12 +77,16 @@ class ArrayPageMessage {
         }
     }
 
+    sendMessage() {
+        throw new Error(`${this.constructor.name} doesn't have an sendMessage() method.`);
+    }
+
     update() {
         throw new Error(`${this.constructor.name} doesn't have an update() method.`);
     }
 
     edit() {
-        return this.message.edit('', this.embed);
+        throw new Error(`${this.constructor.name} doesn't have an edit() method.`);
     }
 }
 

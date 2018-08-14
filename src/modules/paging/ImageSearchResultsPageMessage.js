@@ -1,8 +1,8 @@
 'use strict';
 
-const ArrayPageMessage = require('./ArrayPageMessage.js');
+const ArrayPageEmbedMessage = require('./ArrayPageEmbedMessage.js');
 
-class ImageSearchResultsPageMessage extends ArrayPageMessage {
+class ImageSearchResultsPageMessage extends ArrayPageEmbedMessage {
     update() {
         const imageResult = this.pages[this.currentPage];
 
