@@ -31,7 +31,6 @@ class GlobalPaths {
                     'GuildRegistry': 'GuildRegistry',
                     'CommandRegistry': 'CommandRegistry',
                     'CachedCommand': 'CachedCommand',
-                    'TypeRegistry': 'TypeRegistry',
                     'GroupRegistry': 'GroupRegistry'
                 }
             },
