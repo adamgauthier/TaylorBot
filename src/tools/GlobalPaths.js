@@ -12,7 +12,6 @@ class GlobalPaths {
             {
                 'directory': pathMapper.config.path,
                 'files': {
-                    'CleverBotConfig': 'cleverbot.json',
                     'WolframConfig': 'wolfram.json',
                     'ImgurConfig': 'imgur.json',
                     'MyApiFilmsConfig': 'myapifilms.json'
