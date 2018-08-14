@@ -4,7 +4,7 @@ const { Paths } = require('globalobjects');
 
 const Log = require('../../tools/Logger.js');
 const TypeRegistry = require(Paths.TypeRegistry);
-const MessageWatcherRegistry = require(Paths.MessageWatcherRegistry);
+const MessageWatcherRegistry = require('./MessageWatcherRegistry.js');
 const GroupRegistry = require(Paths.GroupRegistry);
 const GuildRegistry = require(Paths.GuildRegistry);
 const GuildRoleGroupRegistry = require(Paths.GuildRoleGroupRegistry);
