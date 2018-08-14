@@ -12,7 +12,6 @@ class GlobalPaths {
             {
                 'directory': pathMapper.config.path,
                 'files': {
-                    'TumblrConfig': 'tumblr.json',
                     'GoogleConfig': 'google.json',
                     'CleverBotConfig': 'cleverbot.json',
                     'WolframConfig': 'wolfram.json',

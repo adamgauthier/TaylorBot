@@ -4,7 +4,7 @@ const { MessageEmbed } = require('discord.js');
 const tumblr = require('tumblr.js');
 const { Paths } = require('globalobjects');
 
-const TumblrConfig = require(Paths.TumblrConfig);
+const TumblrConfig = require('../config/tumblr.json');
 const StringUtil = require(Paths.StringUtil);
 
 const client = tumblr.createClient({
