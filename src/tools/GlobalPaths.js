@@ -32,7 +32,6 @@ class GlobalPaths {
                     'MathUtil': 'MathUtil',
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
-                    'InstagramModule': 'InstagramModule',
                     'TumblrModule': 'TumblrModule',
                     'RedditModule': 'RedditModule',
                     'YoutubeModule': 'YoutubeModule',
