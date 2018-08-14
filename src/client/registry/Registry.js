@@ -1,11 +1,9 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Log = require('../../tools/Logger.js');
 const TypeRegistry = require('./TypeRegistry.js');
 const MessageWatcherRegistry = require('./MessageWatcherRegistry.js');
-const GroupRegistry = require(Paths.GroupRegistry);
+const GroupRegistry = require('./GroupRegistry.js');
 const GuildRegistry = require('./GuildRegistry.js');
 const GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
 const CommandRegistry = require('./CommandRegistry.js');
