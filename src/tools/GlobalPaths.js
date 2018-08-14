@@ -36,8 +36,7 @@ class GlobalPaths {
                     'TumblrModule': 'TumblrModule',
                     'RedditModule': 'RedditModule',
                     'YoutubeModule': 'YoutubeModule',
-                    'TypeLoader': 'TypeLoader',
-                    'CommandLoader': 'CommandLoader'
+                    'TypeLoader': 'TypeLoader'
                 }
             }
         ];

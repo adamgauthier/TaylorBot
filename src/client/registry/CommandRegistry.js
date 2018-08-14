@@ -1,10 +1,8 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Log = require('../../tools/Logger.js');
 const CachedCommand = require('./CachedCommand.js');
-const CommandLoader = require(Paths.CommandLoader);
+const CommandLoader = require('../../modules/CommandLoader.js');
 
 class CommandRegistry extends Map {
     constructor(database) {
