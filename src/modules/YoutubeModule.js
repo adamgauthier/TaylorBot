@@ -9,6 +9,17 @@ const { googleAPIKey } = require(Paths.GoogleConfig);
 const StringUtil = require(Paths.StringUtil);
 
 class YoutubeModule {
+    static async searchVideo(query) {
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${querystring.stringify({
+            'key': googleAPIKey,
+            'part': 'snippet',
+            'type': 'video',
+            'q': query
+        })}`).then(res => res.json());
+
+        return response.items;
+    }
+
     static async getLatestVideo(playlistId) {
         const body = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${querystring.stringify({
             'key': googleAPIKey,
