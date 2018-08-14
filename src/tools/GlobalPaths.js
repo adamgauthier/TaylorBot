@@ -31,7 +31,6 @@ class GlobalPaths {
                     'StringUtil': 'StringUtil',
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
-                    'TumblrModule': 'TumblrModule',
                     'YoutubeModule': 'YoutubeModule'
                 }
             }

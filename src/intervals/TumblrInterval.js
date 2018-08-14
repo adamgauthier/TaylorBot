@@ -3,7 +3,7 @@
 const { Paths } = require('globalobjects');
 
 const Interval = require(Paths.Interval);
-const TumblrModule = require(Paths.TumblrModule);
+const TumblrModule = require('../modules/TumblrModule.js');
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 
