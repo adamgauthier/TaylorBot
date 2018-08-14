@@ -33,8 +33,7 @@ class GlobalPaths {
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
                     'TumblrModule': 'TumblrModule',
-                    'YoutubeModule': 'YoutubeModule',
-                    'TypeLoader': 'TypeLoader'
+                    'YoutubeModule': 'YoutubeModule'
                 }
             }
         ];

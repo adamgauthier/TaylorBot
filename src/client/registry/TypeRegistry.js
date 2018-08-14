@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const TypeLoader = require(Paths.TypeLoader);
+const TypeLoader = require('../../modules/TypeLoader.js');
 
 class TypeRegistry extends Map {
     async loadAll() {
