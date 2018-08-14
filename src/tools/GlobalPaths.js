@@ -29,7 +29,6 @@ class GlobalPaths {
                 'directory': pathMapper.client.registry.path,
                 'files': {
                     'GuildRegistry': 'GuildRegistry',
-                    'UserRegistry': 'UserRegistry',
                     'CommandRegistry': 'CommandRegistry',
                     'CachedCommand': 'CachedCommand',
                     'TypeRegistry': 'TypeRegistry',
