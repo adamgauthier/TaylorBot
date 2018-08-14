@@ -77,7 +77,7 @@ class ArrayPageMessage {
         }
     }
 
-    sendMessage() {
+    sendMessage(channel) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have an sendMessage() method.`);
     }
 

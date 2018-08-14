@@ -7,7 +7,7 @@ const Command = require('../../structures/Command.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 
 const ArrayUtil = require('../../modules/ArrayUtil.js');
-const ArrayDescriptionPageMessage = require('../../modules/paging/ArrayDescriptionPageMessage.js');
+const ArrayEmbedDescriptionPageMessage = require('../../modules/paging/ArrayEmbedDescriptionPageMessage.js');
 
 class ServerNamesCommand extends Command {
     constructor() {
@@ -37,7 +37,7 @@ class ServerNamesCommand extends Command {
         const lines = guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at)} : ${gn.guild_name}`);
         const chunks = ArrayUtil.chunk(lines, 15);
 
-        return new ArrayDescriptionPageMessage(
+        return new ArrayEmbedDescriptionPageMessage(
             client,
             author,
             embed,
