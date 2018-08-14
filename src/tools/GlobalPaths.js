@@ -10,14 +10,6 @@ class GlobalPaths {
 
         const mappedPaths = [
             {
-                'directory': pathMapper.config.path,
-                'files': {
-                    'WolframConfig': 'wolfram.json',
-                    'ImgurConfig': 'imgur.json',
-                    'MyApiFilmsConfig': 'myapifilms.json'
-                }
-            },
-            {
                 'directory': pathMapper.structures.path,
                 'files': {
                     'EventHandler': 'EventHandler',
