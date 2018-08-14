@@ -34,8 +34,7 @@ class GlobalPaths {
                     'CommandRegistry': 'CommandRegistry',
                     'CachedCommand': 'CachedCommand',
                     'TypeRegistry': 'TypeRegistry',
-                    'GroupRegistry': 'GroupRegistry',
-                    'GuildRoleGroupRegistry': 'GuildRoleGroupRegistry'
+                    'GroupRegistry': 'GroupRegistry'
                 }
             },
             {
