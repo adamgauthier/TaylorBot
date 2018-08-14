@@ -33,7 +33,6 @@ class GlobalPaths {
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
                     'TumblrModule': 'TumblrModule',
-                    'RedditModule': 'RedditModule',
                     'YoutubeModule': 'YoutubeModule',
                     'TypeLoader': 'TypeLoader'
                 }

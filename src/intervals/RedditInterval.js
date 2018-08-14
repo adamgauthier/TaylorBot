@@ -5,7 +5,7 @@ const { Paths } = require('globalobjects');
 const Interval = require(Paths.Interval);
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
-const RedditModule = require(Paths.RedditModule);
+const RedditModule = require('../modules/RedditModule.js');
 
 const intervalTime = 60000;
 
