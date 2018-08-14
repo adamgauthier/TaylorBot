@@ -30,8 +30,7 @@ class GlobalPaths {
                 'files': {
                     'StringUtil': 'StringUtil',
                     'DiscordFormatter': 'DiscordFormatter',
-                    'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
-                    'YoutubeModule': 'YoutubeModule'
+                    'DiscordEmbedFormatter': 'DiscordEmbedFormatter'
                 }
             }
         ];
