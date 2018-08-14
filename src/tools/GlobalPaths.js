@@ -29,7 +29,6 @@ class GlobalPaths {
                 'directory': pathMapper.modules.path,
                 'files': {
                     'StringUtil': 'StringUtil',
-                    'MathUtil': 'MathUtil',
                     'DiscordFormatter': 'DiscordFormatter',
                     'DiscordEmbedFormatter': 'DiscordEmbedFormatter',
                     'TumblrModule': 'TumblrModule',
