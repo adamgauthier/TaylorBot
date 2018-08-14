@@ -10,7 +10,7 @@ const GuildRegistry = require(Paths.GuildRegistry);
 const GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
 const CommandRegistry = require(Paths.CommandRegistry);
 const UserRegistry = require(Paths.UserRegistry);
-const InhibitorRegistry = require(Paths.InhibitorRegistry);
+const InhibitorRegistry = require('./InhibitorRegistry.js');
 
 class Registry {
     constructor(database) {
