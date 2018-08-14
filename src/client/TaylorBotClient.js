@@ -199,54 +199,11 @@ class TaylorBotClient extends Discord.Client {
 
     async sendMessage(recipient, text, options) {
         const tbc = this.resolveTextBasedChannel(recipient);
-        try {
-            return await this._sendMessage(tbc, text, options);
-        }
-        catch (e) {
-            Log.error(`Sending message error in recipient ${recipient} : ${e}`);
-        }
-    }
 
-    async _sendMessage(recipient, text, options) {
-        const format = options ? options.format : undefined;
-
-        text = text.replace(/(@)(everyone|here)/g, (m, p1, p2) => `${p1}\u200B${p2}`);
-
-        const textEvalLength = text.length + (format ? format.after.length + format.before.length : 0);
-        let firstPart = text;
-        let currentCallback;
-
-        if (textEvalLength >= discordMax) {
-            const max = format ? discordMax - format.after.length - format.before.length : discordMax;
-            firstPart = firstPart.substring(0, max);
-            let lastIndex = firstPart.lastIndexOf('\n');
-            if (lastIndex === -1) lastIndex = firstPart.lastIndexOf('.');
-            if (lastIndex === -1) lastIndex = firstPart.lastIndexOf(' ');
-            if (lastIndex === -1) lastIndex = max - 1;
-
-            lastIndex += 1;
-            firstPart = text.substring(0, lastIndex);
-            const lastPart = text.substring(lastIndex);
-
-            currentCallback = () => {
-                return this._sendMessage(recipient, lastPart, options);
-            };
-        }
-        else {
-            currentCallback = msg => {
-                return Promise.resolve(msg);
-            };
-        }
-
-        if (format) firstPart = format.before + firstPart + format.after;
-
-        try {
-            const msg = await recipient.send(firstPart, options);
-            return await currentCallback(msg);
-        }
-        catch (e) {
-            return Promise.reject(`${e} when trying to send message.`);
-        }
+        return tbc.send(
+            text.replace(/(@)(everyone|here)/g, (m, p1, p2) => `${p1}\u200B${p2}`),
+            options
+        );
     }
 
     sendEmbed(recipient, embed) {
