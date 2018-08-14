@@ -26,12 +26,6 @@ class GlobalPaths {
                 }
             },
             {
-                'directory': pathMapper.client.registry.path,
-                'files': {
-                    'CachedCommand': 'CachedCommand'
-                }
-            },
-            {
                 'directory': pathMapper.modules.path,
                 'files': {
                     'StringUtil': 'StringUtil',
