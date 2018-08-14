@@ -8,7 +8,7 @@ const MessageWatcherRegistry = require('./MessageWatcherRegistry.js');
 const GroupRegistry = require(Paths.GroupRegistry);
 const GuildRegistry = require(Paths.GuildRegistry);
 const GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
-const CommandRegistry = require(Paths.CommandRegistry);
+const CommandRegistry = require('./CommandRegistry.js');
 const UserRegistry = require('./UserRegistry.js');
 const InhibitorRegistry = require('./InhibitorRegistry.js');
 
