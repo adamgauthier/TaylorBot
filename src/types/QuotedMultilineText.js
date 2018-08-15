@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const ArgumentType = require(Paths.ArgumentType);
+const ArgumentType = require('../structures/ArgumentType.js');
 
 class QuotedMultilineTextArgumentType extends ArgumentType {
     constructor() {

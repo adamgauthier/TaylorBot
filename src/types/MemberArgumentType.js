@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const ArgumentType = require(Paths.ArgumentType);
+const ArgumentType = require('../structures/ArgumentType.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
