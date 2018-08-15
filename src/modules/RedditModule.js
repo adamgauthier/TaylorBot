@@ -2,9 +2,8 @@
 
 const fetch = require('node-fetch');
 const { MessageEmbed } = require('discord.js');
-const { Paths } = require('globalobjects');
 
-const StringUtil = require(Paths.StringUtil);
+const StringUtil = require('./StringUtil.js');
 
 class RedditModule {
     static async getLatestPost(subreddit) {
