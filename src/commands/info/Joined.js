@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const DiscordEmbedFormatter = require(Paths.DiscordEmbedFormatter);
+const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const Command = require('../../structures/Command.js');
 const MathUtil = require('../../modules/MathUtil.js');
 const TimeUtil = require('../../modules/TimeUtil.js');

@@ -12,8 +12,7 @@ class GlobalPaths {
             {
                 'directory': pathMapper.modules.path,
                 'files': {
-                    'DiscordFormatter': 'DiscordFormatter',
-                    'DiscordEmbedFormatter': 'DiscordEmbedFormatter'
+                    'DiscordFormatter': 'DiscordFormatter'
                 }
             }
         ];
