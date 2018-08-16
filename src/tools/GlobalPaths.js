@@ -29,7 +29,6 @@ class GlobalPaths {
         this.commandsFolderPath = pathMapper.commands.path;
         this.typesFolderPath = pathMapper.types.path;
         this.inhibitorsFolderPath = pathMapper.inhibitors.path;
-        this.databaseScriptsPath = pathMapper.database.scripts.path;
     }
 }
 
