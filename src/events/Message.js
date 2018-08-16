@@ -1,9 +1,8 @@
 'use strict';
 
 const { Events } = require('discord.js').Constants;
-const { Paths } = require('globalobjects');
 
-const EventHandler = require(Paths.EventHandler);
+const EventHandler = require('../structures/EventHandler.js');
 
 class Message extends EventHandler {
     constructor() {

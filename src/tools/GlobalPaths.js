@@ -10,12 +10,6 @@ class GlobalPaths {
 
         const mappedPaths = [
             {
-                'directory': pathMapper.structures.path,
-                'files': {
-                    'EventHandler': 'EventHandler'
-                }
-            },
-            {
                 'directory': pathMapper.modules.path,
                 'files': {
                     'DiscordFormatter': 'DiscordFormatter',

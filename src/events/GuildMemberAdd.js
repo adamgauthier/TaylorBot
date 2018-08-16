@@ -3,7 +3,7 @@
 const { Events } = require('discord.js').Constants;
 const { Paths } = require('globalobjects');
 
-const EventHandler = require(Paths.EventHandler);
+const EventHandler = require('../structures/EventHandler.js');
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 const GuildMemberJoinedLoggable = require('../modules/logging/GuildMemberJoinedLoggable.js');
