@@ -12,8 +12,7 @@ class GlobalPaths {
             {
                 'directory': pathMapper.structures.path,
                 'files': {
-                    'EventHandler': 'EventHandler',
-                    'Interval': 'Interval'
+                    'EventHandler': 'EventHandler'
                 }
             },
             {

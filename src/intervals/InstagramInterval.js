@@ -2,7 +2,7 @@
 
 const { Paths } = require('globalobjects');
 
-const Interval = require(Paths.Interval);
+const Interval = require('../structures/Interval.js');
 const Log = require('../tools/Logger.js');
 const Format = require(Paths.DiscordFormatter);
 const InstagramModule = require('../modules/InstagramModule.js');

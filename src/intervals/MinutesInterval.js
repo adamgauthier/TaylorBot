@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const Interval = require(Paths.Interval);
+const Interval = require('../structures/Interval.js');
 
 const minutesToAdd = 1;
 const msBeforeAdd = 1 * 60 * 1000;
