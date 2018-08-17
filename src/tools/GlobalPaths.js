@@ -23,7 +23,6 @@ class GlobalPaths {
             }
         }
 
-        this.intervalsFolderPath = pathMapper.intervals.path;
         this.watchersFolderPath = pathMapper.watchers.path;
         this.commandsFolderPath = pathMapper.commands.path;
         this.typesFolderPath = pathMapper.types.path;
