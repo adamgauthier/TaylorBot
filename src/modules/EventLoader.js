@@ -4,9 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { Events } = require('discord.js').Constants;
 
-const { Paths } = require('globalobjects');
-
-const eventsPath = Paths.eventsFolderPath;
+const eventsPath = path.join(__dirname, '..' , 'events');
 
 class EventLoader {
     static async loadAll(client) {
