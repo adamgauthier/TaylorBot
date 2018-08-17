@@ -3,10 +3,9 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const { Paths } = require('globalobjects');
-
 const Log = require('../../tools/Logger.js');
-const watchersPath = Paths.watchersFolderPath;
+
+const watchersPath = path.join(__dirname, '..', '..', 'watchers');
 
 const requireWatcher = watcherName => require(path.join(watchersPath, watcherName));
 
