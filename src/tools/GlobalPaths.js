@@ -22,8 +22,6 @@ class GlobalPaths {
                 this[propertyName] = path.join(mappedPath.directory, mappedPath.files[propertyName]);
             }
         }
-
-        this.inhibitorsFolderPath = pathMapper.inhibitors.path;
     }
 }
 

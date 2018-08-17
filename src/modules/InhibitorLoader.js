@@ -3,9 +3,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const { Paths } = require('globalobjects');
-
-const inhibitorsPath = Paths.inhibitorsFolderPath;
+const inhibitorsPath = path.join(__dirname, '..', 'inhibitors');
 
 const requireInhibitor = inhibitorName => require(path.join(inhibitorsPath, inhibitorName));
 
