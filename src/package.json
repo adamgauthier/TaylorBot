@@ -6,7 +6,6 @@
   "dependencies": {
     "chrono-node": "github:wanasit/chrono",
     "discord.js": "github:discordjs/discord.js",
-    "globalobjects": "file:tools/GlobalObjects",
     "massive": "^5.0.0",
     "moment": "^2.22.2",
     "node-fetch": "^2.1.2",
