@@ -1,11 +1,9 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Interval = require('../structures/Interval.js');
 const TumblrModule = require('../modules/TumblrModule.js');
 const Log = require('../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../modules/DiscordFormatter.js');
 
 const intervalTime = 60000;
 

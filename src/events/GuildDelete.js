@@ -1,11 +1,10 @@
 'use strict';
 
 const { Events } = require('discord.js').Constants;
-const { Paths } = require('globalobjects');
 
 const EventHandler = require('../structures/EventHandler.js');
 const Log = require('../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../modules/DiscordFormatter.js');
 
 class GuildDelete extends EventHandler {
     constructor() {

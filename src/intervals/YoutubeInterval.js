@@ -1,10 +1,8 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Interval = require('../structures/Interval.js');
 const Log = require('../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../modules/DiscordFormatter.js');
 const YoutubeModule = require('../modules/YoutubeModule.js');
 
 const intervalTime = 60000;

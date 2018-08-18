@@ -1,9 +1,7 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Log = require('../../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../../modules/DiscordFormatter.js');
 
 class GuildRepository {
     constructor(db) {

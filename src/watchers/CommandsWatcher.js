@@ -1,10 +1,8 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const MessageWatcher = require('../structures/MessageWatcher.js');
 const Log = require('../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../modules/DiscordFormatter.js');
 const ArrayUtil = require('../modules/ArrayUtil.js');
 const CommandError = require('../structures/CommandError.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');

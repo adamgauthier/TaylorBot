@@ -1,11 +1,9 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const ArgumentType = require('../structures/ArgumentType.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const Log = require('../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../modules/DiscordFormatter.js');
 
 class MemberArgumentType extends ArgumentType {
     constructor() {

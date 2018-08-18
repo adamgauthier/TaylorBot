@@ -1,8 +1,6 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../../modules/DiscordFormatter.js');
 
 class CachedCommand {
     constructor(name, commandRepository, guildCommandRegistry) {

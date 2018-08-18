@@ -2,20 +2,9 @@
 
 const path = require('path');
 
-const PathMapper = require(path.join(__dirname, 'PathMapper'));
-
 class GlobalPaths {
     constructor(rootPath) {
-        const pathMapper = new PathMapper(rootPath);
-
-        const mappedPaths = [
-            {
-                'directory': pathMapper.modules.path,
-                'files': {
-                    'DiscordFormatter': 'DiscordFormatter'
-                }
-            }
-        ];
+        const mappedPaths = [];
 
         for (const mappedPath of mappedPaths) {
             for (const propertyName in mappedPath.files) {

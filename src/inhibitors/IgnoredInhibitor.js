@@ -1,10 +1,8 @@
 'use strict';
 
-const { Paths } = require('globalobjects');
-
 const Inhibitor = require('../structures/Inhibitor.js');
 const Log = require('../tools/Logger.js');
-const Format = require(Paths.DiscordFormatter);
+const Format = require('../modules/DiscordFormatter.js');
 const TimeUtil = require('../modules/TimeUtil.js');
 
 class IgnoredInhibitor extends Inhibitor {
