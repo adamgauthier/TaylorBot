@@ -67,7 +67,26 @@ class GuildMemberRepository {
         }
     }
 
-    async getRankedFirstJoinedAt(guildMember) {
+    async getRankedFirstJoinedAt(guild, limit) {
+        try {
+            return await this._db.instance.any([
+                'SELECT first_joined_at, user_id, rank() OVER (ORDER BY first_joined_at ASC) AS rank',
+                'FROM guilds.guild_members',
+                'WHERE guild_id = ${guild_id}',
+                'LIMIT ${limit};'
+            ].join('\n'),
+            {
+                'guild_id': guild.id,
+                'limit': limit
+            });
+        }
+        catch (e) {
+            Log.error(`Getting ranked first joined at for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async getRankedFirstJoinedAtFor(guildMember) {
         try {
             return await this._db.guild_members.getRankedFirstJoinedAt(
                 {

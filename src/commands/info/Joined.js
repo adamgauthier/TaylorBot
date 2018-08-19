@@ -26,7 +26,7 @@ class JoinedCommand extends Command {
     }
 
     async run({ message, client }, { member }) {
-        const { first_joined_at, rank } = await client.master.database.guildMembers.getRankedFirstJoinedAt(member);
+        const { first_joined_at, rank } = await client.master.database.guildMembers.getRankedFirstJoinedAtFor(member);
         const embed = DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([

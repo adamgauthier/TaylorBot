@@ -23,6 +23,11 @@ class TimeUtil {
         return m.format('MMMM Do, YYYY');
     }
 
+    static formatMini(unixTime) {
+        const m = moment.utc(unixTime, 'x');
+        return m.format('MMM Do, YYYY');
+    }
+
     static formatLog(unixTime = null) {
         const m = unixTime === null ? moment() : moment(unixTime, 'x');
         return m.format('MMM Do YY, H:mm:ss Z');
