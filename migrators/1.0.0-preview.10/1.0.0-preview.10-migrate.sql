@@ -9,3 +9,8 @@ CREATE SCHEMA commands
 
 ALTER TABLE public.commands
   SET SCHEMA commands;
+
+ALTER TABLE public.user_groups
+  SET SCHEMA commands;
+
+GRANT USAGE ON SCHEMA commands TO taylorbot;

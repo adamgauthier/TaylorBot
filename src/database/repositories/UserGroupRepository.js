@@ -9,7 +9,7 @@ class UserGroupRepository {
 
     async getAll() {
         try {
-            return await this._db.user_groups.find();
+            return await this._db.commands.user_groups.find();
         }
         catch (e) {
             Log.error(`Getting all user groups: ${e}`);
@@ -19,7 +19,7 @@ class UserGroupRepository {
 
     async addAll(userGroups) {
         try {
-            return await this._db.user_groups.insert(userGroups);
+            return await this._db.commands.user_groups.insert(userGroups);
         }
         catch (e) {
             Log.error(`Adding user groups: ${e}`);
