@@ -9,7 +9,7 @@ class CommandRepository {
 
     async getAll() {
         try {
-            return await this._db.commands.find();
+            return await this._db.commands.commands.find();
         }
         catch (e) {
             Log.error(`Getting all commands: ${e}`);
@@ -19,7 +19,7 @@ class CommandRepository {
 
     async addAll(databaseCommands) {
         try {
-            return await this._db.commands.insert(databaseCommands);
+            return await this._db.commands.commands.insert(databaseCommands);
         }
         catch (e) {
             Log.error(`Adding commands: ${e}`);
@@ -29,7 +29,7 @@ class CommandRepository {
 
     async setEnabled(commandName, enabled) {
         try {
-            return await this._db.commands.update(
+            return await this._db.commands.commands.update(
                 {
                     'name': commandName
                 },
