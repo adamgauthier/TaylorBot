@@ -37,7 +37,7 @@ class Command {
         });
     }
 
-    run(commandMessage, args) { // eslint-disable-line no-unused-vars
+    run(commandContext, args) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a run() method.`);
     }
 }
