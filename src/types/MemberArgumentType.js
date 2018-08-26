@@ -23,12 +23,14 @@ class MemberArgumentType extends ArgumentType {
             const matches = val.trim().match(/^(?:<@!?)?([0-9]+)>?$/);
             if (matches) {
                 const match = matches[1];
-                try {
-                    const member = await guild.members.fetch(match);
 
-                    if (member) {
-                        return member;
-                    }
+                const member = guild.members.resolve(match);
+                if (member)
+                    return member;
+
+                try {
+                    const fetchedMember = await guild.members.fetch(match);
+                    return fetchedMember;
                 }
                 catch (e) {
                     Log.error(`Error occurred while fetching member '${match}' for guild ${Format.guild(guild)} in MemberArgumentType parsing: ${e}`);

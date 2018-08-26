@@ -2,6 +2,8 @@
 
 const ArgumentType = require('../structures/ArgumentType.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
+const Log = require('../tools/Logger.js');
+const Format = require('../modules/DiscordFormatter.js');
 
 class GuildArgumentType extends ArgumentType {
     constructor() {
@@ -19,10 +21,9 @@ class GuildArgumentType extends ArgumentType {
         if (matches) {
             const guild = client.guilds.resolve(matches[1]);
             if (guild) {
-                const member = await guild.members.fetch(message.author);
-                if (member) {
+                const isInGuild = await GuildArgumentType.isInGuild(message.author, guild);
+                if (isInGuild)
                     return guild;
-                }
             }
         }
 
@@ -33,8 +34,8 @@ class GuildArgumentType extends ArgumentType {
         }
         else if (guilds.size === 1) {
             const guild = guilds.first();
-            const member = await guild.members.fetch(message.author);
-            if (member) {
+            const isInGuild = await GuildArgumentType.isInGuild(message.author, guild);
+            if (isInGuild) {
                 return guild;
             }
             else {
@@ -45,14 +46,14 @@ class GuildArgumentType extends ArgumentType {
         const exactGuilds = guilds.filter(GuildArgumentType.guildFilterExact(search));
 
         for (const guild of exactGuilds.values()) {
-            const member = await guild.members.fetch(message.author);
-            if (member)
+            const isInGuild = await GuildArgumentType.isInGuild(message.author, guild);
+            if (isInGuild)
                 return guild;
         }
 
         for (const guild of guilds.values()) {
-            const member = await guild.members.fetch(message.author);
-            if (member)
+            const isInGuild = await GuildArgumentType.isInGuild(message.author, guild);
+            if (isInGuild)
                 return guild;
         }
 
@@ -65,6 +66,22 @@ class GuildArgumentType extends ArgumentType {
 
     static guildFilterInexact(search) {
         return guild => guild.name.toLowerCase().includes(search);
+    }
+
+    static async isInGuild(user, guild) {
+        if (guild.members.has(user.id)) {
+            return true;
+        }
+        else {
+            try {
+                await guild.members.fetch(user);
+                return true;
+            } catch (e) {
+                Log.error(`Error occurred while fetching user ${Format.user(user)} for guild ${Format.guild(guild)} in GuildArgumentType parsing: ${e}`);
+            }
+        }
+
+        return false;
     }
 }
 
