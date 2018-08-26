@@ -1,6 +1,6 @@
 'use strict';
 
-const GuildArgumentType = require('./GuildArgumentType');
+const GuildArgumentType = require('./GuildArgumentType.js');
 
 class GuildOrCurrentArgumentType extends GuildArgumentType {
     get id() {

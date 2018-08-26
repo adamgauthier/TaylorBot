@@ -4,22 +4,22 @@ const massive = require('massive');
 
 const PostgreSQLConfig = require('../config/postgresql.json');
 
-const GuildRepository = require('./repositories/GuildRepository');
-const UserRepository = require('./repositories/UserRepository');
-const GuildMemberRepository = require('./repositories/GuildMemberRepository');
-const UsernameRepository = require('./repositories/UsernameRepository');
-const GuildNameRepository = require('./repositories/GuildNameRepository');
-const InstagramCheckerRepository = require('./repositories/InstagramCheckerRepository');
-const RedditCheckerRepository = require('./repositories/RedditCheckerRepository');
-const YoutubeCheckerRepository = require('./repositories/YoutubeCheckerRepository');
-const TumblrCheckerRepository = require('./repositories/TumblrCheckerRepository');
-const GuildCommandRepository = require('./repositories/GuildCommandRepository');
-const CommandRepository = require('./repositories/CommandRepository');
-const UserGroupRepository = require('./repositories/UserGroupRepository');
-const RoleGroupRepository = require('./repositories/RoleGroupRepository');
-const SpecialRoleRepository = require('./repositories/SpecialRoleRepository');
-const ReminderRepository = require('./repositories/ReminderRepository');
-const TextChannelRepository = require('./repositories/TextChannelRepository');
+const GuildRepository = require('./repositories/GuildRepository.js');
+const UserRepository = require('./repositories/UserRepository.js');
+const GuildMemberRepository = require('./repositories/GuildMemberRepository.js');
+const UsernameRepository = require('./repositories/UsernameRepository.js');
+const GuildNameRepository = require('./repositories/GuildNameRepository.js');
+const InstagramCheckerRepository = require('./repositories/InstagramCheckerRepository.js');
+const RedditCheckerRepository = require('./repositories/RedditCheckerRepository.js');
+const YoutubeCheckerRepository = require('./repositories/YoutubeCheckerRepository.js');
+const TumblrCheckerRepository = require('./repositories/TumblrCheckerRepository.js');
+const GuildCommandRepository = require('./repositories/GuildCommandRepository.js');
+const CommandRepository = require('./repositories/CommandRepository.js');
+const UserGroupRepository = require('./repositories/UserGroupRepository.js');
+const RoleGroupRepository = require('./repositories/RoleGroupRepository.js');
+const SpecialRoleRepository = require('./repositories/SpecialRoleRepository.js');
+const ReminderRepository = require('./repositories/ReminderRepository.js');
+const TextChannelRepository = require('./repositories/TextChannelRepository.js');
 const CleverBotSessionRepository = require('./repositories/CleverBotSessionRepository.js');
 
 class DatabaseDriver {

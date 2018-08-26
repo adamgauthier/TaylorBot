@@ -1,6 +1,6 @@
 'use strict';
 
-const ChannelArgumentType = require('./ChannelArgumentType');
+const ChannelArgumentType = require('./ChannelArgumentType.js');
 
 class ChannelOrCurrentArgumentType extends ChannelArgumentType {
     get id() {

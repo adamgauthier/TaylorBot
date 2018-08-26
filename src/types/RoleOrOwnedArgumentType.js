@@ -1,6 +1,6 @@
 'use strict';
 
-const RoleArgumentType = require('./RoleArgumentType');
+const RoleArgumentType = require('./RoleArgumentType.js');
 
 class RoleOrOwnedArgumentType extends RoleArgumentType {
     get id() {
