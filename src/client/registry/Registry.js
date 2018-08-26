@@ -9,9 +9,11 @@ const GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
 const CommandRegistry = require('./CommandRegistry.js');
 const UserRegistry = require('./UserRegistry.js');
 const InhibitorRegistry = require('./InhibitorRegistry.js');
+const AttributeRegistry = require('./AttributeRegistry.js');
 
 class Registry {
     constructor(database) {
+        this.attributes = new AttributeRegistry();
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
@@ -23,6 +25,10 @@ class Registry {
     }
 
     async load() {
+        Log.info('Loading attributes...');
+        await this.attributes.loadAll();
+        Log.info('Attributes loaded!');
+
         Log.info('Loading inhibitors...');
         await this.inhibitors.loadAll();
         Log.info('Inhibitors loaded!');

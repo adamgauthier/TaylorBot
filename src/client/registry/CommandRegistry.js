@@ -3,6 +3,7 @@
 const Log = require('../../tools/Logger.js');
 const CachedCommand = require('./CachedCommand.js');
 const CommandLoader = require('../../modules/CommandLoader.js');
+const AttributeLoader = require('../../attributes/AttributeLoader.js');
 
 class CommandRegistry extends Map {
     constructor(database) {
@@ -13,7 +14,10 @@ class CommandRegistry extends Map {
     async loadAll() {
         const databaseCommands = await this.database.commands.getAll();
 
-        const commands = await CommandLoader.loadAll();
+        const commands = [
+            ...(await CommandLoader.loadAll()),
+            ...(await AttributeLoader.loadMemberAttributeCommands())
+        ];
 
         const databaseCommandsNotInFiles = databaseCommands
             .filter(dc =>
