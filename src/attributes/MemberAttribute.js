@@ -17,6 +17,10 @@ class MemberAttribute {
     async retrieve(commandContext, member) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a retrieve() method.`);
     }
+
+    async rank(commandContext, guild) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a rank() method.`);
+    }
 }
 
 module.exports = MemberAttribute;

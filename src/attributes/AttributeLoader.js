@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const GetMemberAttributeCommand = require('./GetMemberAttributeCommand.js');
+const RankMemberAttributeCommand = require('./RankMemberAttributeCommand.js');
 
 const memberAttributesPath = path.join(__dirname, 'member');
 
@@ -25,7 +26,10 @@ class AttributeLoader {
     static async loadMemberAttributeCommands() {
         const memberAttributes = await AttributeLoader.loadMemberAttributes();
 
-        return memberAttributes.map(a => new GetMemberAttributeCommand(a));
+        return [
+            ...memberAttributes.map(a => new GetMemberAttributeCommand(a)),
+            ...memberAttributes.map(a => new RankMemberAttributeCommand(a))
+        ];
     }
 }
 
