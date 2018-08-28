@@ -1,13 +1,15 @@
 'use strict';
 
 class ArrayUtil {
-    static *iterateArrays(arr1, arr2) {
-        if (arr1.length !== arr2.length)
-            throw new Error(`Both arrays don't have the same length (${arr1.length} & ${arr2.length}).`);
+    static *iterateArrays(...arrays) {
+        const { length } = arrays[0];
+
+        if (arrays.some(array => array.length !== length))
+            throw new Error(`All arrays don't have the same length (${length}).`);
 
         let currentIndex = 0;
-        while (currentIndex < arr1.length) {
-            yield [arr1[currentIndex], arr2[currentIndex]];
+        while (currentIndex < length) {
+            yield arrays.map(a => a[currentIndex]);
             currentIndex++;
         }
     }
