@@ -2,7 +2,7 @@
 
 const ArgumentType = require('../structures/ArgumentType.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
-const ChannelArgumentType = require('./ChannelArgumentType.js');
+const ChannelArgumentType = require('./Channel.js');
 
 class GuildTextChannelArgumentType extends ArgumentType {
     constructor() {

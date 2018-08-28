@@ -1,6 +1,6 @@
 'use strict';
 
-const GuildTextChannelArgumentType = require('./GuildTextChannelArgumentType.js');
+const GuildTextChannelArgumentType = require('./GuildTextChannel.js');
 
 class GuildTextChannelOrCurrentArgumentType extends GuildTextChannelArgumentType {
     get id() {

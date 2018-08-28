@@ -1,6 +1,6 @@
 'use strict';
 
-const MemberArgumentType = require('./MemberArgumentType.js');
+const MemberArgumentType = require('./Member.js');
 
 class MemberOrAuthorArgumentType extends MemberArgumentType {
     get id() {
