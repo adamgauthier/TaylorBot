@@ -21,8 +21,13 @@ class ArrayPageMessage {
 
         if (this.pages.length > 1) {
             this.message
-                .createReactionCollector(this.filter(), { time: timeout })
-                .on('collect', this.onReact());
+                .createReactionCollector(this.filter(), { time: timeout, dispose: true })
+                .on('collect', this.onReact())
+                // TODO: simplify when discord.js issue is fixed
+                .on('remove', (reaction, user) => {
+                    if (this.filter()(reaction, user))
+                        this.onReact()(reaction, user);
+                });
 
             await this.message.react(PREVIOUS_EMOJI);
             return this.message.react(NEXT_EMOJI);
@@ -32,8 +37,7 @@ class ArrayPageMessage {
     filter() {
         return (reaction, user) =>
             user.id === this.owner.id &&
-            (reaction.emoji.name === PREVIOUS_EMOJI ||
-            reaction.emoji.name === NEXT_EMOJI);
+            [PREVIOUS_EMOJI, NEXT_EMOJI].includes(reaction.emoji.name);
     }
 
     onReact() {
