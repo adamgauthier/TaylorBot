@@ -1,6 +1,7 @@
 'use strict';
 
 const MessageContext = require('../structures/MessageContext.js');
+const ArrayUtil = require('../modules/ArrayUtil.js');
 
 class CommandMessageContext extends MessageContext {
     constructor(messageContext, command) {
@@ -33,6 +34,10 @@ class CommandMessageContext extends MessageContext {
         });
 
         return [keyword, ...args].join(' ');
+    }
+
+    example() {
+        return this.guildSettings.prefix + ArrayUtil.random(this.command.command.examples);
     }
 }
 

@@ -105,7 +105,8 @@ class CommandsWatcher extends MessageWatcher {
         if (!matches) {
             return client.sendEmbedError(channel, [
                 'Oops! Looks like something was off with your command usage. 🤔',
-                `Command Format: \`${commandContext.usage()}\``
+                `Command Format: \`${commandContext.usage()}\``,
+                `Example: \`${commandContext.example()}\``
             ].join('\n'));
         }
 

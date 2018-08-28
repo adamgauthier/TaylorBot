@@ -3,7 +3,7 @@
 const UserGroups = require('../client/UserGroups.json');
 
 class Command {
-    constructor({ name, aliases, group, description, minimumGroup, guildOnly, guarded, args }) {
+    constructor({ name, aliases, group, description, minimumGroup, examples, guildOnly, guarded, args }) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
@@ -12,11 +12,16 @@ class Command {
             throw new Error(`All commands must have a name. (${this.constructor.name})`);
         }
 
+        if (!examples || examples.length === 0) {
+            throw new Error(`All commands must have examples. (${this.constructor.name})`);
+        }
+
         this.name = name;
         this.aliases = aliases === undefined ? [] : aliases;
         this.group = group;
         this.description = description;
         this.minimumGroup = minimumGroup === undefined ? UserGroups.Everyone : minimumGroup;
+        this.examples = examples;
         this.guildOnly = guildOnly === undefined ? false : guildOnly;
         this.guarded = guarded === undefined ? false : guarded;
 

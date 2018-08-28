@@ -22,6 +22,10 @@ class ArrayUtil {
         }
         return result;
     }
+
+    static random(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    }
 }
 
 module.exports = ArrayUtil;
