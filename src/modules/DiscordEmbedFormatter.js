@@ -155,7 +155,12 @@ class DiscordEmbedFormatter {
             .addField('Color', `\`${role.hexColor}\``, true)
             .addField('Server', `${guild.name} (\`${guild.id}\`)`, true)
             .addField('Created', TimeUtil.formatFull(role.createdTimestamp))
-            .addField(StringUtil.plural(members.size, 'Member'), StringUtil.shrinkString(members.map(m => m.displayName).join(', '), 75, ', ...', [',']));
+            .addField(
+                StringUtil.plural(members.size, 'Member'),
+                members.size > 0 ?
+                    StringUtil.shrinkString(members.map(m => m.displayName).join(', '), 75, ', ...', [',']) :
+                    '[None]'
+            );
 
         return embed;
     }
