@@ -5,22 +5,26 @@ const path = require('path');
 
 const GetMemberAttributeCommand = require('./GetMemberAttributeCommand.js');
 const RankMemberAttributeCommand = require('./RankMemberAttributeCommand.js');
-
-const memberAttributesPath = path.join(__dirname, 'member');
-
-const requireMemberAttribute = attributeName => require(path.join(memberAttributesPath, attributeName));
+const GetUserAttributeCommand = require('./GetUserAttributeCommand.js');
 
 class AttributeLoader {
-    static async loadMemberAttributes() {
-        const files = await fs.readdir(memberAttributesPath);
+    static async loadAttributesIn(dirPath) {
+        const files = await fs.readdir(dirPath);
 
         return files
-            .map(path.parse)
-            .filter(file => file.ext === '.js')
+            .map(file => path.join(dirPath, file))
             .map(file => {
-                const Attribute = requireMemberAttribute(file.base);
+                const Attribute = require(file);
                 return new Attribute();
             });
+    }
+
+    static loadMemberAttributes() {
+        return AttributeLoader.loadAttributesIn(path.join(__dirname, 'member'));
+    }
+
+    static loadUserAttributes() {
+        return AttributeLoader.loadAttributesIn(path.join(__dirname, 'user'));
     }
 
     static async loadMemberAttributeCommands() {
@@ -30,6 +34,12 @@ class AttributeLoader {
             ...memberAttributes.map(a => new GetMemberAttributeCommand(a)),
             ...memberAttributes.map(a => new RankMemberAttributeCommand(a))
         ];
+    }
+
+    static async loadUserAttributeCommands() {
+        const memberAttributes = await AttributeLoader.loadUserAttributes();
+
+        return memberAttributes.map(a => new GetUserAttributeCommand(a));
     }
 }
 
