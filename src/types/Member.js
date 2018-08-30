@@ -50,8 +50,9 @@ class MemberArgumentType extends ArgumentType {
 
             return exactMembers.size > 0 ? exactMembers.first() : inexactMembers.first();
         }
-
-        throw new ArgumentParsingError(`Can't find member '${val}' outside of a server.`);
+        else {
+            throw new ArgumentParsingError(`Can't find member '${val}' outside of a server.`);
+        }
     }
 
     static memberFilterExact(search) {

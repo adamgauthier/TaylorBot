@@ -15,23 +15,22 @@ class UsernamesCommand extends Command {
             group: 'info',
             description: 'Gets a list of previous usernames for a user in the current server.',
             examples: ['usernames @Enchanted13#1989', 'names Enchanted13'],
-            guildOnly: true,
 
             args: [
                 {
-                    key: 'member',
+                    key: 'user',
                     label: 'user',
-                    type: 'member-or-author',
+                    type: 'user-or-author',
                     prompt: 'What user would you like to see the usernames history of?'
                 }
             ]
         });
     }
 
-    async run({ message, client }, { member }) {
+    async run({ message, client }, { user }) {
         const { channel, author } = message;
-        const usernames = await client.master.database.usernames.getHistory(member.user, 75);
-        const embed = DiscordEmbedFormatter.baseUserEmbed(member.user);
+        const usernames = await client.master.database.usernames.getHistory(user, 75);
+        const embed = DiscordEmbedFormatter.baseUserEmbed(user);
 
         const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at)} : ${u.username}`);
         const chunks = ArrayUtil.chunk(lines, 15);

@@ -11,21 +11,19 @@ class AvatarCommand extends Command {
             group: 'info',
             description: 'Gets the avatar of a user in the current server.',
             examples: ['avatar @Enchanted13#1989', 'avatar Enchanted13'],
-            guildOnly: true,
 
             args: [
                 {
-                    key: 'member',
+                    key: 'user',
                     label: 'user',
-                    type: 'member-or-author',
+                    type: 'user-or-author',
                     prompt: 'What user would you like to see the avatar of?'
                 }
             ]
         });
     }
 
-    run({ message, client }, { member }) {
-        const { user } = member;
+    run({ message, client }, { user }) {
         const embed = DiscordEmbedFormatter
             .baseUserEmbed(user)
             .setImage(DiscordEmbedFormatter.getAvatarURL(user, 1024));
