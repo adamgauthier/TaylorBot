@@ -16,7 +16,8 @@ class CommandRegistry extends Map {
 
         const commands = [
             ...(await CommandLoader.loadAll()),
-            ...(await AttributeLoader.loadMemberAttributeCommands())
+            ...(await AttributeLoader.loadMemberAttributeCommands()),
+            ...(await AttributeLoader.loadUserAttributeCommands())
         ];
 
         const databaseCommandsNotInFiles = databaseCommands

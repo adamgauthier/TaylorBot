@@ -13,7 +13,7 @@ const AttributeRegistry = require('./AttributeRegistry.js');
 
 class Registry {
     constructor(database) {
-        this.attributes = new AttributeRegistry();
+        this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
