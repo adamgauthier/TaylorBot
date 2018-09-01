@@ -11,11 +11,11 @@ class MemberAttribute extends Attribute {
     }
 
     async retrieve(commandContext, member) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a retrieve() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.retrieve.name}() method.`);
     }
 
     async rank(commandContext, guild) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a rank() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.rank.name}() method.`);
     }
 }
 

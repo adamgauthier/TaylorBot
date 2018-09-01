@@ -11,7 +11,7 @@ class EventHandler {
     }
 
     handler() {
-        throw new Error(`${this.constructor.name} doesn't have a handler() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.handler.name}() method.`);
     }
 }
 

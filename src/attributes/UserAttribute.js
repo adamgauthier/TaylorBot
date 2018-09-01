@@ -11,11 +11,11 @@ class UserAttribute extends Attribute {
     }
 
     async retrieve(commandContext, user) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a retrieve() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.retrieve.name}() method.`);
     }
 
     async set(commandContext, value) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a set() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.set.name}() method.`);
     }
 }
 

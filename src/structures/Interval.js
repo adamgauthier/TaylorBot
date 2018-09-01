@@ -11,7 +11,7 @@ class Interval {
     }
 
     interval() {
-        throw new Error(`${this.constructor.name} doesn't have a interval() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.interval.name}() method.`);
     }
 }
 

@@ -10,7 +10,7 @@ class MessageWatcher {
     }
 
     messageHandler() {
-        throw new Error(`${this.constructor.name} doesn't have a messageHandler() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.messageHandler.name}() method.`);
     }
 }
 

@@ -8,7 +8,7 @@ class Inhibitor {
     }
 
     shouldBeBlocked() {
-        throw new Error(`${this.constructor.name} doesn't have a shouldBeBlocked() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.shouldBeBlocked.name}() method.`);
     }
 }
 

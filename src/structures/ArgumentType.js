@@ -20,11 +20,11 @@ class ArgumentType {
     }
 
     default(commandContext, arg) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a default.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.default.name} method.`);
     }
 
     parse(val, commandContext, arg) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a parse() method.`);
+        throw new Error(`${this.constructor.name} doesn't have a ${this.parse.name}() method.`);
     }
 }
 
