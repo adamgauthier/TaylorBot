@@ -6,7 +6,12 @@ class BaeAttribute extends SimpleUserTextAttribute {
     constructor() {
         super({
             id: 'bae',
-            description: 'bae'
+            description: 'bae',
+            value: {
+                label: 'bae',
+                type: 'text',
+                example: 'Taylor Swift'
+            }
         });
     }
 }

@@ -13,6 +13,10 @@ class UserAttribute extends Attribute {
     async retrieve(commandContext, user) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a retrieve() method.`);
     }
+
+    async set(commandContext, value) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a set() method.`);
+    }
 }
 
 module.exports = UserAttribute;

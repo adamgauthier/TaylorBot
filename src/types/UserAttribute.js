@@ -2,24 +2,24 @@
 
 const ArgumentType = require('../structures/ArgumentType.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
-const UserAttribute = require('../attributes/MemberAttribute.js');
+const UserAttribute = require('../attributes/UserAttribute.js');
 
-class MemberAttributeArgumentType extends ArgumentType {
+class UserAttributeArgumentType extends ArgumentType {
     get id() {
-        return 'member-attribute';
+        return 'user-attribute';
     }
 
     parse(val, { client }) {
         const key = val.toLowerCase();
-        const memberAttributes = client.master.registry.attributes.filter(
+        const userAttributes = client.master.registry.attributes.filter(
             attribute => attribute instanceof UserAttribute
         );
 
-        if (!memberAttributes.has(key))
+        if (!userAttributes.has(key))
             throw new ArgumentParsingError(`Member Attribute '${key}' doesn't exist.`);
 
-        return memberAttributes.get(key);
+        return userAttributes.get(key);
     }
 }
 
-module.exports = MemberAttributeArgumentType;
+module.exports = UserAttributeArgumentType;

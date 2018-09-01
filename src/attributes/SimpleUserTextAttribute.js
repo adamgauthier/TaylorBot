@@ -9,6 +9,7 @@ class SimpleUserTextAttribute extends UserAttribute {
         if (new.target === SimpleUserTextAttribute) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
+        this.value = options.value;
     }
 
     async retrieve({ client }, user) {
@@ -26,6 +27,15 @@ class SimpleUserTextAttribute extends UserAttribute {
                 .setTitle(`${user.username}'s ${this.description}`)
                 .setDescription(attribute.attribute_value);
         }
+    }
+
+    async set({ client, message }, value) {
+        const { author } = message;
+        const attribute = await client.master.database.textAttributes.set(this.id, author, value);
+
+        return DiscordEmbedFormatter
+            .baseUserEmbed(author)
+            .setDescription(`Your ${this.description} has been set to '${attribute.attribute_value}'. ✅`);
     }
 }
 

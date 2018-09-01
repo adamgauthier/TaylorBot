@@ -20,6 +20,27 @@ class TextAttributeRepository {
             throw e;
         }
     }
+
+    async set(attributeId, user, value) {
+        try {
+            return await this._db.instance.one([
+                'INSERT INTO attributes.text_attributes (attribute_id, user_id, attribute_value)',
+                'VALUES (${attribute_id}, ${user_id}, ${attribute_value})',
+                'ON CONFLICT (attribute_id, user_id) DO UPDATE',
+                '  SET attribute_value = excluded.attribute_value',
+                'RETURNING *;'
+            ].join('\n'),
+            {
+                'user_id': user.id,
+                'attribute_id': attributeId,
+                'attribute_value': value
+            });
+        }
+        catch (e) {
+            Log.error(`Setting attribute '${attributeId}' to '${value}' for user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = TextAttributeRepository;
