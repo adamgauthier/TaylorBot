@@ -11,14 +11,17 @@ class UserAttributeArgumentType extends ArgumentType {
 
     parse(val, { client }) {
         const key = val.toLowerCase();
-        const userAttributes = client.master.registry.attributes.filter(
-            attribute => attribute instanceof UserAttribute
-        );
+        const { attributes } = client.master.registry;
 
-        if (!userAttributes.has(key))
-            throw new ArgumentParsingError(`Member Attribute '${key}' doesn't exist.`);
+        if (!attributes.has(key))
+            throw new ArgumentParsingError(`User Attribute '${key}' doesn't exist.`);
 
-        return userAttributes.get(key);
+        const attribute = attributes.get(key);
+
+        if (!(attribute instanceof UserAttribute))
+            throw new ArgumentParsingError(`Attribute '${key}' is not a User Attribute.`);
+
+        return attribute;
     }
 }
 
