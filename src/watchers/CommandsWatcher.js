@@ -10,9 +10,8 @@ const MessageContext = require('../structures/MessageContext.js');
 const CommandMessageContext = require('../structures/CommandMessageContext.js');
 
 class CommandsWatcher extends MessageWatcher {
-    async messageHandler(client, message) {
-        const { author } = message;
-        if (author.bot)
+    messageHandler(client, message) {
+        if (message.author.bot)
             return;
 
         const messageContext = new MessageContext(message, client);
@@ -39,13 +38,20 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const { registry } = client.master;
-
         const commandName = text.split(' ')[0].toLowerCase();
-        const cachedCommand = registry.commands.resolve(commandName);
+        const cachedCommand = client.master.registry.commands.resolve(commandName);
 
         if (!cachedCommand)
             return;
+
+        const argString = text.substring(commandName.length);
+
+        return this.runCommand(messageContext, cachedCommand, argString);
+    }
+
+    async runCommand(messageContext, cachedCommand, argString) {
+        const { client, message } = messageContext;
+        const { registry } = client.master;
 
         for (const inhibitor of registry.inhibitors.values()) {
             if (inhibitor.shouldBeBlocked(messageContext, cachedCommand)) {
@@ -53,14 +59,11 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const { channel } = message;
+        const { author, channel } = message;
+
+        Log.verbose(`${Format.user(author)} using '${cachedCommand.name}' with args '${argString}' in ${Format.channel(channel)}.`);
+
         const commandContext = new CommandMessageContext(messageContext, cachedCommand);
-
-        const argString = text.substring(commandName.length);
-        Log.verbose(
-            `${Format.user(author)} using '${cachedCommand.name}' with args '${argString}' in ${Format.channel(channel)}.`
-        );
-
         const { command } = cachedCommand;
 
         const regexString =
