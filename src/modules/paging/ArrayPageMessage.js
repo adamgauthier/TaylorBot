@@ -23,11 +23,7 @@ class ArrayPageMessage {
             this.message
                 .createReactionCollector(this.filter(), { time: timeout, dispose: true })
                 .on('collect', this.onReact())
-                // TODO: simplify when discord.js issue is fixed
-                .on('remove', (reaction, user) => {
-                    if (this.filter()(reaction, user))
-                        this.onReact()(reaction, user);
-                });
+                .on('remove', this.onReact());
 
             await this.message.react(PREVIOUS_EMOJI);
             return this.message.react(NEXT_EMOJI);
