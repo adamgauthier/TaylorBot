@@ -17,6 +17,10 @@ class UserAttribute extends Attribute {
     async set(commandContext, value) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a ${this.set.name}() method.`);
     }
+
+    async clear(commandContext) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a ${this.clear.name}() method.`);
+    }
 }
 
 module.exports = UserAttribute;

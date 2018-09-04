@@ -41,6 +41,24 @@ class TextAttributeRepository {
             throw e;
         }
     }
+
+    async clear(attributeId, user) {
+        try {
+            return await this._db.instance.oneOrNone([
+                'DELETE FROM attributes.text_attributes',
+                'WHERE attribute_id = ${attribute_id} AND user_id = ${user_id}',
+                'RETURNING *;'
+            ].join('\n'),
+            {
+                'user_id': user.id,
+                'attribute_id': attributeId
+            });
+        }
+        catch (e) {
+            Log.error(`Clearing attribute '${attributeId}' for user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = TextAttributeRepository;

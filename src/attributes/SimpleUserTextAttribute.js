@@ -37,6 +37,15 @@ class SimpleUserTextAttribute extends UserAttribute {
             .baseUserEmbed(author)
             .setDescription(`Your ${this.description} has been set to '${attribute.attribute_value}'. ✅`);
     }
+
+    async clear({ client, message }) {
+        const { author } = message;
+        await client.master.database.textAttributes.clear(this.id, author);
+
+        return DiscordEmbedFormatter
+            .baseUserEmbed(author)
+            .setDescription(`Your ${this.description} has been cleared. ✅`);
+    }
 }
 
 module.exports = SimpleUserTextAttribute;
