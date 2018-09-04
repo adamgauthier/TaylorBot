@@ -1,15 +1,9 @@
 'use strict';
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const TextArgumentType = require('./Text.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
-class RoleArgumentType extends ArgumentType {
-    constructor() {
-        super({
-            includesSpaces: true
-        });
-    }
-
+class RoleArgumentType extends TextArgumentType {
     get id() {
         return 'role';
     }

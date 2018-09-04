@@ -1,10 +1,10 @@
 'use strict';
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const WordArgumentType = require('./Word.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const MemberAttribute = require('../attributes/MemberAttribute.js');
 
-class MemberAttributeArgumentType extends ArgumentType {
+class MemberAttributeArgumentType extends WordArgumentType {
     get id() {
         return 'member-attribute';
     }

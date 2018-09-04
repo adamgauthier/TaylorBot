@@ -1,9 +1,9 @@
 'use strict';
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const WordArgumentType = require('./Word.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
-class UserGroupArgumentType extends ArgumentType {
+class UserGroupArgumentType extends WordArgumentType {
     get id() {
         return 'user-group';
     }

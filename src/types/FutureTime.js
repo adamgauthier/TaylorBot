@@ -2,16 +2,10 @@
 
 const chrono = require('chrono-node');
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const TextArgumentType = require('./Text.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
-class FutureTimeArgumentType extends ArgumentType {
-    constructor() {
-        super({
-            includesSpaces: true
-        });
-    }
-
+class FutureTimeArgumentType extends TextArgumentType {
     get id() {
         return 'future-time';
     }

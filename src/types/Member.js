@@ -1,17 +1,11 @@
 'use strict';
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const TextArgumentType = require('./Text.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
 
-class MemberArgumentType extends ArgumentType {
-    constructor() {
-        super({
-            includesSpaces: true
-        });
-    }
-
+class MemberArgumentType extends TextArgumentType {
     get id() {
         return 'member';
     }

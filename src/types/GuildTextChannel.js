@@ -1,10 +1,10 @@
 'use strict';
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const WordArgumentType = require('./Word.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const ChannelArgumentType = require('./Channel.js');
 
-class GuildTextChannelArgumentType extends ArgumentType {
+class GuildTextChannelArgumentType extends WordArgumentType {
     constructor() {
         super();
         this.channelArgumentType = new ChannelArgumentType();

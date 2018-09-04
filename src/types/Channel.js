@@ -1,15 +1,9 @@
 'use strict';
 
-const ArgumentType = require('../structures/ArgumentType.js');
+const TextArgumentType = require('./Text.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
-class ChannelArgumentType extends ArgumentType {
-    constructor() {
-        super({
-            includesSpaces: true
-        });
-    }
-
+class ChannelArgumentType extends TextArgumentType {
     get id() {
         return 'channel';
     }
