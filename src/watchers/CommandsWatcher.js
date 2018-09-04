@@ -10,8 +10,9 @@ const MessageContext = require('../structures/MessageContext.js');
 const CommandMessageContext = require('../structures/CommandMessageContext.js');
 
 class CommandsWatcher extends MessageWatcher {
-    messageHandler(client, message) {
-        if (message.author.bot)
+    async messageHandler(client, message) {
+        const { author, channel } = message;
+        if (author.bot)
             return;
 
         const messageContext = new MessageContext(message, client);
@@ -46,10 +47,15 @@ class CommandsWatcher extends MessageWatcher {
 
         const argString = text.substring(commandName.length);
 
-        return this.runCommand(messageContext, cachedCommand, argString);
+        try {
+            await CommandsWatcher.runCommand(messageContext, cachedCommand, argString);
+        } catch (e) {
+            await client.sendEmbedError(channel, 'Oops, an unknown command error occured. Sorry about that. 😕');
+            throw e;
+        }
     }
 
-    async runCommand(messageContext, cachedCommand, argString) {
+    static async runCommand(messageContext, cachedCommand, argString) {
         const { client, message } = messageContext;
         const { registry } = client.master;
 
@@ -136,14 +142,12 @@ class CommandsWatcher extends MessageWatcher {
                     ].join('\n'));
                 }
                 else {
-                    await client.sendEmbedError(channel, 'Oops, an unknown parsing error occured. Sorry about that. 😕');
                     throw e;
                 }
             }
         }
 
-        const commandTime = Date.now();
-        registry.users.updateLastCommand(author, commandTime);
+        registry.users.updateLastCommand(author, Date.now());
 
         try {
             await command.run(commandContext, parsedArgs);
@@ -153,13 +157,11 @@ class CommandsWatcher extends MessageWatcher {
                 return client.sendEmbedError(channel, e.message);
             }
             else {
-                await client.sendEmbedError(channel, 'Oops, an unknown command error occured. Sorry about that. 😕');
                 throw e;
             }
         }
         finally {
-            const answeredTime = Date.now();
-            registry.users.updateLastAnswered(author, answeredTime);
+            registry.users.updateLastAnswered(author, Date.now());
         }
     }
 }
