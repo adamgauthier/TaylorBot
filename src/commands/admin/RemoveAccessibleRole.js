@@ -13,7 +13,7 @@ class RemoveAccessibleRoleCommand extends Command {
             group: 'admin',
             description: 'Makes an accessible role inaccessible for users to get.',
             minimumGroup: UserGroups.Moderators,
-            examples: ['removeaccessiblerole @tour', 'rar leaks'],
+            examples: ['@tour', 'leaks'],
             guildOnly: true,
 
             args: [

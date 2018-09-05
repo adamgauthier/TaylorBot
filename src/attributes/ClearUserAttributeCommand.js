@@ -8,7 +8,7 @@ class ClearUserAttributeCommand extends Command {
             name: `clear${attribute.id}`,
             group: 'attributes',
             description: `Clears your ${attribute.description}.`,
-            examples: [`clear${attribute.id}`],
+            examples: [''],
 
             args: []
         });

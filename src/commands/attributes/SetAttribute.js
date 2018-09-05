@@ -10,7 +10,7 @@ class SetAttributeCommand extends Command {
             aliases: ['setattribute', 'sa'],
             group: 'attributes',
             description: 'Sets one of your attributes to a value.',
-            examples: ['set bae Taylor Swift'],
+            examples: ['bae Taylor Swift'],
 
             args: [
                 {

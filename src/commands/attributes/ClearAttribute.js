@@ -9,7 +9,7 @@ class ClearAttributeCommand extends Command {
             aliases: ['clearattribute', 'ca'],
             group: 'attributes',
             description: 'Clears one of your attributes.',
-            examples: ['clear bae'],
+            examples: ['bae'],
 
             args: [
                 {

@@ -13,7 +13,7 @@ class RemoveLogChannelCommand extends Command {
             group: 'admin',
             description: 'Indicates the bot that it should stop logging in a channel.',
             minimumGroup: UserGroups.GuildOwners,
-            examples: ['removelogchannel #joinlogs', 'rlc log'],
+            examples: ['#joinlogs', 'log'],
             guildOnly: true,
 
             args: [

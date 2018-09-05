@@ -13,7 +13,7 @@ class SetPrefixCommand extends Command {
             group: 'framework',
             description: `Changes the bot's prefix for a server.`,
             minimumGroup: UserGroups.Moderators,
-            examples: ['setprefix .', 'sp !'],
+            examples: ['.', '!'],
             guildOnly: true,
             guarded: true,
 

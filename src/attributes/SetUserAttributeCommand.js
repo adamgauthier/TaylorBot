@@ -8,7 +8,7 @@ class SetUserAttributeCommand extends Command {
             name: `set${attribute.id}`,
             group: 'attributes',
             description: `Sets your ${attribute.description}.`,
-            examples: [`set${attribute.id} ${attribute.value.example}`],
+            examples: [attribute.value.example],
 
             args: [
                 {

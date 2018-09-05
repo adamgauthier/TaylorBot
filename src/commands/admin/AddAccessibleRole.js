@@ -13,7 +13,7 @@ class AddAccessibleRoleCommand extends Command {
             group: 'admin',
             description: 'Makes a role accessible for users to get.',
             minimumGroup: UserGroups.Moderators,
-            examples: ['addaccessiblerole @tour', 'aar leaks'],
+            examples: ['@tour', 'leaks'],
             guildOnly: true,
 
             args: [

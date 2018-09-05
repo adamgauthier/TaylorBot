@@ -13,7 +13,7 @@ class UrbanDictionaryCommand extends Command {
             aliases: ['urban'],
             group: 'knowledge',
             description: 'Search on UrbanDictionary!',
-            examples: ['urbandictionary ffs', 'urban tea'],
+            examples: ['ffs', 'tea'],
 
             args: [
                 {

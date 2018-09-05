@@ -10,7 +10,7 @@ class RandomUserInfoCommand extends Command {
             aliases: ['randomuser', 'randomuinfo', 'ruinfo', 'rui'],
             group: 'info',
             description: 'Gets information about a random user in the server.',
-            examples: ['randomuserinfo', 'rui'],
+            examples: [''],
             guildOnly: true,
 
             args: []

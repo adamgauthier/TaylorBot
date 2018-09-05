@@ -10,7 +10,7 @@ class ChannelInfoCommand extends Command {
             aliases: ['cinfo'],
             group: 'info',
             description: 'Gets information about a channel.',
-            examples: ['channelinfo', 'cinfo'],
+            examples: [''],
 
             args: [
                 {

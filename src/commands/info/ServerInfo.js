@@ -10,7 +10,7 @@ class ServerInfoCommand extends Command {
             aliases: ['sinfo', 'guildinfo', 'ginfo'],
             group: 'info',
             description: 'Gets information about a server.',
-            examples: ['sinfo'],
+            examples: [''],
 
             args: [
                 {

@@ -8,7 +8,7 @@ class RankCommand extends Command {
             name: 'rank',
             group: 'attributes',
             description: 'Gets the ranking of an attribute for the current server.',
-            examples: ['rank joined'],
+            examples: ['joined'],
             guildOnly: true,
 
             args: [

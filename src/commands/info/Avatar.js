@@ -10,7 +10,7 @@ class AvatarCommand extends Command {
             aliases: ['av', 'avi'],
             group: 'info',
             description: 'Gets the avatar of a user in the current server.',
-            examples: ['avatar @Enchanted13#1989', 'avatar Enchanted13'],
+            examples: ['@Enchanted13#1989', 'Enchanted13'],
 
             args: [
                 {

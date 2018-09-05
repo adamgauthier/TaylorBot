@@ -11,7 +11,7 @@ class ImgurCommand extends Command {
             name: 'imgur',
             group: 'imgur',
             description: 'Upload a picture on Imgur!',
-            examples: ['imgur '],
+            examples: ['https://www.example.com/link/to/picture.jpg'],
 
             args: [
                 {

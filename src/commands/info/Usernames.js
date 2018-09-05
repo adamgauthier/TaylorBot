@@ -14,7 +14,7 @@ class UsernamesCommand extends Command {
             aliases: ['names'],
             group: 'info',
             description: 'Gets a list of previous usernames for a user in the current server.',
-            examples: ['usernames @Enchanted13#1989', 'names Enchanted13'],
+            examples: ['@Enchanted13#1989', 'Enchanted13'],
 
             args: [
                 {

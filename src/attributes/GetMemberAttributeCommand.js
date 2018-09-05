@@ -8,7 +8,7 @@ class GetMemberAttributeCommand extends Command {
             name: attribute.id,
             group: 'attributes',
             description: `Gets the ${attribute.description} of a user in the current server.`,
-            examples: [`${attribute.id} @Enchanted13#1989`],
+            examples: ['@Enchanted13#1989'],
             guildOnly: true,
 
             args: [

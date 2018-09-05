@@ -11,7 +11,7 @@ class WikipediaCommand extends Command {
             aliases: ['wiki'],
             group: 'knowledge',
             description: 'Search on Wikipedia!',
-            examples: ['wikipedia taylor swift', 'wiki canada'],
+            examples: ['taylor swift', 'canada'],
 
             args: [
                 {

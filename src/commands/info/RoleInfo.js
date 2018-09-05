@@ -10,7 +10,7 @@ class RoleInfoCommand extends Command {
             aliases: ['rinfo'],
             group: 'info',
             description: 'Gets information about a role.',
-            examples: ['roleinfo mods', 'rinfo'],
+            examples: ['mods', ''],
 
             args: [
                 {

@@ -12,7 +12,7 @@ class WolframCommand extends Command {
             aliases: ['wolframalpha', 'wa'],
             group: 'knowledge',
             description: 'Search on Wolfram|Alpha!',
-            examples: ['wolfram convert 5km to miles', 'wa how many stars are there'],
+            examples: ['convert 5km to miles', 'how many stars are there'],
 
             args: [
                 {

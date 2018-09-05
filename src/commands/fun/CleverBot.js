@@ -10,7 +10,7 @@ class CleverBotCommand extends Command {
             aliases: ['clever'],
             group: 'fun',
             description: 'Chat with Cleverbot!',
-            examples: ['cleverbot hi how are you?', 'clever are you human?'],
+            examples: ['hi how are you?', 'are you human?'],
 
             args: [
                 {

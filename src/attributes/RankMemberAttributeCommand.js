@@ -8,7 +8,7 @@ class RankMemberAttributeCommand extends Command {
             name: `rank${attribute.id}`,
             group: 'attributes',
             description: `Gets the ranking of the ${attribute.description} of users in the current server.`,
-            examples: [`rank${attribute.id}`],
+            examples: [''],
             guildOnly: true,
 
             args: []

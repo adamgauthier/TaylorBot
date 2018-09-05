@@ -13,7 +13,7 @@ class ImageCommand extends Command {
             aliases: ['imagen', 'imaget'],
             group: 'google',
             description: 'Searches images based on the search text provided.',
-            examples: ['image taylor swift', 'image kanye west'],
+            examples: ['taylor swift', 'kanye west'],
             guildOnly: true,
 
             args: [

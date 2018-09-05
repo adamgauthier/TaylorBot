@@ -10,7 +10,7 @@ class UserInfoCommand extends Command {
             aliases: ['uinfo'],
             group: 'info',
             description: 'Gets information about a user.',
-            examples: ['uinfo @Enchanted13#1989', 'uinfo Enchanted13'],
+            examples: ['@Enchanted13#1989', 'Enchanted13'],
             guildOnly: true,
 
             args: [

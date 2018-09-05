@@ -12,7 +12,7 @@ class EvalCommand extends Command {
             group: 'util',
             description: 'Evaluates code.',
             minimumGroup: UserGroups.Master,
-            examples: ['eval 1+1'],
+            examples: ['1+1'],
 
             args: [
                 {

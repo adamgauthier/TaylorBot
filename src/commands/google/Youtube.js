@@ -12,7 +12,7 @@ class YoutubeCommand extends Command {
             aliases: ['yt', 'ytn', 'ytt'],
             group: 'google',
             description: 'Searches YouTube for videos.',
-            examples: ['youtube taylor swift begin again', 'yt brockhampton gold'],
+            examples: ['taylor swift begin again', 'brockhampton gold'],
 
             args: [
                 {

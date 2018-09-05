@@ -13,7 +13,7 @@ class BotInfoCommand extends Command {
             aliases: ['binfo', 'clientinfo', 'version'],
             group: 'info',
             description: 'Gets general info about the bot.',
-            examples: ['botinfo', 'binfo'],
+            examples: [''],
 
             args: []
         });

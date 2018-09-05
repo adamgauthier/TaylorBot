@@ -37,7 +37,7 @@ class CommandMessageContext extends MessageContext {
     }
 
     example() {
-        return this.guildSettings.prefix + ArrayUtil.random(this.command.command.examples);
+        return `${this.guildSettings.prefix}${this.command.command.name} ${ArrayUtil.random(this.command.command.examples)}`;
     }
 }
 

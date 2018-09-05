@@ -8,7 +8,7 @@ class GetUserAttributeCommand extends Command {
             name: attribute.id,
             group: 'attributes',
             description: `Gets the ${attribute.description} of a user.`,
-            examples: [`${attribute.id} @Enchanted13#1989`],
+            examples: ['@Enchanted13#1989'],
 
             args: [
                 {

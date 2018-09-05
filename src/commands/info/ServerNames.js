@@ -14,7 +14,7 @@ class ServerNamesCommand extends Command {
             aliases: ['snames', 'guildnames', 'gnames'],
             group: 'info',
             description: 'Gets a list of previous names for a server.',
-            examples: ['servernames'],
+            examples: [''],
 
             args: [
                 {

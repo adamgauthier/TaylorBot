@@ -13,7 +13,7 @@ class SetRoleGroupCommand extends Command {
             group: 'framework',
             description: 'Attaches a user group to a role.',
             minimumGroup: UserGroups.GuildOwners,
-            examples: ['setrolegroup @admins Moderators', 'srg owners Moderators'],
+            examples: ['@admins Moderators', 'owners Moderators'],
             guildOnly: true,
             guarded: true,
 

@@ -12,7 +12,7 @@ class DisableCommandCommand extends Command {
             group: 'framework',
             description: 'Disables a command globally.',
             minimumGroup: UserGroups.Master,
-            examples: ['disablecommand avatar', 'dc uinfo'],
+            examples: ['avatar', 'uinfo'],
             guarded: true,
 
             args: [

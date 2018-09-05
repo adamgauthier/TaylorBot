@@ -12,7 +12,7 @@ class EnableCommandCommand extends Command {
             group: 'framework',
             description: 'Enables a disabled command globally.',
             minimumGroup: UserGroups.Master,
-            examples: ['enablecommand avatar', 'ec uinfo'],
+            examples: ['avatar', 'uinfo'],
             guarded: true,
 
             args: [

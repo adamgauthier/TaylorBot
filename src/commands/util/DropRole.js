@@ -11,7 +11,7 @@ class DropRoleCommand extends Command {
             aliases: ['dr'],
             group: 'util',
             description: 'Removes an accessible role from you.',
-            examples: ['droprole @tour', 'dr leaks'],
+            examples: ['@tour', 'leaks'],
             guildOnly: true,
 
             args: [
