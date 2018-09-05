@@ -34,7 +34,8 @@ class SimpleUserTextAttribute extends UserAttribute {
         const attribute = await client.master.database.textAttributes.set(this.id, author, value);
 
         return DiscordEmbedFormatter
-            .baseUserEmbed(author)
+            .baseUserHeader(author)
+            .setColor('#43b581')
             .setDescription(`Your ${this.description} has been set to '${attribute.attribute_value}'. ✅`);
     }
 
