@@ -6,7 +6,7 @@ class FavoriteSongsAttribute extends SimpleUserTextAttribute {
     constructor() {
         super({
             id: 'favoritesongs',
-            aliases: ['fav', 'favsong', 'favsongs', 'favouritesongs'],
+            aliases: ['fav', 'favsongs', 'favouritesongs'],
             description: 'favorite songs list',
             value: {
                 label: 'fav',
