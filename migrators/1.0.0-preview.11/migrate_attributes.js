@@ -28,6 +28,23 @@ const migrate = async () => {
             await pg_db.attributes.text_attributes.insert(pg_baes);
         }
     });
+
+    sqlite_db.all(`SELECT id, favsong FROM user WHERE favsong IS NOT NULL AND favsong != '';`, async (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        else {
+            const pg_favs = rows.map(fav => {
+                return {
+                    'user_id': fav.id,
+                    'attribute_id': 'favoritesongs',
+                    'attribute_value': fav.favsong
+                };
+            });
+
+            await pg_db.attributes.text_attributes.insert(pg_favs);
+        }
+    });
 };
 
 migrate();
