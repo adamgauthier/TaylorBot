@@ -6,6 +6,7 @@ class RankMemberAttributeCommand extends Command {
     constructor(attribute) {
         super({
             name: `rank${attribute.id}`,
+            aliases: attribute.aliases.map(a => `rank${a}`),
             group: 'attributes',
             description: `Gets the ranking of the ${attribute.description} of users in the current server.`,
             examples: [''],

@@ -6,6 +6,7 @@ class GetUserAttributeCommand extends Command {
     constructor(attribute) {
         super({
             name: attribute.id,
+            aliases: attribute.aliases,
             group: 'attributes',
             description: `Gets the ${attribute.description} of a user.`,
             examples: ['@Enchanted13#1989'],

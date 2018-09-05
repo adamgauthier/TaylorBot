@@ -6,6 +6,7 @@ class GetMemberAttributeCommand extends Command {
     constructor(attribute) {
         super({
             name: attribute.id,
+            aliases: attribute.aliases,
             group: 'attributes',
             description: `Gets the ${attribute.description} of a user in the current server.`,
             examples: ['@Enchanted13#1989'],

@@ -10,16 +10,13 @@ class UserAttributeArgumentType extends WordArgumentType {
     }
 
     parse(val, { client }) {
-        const key = val.toLowerCase();
-        const { attributes } = client.master.registry;
+        const attribute = client.master.registry.attributes.resolve(val);
 
-        if (!attributes.has(key))
-            throw new ArgumentParsingError(`User Attribute '${key}' doesn't exist.`);
-
-        const attribute = attributes.get(key);
+        if (!attribute)
+            throw new ArgumentParsingError(`User Attribute '${val}' doesn't exist.`);
 
         if (!(attribute instanceof UserAttribute))
-            throw new ArgumentParsingError(`Attribute '${key}' is not a User Attribute.`);
+            throw new ArgumentParsingError(`Attribute '${val}' is not a User Attribute.`);
 
         return attribute;
     }

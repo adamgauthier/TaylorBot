@@ -10,16 +10,13 @@ class MemberAttributeArgumentType extends WordArgumentType {
     }
 
     parse(val, { client }) {
-        const key = val.toLowerCase();
-        const { attributes } = client.master.registry;
+        const attribute = client.master.registry.attributes.resolve(val);
 
-        if (!attributes.has(key))
-            throw new ArgumentParsingError(`Member Attribute '${key}' doesn't exist.`);
-
-        const attribute = attributes.get(key);
+        if (!attribute)
+            throw new ArgumentParsingError(`Member Attribute '${val}' doesn't exist.`);
 
         if (!(attribute instanceof MemberAttribute))
-            throw new ArgumentParsingError(`Attribute '${key}' is not a Member Attribute.`);
+            throw new ArgumentParsingError(`Attribute '${val}' is not a Member Attribute.`);
 
         return attribute;
     }

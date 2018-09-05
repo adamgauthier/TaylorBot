@@ -6,6 +6,7 @@ class SetUserAttributeCommand extends Command {
     constructor(attribute) {
         super({
             name: `set${attribute.id}`,
+            aliases: attribute.aliases.map(a => `set${a}`),
             group: 'attributes',
             description: `Sets your ${attribute.description}.`,
             examples: [attribute.value.example],

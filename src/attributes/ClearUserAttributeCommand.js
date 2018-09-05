@@ -6,6 +6,7 @@ class ClearUserAttributeCommand extends Command {
     constructor(attribute) {
         super({
             name: `clear${attribute.id}`,
+            aliases: attribute.aliases.map(a => `clear${a}`),
             group: 'attributes',
             description: `Clears your ${attribute.description}.`,
             examples: [''],
