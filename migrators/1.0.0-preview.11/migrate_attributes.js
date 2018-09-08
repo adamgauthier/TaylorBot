@@ -45,6 +45,27 @@ const migrate = async () => {
             await pg_db.attributes.text_attributes.insert(pg_favs);
         }
     });
+
+    sqlite_db.all(`SELECT lastfm FROM user WHERE lastfm IS NOT NULL AND lastfm != '';`, async (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        else {
+            const regex = /^<http:\/\/www.last.fm\/user\/([a-z][a-z0-9_-]{1,14})>$/i;
+            rows = rows.filter(r => regex.test(r.lastfm));
+
+            const pg_fms = rows.map(fm => {
+                const matches = regex.match(fm.lastfm);
+                return {
+                    'user_id': fm.id,
+                    'attribute_id': 'lastfm',
+                    'attribute_value': matches[1]
+                };
+            });
+
+            await pg_db.attributes.text_attributes.insert(pg_fms);
+        }
+    });
 };
 
 migrate();

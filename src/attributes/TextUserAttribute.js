@@ -3,17 +3,16 @@
 const UserAttribute = require('./UserAttribute.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
 
-class SimpleUserTextAttribute extends UserAttribute {
+class TextUserAttribute extends UserAttribute {
     constructor(options) {
         super(options);
-        if (new.target === SimpleUserTextAttribute) {
+        if (new.target === TextUserAttribute) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
-        this.value = options.value;
     }
 
-    async retrieve({ client }, user) {
-        const attribute = await client.master.database.textAttributes.get(this.id, user);
+    async retrieve(commandContext, user) {
+        const attribute = await commandContext.client.master.database.textAttributes.get(this.id, user);
 
         if (!attribute) {
             return DiscordEmbedFormatter
@@ -22,11 +21,12 @@ class SimpleUserTextAttribute extends UserAttribute {
                 .setDescription(`${user.username}'s ${this.description} is not set. 🚫`);
         }
         else {
-            return DiscordEmbedFormatter
-                .baseUserEmbed(user)
-                .setTitle(`${user.username}'s ${this.description}`)
-                .setDescription(attribute.attribute_value);
+            return this.getEmbed(commandContext, user, attribute.attribute_value);
         }
+    }
+
+    getEmbed(commandContext, user, attribute) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a ${this.getEmbed.name}() method.`);
     }
 
     async set({ client, message }, value) {
@@ -49,4 +49,4 @@ class SimpleUserTextAttribute extends UserAttribute {
     }
 }
 
-module.exports = SimpleUserTextAttribute;
+module.exports = TextUserAttribute;

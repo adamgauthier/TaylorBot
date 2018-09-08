@@ -1,8 +1,8 @@
 'use strict';
 
-const SimpleUserTextAttribute = require('../SimpleUserTextAttribute.js');
+const SimpleTextUserAttribute = require('../SimpleTextUserAttribute.js');
 
-class BaeAttribute extends SimpleUserTextAttribute {
+class BaeAttribute extends SimpleTextUserAttribute {
     constructor() {
         super({
             id: 'bae',

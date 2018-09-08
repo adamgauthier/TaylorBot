@@ -8,6 +8,7 @@ class UserAttribute extends Attribute {
         if (new.target === UserAttribute) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
+        this.value = options.value;
     }
 
     async retrieve(commandContext, user) { // eslint-disable-line no-unused-vars
