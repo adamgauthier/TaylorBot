@@ -46,7 +46,7 @@ const migrate = async () => {
         }
     });
 
-    sqlite_db.all(`SELECT lastfm FROM user WHERE lastfm IS NOT NULL AND lastfm != '';`, async (err, rows) => {
+    sqlite_db.all(`SELECT id, lastfm FROM user WHERE lastfm IS NOT NULL AND lastfm != '';`, async (err, rows) => {
         if (err) {
             throw err;
         }
@@ -55,7 +55,7 @@ const migrate = async () => {
             rows = rows.filter(r => regex.test(r.lastfm));
 
             const pg_fms = rows.map(fm => {
-                const matches = regex.match(fm.lastfm);
+                const matches = fm.lastfm.match(regex);
                 return {
                     'user_id': fm.id,
                     'attribute_id': 'lastfm',
