@@ -2,6 +2,8 @@
 
 const UserAttribute = require('./UserAttribute.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
+const ArrayEmbedDescriptionPageMessage = require('../modules/paging/ArrayEmbedDescriptionPageMessage.js');
+const ArrayUtil = require('../modules/ArrayUtil.js');
 
 class TextUserAttribute extends UserAttribute {
     constructor(options) {
@@ -46,6 +48,22 @@ class TextUserAttribute extends UserAttribute {
         return DiscordEmbedFormatter
             .baseUserEmbed(author)
             .setDescription(`Your ${this.description} has been cleared. ✅`);
+    }
+
+    async list({ client, message }, guild) {
+        const attributes = await client.master.database.textAttributes.listInGuild(this.id, guild, 100);
+
+        const embed = DiscordEmbedFormatter
+            .baseGuildHeader(guild)
+            .setTitle(`List of ${this.description}`);
+        const lines = attributes.map(a => `<@${a.user_id}> - ${a.attribute_value}`);
+
+        return new ArrayEmbedDescriptionPageMessage(
+            client,
+            message.author,
+            embed,
+            ArrayUtil.chunk(lines, 20).map(chunk => chunk.join('\n'))
+        );
     }
 }
 

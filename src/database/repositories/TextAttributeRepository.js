@@ -59,6 +59,30 @@ class TextAttributeRepository {
             throw e;
         }
     }
+
+    async listInGuild(attributeId, guild, count) {
+        try {
+            return await this._db.instance.any([
+                'SELECT * FROM attributes.text_attributes',
+                'WHERE user_id IN (',
+                '   SELECT user_id',
+                '   FROM guilds.guild_members',
+                '   WHERE guild_id = ${guild_id}',
+                ')',
+                'AND attribute_id = ${attribute_id}',
+                'LIMIT ${count};'
+            ].join('\n'),
+            {
+                'guild_id': guild.id,
+                'attribute_id': attributeId,
+                count
+            });
+        }
+        catch (e) {
+            Log.error(`Listing attribute '${attributeId}' for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = TextAttributeRepository;

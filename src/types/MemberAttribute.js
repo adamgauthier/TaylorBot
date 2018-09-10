@@ -1,19 +1,16 @@
 'use strict';
 
-const WordArgumentType = require('./Word.js');
+const AttributeArgumentType = require('./Attribute.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const MemberAttribute = require('../attributes/MemberAttribute.js');
 
-class MemberAttributeArgumentType extends WordArgumentType {
+class MemberAttributeArgumentType extends AttributeArgumentType {
     get id() {
         return 'member-attribute';
     }
 
-    parse(val, { client }) {
-        const attribute = client.master.registry.attributes.resolve(val);
-
-        if (!attribute)
-            throw new ArgumentParsingError(`Member Attribute '${val}' doesn't exist.`);
+    parse(val, commandContext, arg) {
+        const attribute = super.parse(val, commandContext, arg);
 
         if (!(attribute instanceof MemberAttribute))
             throw new ArgumentParsingError(`Attribute '${val}' is not a Member Attribute.`);

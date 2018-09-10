@@ -15,16 +15,16 @@ class LastFmAttribute extends TextUserAttribute {
                 label: 'username',
                 type: 'last-fm-username',
                 example: 'taylorswift'
-            }
+            },
+            canList: true
         });
     }
 
     async getEmbed(commandContext, user, attribute) {
         const response = await LastFmModule.getRecentTracks(attribute, 1);
 
-        if (response.error) {
+        if (response.error)
             throw new CommandError(`An error occurred when contacting Last.fm: ${response.message}`);
-        }
 
         const { recenttracks: recentTracks } = response;
 
@@ -33,8 +33,7 @@ class LastFmAttribute extends TextUserAttribute {
         const imageUrl = mostRecentTrack.image[2]['#text'];
         const isNowPlaying = mostRecentTrack['@attr'] && mostRecentTrack['@attr'].nowplaying;
 
-        const embed = DiscordEmbedFormatter
-            .baseUserEmbed(user);
+        const embed = DiscordEmbedFormatter.baseUserEmbed(user);
 
         embed.author.name = lastFmUser.user;
         embed.author.url = `https://www.last.fm/user/${lastFmUser.user}`;
