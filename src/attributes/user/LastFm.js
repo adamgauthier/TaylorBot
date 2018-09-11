@@ -30,7 +30,7 @@ class LastFmAttribute extends TextUserAttribute {
 
         const lastFmUser = recentTracks['@attr'];
         const mostRecentTrack = recentTracks.track[0];
-        const imageUrl = mostRecentTrack.image[2]['#text'];
+        const imageUrl = mostRecentTrack.image[2]['#text'] || mostRecentTrack.artist.image[2]['#text'];
         const isNowPlaying = mostRecentTrack['@attr'] && mostRecentTrack['@attr'].nowplaying;
 
         const embed = DiscordEmbedFormatter.baseUserEmbed(user);
