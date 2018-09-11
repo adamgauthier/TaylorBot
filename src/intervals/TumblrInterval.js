@@ -1,7 +1,7 @@
 'use strict';
 
 const Interval = require('../structures/Interval.js');
-const TumblrModule = require('../modules/TumblrModule.js');
+const TumblrModule = require('../modules/tumblr/TumblrModule.js');
 const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
 
@@ -31,7 +31,7 @@ class TumblrInterval extends Interval {
             const channel = guild.channels.get(channel_id);
             if (!channel) throw new Error(`Channel ID '${channel_id}' could not be resolved`);
 
-            const result = await TumblrModule.getLatestPost(tumblr_user);
+            const result = await TumblrModule.getLatestPost(tumblr_user, 1);
             const { post, blog } = result;
 
             if (post.short_url !== last_link) {

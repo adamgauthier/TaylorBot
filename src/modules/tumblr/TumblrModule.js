@@ -1,25 +1,23 @@
 'use strict';
 
+const fetch = require('node-fetch');
+const querystring = require('querystring');
 const { MessageEmbed } = require('discord.js');
-const tumblr = require('tumblr.js');
 
-const TumblrConfig = require('../config/tumblr.json');
-const StringUtil = require('./StringUtil.js');
-
-const client = tumblr.createClient({
-    credentials: TumblrConfig.tumblrCredentials,
-    returnPromises: true
-});
+const { consumer_key } = require('../../config/tumblr.json');
+const StringUtil = require('../StringUtil');
 
 class TumblrModule {
-    static async getLatestPost(tumblrUser) {
-        const data = await TumblrModule.getDataFromUser(tumblrUser);
+    static async getLatestPost(tumblrUser, limit) {
+        const res = await fetch(`https://api.tumblr.com/v2/blog/${tumblrUser}.tumblr.com/posts?${querystring.stringify({
+            api_key: consumer_key,
+            filter: 'text',
+            limit
+        })}`).then(res => res.json());
 
-        return { 'post': data.posts[0], 'blog': data.blog };
-    }
+        const { response } = res;
 
-    static getDataFromUser(tumblrUser) {
-        return client.blogPosts(tumblrUser, { 'filter': 'text' });
+        return { post: response.posts[0], blog: response.blog };
     }
 
     static getEmbed(post, blog) {

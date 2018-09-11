@@ -9,7 +9,6 @@
     "massive": "^5.0.0",
     "moment": "^2.22.2",
     "node-fetch": "^2.2.0",
-    "tumblr.js": "^2.0.0",
     "winston": "^3.0.0"
   },
   "devDependencies": {
