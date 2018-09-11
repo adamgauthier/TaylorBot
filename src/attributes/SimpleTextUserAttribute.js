@@ -15,7 +15,7 @@ class SimpleTextUserAttribute extends TextUserAttribute {
         return DiscordEmbedFormatter
             .baseUserEmbed(user)
             .setTitle(`${user.username}'s ${this.description}`)
-            .setDescription(attribute);
+            .setDescription(this.format(attribute));
     }
 }
 

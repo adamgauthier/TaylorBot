@@ -3,22 +3,24 @@
 const WordArgumentType = require('./Word.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
-class UrlArgumentType extends WordArgumentType {
+const usernameRegex = '([a-z][a-z0-9_-]{1,14})';
+
+class LastFmUsernameArgumentType extends WordArgumentType {
     get id() {
         return 'last-fm-username';
     }
 
     parse(val) {
         const lastFm = val.trim();
-        const matches = lastFm.match(/^[a-z][a-z0-9_-]{1,14}$/i);
+        const matches = lastFm.match(new RegExp(`^${usernameRegex}$`, 'i'));
         if (matches) {
-            return matches[0];
+            return matches[1];
         }
         else {
             try {
                 const url = new URL(lastFm);
                 if (url.hostname === 'www.last.fm') {
-                    const matches = url.pathname.match(/^\/user\/([a-z][a-z0-9_-]{1,14})$/i);
+                    const matches = url.pathname.match(new RegExp(`^\\/user\\/${usernameRegex}(\\/.*)?$`, 'i'));
                     if (matches)
                         return matches[1];
                 }
@@ -32,4 +34,4 @@ class UrlArgumentType extends WordArgumentType {
     }
 }
 
-module.exports = UrlArgumentType;
+module.exports = LastFmUsernameArgumentType;

@@ -49,6 +49,10 @@ class LastFmAttribute extends TextUserAttribute {
                 `Total Scrobbles: ${lastFmUser.total}`
             ].join(' | '), 'https://i.imgur.com/pVu9vTr.png');
     }
+
+    format(attribute) {
+        return `[${attribute}](https://www.last.fm/user/${attribute})`;
+    }
 }
 
 module.exports = LastFmAttribute;

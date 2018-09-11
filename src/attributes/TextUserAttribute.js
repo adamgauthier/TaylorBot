@@ -56,7 +56,7 @@ class TextUserAttribute extends UserAttribute {
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(guild)
             .setTitle(`List of ${this.description}`);
-        const lines = attributes.map(a => `<@${a.user_id}> - ${a.attribute_value}`);
+        const lines = attributes.map(a => `<@${a.user_id}> - ${this.format(a.attribute_value)}`);
 
         return new ArrayEmbedDescriptionPageMessage(
             client,
@@ -64,6 +64,10 @@ class TextUserAttribute extends UserAttribute {
             embed,
             ArrayUtil.chunk(lines, 20).map(chunk => chunk.join('\n'))
         );
+    }
+
+    format(attribute) {
+        return attribute;
     }
 }
 
