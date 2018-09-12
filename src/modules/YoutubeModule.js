@@ -42,7 +42,7 @@ class YoutubeModule {
             },
             'footer': {
                 'text': 'YouTube',
-                'icon_url': 'http://i.imgur.com/ZQUERxd.png'
+                'icon_url': 'https://i.imgur.com/ZQUERxd.png'
             },
             'thumbnail': video.thumbnails.medium,
             'color': 0xe52d27

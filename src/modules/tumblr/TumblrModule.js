@@ -31,7 +31,7 @@ class TumblrModule {
             },
             'footer': {
                 'text': 'Tumblr',
-                'icon_url': 'http://i.imgur.com/vKz0iHQ.png'
+                'icon_url': 'https://i.imgur.com/vKz0iHQ.png'
             },
             'color': 0x36465D
         });
@@ -43,12 +43,12 @@ class TumblrModule {
             case 'link':
                 if (post.description) description = post.description;
                 else if (post.excerpt) description = post.excerpt;
-                thumbnail = 'http://i.imgur.com/1zeAyat.png';
+                thumbnail = 'https://i.imgur.com/1zeAyat.png';
                 break;
 
             case 'video':
                 description = post.permalink_url;
-                thumbnail = post.thumbnail_url ? post.thumbnail_url : 'http://i.imgur.com/R8x5Qp6.png';
+                thumbnail = post.thumbnail_url ? post.thumbnail_url : 'https://i.imgur.com/R8x5Qp6.png';
                 break;
 
             case 'photo': {
@@ -60,7 +60,7 @@ class TumblrModule {
             }
 
             case 'text':
-                thumbnail = 'http://i.imgur.com/QEi1hXM.png';
+                thumbnail = 'https://i.imgur.com/QEi1hXM.png';
                 description = post.body;
                 break;
 
@@ -70,11 +70,11 @@ class TumblrModule {
 
             case 'quote':
                 if (post.tags && post.tags.length > 0) description = post.tags.map(e => `#${e}`).join(' ');
-                thumbnail = 'http://i.imgur.com/Xz5GKKh.png';
+                thumbnail = 'https://i.imgur.com/Xz5GKKh.png';
                 break;
 
             case 'audio':
-                thumbnail = 'http://i.imgur.com/NM5J5SD.png';
+                thumbnail = 'https://i.imgur.com/NM5J5SD.png';
                 break;
 
             case 'answer':

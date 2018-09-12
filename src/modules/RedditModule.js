@@ -24,7 +24,7 @@ class RedditModule {
             },
             'footer': {
                 'text': `u/${post.author}`,
-                'icon_url': 'http://i.imgur.com/HbUa6WQ.png'
+                'icon_url': 'https://i.imgur.com/HbUa6WQ.png'
             },
             'color': 0xFF5700
         });

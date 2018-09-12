@@ -5,7 +5,7 @@ const querystring = require('querystring');
 
 class UrbanDictionaryModule {
     static async search(term) {
-        const response = await fetch(`http://api.urbandictionary.com/v0/define?${querystring.stringify({
+        const response = await fetch(`https://api.urbandictionary.com/v0/define?${querystring.stringify({
             term
         })}`).then(res => res.json());
 
