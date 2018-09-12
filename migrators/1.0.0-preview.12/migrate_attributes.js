@@ -45,6 +45,23 @@ const migrate = async () => {
             await pg_db.attributes.text_attributes.insert(pg_snapchats);
         }
     });
+
+    sqlite_db.all(`SELECT id, tumblr FROM user WHERE tumblr IS NOT NULL AND tumblr != '';`, async (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        else {
+            const pg_tumblrs = rows.map(tumblr => {
+                return {
+                    'user_id': tumblr.id,
+                    'attribute_id': 'tumblr',
+                    'attribute_value': tumblr.tumblr
+                };
+            });
+
+            await pg_db.attributes.text_attributes.insert(pg_tumblrs);
+        }
+    });
 };
 
 migrate();
