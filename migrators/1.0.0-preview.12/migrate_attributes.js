@@ -28,6 +28,23 @@ const migrate = async () => {
             await pg_db.attributes.text_attributes.insert(pg_instagrams);
         }
     });
+
+    sqlite_db.all(`SELECT id, snapchat FROM user WHERE snapchat IS NOT NULL AND snapchat != '';`, async (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        else {
+            const pg_snapchats = rows.map(snapchat => {
+                return {
+                    'user_id': snapchat.id,
+                    'attribute_id': 'snapchat',
+                    'attribute_value': snapchat.snapchat
+                };
+            });
+
+            await pg_db.attributes.text_attributes.insert(pg_snapchats);
+        }
+    });
 };
 
 migrate();
