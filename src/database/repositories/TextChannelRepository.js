@@ -42,7 +42,7 @@ class TextChannelRepository {
             return await this._db.guilds.text_channels.find(
                 {
                     'guild_id': guild.id,
-                    'is_logging': true
+                    'is_log': true
                 }
             );
         }
@@ -98,12 +98,12 @@ class TextChannelRepository {
         }
     }
 
-    async _setLogging(guildChannel, isLogging) {
+    async _setLog(guildChannel, isLog) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this._db.guilds.text_channels.update(databaseChannel,
                 {
-                    'is_logging': isLogging
+                    'is_log': isLog
                 },
                 {
                     'single': true
@@ -111,17 +111,17 @@ class TextChannelRepository {
             );
         }
         catch (e) {
-            Log.error(`Setting ${Format.guildChannel(guildChannel)} as logging channel: ${e}`);
+            Log.error(`Setting ${Format.guildChannel(guildChannel)} as log channel: ${e}`);
             throw e;
         }
     }
 
-    async setLogging(guildChannel) {
-        return this._setLogging(guildChannel, true);
+    setLog(guildChannel) {
+        return this._setLog(guildChannel, true);
     }
 
-    async removeLogging(guildChannel) {
-        return this._setLogging(guildChannel, false);
+    removeLog(guildChannel) {
+        return this._setLog(guildChannel, false);
     }
 }
 

@@ -39,7 +39,7 @@ class AddLogChannelCommand extends Command {
             throw new CommandError(`There can only be 1 log channel for a server.`);
         }
 
-        await database.textChannels.setLogging(channel);
+        await database.textChannels.setLog(channel);
         return client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a log channel.`);
     }
 }
