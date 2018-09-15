@@ -123,6 +123,34 @@ class TextChannelRepository {
     removeLog(guildChannel) {
         return this._setLog(guildChannel, false);
     }
+
+    async _setSpam(guildChannel, isSpam) {
+        const databaseChannel = this.mapChannelToDatabase(guildChannel);
+        try {
+            return await this._db.instance.one([
+                'UPDATE guilds.text_channels',
+                'SET is_spam = ${is_spam}',
+                'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
+                'RETURNING *;'
+            ].join('\n'),
+            {
+                ...databaseChannel,
+                'is_spam': isSpam
+            });
+        }
+        catch (e) {
+            Log.error(`Setting ${Format.guildChannel(guildChannel)} as spam channel: ${e}`);
+            throw e;
+        }
+    }
+
+    setSpam(guildChannel) {
+        return this._setSpam(guildChannel, true);
+    }
+
+    removeSpam(guildChannel) {
+        return this._setSpam(guildChannel, false);
+    }
 }
 
 module.exports = TextChannelRepository;
