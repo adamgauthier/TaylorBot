@@ -86,14 +86,41 @@ class TextChannelRepository {
     }
 
     async addMessagesCount(guildChannel, messageCount) {
+        const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.query(
-                'UPDATE guilds.text_channels SET messages_count = messages_count + $1 WHERE guild_id = $2 AND channel_id = $3 RETURNING *;',
-                [messageCount, guildChannel.guild.id, guildChannel.id]
-            );
+            return await this._db.instance.one([
+                'UPDATE guilds.text_channels',
+                'SET messages_count = messages_count + ${count}',
+                'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
+                'RETURNING *;'
+            ].join('\n'),
+            {
+                ...databaseChannel,
+                count: messageCount
+            });
         }
         catch (e) {
             Log.error(`Adding ${messageCount} messages to text channel ${Format.guildChannel(guildChannel)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async removeMessages(guildChannel, messagesToRemove) {
+        const databaseChannel = this.mapChannelToDatabase(guildChannel);
+        try {
+            return await this._db.instance.one([
+                'UPDATE guilds.text_channels',
+                'SET messages_count = GREATEST(0, messages_count - ${messages_to_remove})',
+                'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
+                'RETURNING *;'
+            ].join('\n'),
+            {
+                ...databaseChannel,
+                messages_to_remove: messagesToRemove
+            });
+        }
+        catch (e) {
+            Log.error(`Removing ${messagesToRemove} messages from text channel ${Format.guildChannel(guildChannel)}: ${e}`);
             throw e;
         }
     }

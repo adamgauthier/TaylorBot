@@ -105,17 +105,23 @@ class GuildMemberRepository {
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
             return await this._db.instance.tx(async t => {
-                await t.none(
-                    'UPDATE guilds.guild_members SET minutes_count = minutes_count + $1 WHERE last_spoke_at > $2;',
-                    [minutesToAdd, minimumLastSpoke]
-                );
                 await t.none([
-                    'UPDATE guilds.guild_members SET ',
-                    'minutes_milestone = (minutes_count-(minutes_count % $1)),',
-                    'taypoints_count = taypoints_count + $2',
-                    'WHERE minutes_count >= minutes_milestone + $1;'
-                ].join('\n'), [minutesForReward, pointsReward]
-                );
+                    'UPDATE guilds.guild_members',
+                    'SET minutes_count = minutes_count + ${minutes_to_add}',
+                    'WHERE last_spoke_at > ${minimum_last_spoke};'
+                ].join('\n'), {
+                    minutes_to_add: minutesToAdd,
+                    minimum_last_spoke: minimumLastSpoke
+                });
+                await t.none([
+                    'UPDATE guilds.guild_members SET',
+                    '   minutes_milestone = (minutes_count-(minutes_count % ${minutes_for_reward})),',
+                    '   taypoints_count = taypoints_count + ${points_reward}',
+                    'WHERE minutes_count >= minutes_milestone + ${minutes_for_reward};'
+                ].join('\n'), {
+                    minutes_for_reward: minutesForReward,
+                    points_reward: pointsReward
+                });
             });
         }
         catch (e) {
@@ -160,6 +166,48 @@ class GuildMemberRepository {
         }
         catch (e) {
             Log.error(`Fixing Invalid Join Date for ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async addMessagesAndWords(guildMember, messagesToAdd, wordsToAdd) {
+        const databaseMember = this.mapMemberToDatabase(guildMember);
+        try {
+            await this._db.instance.none([
+                'UPDATE guilds.guild_members SET',
+                '   message_count = message_count + ${messages_to_add},',
+                '   word_count = word_count + ${words_to_add}',
+                'WHERE guild_id = ${guild_id} AND user_id = ${user_id};'
+            ].join('\n'),
+            {
+                ...databaseMember,
+                messages_to_add: messagesToAdd,
+                words_to_add: wordsToAdd,
+            });
+        }
+        catch (e) {
+            Log.error(`Adding ${messagesToAdd} messages and ${wordsToAdd} words for guild member ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async removeMessagesAndWords(guildMember, messagesToRemove, wordsToRemove) {
+        const databaseMember = this.mapMemberToDatabase(guildMember);
+        try {
+            await this._db.instance.none([
+                'UPDATE guilds.guild_members SET',
+                '   message_count = GREATEST(0, message_count - ${message_to_remove}),',
+                '   word_count = GREATEST(0, word_count - ${words_to_remove})',
+                'WHERE guild_id = ${guild_id} AND user_id = ${user_id};'
+            ].join('\n'),
+            {
+                ...databaseMember,
+                message_to_remove: messagesToRemove,
+                words_to_remove: wordsToRemove
+            });
+        }
+        catch (e) {
+            Log.error(`Removing ${messagesToRemove} messages and ${wordsToRemove} words from guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
