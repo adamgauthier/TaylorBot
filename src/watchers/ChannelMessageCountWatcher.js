@@ -9,7 +9,7 @@ class ChannelMessageCountWatcher extends MessageWatcher {
         const { channel } = message;
         if (channel.type === 'text') {
             const messageCount = 1;
-            const textChannel = await database.textChannels.addMessagesCount(channel, messageCount);
+            const textChannel = await database.textChannels.addMessages(channel, messageCount);
 
             if (!textChannel.is_spam) {
                 const { member } = message;

@@ -85,22 +85,22 @@ class TextChannelRepository {
         }
     }
 
-    async addMessagesCount(guildChannel, messageCount) {
+    async addMessages(guildChannel, messagesToAdd) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this._db.instance.one([
                 'UPDATE guilds.text_channels',
-                'SET messages_count = messages_count + ${count}',
+                'SET message_count = message_count + ${messages_to_add}',
                 'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
                 'RETURNING *;'
             ].join('\n'),
             {
                 ...databaseChannel,
-                count: messageCount
+                messages_to_add: messagesToAdd
             });
         }
         catch (e) {
-            Log.error(`Adding ${messageCount} messages to text channel ${Format.guildChannel(guildChannel)}: ${e}`);
+            Log.error(`Adding ${messagesToAdd} messages to text channel ${Format.guildChannel(guildChannel)}: ${e}`);
             throw e;
         }
     }
@@ -110,7 +110,7 @@ class TextChannelRepository {
         try {
             return await this._db.instance.one([
                 'UPDATE guilds.text_channels',
-                'SET messages_count = GREATEST(0, messages_count - ${messages_to_remove})',
+                'SET message_count = GREATEST(0, message_count - ${messages_to_remove})',
                 'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
                 'RETURNING *;'
             ].join('\n'),

@@ -9,3 +9,6 @@ ALTER TABLE guilds.guild_members
 
 ALTER TABLE guilds.guild_members
     ADD COLUMN word_count integer NOT NULL DEFAULT 0;
+
+ALTER TABLE guilds.text_channels
+    RENAME messages_count TO message_count;
