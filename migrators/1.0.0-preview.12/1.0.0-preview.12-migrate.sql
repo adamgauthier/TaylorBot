@@ -12,3 +12,6 @@ ALTER TABLE guilds.guild_members
 
 ALTER TABLE guilds.text_channels
     RENAME messages_count TO message_count;
+
+ALTER TABLE guilds.guild_members
+    RENAME minutes_count TO minute_count;

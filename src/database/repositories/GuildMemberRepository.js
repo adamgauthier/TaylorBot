@@ -107,7 +107,7 @@ class GuildMemberRepository {
             return await this._db.instance.tx(async t => {
                 await t.none([
                     'UPDATE guilds.guild_members',
-                    'SET minutes_count = minutes_count + ${minutes_to_add}',
+                    'SET minute_count = minute_count + ${minutes_to_add}',
                     'WHERE last_spoke_at > ${minimum_last_spoke};'
                 ].join('\n'), {
                     minutes_to_add: minutesToAdd,
@@ -115,9 +115,9 @@ class GuildMemberRepository {
                 });
                 await t.none([
                     'UPDATE guilds.guild_members SET',
-                    '   minutes_milestone = (minutes_count-(minutes_count % ${minutes_for_reward})),',
+                    '   minutes_milestone = (minute_count-(minute_count % ${minutes_for_reward})),',
                     '   taypoints_count = taypoints_count + ${points_reward}',
-                    'WHERE minutes_count >= minutes_milestone + ${minutes_for_reward};'
+                    'WHERE minute_count >= minutes_milestone + ${minutes_for_reward};'
                 ].join('\n'), {
                     minutes_for_reward: minutesForReward,
                     points_reward: pointsReward
