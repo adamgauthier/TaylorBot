@@ -116,7 +116,7 @@ class GuildMemberRepository {
                 await t.none([
                     'UPDATE guilds.guild_members SET',
                     '   minutes_milestone = (minute_count-(minute_count % ${minutes_for_reward})),',
-                    '   taypoints_count = taypoints_count + ${points_reward}',
+                    '   taypoint_count = taypoint_count + ${points_reward}',
                     'WHERE minute_count >= minutes_milestone + ${minutes_for_reward};'
                 ].join('\n'), {
                     minutes_for_reward: minutesForReward,

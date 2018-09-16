@@ -15,3 +15,6 @@ ALTER TABLE guilds.text_channels
 
 ALTER TABLE guilds.guild_members
     RENAME minutes_count TO minute_count;
+
+ALTER TABLE guilds.guild_members
+    RENAME taypoints_count TO taypoint_count;
