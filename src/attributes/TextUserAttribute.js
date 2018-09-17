@@ -2,7 +2,7 @@
 
 const UserAttribute = require('./UserAttribute.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
-const ArrayEmbedDescriptionPageMessage = require('../modules/paging/ArrayEmbedDescriptionPageMessage.js');
+const ArrayEmbedMemberDescriptionPageMessage = require('../modules/paging/ArrayEmbedMemberDescriptionPageMessage.js');
 const ArrayUtil = require('../modules/ArrayUtil.js');
 
 class TextUserAttribute extends UserAttribute {
@@ -56,13 +56,14 @@ class TextUserAttribute extends UserAttribute {
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(guild)
             .setTitle(`List of ${this.description}`);
-        const lines = attributes.map(a => `<@${a.user_id}> - ${this.format(a.attribute_value)}`);
 
-        return new ArrayEmbedDescriptionPageMessage(
+        return new ArrayEmbedMemberDescriptionPageMessage(
             client,
             message.author,
             embed,
-            ArrayUtil.chunk(lines, 20).map(chunk => chunk.join('\n'))
+            ArrayUtil.chunk(attributes, 20),
+            guild,
+            (member, { attribute_value }) => `${member.user.username} - ${this.format(attribute_value)}`
         );
     }
 

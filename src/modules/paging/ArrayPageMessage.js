@@ -16,7 +16,7 @@ class ArrayPageMessage {
     }
 
     async send(channel, timeout = 30000) {
-        this.update();
+        await this.update();
         this.message = await this.sendMessage(channel);
 
         if (this.pages.length > 1) {
@@ -49,7 +49,7 @@ class ArrayPageMessage {
         };
     }
 
-    previous() {
+    async previous() {
         let newPage = this.currentPage - 1;
 
         if (newPage < 0) {
@@ -58,12 +58,12 @@ class ArrayPageMessage {
 
         if (this.currentPage != newPage) {
             this.currentPage = newPage;
-            this.update();
+            await this.update();
             return this.edit();
         }
     }
 
-    next() {
+    async next() {
         let newPage = this.currentPage + 1;
 
         if (newPage > this.pages.length - 1) {
@@ -72,7 +72,7 @@ class ArrayPageMessage {
 
         if (this.currentPage != newPage) {
             this.currentPage = newPage;
-            this.update();
+            await this.update();
             return this.edit();
         }
     }
