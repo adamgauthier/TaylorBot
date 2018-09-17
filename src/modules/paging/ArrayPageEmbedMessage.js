@@ -3,7 +3,7 @@
 const ArrayPageMessage = require('./ArrayPageMessage.js');
 
 class ArrayPageEmbedMessage extends ArrayPageMessage {
-    constructor(client, owner, embed, pages) {
+    constructor(client, owner, pages, embed) {
         super(client, owner, pages);
         if (new.target === ArrayPageEmbedMessage) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);

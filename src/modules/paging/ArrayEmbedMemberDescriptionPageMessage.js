@@ -3,8 +3,8 @@
 const ArrayEmbedDescriptionPageMessage = require('./ArrayEmbedDescriptionPageMessage.js');
 
 class ArrayEmbedMemberDescriptionPageMessage extends ArrayEmbedDescriptionPageMessage {
-    constructor(client, owner, embed, pages, guild, formatLine) {
-        super(client, owner, embed, pages);
+    constructor(client, owner, pages, embed, guild, formatLine) {
+        super(client, owner, pages, embed);
         this.guild = guild;
         this.formatLine = formatLine;
     }

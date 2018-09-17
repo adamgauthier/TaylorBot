@@ -38,8 +38,8 @@ class ServerNamesCommand extends Command {
         return new ArrayEmbedDescriptionPageMessage(
             client,
             author,
-            embed,
-            chunks.map(chunk => chunk.join('\n'))
+            chunks.map(chunk => chunk.join('\n')),
+            embed
         ).send(channel);
     }
 }

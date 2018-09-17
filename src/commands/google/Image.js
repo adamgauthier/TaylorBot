@@ -48,7 +48,7 @@ class ImageCommand extends Command {
             .baseUserEmbed(author)
             .setFooter(`${searchInformation.formattedTotalResults} results found in ${searchInformation.formattedSearchTime} seconds`);
 
-        return new ImageSearchResultsPageMessage(client, author, embed, items).send(channel);
+        return new ImageSearchResultsPageMessage(client, author, items, embed).send(channel);
     }
 }
 

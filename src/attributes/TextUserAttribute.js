@@ -60,8 +60,8 @@ class TextUserAttribute extends UserAttribute {
         return new ArrayEmbedMemberDescriptionPageMessage(
             client,
             message.author,
-            embed,
             ArrayUtil.chunk(attributes, 20),
+            embed,
             guild,
             (member, { attribute_value }) => `${member.user.username} - ${this.format(attribute_value)}`
         );

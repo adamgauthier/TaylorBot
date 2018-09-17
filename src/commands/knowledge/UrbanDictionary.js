@@ -36,8 +36,8 @@ class UrbanDictionaryCommand extends Command {
         return new UrbanDictionaryResultsPageMessage(
             client,
             author,
-            DiscordEmbedFormatter.baseUserEmbed(author),
-            results
+            results,
+            DiscordEmbedFormatter.baseUserEmbed(author)
         ).send(channel);
     }
 }

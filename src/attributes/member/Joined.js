@@ -36,8 +36,8 @@ class JoinedAttribute extends MemberAttribute {
         return new ArrayEmbedMemberDescriptionPageMessage(
             client,
             message.author,
-            embed,
             ArrayUtil.chunk(members, 20),
+            embed,
             guild,
             (member, { rank, first_joined_at }) => `${rank}: ${member.user.username} - ${TimeUtil.formatMini(first_joined_at)}`
         );
