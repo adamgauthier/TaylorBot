@@ -7,7 +7,7 @@ class Inhibitor {
         }
     }
 
-    shouldBeBlocked() {
+    shouldBeBlocked(messageContext, cachedCommand, argString) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a ${this.shouldBeBlocked.name}() method.`);
     }
 }
