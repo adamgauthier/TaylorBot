@@ -25,7 +25,7 @@ class GuildMemberRejoinedLoggable extends Loggable {
                 `\`❕\` I don't know when this user first joined.`
             )
             .setFooter('User rejoined')
-            .setTimestamp(joinedAt);
+            .setTimestamp(joinedAt ? joinedAt : new Date());
     }
 }
 

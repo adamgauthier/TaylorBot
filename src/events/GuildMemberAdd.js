@@ -14,14 +14,17 @@ class GuildMemberAdd extends EventHandler {
     }
 
     async handler(client, member) {
-        const { user, guild } = member;
+        const { user, guild, joinedTimestamp } = member;
         const { registry, database } = client.master;
+
+        if (!joinedTimestamp)
+            Log.warn(`Adding new member ${Format.member(member)}: joinedTimestamp was ${joinedTimestamp}.`);
 
         let loggable;
 
         if (!registry.users.has(member.id)) {
             Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-            await registry.users.addUser(member, member.joinedTimestamp);
+            await registry.users.addUser(member, joinedTimestamp);
             loggable = new GuildMemberJoinedLoggable(member);
         }
         else {
@@ -40,7 +43,7 @@ class GuildMemberAdd extends EventHandler {
 
             const latestUsername = await database.usernames.getLatest(user);
             if (!latestUsername || latestUsername.username !== user.username) {
-                await database.usernames.add(user, member.joinedTimestamp);
+                await database.usernames.add(user, joinedTimestamp);
                 Log.info(`Added new username for ${Format.user(user)}.`);
             }
         }

@@ -19,7 +19,7 @@ class GuildMemberJoinedLoggable extends Loggable {
             .setAuthor(`${user.tag} (${user.id})`, avatarURL, avatarURL)
             .setColor('#74d600')
             .setFooter('User joined')
-            .setTimestamp(joinedAt);
+            .setTimestamp(joinedAt ? joinedAt : new Date());
     }
 }
 
