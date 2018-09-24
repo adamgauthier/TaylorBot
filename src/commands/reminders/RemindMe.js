@@ -13,7 +13,7 @@ class RemindMeCommand extends Command {
             aliases: ['remind', 'reminder'],
             group: 'reminders',
             description: 'Sets a reminder for the future.',
-            examples: [`thursday 'listening party'`, `dec 13th 2018 "taylor's birthday"`],
+            examples: [`in 3 days 'listening party'`, `dec 13th 2018 "taylor's birthday"`],
 
             args: [
                 {
