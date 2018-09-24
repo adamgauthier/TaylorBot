@@ -19,20 +19,21 @@ const migrate = async () => {
         else {
             const pg_members = rows.map(member => {
                 return {
-                    'guild_id': member.serverId,
-                    'user_id': member.id,
-                    'minute_count': member.minutes,
-                    'message_count': member.messages,
-                    'word_count': member.wordscount,
+                    criteria: {
+                        'guild_id': member.serverId,
+                        'user_id': member.id,
+                    },
+                    update: {
+                        'minute_count': member.minutes,
+                        'message_count': member.messages,
+                        'word_count': member.wordscount
+                    }
                 };
             });
 
-            const halfMark = Math.floor(pg_members.length/2);
-            const firstHalf = pg_members.slice(0, halfMark);
-            const secondHalf = pg_members.slice(halfMark, pg_members.length);
-
-            await pg_db.guilds.guild_members.insert(firstHalf);
-            await pg_db.guilds.guild_members.insert(secondHalf);
+            for (const member of pg_members) {
+                await pg_db.guilds.guild_members.update(member.criteria, member.update);
+            }
         }
     });
 };
