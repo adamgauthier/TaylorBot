@@ -36,6 +36,29 @@ const migrate = async () => {
             }
         }
     });
+
+    sqlite_db.all(`SELECT id, spamOf FROM spamChannel;`, async (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        else {
+            const pg_channels = rows.map(channel => {
+                return {
+                    criteria: {
+                        'guild_id': channel.spamOf,
+                        'channel_id': channel.id
+                    },
+                    update: {
+                        'is_spam': true
+                    }
+                };
+            });
+
+            for (const channel of pg_channels) {
+                await pg_db.guilds.guild_members.update(channel.criteria, channel.update);
+            }
+        }
+    });
 };
 
 migrate();
