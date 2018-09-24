@@ -33,12 +33,16 @@ class TextUserAttribute extends UserAttribute {
 
     async set({ client, message }, value) {
         const { author } = message;
-        const attribute = await client.master.database.textAttributes.set(this.id, author, value);
+        const attribute = await client.master.database.textAttributes.set(this.id, author, this.valueToString(value));
 
         return DiscordEmbedFormatter
             .baseUserHeader(author)
             .setColor('#43b581')
             .setDescription(`Your ${this.description} has been set to '${attribute.attribute_value}'. ✅`);
+    }
+
+    valueToString(value) {
+        return value.toString();
     }
 
     async clear({ client, message }) {
