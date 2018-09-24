@@ -4,12 +4,12 @@
   "description": "Discord bot created for the r/TaylorSwift Discord server",
   "main": "taylorbot.js",
   "dependencies": {
+    "chalk": "^2.4.1",
     "chrono-node": "github:wanasit/chrono",
     "discord.js": "github:discordjs/discord.js",
     "massive": "^5.0.0",
     "moment": "^2.22.2",
-    "node-fetch": "^2.2.0",
-    "winston": "^3.0.0"
+    "node-fetch": "^2.2.0"
   },
   "devDependencies": {
     "eslint": "^5.4.0"

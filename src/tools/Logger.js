@@ -1,45 +1,36 @@
 'use strict';
 
-const { createLogger, format, transports } = require('winston');
-const { combine, printf, colorize } = format;
+const chalk = require('chalk');
 
-const { minLogLevel } = require('../config/config.json');
 const TimeUtil = require('../modules/TimeUtil.js');
 
-const logger = createLogger({
-    level: minLogLevel,
-    format: combine(
-        colorize(),
-        printf(info => {
-            return `[${TimeUtil.formatLog()}] ${info.level}: ${info.message}`;
-        })
-    ),
-    transports: [new transports.Console()]
-});
-
 class Logger {
+    static _log(level, message) {
+        console.log(`[${TimeUtil.formatLog()}] ${level.style(level.name)}: ${message}`);
+    }
+
     static error(message) {
-        logger.error(message);
+        Logger._log({ name: 'error', style: chalk.red }, message);
     }
 
     static warn(message) {
-        logger.warn(message);
+        Logger._log({ name: 'warn', style: chalk.yellow }, message);
     }
 
     static info(message) {
-        logger.info(message);
+        Logger._log({ name: 'info', style: chalk.green }, message);
     }
 
     static verbose(message) {
-        logger.verbose(message);
+        Logger._log({ name: 'verbose', style: chalk.cyan }, message);
     }
 
     static debug(message) {
-        logger.debug(message);
+        Logger._log({ name: 'debug', style: chalk.gray }, message);
     }
 
     static silly(message) {
-        logger.silly(message);
+        Logger._log({ name: 'silly', style: chalk.magenta }, message);
     }
 }
 
