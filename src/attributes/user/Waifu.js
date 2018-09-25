@@ -10,7 +10,7 @@ class WaifuAttribute extends TextUserAttribute {
             description: 'waifu',
             value: {
                 label: 'waifu',
-                type: 'url',
+                type: 'http-url',
                 example: 'https://www.example.com/link/to/picture.jpg'
             }
         });
