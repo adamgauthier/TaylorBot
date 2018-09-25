@@ -29,14 +29,19 @@ class LastFmAttribute extends TextUserAttribute {
         const { recenttracks: recentTracks } = response;
 
         const lastFmUser = recentTracks['@attr'];
-        const mostRecentTrack = recentTracks.track[0];
-        const imageUrl = mostRecentTrack.image[2]['#text'] || mostRecentTrack.artist.image[2]['#text'];
-        const isNowPlaying = mostRecentTrack['@attr'] && mostRecentTrack['@attr'].nowplaying;
 
         const embed = DiscordEmbedFormatter.baseUserEmbed(user);
 
         embed.author.name = lastFmUser.user;
         embed.author.url = `https://www.last.fm/user/${lastFmUser.user}`;
+
+        if (recentTracks.track.length === 0) {
+            return embed.setDescription(`This user doesn't have any scrobbles.`);
+        }
+
+        const mostRecentTrack = recentTracks.track[0];
+        const imageUrl = mostRecentTrack.image[2]['#text'] || mostRecentTrack.artist.image[2]['#text'];
+        const isNowPlaying = mostRecentTrack['@attr'] && mostRecentTrack['@attr'].nowplaying;
 
         if (imageUrl)
             embed.setThumbnail(imageUrl);
