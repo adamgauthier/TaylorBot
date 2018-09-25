@@ -2,10 +2,10 @@
 
 const { URL } = require('url');
 
-const WordArgumentType = require('./Word.js');
+const TextArgumentType = require('./Text.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 
-class UrlArgumentType extends WordArgumentType {
+class UrlArgumentType extends TextArgumentType {
     get id() {
         return 'url';
     }
