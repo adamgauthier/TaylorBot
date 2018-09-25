@@ -5,6 +5,10 @@ const { MessageEmbed } = require('discord.js');
 
 const StringUtil = require('./StringUtil.js');
 
+const REDDIT_ICON_URL = 'https://i.imgur.com/HbUa6WQ.png';
+const SPOILER_THUMBNAIL_URL = 'https://i.imgur.com/oCFUKo7.png';
+const LINK_THUMBNAIL_URL = 'https://i.imgur.com/Z22fPpC.png';
+
 class RedditModule {
     static async getLatestPost(subreddit) {
         const body = await fetch(`https://www.reddit.com/r/${subreddit}/new/.json`).then(res => res.json());
@@ -24,7 +28,7 @@ class RedditModule {
             },
             'footer': {
                 'text': `u/${post.author}`,
-                'icon_url': 'https://i.imgur.com/HbUa6WQ.png'
+                'icon_url': REDDIT_ICON_URL
             },
             'color': 0xFF5700
         });
@@ -34,7 +38,10 @@ class RedditModule {
             re.setDescription(post.spoiler ? '[Spoiler]' : StringUtil.shrinkString(post.selftext, 400, '(...)'));
         }
         else {
-            re.setThumbnail(post.spoiler ? 'https://i.imgur.com/oCFUKo7.png' : post.thumbnail);
+            re.setThumbnail(post.spoiler ?
+                SPOILER_THUMBNAIL_URL :
+                post.thumbnail === 'default' ? LINK_THUMBNAIL_URL : post.thumbnail
+            );
             re.setDescription(`🔺 ${StringUtil.plural(post.score, 'point', '`')}, ${StringUtil.plural(post.num_comments, 'comment', '`')} 💬`);
         }
 
