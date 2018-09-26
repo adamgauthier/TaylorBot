@@ -39,8 +39,9 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const commandName = text.split(' ')[0].toLowerCase();
-        const cachedCommand = client.master.registry.commands.resolve(commandName);
+        const spaceMatches = text.match(/\s/);
+        const commandName = spaceMatches ? text.substring(0, spaceMatches.index) : text;
+        const cachedCommand = client.master.registry.commands.resolve(commandName.toLowerCase());
 
         if (!cachedCommand)
             return;
