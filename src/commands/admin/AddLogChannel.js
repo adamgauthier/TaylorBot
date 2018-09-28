@@ -2,7 +2,7 @@
 
 const UserGroups = require('../../client/UserGroups.json');
 const Format = require('../../modules/DiscordFormatter.js');
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 const CommandError = require('../../structures/CommandError.js');
 
 class AddLogChannelCommand extends Command {

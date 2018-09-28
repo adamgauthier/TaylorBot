@@ -3,7 +3,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const BaseCommand = require('../structures/Command.js');
+const BaseCommand = require('./Command.js');
 
 const commandsPath = __dirname;
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 const CommandsWatcher = require('../../watchers/Commands.js');
 
 class SetAttributeCommand extends Command {

@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 const CleverBot = require('../../modules/cleverbot/CleverBotModule.js');
 
 class CleverBotCommand extends Command {

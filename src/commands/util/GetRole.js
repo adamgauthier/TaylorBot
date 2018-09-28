@@ -1,7 +1,7 @@
 'use strict';
 
 const Format = require('../../modules/DiscordFormatter.js');
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 const CommandError = require('../../structures/CommandError.js');
 
 class GetRoleCommand extends Command {

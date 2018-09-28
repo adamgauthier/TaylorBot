@@ -1,7 +1,7 @@
 'use strict';
 
 const UserGroups = require('../../client/UserGroups.json');
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 const CommandError = require('../../structures/CommandError.js');
 
 class EnableGuildCommandCommand extends Command {

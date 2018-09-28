@@ -1,9 +1,9 @@
 'use strict';
 
 const UserGroups = require('../../client/UserGroups.json');
-const Format = require('../../modules/DiscordFormatter');
-const Command = require('../../structures/Command');
-const CommandError = require('../../structures/CommandError');
+const Format = require('../../modules/DiscordFormatter.js');
+const Command = require('../Command.js');
+const CommandError = require('../../structures/CommandError.js');
 
 class AddSpamChannelCommand extends Command {
     constructor() {

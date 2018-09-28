@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 const CommandError = require('../../structures/CommandError.js');
 const Urban = require('../../modules/urban/UrbanDictionaryModule.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');

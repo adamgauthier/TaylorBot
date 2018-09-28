@@ -1,7 +1,7 @@
 'use strict';
 
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const Command = require('../../structures/Command.js');
+const Command = require('../Command.js');
 
 class UserInfoCommand extends Command {
     constructor() {

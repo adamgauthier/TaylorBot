@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../structures/Command.js');
+const Command = require('../commands/Command.js');
 
 class ClearUserAttributeCommand extends Command {
     constructor(attribute) {
