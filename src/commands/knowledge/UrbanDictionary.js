@@ -1,7 +1,7 @@
 'use strict';
 
 const Command = require('../Command.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const Urban = require('../../modules/urban/UrbanDictionaryModule.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const UrbanDictionaryResultsPageMessage = require('../../modules/paging/UrbanDictionaryResultsPageMessage.js');

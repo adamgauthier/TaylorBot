@@ -2,7 +2,7 @@
 
 const Command = require('../Command.js');
 const YoutubeModule = require('../../modules/YoutubeModule.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const ArrayTextPageMessage = require('../../modules/paging/ArrayTextPageMessage.js');
 
 class YoutubeCommand extends Command {

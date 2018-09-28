@@ -1,7 +1,7 @@
 'use strict';
 
 const Command = require('../Command.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const WolframAlpha = require('../../modules/wolfram/WolframAlphaModule.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 

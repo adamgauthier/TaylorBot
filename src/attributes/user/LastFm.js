@@ -3,7 +3,7 @@
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const TextUserAttribute = require('../TextUserAttribute.js');
 const LastFmModule = require('../../modules/lastfm/LastFmModule.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../../commands/CommandError.js');
 
 class LastFmAttribute extends TextUserAttribute {
     constructor() {

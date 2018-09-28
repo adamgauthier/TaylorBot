@@ -2,7 +2,7 @@
 
 const EmbedUtil = require('../../modules/EmbedUtil.js');
 const Command = require('../Command.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const UserGroups = require('../../client/UserGroups.json');
 const Log = require('../../tools/Logger.js');
 

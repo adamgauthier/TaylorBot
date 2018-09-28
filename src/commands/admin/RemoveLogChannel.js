@@ -3,7 +3,7 @@
 const UserGroups = require('../../client/UserGroups.json');
 const Format = require('../../modules/DiscordFormatter.js');
 const Command = require('../Command.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 
 class RemoveLogChannelCommand extends Command {
     constructor() {

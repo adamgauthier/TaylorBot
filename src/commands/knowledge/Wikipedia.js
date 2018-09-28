@@ -1,7 +1,7 @@
 'use strict';
 
 const Command = require('../Command.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const Wikipedia = require('../../modules/wiki/WikipediaModule.js');
 
 class WikipediaCommand extends Command {

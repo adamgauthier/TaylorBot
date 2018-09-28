@@ -3,7 +3,7 @@
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const Command = require('../Command.js');
 const GoogleImagesModule = require('../../modules/GoogleImagesModule.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const ImageSearchResultsPageMessage = require('../../modules/paging/ImageSearchResultsPageMessage.js');
 
 class ImageCommand extends Command {

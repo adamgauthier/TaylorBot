@@ -1,7 +1,7 @@
 'use strict';
 
 const Command = require('../Command.js');
-const CommandError = require('../../structures/CommandError.js');
+const CommandError = require('../CommandError.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 
 const REMINDERS_LIMIT = 3;
