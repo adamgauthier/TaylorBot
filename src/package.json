@@ -15,7 +15,7 @@
     "eslint": "^5.4.0"
   },
   "engines": {
-    "node": ">=10.7.0"
+    "node": ">=10.11.0"
   },
   "scripts": {
     "start": "node taylorbot.js",

@@ -2,7 +2,7 @@
 
 const Log = require('../../tools/Logger.js');
 const CachedCommand = require('./CachedCommand.js');
-const CommandLoader = require('../../modules/CommandLoader.js');
+const CommandLoader = require('../../commands/CommandLoader.js');
 const AttributeLoader = require('../../attributes/AttributeLoader.js');
 
 class CommandRegistry extends Map {
