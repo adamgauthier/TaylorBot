@@ -9,7 +9,7 @@ class OldAttributesInhibitor extends Inhibitor {
         const { author } = message;
 
         if (command.name === 'rank' &&
-            ['minutes', 'messages', 'points', 'rolls', '1989rolls', 'age'].includes(argString.trim().split(' ')[0])) {
+            ['minutes', 'messages', 'points', 'rolls', '1989rolls'].includes(argString.trim().split(' ')[0])) {
             Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because it uses old attributes.`);
             return true;
         }
