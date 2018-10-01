@@ -28,6 +28,23 @@ const migrate = async () => {
             await pg_db.attributes.integer_attributes.insert(pg_ages);
         }
     });
+
+    sqlite_db.all(`SELECT id, gender FROM user WHERE gender IS NOT NULL;`, async (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        else {
+            const pg_genders = rows.map(gender => {
+                return {
+                    'user_id': gender.id,
+                    'attribute_id': 'gender',
+                    'attribute_value': gender.gender
+                };
+            });
+
+            await pg_db.attributes.text_attributes.insert(pg_genders);
+        }
+    });
 };
 
 migrate();
