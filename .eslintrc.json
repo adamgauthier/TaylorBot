@@ -3,11 +3,17 @@
         "es6": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/recommended"
+    ],
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+    "plugins": [
+        "import"
+    ],
     "rules": {
         "max-classes-per-file": [
             "error"
@@ -38,6 +44,12 @@
             "error"
         ],
         "no-trailing-spaces": "error",
-        "no-console": "off"
+        "no-console": "off",
+        "import/no-unresolved": [
+            "error",
+            {
+                "commonjs": true
+            }
+        ]
     }
 }
