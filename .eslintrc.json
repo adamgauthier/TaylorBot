@@ -50,6 +50,17 @@
             {
                 "commonjs": true
             }
-        ]
+        ],
+        "import/extensions": ["error", "always"]
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+              "extensions": [
+                ".js",
+                ".json"
+              ]
+            }
+          }
     }
 }
