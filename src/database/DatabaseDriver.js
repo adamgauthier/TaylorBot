@@ -24,6 +24,7 @@ const CleverBotSessionRepository = require('./repositories/CleverBotSessionRepos
 const AttributeRepository = require('./repositories/AttributeRepository.js');
 const TextAttributeRepository = require('./repositories/TextAttributeRepository.js');
 const IntegerAttributeRepository = require('./repositories/IntegerAttributeRepository.js');
+const LocationAttributeRepository = require('./repositories/LocationAttributeRepository.js');
 
 class DatabaseDriver {
     async load() {
@@ -51,6 +52,7 @@ class DatabaseDriver {
         this.attributes = new AttributeRepository(this._db);
         this.textAttributes = new TextAttributeRepository(this._db);
         this.integerAttributes = new IntegerAttributeRepository(this._db);
+        this.locationAttributes = new LocationAttributeRepository(this._db);
     }
 }
 
