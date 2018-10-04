@@ -21,6 +21,25 @@ class TextAttributeRepository {
         }
     }
 
+    async getMultiple(attributeIds, user) {
+        try {
+            const attributeRows = await this._db.instance.any([
+                'SELECT * FROM attributes.text_attributes',
+                'WHERE user_id = ${user_id} AND',
+                'attribute_id IN (${attributes:csv})'
+            ].join('\n'),
+            {
+                'user_id': user.id,
+                'attributes': attributeIds
+            });
+            return attributeIds.map(id => attributeRows.find(a => a.attribute_id === id));
+        }
+        catch (e) {
+            Log.error(`Getting attributes '${attributeIds.join()}' for user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
+
     async set(attributeId, user, value) {
         try {
             return await this._db.instance.one([
