@@ -3,7 +3,6 @@
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const Command = require('../Command.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
-
 const ArrayUtil = require('../../modules/ArrayUtil.js');
 const ArrayEmbedDescriptionPageMessage = require('../../modules/paging/ArrayEmbedDescriptionPageMessage.js');
 
@@ -13,7 +12,7 @@ class UsernamesCommand extends Command {
             name: 'usernames',
             aliases: ['names'],
             group: 'info',
-            description: 'Gets a list of previous usernames for a user in the current server.',
+            description: 'Gets a list of previous usernames for a user.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
 
             args: [

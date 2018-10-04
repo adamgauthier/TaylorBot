@@ -9,7 +9,7 @@ class AvatarCommand extends Command {
             name: 'avatar',
             aliases: ['av', 'avi'],
             group: 'info',
-            description: 'Gets the avatar of a user in the current server.',
+            description: 'Gets the avatar of a user.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
 
             args: [
