@@ -27,7 +27,7 @@ class ClearAttributeCommand extends Command {
 
         return client.sendEmbed(
             message.channel,
-            await attribute.clear(commandContext)
+            await attribute.clearCommand(commandContext)
         );
     }
 }

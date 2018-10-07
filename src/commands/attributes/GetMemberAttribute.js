@@ -33,7 +33,7 @@ class GetMemberAttributeCommand extends Command {
         const { client, message } = commandContext;
         return client.sendEmbed(
             message.channel,
-            await attribute.retrieve(commandContext, member)
+            await attribute.getCommand(commandContext, member)
         );
     }
 }

@@ -1,8 +1,8 @@
 'use strict';
 
-const SimpleTextUserAttribute = require('../SimpleTextUserAttribute.js');
+const TextUserAttribute = require('../TextUserAttribute.js');
 
-class TumblrAttribute extends SimpleTextUserAttribute {
+class TumblrAttribute extends TextUserAttribute {
     constructor() {
         super({
             id: 'tumblr',
@@ -17,7 +17,8 @@ class TumblrAttribute extends SimpleTextUserAttribute {
     }
 
     format(attribute) {
-        return `[${attribute}](https://${attribute}.tumblr.com/)`;
+        const value = super.formatValue(attribute);
+        return `[${value}](https://${value}.tumblr.com/)`;
     }
 }
 

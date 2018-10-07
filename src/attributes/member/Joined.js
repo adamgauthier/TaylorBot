@@ -15,7 +15,7 @@ class JoinedAttribute extends MemberAttribute {
         });
     }
 
-    async retrieve({ client }, member) {
+    async getCommand({ client }, member) {
         const { first_joined_at, rank } = await client.master.database.guildMembers.getRankedFirstJoinedAtFor(member);
 
         return DiscordEmbedFormatter
@@ -26,7 +26,7 @@ class JoinedAttribute extends MemberAttribute {
             ].join('\n'));
     }
 
-    async rank({ message, client }, guild) {
+    async rankCommand({ message, client }, guild) {
         const members = await client.master.database.guildMembers.getRankedFirstJoinedAt(guild, 100);
 
         const embed = DiscordEmbedFormatter

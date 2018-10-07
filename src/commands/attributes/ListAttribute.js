@@ -25,7 +25,7 @@ class ListAttributeCommand extends Command {
     async run(commandContext, { attribute }) {
         const { guild, channel } = commandContext.message;
 
-        const pageMessage = await attribute.list(commandContext, guild);
+        const pageMessage = await attribute.listCommand(commandContext, guild);
 
         return pageMessage.send(channel);
     }

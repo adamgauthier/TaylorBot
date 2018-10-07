@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../commands/Command.js');
+const Command = require('../../commands/Command.js');
 
 class ListAttributeCommand extends Command {
     constructor(attribute) {
@@ -20,7 +20,7 @@ class ListAttributeCommand extends Command {
     async run(commandContext) {
         const { guild, channel } = commandContext.message;
 
-        const pageMessage = await this.attribute.list(commandContext, guild);
+        const pageMessage = await this.attribute.listCommand(commandContext, guild);
 
         return pageMessage.send(channel);
     }

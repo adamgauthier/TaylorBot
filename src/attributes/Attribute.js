@@ -16,7 +16,7 @@ class Attribute {
         this.canList = canList === undefined ? false : canList;
     }
 
-    async list(commandContext, guild) { // eslint-disable-line no-unused-vars
+    async list(database, guild, entries) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a ${this.list.name}() method.`);
     }
 }

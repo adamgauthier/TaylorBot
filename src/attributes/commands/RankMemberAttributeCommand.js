@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../commands/Command.js');
+const Command = require('../../commands/Command.js');
 
 class RankMemberAttributeCommand extends Command {
     constructor(attribute) {
@@ -20,7 +20,7 @@ class RankMemberAttributeCommand extends Command {
     async run(commandContext) {
         const { guild, channel } = commandContext.message;
 
-        const pageMessage = await this.attribute.rank(commandContext, guild);
+        const pageMessage = await this.attribute.rankCommand(commandContext, guild);
 
         return pageMessage.send(channel);
     }

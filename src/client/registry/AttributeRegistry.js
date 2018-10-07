@@ -22,7 +22,7 @@ class AttributeRegistry extends Map {
         );
 
         if (databaseAttributesNotInFiles.length > 0)
-            throw new Error(`Found database attributes not in files: ${databaseAttributesNotInFiles.map(da => da.id).join(',')}.`);
+            throw new Error(`Found database attributes not in files: ${databaseAttributesNotInFiles.map(da => da.attribute_id).join(',')}.`);
 
         const fileAttributesNotInDatabase = attributes.filter(
             attribute => !databaseAttributes.some(da => da.attribute_id === attribute.id)

@@ -3,12 +3,12 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const GetMemberAttributeCommand = require('./GetMemberAttributeCommand.js');
-const RankMemberAttributeCommand = require('./RankMemberAttributeCommand.js');
-const GetUserAttributeCommand = require('./GetUserAttributeCommand.js');
-const SetUserAttributeCommand = require('./SetUserAttributeCommand.js');
-const ClearUserAttributeCommand = require('./ClearUserAttributeCommand.js');
-const ListAttributeCommand = require('./ListAttributeCommand.js');
+const GetMemberAttributeCommand = require('./commands/GetMemberAttributeCommand.js');
+const RankMemberAttributeCommand = require('./commands/RankMemberAttributeCommand.js');
+const GetUserAttributeCommand = require('./commands/GetUserAttributeCommand.js');
+const SetUserAttributeCommand = require('./commands/SetUserAttributeCommand.js');
+const ClearUserAttributeCommand = require('./commands/ClearUserAttributeCommand.js');
+const ListAttributeCommand = require('./commands/ListAttributeCommand.js');
 
 class AttributeLoader {
     static async loadAttributesIn(dirPath) {

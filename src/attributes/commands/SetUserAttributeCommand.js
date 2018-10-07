@@ -1,6 +1,6 @@
 'use strict';
 
-const Command = require('../commands/Command.js');
+const Command = require('../../commands/Command.js');
 
 class SetUserAttributeCommand extends Command {
     constructor(attribute) {
@@ -27,7 +27,7 @@ class SetUserAttributeCommand extends Command {
         const { client, message } = commandContext;
         return client.sendEmbed(
             message.channel,
-            await this.attribute.set(commandContext, value)
+            await this.attribute.setCommand(commandContext, value)
         );
     }
 }

@@ -1,8 +1,8 @@
 'use strict';
 
-const SimpleTextUserAttribute = require('../SimpleTextUserAttribute.js');
+const TextUserAttribute = require('../TextUserAttribute.js');
 
-class InstagramAttribute extends SimpleTextUserAttribute {
+class InstagramAttribute extends TextUserAttribute {
     constructor() {
         super({
             id: 'instagram',
@@ -17,8 +17,9 @@ class InstagramAttribute extends SimpleTextUserAttribute {
         });
     }
 
-    format(attribute) {
-        return `[${attribute}](https://www.instagram.com/${attribute}/)`;
+    formatValue(attribute) {
+        const value = super.formatValue(attribute);
+        return `[${value}](https://www.instagram.com/${value}/)`;
     }
 }
 

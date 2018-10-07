@@ -1,8 +1,8 @@
 'use strict';
 
-const SimpleTextUserAttribute = require('../SimpleTextUserAttribute.js');
+const TextUserAttribute = require('../TextUserAttribute.js');
 
-class SnapchatAttribute extends SimpleTextUserAttribute {
+class SnapchatAttribute extends TextUserAttribute {
     constructor() {
         super({
             id: 'snapchat',
@@ -18,7 +18,8 @@ class SnapchatAttribute extends SimpleTextUserAttribute {
     }
 
     format(attribute) {
-        return `[${attribute}](https://www.snapchat.com/add/${attribute})`;
+        const value = super.formatValue(attribute);
+        return `[${value}](https://www.snapchat.com/add/${value})`;
     }
 }
 

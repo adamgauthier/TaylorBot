@@ -10,11 +10,11 @@ class MemberAttribute extends Attribute {
         }
     }
 
-    async retrieve(commandContext, member) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a ${this.retrieve.name}() method.`);
+    async getCommand(commandContext, member) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a ${this.getCommand.name}() method.`);
     }
 
-    async rank(commandContext, guild) { // eslint-disable-line no-unused-vars
+    async rankCommand(commandContext, guild) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a ${this.rank.name}() method.`);
     }
 }

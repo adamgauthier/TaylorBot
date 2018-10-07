@@ -1,7 +1,7 @@
 'use strict';
 
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const TextUserAttribute = require('../TextUserAttribute.js');
+const SimpleImagePresentor = require('../presentors/SimpleImagePresentor.js');
 
 class WaifuAttribute extends TextUserAttribute {
     constructor() {
@@ -12,15 +12,9 @@ class WaifuAttribute extends TextUserAttribute {
                 label: 'waifu',
                 type: 'http-url',
                 example: 'https://www.example.com/link/to/picture.jpg'
-            }
+            },
+            presentor: SimpleImagePresentor
         });
-    }
-
-    async getEmbed(commandContext, user, attribute) {
-        return DiscordEmbedFormatter
-            .baseUserEmbed(user)
-            .setTitle(`${user.username}'s ${this.description}`)
-            .setImage(attribute);
     }
 }
 

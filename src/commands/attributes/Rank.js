@@ -25,7 +25,7 @@ class RankCommand extends Command {
     async run(commandContext, { attribute }) {
         const { guild, channel } = commandContext.message;
 
-        const pageMessage = await attribute.rank(commandContext, guild);
+        const pageMessage = await attribute.rankCommand(commandContext, guild);
 
         return pageMessage.send(channel);
     }
