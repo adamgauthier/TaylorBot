@@ -31,7 +31,7 @@ const migrate = async () => {
                 const placeResponse = await GooglePlacesModule.findPlaceFromText(row.location);
                 if (placeResponse.status !== 'OK') {
                     console.log(`PLACE: ${placeResponse.status}`);
-                    break;
+                    continue;
                 }
 
                 const { geometry: { location: { lat, lng } }, formatted_address } = placeResponse.candidates[0];
@@ -39,7 +39,7 @@ const migrate = async () => {
 
                 if (response.status !== 'OK') {
                     console.log(`TIME: ${response.status}`);
-                    break;
+                    continue;
                 }
 
                 console.log(`${row.id}: ${row.location} -> ${formatted_address} / ${response.timeZoneId}`);

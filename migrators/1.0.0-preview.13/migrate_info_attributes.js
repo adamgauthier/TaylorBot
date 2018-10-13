@@ -21,7 +21,7 @@ const migrate = async () => {
                 return {
                     'user_id': age.id,
                     'attribute_id': 'age',
-                    'attribute_value': age.age
+                    'integer_value': age.age
                 };
             });
 

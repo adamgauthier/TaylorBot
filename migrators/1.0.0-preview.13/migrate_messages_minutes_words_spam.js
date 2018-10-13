@@ -55,7 +55,7 @@ const migrate = async () => {
             });
 
             for (const channel of pg_channels) {
-                await pg_db.guilds.guild_members.update(channel.criteria, channel.update);
+                await pg_db.guilds.text_channels.update(channel.criteria, channel.update);
             }
         }
     });
