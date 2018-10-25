@@ -88,16 +88,16 @@ class TextChannelRepository {
     async addMessages(guildChannel, messagesToAdd) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.one([
-                'UPDATE guilds.text_channels',
-                'SET message_count = message_count + ${messages_to_add}',
-                'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
-                'RETURNING *;'
-            ].join('\n'),
-            {
-                ...databaseChannel,
-                messages_to_add: messagesToAdd
-            });
+            return await this._db.instance.one(
+                `UPDATE guilds.text_channels
+                SET message_count = message_count + $[messages_to_add]
+                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
+                {
+                    ...databaseChannel,
+                    messages_to_add: messagesToAdd
+                }
+            );
         }
         catch (e) {
             Log.error(`Adding ${messagesToAdd} messages to text channel ${Format.guildChannel(guildChannel)}: ${e}`);
@@ -108,16 +108,16 @@ class TextChannelRepository {
     async removeMessages(guildChannel, messagesToRemove) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.one([
-                'UPDATE guilds.text_channels',
-                'SET message_count = GREATEST(0, message_count - ${messages_to_remove})',
-                'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
-                'RETURNING *;'
-            ].join('\n'),
-            {
-                ...databaseChannel,
-                messages_to_remove: messagesToRemove
-            });
+            return await this._db.instance.one(
+                `UPDATE guilds.text_channels
+                SET message_count = GREATEST(0, message_count - $[messages_to_remove])
+                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
+                {
+                    ...databaseChannel,
+                    messages_to_remove: messagesToRemove
+                }
+            );
         }
         catch (e) {
             Log.error(`Removing ${messagesToRemove} messages from text channel ${Format.guildChannel(guildChannel)}: ${e}`);
@@ -154,16 +154,16 @@ class TextChannelRepository {
     async _setSpam(guildChannel, isSpam) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.one([
-                'UPDATE guilds.text_channels',
-                'SET is_spam = ${is_spam}',
-                'WHERE guild_id = ${guild_id} AND channel_id = ${channel_id}',
-                'RETURNING *;'
-            ].join('\n'),
-            {
-                ...databaseChannel,
-                'is_spam': isSpam
-            });
+            return await this._db.instance.one(
+                `UPDATE guilds.text_channels
+                SET is_spam = $[is_spam]
+                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
+                {
+                    ...databaseChannel,
+                    'is_spam': isSpam
+                }
+            );
         }
         catch (e) {
             Log.error(`Setting ${Format.guildChannel(guildChannel)} as spam channel: ${e}`);

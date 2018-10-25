@@ -20,18 +20,18 @@ class GuildCommandRepository {
 
     async setDisabled(guild, commandName, disabled) {
         try {
-            return await this._db.instance.one([
-                'INSERT INTO guilds.guild_commands (guild_id, command_name, disabled)',
-                'VALUES (${guild_id}, ${command_name}, ${disabled})',
-                'ON CONFLICT (guild_id, command_name) DO UPDATE',
-                '  SET disabled = excluded.disabled',
-                'RETURNING *;'
-            ].join('\n'),
-            {
-                'guild_id': guild.id,
-                'command_name': commandName,
-                'disabled': disabled
-            });
+            return await this._db.instance.one(
+                `INSERT INTO guilds.guild_commands (guild_id, command_name, disabled)
+                VALUES ($[guild_id], $[command_name], $[disabled])
+                ON CONFLICT (guild_id, command_name) DO UPDATE
+                  SET disabled = excluded.disabled
+                RETURNING *;`,
+                {
+                    'guild_id': guild.id,
+                    'command_name': commandName,
+                    'disabled': disabled
+                }
+            );
         }
         catch (e) {
             Log.error(`Upserting guild command ${Format.guild(guild)} for '${commandName}' disabled to '${disabled}': ${e}`);
