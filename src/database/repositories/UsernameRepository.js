@@ -20,12 +20,17 @@ class UsernameRepository {
 
     async getLatest(user) {
         try {
-            return await this._db.usernames.getLatestUsername(
+            return await this._db.instance.oneOrNone(
+                `SELECT u.username, u.user_id
+                FROM (
+                    SELECT user_id, MAX(changed_at) AS max_changed_at
+                    FROM users.usernames
+                    GROUP BY user_id
+                ) AS maxed
+                JOIN users.usernames AS u ON u.user_id = maxed.user_id AND u.changed_at = maxed.max_changed_at
+                WHERE u.user_id = $[user_id];`,
                 {
                     'user_id': user.id
-                },
-                {
-                    'single': true
                 }
             );
         }
