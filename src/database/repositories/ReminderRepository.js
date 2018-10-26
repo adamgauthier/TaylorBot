@@ -47,7 +47,10 @@ class ReminderRepository {
 
     async remove(reminderId) {
         try {
-            return await this._db.users.reminders.destroy(reminderId);
+            return await this._db.instance.oneOrNone(
+                'DELETE FROM users.reminders WHERE reminder_id = $[reminder_id] RETURNING *;',
+                { reminder_id: reminderId }
+            );
         }
         catch (e) {
             Log.error(`Removing reminder ${reminderId}: ${e}`);
@@ -57,9 +60,10 @@ class ReminderRepository {
 
     async removeFrom(user) {
         try {
-            return await this._db.users.reminders.destroy({
-                'user_id': user.id
-            });
+            return await this._db.instance.any(
+                'DELETE FROM users.reminders WHERE user_id = $[user_id] RETURNING *;',
+                { user_id: user.id }
+            );
         }
         catch (e) {
             Log.error(`Removing reminders for user ${Format.user(user)}: ${e}`);
