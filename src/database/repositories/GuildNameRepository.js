@@ -64,7 +64,12 @@ class GuildNameRepository {
 
     async getHistory(guild, limit) {
         try {
-            return await this._db.guild_names.getGuildNameHistory(
+            return await this._db.instance.any(
+                `SELECT guild_name, changed_at
+                FROM guilds.guild_names
+                WHERE guild_id = $[guild_id]
+                ORDER BY changed_at DESC
+                LIMIT $[max_rows];`,
                 {
                     'guild_id': guild.id,
                     'max_rows': limit
