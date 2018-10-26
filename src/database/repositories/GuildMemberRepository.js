@@ -47,7 +47,10 @@ class GuildMemberRepository {
     async get(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.guilds.guild_members.findOne(databaseMember);
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM guilds.guild_members WHERE guild_id = $[guild_id] AND user_id = $[user_id];',
+                databaseMember
+            );
         }
         catch (e) {
             Log.error(`Getting guild member ${Format.member(guildMember)}: ${e}`);

@@ -62,7 +62,10 @@ class TextChannelRepository {
     async get(guildChannel) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.guilds.text_channels.findOne(databaseChannel);
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];',
+                databaseChannel
+            );
         }
         catch (e) {
             Log.error(`Getting text channel ${Format.guildChannel(guildChannel)}: ${e}`);

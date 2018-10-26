@@ -29,7 +29,10 @@ class UserRepository {
     async get(user) {
         const databaseUser = this.mapUserToDatabase(user);
         try {
-            return await this._db.users.users.findOne(databaseUser);
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM users.users WHERE user_id = $[user_id];',
+                databaseUser
+            );
         }
         catch (e) {
             Log.error(`Getting user ${Format.user(user)}: ${e}`);

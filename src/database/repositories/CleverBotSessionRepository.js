@@ -10,9 +10,12 @@ class CleverBotSessionRepository {
 
     async get(user) {
         try {
-            return await this._db.users.cleverbot_sessions.findOne({
-                'user_id': user.id
-            });
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM users.cleverbot_sessions WHERE user_id = $[user_id];',
+                {
+                    'user_id': user.id
+                }
+            );
         }
         catch (e) {
             Log.error(`Getting cleverbot session for ${Format.user(user)}: ${e}`);

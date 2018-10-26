@@ -10,10 +10,13 @@ class TextAttributeRepository {
 
     async get(attributeId, user) {
         try {
-            return await this._db.attributes.text_attributes.findOne({
-                'user_id': user.id,
-                'attribute_id': attributeId
-            });
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM attributes.text_attributes WHERE user_id = $[user_id] AND attribute_id = $[attribute_id];',
+                {
+                    'user_id': user.id,
+                    'attribute_id': attributeId
+                }
+            );
         }
         catch (e) {
             Log.error(`Getting attribute '${attributeId}' for user ${Format.user(user)}: ${e}`);

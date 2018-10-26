@@ -18,7 +18,10 @@ class SpecialRoleRepository {
     async get(role) {
         const databaseRole = this.mapRoleToDatabase(role);
         try {
-            return await this._db.guilds.guild_special_roles.findOne(databaseRole);
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM guilds.guild_special_roles WHERE guild_id = $[guild_id] AND role_id = $[role_id];',
+                databaseRole
+            );
         }
         catch (e) {
             Log.error(`Getting special role ${Format.role(role)}: ${e}`);

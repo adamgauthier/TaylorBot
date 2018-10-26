@@ -27,7 +27,10 @@ class GuildRepository {
     async get(guild) {
         const databaseGuild = this.mapGuildToDatabase(guild);
         try {
-            return await this._db.guilds.guilds.findOne(databaseGuild);
+            return await this._db.instance.oneOrNone(
+                'SELECT * FROM guilds.guilds WHERE guild_id = $[guild_id];',
+                databaseGuild
+            );
         }
         catch (e) {
             Log.error(`Getting guild ${Format.guild(guild)}: ${e}`);
