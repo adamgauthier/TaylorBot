@@ -69,7 +69,12 @@ class UsernameRepository {
 
     async getHistory(user, limit) {
         try {
-            return await this._db.usernames.getUsernameHistory(
+            return await this._db.instance.any(
+                `SELECT username, changed_at
+                FROM users.usernames
+                WHERE user_id = $[user_id]
+                ORDER BY changed_at DESC
+                LIMIT $[max_rows];`,
                 {
                     'user_id': user.id,
                     'max_rows': limit

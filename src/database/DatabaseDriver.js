@@ -28,9 +28,7 @@ const LocationAttributeRepository = require('./repositories/LocationAttributeRep
 
 class DatabaseDriver {
     async load() {
-        this._db = await massive(PostgreSQLConfig, {
-            'scripts': `${__dirname}/scripts/`
-        });
+        this._db = await massive(PostgreSQLConfig);
 
         this.guilds = new GuildRepository(this._db);
         this.users = new UserRepository(this._db);
