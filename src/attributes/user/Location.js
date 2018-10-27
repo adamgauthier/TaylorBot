@@ -28,10 +28,14 @@ class LocationAttribute extends UserAttribute {
         const { geometry: { location: { lat, lng } }, formatted_address } = value;
         const response = await GoogleTimezoneModule.getCurrentTimeForLocation(lat, lng);
 
-        if (response.status !== 'OK')
-            throw new CommandError(`Something went wrong when trying to get time from Google Maps.`);
-
-        return database.locationAttributes.set(user, formatted_address, lng, lat, response.timeZoneId);
+        switch (response.status) {
+            case 'OK':
+                return database.locationAttributes.set(user, formatted_address, lng, lat, response.timeZoneId);
+            case 'ZERO_RESULTS':
+                throw new CommandError(`Can't find the timezone for '${formatted_address}', please be more specific.`);
+            default:
+                throw new CommandError(`Something went wrong when trying to get time from Google Maps.`);
+        }
     }
 
     clear(database, user) {
