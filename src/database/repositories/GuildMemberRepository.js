@@ -147,12 +147,13 @@ class GuildMemberRepository {
     async updateLastSpoke(guildMember, lastSpokeAt) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.guilds.guild_members.update(databaseMember,
+            return await this._db.instance.oneOrNone(
+                `UPDATE guilds.guild_members SET last_spoke_at = $[last_spoke_at]
+                WHERE guild_id = $[guild_id] AND user_id = $[user_id]
+                RETURNING *;`,
                 {
-                    'last_spoke_at': lastSpokeAt
-                },
-                {
-                    'single': true
+                    'last_spoke_at': lastSpokeAt,
+                    ...databaseMember
                 }
             );
         }
@@ -165,16 +166,13 @@ class GuildMemberRepository {
     async fixInvalidJoinDate(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.guilds.guild_members.update(
+            return await this._db.instance.oneOrNone(
+                `UPDATE guilds.guild_members SET first_joined_at = $[first_joined_at]
+                WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at = 9223372036854775807
+                RETURNING *;`,
                 {
-                    ...databaseMember,
-                    'first_joined_at': '9223372036854775807'
-                },
-                {
-                    'first_joined_at': guildMember.joinedTimestamp
-                },
-                {
-                    'single': true
+                    'first_joined_at': guildMember.joinedTimestamp,
+                    ...databaseMember
                 }
             );
         }

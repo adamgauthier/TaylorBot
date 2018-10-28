@@ -131,12 +131,13 @@ class TextChannelRepository {
     async _setLog(guildChannel, isLog) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.guilds.text_channels.update(databaseChannel,
+            return await this._db.instance.oneOrNone(
+                `UPDATE guilds.text_channels SET is_log = $[is_log]
+                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
                 {
-                    'is_log': isLog
-                },
-                {
-                    'single': true
+                    'is_log': isLog,
+                    ...databaseChannel
                 }
             );
         }

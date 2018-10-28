@@ -61,15 +61,13 @@ class GuildRepository {
 
     async setPrefix(guild, prefix) {
         try {
-            return await this._db.guilds.guilds.update(
+            return await this._db.instance.oneOrNone(
+                `UPDATE guilds.guilds SET prefix = $[prefix]
+                WHERE guild_id = $[guild_id]
+                RETURNING *;`,
                 {
+                    'prefix': prefix,
                     'guild_id': guild.id
-                },
-                {
-                    'prefix': prefix
-                },
-                {
-                    'single': true
                 }
             );
         }

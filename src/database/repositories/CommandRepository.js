@@ -29,15 +29,11 @@ class CommandRepository {
 
     async setEnabled(commandName, enabled) {
         try {
-            return await this._db.commands.commands.update(
+            return await this._db.instance.oneOrNone(
+                'UPDATE commands.commands SET enabled = $[enabled] WHERE name = $[name] RETURNING *;',
                 {
+                    'enabled': enabled,
                     'name': commandName
-                },
-                {
-                    'enabled': enabled
-                },
-                {
-                    'single': true
                 }
             );
         }

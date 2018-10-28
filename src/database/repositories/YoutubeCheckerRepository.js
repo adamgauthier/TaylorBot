@@ -19,17 +19,15 @@ class YoutubeCheckerRepository {
 
     async update(playlistId, guildId, channelId, lastVideoId) {
         try {
-            return await this._db.checkers.youtube_checker.update(
+            return await this._db.instance.oneOrNone(
+                `UPDATE checkers.youtube_checker SET last_video_id = $[last_video_id]
+                WHERE playlist_id = $[playlist_id] AND guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
                 {
+                    'last_video_id': lastVideoId,
                     'playlist_id': playlistId,
                     'guild_id': guildId,
                     'channel_id': channelId
-                },
-                {
-                    'last_video_id': lastVideoId
-                },
-                {
-                    'single': true
                 }
             );
         }

@@ -31,10 +31,18 @@ class SpecialRoleRepository {
 
     async _setAccessible(role, accessible) {
         const databaseRole = this.mapRoleToDatabase(role);
-        const fields = { accessible };
         try {
-            const inserted = await this._db.guilds.guild_special_roles.insert({ ...databaseRole, ...fields }, { 'onConflictIgnore': true });
-            return inserted ? inserted : await this._db.guilds.guild_special_roles.update(databaseRole, fields, { 'single': true });
+            return await this._db.instance.one(
+                `INSERT INTO guilds.guild_special_roles (guild_id, role_id, accessible)
+                VALUES ($[guild_id], $[role_id], $[accessible])
+                ON CONFLICT (guild_id, role_id) DO UPDATE
+                    SET accessible = excluded.accessible
+                RETURNING *;`,
+                {
+                    ...databaseRole,
+                    'accessible': accessible
+                }
+            );
         }
         catch (e) {
             Log.error(`Setting accessible special role ${Format.role(role)} to ${accessible}: ${e}`);

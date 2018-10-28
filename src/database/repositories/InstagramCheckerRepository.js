@@ -19,17 +19,15 @@ class InstagramCheckerRepository {
 
     async update(instagramUsername, guildId, channelId, lastCode) {
         try {
-            return await this._db.checkers.instagram_checker.update(
+            return await this._db.instance.oneOrNone(
+                `UPDATE checkers.instagram_checker SET last_post_code $[last_post_code]
+                WHERE instagram_username = $[instagram_username] AND guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
                 {
+                    'last_post_code': lastCode,
                     'instagram_username': instagramUsername,
                     'guild_id': guildId,
                     'channel_id': channelId
-                },
-                {
-                    'last_post_code': lastCode
-                },
-                {
-                    'single': true
                 }
             );
         }

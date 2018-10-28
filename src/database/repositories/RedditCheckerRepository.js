@@ -19,18 +19,16 @@ class RedditCheckerRepository {
 
     async update(subreddit, guildId, channelId, lastLink, lastCreated) {
         try {
-            return await this._db.checkers.reddit_checker.update(
+            return await this._db.instance.oneOrNone(
+                `UPDATE checkers.reddit_checker SET last_post_id = $[last_post_id], last_created = $[last_created]
+                WHERE subreddit = $[subreddit] AND guild_id = $[guild_id] AND channel_id = $[channel_id]
+                RETURNING *;`,
                 {
+                    'last_post_id': lastLink,
+                    'last_created': lastCreated,
                     'subreddit': subreddit,
                     'guild_id': guildId,
                     'channel_id': channelId
-                },
-                {
-                    'last_post_id': lastLink,
-                    'last_created': lastCreated
-                },
-                {
-                    'single': true
                 }
             );
         }
