@@ -18,10 +18,10 @@ class AgeArgumentType extends TextArgumentType {
             throw new ArgumentParsingError(`Could not parse '${val}' into a valid number.`);
 
         if (age < MIN_AGE)
-            throw new ArgumentParsingError(`Age must be lower than ${MIN_AGE} years old.`);
+            throw new ArgumentParsingError(`Age must be higher or equal to ${MIN_AGE} years old.`);
 
         if (age > MAX_AGE)
-            throw new ArgumentParsingError(`Age must be higher than ${MAX_AGE} years old.`);
+            throw new ArgumentParsingError(`Age must be lower or equal to ${MAX_AGE} years old.`);
 
         return age;
     }
