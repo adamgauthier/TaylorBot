@@ -1,5 +1,8 @@
 'use strict';
 
+const pgp = require('pg-promise')({
+    capSQL: true
+});
 const massive = require('massive');
 
 const PostgreSQLConfig = require('../config/postgresql.json');
@@ -29,6 +32,7 @@ const LocationAttributeRepository = require('./repositories/LocationAttributeRep
 class DatabaseDriver {
     async load() {
         this._db = await massive(PostgreSQLConfig);
+        this._helpers = pgp.helpers;
 
         this.guilds = new GuildRepository(this._db);
         this.users = new UserRepository(this._db);
@@ -40,14 +44,14 @@ class DatabaseDriver {
         this.youtubeCheckers = new YoutubeCheckerRepository(this._db);
         this.tumblrCheckers = new TumblrCheckerRepository(this._db);
         this.guildCommands = new GuildCommandRepository(this._db);
-        this.commands = new CommandRepository(this._db);
-        this.userGroups = new UserGroupRepository(this._db);
+        this.commands = new CommandRepository(this._db, this._helpers);
+        this.userGroups = new UserGroupRepository(this._db, this._helpers);
         this.roleGroups = new RoleGroupRepository(this._db);
         this.specialRoles = new SpecialRoleRepository(this._db);
         this.reminders = new ReminderRepository(this._db);
         this.textChannels = new TextChannelRepository(this._db);
         this.cleverbotSessions = new CleverBotSessionRepository(this._db);
-        this.attributes = new AttributeRepository(this._db);
+        this.attributes = new AttributeRepository(this._db, this._helpers);
         this.textAttributes = new TextAttributeRepository(this._db);
         this.integerAttributes = new IntegerAttributeRepository(this._db);
         this.locationAttributes = new LocationAttributeRepository(this._db);

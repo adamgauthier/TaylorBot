@@ -10,7 +10,8 @@
     "massive": "^5.0.0",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",
-    "node-fetch": "^2.2.0"
+    "node-fetch": "^2.2.0",
+    "pg-promise": "^8.5.1"
   },
   "devDependencies": {
     "eslint": "^5.4.0",

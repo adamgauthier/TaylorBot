@@ -20,7 +20,8 @@ class RoleGroupRepository {
 
     async add(role, group) {
         try {
-            return await this._db.guilds.guild_role_groups.insert(
+            return await this._db.instance.one(
+                'INSERT INTO guilds.guild_role_groups (guild_id, role_id, group_name) VALUES ($[guild_id], $[role_id], $[group_name]) RETURNING *;',
                 {
                     'guild_id': role.guild.id,
                     'role_id': role.id,

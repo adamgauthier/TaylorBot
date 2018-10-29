@@ -62,7 +62,10 @@ class GuildMemberRepository {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         databaseMember.first_joined_at = guildMember.joinedTimestamp;
         try {
-            return await this._db.guilds.guild_members.insert(databaseMember);
+            return await this._db.instance.none(
+                'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($[guild_id], $[user_id], $[first_joined_at]);',
+                databaseMember
+            );
         }
         catch (e) {
             Log.error(`Adding member ${Format.member(guildMember)}: ${e}`);

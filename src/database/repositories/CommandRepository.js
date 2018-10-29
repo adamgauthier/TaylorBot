@@ -3,8 +3,10 @@
 const Log = require('../../tools/Logger.js');
 
 class CommandRepository {
-    constructor(db) {
+    constructor(db, helpers) {
         this._db = db;
+        this._helpers = helpers;
+        this._columnSet = new this._helpers.ColumnSet(['name'], { table: 'commands.commands' });
     }
 
     async getAll() {
@@ -19,7 +21,9 @@ class CommandRepository {
 
     async addAll(databaseCommands) {
         try {
-            return await this._db.commands.commands.insert(databaseCommands);
+            return await this._db.instance.any(
+                `${this._helpers.insert(databaseCommands, this._columnSet)} RETURNING *;`,
+            );
         }
         catch (e) {
             Log.error(`Adding commands: ${e}`);

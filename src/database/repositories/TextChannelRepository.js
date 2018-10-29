@@ -80,7 +80,13 @@ class TextChannelRepository {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
 
         try {
-            return await this._db.guilds.text_channels.insert({ ...databaseChannel, 'registered_at': registeredAt });
+            return await this._db.instance.none(
+                'INSERT INTO guilds.text_channels (guild_id, channel_id, registered_at) VALUES ($[guild_id], $[channel_id], $[registered_at]);',
+                {
+                    ...databaseChannel,
+                    'registered_at': registeredAt
+                }
+            );
         }
         catch (e) {
             Log.error(`Adding text channel ${Format.guildChannel(guildChannel)}: ${e}`);

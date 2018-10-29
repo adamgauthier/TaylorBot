@@ -32,12 +32,16 @@ class ReminderRepository {
 
     async add(user, remindAt, reminderText) {
         try {
-            return await this._db.users.reminders.insert({
-                'user_id': user.id,
-                'created_at': Date.now(),
-                'remind_at': remindAt,
-                'reminder_text': reminderText
-            });
+            return await this._db.instance.none(
+                `INSERT INTO users.reminders (user_id, created_at, remind_at, reminder_text)
+                VALUES ($[user_id], $[created_at], $[remind_at], $[reminder_text]);`,
+                {
+                    'user_id': user.id,
+                    'created_at': Date.now(),
+                    'remind_at': remindAt,
+                    'reminder_text': reminderText
+                }
+            );
         }
         catch (e) {
             Log.error(`Adding reminder for user ${Format.user(user)}: ${e}`);

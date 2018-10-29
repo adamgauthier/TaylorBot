@@ -3,8 +3,10 @@
 const Log = require('../../tools/Logger.js');
 
 class UserGroupRepository {
-    constructor(db) {
+    constructor(db, helpers) {
         this._db = db;
+        this._helpers = helpers;
+        this._columnSet = new this._helpers.ColumnSet(['name', 'access_level'], { table: 'commands.user_groups' });
     }
 
     async getAll() {
@@ -19,7 +21,9 @@ class UserGroupRepository {
 
     async addAll(userGroups) {
         try {
-            return await this._db.commands.user_groups.insert(userGroups);
+            return await this._db.instance.any(
+                `${this._helpers.insert(userGroups, this._columnSet)} RETURNING *;`,
+            );
         }
         catch (e) {
             Log.error(`Adding user groups: ${e}`);

@@ -59,7 +59,10 @@ class UsernameRepository {
     async add(user, changedAt) {
         const databaseUsername = this.mapUserToUsernameDatabase(user, changedAt);
         try {
-            return await this._db.users.usernames.insert(databaseUsername);
+            return await this._db.instance.none(
+                'INSERT INTO users.usernames (user_id, username, changed_at) VALUES ($[user_id], $[username], $[changed_at]);',
+                databaseUsername
+            );
         }
         catch (e) {
             Log.error(`Adding username for ${Format.user(user)}: ${e}`);

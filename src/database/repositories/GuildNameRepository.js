@@ -59,7 +59,10 @@ class GuildNameRepository {
     async add(guild, changedAt) {
         const databaseGuildName = this.mapGuildToGuildNamesDatabase(guild, changedAt);
         try {
-            return await this._db.guilds.guild_names.insert(databaseGuildName);
+            return await this._db.instance.none(
+                'INSERT INTO guilds.guild_names (guild_id, guild_name, changed_at) VALUES ($[guild_id], $[guild_name], $[changed_at]);',
+                databaseGuildName
+            );
         }
         catch (e) {
             Log.error(`Adding guild name for ${Format.guild(guild)}: ${e}`);
