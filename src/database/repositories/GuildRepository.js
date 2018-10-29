@@ -10,7 +10,7 @@ class GuildRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM guilds.guilds;');
+            return await this._db.any('SELECT * FROM guilds.guilds;');
         }
         catch (e) {
             Log.error(`Getting all guilds: ${e}`);
@@ -27,7 +27,7 @@ class GuildRepository {
     async get(guild) {
         const databaseGuild = this.mapGuildToDatabase(guild);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'SELECT * FROM guilds.guilds WHERE guild_id = $[guild_id];',
                 databaseGuild
             );
@@ -40,7 +40,7 @@ class GuildRepository {
 
     async add(guild, discoveredAt) {
         try {
-            return await this._db.instance.tx(async t => {
+            return await this._db.tx(async t => {
                 const inserted = await t.one(
                     'INSERT INTO guilds.guilds (guild_id) VALUES ($1) RETURNING *;',
                     [guild.id]
@@ -61,7 +61,7 @@ class GuildRepository {
 
     async setPrefix(guild, prefix) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE guilds.guilds SET prefix = $[prefix]
                 WHERE guild_id = $[guild_id]
                 RETURNING *;`,

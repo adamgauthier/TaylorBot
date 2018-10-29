@@ -10,7 +10,7 @@ class GuildNameRepository {
 
     async getAllLatest() {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT g.guild_name, g.guild_id
                 FROM (
                    SELECT guild_id, MAX(changed_at) AS max_changed_at
@@ -28,7 +28,7 @@ class GuildNameRepository {
 
     async getLatest(guild) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `SELECT g.guild_name, g.guild_id
                 FROM (
                     SELECT guild_id, MAX(changed_at) AS max_changed_at
@@ -59,7 +59,7 @@ class GuildNameRepository {
     async add(guild, changedAt) {
         const databaseGuildName = this.mapGuildToGuildNamesDatabase(guild, changedAt);
         try {
-            return await this._db.instance.none(
+            return await this._db.none(
                 'INSERT INTO guilds.guild_names (guild_id, guild_name, changed_at) VALUES ($[guild_id], $[guild_name], $[changed_at]);',
                 databaseGuildName
             );
@@ -72,7 +72,7 @@ class GuildNameRepository {
 
     async getHistory(guild, limit) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT guild_name, changed_at
                 FROM guilds.guild_names
                 WHERE guild_id = $[guild_id]

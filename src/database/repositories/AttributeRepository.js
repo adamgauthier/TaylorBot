@@ -11,7 +11,7 @@ class AttributeRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM attributes.attributes;');
+            return await this._db.any('SELECT * FROM attributes.attributes;');
         }
         catch (e) {
             Log.error(`Getting all attributes: ${e}`);
@@ -21,7 +21,7 @@ class AttributeRepository {
 
     async addAll(databaseAttributes) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `${this._helpers.insert(databaseAttributes, this._columnSet)} RETURNING *;`,
             );
         }

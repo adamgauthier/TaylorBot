@@ -10,7 +10,7 @@ class GuildMemberRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT user_id, guild_id FROM guilds.guild_members;');
+            return await this._db.any('SELECT user_id, guild_id FROM guilds.guild_members;');
         }
         catch (e) {
             Log.error(`Getting all guild members: ${e}`);
@@ -20,7 +20,7 @@ class GuildMemberRepository {
 
     async getAllInGuild(guild) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 'SELECT user_id FROM guilds.guild_members WHERE guild_id = $[guild_id];',
                 {
                     'guild_id': guild.id
@@ -43,7 +43,7 @@ class GuildMemberRepository {
     async get(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'SELECT * FROM guilds.guild_members WHERE guild_id = $[guild_id] AND user_id = $[user_id];',
                 databaseMember
             );
@@ -58,7 +58,7 @@ class GuildMemberRepository {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         databaseMember.first_joined_at = guildMember.joinedTimestamp;
         try {
-            return await this._db.instance.none(
+            return await this._db.none(
                 'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($[guild_id], $[user_id], $[first_joined_at]);',
                 databaseMember
             );
@@ -71,7 +71,7 @@ class GuildMemberRepository {
 
     async getRankedFirstJoinedAt(guild, limit) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT first_joined_at, user_id, rank() OVER (ORDER BY first_joined_at ASC) AS rank
                 FROM guilds.guild_members
                 WHERE guild_id = $[guild_id]
@@ -90,7 +90,7 @@ class GuildMemberRepository {
 
     async getRankedFirstJoinedAtFor(guildMember) {
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `SELECT ranked.first_joined_at, ranked.rank
                 FROM (
                    SELECT
@@ -115,7 +115,7 @@ class GuildMemberRepository {
 
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
-            return await this._db.instance.tx(async t => {
+            return await this._db.tx(async t => {
                 await t.none(
                     `UPDATE guilds.guild_members
                     SET minute_count = minute_count + $[minutes_to_add]
@@ -146,7 +146,7 @@ class GuildMemberRepository {
     async updateLastSpoke(guildMember, lastSpokeAt) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE guilds.guild_members SET last_spoke_at = $[last_spoke_at]
                 WHERE guild_id = $[guild_id] AND user_id = $[user_id]
                 RETURNING *;`,
@@ -165,7 +165,7 @@ class GuildMemberRepository {
     async fixInvalidJoinDate(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE guilds.guild_members SET first_joined_at = $[first_joined_at]
                 WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at = 9223372036854775807
                 RETURNING *;`,
@@ -184,7 +184,7 @@ class GuildMemberRepository {
     async addMessagesAndWords(guildMember, messagesToAdd, wordsToAdd) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            await this._db.instance.none(
+            await this._db.none(
                 `UPDATE guilds.guild_members SET
                    message_count = message_count + $[messages_to_add],
                    word_count = word_count + $[words_to_add]
@@ -205,7 +205,7 @@ class GuildMemberRepository {
     async removeMessagesAndWords(guildMember, messagesToRemove, wordsToRemove) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            await this._db.instance.none(
+            await this._db.none(
                 `UPDATE guilds.guild_members SET
                    message_count = GREATEST(0, message_count - $[message_to_remove]),
                    word_count = GREATEST(0, word_count - $[words_to_remove])

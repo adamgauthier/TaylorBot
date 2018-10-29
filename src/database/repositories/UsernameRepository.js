@@ -10,7 +10,7 @@ class UsernameRepository {
 
     async getAllLatest() {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT u.username, u.user_id
                 FROM (
                     SELECT user_id, MAX(changed_at) AS max_changed_at
@@ -28,7 +28,7 @@ class UsernameRepository {
 
     async getLatest(user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `SELECT u.username, u.user_id
                 FROM (
                     SELECT user_id, MAX(changed_at) AS max_changed_at
@@ -59,7 +59,7 @@ class UsernameRepository {
     async add(user, changedAt) {
         const databaseUsername = this.mapUserToUsernameDatabase(user, changedAt);
         try {
-            return await this._db.instance.none(
+            return await this._db.none(
                 'INSERT INTO users.usernames (user_id, username, changed_at) VALUES ($[user_id], $[username], $[changed_at]);',
                 databaseUsername
             );
@@ -72,7 +72,7 @@ class UsernameRepository {
 
     async getHistory(user, limit) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT username, changed_at
                 FROM users.usernames
                 WHERE user_id = $[user_id]

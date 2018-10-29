@@ -9,7 +9,7 @@ class YoutubeCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM checkers.youtube_checker;');
+            return await this._db.any('SELECT * FROM checkers.youtube_checker;');
         }
         catch (e) {
             Log.error(`Getting Youtube Channels: ${e}`);
@@ -19,7 +19,7 @@ class YoutubeCheckerRepository {
 
     async update(playlistId, guildId, channelId, lastVideoId) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE checkers.youtube_checker SET last_video_id = $[last_video_id]
                 WHERE playlist_id = $[playlist_id] AND guild_id = $[guild_id] AND channel_id = $[channel_id]
                 RETURNING *;`,

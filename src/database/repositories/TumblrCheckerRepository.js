@@ -9,7 +9,7 @@ class TumblrCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM checkers.tumblr_checker;');
+            return await this._db.any('SELECT * FROM checkers.tumblr_checker;');
         }
         catch (e) {
             Log.error(`Getting Tumblrs: ${e}`);
@@ -19,7 +19,7 @@ class TumblrCheckerRepository {
 
     async update(tumblrUser, guildId, channelId, lastLink) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE checkers.tumblr_checker SET last_link = $[last_link]
                 WHERE tumblr_user = $[tumblr_user] AND guild_id = $[guild_id] AND channel_id = $[channel_id]
                 RETURNING *;`,

@@ -10,7 +10,7 @@ class TextAttributeRepository {
 
     async get(attributeId, user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'SELECT * FROM attributes.text_attributes WHERE user_id = $[user_id] AND attribute_id = $[attribute_id];',
                 {
                     'user_id': user.id,
@@ -26,7 +26,7 @@ class TextAttributeRepository {
 
     async getMultiple(attributeIds, user) {
         try {
-            const attributeRows = await this._db.instance.any(
+            const attributeRows = await this._db.any(
                 `SELECT * FROM attributes.text_attributes
                 WHERE user_id = $[user_id] AND
                 attribute_id IN ($[attributes:csv])`,
@@ -45,7 +45,7 @@ class TextAttributeRepository {
 
     async set(attributeId, user, value) {
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `INSERT INTO attributes.text_attributes (attribute_id, user_id, attribute_value)
                 VALUES ($[attribute_id], $[user_id], $[attribute_value])
                 ON CONFLICT (attribute_id, user_id) DO UPDATE
@@ -66,7 +66,7 @@ class TextAttributeRepository {
 
     async clear(attributeId, user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `DELETE FROM attributes.text_attributes
                 WHERE attribute_id = $[attribute_id] AND user_id = $[user_id]
                 RETURNING *;`,
@@ -84,7 +84,7 @@ class TextAttributeRepository {
 
     async getInGuild(attributeId, guild) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT * FROM attributes.text_attributes
                 WHERE user_id IN (
                    SELECT user_id
@@ -106,7 +106,7 @@ class TextAttributeRepository {
 
     async listInGuild(attributeId, guild, count) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT * FROM attributes.text_attributes
                 WHERE user_id IN (
                    SELECT user_id

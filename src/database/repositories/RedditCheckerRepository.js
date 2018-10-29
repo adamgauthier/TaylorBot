@@ -9,7 +9,7 @@ class RedditCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM checkers.reddit_checker;');
+            return await this._db.any('SELECT * FROM checkers.reddit_checker;');
         }
         catch (e) {
             Log.error(`Getting Reddits: ${e}`);
@@ -19,7 +19,7 @@ class RedditCheckerRepository {
 
     async update(subreddit, guildId, channelId, lastLink, lastCreated) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE checkers.reddit_checker SET last_post_id = $[last_post_id], last_created = $[last_created]
                 WHERE subreddit = $[subreddit] AND guild_id = $[guild_id] AND channel_id = $[channel_id]
                 RETURNING *;`,

@@ -11,7 +11,7 @@ class CommandRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM commands.commands;');
+            return await this._db.any('SELECT * FROM commands.commands;');
         }
         catch (e) {
             Log.error(`Getting all commands: ${e}`);
@@ -21,7 +21,7 @@ class CommandRepository {
 
     async addAll(databaseCommands) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `${this._helpers.insert(databaseCommands, this._columnSet)} RETURNING *;`,
             );
         }
@@ -33,7 +33,7 @@ class CommandRepository {
 
     async setEnabled(commandName, enabled) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'UPDATE commands.commands SET enabled = $[enabled] WHERE name = $[name] RETURNING *;',
                 {
                     'enabled': enabled,

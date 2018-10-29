@@ -18,7 +18,7 @@ class SpecialRoleRepository {
     async get(role) {
         const databaseRole = this.mapRoleToDatabase(role);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'SELECT * FROM guilds.guild_special_roles WHERE guild_id = $[guild_id] AND role_id = $[role_id];',
                 databaseRole
             );
@@ -32,7 +32,7 @@ class SpecialRoleRepository {
     async _setAccessible(role, accessible) {
         const databaseRole = this.mapRoleToDatabase(role);
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `INSERT INTO guilds.guild_special_roles (guild_id, role_id, accessible)
                 VALUES ($[guild_id], $[role_id], $[accessible])
                 ON CONFLICT (guild_id, role_id) DO UPDATE

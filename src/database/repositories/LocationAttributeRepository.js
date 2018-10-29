@@ -10,7 +10,7 @@ class LocationAttributeRepository {
 
     async get(user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `SELECT * FROM attributes.location_attributes
                 WHERE user_id = $[user_id];`,
                 {
@@ -26,7 +26,7 @@ class LocationAttributeRepository {
 
     async set(user, formattedAddress, longitude, latitude, timezoneId) {
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `INSERT INTO attributes.location_attributes (user_id, formatted_address, longitude, latitude, timezone_id)
                 VALUES ($[user_id], $[formatted_address], $[longitude], $[latitude], $[timezone_id])
                 ON CONFLICT (user_id) DO UPDATE SET
@@ -52,7 +52,7 @@ class LocationAttributeRepository {
 
     async clear(user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `DELETE FROM attributes.location_attributes
                 WHERE user_id = $[user_id]
                 RETURNING *;`,

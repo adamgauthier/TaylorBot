@@ -11,7 +11,7 @@ class UserGroupRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM commands.user_groups;');
+            return await this._db.any('SELECT * FROM commands.user_groups;');
         }
         catch (e) {
             Log.error(`Getting all user groups: ${e}`);
@@ -21,7 +21,7 @@ class UserGroupRepository {
 
     async addAll(userGroups) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `${this._helpers.insert(userGroups, this._columnSet)} RETURNING *;`,
             );
         }

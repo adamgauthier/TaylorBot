@@ -10,7 +10,7 @@ class IntegerAttributeRepository {
 
     async get(attributeId, user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `SELECT * FROM attributes.integer_attributes
                 WHERE attribute_id = $[attribute_id] AND user_id = $[user_id];`,
                 {
@@ -27,7 +27,7 @@ class IntegerAttributeRepository {
 
     async set(attributeId, user, value) {
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `INSERT INTO attributes.integer_attributes (attribute_id, user_id, integer_value)
                 VALUES ($[attribute_id], $[user_id], $[integer_value])
                 ON CONFLICT (attribute_id, user_id) DO UPDATE
@@ -48,7 +48,7 @@ class IntegerAttributeRepository {
 
     async clear(attributeId, user) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `DELETE FROM attributes.integer_attributes
                 WHERE attribute_id = $[attribute_id] AND user_id = $[user_id]
                 RETURNING *;`,
@@ -66,7 +66,7 @@ class IntegerAttributeRepository {
 
     async getInGuild(attributeId, guild) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 `SELECT * FROM attributes.integer_attributes
                 WHERE user_id IN (
                    SELECT user_id

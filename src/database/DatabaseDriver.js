@@ -3,7 +3,6 @@
 const pgp = require('pg-promise')({
     capSQL: true
 });
-const massive = require('massive');
 
 const PostgreSQLConfig = require('../config/postgresql.json');
 
@@ -30,8 +29,8 @@ const IntegerAttributeRepository = require('./repositories/IntegerAttributeRepos
 const LocationAttributeRepository = require('./repositories/LocationAttributeRepository.js');
 
 class DatabaseDriver {
-    async load() {
-        this._db = await massive(PostgreSQLConfig);
+    constructor() {
+        this._db = pgp(PostgreSQLConfig);
         this._helpers = pgp.helpers;
 
         this.guilds = new GuildRepository(this._db);

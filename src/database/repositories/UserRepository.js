@@ -10,7 +10,7 @@ class UserRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT user_id, ignore_until FROM users.users;');
+            return await this._db.any('SELECT user_id, ignore_until FROM users.users;');
         }
         catch (e) {
             Log.error(`Getting all users: ${e}`);
@@ -27,7 +27,7 @@ class UserRepository {
     async get(user) {
         const databaseUser = this.mapUserToDatabase(user);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'SELECT * FROM users.users WHERE user_id = $[user_id];',
                 databaseUser
             );
@@ -42,7 +42,7 @@ class UserRepository {
         const { user, guild, joinedTimestamp } = member;
 
         try {
-            return await this._db.instance.tx(async t => {
+            return await this._db.tx(async t => {
                 const inserted = await t.one(
                     'INSERT INTO users.users (user_id) VALUES ($1) RETURNING *;',
                     [user.id]

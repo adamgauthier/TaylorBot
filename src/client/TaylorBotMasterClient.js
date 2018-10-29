@@ -17,10 +17,6 @@ class TaylorBotMasterClient {
     }
 
     async load() {
-        Log.info('Loading database...');
-        await this.database.load();
-        Log.info('Database loaded!');
-
         Log.info('Loading registry...');
         await this.registry.load();
         Log.info('Registry loaded!');

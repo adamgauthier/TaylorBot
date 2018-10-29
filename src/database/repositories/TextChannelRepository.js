@@ -10,7 +10,7 @@ class TextChannelRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT channel_id, guild_id FROM guilds.text_channels;');
+            return await this._db.any('SELECT channel_id, guild_id FROM guilds.text_channels;');
         }
         catch (e) {
             Log.error(`Getting all text: ${e}`);
@@ -20,7 +20,7 @@ class TextChannelRepository {
 
     async getAllInGuild(guild) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 'SELECT channel_id FROM guilds.text_channels WHERE guild_id = $[guild_id];',
                 {
                     'guild_id': guild.id
@@ -35,7 +35,7 @@ class TextChannelRepository {
 
     async getAllLogChannelsInGuild(guild) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_log = $[is_log];',
                 {
                     'guild_id': guild.id,
@@ -59,7 +59,7 @@ class TextChannelRepository {
     async get(guildChannel) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];',
                 databaseChannel
             );
@@ -77,7 +77,7 @@ class TextChannelRepository {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
 
         try {
-            return await this._db.instance.none(
+            return await this._db.none(
                 'INSERT INTO guilds.text_channels (guild_id, channel_id, registered_at) VALUES ($[guild_id], $[channel_id], $[registered_at]);',
                 {
                     ...databaseChannel,
@@ -94,7 +94,7 @@ class TextChannelRepository {
     async addMessages(guildChannel, messagesToAdd) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `UPDATE guilds.text_channels
                 SET message_count = message_count + $[messages_to_add]
                 WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
@@ -114,7 +114,7 @@ class TextChannelRepository {
     async removeMessages(guildChannel, messagesToRemove) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `UPDATE guilds.text_channels
                 SET message_count = GREATEST(0, message_count - $[messages_to_remove])
                 WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
@@ -134,7 +134,7 @@ class TextChannelRepository {
     async _setLog(guildChannel, isLog) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 `UPDATE guilds.text_channels SET is_log = $[is_log]
                 WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
                 RETURNING *;`,
@@ -161,7 +161,7 @@ class TextChannelRepository {
     async _setSpam(guildChannel, isSpam) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `UPDATE guilds.text_channels
                 SET is_spam = $[is_spam]
                 WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]

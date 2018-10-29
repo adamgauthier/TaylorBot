@@ -10,7 +10,7 @@ class ReminderRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM users.reminders;');
+            return await this._db.any('SELECT * FROM users.reminders;');
         }
         catch (e) {
             Log.error(`Getting all reminders: ${e}`);
@@ -20,7 +20,7 @@ class ReminderRepository {
 
     async fromUser(user) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 'SELECT * FROM users.reminders WHERE user_id = $[user_id];',
                 {
                     'user_id': user.id
@@ -35,7 +35,7 @@ class ReminderRepository {
 
     async add(user, remindAt, reminderText) {
         try {
-            return await this._db.instance.none(
+            return await this._db.none(
                 `INSERT INTO users.reminders (user_id, created_at, remind_at, reminder_text)
                 VALUES ($[user_id], $[created_at], $[remind_at], $[reminder_text]);`,
                 {
@@ -54,7 +54,7 @@ class ReminderRepository {
 
     async remove(reminderId) {
         try {
-            return await this._db.instance.oneOrNone(
+            return await this._db.oneOrNone(
                 'DELETE FROM users.reminders WHERE reminder_id = $[reminder_id] RETURNING *;',
                 { reminder_id: reminderId }
             );
@@ -67,7 +67,7 @@ class ReminderRepository {
 
     async removeFrom(user) {
         try {
-            return await this._db.instance.any(
+            return await this._db.any(
                 'DELETE FROM users.reminders WHERE user_id = $[user_id] RETURNING *;',
                 { user_id: user.id }
             );

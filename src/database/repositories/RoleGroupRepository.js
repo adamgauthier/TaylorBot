@@ -10,7 +10,7 @@ class RoleGroupRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM guilds.guild_role_groups;');
+            return await this._db.any('SELECT * FROM guilds.guild_role_groups;');
         }
         catch (e) {
             Log.error(`Getting all guild role groups: ${e}`);
@@ -20,7 +20,7 @@ class RoleGroupRepository {
 
     async add(role, group) {
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 'INSERT INTO guilds.guild_role_groups (guild_id, role_id, group_name) VALUES ($[guild_id], $[role_id], $[group_name]) RETURNING *;',
                 {
                     'guild_id': role.guild.id,

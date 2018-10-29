@@ -10,7 +10,7 @@ class GuildCommandRepository {
 
     async getAll() {
         try {
-            return await this._db.instance.any('SELECT * FROM guilds.guild_commands;');
+            return await this._db.any('SELECT * FROM guilds.guild_commands;');
         }
         catch (e) {
             Log.error(`Getting all guild commands: ${e}`);
@@ -20,7 +20,7 @@ class GuildCommandRepository {
 
     async setDisabled(guild, commandName, disabled) {
         try {
-            return await this._db.instance.one(
+            return await this._db.one(
                 `INSERT INTO guilds.guild_commands (guild_id, command_name, disabled)
                 VALUES ($[guild_id], $[command_name], $[disabled])
                 ON CONFLICT (guild_id, command_name) DO UPDATE
