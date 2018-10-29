@@ -10,9 +10,7 @@ class UserRepository {
 
     async getAll() {
         try {
-            return await this._db.users.users.find({}, {
-                fields: ['user_id', 'ignore_until']
-            });
+            return await this._db.instance.any('SELECT user_id, ignore_until FROM users.users;');
         }
         catch (e) {
             Log.error(`Getting all users: ${e}`);

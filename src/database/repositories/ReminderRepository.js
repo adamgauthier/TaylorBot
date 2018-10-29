@@ -10,7 +10,7 @@ class ReminderRepository {
 
     async getAll() {
         try {
-            return await this._db.users.reminders.find();
+            return await this._db.instance.any('SELECT * FROM users.reminders;');
         }
         catch (e) {
             Log.error(`Getting all reminders: ${e}`);
@@ -20,9 +20,12 @@ class ReminderRepository {
 
     async fromUser(user) {
         try {
-            return await this._db.users.reminders.find({
-                'user_id': user.id
-            });
+            return await this._db.instance.any(
+                'SELECT * FROM users.reminders WHERE user_id = $[user_id];',
+                {
+                    'user_id': user.id
+                }
+            );
         }
         catch (e) {
             Log.error(`Getting reminder from user ${Format.user(user)}: ${e}`);

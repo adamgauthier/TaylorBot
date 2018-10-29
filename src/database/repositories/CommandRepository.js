@@ -11,7 +11,7 @@ class CommandRepository {
 
     async getAll() {
         try {
-            return await this._db.commands.commands.find();
+            return await this._db.instance.any('SELECT * FROM commands.commands;');
         }
         catch (e) {
             Log.error(`Getting all commands: ${e}`);

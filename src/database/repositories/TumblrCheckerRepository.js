@@ -9,7 +9,7 @@ class TumblrCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.checkers.tumblr_checker.find();
+            return await this._db.instance.any('SELECT * FROM checkers.tumblr_checker;');
         }
         catch (e) {
             Log.error(`Getting Tumblrs: ${e}`);

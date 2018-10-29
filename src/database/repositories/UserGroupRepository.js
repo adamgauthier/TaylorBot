@@ -11,7 +11,7 @@ class UserGroupRepository {
 
     async getAll() {
         try {
-            return await this._db.commands.user_groups.find();
+            return await this._db.instance.any('SELECT * FROM commands.user_groups;');
         }
         catch (e) {
             Log.error(`Getting all user groups: ${e}`);

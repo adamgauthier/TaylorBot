@@ -9,7 +9,7 @@ class RedditCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.checkers.reddit_checker.find();
+            return await this._db.instance.any('SELECT * FROM checkers.reddit_checker;');
         }
         catch (e) {
             Log.error(`Getting Reddits: ${e}`);

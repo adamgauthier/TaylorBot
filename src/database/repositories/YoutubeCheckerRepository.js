@@ -9,7 +9,7 @@ class YoutubeCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.checkers.youtube_checker.find();
+            return await this._db.instance.any('SELECT * FROM checkers.youtube_checker;');
         }
         catch (e) {
             Log.error(`Getting Youtube Channels: ${e}`);

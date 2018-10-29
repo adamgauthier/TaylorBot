@@ -10,7 +10,7 @@ class GuildCommandRepository {
 
     async getAll() {
         try {
-            return await this._db.guilds.guild_commands.find();
+            return await this._db.instance.any('SELECT * FROM guilds.guild_commands;');
         }
         catch (e) {
             Log.error(`Getting all guild commands: ${e}`);

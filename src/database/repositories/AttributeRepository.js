@@ -11,7 +11,7 @@ class AttributeRepository {
 
     async getAll() {
         try {
-            return await this._db.attributes.attributes.find();
+            return await this._db.instance.any('SELECT * FROM attributes.attributes;');
         }
         catch (e) {
             Log.error(`Getting all attributes: ${e}`);

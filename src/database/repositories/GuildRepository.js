@@ -10,7 +10,7 @@ class GuildRepository {
 
     async getAll() {
         try {
-            return await this._db.guilds.guilds.find();
+            return await this._db.instance.any('SELECT * FROM guilds.guilds;');
         }
         catch (e) {
             Log.error(`Getting all guilds: ${e}`);

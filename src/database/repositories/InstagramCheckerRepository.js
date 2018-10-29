@@ -9,7 +9,7 @@ class InstagramCheckerRepository {
 
     async getAll() {
         try {
-            return await this._db.checkers.instagram_checker.find();
+            return await this._db.instance.any('SELECT * FROM checkers.instagram_checker;');
         }
         catch (e) {
             Log.error(`Getting Instagrams: ${e}`);

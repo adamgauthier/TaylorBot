@@ -10,7 +10,7 @@ class RoleGroupRepository {
 
     async getAll() {
         try {
-            return await this._db.guilds.guild_role_groups.find();
+            return await this._db.instance.any('SELECT * FROM guilds.guild_role_groups;');
         }
         catch (e) {
             Log.error(`Getting all guild role groups: ${e}`);

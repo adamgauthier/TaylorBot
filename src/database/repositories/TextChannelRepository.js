@@ -10,9 +10,7 @@ class TextChannelRepository {
 
     async getAll() {
         try {
-            return await this._db.guilds.text_channels.find({}, {
-                fields: ['channel_id', 'guild_id']
-            });
+            return await this._db.instance.any('SELECT channel_id, guild_id FROM guilds.text_channels;');
         }
         catch (e) {
             Log.error(`Getting all text: ${e}`);
@@ -22,12 +20,10 @@ class TextChannelRepository {
 
     async getAllInGuild(guild) {
         try {
-            return await this._db.guilds.text_channels.find(
+            return await this._db.instance.any(
+                'SELECT channel_id FROM guilds.text_channels WHERE guild_id = $[guild_id];',
                 {
                     'guild_id': guild.id
-                },
-                {
-                    fields: ['channel_id']
                 }
             );
         }
@@ -39,7 +35,8 @@ class TextChannelRepository {
 
     async getAllLogChannelsInGuild(guild) {
         try {
-            return await this._db.guilds.text_channels.find(
+            return await this._db.instance.any(
+                'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_log = $[is_log];',
                 {
                     'guild_id': guild.id,
                     'is_log': true
