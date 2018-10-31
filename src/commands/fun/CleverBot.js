@@ -1,7 +1,9 @@
 'use strict';
 
 const Command = require('../Command.js');
+const CommandError = require('../CommandError.js');
 const CleverBot = require('../../modules/cleverbot/CleverBotModule.js');
+const Log = require('../../tools/Logger.js');
 
 class CleverBotCommand extends Command {
     constructor() {
@@ -27,6 +29,8 @@ class CleverBotCommand extends Command {
         const { author, channel } = message;
         const { database } = client.master;
 
+        let answer;
+
         channel.startTyping();
         try {
             const session = await database.cleverbotSessions.get(author);
@@ -35,12 +39,17 @@ class CleverBotCommand extends Command {
                 await database.cleverbotSessions.add(author);
             }
 
-            const answer = await CleverBot.ask(author.id, text);
-            return client.sendEmbedSuccess(channel, `<@${author.id}> ${answer}`);
+            answer = await CleverBot.ask(author.id, text);
+        }
+        catch (e) {
+            Log.error(e.stack);
+            throw new CommandError(`Something went wrong on the Cleverbot API side. Nothing we can do about it. 😔`);
         }
         finally {
             channel.stopTyping();
         }
+
+        return client.sendEmbedSuccess(channel, `<@${author.id}> ${answer}`);
     }
 }
 
