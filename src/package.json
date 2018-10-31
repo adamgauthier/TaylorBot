@@ -13,7 +13,7 @@
     "pg-promise": "^8.5.1"
   },
   "devDependencies": {
-    "eslint": "^5.4.0",
+    "eslint": "^5.8.0",
     "eslint-plugin-import": "^2.14.0"
   },
   "engines": {
