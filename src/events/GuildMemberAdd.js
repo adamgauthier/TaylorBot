@@ -39,6 +39,8 @@ class GuildMemberAdd extends EventHandler {
                 loggable = updated ?
                     new GuildMemberRejoinedLoggable(member) :
                     new GuildMemberRejoinedLoggable(member, databaseMember.first_joined_at);
+
+                await database.guildMembers.setAlive(member);
             }
 
             const latestUsername = await database.usernames.getLatest(user);

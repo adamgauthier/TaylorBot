@@ -12,8 +12,9 @@ class GuildMemberRemove extends EventHandler {
 
     async handler(client, member) {
         const guildMemberLeftLoggable = new GuildMemberLeftLoggable(member, new Date());
-
         client.textChannelLogger.log(member.guild, guildMemberLeftLoggable);
+
+        await client.master.database.guildMembers.setDead(member);
     }
 }
 

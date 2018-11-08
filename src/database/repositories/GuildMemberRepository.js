@@ -10,7 +10,7 @@ class GuildMemberRepository {
 
     async getAll() {
         try {
-            return await this._db.any('SELECT user_id, guild_id, first_joined_at FROM guilds.guild_members;');
+            return await this._db.any('SELECT user_id, guild_id, first_joined_at, alive FROM guilds.guild_members;');
         }
         catch (e) {
             Log.error(`Getting all guild members: ${e}`);
@@ -21,7 +21,7 @@ class GuildMemberRepository {
     async getAllInGuild(guild) {
         try {
             return await this._db.any(
-                'SELECT user_id, first_joined_at FROM guilds.guild_members WHERE guild_id = $[guild_id];',
+                'SELECT user_id, first_joined_at, alive FROM guilds.guild_members WHERE guild_id = $[guild_id];',
                 {
                     'guild_id': guild.id
                 }
@@ -221,6 +221,51 @@ class GuildMemberRepository {
             Log.error(`Removing ${messagesToRemove} messages and ${wordsToRemove} words from guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
+    }
+
+    async reverseAliveInGuild(guild, userIds) {
+        try {
+            await this._db.none(
+                `UPDATE guilds.guild_members
+                SET alive = NOT alive
+                WHERE guild_id = $[guild_id] AND user_id IN ($[user_ids:csv]);`,
+                {
+                    guild_id: guild.id,
+                    user_ids: userIds
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Reversing alive for guild ${Format.guild(guild)} and user ids ${userIds.join()}: ${e}`);
+            throw e;
+        }
+    }
+
+    async _setAlive(member, alive) {
+        const databaseMember = this.mapMemberToDatabase(member);
+        try {
+            await this._db.none(
+                `UPDATE guilds.guild_members
+                SET alive = $[alive]
+                WHERE guild_id = $[guild_id] AND user_id = $[user_id];`,
+                {
+                    ...databaseMember,
+                    alive
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Setting guild member ${Format.member(member)} alive to ${alive}: ${e}`);
+            throw e;
+        }
+    }
+
+    setDead(member) {
+        return this._setAlive(member, false);
+    }
+
+    setAlive(member) {
+        return this._setAlive(member, true);
     }
 }
 

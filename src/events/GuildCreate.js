@@ -39,7 +39,8 @@ class GuildCreate extends EventHandler {
             }
         }
 
-        const guildMembers = await database.guildMembers.getAllInGuild(guild);
+        const guildMembers = (await database.guildMembers.getAllInGuild(guild))
+            .map(gm => { gm.nowAlive = false; return gm; });
         let latestUsernames = await database.usernames.getAllLatest();
 
         for (const member of members.values()) {
@@ -55,6 +56,7 @@ class GuildCreate extends EventHandler {
                     Log.info(`Added new member ${Format.member(member)}.`);
                 }
                 else {
+                    guildMember.nowAlive = true;
                     if (guildMember.first_joined_at === '9223372036854775807') {
                         await database.guildMembers.fixInvalidJoinDate(member);
                     }
@@ -68,6 +70,11 @@ class GuildCreate extends EventHandler {
                     Log.info(`Added new username for ${Format.user(user)}.`);
                 }
             }
+        }
+
+        const aliveChanged = guildMembers.filter(gm => gm.alive !== gm.nowAlive).map(gm => gm.user_id);
+        if (aliveChanged.length > 0) {
+            await database.guildMembers.reverseAliveInGuild(guild, aliveChanged);
         }
     }
 }

@@ -26,7 +26,7 @@ class Ready extends EventHandler {
         const { registry, database } = client.master;
 
         const startupTime = Date.now();
-        const guildMembers = await database.guildMembers.getAll();
+        const allGuildMembers = await database.guildMembers.getAll();
         const channels = await database.textChannels.getAll();
         const latestGuildNames = await database.guildNames.getAllLatest();
         let latestUsernames = await database.usernames.getAllLatest();
@@ -51,7 +51,11 @@ class Ready extends EventHandler {
                 }
             }
 
+            const guildMembers = allGuildMembers
+                .filter(gm => gm.guild_id === guild.id)
+                .map(gm => { gm.nowAlive = false; return gm; });
             const members = await guild.members.fetch();
+
             for (const member of members.values()) {
                 const { user } = member;
                 if (!registry.users.has(member.id)) {
@@ -59,12 +63,13 @@ class Ready extends EventHandler {
                     await registry.users.addUser(member, startupTime);
                 }
                 else {
-                    const guildMember = guildMembers.find(gm => gm.guild_id === guild.id && gm.user_id === member.id);
+                    const guildMember = guildMembers.find(gm => gm.user_id === member.id);
                     if (!guildMember) {
                         Log.warn(`Found new member ${Format.member(member)}.`);
                         await database.guildMembers.add(member);
                     }
                     else {
+                        guildMember.nowAlive = true;
                         if (guildMember.first_joined_at === '9223372036854775807') {
                             await database.guildMembers.fixInvalidJoinDate(member);
                         }
@@ -78,6 +83,11 @@ class Ready extends EventHandler {
                         latestUsernames.push({ 'user_id': user.id, 'username': user.username });
                     }
                 }
+            }
+
+            const aliveChanged = guildMembers.filter(gm => gm.alive !== gm.nowAlive).map(gm => gm.user_id);
+            if (aliveChanged.length > 0) {
+                await database.guildMembers.reverseAliveInGuild(guild, aliveChanged);
             }
         }
     }
