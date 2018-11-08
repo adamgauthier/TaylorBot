@@ -59,12 +59,15 @@ class Ready extends EventHandler {
                     await registry.users.addUser(member, startupTime);
                 }
                 else {
-                    if (!guildMembers.some(gm => gm.guild_id === guild.id && gm.user_id === member.id)) {
+                    const guildMember = guildMembers.find(gm => gm.guild_id === guild.id && gm.user_id === member.id);
+                    if (!guildMember) {
                         Log.warn(`Found new member ${Format.member(member)}.`);
                         await database.guildMembers.add(member);
                     }
                     else {
-                        database.guildMembers.fixInvalidJoinDate(member);
+                        if (guildMember.first_joined_at === '9223372036854775807') {
+                            await database.guildMembers.fixInvalidJoinDate(member);
+                        }
                     }
 
                     const latestUsername = latestUsernames.find(u => u.user_id === user.id);

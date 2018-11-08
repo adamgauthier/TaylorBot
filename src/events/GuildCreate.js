@@ -49,9 +49,15 @@ class GuildCreate extends EventHandler {
                 await registry.users.addUser(member, joinTime);
             }
             else {
-                if (!guildMembers.some(gm => gm.user_id === member.id)) {
+                const guildMember = guildMembers.find(gm => gm.user_id === member.id);
+                if (!guildMember) {
                     await database.guildMembers.add(member);
                     Log.info(`Added new member ${Format.member(member)}.`);
+                }
+                else {
+                    if (guildMember.first_joined_at === '9223372036854775807') {
+                        await database.guildMembers.fixInvalidJoinDate(member);
+                    }
                 }
 
                 const latestUsername = latestUsernames.find(u => u.user_id === user.id);

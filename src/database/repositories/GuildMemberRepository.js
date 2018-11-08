@@ -10,7 +10,7 @@ class GuildMemberRepository {
 
     async getAll() {
         try {
-            return await this._db.any('SELECT user_id, guild_id FROM guilds.guild_members;');
+            return await this._db.any('SELECT user_id, guild_id, first_joined_at FROM guilds.guild_members;');
         }
         catch (e) {
             Log.error(`Getting all guild members: ${e}`);
@@ -21,7 +21,7 @@ class GuildMemberRepository {
     async getAllInGuild(guild) {
         try {
             return await this._db.any(
-                'SELECT user_id FROM guilds.guild_members WHERE guild_id = $[guild_id];',
+                'SELECT user_id, first_joined_at FROM guilds.guild_members WHERE guild_id = $[guild_id];',
                 {
                     'guild_id': guild.id
                 }
