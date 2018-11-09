@@ -121,6 +121,46 @@ class GuildMemberRepository {
         }
     }
 
+    async getRankedMessages(guild, limit) {
+        try {
+            return await this._db.any(
+                `SELECT message_count, user_id, rank() OVER (ORDER BY message_count DESC) AS rank
+                FROM guilds.guild_members
+                WHERE guild_id = $[guild_id] AND alive = TRUE
+                LIMIT $[limit];`,
+                {
+                    'guild_id': guild.id,
+                    'limit': limit
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting ranked first joined at for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async getRankedMessagesFor(guildMember) {
+        try {
+            return await this._db.one(
+                `SELECT message_count, rank FROM (
+                    SELECT message_count, user_id, rank() OVER (ORDER BY message_count DESC) AS rank
+                    FROM guilds.guild_members
+                    WHERE guild_id = $[guild_id] AND alive = TRUE
+                ) AS ranked
+                WHERE user_id = $[user_id];`,
+                {
+                    'guild_id': guildMember.guild.id,
+                    'user_id': guildMember.id
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting ranked first joined at for guild member ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
+
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
             return await this._db.tx(async t => {

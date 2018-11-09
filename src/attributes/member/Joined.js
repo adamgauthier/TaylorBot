@@ -2,10 +2,8 @@
 
 const MemberAttribute = require('../MemberAttribute.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const ArrayEmbedMemberDescriptionPageMessage = require('../../modules/paging/ArrayEmbedMemberDescriptionPageMessage.js');
 const MathUtil = require('../../modules/MathUtil.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
-const ArrayUtil = require('../../modules/ArrayUtil.js');
 
 class JoinedAttribute extends MemberAttribute {
     constructor() {
@@ -26,21 +24,12 @@ class JoinedAttribute extends MemberAttribute {
             ].join('\n'));
     }
 
-    async rankCommand({ message, client }, guild) {
-        const members = await client.master.database.guildMembers.getRankedFirstJoinedAt(guild, 100);
+    rank(database, guild, entries) {
+        return database.guildMembers.getRankedFirstJoinedAt(guild, entries);
+    }
 
-        const embed = DiscordEmbedFormatter
-            .baseGuildHeader(guild)
-            .setTitle(`Ranking of ${this.description}`);
-
-        return new ArrayEmbedMemberDescriptionPageMessage(
-            client,
-            message.author,
-            ArrayUtil.chunk(members, 20),
-            embed,
-            guild,
-            (member, { rank, first_joined_at }) => `${rank}: ${member.user.username} - ${TimeUtil.formatMini(first_joined_at)}`
-        );
+    presentRankEntry(member, { rank, first_joined_at }) {
+        return `${rank}: ${member.user.username} - ${TimeUtil.formatMini(first_joined_at)}`;
     }
 }
 
