@@ -72,9 +72,17 @@ class GuildMemberRepository {
     async getRankedFirstJoinedAt(guild, limit) {
         try {
             return await this._db.any(
-                `SELECT first_joined_at, user_id, rank() OVER (ORDER BY first_joined_at ASC) AS rank
-                FROM guilds.guild_members
-                WHERE guild_id = $[guild_id]
+                `SELECT first_joined_at, user_id, rank
+                FROM (
+                   SELECT
+                       first_joined_at,
+                       user_id,
+                       alive,
+                       rank() OVER (ORDER BY first_joined_at ASC) AS rank
+                   FROM guilds.guild_members
+                   WHERE guild_id = $[guild_id]
+                ) AS ranked
+                WHERE alive = TRUE
                 LIMIT $[limit];`,
                 {
                     'guild_id': guild.id,
