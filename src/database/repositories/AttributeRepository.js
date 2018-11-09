@@ -6,7 +6,9 @@ class AttributeRepository {
     constructor(db, helpers) {
         this._db = db;
         this._helpers = helpers;
-        this._columnSet = new this._helpers.ColumnSet(['attribute_id', 'created_at'], { table: 'attributes.attributes' });
+        this._columnSet = new this._helpers.ColumnSet(['attribute_id', 'created_at'], {
+            table: new this._helpers.TableName('attributes', 'attributes')
+        });
     }
 
     async getAll() {

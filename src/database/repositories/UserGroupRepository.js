@@ -6,7 +6,9 @@ class UserGroupRepository {
     constructor(db, helpers) {
         this._db = db;
         this._helpers = helpers;
-        this._columnSet = new this._helpers.ColumnSet(['name', 'access_level'], { table: 'commands.user_groups' });
+        this._columnSet = new this._helpers.ColumnSet(['name', 'access_level'], {
+            table: new this._helpers.TableName('commands', 'user_groups')
+        });
     }
 
     async getAll() {

@@ -6,7 +6,9 @@ class CommandRepository {
     constructor(db, helpers) {
         this._db = db;
         this._helpers = helpers;
-        this._columnSet = new this._helpers.ColumnSet(['name'], { table: 'commands.commands' });
+        this._columnSet = new this._helpers.ColumnSet(['name'], {
+            table: new this._helpers.TableName('commands', 'commands')
+        });
     }
 
     async getAll() {
