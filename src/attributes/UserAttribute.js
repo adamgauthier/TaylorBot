@@ -12,6 +12,7 @@ class UserAttribute extends Attribute {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
         this.value = options.value;
+        this.canSet = options.value !== undefined;
         this.presentor = new options.presentor(this);
     }
 

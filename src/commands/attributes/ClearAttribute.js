@@ -15,7 +15,7 @@ class ClearAttributeCommand extends Command {
                 {
                     key: 'attribute',
                     label: 'attribute',
-                    type: 'user-attribute',
+                    type: 'settable-attribute',
                     prompt: 'What attribute do you want to clear?'
                 }
             ]

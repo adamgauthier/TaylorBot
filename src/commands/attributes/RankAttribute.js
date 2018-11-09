@@ -2,7 +2,7 @@
 
 const Command = require('../Command.js');
 
-class RankCommand extends Command {
+class RankAttributeCommand extends Command {
     constructor() {
         super({
             name: 'rank',
@@ -31,4 +31,4 @@ class RankCommand extends Command {
     }
 }
 
-module.exports = RankCommand;
+module.exports = RankAttributeCommand;

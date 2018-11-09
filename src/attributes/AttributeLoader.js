@@ -45,8 +45,8 @@ class AttributeLoader {
 
         return [
             ...memberAttributes.map(a => new GetUserAttributeCommand(a)),
-            ...memberAttributes.map(a => new SetUserAttributeCommand(a)),
-            ...memberAttributes.map(a => new ClearUserAttributeCommand(a)),
+            ...memberAttributes.filter(a => a.canSet).map(a => new SetUserAttributeCommand(a)),
+            ...memberAttributes.filter(a => a.canSet).map(a => new ClearUserAttributeCommand(a)),
             ...memberAttributes.filter(a => a.canList).map(a => new ListAttributeCommand(a))
         ];
     }
