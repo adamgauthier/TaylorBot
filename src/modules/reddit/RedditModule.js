@@ -3,7 +3,7 @@
 const fetch = require('node-fetch');
 const { MessageEmbed } = require('discord.js');
 
-const StringUtil = require('./StringUtil.js');
+const StringUtil = require('../StringUtil.js');
 
 const REDDIT_ICON_URL = 'https://i.imgur.com/HbUa6WQ.png';
 const SPOILER_THUMBNAIL_URL = 'https://i.imgur.com/oCFUKo7.png';
@@ -15,6 +15,12 @@ class RedditModule {
 
         const post = body.data.children[0].data;
         return post;
+    }
+
+    static async getSubredditAbout(subreddit) {
+        const body = await fetch(`https://www.reddit.com/r/${subreddit}/about/.json`).then(res => res.json());
+
+        return body.data;
     }
 
     static getEmbed(post) {

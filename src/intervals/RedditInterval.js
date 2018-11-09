@@ -3,7 +3,7 @@
 const Interval = require('../structures/Interval.js');
 const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
-const RedditModule = require('../modules/RedditModule.js');
+const RedditModule = require('../modules/reddit/RedditModule.js');
 
 const intervalTime = 60000;
 
