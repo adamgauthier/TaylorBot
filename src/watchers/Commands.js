@@ -7,7 +7,7 @@ const ArrayUtil = require('../modules/ArrayUtil.js');
 const CommandError = require('../commands/CommandError.js');
 const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
 const MessageContext = require('../structures/MessageContext.js');
-const CommandMessageContext = require('../structures/CommandMessageContext.js');
+const CommandMessageContext = require('../commands/CommandMessageContext.js');
 
 class CommandsWatcher extends MessageWatcher {
     async messageHandler(client, message) {
@@ -116,7 +116,8 @@ class CommandsWatcher extends MessageWatcher {
             return client.sendEmbedError(channel, [
                 'Oops! Looks like something was off with your command usage. 🤔',
                 `Command Format: \`${commandContext.usage()}\``,
-                `Example: \`${commandContext.example()}\``
+                `Example: \`${commandContext.example()}\``,
+                `For more details, use \`${commandContext.helpUsage()}\``
             ].join('\n'));
         }
 
