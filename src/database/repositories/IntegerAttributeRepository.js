@@ -71,7 +71,7 @@ class IntegerAttributeRepository {
                 WHERE user_id IN (
                    SELECT user_id
                    FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id]
+                   WHERE guild_id = $[guild_id] AND alive = TRUE
                 )
                 AND attribute_id = $[attribute_id];`,
                 {
@@ -96,7 +96,7 @@ class IntegerAttributeRepository {
                     WHERE user_id IN (
                        SELECT user_id
                        FROM guilds.guild_members
-                       WHERE guild_id = $[guild_id]
+                       WHERE guild_id = $[guild_id] AND alive = TRUE
                     )
                     AND attribute_id = $[attribute_id]
                 ) AS guild_attributes;`,
