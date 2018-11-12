@@ -24,10 +24,8 @@ class ServerStatsCommand extends Command {
     }
 
     async run({ message: { channel }, client }, { guild }) {
-        const ageAttributes = await client.master.database.integerAttributes.getInGuild('age', guild);
+        const { avg, min, max, median } = await client.master.database.integerAttributes.getStatsInGuild('age', guild);
         const genderAttributes = await client.master.database.textAttributes.getInGuild('gender', guild);
-
-        const ages = ageAttributes.map(a => a.integer_value);
 
         const males = genderAttributes.filter(a => a.attribute_value === 'Male').length;
         const females = genderAttributes.filter(a => a.attribute_value === 'Female').length;
@@ -36,9 +34,10 @@ class ServerStatsCommand extends Command {
         return client.sendEmbed(channel, DiscordEmbedFormatter
             .baseGuildHeader(guild)
             .addField('Age', [
-                `Average: ${ages.length > 0 ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(2) : 'No Data'}`,
-                `Highest: ${ages.length > 0 ? Math.max(...ages) : 'No Data'}`,
-                `Lowest: ${ages.length > 0 ? Math.min(...ages) : 'No Data'}`
+                `Median: ${median != null ? median : 'No Data'}`,
+                `Average: ${avg != null ? avg : 'No Data'}`,
+                `Highest: ${max != null ? max : 'No Data'}`,
+                `Lowest: ${min != null ? min : 'No Data'}`,
             ].join('\n'), true)
             .addField('Gender', [
                 `Male: ${males} (${(males / genderAttributes.length * 100).toFixed(2)}%)`,

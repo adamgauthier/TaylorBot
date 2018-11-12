@@ -85,6 +85,32 @@ class IntegerAttributeRepository {
             throw e;
         }
     }
+
+    async getStatsInGuild(attributeId, guild) {
+        try {
+            return await this._db.one(
+                `SELECT ROUND(AVG(integer_value), 2) AS avg, MIN(integer_value), MAX(integer_value), ROUND(MEDIAN(integer_value), 2) AS median
+                FROM (
+                    SELECT *
+                    FROM attributes.integer_attributes
+                    WHERE user_id IN (
+                       SELECT user_id
+                       FROM guilds.guild_members
+                       WHERE guild_id = $[guild_id]
+                    )
+                    AND attribute_id = $[attribute_id]
+                ) AS guild_attributes;`,
+                {
+                    'guild_id': guild.id,
+                    'attribute_id': attributeId
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting attributes '${attributeId}' for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = IntegerAttributeRepository;
