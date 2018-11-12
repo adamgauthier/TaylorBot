@@ -33,13 +33,13 @@ class CleverBotCommand extends Command {
 
         channel.startTyping();
         try {
-            const session = await database.cleverbotSessions.get(author);
+            const session = await database.cleverbotSessions.getRandom();
             if (!session) {
                 await CleverBot.create(author.id);
                 await database.cleverbotSessions.add(author);
             }
 
-            answer = await CleverBot.ask(author.id, text);
+            answer = await CleverBot.ask(session.user_id, text);
         }
         catch (e) {
             Log.error(e.stack);

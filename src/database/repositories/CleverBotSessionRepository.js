@@ -8,6 +8,18 @@ class CleverBotSessionRepository {
         this._db = db;
     }
 
+    async getRandom() {
+        try {
+            return await this._db.oneOrNone(
+                'SELECT * FROM users.cleverbot_sessions ORDER BY random() LIMIT 1;'
+            );
+        }
+        catch (e) {
+            Log.error(`Getting random cleverbot session: ${e}`);
+            throw e;
+        }
+    }
+
     async get(user) {
         try {
             return await this._db.oneOrNone(
