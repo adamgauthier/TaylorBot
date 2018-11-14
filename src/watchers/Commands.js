@@ -51,7 +51,7 @@ class CommandsWatcher extends MessageWatcher {
         try {
             await CommandsWatcher.runCommand(messageContext, cachedCommand, argString);
         } catch (e) {
-            await client.sendEmbedError(channel, 'Oops, an unknown command error occured. Sorry about that. 😕');
+            await client.sendEmbedError(channel, `${author} Oops, an unknown command error occured. Sorry about that. 😕`);
             throw e;
         }
     }
