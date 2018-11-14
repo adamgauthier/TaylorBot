@@ -37,6 +37,10 @@ class MessageWatcherRegistry {
             }
         });
     }
+
+    getWatcher(name) {
+        return this._watchers.get(name);
+    }
 }
 
 module.exports = MessageWatcherRegistry;
