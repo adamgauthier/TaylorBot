@@ -117,7 +117,7 @@ class CommandsWatcher extends MessageWatcher {
                 'Oops! Looks like something was off with your command usage. 🤔',
                 `Command Format: \`${commandContext.usage()}\``,
                 `Example: \`${commandContext.example()}\``,
-                `For more details, use \`${commandContext.helpUsage()}\``
+                `For examples and details, use \`${commandContext.helpUsage()}\`.`
             ].join('\n'));
         }
 
