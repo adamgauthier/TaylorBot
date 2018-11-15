@@ -2,7 +2,7 @@
 
 const AttributeArgumentType = require('./Attribute.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
-const UserAttribute = require('./UserAttribute.js');
+const UserAttribute = require('../../attributes/UserAttribute.js');
 
 class UserAttributeArgumentType extends AttributeArgumentType {
     get id() {
