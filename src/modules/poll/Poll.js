@@ -30,6 +30,7 @@ class Poll extends EventEmitter {
             ).join('\n'))
             .setFooter('Type a number to vote!')
         );
+        this.startedAt = Date.now();
         setTimeout(() => this.emit('close'), this.duration);
     }
 
@@ -54,6 +55,14 @@ class Poll extends EventEmitter {
             ).join('\n'))
             .setFooter('Type a number to vote!')
         );
+    }
+
+    canClose(user) {
+        return this.owner.id === user.id;
+    }
+
+    endsAt() {
+        return this.startedAt + this.duration;
     }
 
     vote(user, number) {

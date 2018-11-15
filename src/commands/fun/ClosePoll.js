@@ -1,5 +1,7 @@
 'use strict';
 
+const moment = require('moment');
+
 const Command = require('../Command.js');
 const CommandError = require('../CommandError.js');
 
@@ -28,8 +30,10 @@ class ClosePollCommand extends Command {
 
         const poll = pollsWatcher.getPoll(channel);
 
-        if (poll.owner.id !== author.id) {
-            throw new CommandError(`This poll can only be closed by ${poll.owner}.`);
+        if (!poll.canClose(author)) {
+            throw new CommandError(
+                `This poll can only be closed by ${poll.owner}. Otherwise, it will be closed ${moment.utc(poll.endsAt()).fromNow()}.`
+            );
         }
 
         return pollsWatcher.stopPoll(channel);
