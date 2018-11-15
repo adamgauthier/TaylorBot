@@ -5,7 +5,7 @@ const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
 const ArrayUtil = require('../modules/ArrayUtil.js');
 const CommandError = require('../commands/CommandError.js');
-const ArgumentParsingError = require('../structures/ArgumentParsingError.js');
+const ArgumentParsingError = require('../types/ArgumentParsingError.js');
 const MessageContext = require('../structures/MessageContext.js');
 const CommandMessageContext = require('../commands/CommandMessageContext.js');
 

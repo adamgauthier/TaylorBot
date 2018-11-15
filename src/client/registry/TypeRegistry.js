@@ -1,6 +1,6 @@
 'use strict';
 
-const TypeLoader = require('../../modules/TypeLoader.js');
+const TypeLoader = require('../../types/TypeLoader.js');
 
 class TypeRegistry extends Map {
     async loadAll() {
