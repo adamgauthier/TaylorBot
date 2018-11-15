@@ -2,14 +2,14 @@
 
 const Command = require('../Command.js');
 const CommandError = require('../CommandError.js');
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const DarkSkyModule = require('../../modules/darksky/DarkSkyModule.js');
+const DarkSkyEmbedModule = require('../../modules/darksky/DarkSkyEmbedModule.js');
 
 class WeatherCommand extends Command {
     constructor() {
         super({
             name: 'weather',
-            group: 'info',
+            group: 'weather',
             description: `Get current weather forecast for a user's location. Weather data is [Powered by Dark Sky](https://darksky.net/poweredby/).`,
             examples: ['@Enchanted13#1989', 'Enchanted13'],
 
@@ -31,25 +31,9 @@ class WeatherCommand extends Command {
 
         const { currently } = await DarkSkyModule.getCurrentForecast(location.latitude, location.longitude);
 
-        const celsius = currently.temperature;
-        const fahrenheit = WeatherCommand.celsiusToFahrenheit(celsius).toFixed(2);
-
-        return client.sendEmbed(channel, DiscordEmbedFormatter
-            .baseUserEmbed(user)
-            .setTitle(currently.summary)
-            .setDescription([
-                `${celsius}°C/${fahrenheit}°F`,
-                `Wind: ${currently.windSpeed} km/h`,
-                `Humidity: ${Math.round(currently.humidity * 100)}%`
-            ].join('\n'))
-            .setThumbnail(`https://darksky.net/images/weather-icons/${currently.icon}.png`)
-            .setFooter(location.formatted_address)
-            .setTimestamp(new Date(currently.time * 1000))
+        return client.sendEmbed(channel,
+            DarkSkyEmbedModule.dataPointToEmbed(currently, user, location.formatted_address)
         );
-    }
-
-    static celsiusToFahrenheit(celsius) {
-        return (celsius * 9 / 5) + 32;
     }
 }
 
