@@ -9,7 +9,7 @@
     "discord.js": "github:discordjs/discord.js",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
-    "node-fetch": "^2.2.1",
+    "node-fetch": "^2.3.0",
     "pg-promise": "^8.5.1"
   },
   "devDependencies": {
