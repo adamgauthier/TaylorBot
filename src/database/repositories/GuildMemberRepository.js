@@ -179,6 +179,14 @@ class GuildMemberRepository {
         return this._getRankedAliveFor(guildMember, 'word_count');
     }
 
+    getRankedMinutes(guild, limit) {
+        return this._getRankedAlive(guild, limit, 'minute_count');
+    }
+
+    getRankedMinutesFor(guildMember) {
+        return this._getRankedAliveFor(guildMember, 'minute_count');
+    }
+
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
         try {
             return await this._db.tx(async t => {
