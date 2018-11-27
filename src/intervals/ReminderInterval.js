@@ -24,13 +24,20 @@ class ReminderInterval extends Interval {
                 const user = master.resolveUser(reminder.user_id);
 
                 if (user) {
-                    await master.sendEmbed(user,
-                        EmbedUtil.success(reminder.reminder_text)
-                            .setAuthor('Reminder')
-                            .setTimestamp(moment.utc(reminder.created_at, 'x', true).toDate())
-                    );
-                    await database.reminders.remove(reminder.reminder_id);
-                    Log.info(`Reminded user ${Format.user(user)} about '${reminder.reminder_text}'.`);
+                    try {
+                        await master.sendEmbed(user,
+                            EmbedUtil.success(reminder.reminder_text)
+                                .setAuthor('Reminder')
+                                .setTimestamp(moment.utc(reminder.created_at, 'x', true).toDate())
+                        );
+                        Log.info(`Reminded user ${Format.user(user)} about '${reminder.reminder_text}'.`);
+                    }
+                    catch (e) {
+                        Log.error(`Could not remind user ${Format.user(user)} about '${reminder.reminder_text}': ${e}`);
+                    }
+                    finally {
+                        await database.reminders.remove(reminder.reminder_id);
+                    }
                 }
                 else {
                     Log.warn(`Could not resolve user id ${reminder.user_id} when trying to remind from reminder '${reminder.reminder_id}'.`);
