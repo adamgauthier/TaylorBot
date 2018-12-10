@@ -31,10 +31,11 @@ class Poll extends EventEmitter {
             .setFooter('Type a number to vote!')
         );
         this.startedAt = Date.now();
-        setTimeout(() => this.emit('close'), this.duration);
+        this.closeTimeout = setTimeout(() => this.emit('close'), this.duration);
     }
 
     close() {
+        clearTimeout(this.closeTimeout);
         return this.client.sendEmbed(this.channel, DiscordEmbedFormatter
             .baseUserEmbed(this.owner)
             .setTitle(`Poll '${this.channel.name}' closed! Results:`)
