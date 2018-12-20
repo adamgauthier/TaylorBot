@@ -10,7 +10,7 @@
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
     "node-fetch": "^2.3.0",
-    "pg-promise": "^8.5.3"
+    "pg-promise": "^8.5.4"
   },
   "devDependencies": {
     "eslint": "^5.10.0",
