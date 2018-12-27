@@ -29,7 +29,10 @@ class Ready extends EventHandler {
         const allGuildMembers = await database.guildMembers.getAll();
         const channels = await database.textChannels.getAll();
         const latestGuildNames = await database.guildNames.getAllLatest();
-        let latestUsernames = await database.usernames.getAllLatest();
+        const latestUsernames = new Map(
+            (await database.usernames.getAllLatest())
+                .map(({ user_id, username }) => [user_id, username])
+        );
 
         for (const guild of client.guilds.values()) {
             if (!registry.guilds.has(guild.id)) {
@@ -61,6 +64,7 @@ class Ready extends EventHandler {
                 if (!registry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
                     await registry.users.addUser(member, startupTime);
+                    latestUsernames.set(user.id, user.username);
                 }
                 else {
                     const guildMember = guildMembers.find(gm => gm.user_id === member.id);
@@ -75,12 +79,11 @@ class Ready extends EventHandler {
                         }
                     }
 
-                    const latestUsername = latestUsernames.find(u => u.user_id === user.id);
-                    if (!latestUsername || latestUsername.username !== user.username) {
+                    const latestUsername = latestUsernames.get(user.id);
+                    if (!latestUsername || latestUsername !== user.username) {
                         Log.warn(`Found new username for ${Format.user(user)}.`);
                         await database.usernames.add(user, startupTime);
-                        latestUsernames = latestUsernames.filter(u => u.user_id !== user.id);
-                        latestUsernames.push({ 'user_id': user.id, 'username': user.username });
+                        latestUsernames.set(user.id, user.username);
                     }
                 }
             }
