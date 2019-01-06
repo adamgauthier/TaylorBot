@@ -3,7 +3,7 @@
 const fetch = require('node-fetch');
 const { MessageEmbed } = require('discord.js');
 
-const StringUtil = require('./StringUtil.js');
+const StringUtil = require('../StringUtil.js');
 
 class InstagramModule {
     static async getLatestPost(instagramUsername) {
