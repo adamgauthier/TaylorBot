@@ -17,10 +17,8 @@ class RedditModule {
         return post;
     }
 
-    static async getSubredditAbout(subreddit) {
-        const body = await fetch(`https://www.reddit.com/r/${subreddit}/about/.json`).then(res => res.json());
-
-        return body.data;
+    static getSubredditAbout(subreddit) {
+        return fetch(`https://www.reddit.com/r/${subreddit}/about/.json`).then(res => res.json());
     }
 
     static getEmbed(post) {

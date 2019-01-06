@@ -1,6 +1,7 @@
 'use strict';
 
 const Command = require('../Command.js');
+const CommandError = require('../CommandError.js');
 const Reddit = require('../../modules/reddit/RedditModule.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
@@ -28,7 +29,16 @@ class SubRedditCommand extends Command {
     async run({ message, client }, { subreddit }) {
         const { author, channel } = message;
 
-        const subredditAbout = await Reddit.getSubredditAbout(subreddit);
+        const response = await Reddit.getSubredditAbout(subreddit);
+
+        if (response.error) {
+            if (response.reason === 'quarantined') {
+                throw new CommandError(`Can't get subreddit info for '${subreddit}' because it is quarantined.`);
+            }
+            throw new CommandError(`An error occurred when trying to get subreddit info for '${subreddit}'.`);
+        }
+
+        const subredditAbout = response.data;
 
         return client.sendEmbed(channel,
             DiscordEmbedFormatter
