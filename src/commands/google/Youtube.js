@@ -1,7 +1,7 @@
 'use strict';
 
 const Command = require('../Command.js');
-const YoutubeModule = require('../../modules/YoutubeModule.js');
+const YoutubeModule = require('../../modules/google/YoutubeModule.js');
 const CommandError = require('../CommandError.js');
 const ArrayTextPageMessage = require('../../modules/paging/ArrayTextPageMessage.js');
 

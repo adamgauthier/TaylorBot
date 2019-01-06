@@ -3,7 +3,7 @@
 const Interval = require('../structures/Interval.js');
 const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
-const YoutubeModule = require('../modules/YoutubeModule.js');
+const YoutubeModule = require('../modules/google/YoutubeModule.js');
 
 const intervalTime = 60000;
 

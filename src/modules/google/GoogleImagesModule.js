@@ -3,7 +3,7 @@
 const fetch = require('node-fetch');
 const querystring = require('querystring');
 
-const { googleAPIKey, customsearchID } = require('../config/google.json');
+const { googleAPIKey, customsearchID } = require('../../config/google.json');
 
 class GoogleImagesModule {
     static search(searchText, numberOfResults) {

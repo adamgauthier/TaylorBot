@@ -4,8 +4,8 @@ const fetch = require('node-fetch');
 const querystring = require('querystring');
 const { MessageEmbed } = require('discord.js');
 
-const { googleAPIKey } = require('../config/google.json');
-const StringUtil = require('./StringUtil.js');
+const { googleAPIKey } = require('../../config/google.json');
+const StringUtil = require('../StringUtil.js');
 
 class YoutubeModule {
     static async searchVideo(query) {
