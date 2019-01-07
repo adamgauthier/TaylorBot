@@ -200,9 +200,21 @@ class GuildMemberRepository {
                     }
                 );
                 await t.none(
-                    `UPDATE guilds.guild_members SET
-                       minutes_milestone = (minute_count-(minute_count % $[minutes_for_reward])),
+                    `UPDATE users.users SET
                        taypoint_count = taypoint_count + $[points_reward]
+                    WHERE user_id IN (
+                        SELECT user_id FROM guilds.guild_members
+                        WHERE minute_count >= minutes_milestone + $[minutes_for_reward]
+                    );`,
+                    {
+                        minutes_for_reward: minutesForReward,
+                        points_reward: pointsReward
+                    }
+                );
+                await t.none(
+                    `UPDATE guilds.guild_members SET
+                       minutes_milestone = (minute_count - (minute_count % $[minutes_for_reward])),
+                       experience = experience + $[points_reward]
                     WHERE minute_count >= minutes_milestone + $[minutes_for_reward];`,
                     {
                         minutes_for_reward: minutesForReward,
