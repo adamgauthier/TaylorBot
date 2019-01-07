@@ -64,6 +64,20 @@ class UserRepository {
             throw e;
         }
     }
+
+    async getTaypointCount(user) {
+        const databaseUser = this.mapUserToDatabase(user);
+        try {
+            return await this._db.oneOrNone(
+                'SELECT taypoint_count FROM users.users WHERE user_id = $[user_id];',
+                databaseUser
+            );
+        }
+        catch (e) {
+            Log.error(`Getting taypoint count for user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = UserRepository;

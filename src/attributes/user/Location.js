@@ -1,11 +1,11 @@
 'use strict';
 
-const UserAttribute = require('../UserAttribute.js');
+const SettableUserAttribute = require('../SettableUserAttribute.js');
 const GoogleTimezoneModule = require('../../modules/google/GoogleTimezoneModule.js');
 const CommandError = require('../../commands/CommandError.js');
 const LocationPresentor = require('../presentors/LocationPresentor.js');
 
-class LocationAttribute extends UserAttribute {
+class LocationAttribute extends SettableUserAttribute {
     constructor() {
         super({
             id: 'location',

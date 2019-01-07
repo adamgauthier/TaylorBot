@@ -124,8 +124,8 @@ class GuildMemberRepository {
     async _getRankedAlive(guild, limit, column) {
         try {
             return await this._db.any(
-                `SELECT $[column~], user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                FROM guilds.guild_members
+                `SELECT $[column~], u.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                FROM guilds.guild_members AS gm JOIN users.users AS u ON gm.user_id = u.user_id
                 WHERE guild_id = $[guild_id] AND alive = TRUE
                 LIMIT $[limit];`,
                 {
@@ -145,8 +145,8 @@ class GuildMemberRepository {
         try {
             return await this._db.one(
                 `SELECT $[column~], rank FROM (
-                    SELECT $[column~], user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                    FROM guilds.guild_members
+                    SELECT $[column~], u.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                    FROM guilds.guild_members AS gm JOIN users.users AS u ON gm.user_id = u.user_id
                     WHERE guild_id = $[guild_id] AND alive = TRUE
                 ) AS ranked
                 WHERE user_id = $[user_id];`,
@@ -185,6 +185,14 @@ class GuildMemberRepository {
 
     getRankedMinutesFor(guildMember) {
         return this._getRankedAliveFor(guildMember, 'minute_count');
+    }
+
+    getRankedTaypoints(guild, limit) {
+        return this._getRankedAlive(guild, limit, 'taypoint_count');
+    }
+
+    getRankedTaypointsFor(guildMember) {
+        return this._getRankedAliveFor(guildMember, 'taypoint_count');
     }
 
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
