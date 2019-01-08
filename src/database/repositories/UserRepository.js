@@ -68,7 +68,7 @@ class UserRepository {
     async getTaypointCount(user) {
         const databaseUser = this.mapUserToDatabase(user);
         try {
-            return await this._db.oneOrNone(
+            return await this._db.one(
                 'SELECT taypoint_count FROM users.users WHERE user_id = $[user_id];',
                 databaseUser
             );
@@ -82,7 +82,7 @@ class UserRepository {
     async hasEnoughTaypointCount(user, taypointCount) {
         const databaseUser = this.mapUserToDatabase(user);
         try {
-            return await this._db.oneOrNone(
+            return await this._db.one(
                 'SELECT taypoint_count, taypoint_count >= $[taypoint_count] AS has_enough FROM users.users WHERE user_id = $[user_id];',
                 {
                     ...databaseUser,
@@ -99,23 +99,30 @@ class UserRepository {
     async transferTaypointCount(userFrom, usersTo, amount) {
         try {
             return await this._db.tx(async t => {
-                const { taypoint_count: originalCount } = await t.one(
-                    'SELECT taypoint_count FROM users.users WHERE user_id = $[gifter_id];',
-                    {
-                        gifter_id: userFrom.id
-                    }
-                );
-
-                const { taypoint_count: resultingCount } = await (amount.isRelative ?
+                const { original_count, final_count } = await (amount.isRelative ?
                     t.one(
-                        'UPDATE users.users SET taypoint_count = GREATEST(0, taypoint_count - FLOOR(taypoint_count / $[points_divisor])::bigint) WHERE user_id = $[gifter_id] RETURNING taypoint_count;',
+                        `UPDATE users.users AS u
+                        SET taypoint_count = GREATEST(0, taypoint_count - FLOOR(taypoint_count / $[points_divisor])::bigint)
+                        FROM (
+                            SELECT user_id, taypoint_count AS original_count
+                            FROM users.users WHERE user_id = $[gifter_id] FOR UPDATE
+                        ) AS old_u
+                        WHERE u.user_id = old_u.user_id
+                        RETURNING old_u.original_count, u.taypoint_count AS final_count;`,
                         {
                             points_divisor: amount.divisor,
                             gifter_id: userFrom.id
                         }
                     ) :
                     t.one(
-                        'UPDATE users.users SET taypoint_count = GREATEST(0, taypoint_count - $[points_to_gift]) WHERE user_id = $[gifter_id] RETURNING taypoint_count;',
+                        `UPDATE users.users AS u
+                        SET taypoint_count = GREATEST(0, taypoint_count - $[points_to_gift])
+                        FROM (
+                            SELECT user_id, taypoint_count AS original_count
+                            FROM users.users WHERE user_id = $[gifter_id] FOR UPDATE
+                        ) AS old_u
+                        WHERE u.user_id = old_u.user_id
+                        RETURNING old_u.original_count, u.taypoint_count AS final_count;`,
                         {
                             points_to_gift: amount.count,
                             gifter_id: userFrom.id
@@ -123,7 +130,7 @@ class UserRepository {
                     )
                 );
 
-                const totalGiftedCount = originalCount - resultingCount;
+                const totalGiftedCount = original_count - final_count;
 
                 const usersToGift = usersTo.map(user => ({
                     user,
@@ -145,23 +152,101 @@ class UserRepository {
             });
         }
         catch (e) {
-            Log.error(`Transferring ${amount} taypoint count from ${Format.user(userFrom)} to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
+            Log.error(`Transferring ${amount} taypoint from ${Format.user(userFrom)} to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
             throw e;
         }
     }
 
-    async addTaypointCount(usersTo, amount) {
+    async addTaypointCount(usersTo, count) {
         try {
             return await this._db.none(
                 'UPDATE users.users SET taypoint_count = taypoint_count + $[points_to_add] WHERE user_id IN ($[user_ids:csv]);',
                 {
-                    points_to_add: amount,
+                    points_to_add: count,
                     user_ids: usersTo.map(user => user.id)
                 }
             );
         }
         catch (e) {
-            Log.error(`Adding ${amount} taypoint count to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
+            Log.error(`Adding ${count} taypoint count to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
+            throw e;
+        }
+    }
+
+    async loseGambledTaypointCount(userTo, amount) {
+        try {
+            return await (amount.isRelative ?
+                this._db.one(
+                    `UPDATE users.users AS u
+                    SET taypoint_count = taypoint_count = GREATEST(0, taypoint_count - FLOOR(taypoint_count / $[points_divisor])::bigint)
+                    FROM (
+                        SELECT user_id, FLOOR(taypoint_count / $[points_divisor])::bigint AS gambled_count, taypoint_count AS original_count
+                        FROM users.users WHERE user_id = $[user_id] FOR UPDATE
+                    ) AS old_u
+                    WHERE u.user_id = old_u.user_id
+                    RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count;`,
+                    {
+                        points_divisor: amount.divisor,
+                        user_id: userTo.id
+                    }
+                ) :
+                this._db.one(
+                    `UPDATE users.users AS u
+                    SET taypoint_count = GREATEST(0, taypoint_count - $[gamble_points])
+                    FROM (
+                        SELECT user_id, LEAST(taypoint_count, $[gamble_points]) AS gambled_count, taypoint_count AS original_count
+                        FROM users.users WHERE user_id = $[user_id] FOR UPDATE
+                    ) AS old_u
+                    WHERE u.user_id = old_u.user_id
+                    RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count;`,
+                    {
+                        gamble_points: amount.count,
+                        user_id: userTo.id
+                    }
+                )
+            );
+        }
+        catch (e) {
+            Log.error(`Losing ${amount} taypoint for ${Format.user(userTo)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async winGambledTaypointCount(userTo, amount) {
+        try {
+            return await (amount.isRelative ?
+                this._db.one(
+                    `UPDATE users.users AS u
+                    SET taypoint_count = taypoint_count + FLOOR(taypoint_count / $[points_divisor])::bigint
+                    FROM (
+                        SELECT user_id, FLOOR(taypoint_count / $[points_divisor])::bigint AS gambled_count, taypoint_count AS original_count
+                        FROM users.users WHERE user_id = $[user_id] FOR UPDATE
+                    ) AS old_u
+                    WHERE u.user_id = old_u.user_id
+                    RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count;`,
+                    {
+                        points_divisor: amount.divisor,
+                        user_id: userTo.id
+                    }
+                ) :
+                this._db.one(
+                    `UPDATE users.users AS u
+                    SET taypoint_count = taypoint_count + LEAST(taypoint_count, $[gamble_points])
+                    FROM (
+                        SELECT user_id, LEAST(taypoint_count, $[gamble_points]) AS gambled_count, taypoint_count AS original_count
+                        FROM users.users WHERE user_id = $[user_id] FOR UPDATE
+                    ) AS old_u
+                    WHERE u.user_id = old_u.user_id
+                    RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count;`,
+                    {
+                        gamble_points: amount.count,
+                        user_id: userTo.id
+                    }
+                )
+            );
+        }
+        catch (e) {
+            Log.error(`Winning ${amount} taypoint for ${Format.user(userTo)}: ${e}`);
             throw e;
         }
     }

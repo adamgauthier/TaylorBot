@@ -12,6 +12,10 @@ class TaypointAmount {
     get isRelative() {
         return this.divisor !== undefined;
     }
+
+    toString() {
+        return `(${this.isRelative ? `divisor: ${this.divisor}` : `count: ${this.count}`})`;
+    }
 }
 
 module.exports = TaypointAmount;
