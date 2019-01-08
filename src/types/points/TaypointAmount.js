@@ -1,17 +1,16 @@
 'use strict';
 
-const WordArgumentType = require('../base/Word.js');
+const SafeStrictlyPositiveInteger = require('../numbers/SafeStrictlyPositiveInteger.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
 const TaypointAmount = require('../../modules/points/TaypointAmount.js');
+const StringUtil = require('../../modules/StringUtil.js');
 
-const MIN_AMOUNT = 1;
-
-class TaypointAmountArgumentType extends WordArgumentType {
+class TaypointAmountArgumentType extends SafeStrictlyPositiveInteger {
     get id() {
         return 'taypoint-amount';
     }
 
-    parse(val) {
+    async parse(val, { client, message }) {
         switch (val) {
             case 'all':
                 return new TaypointAmount({ divisor: 1 });
@@ -23,13 +22,12 @@ class TaypointAmountArgumentType extends WordArgumentType {
                 return new TaypointAmount({ divisor: 4 });
         }
 
-        const number = Number.parseInt(val);
+        const number = super.parse(val);
 
-        if (Number.isNaN(number))
-            throw new ArgumentParsingError(`Could not parse '${val}' into a valid taypoint amount.`);
+        const { taypoint_count, has_enough } = await client.master.database.users.hasEnoughTaypointCount(message.author, number);
 
-        if (number < MIN_AMOUNT)
-            throw new ArgumentParsingError(`Taypoint amount '${number}' must be higher than ${MIN_AMOUNT}.`);
+        if (!has_enough)
+            throw new ArgumentParsingError(`You can't spend ${StringUtil.plural(number, 'taypoint', '**')}, you only have **${taypoint_count}**.`);
 
         return new TaypointAmount({ count: number });
     }

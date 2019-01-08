@@ -12,7 +12,7 @@ class PollOptionsArgumentType extends TextArgumentType {
         return 'poll-options';
     }
 
-    async parse(val) {
+    parse(val) {
         const options = val.split(',').map(o => o.trim()).filter(o => o !== '');
 
         if (options.length < MIN_OPTIONS) {

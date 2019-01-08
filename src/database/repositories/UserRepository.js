@@ -79,6 +79,23 @@ class UserRepository {
         }
     }
 
+    async hasEnoughTaypointCount(user, taypointCount) {
+        const databaseUser = this.mapUserToDatabase(user);
+        try {
+            return await this._db.oneOrNone(
+                'SELECT taypoint_count, taypoint_count >= $[taypoint_count] AS has_enough FROM users.users WHERE user_id = $[user_id];',
+                {
+                    ...databaseUser,
+                    taypoint_count: taypointCount
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting has enough taypoint count ${taypointCount} for user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
+
     async transferTaypointCount(userFrom, usersTo, amount) {
         try {
             return await this._db.tx(async t => {
@@ -128,7 +145,23 @@ class UserRepository {
             });
         }
         catch (e) {
-            Log.error(`Transfering ${amount} taypoint count from ${Format.user(userFrom)} to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
+            Log.error(`Transferring ${amount} taypoint count from ${Format.user(userFrom)} to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
+            throw e;
+        }
+    }
+
+    async addTaypointCount(usersTo, amount) {
+        try {
+            return await this._db.none(
+                'UPDATE users.users SET taypoint_count = taypoint_count + $[points_to_add] WHERE user_id IN ($[user_ids:csv]);',
+                {
+                    points_to_add: amount,
+                    user_ids: usersTo.map(user => user.id)
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Adding ${amount} taypoint count to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
             throw e;
         }
     }

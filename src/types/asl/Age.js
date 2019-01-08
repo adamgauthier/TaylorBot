@@ -1,21 +1,18 @@
 'use strict';
 
-const TextArgumentType = require('../base/Text.js');
+const SafeStrictlyPositiveIntegerArgumentType = require('../numbers/SafeStrictlyPositiveInteger.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
 
 const MIN_AGE = 13;
 const MAX_AGE = 115;
 
-class AgeArgumentType extends TextArgumentType {
+class AgeArgumentType extends SafeStrictlyPositiveIntegerArgumentType {
     get id() {
         return 'age';
     }
 
     parse(val) {
-        const age = Number.parseInt(val);
-
-        if (Number.isNaN(age))
-            throw new ArgumentParsingError(`Could not parse '${val}' into a valid number.`);
+        const age = super.parse(val);
 
         if (age < MIN_AGE)
             throw new ArgumentParsingError(`Age must be higher or equal to ${MIN_AGE} years old.`);
