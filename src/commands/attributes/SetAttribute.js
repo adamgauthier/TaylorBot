@@ -35,7 +35,7 @@ class SetAttributeCommand extends Command {
         const cachedCommand = registry.commands.resolve(`set${attribute.id}`);
 
         registry.users.updateLastAnswered(commandContext.message.author, Date.now());
-        return CommandsWatcher.runCommand(commandContext, cachedCommand, ` ${value}`);
+        return CommandsWatcher.runCommand(commandContext.messageContext, cachedCommand, ` ${value}`);
     }
 }
 
