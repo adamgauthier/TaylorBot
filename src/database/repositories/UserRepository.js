@@ -78,6 +78,60 @@ class UserRepository {
             throw e;
         }
     }
+
+    async transferTaypointCount(userFrom, usersTo, amount) {
+        try {
+            return await this._db.tx(async t => {
+                const { taypoint_count: originalCount } = await t.one(
+                    'SELECT taypoint_count FROM users.users WHERE user_id = $[gifter_id];',
+                    {
+                        gifter_id: userFrom.id
+                    }
+                );
+
+                const { taypoint_count: resultingCount } = await (amount.isRelative ?
+                    t.one(
+                        'UPDATE users.users SET taypoint_count = GREATEST(0, taypoint_count - FLOOR(taypoint_count / $[points_divisor])::bigint) WHERE user_id = $[gifter_id] RETURNING taypoint_count;',
+                        {
+                            points_divisor: amount.divisor,
+                            gifter_id: userFrom.id
+                        }
+                    ) :
+                    t.one(
+                        'UPDATE users.users SET taypoint_count = GREATEST(0, taypoint_count - $[points_to_gift]) WHERE user_id = $[gifter_id] RETURNING taypoint_count;',
+                        {
+                            points_to_gift: amount.count,
+                            gifter_id: userFrom.id
+                        }
+                    )
+                );
+
+                const totalGiftedCount = originalCount - resultingCount;
+
+                const usersToGift = usersTo.map(user => ({
+                    user,
+                    giftedCount: Math.floor(totalGiftedCount / usersTo.length)
+                }));
+                usersToGift[0].giftedCount += totalGiftedCount % usersTo.length;
+
+                for (const userTo of usersToGift.filter(({ giftedCount }) => giftedCount > 0)) {
+                    await t.none(
+                        'UPDATE users.users SET taypoint_count = taypoint_count + $[points_to_gift] WHERE user_id = $[receiver_id];',
+                        {
+                            points_to_gift: userTo.giftedCount,
+                            receiver_id: userTo.user.id
+                        }
+                    );
+                }
+
+                return usersToGift;
+            });
+        }
+        catch (e) {
+            Log.error(`Transfering ${amount} taypoint count from ${Format.user(userFrom)} to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = UserRepository;
