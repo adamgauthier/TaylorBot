@@ -36,7 +36,7 @@ class RockPaperScissorsCommand extends Command {
         let color;
         let resultMessage;
         if (winner === move) {
-            const [{ taypoint_count }] = await client.master.database.users.addTaypointCount([author], winReward);
+            const { taypoint_count } = await client.master.database.users.winRpsGame(author, winReward);
             color = '#43b581';
             resultMessage = `You win! 😭 Gave you ${StringUtil.plural(winReward, 'taypoint', '**')}, you now have ${taypoint_count}. 💰`;
         }
