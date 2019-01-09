@@ -1,7 +1,7 @@
 'use strict';
 
 const UserAttribute = require('../UserAttribute.js');
-const SimplePresentor = require('../presentors/SimplePresentor.js');
+const SimplePresentor = require('../user-presentors/SimplePresentor.js');
 
 class OldMinutesAttribute extends UserAttribute {
     constructor() {

@@ -3,7 +3,7 @@
 const SettableUserAttribute = require('../SettableUserAttribute.js');
 const GoogleTimezoneModule = require('../../modules/google/GoogleTimezoneModule.js');
 const CommandError = require('../../commands/CommandError.js');
-const LocationPresentor = require('../presentors/LocationPresentor.js');
+const LocationPresentor = require('../user-presentors/LocationPresentor.js');
 
 class LocationAttribute extends SettableUserAttribute {
     constructor() {

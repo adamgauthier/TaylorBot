@@ -1,7 +1,7 @@
 'use strict';
 
 const TextUserAttribute = require('../TextUserAttribute.js');
-const SimpleImagePresentor = require('../presentors/SimpleImagePresentor.js');
+const SimpleImagePresentor = require('../user-presentors/SimpleImagePresentor.js');
 
 class WaifuAttribute extends TextUserAttribute {
     constructor() {

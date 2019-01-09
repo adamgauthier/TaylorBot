@@ -1,7 +1,7 @@
 'use strict';
 
 const TextUserAttribute = require('../TextUserAttribute.js');
-const LastFmPresentor = require('../presentors/LastFmPresentor.js');
+const LastFmPresentor = require('../user-presentors/LastFmPresentor.js');
 
 class LastFmAttribute extends TextUserAttribute {
     constructor() {

@@ -35,7 +35,7 @@ class DatabaseDriver {
 
         this.guilds = new GuildRepository(this._db);
         this.users = new UserRepository(this._db);
-        this.guildMembers = new GuildMemberRepository(this._db);
+        this.guildMembers = new GuildMemberRepository(this._db, this._helpers);
         this.usernames = new UsernameRepository(this._db);
         this.guildNames = new GuildNameRepository(this._db);
         this.instagramCheckers = new InstagramCheckerRepository(this._db);

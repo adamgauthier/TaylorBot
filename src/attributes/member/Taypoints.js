@@ -1,36 +1,24 @@
 'use strict';
 
-const MemberAttribute = require('../MemberAttribute.js');
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const MathUtil = require('../../modules/MathUtil.js');
-const StringUtil = require('../../modules/StringUtil.js');
+const SimpleStatMemberAttribute = require('../SimpleStatMemberAttribute.js');
 
-class TaypointsMemberAttribute extends MemberAttribute {
+class TaypointsMemberAttribute extends SimpleStatMemberAttribute {
     constructor() {
         super({
             id: 'taypoints',
             aliases: ['points'],
-            description: 'taypoints'
+            description: 'taypoints',
+            columnName: 'taypoint_count',
+            singularName: 'taypoint'
         });
     }
 
-    async getCommand({ client }, member) {
-        const { taypoint_count, rank } = await client.master.database.guildMembers.getRankedTaypointsFor(member);
-
-        return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
-            .setDescription([
-                `${member.displayName} has ${StringUtil.plural(taypoint_count, 'taypoint', '**')}.`,
-                `They are the **${MathUtil.formatNumberSuffix(rank)}** user of the server (excluding users who left).`
-            ].join('\n'));
+    retrieve(database, member) {
+        return database.guildMembers.getRankedForeignStatFor(member, 'users', 'users', this.columnName);
     }
 
     rank(database, guild, entries) {
-        return database.guildMembers.getRankedTaypoints(guild, entries);
-    }
-
-    presentRankEntry(member, { rank, taypoint_count }) {
-        return `${rank}: ${member.user.username} - ${StringUtil.plural(taypoint_count, 'taypoint', '`')}`;
+        return database.guildMembers.getRankedForeignStat(guild, entries, 'users', 'users', this.columnName);
     }
 }
 

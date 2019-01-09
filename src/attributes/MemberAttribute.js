@@ -11,18 +11,30 @@ class MemberAttribute extends Attribute {
         if (new.target === MemberAttribute) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
+        this.presentor = new options.presentor(this);
+        this.columnName = options.columnName;
     }
 
-    async getCommand(commandContext, member) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a ${this.getCommand.name}() method.`);
+    async retrieve(database, member) { // eslint-disable-line no-unused-vars
+        throw new Error(`${this.constructor.name} doesn't have a ${this.retrieve.name}() method.`);
+    }
+
+    async getCommand(commandContext, member) {
+        const attribute = await this.retrieve(commandContext.client.master.database, member);
+
+        if (!attribute) {
+            return DiscordEmbedFormatter
+                .baseUserHeader(member.user)
+                .setColor('#f04747')
+                .setDescription(`${member.displayName}'s ${this.description} doesn't exist. 🚫`);
+        }
+        else {
+            return this.presentor.present(commandContext, member, attribute);
+        }
     }
 
     async rank(database, guild, entries) { // eslint-disable-line no-unused-vars
         throw new Error(`${this.constructor.name} doesn't have a ${this.rank.name}() method.`);
-    }
-
-    presentRankEntry(member, entry) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have a ${this.presentRankEntry.name}() method.`);
     }
 
     async rankCommand({ message, client }, guild) {
@@ -38,7 +50,7 @@ class MemberAttribute extends Attribute {
             ArrayUtil.chunk(members, 10),
             embed,
             guild,
-            this.presentRankEntry
+            (member, attribute) => this.presentor.presentRankEntry(member, attribute)
         );
     }
 }

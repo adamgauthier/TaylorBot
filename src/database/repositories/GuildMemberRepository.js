@@ -4,8 +4,9 @@ const Log = require('../../tools/Logger.js');
 const Format = require('../../modules/DiscordFormatter.js');
 
 class GuildMemberRepository {
-    constructor(db) {
+    constructor(db, helpers) {
         this._db = db;
+        this._helpers = helpers;
     }
 
     async getAll() {
@@ -124,8 +125,8 @@ class GuildMemberRepository {
     async _getRankedAlive(guild, limit, column) {
         try {
             return await this._db.any(
-                `SELECT $[column~], u.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                FROM guilds.guild_members AS gm JOIN users.users AS u ON gm.user_id = u.user_id
+                `SELECT $[column~], user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                FROM guilds.guild_members
                 WHERE guild_id = $[guild_id] AND alive = TRUE
                 LIMIT $[limit];`,
                 {
@@ -141,12 +142,33 @@ class GuildMemberRepository {
         }
     }
 
+    async _getRankedAliveForeign(guild, limit, tableName, column) {
+        try {
+            return await this._db.any(
+                `SELECT f.$[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                FROM guilds.guild_members AS gm JOIN $[table] AS f ON gm.user_id = f.user_id
+                WHERE guild_id = $[guild_id] AND alive = TRUE
+                LIMIT $[limit];`,
+                {
+                    'guild_id': guild.id,
+                    'limit': limit,
+                    column,
+                    table: tableName
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting foreign ranked alive '${tableName}.${column}' for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
     async _getRankedAliveFor(guildMember, column) {
         try {
             return await this._db.one(
                 `SELECT $[column~], rank FROM (
-                    SELECT $[column~], u.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                    FROM guilds.guild_members AS gm JOIN users.users AS u ON gm.user_id = u.user_id
+                    SELECT $[column~], user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                    FROM guilds.guild_members
                     WHERE guild_id = $[guild_id] AND alive = TRUE
                 ) AS ranked
                 WHERE user_id = $[user_id];`,
@@ -159,6 +181,29 @@ class GuildMemberRepository {
         }
         catch (e) {
             Log.error(`Getting ranked alive '${column}' for guild member ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async _getRankedAliveForeignFor(guildMember, tableName, column) {
+        try {
+            return await this._db.oneOrNone(
+                `SELECT $[column~], rank FROM (
+                    SELECT f.$[column~], gm.user_id, rank() OVER (ORDER BY f.$[column~] DESC) AS rank
+                    FROM guilds.guild_members AS gm JOIN $[table] AS f ON gm.user_id = f.user_id
+                    WHERE guild_id = $[guild_id] AND alive = TRUE
+                ) AS ranked
+                WHERE user_id = $[user_id];`,
+                {
+                    'guild_id': guildMember.guild.id,
+                    'user_id': guildMember.id,
+                    column,
+                    table: tableName
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting foreign ranked alive '${tableName}.${column}' for guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
@@ -187,12 +232,12 @@ class GuildMemberRepository {
         return this._getRankedAliveFor(guildMember, 'minute_count');
     }
 
-    getRankedTaypoints(guild, limit) {
-        return this._getRankedAlive(guild, limit, 'taypoint_count');
+    getRankedForeignStat(guild, limit, schema, table, column) {
+        return this._getRankedAliveForeign(guild, limit, new this._helpers.TableName(table, schema), column);
     }
 
-    getRankedTaypointsFor(guildMember) {
-        return this._getRankedAliveFor(guildMember, 'taypoint_count');
+    getRankedForeignStatFor(guildMember, schema, table, column) {
+        return this._getRankedAliveForeignFor(guildMember, new this._helpers.TableName(table, schema), column);
     }
 
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {

@@ -1,7 +1,7 @@
 'use strict';
 
 const SettableUserAttribute = require('./SettableUserAttribute.js');
-const SimplePresentor = require('./presentors/SimplePresentor.js');
+const SimplePresentor = require('./user-presentors/SimplePresentor.js');
 
 class TextUserAttribute extends SettableUserAttribute {
     constructor(options) {
