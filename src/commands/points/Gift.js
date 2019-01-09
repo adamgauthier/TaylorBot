@@ -32,15 +32,15 @@ class GiftCommand extends Command {
 
     async run({ message, client }, { amount, users }) {
         const { author, channel } = message;
-        const giftedUsers = await client.master.database.users.transferTaypointCount(author, users, amount);
-
-        const totalGifted = giftedUsers.reduce((acc, { giftedCount }) => acc + giftedCount, 0);
+        const {
+            usersToGift, gifted_count, original_count
+        } = await client.master.database.users.transferTaypointCount(author, users, amount);
 
         return client.sendEmbed(channel, DiscordEmbedFormatter
             .baseUserEmbed(author)
             .setDescription([
-                `Successfully gifted ${StringUtil.plural(totalGifted, 'taypoint', '**')}:`,
-                ...giftedUsers.map(({ user, giftedCount }) => `${StringUtil.plural(giftedCount, 'taypoint', '**')} to ${user}`)
+                `Successfully gifted ${StringUtil.plural(gifted_count, 'taypoint', '**')} out of ${original_count}:`,
+                ...usersToGift.map(({ user, giftedCount }) => `${StringUtil.plural(giftedCount, 'taypoint', '**')} to ${user}`)
             ].join('\n'))
         );
     }

@@ -33,8 +33,8 @@ class GambleCommand extends Command {
         const won = roll >= 51;
 
         const { gambled_count, original_count, final_count } = await (won ?
-            await client.master.database.users.winGambledTaypointCount(author, amount) :
-            await client.master.database.users.loseGambledTaypointCount(author, amount)
+            client.master.database.users.winGambledTaypointCount(author, amount) :
+            client.master.database.users.loseGambledTaypointCount(author, amount)
         );
 
         return client.sendEmbed(channel, DiscordEmbedFormatter
