@@ -182,12 +182,12 @@ class UserRepository {
             );
         }
         catch (e) {
-            Log.error(`Losing ${amount} taypoint for ${Format.user(userTo)}: ${e}`);
+            Log.error(`Losing ${amount} taypoint amount for ${Format.user(userTo)}: ${e}`);
             throw e;
         }
     }
 
-    async winGambledTaypointCount(userTo, amount) {
+    async winGambledTaypointCount(userTo, amount, payoutMultiplier) {
         try {
             const toAdd = amount.isRelative ?
                 { query: 'FLOOR(taypoint_count / $[points_divisor])::bigint', params: { points_divisor: amount.divisor } } :
@@ -195,7 +195,7 @@ class UserRepository {
 
             return await this._db.one(
                 `UPDATE users.users AS u
-                SET taypoint_count = taypoint_count + ${toAdd.query}
+                SET taypoint_count = taypoint_count + (${toAdd.query} * $[payout_multiplier])
                 FROM (
                     SELECT user_id, ${toAdd.query} AS gambled_count, taypoint_count AS original_count
                     FROM users.users WHERE user_id = $[user_id] FOR UPDATE
@@ -204,12 +204,13 @@ class UserRepository {
                 RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count;`,
                 {
                     ...toAdd.params,
+                    payout_multiplier: payoutMultiplier,
                     user_id: userTo.id
                 }
             );
         }
         catch (e) {
-            Log.error(`Winning ${amount} taypoint for ${Format.user(userTo)}: ${e}`);
+            Log.error(`Winning ${amount} taypoint amount for ${Format.user(userTo)}: ${e}`);
             throw e;
         }
     }

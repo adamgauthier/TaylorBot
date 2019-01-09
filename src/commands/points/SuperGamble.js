@@ -5,12 +5,13 @@ const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
 const MathUtil = require('../../modules/MathUtil.js');
 
-class GambleCommand extends Command {
+class SuperGambleCommand extends Command {
     constructor() {
         super({
-            name: 'gamble',
+            name: 'supergamble',
+            aliases: ['sgamble'],
             group: 'points',
-            description: 'Gamble a specified amount of taypoints. If you roll 51-100, you win the gambled amount, if you roll 1-50, you lose that amount.',
+            description: 'Gamble a specified amount of taypoints. If you roll 91-100, you win 9x the gambled amount, if you roll 1-90, you lose that amount.',
             examples: ['13', 'all'],
 
             args: [
@@ -18,7 +19,7 @@ class GambleCommand extends Command {
                     key: 'amount',
                     label: 'taypoints',
                     type: 'taypoint-amount',
-                    prompt: 'How much taypoints do you want to gamble?'
+                    prompt: 'How much taypoints do you want to supergamble?'
                 }
             ]
         });
@@ -30,10 +31,10 @@ class GambleCommand extends Command {
         const limit = 100;
 
         const roll = MathUtil.getRandomInt(1, limit);
-        const won = roll >= 51;
+        const won = roll >= 91;
 
         const { gambled_count, original_count, final_count } = await (won ?
-            client.master.database.users.winGambledTaypointCount(author, amount, 1) :
+            client.master.database.users.winGambledTaypointCount(author, amount, 9) :
             client.master.database.users.loseGambledTaypointCount(author, amount)
         );
 
@@ -41,12 +42,12 @@ class GambleCommand extends Command {
             .baseUserHeader(author)
             .setColor(won ? '#43b581' : '#f04747')
             .setDescription([
-                `Gambled ${StringUtil.plural(gambled_count, 'taypoint', '**')} out of ${original_count}. 💵`,
-                `Rolled **${roll}**/${limit}. 🎲 You ${won ? 'won! 😄' : 'lost! 😔'}`,
+                `Supergambled ${StringUtil.plural(gambled_count, 'taypoint', '**')} out of ${original_count}. 💵`,
+                `Rolled **${roll}**/${limit}. 🎲 You ${won ? 'won! 😱' : 'lost! 😔'}`,
                 `You now have ${StringUtil.plural(final_count, 'taypoint', '**')}. ${won ? '💰' : '💸'}`
             ].join('\n'))
         );
     }
 }
 
-module.exports = GambleCommand;
+module.exports = SuperGambleCommand;
