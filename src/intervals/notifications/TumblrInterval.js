@@ -1,15 +1,16 @@
 'use strict';
 
-const Interval = require('../structures/Interval.js');
-const TumblrModule = require('../modules/tumblr/TumblrModule.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
-
-const intervalTime = 60000;
+const Interval = require('../Interval.js');
+const TumblrModule = require('../../modules/tumblr/TumblrModule.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
 
 class TumblrInterval extends Interval {
     constructor() {
-        super(intervalTime);
+        super({
+            id: 'tumblr-checker',
+            intervalMs: 60 * 1000
+        });
     }
 
     async interval(client) {

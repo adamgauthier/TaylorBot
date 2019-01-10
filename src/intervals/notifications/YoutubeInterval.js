@@ -1,15 +1,16 @@
 'use strict';
 
-const Interval = require('../structures/Interval.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
-const YoutubeModule = require('../modules/google/YoutubeModule.js');
-
-const intervalTime = 60000;
+const Interval = require('../Interval.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
+const YoutubeModule = require('../../modules/google/YoutubeModule.js');
 
 class YoutubeInterval extends Interval {
     constructor() {
-        super(intervalTime);
+        super({
+            id: 'youtube-checker',
+            intervalMs: 60 * 1000
+        });
     }
 
     async interval(client) {

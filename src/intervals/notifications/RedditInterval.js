@@ -1,15 +1,16 @@
 'use strict';
 
-const Interval = require('../structures/Interval.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
-const RedditModule = require('../modules/reddit/RedditModule.js');
-
-const intervalTime = 60000;
+const Interval = require('../Interval.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
+const RedditModule = require('../../modules/reddit/RedditModule.js');
 
 class RedditInterval extends Interval {
     constructor() {
-        super(intervalTime);
+        super({
+            id: 'reddit-checker',
+            intervalMs: 60 * 1000
+        });
     }
 
     async interval(client) {

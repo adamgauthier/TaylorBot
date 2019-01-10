@@ -1,6 +1,6 @@
 'use strict';
 
-const Interval = require('../structures/Interval.js');
+const Interval = require('../Interval.js');
 
 const minutesToAdd = 1;
 const msBeforeAdd = 1 * 60 * 1000;
@@ -10,7 +10,10 @@ const msBeforeInactive = 10 * 60 * 1000;
 
 class MinutesInterval extends Interval {
     constructor() {
-        super(msBeforeAdd);
+        super({
+            id: 'minutes-adder',
+            intervalMs: msBeforeAdd
+        });
     }
 
     async interval({ master }) {

@@ -1,12 +1,13 @@
 'use strict';
 
 class Interval {
-    constructor(intervalTime, enabled = true) {
+    constructor({ id, intervalMs, enabled = true }) {
         if (new.target === Interval) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
 
-        this.intervalTime = intervalTime;
+        this.id = id;
+        this.intervalMs = intervalMs;
         this.enabled = enabled;
     }
 

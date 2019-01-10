@@ -1,15 +1,17 @@
 'use strict';
 
-const Interval = require('../structures/Interval.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
-const InstagramModule = require('../modules/instagram/InstagramModule.js');
-
-const intervalTime = 60000;
+const Interval = require('../Interval.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
+const InstagramModule = require('../../modules/instagram/InstagramModule.js');
 
 class InstagramInterval extends Interval {
     constructor() {
-        super(intervalTime, false);
+        super({
+            id: 'instagram-checker',
+            intervalMs: 60000,
+            enabled: false
+        });
     }
 
     async interval(client) {

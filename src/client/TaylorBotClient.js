@@ -5,7 +5,7 @@ const Discord = require('discord.js');
 const EventLoader = require('../modules/EventLoader.js');
 const { loginToken } = require('../config/discord.json');
 const Log = require('../tools/Logger.js');
-const IntervalRunner = require('../modules/IntervalRunner.js');
+const IntervalRunner = require('../intervals/IntervalRunner.js');
 const EmbedUtil = require('../modules/EmbedUtil.js');
 const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 

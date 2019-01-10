@@ -2,16 +2,17 @@
 
 const moment = require('moment');
 
-const Interval = require('../structures/Interval.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
-const EmbedUtil = require('../modules/EmbedUtil.js');
-
-const intervalTime = 120000;
+const Interval = require('../Interval.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
+const EmbedUtil = require('../../modules/EmbedUtil.js');
 
 class ReminderInterval extends Interval {
     constructor() {
-        super(intervalTime);
+        super({
+            id: 'reminders-checker',
+            intervalMs: 2 * 60 * 1000
+        });
     }
 
     async interval(client) {
