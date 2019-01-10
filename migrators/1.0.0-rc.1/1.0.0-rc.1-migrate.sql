@@ -25,3 +25,9 @@ GRANT ALL ON TABLE users.rps_stats TO taylorbot;
 
 ALTER TABLE commands.commands
     ADD COLUMN added_at timestamp with time zone NOT NULL DEFAULT (now());
+
+ALTER TABLE commands.commands
+    ADD COLUMN successful_use_count bigint NOT NULL DEFAULT 0;
+
+ALTER TABLE commands.commands
+    ADD COLUMN unhandled_error_count bigint NOT NULL DEFAULT 0;

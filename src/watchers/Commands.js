@@ -39,9 +39,10 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
+        const { registry } = client.master;
         const spaceMatches = text.match(/\s/);
         const commandName = spaceMatches ? text.substring(0, spaceMatches.index) : text;
-        const cachedCommand = client.master.registry.commands.resolve(commandName.toLowerCase());
+        const cachedCommand = registry.commands.resolve(commandName.toLowerCase());
 
         if (!cachedCommand)
             return;
@@ -50,8 +51,10 @@ class CommandsWatcher extends MessageWatcher {
 
         try {
             await CommandsWatcher.runCommand(messageContext, cachedCommand, argString);
+            registry.commands.addSuccessfulUseCount(cachedCommand);
         } catch (e) {
             await client.sendEmbedError(channel, `${author} Oops, an unknown command error occured. Sorry about that. 😕`);
+            registry.commands.addUnhandledErrorCount(cachedCommand);
             throw e;
         }
     }

@@ -13,7 +13,7 @@ class CommandRepository {
 
     async getAll() {
         try {
-            return await this._db.any('SELECT * FROM commands.commands;');
+            return await this._db.any('SELECT name, enabled FROM commands.commands;');
         }
         catch (e) {
             Log.error(`Getting all commands: ${e}`);
@@ -24,7 +24,7 @@ class CommandRepository {
     async addAll(databaseCommands) {
         try {
             return await this._db.any(
-                `${this._helpers.insert(databaseCommands, this._columnSet)} RETURNING *;`,
+                `${this._helpers.insert(databaseCommands, this._columnSet)} RETURNING name, enabled;`,
             );
         }
         catch (e) {
@@ -35,16 +35,36 @@ class CommandRepository {
 
     async setEnabled(commandName, enabled) {
         try {
-            return await this._db.oneOrNone(
+            return await this._db.one(
                 'UPDATE commands.commands SET enabled = $[enabled] WHERE name = $[name] RETURNING *;',
                 {
-                    'enabled': enabled,
-                    'name': commandName
+                    enabled: enabled,
+                    name: commandName
                 }
             );
         }
         catch (e) {
             Log.error(`Setting command '${commandName}' enabled to '${enabled}': ${e}`);
+            throw e;
+        }
+    }
+
+    async addUseCount(commandNames, useCount, errorCount) {
+        try {
+            return await this._db.none(
+                `UPDATE commands.commands SET
+                    successful_use_count = successful_use_count + $[use_count],
+                    unhandled_error_count = unhandled_error_count + $[error_count]
+                WHERE name IN ($[names:csv]);`,
+                {
+                    use_count: useCount,
+                    error_count: errorCount,
+                    names: commandNames
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Adding ${useCount} use count and ${errorCount} error count to command '${commandNames.join()}': ${e}`);
             throw e;
         }
     }

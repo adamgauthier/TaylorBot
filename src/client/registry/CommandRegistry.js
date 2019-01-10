@@ -9,6 +9,7 @@ class CommandRegistry extends Map {
     constructor(database) {
         super();
         this.database = database;
+        this.useCountCache = new Map();
     }
 
     async loadAll() {
@@ -104,6 +105,26 @@ class CommandRegistry extends Map {
         }
 
         return command;
+    }
+
+    addSuccessfulUseCount(command) {
+        const useCount = this.useCountCache.get(command.name);
+        if (!useCount) {
+            this.useCountCache.set(command.name, { count: 1, errorCount: 0 });
+        }
+        else {
+            useCount.count += 1;
+        }
+    }
+
+    addUnhandledErrorCount(command) {
+        const useCount = this.useCountCache.get(command.name);
+        if (!useCount) {
+            this.useCountCache.set(command.name, { count: 0, errorCount: 1 });
+        }
+        else {
+            useCount.errorCount += 1;
+        }
     }
 }
 
