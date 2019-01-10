@@ -22,3 +22,6 @@ ALTER TABLE users.rps_stats
     OWNER to postgres;
 
 GRANT ALL ON TABLE users.rps_stats TO taylorbot;
+
+ALTER TABLE commands.commands
+    ADD COLUMN added_at timestamp with time zone NOT NULL DEFAULT (now());
