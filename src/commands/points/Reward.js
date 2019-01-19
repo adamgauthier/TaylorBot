@@ -18,7 +18,7 @@ class RewardCommand extends Command {
                 {
                     key: 'amount',
                     label: 'taypoints',
-                    type: 'strictly-positive-integer',
+                    type: 'positive-safe-integer',
                     prompt: 'How much taypoints do you want to reward each user?'
                 },
                 {

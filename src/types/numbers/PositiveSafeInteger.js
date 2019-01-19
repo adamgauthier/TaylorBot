@@ -3,9 +3,9 @@
 const SafeIntegerArgumentType = require('./SafeInteger.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
 
-class SafeStrictlyPositiveIntegerArgumentType extends SafeIntegerArgumentType {
+class PositiveSafeIntegerArgumentType extends SafeIntegerArgumentType {
     get id() {
-        return 'strictly-positive-integer';
+        return 'positive-safe-integer';
     }
 
     parse(val) {
@@ -18,4 +18,4 @@ class SafeStrictlyPositiveIntegerArgumentType extends SafeIntegerArgumentType {
     }
 }
 
-module.exports = SafeStrictlyPositiveIntegerArgumentType;
+module.exports = PositiveSafeIntegerArgumentType;

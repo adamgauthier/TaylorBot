@@ -1,11 +1,11 @@
 'use strict';
 
-const SafeStrictlyPositiveInteger = require('../numbers/SafeStrictlyPositiveInteger.js');
+const PositiveSafeIntegerArgumentType = require('../numbers/PositiveSafeInteger.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
 const TaypointAmount = require('../../modules/points/TaypointAmount.js');
 const StringUtil = require('../../modules/StringUtil.js');
 
-class TaypointAmountArgumentType extends SafeStrictlyPositiveInteger {
+class TaypointAmountArgumentType extends PositiveSafeIntegerArgumentType {
     get id() {
         return 'taypoint-amount';
     }

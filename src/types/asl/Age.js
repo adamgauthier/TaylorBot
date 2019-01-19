@@ -1,12 +1,12 @@
 'use strict';
 
-const SafeStrictlyPositiveIntegerArgumentType = require('../numbers/SafeStrictlyPositiveInteger.js');
+const PositiveSafeIntegerArgumentType = require('../numbers/PositiveSafeInteger.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
 
 const MIN_AGE = 13;
 const MAX_AGE = 115;
 
-class AgeArgumentType extends SafeStrictlyPositiveIntegerArgumentType {
+class AgeArgumentType extends PositiveSafeIntegerArgumentType {
     get id() {
         return 'age';
     }

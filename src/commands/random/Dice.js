@@ -2,8 +2,8 @@
 
 const Command = require('../Command.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const MathUtil = require('../../modules/MathUtil.js');
 const StringUtil = require('../../modules/StringUtil.js');
+const RandomModule = require('../../modules/random/RandomModule.js');
 
 class DiceCommand extends Command {
     constructor() {
@@ -17,7 +17,7 @@ class DiceCommand extends Command {
                 {
                     key: 'faces',
                     label: 'faces',
-                    type: 'strictly-positive-integer',
+                    type: 'positive-unsigned-integer-32',
                     prompt: 'How many faces should your dice have?'
                 }
             ]
@@ -27,7 +27,7 @@ class DiceCommand extends Command {
     async run({ message, client }, { faces }) {
         const { author, channel } = message;
 
-        const roll = MathUtil.getRandomInt(1, faces);
+        const roll = await RandomModule.getRandIntInclusive(1, faces);
 
         return client.sendEmbed(channel, DiscordEmbedFormatter
             .baseUserEmbed(author)

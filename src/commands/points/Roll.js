@@ -3,7 +3,7 @@
 const Command = require('../Command.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
-const MathUtil = require('../../modules/MathUtil.js');
+const RandomModule = require('../../modules/random/RandomModule.js');
 
 class RollCommand extends Command {
     constructor() {
@@ -21,7 +21,7 @@ class RollCommand extends Command {
         const { author, channel } = message;
         const { database } = client.master;
 
-        const roll = MathUtil.getRandomInt(0, 1989);
+        const roll = await RandomModule.getRandIntInclusive(0, 1989);
 
         const { color, reward } = await (async () => {
             const rewards = { 13: 1, 15: 2, 22: 3, 1989: 5000 };

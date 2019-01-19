@@ -3,7 +3,7 @@
 const Command = require('../Command.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
-const MathUtil = require('../../modules/MathUtil.js');
+const RandomModule = require('../../modules/random/RandomModule.js');
 
 class GambleCommand extends Command {
     constructor() {
@@ -29,7 +29,7 @@ class GambleCommand extends Command {
 
         const limit = 100;
 
-        const roll = MathUtil.getRandomInt(1, limit);
+        const roll = await RandomModule.getRandIntInclusive(1, limit);
         const won = roll >= 51;
 
         const { gambled_count, original_count, final_count } = await (won ?

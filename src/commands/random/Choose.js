@@ -2,7 +2,7 @@
 
 const Command = require('../Command.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const ArrayUtil = require('../../modules/ArrayUtil.js');
+const RandomModule = require('../../modules/random/RandomModule.js');
 
 class ChooseCommand extends Command {
     constructor() {
@@ -27,7 +27,7 @@ class ChooseCommand extends Command {
     async run({ message, client }, { options }) {
         const { author, channel } = message;
 
-        const option = ArrayUtil.random(options);
+        const option = await RandomModule.randomInArray(options);
 
         return client.sendEmbed(channel, DiscordEmbedFormatter
             .baseUserEmbed(author)

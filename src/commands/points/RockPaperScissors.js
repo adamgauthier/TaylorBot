@@ -3,7 +3,7 @@
 const Command = require('../Command.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
-const ArrayUtil = require('../../modules/ArrayUtil.js');
+const RandomModule = require('../../modules/random/RandomModule.js');
 const RpsMove = require('../../modules/points/RpsMove.js');
 
 class RockPaperScissorsCommand extends Command {
@@ -29,7 +29,7 @@ class RockPaperScissorsCommand extends Command {
     async run({ message, client }, { move }) {
         const { author, channel } = message;
 
-        const opponentMove = ArrayUtil.random(Object.values(RpsMove));
+        const opponentMove = await RandomModule.randomInArray(Object.values(RpsMove));
         const winner = this.findWinner(move, opponentMove);
         const winReward = 1;
 

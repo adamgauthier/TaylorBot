@@ -1,6 +1,6 @@
 'use strict';
 
-const ArrayUtil = require('../modules/ArrayUtil.js');
+const UnsafeRandomModule = require('../modules/random/UnsafeRandomModule.js');
 
 class CommandMessageContext {
     constructor(messageContext, command) {
@@ -69,7 +69,7 @@ class CommandMessageContext {
     }
 
     example() {
-        return `${this.messageContext.guildSettings.prefix}${this.command.command.name} ${ArrayUtil.random(this.command.command.examples)}`;
+        return `${this.messageContext.guildSettings.prefix}${this.command.command.name} ${UnsafeRandomModule.randomInArray(this.command.command.examples)}`;
     }
 }
 

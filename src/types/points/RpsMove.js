@@ -2,7 +2,7 @@
 
 const TextArgumentType = require('../base/Text.js');
 const RpsMove = require('../../modules/points/RpsMove.js');
-const ArrayUtil = require('../../modules/ArrayUtil.js');
+const UnsafeRandomModule = require('../../modules/random/UnsafeRandomModule.js');
 
 class RpsMoveArgumentType extends TextArgumentType {
     get id() {
@@ -14,7 +14,7 @@ class RpsMoveArgumentType extends TextArgumentType {
     }
 
     default() {
-        return ArrayUtil.random(Object.values(RpsMove));
+        return UnsafeRandomModule.randomInArray(Object.values(RpsMove));
     }
 
     async parse(val) {
@@ -29,7 +29,7 @@ class RpsMoveArgumentType extends TextArgumentType {
             case 'scissors':
                 return RpsMove.SCISSORS;
             default:
-                return ArrayUtil.random(Object.values(RpsMove));
+                return UnsafeRandomModule.randomInArray(Object.values(RpsMove));
         }
     }
 }
