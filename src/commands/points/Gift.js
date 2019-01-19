@@ -23,7 +23,7 @@ class GiftCommand extends Command {
                 {
                     key: 'users',
                     label: 'users',
-                    type: 'mentioned-users',
+                    type: 'mentioned-users-not-author',
                     prompt: 'What users would you like to gift taypoints to (must be mentioned)?'
                 }
             ]
