@@ -30,6 +30,7 @@ const TextAttributeRepository = require('./repositories/TextAttributeRepository.
 const IntegerAttributeRepository = require('./repositories/IntegerAttributeRepository.js');
 const LocationAttributeRepository = require('./repositories/LocationAttributeRepository.js');
 const RollStatsRepository = require('./repositories/RollStatsRepository.js');
+const RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
 
 class DatabaseDriver {
     constructor() {
@@ -60,6 +61,7 @@ class DatabaseDriver {
         this.integerAttributes = new IntegerAttributeRepository(this._db);
         this.locationAttributes = new LocationAttributeRepository(this._db);
         this.rollStats = new RollStatsRepository(this._db, this._usersDAO);
+        this.rpsStats = new RpsStatsRepository(this._db, this._usersDAO);
     }
 }
 
