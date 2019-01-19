@@ -4,8 +4,9 @@ const Log = require('../../tools/Logger.js');
 const Format = require('../../modules/DiscordFormatter.js');
 
 class UserRepository {
-    constructor(db) {
+    constructor(db, usersDAO) {
         this._db = db;
+        this._usersDAO = usersDAO;
     }
 
     async getAll() {
@@ -144,19 +145,9 @@ class UserRepository {
         }
     }
 
-    _addTaypointCount(queryable, usersTo, count) {
-        return queryable.many(
-            'UPDATE users.users SET taypoint_count = taypoint_count + $[points_to_add] WHERE user_id IN ($[user_ids:csv]) RETURNING taypoint_count;',
-            {
-                points_to_add: count,
-                user_ids: usersTo.map(user => user.id)
-            }
-        );
-    }
-
     async addTaypointCount(usersTo, count) {
         try {
-            return await this._addTaypointCount(this._db, usersTo, count);
+            return await this._usersDAO.addTaypointCount(this._db, usersTo, count);
         }
         catch (e) {
             Log.error(`Adding ${count} taypoint count to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
@@ -222,7 +213,7 @@ class UserRepository {
     async winRpsGame(winnerUser, payoutCount) {
         try {
             return await this._db.tx(async t => {
-                const [result] = await this._addTaypointCount(t, [winnerUser], payoutCount);
+                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
 
                 await t.none(
                     `INSERT INTO users.rps_stats (user_id, rps_wins)
@@ -239,7 +230,7 @@ class UserRepository {
             });
         }
         catch (e) {
-            Log.error(`Winning rps game with payout ${payoutCount} taypoint for ${Format.user(winnerUser)}: ${e}`);
+            Log.error(`Winning rps game with payout ${payoutCount} taypoint count for ${Format.user(winnerUser)}: ${e}`);
             throw e;
         }
     }

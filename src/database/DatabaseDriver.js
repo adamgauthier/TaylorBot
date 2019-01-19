@@ -6,6 +6,8 @@ const pgp = require('pg-promise')({
 
 const PostgreSQLConfig = require('../config/postgresql.json');
 
+const UserDAO = require('./dao/UserDAO.js');
+
 const GuildRepository = require('./repositories/GuildRepository.js');
 const UserRepository = require('./repositories/UserRepository.js');
 const GuildMemberRepository = require('./repositories/GuildMemberRepository.js');
@@ -27,14 +29,17 @@ const AttributeRepository = require('./repositories/AttributeRepository.js');
 const TextAttributeRepository = require('./repositories/TextAttributeRepository.js');
 const IntegerAttributeRepository = require('./repositories/IntegerAttributeRepository.js');
 const LocationAttributeRepository = require('./repositories/LocationAttributeRepository.js');
+const RollStatsRepository = require('./repositories/RollStatsRepository.js');
 
 class DatabaseDriver {
     constructor() {
         this._db = pgp(PostgreSQLConfig);
         this._helpers = pgp.helpers;
 
+        this._usersDAO = new UserDAO();
+
         this.guilds = new GuildRepository(this._db);
-        this.users = new UserRepository(this._db);
+        this.users = new UserRepository(this._db, this._usersDAO);
         this.guildMembers = new GuildMemberRepository(this._db, this._helpers);
         this.usernames = new UsernameRepository(this._db);
         this.guildNames = new GuildNameRepository(this._db);
@@ -54,6 +59,7 @@ class DatabaseDriver {
         this.textAttributes = new TextAttributeRepository(this._db);
         this.integerAttributes = new IntegerAttributeRepository(this._db);
         this.locationAttributes = new LocationAttributeRepository(this._db);
+        this.rollStats = new RollStatsRepository(this._db, this._usersDAO);
     }
 }
 

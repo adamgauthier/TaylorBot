@@ -31,3 +31,23 @@ ALTER TABLE commands.commands
 
 ALTER TABLE commands.commands
     ADD COLUMN unhandled_error_count bigint NOT NULL DEFAULT 0;
+
+CREATE TABLE users.roll_stats
+(
+    user_id text NOT NULL,
+    roll_count bigint NOT NULL DEFAULT 0,
+    perfect_roll_count bigint NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id),
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id)
+        REFERENCES users.users (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE users.roll_stats
+    OWNER to postgres;
+
+GRANT ALL ON TABLE users.roll_stats TO taylorbot;
