@@ -7,7 +7,7 @@ class RpsWinsMemberAttribute extends SimpleStatMemberAttribute {
         super({
             id: 'rpswins',
             description: 'rock paper scissors wins',
-            columnName: 'rps_wins',
+            columnName: 'rps_win_count',
             singularName: 'rock paper scissors win'
         });
     }

@@ -13,7 +13,7 @@ class SimpleStatPresentor {
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([
-                `${member.displayName} has ${StringUtil.plural(stat, this.attribute.singularName, '**')}.`,
+                `${member.displayName} has ${StringUtil.plural(global.BigInt(stat), this.attribute.singularName, '**')}.`,
                 `They are the **${MathUtil.formatNumberSuffix(rank)}** user of the server (excluding users who left).`
             ].join('\n'));
     }

@@ -1,6 +1,7 @@
 'use strict';
 
 const SimpleStatMemberAttribute = require('../SimpleStatMemberAttribute.js');
+const RollStatsPresentor = require('../member-presentors/RollStatsPresentor.js');
 
 class RollsMemberAttribute extends SimpleStatMemberAttribute {
     constructor() {
@@ -8,12 +9,13 @@ class RollsMemberAttribute extends SimpleStatMemberAttribute {
             id: 'rolls',
             description: 'total number of rolls',
             columnName: 'roll_count',
-            singularName: 'roll'
+            singularName: 'roll',
+            presentor: RollStatsPresentor
         });
     }
 
     retrieve(database, member) {
-        return database.guildMembers.getRankedForeignStatFor(member, 'users', 'roll_stats', this.columnName);
+        return database.guildMembers.getRankedForeignStatFor(member, 'users', 'roll_stats', this.columnName, ['perfect_roll_count']);
     }
 
     rank(database, guild, entries) {

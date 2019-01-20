@@ -5,7 +5,8 @@ const SimpleStatPresentor = require('./member-presentors/SimpleStatPresentor.js'
 
 class SimpleStatMemberAttribute extends MemberAttribute {
     constructor(options) {
-        options.presentor = SimpleStatPresentor;
+        if (options.presentor === undefined)
+            options.presentor = SimpleStatPresentor;
         super(options);
         this.singularName = options.singularName;
     }

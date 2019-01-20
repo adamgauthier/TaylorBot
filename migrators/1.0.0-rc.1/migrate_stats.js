@@ -19,7 +19,7 @@ const migrate = async () => {
         else {
             await pg_db.users.rps_stats.insert(rows.map(row => ({
                 user_id: row.id,
-                rps_wins: row.rpswins
+                rps_win_count: row.rpswins
             })));
         }
     });

@@ -12,18 +12,18 @@ class RpsStatsRepository {
     async winRpsGame(winnerUser, payoutCount) {
         try {
             return await this._db.tx(async t => {
-                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
-
                 await t.none(
-                    `INSERT INTO users.rps_stats (user_id, rps_wins)
+                    `INSERT INTO users.rps_stats (user_id, rps_win_count)
                     VALUES ($[user_id], $[win_count])
                     ON CONFLICT (user_id) DO UPDATE
-                    SET rps_wins = rps_stats.rps_wins + $[win_count];`,
+                    SET rps_win_count = rps_stats.rps_win_count + $[win_count];`,
                     {
                         user_id: winnerUser.id,
                         win_count: 1
                     }
                 );
+
+                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
 
                 return result;
             });

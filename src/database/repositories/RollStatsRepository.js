@@ -36,9 +36,9 @@ class RollStatsRepository {
     async winRoll(winnerUser, payoutCount) {
         try {
             return await this._db.tx(async t => {
-                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
-
                 await this._addRollCount(t, winnerUser, 1);
+
+                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
 
                 return result;
             });
@@ -52,8 +52,6 @@ class RollStatsRepository {
     async winPerfectRoll(winnerUser, payoutCount) {
         try {
             return await this._db.tx(async t => {
-                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
-
                 await t.none(
                     `INSERT INTO users.roll_stats (user_id, roll_count, perfect_roll_count)
                     VALUES ($[user_id], $[win_count], $[win_count])
@@ -66,6 +64,8 @@ class RollStatsRepository {
                         win_count: 1
                     }
                 );
+
+                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
 
                 return result;
             });

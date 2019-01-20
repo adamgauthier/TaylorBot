@@ -185,11 +185,11 @@ class GuildMemberRepository {
         }
     }
 
-    async _getRankedAliveForeignFor(guildMember, tableName, column) {
+    async _getRankedAliveForeignFor(guildMember, tableName, rankedColumn, columns) {
         try {
             return await this._db.oneOrNone(
-                `SELECT $[column~], rank FROM (
-                    SELECT f.$[column~], gm.user_id, rank() OVER (ORDER BY f.$[column~] DESC) AS rank
+                `SELECT $[columns~], rank FROM (
+                    SELECT $[columns~], gm.user_id, rank() OVER (ORDER BY f.$[ranked_column~] DESC) AS rank
                     FROM guilds.guild_members AS gm JOIN $[table] AS f ON gm.user_id = f.user_id
                     WHERE guild_id = $[guild_id] AND alive = TRUE
                 ) AS ranked
@@ -197,13 +197,14 @@ class GuildMemberRepository {
                 {
                     'guild_id': guildMember.guild.id,
                     'user_id': guildMember.id,
-                    column,
+                    ranked_column: rankedColumn,
+                    columns: [rankedColumn, ...columns],
                     table: tableName
                 }
             );
         }
         catch (e) {
-            Log.error(`Getting foreign ranked alive '${tableName}.${column}' for guild member ${Format.member(guildMember)}: ${e}`);
+            Log.error(`Getting foreign ranked alive '${tableName}.${rankedColumn}' with additional columns '${columns.join()}' for guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
@@ -236,8 +237,8 @@ class GuildMemberRepository {
         return this._getRankedAliveForeign(guild, limit, new this._helpers.TableName(table, schema), column);
     }
 
-    getRankedForeignStatFor(guildMember, schema, table, column) {
-        return this._getRankedAliveForeignFor(guildMember, new this._helpers.TableName(table, schema), column);
+    getRankedForeignStatFor(guildMember, schema, table, rankedColumn, additionalColumns = []) {
+        return this._getRankedAliveForeignFor(guildMember, new this._helpers.TableName(table, schema), rankedColumn, additionalColumns);
     }
 
     async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {

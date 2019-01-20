@@ -7,7 +7,7 @@ ALTER TABLE users.users
 CREATE TABLE users.rps_stats
 (
     user_id text NOT NULL,
-    rps_wins bigint NOT NULL,
+    rps_win_count bigint NOT NULL,
     PRIMARY KEY (user_id),
     CONSTRAINT user_id_fk FOREIGN KEY (user_id)
         REFERENCES users.users (user_id) MATCH SIMPLE
@@ -51,3 +51,25 @@ ALTER TABLE users.roll_stats
     OWNER to postgres;
 
 GRANT ALL ON TABLE users.roll_stats TO taylorbot;
+
+CREATE TABLE users.gamble_stats
+(
+    user_id text NOT NULL,
+    gamble_win_count bigint NOT NULL DEFAULT 0,
+    gamble_win_amount bigint NOT NULL DEFAULT 0,
+    gamble_lose_count bigint NOT NULL DEFAULT 0,
+    gamble_lose_amount bigint NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id),
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id)
+        REFERENCES users.users (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE users.gamble_stats
+    OWNER to postgres;
+
+GRANT ALL ON TABLE users.gamble_stats TO taylorbot;

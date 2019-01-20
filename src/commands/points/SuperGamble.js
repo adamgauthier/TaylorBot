@@ -34,8 +34,8 @@ class SuperGambleCommand extends Command {
         const won = roll >= 91;
 
         const { gambled_count, original_count, final_count } = await (won ?
-            client.master.database.users.winGambledTaypointCount(author, amount, 9) :
-            client.master.database.users.loseGambledTaypointCount(author, amount)
+            client.master.database.gambleStats.winGambledTaypointCount(author, amount, 9) :
+            client.master.database.gambleStats.loseGambledTaypointCount(author, amount)
         );
 
         return client.sendEmbed(channel, DiscordEmbedFormatter
