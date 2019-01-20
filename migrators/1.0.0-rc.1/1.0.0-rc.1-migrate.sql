@@ -73,3 +73,22 @@ ALTER TABLE users.gamble_stats
     OWNER to postgres;
 
 GRANT ALL ON TABLE users.gamble_stats TO taylorbot;
+
+CREATE TABLE users.daily_payouts
+(
+    user_id text NOT NULL,
+    last_payout_at timestamp with time zone NOT NULL DEFAULT (now()),
+    PRIMARY KEY (user_id),
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id)
+        REFERENCES users.users (user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE users.daily_payouts
+    OWNER to postgres;
+
+GRANT ALL ON TABLE users.daily_payouts TO taylorbot;
