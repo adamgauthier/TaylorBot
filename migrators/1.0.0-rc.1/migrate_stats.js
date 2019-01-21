@@ -29,22 +29,28 @@ const migrate = async () => {
             throw err;
         }
         else {
-            await pg_db.users.rolls_stats.insert(rows.map(row => ({
+            await pg_db.users.roll_stats.insert(rows.map(row => ({
                 user_id: row.id,
                 roll_count: row.rolls
             })));
-        }
-    });
 
-    sqlite_db.all(`SELECT id, SUM(rolls1989) AS rolls1989 FROM userByServer WHERE rolls1989 > 0 GROUP BY id;`, async (err, rows) => {
-        if (err) {
-            throw err;
-        }
-        else {
-            await pg_db.users.rolls_stats.update(rows.map(row => ({
-                user_id: row.id,
-                perfect_roll_count: row.rolls1989
-            })));
+            sqlite_db.all(`SELECT id, SUM(rolls1989) AS rolls1989 FROM userByServer WHERE rolls1989 > 0 GROUP BY id;`, async (err, rows) => {
+                if (err) {
+                    throw err;
+                }
+                else {
+                    for (const row of rows) {
+                        await pg_db.users.roll_stats.update(
+                            {
+                                user_id: row.id
+                            },
+                            {
+                                perfect_roll_count: row.rolls1989
+                            }
+                        );
+                    }
+                }
+            });
         }
     });
 };

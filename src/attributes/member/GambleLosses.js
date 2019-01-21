@@ -7,6 +7,7 @@ class GambleLossesMemberAttribute extends SimpleStatMemberAttribute {
     constructor() {
         super({
             id: 'gamblelosses',
+            aliases: ['glosses'],
             description: 'points lost through gambling',
             columnName: 'gamble_lose_amount',
             singularName: 'lost point',

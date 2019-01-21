@@ -7,6 +7,7 @@ class GambleFailsMemberAttribute extends SimpleStatMemberAttribute {
     constructor() {
         super({
             id: 'gamblefails',
+            aliases: ['gfails'],
             description: 'total number of gambles lost',
             columnName: 'gamble_lose_count',
             singularName: 'lost gamble',

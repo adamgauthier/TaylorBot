@@ -22,7 +22,7 @@ class StringUtil {
     }
 
     static plural(size, itemName, surround = '') {
-        const isPlural = size !== 1 && size !== global.BigInt(1);
+        const isPlural = size !== 1 && size !== global.BigInt(1) && size !== '1';
 
         if (isPlural) {
             if (itemName.endsWith('y'))
