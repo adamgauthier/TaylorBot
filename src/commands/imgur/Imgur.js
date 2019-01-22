@@ -10,14 +10,14 @@ class ImgurCommand extends Command {
         super({
             name: 'imgur',
             group: 'imgur',
-            description: 'Upload a picture on Imgur!',
+            description: `Upload a picture on Imgur! If it's not already uploaded to a website, you can add it as an attachment to your command.`,
             examples: ['https://www.example.com/link/to/picture.jpg'],
 
             args: [
                 {
                     key: 'url',
                     label: 'url',
-                    type: 'url',
+                    type: 'url-or-attachment',
                     prompt: `What's the link to the picture you would you like upload?`
                 }
             ]
