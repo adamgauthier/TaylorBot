@@ -3,7 +3,7 @@
 const Log = require('../../tools/Logger.js');
 const Format = require('../../modules/DiscordFormatter.js');
 
-class DailyPayoutsRepository {
+class DailyPayoutRepository {
     constructor(db, usersDAO) {
         this._db = db;
         this._usersDAO = usersDAO;
@@ -51,4 +51,4 @@ class DailyPayoutsRepository {
     }
 }
 
-module.exports = DailyPayoutsRepository;
+module.exports = DailyPayoutRepository;

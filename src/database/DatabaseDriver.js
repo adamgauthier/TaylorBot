@@ -32,7 +32,7 @@ const LocationAttributeRepository = require('./repositories/LocationAttributeRep
 const RollStatsRepository = require('./repositories/RollStatsRepository.js');
 const RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
 const GambleStatsRepository = require('./repositories/GambleStatsRepository.js');
-const DailyPayoutsRepository = require('./repositories/DailyPayoutsRepository.js');
+const DailyPayoutRepository = require('./repositories/DailyPayoutRepository.js');
 
 class DatabaseDriver {
     constructor() {
@@ -65,7 +65,7 @@ class DatabaseDriver {
         this.rollStats = new RollStatsRepository(this._db, this._usersDAO);
         this.rpsStats = new RpsStatsRepository(this._db, this._usersDAO);
         this.gambleStats = new GambleStatsRepository(this._db);
-        this.dailyPayouts = new DailyPayoutsRepository(this._db, this._usersDAO);
+        this.dailyPayouts = new DailyPayoutRepository(this._db, this._usersDAO);
     }
 }
 
