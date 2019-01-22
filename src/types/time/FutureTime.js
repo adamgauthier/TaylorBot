@@ -16,7 +16,7 @@ class FutureTimeArgumentType extends TextArgumentType {
         if (results.length > 0) {
             const moment = results[0].start.moment();
 
-            if (moment.isAfter(Date.now())) {
+            if (moment.isAfter()) {
                 return moment;
             }
         }

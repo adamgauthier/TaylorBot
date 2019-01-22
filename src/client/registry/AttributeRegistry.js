@@ -33,7 +33,7 @@ class AttributeRegistry extends Map {
 
             const inserted = await this.database.attributes.addAll(
                 fileAttributesNotInDatabase.map(attribute => {
-                    return { 'attribute_id': attribute.id, 'created_at': Date.now() };
+                    return { 'attribute_id': attribute.id };
                 })
             );
 
