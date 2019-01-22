@@ -18,10 +18,10 @@ class Poll extends EventEmitter {
         );
         this.votes = new Map();
         this.duration = 10 * 60 * 1000;
+        this.closeTimeout = null;
     }
 
-    resetCloseTimeout() {
-        clearTimeout(this.closeTimeout);
+    setCloseTimeout() {
         this.endsAt = Date.now() + this.duration;
         this.closeTimeout = setTimeout(() => this.emit('close'), this.duration);
     }
@@ -36,7 +36,7 @@ class Poll extends EventEmitter {
             ).join('\n'))
             .setFooter('Type a number to vote!')
         );
-        this.resetCloseTimeout();
+        this.setCloseTimeout();
     }
 
     close() {
@@ -77,7 +77,9 @@ class Poll extends EventEmitter {
 
             this.votes.set(user.id, number);
             this.options.get(number).incrementVoteCount();
-            this.resetCloseTimeout();
+
+            clearTimeout(this.closeTimeout);
+            this.setCloseTimeout();
         }
     }
 }
