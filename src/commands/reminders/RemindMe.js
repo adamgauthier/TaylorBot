@@ -46,10 +46,9 @@ class RemindMeCommand extends Command {
             throw new CommandError(`You can't have more than ${REMINDERS_LIMIT} reminders active at the same time!`);
         }
 
-        const unixTime = time.valueOf();
-        await reminders.add(author, unixTime, reminder);
+        await reminders.add(author, time.toDate(), reminder);
 
-        return client.sendEmbedSuccess(channel, `Okay, I will remind you on \`${TimeUtil.formatLog(unixTime)}\` about '${reminder}'. 😊`);
+        return client.sendEmbedSuccess(channel, `Okay, I will remind you on \`${TimeUtil.formatLog(time.valueOf())}\` about '${reminder}'. 😊`);
     }
 }
 

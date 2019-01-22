@@ -15,3 +15,5 @@ DROP ROLE remote_access;
 
 ALTER TABLE users.reminders ALTER COLUMN created_at TYPE timestamp with time zone USING TO_TIMESTAMP(created_at::double precision / 1000::double precision);
 ALTER TABLE users.reminders ALTER COLUMN created_at SET DEFAULT NOW();
+
+ALTER TABLE users.reminders ALTER COLUMN remind_at TYPE timestamp with time zone USING TO_TIMESTAMP(remind_at::double precision / 1000::double precision);
