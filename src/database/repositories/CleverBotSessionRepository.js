@@ -38,10 +38,9 @@ class CleverBotSessionRepository {
     async add(user) {
         try {
             return await this._db.none(
-                'INSERT INTO users.cleverbot_sessions (user_id, session_created_at) VALUES ($[user_id], $[session_created_at]);',
+                'INSERT INTO users.cleverbot_sessions (user_id) VALUES ($[user_id]);',
                 {
-                    'user_id': user.id,
-                    'session_created_at': Date.now()
+                    'user_id': user.id
                 }
             );
         }
