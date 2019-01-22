@@ -36,11 +36,10 @@ class ReminderRepository {
     async add(user, remindAt, reminderText) {
         try {
             return await this._db.none(
-                `INSERT INTO users.reminders (user_id, created_at, remind_at, reminder_text)
-                VALUES ($[user_id], $[created_at], $[remind_at], $[reminder_text]);`,
+                `INSERT INTO users.reminders (user_id, remind_at, reminder_text)
+                VALUES ($[user_id], $[remind_at], $[reminder_text]);`,
                 {
                     'user_id': user.id,
-                    'created_at': Date.now(),
                     'remind_at': remindAt,
                     'reminder_text': reminderText
                 }

@@ -29,7 +29,7 @@ class ReminderInterval extends Interval {
                         await master.sendEmbed(user,
                             EmbedUtil.success(reminder.reminder_text)
                                 .setAuthor('Reminder')
-                                .setTimestamp(moment.utc(reminder.created_at, 'x', true).toDate())
+                                .setTimestamp(reminder.created_at)
                         );
                         Log.info(`Reminded user ${Format.user(user)} about '${reminder.reminder_text}'.`);
                     }
