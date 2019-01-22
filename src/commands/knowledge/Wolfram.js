@@ -32,6 +32,9 @@ class WolframCommand extends Command {
         if (!result.success || result.error)
             throw new CommandError(`Wolfram|Alpha did not understand '${input}'.`);
 
+        if (result.numpods < 2)
+            throw new CommandError(`Wolfram|Alpha produced unexpected results for input '${input}'.`);
+
         const inputPod = result.pods[0].subpods[0];
         const resultPod = result.pods[1].subpods[0];
 
