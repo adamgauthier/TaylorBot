@@ -32,7 +32,7 @@ class ClosePollCommand extends Command {
 
         if (!poll.canClose(author)) {
             throw new CommandError(
-                `This poll can only be closed by ${poll.owner}. Otherwise, it will be closed ${moment.utc(poll.endsAt()).fromNow()}.`
+                `This poll can only be closed by ${poll.owner}. Otherwise, it will be closed ${moment.utc(poll.endsAt).fromNow()}.`
             );
         }
 

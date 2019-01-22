@@ -20,6 +20,12 @@ class Poll extends EventEmitter {
         this.duration = 10 * 60 * 1000;
     }
 
+    resetCloseTimeout() {
+        clearTimeout(this.closeTimeout);
+        this.endsAt = Date.now() + this.duration;
+        this.closeTimeout = setTimeout(() => this.emit('close'), this.duration);
+    }
+
     async send() {
         await this.client.sendEmbed(this.channel, DiscordEmbedFormatter
             .baseUserEmbed(this.owner)
@@ -30,8 +36,7 @@ class Poll extends EventEmitter {
             ).join('\n'))
             .setFooter('Type a number to vote!')
         );
-        this.startedAt = Date.now();
-        this.closeTimeout = setTimeout(() => this.emit('close'), this.duration);
+        this.resetCloseTimeout();
     }
 
     close() {
@@ -62,10 +67,6 @@ class Poll extends EventEmitter {
         return this.owner.id === user.id;
     }
 
-    endsAt() {
-        return this.startedAt + this.duration;
-    }
-
     vote(user, number) {
         const option = this.options.get(number);
         if (option) {
@@ -76,6 +77,7 @@ class Poll extends EventEmitter {
 
             this.votes.set(user.id, number);
             this.options.get(number).incrementVoteCount();
+            this.resetCloseTimeout();
         }
     }
 }
