@@ -12,7 +12,8 @@ class DailyPayoutsRepository {
     async isLastPayoutInLast24Hours(user) {
         try {
             return await this._db.oneOrNone(
-                `SELECT last_payout_at > (NOW() - INTERVAL '1 DAY') AS is_in_last_day FROM users.daily_payouts WHERE user_id = $[user_id];`,
+                `SELECT (last_payout_at + INTERVAL '1 DAY') AS can_redeem_at
+                FROM users.daily_payouts WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
                 }

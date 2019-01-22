@@ -1,5 +1,7 @@
 'use strict';
 
+const moment = require('moment');
+
 const Command = require('../Command.js');
 const CommandError = require('../../commands/CommandError.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
@@ -26,8 +28,10 @@ class DailyPayoutCommand extends Command {
 
         const result = await database.dailyPayouts.isLastPayoutInLast24Hours(author);
 
-        if (result && result.is_in_last_day) {
-            throw new CommandError(`You already redeemed your daily payout in the last 24 hours.`);
+        if (result) {
+            const canRedeemAt = moment.utc(result.can_redeem_at);
+            if (canRedeemAt.isAfter())
+                throw new CommandError(`You already redeemed your daily payout in the last 24 hours. You can redeem again ${canRedeemAt.fromNow()}.`);
         }
 
         const { taypoint_count } = await database.dailyPayouts.giveDailyPay(author, PAYOUT);
