@@ -1,5 +1,7 @@
 'use strict';
 
+const moment = require('moment');
+
 const Command = require('../Command.js');
 const CommandError = require('../CommandError.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
@@ -13,30 +15,27 @@ class RemindMeCommand extends Command {
             aliases: ['remind', 'reminder'],
             group: 'reminders',
             description: 'Sets a reminder for the future.',
-            examples: [`in 3 days 'listening party'`, `dec 13th 2018 "taylor's birthday"`],
+            examples: [`1 hour watch movie`, `10 minutes pizza party`],
 
             args: [
                 {
-                    key: 'time',
-                    label: 'when',
-                    type: 'future-time',
-                    prompt: 'When would you like to be reminded?'
-                },
-                {
-                    key: 'reminder',
-                    label: 'message',
-                    type: 'quoted-multiline-text',
-                    prompt: 'What would you like to be reminded about?'
+                    key: 'event',
+                    label: 'event',
+                    type: 'future-event',
+                    prompt: 'When and what would you like to be reminded about?'
                 }
             ]
         });
     }
 
-    async run({ message, client }, { time, reminder }) {
+    async run({ message, client }, { event }) {
         const { author, channel } = message;
         const { reminders } = client.master.database;
 
-        if (time.diff(Date.now(), 'years', true) > 1) {
+        const remindAt = moment(event.startDate);
+        const remindAbout = event.eventTitle;
+
+        if (remindAt.diff(Date.now(), 'years', true) > 1) {
             throw new CommandError(`You can't be reminded more than a year in the future!`);
         }
 
@@ -46,9 +45,9 @@ class RemindMeCommand extends Command {
             throw new CommandError(`You can't have more than ${REMINDERS_LIMIT} reminders active at the same time!`);
         }
 
-        await reminders.add(author, time.toDate(), reminder);
+        await reminders.add(author, remindAt.toDate(), remindAbout);
 
-        return client.sendEmbedSuccess(channel, `Okay, I will remind you on \`${TimeUtil.formatLog(time.valueOf())}\` about '${reminder}'. 😊`);
+        return client.sendEmbedSuccess(channel, `Okay, I will remind you on \`${TimeUtil.formatLog(remindAt.valueOf())}\` about '${remindAbout}'. 😊`);
     }
 }
 
