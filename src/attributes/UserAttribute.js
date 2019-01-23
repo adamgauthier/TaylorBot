@@ -2,6 +2,7 @@
 
 const Attribute = require('./Attribute.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
+const CommandMessageContext = require('../commands/CommandMessageContext.js');
 
 class UserAttribute extends Attribute {
     constructor(options) {
@@ -29,10 +30,22 @@ class UserAttribute extends Attribute {
         const attribute = await this.retrieve(commandContext.client.master.database, user);
 
         if (!attribute) {
-            return DiscordEmbedFormatter
-                .baseUserHeader(user)
-                .setColor('#f04747')
-                .setDescription(`${user.username}'s ${this.description} is not set. 🚫`);
+            const { client, messageContext } = commandContext;
+            const embed = DiscordEmbedFormatter.baseUserHeader(user).setColor('#f04747');
+            const setCommand = client.master.registry.commands.resolve(`set${this.id}`);
+
+            if (this.canSet && setCommand) {
+                const context = new CommandMessageContext(messageContext, setCommand);
+                embed.setDescription([
+                    `${user.username}'s ${this.description} is not set. 🚫`,
+                    `They can use the \`${context.usage()}\` command to set it.`
+                ].join('\n'));
+            }
+            else {
+                embed.setDescription(`${user.username}'s ${this.description} doesn't exist. 🚫`);
+            }
+
+            return embed;
         }
         else {
             return this.presentor.present(commandContext, user, attribute);
