@@ -34,7 +34,7 @@ class RedditInterval extends Interval {
 
             const post = await RedditModule.getLatestPost(subreddit);
 
-            if (post.id !== last_post_id && post.created_utc > last_created) {
+            if (post.id !== last_post_id && global.BigInt(post.created_utc) > global.BigInt(last_created)) {
                 Log.info(`New Reddit Post for subreddit '${subreddit}', ${Format.guildChannel(channel)}: ${post.id}.`);
                 await client.sendEmbed(channel, RedditModule.getEmbed(post));
                 await client.master.database.redditCheckers.update(subreddit, guild_id, channel_id, post.id, post.created_utc);

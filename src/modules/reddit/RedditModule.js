@@ -44,7 +44,8 @@ class RedditModule {
         else {
             re.setThumbnail(post.spoiler ?
                 SPOILER_THUMBNAIL_URL :
-                post.thumbnail === 'default' ? LINK_THUMBNAIL_URL : post.thumbnail
+                post.domain === 'i.redd.it' ? post.url :
+                    post.thumbnail === 'default' ? LINK_THUMBNAIL_URL : post.thumbnail
             );
             re.setDescription(`🔺 ${StringUtil.plural(post.score, 'point', '`')}, ${StringUtil.plural(post.num_comments, 'comment', '`')} 💬`);
         }
