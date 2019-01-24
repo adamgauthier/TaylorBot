@@ -16,9 +16,9 @@ class UserRegistry extends Map {
 
     cacheUser(databaseUser) {
         this.set(databaseUser.user_id, {
-            'lastCommand': 0,
-            'lastAnswered': 1,
-            'ignoreUntil': databaseUser.ignore_until
+            lastCommand: 0,
+            lastAnswered: 1,
+            ignoreUntil: databaseUser.ignore_until.getTime()
         });
     }
 
@@ -33,6 +33,14 @@ class UserRegistry extends Map {
         const inserted = await this.database.users.add(member, discoveredAt);
 
         this.cacheUser(inserted);
+    }
+
+    async ignoreUser(user, ignoreUntil) {
+        const cachedUser = this.get(user.id);
+
+        await this.database.users.ignore(user, ignoreUntil);
+
+        cachedUser.ignoreUntil = ignoreUntil.getTime();
     }
 
     updateLastCommand(user, lastCommand) {

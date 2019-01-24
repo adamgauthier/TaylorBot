@@ -1,6 +1,6 @@
 'use strict';
 
-const UserGroups = require('../../client/UserGroups.json');
+const UserGroups = require('../../client/UserGroups.js');
 const Command = require('../Command.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');

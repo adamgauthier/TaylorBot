@@ -1,6 +1,6 @@
 'use strict';
 
-const UserGroups = require('../client/UserGroups.json');
+const UserGroups = require('../client/UserGroups.js');
 
 class Command {
     constructor({ name, aliases, group, description, minimumGroup, examples, guildOnly, guarded, args }) {

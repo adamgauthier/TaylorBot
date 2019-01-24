@@ -1,7 +1,7 @@
 'use strict';
 
 const Log = require('../../tools/Logger.js');
-const UserGroups = require('../UserGroups.json');
+const UserGroups = require('../UserGroups.js');
 
 class GroupRegistry extends Map {
     constructor(database) {

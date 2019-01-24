@@ -154,6 +154,20 @@ class UserRepository {
             throw e;
         }
     }
+
+    async ignore(user, ignoreUntil) {
+        const databaseUser = this.mapUserToDatabase(user);
+        try {
+            return await this._db.one(
+                'UPDATE users.users SET ignore_until = $[ignore_until] WHERE user_id = $[user_id] RETURNING *;',
+                { ...databaseUser, ignore_until: ignoreUntil }
+            );
+        }
+        catch (e) {
+            Log.error(`Ignoring user ${Format.user(user)} until ${ignoreUntil}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = UserRepository;

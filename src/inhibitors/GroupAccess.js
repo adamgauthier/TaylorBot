@@ -4,7 +4,7 @@ const Inhibitor = require('../structures/Inhibitor.js');
 const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
 const { MASTER_ID } = require('../config/config.json');
-const UserGroups = require('../client/UserGroups.json');
+const UserGroups = require('../client/UserGroups.js');
 
 class GroupAccessInhibitor extends Inhibitor {
     shouldBeBlocked({ message, client }, command) {
