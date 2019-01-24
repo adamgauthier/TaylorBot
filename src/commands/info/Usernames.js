@@ -31,7 +31,7 @@ class UsernamesCommand extends Command {
         const usernames = await client.master.database.usernames.getHistory(user, 75);
         const embed = DiscordEmbedFormatter.baseUserEmbed(user);
 
-        const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at)} : ${u.username}`);
+        const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at.getTime())} : ${u.username}`);
         const chunks = ArrayUtil.chunk(lines, 15);
 
         return new ArrayEmbedDescriptionPageMessage(

@@ -39,7 +39,7 @@ class UserRepository {
         }
     }
 
-    async add(member, discoveredAt) {
+    async add(member) {
         const { user, guild, joinedTimestamp } = member;
 
         try {
@@ -53,8 +53,8 @@ class UserRepository {
                     [guild.id, user.id, joinedTimestamp]
                 );
                 await t.none(
-                    'INSERT INTO users.usernames (user_id, username, changed_at) VALUES ($1, $2, $3);',
-                    [user.id, user.username, discoveredAt]
+                    'INSERT INTO users.usernames (user_id, username) VALUES ($[user_id], $[username]);',
+                    { user_id: user.id, username: user.username }
                 );
 
                 return inserted;

@@ -17,7 +17,6 @@ class GuildCreate extends EventHandler {
         const { registry, database } = client.master;
 
         const members = await guild.members.fetch();
-        const joinTime = members.get(client.user.id).joinedTimestamp;
 
         if (!registry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);
@@ -47,7 +46,7 @@ class GuildCreate extends EventHandler {
             const { user } = member;
             if (!registry.users.has(member.id)) {
                 Log.info(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                await registry.users.addUser(member, joinTime);
+                await registry.users.addUser(member);
             }
             else {
                 const guildMember = guildMembers.find(gm => gm.user_id === member.id);
@@ -64,7 +63,7 @@ class GuildCreate extends EventHandler {
 
                 const latestUsername = latestUsernames.find(u => u.user_id === user.id);
                 if (!latestUsername || latestUsername.username !== user.username) {
-                    await database.usernames.add(user, joinTime);
+                    await database.usernames.add(user);
                     latestUsernames = latestUsernames.filter(u => u.user_id !== user.id);
                     latestUsernames.push({ 'user_id': user.id, 'username': user.username });
                     Log.info(`Added new username for ${Format.user(user)}.`);

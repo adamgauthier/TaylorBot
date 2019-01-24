@@ -25,7 +25,6 @@ class Ready extends EventHandler {
     async syncDatabase(client) {
         const { registry, database } = client.master;
 
-        const startupTime = Date.now();
         const allGuildMembers = await database.guildMembers.getAll();
         const channels = await database.textChannels.getAll();
         const latestGuildNames = await database.guildNames.getAllLatest();
@@ -63,7 +62,7 @@ class Ready extends EventHandler {
                 const { user } = member;
                 if (!registry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                    await registry.users.addUser(member, startupTime);
+                    await registry.users.addUser(member);
                     latestUsernames.set(user.id, user.username);
                 }
                 else {
@@ -82,7 +81,7 @@ class Ready extends EventHandler {
                     const latestUsername = latestUsernames.get(user.id);
                     if (!latestUsername || latestUsername !== user.username) {
                         Log.warn(`Found new username for ${Format.user(user)}.`);
-                        await database.usernames.add(user, startupTime);
+                        await database.usernames.add(user);
                         latestUsernames.set(user.id, user.username);
                     }
                 }

@@ -48,19 +48,18 @@ class UsernameRepository {
         }
     }
 
-    mapUserToUsernameDatabase(user, changedAt) {
+    mapUserToUsernameDatabase(user) {
         return {
-            'user_id': user.id,
-            'username': user.username,
-            'changed_at': changedAt
+            user_id: user.id,
+            username: user.username
         };
     }
 
-    async add(user, changedAt) {
-        const databaseUsername = this.mapUserToUsernameDatabase(user, changedAt);
+    async add(user) {
+        const databaseUsername = this.mapUserToUsernameDatabase(user);
         try {
             return await this._db.none(
-                'INSERT INTO users.usernames (user_id, username, changed_at) VALUES ($[user_id], $[username], $[changed_at]);',
+                'INSERT INTO users.usernames (user_id, username) VALUES ($[user_id], $[username]);',
                 databaseUsername
             );
         }

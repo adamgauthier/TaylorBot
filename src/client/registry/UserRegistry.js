@@ -22,7 +22,7 @@ class UserRegistry extends Map {
         });
     }
 
-    async addUser(member, discoveredAt) {
+    async addUser(member) {
         const { user } = member;
         if (this.has(user.id)) {
             throw new Error(`User ${Format.user(user)} was already cached when attempting to add.`);
@@ -30,7 +30,7 @@ class UserRegistry extends Map {
 
         Log.verbose(`Adding new user from member ${Format.member(member)}.`);
 
-        const inserted = await this.database.users.add(member, discoveredAt);
+        const inserted = await this.database.users.add(member);
 
         this.cacheUser(inserted);
     }
