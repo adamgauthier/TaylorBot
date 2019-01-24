@@ -35,7 +35,7 @@ class GuildCreate extends EventHandler {
         for (const textChannel of guild.channels.filter(c => c.type === 'text').values()) {
             if (!channels.some(c => c.channel_id === textChannel.id)) {
                 Log.info(`Found new text channel ${Format.channel(textChannel)}.`);
-                await database.textChannels.add(textChannel, joinTime);
+                await database.textChannels.add(textChannel);
             }
         }
 

@@ -15,7 +15,7 @@ class ChannelCreate extends EventHandler {
         Log.verbose(`Channel discovered ${Format.channel(channel)}.`);
 
         if (channel.type === 'text') {
-            await client.master.database.textChannels.add(channel, Date.now());
+            await client.master.database.textChannels.add(channel);
             Log.info(`Added new text channel ${Format.guildChannel(channel)}.`);
         }
     }

@@ -70,7 +70,7 @@ class TextChannelRepository {
         }
     }
 
-    async add(guildChannel, registeredAt) {
+    async add(guildChannel) {
         if (guildChannel.type !== 'text')
             throw new Error(`Can't add non text channel ${Format.guildChannel(guildChannel)} to text channels.`);
 
@@ -78,11 +78,8 @@ class TextChannelRepository {
 
         try {
             return await this._db.none(
-                'INSERT INTO guilds.text_channels (guild_id, channel_id, registered_at) VALUES ($[guild_id], $[channel_id], $[registered_at]);',
-                {
-                    ...databaseChannel,
-                    'registered_at': registeredAt
-                }
+                'INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES ($[guild_id], $[channel_id]);',
+                databaseChannel
             );
         }
         catch (e) {

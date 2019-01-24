@@ -8,3 +8,7 @@ ALTER TABLE users.users
 
 ALTER TABLE users.users
     ALTER COLUMN is_bot DROP DEFAULT;
+
+ALTER TABLE guilds.text_channels
+    ALTER COLUMN registered_at TYPE timestamp with time zone USING TO_TIMESTAMP(registered_at::double precision / 1000::double precision),
+    ALTER COLUMN registered_at SET DEFAULT NOW();
