@@ -48,19 +48,18 @@ class GuildNameRepository {
         }
     }
 
-    mapGuildToGuildNamesDatabase(guild, changedAt) {
+    mapGuildToGuildNamesDatabase(guild) {
         return {
             'guild_id': guild.id,
-            'guild_name': guild.name,
-            'changed_at': changedAt
+            'guild_name': guild.name
         };
     }
 
-    async add(guild, changedAt) {
-        const databaseGuildName = this.mapGuildToGuildNamesDatabase(guild, changedAt);
+    async add(guild) {
+        const databaseGuildName = this.mapGuildToGuildNamesDatabase(guild);
         try {
             return await this._db.none(
-                'INSERT INTO guilds.guild_names (guild_id, guild_name, changed_at) VALUES ($[guild_id], $[guild_name], $[changed_at]);',
+                'INSERT INTO guilds.guild_names (guild_id, guild_name) VALUES ($[guild_id], $[guild_name]);',
                 databaseGuildName
             );
         }

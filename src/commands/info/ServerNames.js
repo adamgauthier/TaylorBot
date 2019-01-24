@@ -32,7 +32,7 @@ class ServerNamesCommand extends Command {
         const guildNames = await client.master.database.guildNames.getHistory(guild, 75);
         const embed = DiscordEmbedFormatter.baseGuildHeader(guild);
 
-        const lines = guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at)} : ${gn.guild_name}`);
+        const lines = guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at.getTime())} : ${gn.guild_name}`);
         const chunks = ArrayUtil.chunk(lines, 15);
 
         return new ArrayEmbedDescriptionPageMessage(

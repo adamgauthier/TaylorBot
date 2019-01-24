@@ -12,3 +12,7 @@ ALTER TABLE users.users
 ALTER TABLE guilds.text_channels
     ALTER COLUMN registered_at TYPE timestamp with time zone USING TO_TIMESTAMP(registered_at::double precision / 1000::double precision),
     ALTER COLUMN registered_at SET DEFAULT NOW();
+
+ALTER TABLE guilds.guild_names
+    ALTER COLUMN changed_at TYPE timestamp with time zone USING TO_TIMESTAMP(changed_at::double precision / 1000::double precision),
+    ALTER COLUMN changed_at SET DEFAULT NOW();

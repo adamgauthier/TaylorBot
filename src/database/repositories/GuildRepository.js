@@ -38,7 +38,7 @@ class GuildRepository {
         }
     }
 
-    async add(guild, discoveredAt) {
+    async add(guild) {
         try {
             return await this._db.tx(async t => {
                 const inserted = await t.one(
@@ -46,8 +46,11 @@ class GuildRepository {
                     [guild.id]
                 );
                 await t.none(
-                    'INSERT INTO guilds.guild_names (guild_id, guild_name, changed_at) VALUES ($1, $2, $3);',
-                    [guild.id, guild.name, discoveredAt]
+                    'INSERT INTO guilds.guild_names (guild_id, guild_name) VALUES ($[guild_id], $[guild_name]);',
+                    {
+                        guild_id: guild.id,
+                        guild_name: guild.name
+                    }
                 );
 
                 return inserted;

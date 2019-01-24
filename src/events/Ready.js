@@ -37,12 +37,12 @@ class Ready extends EventHandler {
         for (const guild of client.guilds.values()) {
             if (!registry.guilds.has(guild.id)) {
                 Log.warn(`Found new guild ${Format.guild(guild)}.`);
-                await registry.guilds.addGuild(guild, startupTime);
+                await registry.guilds.addGuild(guild);
             }
             else {
                 const latestGuildName = latestGuildNames.find(gn => gn.guild_id === guild.id);
                 if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
-                    await database.guildNames.add(guild, startupTime);
+                    await database.guildNames.add(guild);
                     Log.warn(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
                 }
             }

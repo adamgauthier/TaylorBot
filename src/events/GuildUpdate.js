@@ -13,8 +13,7 @@ class GuildUpdate extends EventHandler {
 
     async handler({ master }, oldGuild, newGuild) {
         if (oldGuild.name !== newGuild.name) {
-            const changedAt = Date.now();
-            await master.database.guildNames.add(newGuild, changedAt);
+            await master.database.guildNames.add(newGuild);
             Log.info(`Added new guild name for ${Format.guild(newGuild)}. Old guild name was ${oldGuild.name}.`);
         }
     }

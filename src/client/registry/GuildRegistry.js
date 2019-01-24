@@ -20,12 +20,12 @@ class GuildRegistry extends Map {
         });
     }
 
-    async addGuild(guild, discoveredAt) {
+    async addGuild(guild) {
         if (this.has(guild.id)) {
             throw new Error(`Adding guild ${Format.guild(guild)}, already cached.`);
         }
 
-        const databaseGuild = await this.database.guilds.add(guild, discoveredAt);
+        const databaseGuild = await this.database.guilds.add(guild);
         this.cacheGuild(databaseGuild);
     }
 
