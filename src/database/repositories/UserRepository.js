@@ -45,8 +45,8 @@ class UserRepository {
         try {
             return await this._db.tx(async t => {
                 const inserted = await t.one(
-                    'INSERT INTO users.users (user_id) VALUES ($1) RETURNING *;',
-                    [user.id]
+                    'INSERT INTO users.users (user_id, is_bot) VALUES ($[user_id], $[is_bot]) RETURNING *;',
+                    { user_id: user.id, is_bot: !!user.bot }
                 );
                 await t.none(
                     'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($1, $2, $3);',

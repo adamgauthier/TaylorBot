@@ -122,12 +122,12 @@ class GuildMemberRepository {
         }
     }
 
-    async _getRankedAlive(guild, limit, column) {
+    async _getRankedUsers(guild, limit, column) {
         try {
             return await this._db.any(
-                `SELECT $[column~], user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                FROM guilds.guild_members
-                WHERE guild_id = $[guild_id] AND alive = TRUE
+                `SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
+                WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
                 LIMIT $[limit];`,
                 {
                     'guild_id': guild.id,
@@ -145,9 +145,11 @@ class GuildMemberRepository {
     async _getRankedAliveForeign(guild, limit, tableName, column) {
         try {
             return await this._db.any(
-                `SELECT f.$[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                FROM guilds.guild_members AS gm JOIN $[table] AS f ON gm.user_id = f.user_id
-                WHERE guild_id = $[guild_id] AND alive = TRUE
+                `SELECT f.$[column~], gm.user_id, rank() OVER (ORDER BY f.$[column~] DESC) AS rank
+                FROM guilds.guild_members AS gm
+                    JOIN users.users AS u ON u.user_id = gm.user_id
+                    JOIN $[table] AS f ON gm.user_id = f.user_id
+                WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
                 LIMIT $[limit];`,
                 {
                     'guild_id': guild.id,
@@ -167,9 +169,9 @@ class GuildMemberRepository {
         try {
             return await this._db.one(
                 `SELECT $[column~], rank FROM (
-                    SELECT $[column~], user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                    FROM guilds.guild_members
-                    WHERE guild_id = $[guild_id] AND alive = TRUE
+                    SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                    FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
+                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
                 ) AS ranked
                 WHERE user_id = $[user_id];`,
                 {
@@ -190,8 +192,10 @@ class GuildMemberRepository {
             return await this._db.oneOrNone(
                 `SELECT $[columns~], rank FROM (
                     SELECT $[columns~], gm.user_id, rank() OVER (ORDER BY f.$[ranked_column~] DESC) AS rank
-                    FROM guilds.guild_members AS gm JOIN $[table] AS f ON gm.user_id = f.user_id
-                    WHERE guild_id = $[guild_id] AND alive = TRUE
+                    FROM guilds.guild_members AS gm
+                        JOIN users.users AS u ON u.user_id = gm.user_id
+                        JOIN $[table] AS f ON gm.user_id = f.user_id
+                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE 
                 ) AS ranked
                 WHERE user_id = $[user_id];`,
                 {
@@ -210,7 +214,7 @@ class GuildMemberRepository {
     }
 
     getRankedMessages(guild, limit) {
-        return this._getRankedAlive(guild, limit, 'message_count');
+        return this._getRankedUsers(guild, limit, 'message_count');
     }
 
     getRankedMessagesFor(guildMember) {
@@ -218,7 +222,7 @@ class GuildMemberRepository {
     }
 
     getRankedWords(guild, limit) {
-        return this._getRankedAlive(guild, limit, 'word_count');
+        return this._getRankedUsers(guild, limit, 'word_count');
     }
 
     getRankedWordsFor(guildMember) {
@@ -226,7 +230,7 @@ class GuildMemberRepository {
     }
 
     getRankedMinutes(guild, limit) {
-        return this._getRankedAlive(guild, limit, 'minute_count');
+        return this._getRankedUsers(guild, limit, 'minute_count');
     }
 
     getRankedMinutesFor(guildMember) {
