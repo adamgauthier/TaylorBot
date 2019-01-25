@@ -2,18 +2,21 @@
 
 const PREVIOUS_EMOJI = '◀';
 const NEXT_EMOJI = '▶';
+const CANCEL_EMOJI = '❌';
 
 class PageMessage {
-    constructor(client, owner, pages, editor) {
+    constructor(client, owner, pages, editor, { cancellable = false } = {}) {
         this.client = client;
         this.owner = owner;
         this.pages = pages;
         this.editor = editor;
+        this.cancellable = cancellable;
         this.currentPage = 0;
         this.duration = 30 * 1000;
         this.closeTimeout = null;
         this.collector = null;
         this.message = null;
+        this.buttons = [];
     }
 
     setCloseTimeout() {
@@ -25,7 +28,15 @@ class PageMessage {
         this.message = await this.editor.sendMessage(this.client, channel);
 
         if (this.pages.length > 1) {
-            this.collector = this.message.createReactionCollector(this.filter(), { dispose: true });
+            this.buttons.push(PREVIOUS_EMOJI, NEXT_EMOJI);
+        }
+
+        if (this.cancellable) {
+            this.buttons.push(CANCEL_EMOJI);
+        }
+
+        if (this.buttons.length > 0) {
+            this.collector = this.message.createReactionCollector((reaction, user) => this.filter(reaction, user), { dispose: true });
 
             this.collector
                 .on('collect', reaction => this.onReact(reaction))
@@ -33,15 +44,14 @@ class PageMessage {
 
             this.setCloseTimeout();
 
-            await this.message.react(PREVIOUS_EMOJI);
-            return this.message.react(NEXT_EMOJI);
+            await Promise.all(
+                this.buttons.map(button => this.message.react(button))
+            );
         }
     }
 
-    filter() {
-        return (reaction, user) =>
-            user.id === this.owner.id &&
-            [PREVIOUS_EMOJI, NEXT_EMOJI].includes(reaction.emoji.name);
+    filter(reaction, user) {
+        return user.id === this.owner.id && this.buttons.includes(reaction.emoji.name);
     }
 
     onReact(reaction) {
@@ -54,6 +64,9 @@ class PageMessage {
                 break;
             case NEXT_EMOJI:
                 this.next();
+                break;
+            case CANCEL_EMOJI:
+                this.cancel();
                 break;
         }
     }
@@ -84,6 +97,10 @@ class PageMessage {
             await this.editor.update(this.pages, this.currentPage);
             return this.editor.edit(this.message);
         }
+    }
+
+    cancel() {
+        return this.message.delete();
     }
 }
 

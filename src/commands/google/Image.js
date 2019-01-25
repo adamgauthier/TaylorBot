@@ -53,7 +53,8 @@ class ImageCommand extends Command {
             client,
             author,
             items,
-            new ImageResultsPageEditor(embed)
+            new ImageResultsPageEditor(embed),
+            { cancellable: true }
         ).send(channel);
     }
 }

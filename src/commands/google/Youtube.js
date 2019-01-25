@@ -38,7 +38,8 @@ class YoutubeCommand extends Command {
             client,
             author,
             results.map(r => `https://youtu.be/${r.id.videoId}`),
-            new TextPageEditor()
+            new TextPageEditor(),
+            { cancellable: true }
         ).send(channel);
     }
 }

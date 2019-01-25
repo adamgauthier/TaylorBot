@@ -38,7 +38,8 @@ class UrbanDictionaryCommand extends Command {
             client,
             author,
             results,
-            new UrbanResultsPageEditor(DiscordEmbedFormatter.baseUserEmbed(author))
+            new UrbanResultsPageEditor(DiscordEmbedFormatter.baseUserEmbed(author)),
+            { cancellable: true }
         ).send(channel);
     }
 }
