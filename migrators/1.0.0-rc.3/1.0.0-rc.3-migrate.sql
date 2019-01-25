@@ -20,3 +20,6 @@ ALTER TABLE guilds.guild_names
 ALTER TABLE users.usernames
     ALTER COLUMN changed_at TYPE timestamp with time zone USING TO_TIMESTAMP(changed_at::double precision / 1000::double precision),
     ALTER COLUMN changed_at SET DEFAULT NOW();
+
+ALTER TABLE users.daily_payouts
+    ADD COLUMN streak_count bigint NOT NULL DEFAULT 1;
