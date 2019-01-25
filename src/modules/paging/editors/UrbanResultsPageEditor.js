@@ -1,11 +1,11 @@
 'use strict';
 
-const ArrayPageEmbedMessage = require('./ArrayPageEmbedMessage.js');
-const StringUtil = require('../../modules/StringUtil.js');
+const EmbedPageEditor = require('./EmbedPageEditor.js');
+const StringUtil = require('../../StringUtil.js');
 
-class UrbanDictionaryResultsPageMessage extends ArrayPageEmbedMessage {
-    update() {
-        const result = this.pages[this.currentPage];
+class UrbanResultsPageEditor extends EmbedPageEditor {
+    update(pages, currentPage) {
+        const result = pages[currentPage];
 
         this.embed.fields.pop();
 
@@ -19,4 +19,4 @@ class UrbanDictionaryResultsPageMessage extends ArrayPageEmbedMessage {
     }
 }
 
-module.exports = UrbanDictionaryResultsPageMessage;
+module.exports = UrbanResultsPageEditor;

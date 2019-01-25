@@ -1,11 +1,11 @@
 'use strict';
 
 const { URL } = require('url');
-const ArrayPageEmbedMessage = require('./ArrayPageEmbedMessage.js');
+const EmbedPageEditor = require('./EmbedPageEditor.js');
 
-class ImageSearchResultsPageMessage extends ArrayPageEmbedMessage {
-    update() {
-        const imageResult = this.pages[this.currentPage];
+class ImageResultsPageEditor extends EmbedPageEditor {
+    update(pages, currentPage) {
+        const imageResult = pages[currentPage];
 
         const imageURL =
         ['http:', 'https:'].includes(new URL(imageResult.link).protocol) ?
@@ -18,4 +18,4 @@ class ImageSearchResultsPageMessage extends ArrayPageEmbedMessage {
     }
 }
 
-module.exports = ImageSearchResultsPageMessage;
+module.exports = ImageResultsPageEditor;

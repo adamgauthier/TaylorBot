@@ -2,7 +2,8 @@
 
 const UserAttribute = require('./UserAttribute.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
-const ArrayEmbedMemberDescriptionPageMessage = require('../modules/paging/ArrayEmbedMemberDescriptionPageMessage.js');
+const PageMessage = require('../modules/paging/PageMessage.js');
+const MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
 const ArrayUtil = require('../modules/ArrayUtil.js');
 
 class SettableUserAttribute extends UserAttribute {
@@ -61,13 +62,15 @@ class SettableUserAttribute extends UserAttribute {
             .baseGuildHeader(guild)
             .setTitle(`List of ${this.description}`);
 
-        return new ArrayEmbedMemberDescriptionPageMessage(
+        return new PageMessage(
             client,
             message.author,
             ArrayUtil.chunk(attributes, 20),
-            embed,
-            guild,
-            (member, attribute) => `${member.user.username} - ${this.formatValue(attribute)}`
+            new MemberEmbedDescriptionPageMessage(
+                embed,
+                guild,
+                (member, attribute) => `${member.user.username} - ${this.formatValue(attribute)}`
+            )
         );
     }
 }

@@ -3,7 +3,8 @@
 const Command = require('../Command.js');
 const YoutubeModule = require('../../modules/google/YoutubeModule.js');
 const CommandError = require('../CommandError.js');
-const ArrayTextPageMessage = require('../../modules/paging/ArrayTextPageMessage.js');
+const PageMessage = require('../../modules/paging/PageMessage.js');
+const TextPageEditor = require('../../modules/paging/editors/TextPageEditor.js');
 
 class YoutubeCommand extends Command {
     constructor() {
@@ -33,10 +34,11 @@ class YoutubeCommand extends Command {
         if (results.length === 0)
             throw new CommandError(`No YouTube videos found for search '${search}'.`);
 
-        return new ArrayTextPageMessage(
+        return new PageMessage(
             client,
             author,
-            results.map(r => `https://youtu.be/${r.id.videoId}`)
+            results.map(r => `https://youtu.be/${r.id.videoId}`),
+            new TextPageEditor()
         ).send(channel);
     }
 }

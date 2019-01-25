@@ -4,7 +4,8 @@ const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const Command = require('../Command.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 const ArrayUtil = require('../../modules/ArrayUtil.js');
-const ArrayEmbedDescriptionPageMessage = require('../../modules/paging/ArrayEmbedDescriptionPageMessage.js');
+const PageMessage = require('../../modules/paging/PageMessage.js');
+const EmbedDescriptionPageEditor = require('../../modules/paging/editors/EmbedDescriptionPageEditor.js');
 
 class UsernamesCommand extends Command {
     constructor() {
@@ -34,11 +35,11 @@ class UsernamesCommand extends Command {
         const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at.getTime())} : ${u.username}`);
         const chunks = ArrayUtil.chunk(lines, 15);
 
-        return new ArrayEmbedDescriptionPageMessage(
+        return new PageMessage(
             client,
             author,
             chunks.map(chunk => chunk.join('\n')),
-            embed
+            new EmbedDescriptionPageEditor(embed)
         ).send(channel);
     }
 }

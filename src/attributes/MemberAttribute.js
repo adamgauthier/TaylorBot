@@ -2,7 +2,8 @@
 
 const Attribute = require('./Attribute.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
-const ArrayEmbedMemberDescriptionPageMessage = require('../modules/paging/ArrayEmbedMemberDescriptionPageMessage.js');
+const PageMessage = require('../modules/paging/PageMessage.js');
+const MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
 const ArrayUtil = require('../modules/ArrayUtil.js');
 
 class MemberAttribute extends Attribute {
@@ -44,13 +45,15 @@ class MemberAttribute extends Attribute {
             .baseGuildHeader(guild)
             .setTitle(`Ranking of ${this.description}`);
 
-        return new ArrayEmbedMemberDescriptionPageMessage(
+        return new PageMessage(
             client,
             message.author,
             ArrayUtil.chunk(members, 10),
-            embed,
-            guild,
-            (member, attribute) => this.presentor.presentRankEntry(member, attribute)
+            new MemberEmbedDescriptionPageMessage(
+                embed,
+                guild,
+                (member, attribute) => this.presentor.presentRankEntry(member, attribute)
+            )
         );
     }
 }

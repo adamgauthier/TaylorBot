@@ -4,7 +4,8 @@ const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const Command = require('../Command.js');
 const GoogleImagesModule = require('../../modules/google/GoogleImagesModule.js');
 const CommandError = require('../CommandError.js');
-const ImageSearchResultsPageMessage = require('../../modules/paging/ImageSearchResultsPageMessage.js');
+const PageMessage = require('../../modules/paging/PageMessage.js');
+const ImageResultsPageEditor = require('../../modules/paging/editors/ImageResultsPageEditor.js');
 
 class ImageCommand extends Command {
     constructor() {
@@ -48,7 +49,12 @@ class ImageCommand extends Command {
             .baseUserEmbed(author)
             .setFooter(`${searchInformation.formattedTotalResults} results found in ${searchInformation.formattedSearchTime} seconds`);
 
-        return new ImageSearchResultsPageMessage(client, author, items, embed).send(channel);
+        return new PageMessage(
+            client,
+            author,
+            items,
+            new ImageResultsPageEditor(embed)
+        ).send(channel);
     }
 }
 

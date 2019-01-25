@@ -3,19 +3,17 @@
 const PREVIOUS_EMOJI = '◀';
 const NEXT_EMOJI = '▶';
 
-class ArrayPageMessage {
-    constructor(client, owner, pages) {
-        if (new.target === ArrayPageMessage) {
-            throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
-        }
-
+class PageMessage {
+    constructor(client, owner, pages, editor) {
         this.client = client;
         this.owner = owner;
         this.pages = pages;
+        this.editor = editor;
         this.currentPage = 0;
         this.duration = 30 * 1000;
         this.closeTimeout = null;
         this.collector = null;
+        this.message = null;
     }
 
     setCloseTimeout() {
@@ -23,8 +21,8 @@ class ArrayPageMessage {
     }
 
     async send(channel) {
-        await this.update();
-        this.message = await this.sendMessage(channel);
+        await this.editor.update(this.pages, this.currentPage);
+        this.message = await this.editor.sendMessage(this.client, channel);
 
         if (this.pages.length > 1) {
             this.collector = this.message.createReactionCollector(this.filter(), { dispose: true });
@@ -69,8 +67,8 @@ class ArrayPageMessage {
 
         if (this.currentPage !== newPage) {
             this.currentPage = newPage;
-            await this.update();
-            return this.edit();
+            await this.editor.update(this.pages, this.currentPage);
+            return this.editor.edit(this.message);
         }
     }
 
@@ -83,22 +81,10 @@ class ArrayPageMessage {
 
         if (this.currentPage !== newPage) {
             this.currentPage = newPage;
-            await this.update();
-            return this.edit();
+            await this.editor.update(this.pages, this.currentPage);
+            return this.editor.edit(this.message);
         }
-    }
-
-    sendMessage(channel) { // eslint-disable-line no-unused-vars
-        throw new Error(`${this.constructor.name} doesn't have an sendMessage() method.`);
-    }
-
-    update() {
-        throw new Error(`${this.constructor.name} doesn't have an update() method.`);
-    }
-
-    edit() {
-        throw new Error(`${this.constructor.name} doesn't have an edit() method.`);
     }
 }
 
-module.exports = ArrayPageMessage;
+module.exports = PageMessage;

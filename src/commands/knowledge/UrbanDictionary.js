@@ -4,7 +4,8 @@ const Command = require('../Command.js');
 const CommandError = require('../CommandError.js');
 const Urban = require('../../modules/urban/UrbanDictionaryModule.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const UrbanDictionaryResultsPageMessage = require('../../modules/paging/UrbanDictionaryResultsPageMessage.js');
+const PageMessage = require('../../modules/paging/PageMessage.js');
+const UrbanResultsPageEditor = require('../../modules/paging/editors/UrbanResultsPageEditor.js');
 
 class UrbanDictionaryCommand extends Command {
     constructor() {
@@ -33,11 +34,11 @@ class UrbanDictionaryCommand extends Command {
         if (results.length === 0)
             throw new CommandError(`Could not find results on UrbanDictionary for '${term}'.`);
 
-        return new UrbanDictionaryResultsPageMessage(
+        return new PageMessage(
             client,
             author,
             results,
-            DiscordEmbedFormatter.baseUserEmbed(author)
+            new UrbanResultsPageEditor(DiscordEmbedFormatter.baseUserEmbed(author))
         ).send(channel);
     }
 }
