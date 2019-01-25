@@ -15,7 +15,7 @@ class TimeUtil {
 
     static formatFull(unixTime) {
         const m = moment.utc(unixTime, 'x');
-        return `${m.format('MMMM Do, YYYY \\at H:mm:ss.SSS')} UTC (${m.fromNow()})`;
+        return `${m.format('MMMM Do, YYYY \\at HH:mm:ss.SSS')} UTC (${m.fromNow()})`;
     }
 
     static formatSmall(unixTime) {
@@ -30,7 +30,7 @@ class TimeUtil {
 
     static formatLog(unixTime = null) {
         const m = unixTime === null ? moment() : moment(unixTime, 'x');
-        return m.format('MMM Do YY, H:mm:ss Z');
+        return m.format('MMM Do YY, HH:mm:ss Z');
     }
 }
 

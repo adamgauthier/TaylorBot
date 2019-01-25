@@ -9,10 +9,11 @@ class DailyPayoutRepository {
         this._usersDAO = usersDAO;
     }
 
-    async isLastPayoutInLast24Hours(user) {
+    async getCanRedeem(user) {
         try {
             return await this._db.oneOrNone(
-                `SELECT (last_payout_at + INTERVAL '1 DAY') AS can_redeem_at
+                `SELECT last_payout_at < (CURRENT_TIMESTAMP at time zone 'EST')::date AS can_redeem,
+                    ((CURRENT_TIMESTAMP + INTERVAL '1 DAY') at time zone 'EST')::date::timestamp with time zone AS can_redeem_at
                 FROM users.daily_payouts WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
@@ -20,7 +21,7 @@ class DailyPayoutRepository {
             );
         }
         catch (e) {
-            Log.error(`Checking if last payout was in the last 24 hours for ${Format.user(user)}: ${e}`);
+            Log.error(`Getting can redeem payout for ${Format.user(user)}: ${e}`);
             throw e;
         }
     }

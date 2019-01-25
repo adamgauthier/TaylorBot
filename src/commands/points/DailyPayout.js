@@ -6,6 +6,7 @@ const Command = require('../Command.js');
 const CommandError = require('../../commands/CommandError.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
+const TimeUtil = require('../../modules/TimeUtil.js');
 
 const PAYOUT = 50;
 
@@ -26,12 +27,14 @@ class DailyPayoutCommand extends Command {
         const { author, channel } = message;
         const { database } = client.master;
 
-        const result = await database.dailyPayouts.isLastPayoutInLast24Hours(author);
+        const result = await database.dailyPayouts.getCanRedeem(author);
 
-        if (result) {
-            const canRedeemAt = moment.utc(result.can_redeem_at);
-            if (canRedeemAt.isAfter())
-                throw new CommandError(`You already redeemed your daily payout in the last 24 hours. You can redeem again ${canRedeemAt.fromNow()}.`);
+        if (result && !result.can_redeem) {
+            const reset = moment(result.can_redeem_at);
+            throw new CommandError([
+                'You already redeemed your daily payout today.',
+                `You can redeem again on \`${TimeUtil.formatLog(reset.valueOf())}\` (${reset.fromNow()}).`
+            ].join('\n'));
         }
 
         const { taypoint_count } = await database.dailyPayouts.giveDailyPay(author, PAYOUT);
