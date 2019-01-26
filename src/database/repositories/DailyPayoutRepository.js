@@ -12,8 +12,8 @@ class DailyPayoutRepository {
     async getCanRedeem(user) {
         try {
             return await this._db.oneOrNone(
-                `SELECT last_payout_at < (CURRENT_TIMESTAMP at time zone 'EST')::date AS can_redeem,
-                    ((CURRENT_TIMESTAMP + INTERVAL '1 DAY') at time zone 'EST')::date::timestamp with time zone AS can_redeem_at
+                `SELECT last_payout_at < date_trunc('day', CURRENT_TIMESTAMP) AS can_redeem,
+                    date_trunc('day', ((CURRENT_TIMESTAMP + INTERVAL '1 DAY'))) AS can_redeem_at
                 FROM users.daily_payouts WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
@@ -35,7 +35,7 @@ class DailyPayoutRepository {
                     ON CONFLICT (user_id) DO UPDATE SET
                         last_payout_at = CURRENT_TIMESTAMP,
                         streak_count = (
-                            CASE WHEN (daily_payouts.last_payout_at > ((CURRENT_TIMESTAMP - INTERVAL '1 DAY') at time zone 'EST')::date::timestamp with time zone)
+                            CASE WHEN (daily_payouts.last_payout_at > date_trunc('day', (CURRENT_TIMESTAMP - INTERVAL '1 DAY')))
                             THEN daily_payouts.streak_count + 1
                             ELSE 1
                         END)

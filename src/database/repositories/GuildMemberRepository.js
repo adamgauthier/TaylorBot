@@ -237,6 +237,14 @@ class GuildMemberRepository {
         return this._getRankedAliveFor(guildMember, 'minute_count');
     }
 
+    getRankedTaypoints(guild, limit) {
+        return this._getRankedUsers(guild, limit, 'taypoint_count');
+    }
+
+    getRankedTaypointsFor(guildMember) {
+        return this._getRankedAliveFor(guildMember, 'taypoint_count');
+    }
+
     getRankedForeignStat(guild, limit, schema, table, column) {
         return this._getRankedAliveForeign(guild, limit, new this._helpers.TableName(table, schema), column);
     }
