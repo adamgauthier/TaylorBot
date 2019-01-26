@@ -32,7 +32,10 @@ class UserRegistry extends Map {
 
         const inserted = await this.database.users.add(member);
 
-        this.cacheUser(inserted);
+        if (inserted)
+            this.cacheUser(inserted);
+        else
+            Log.warn(`Adding new user from member ${Format.member(member)}, user was already inserted.`);
     }
 
     async ignoreUser(user, ignoreUntil) {
