@@ -9,7 +9,7 @@ class ImgurCommand extends Command {
     constructor() {
         super({
             name: 'imgur',
-            group: 'imgur',
+            group: 'media',
             description: `Upload a picture on Imgur! If it's not already uploaded to a website, you can add it as an attachment to your command.`,
             examples: ['https://www.example.com/link/to/picture.jpg'],
 

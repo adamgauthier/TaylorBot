@@ -10,7 +10,7 @@ class EvalCommand extends Command {
     constructor() {
         super({
             name: 'eval',
-            group: 'util',
+            group: 'admin',
             description: 'Evaluates code.',
             minimumGroup: UserGroups.Master,
             examples: ['1+1'],

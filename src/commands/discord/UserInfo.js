@@ -8,7 +8,7 @@ class UserInfoCommand extends Command {
         super({
             name: 'userinfo',
             aliases: ['uinfo'],
-            group: 'info',
+            group: 'discord',
             description: 'Gets information about a user.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
             guildOnly: true,

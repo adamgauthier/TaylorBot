@@ -4,13 +4,13 @@ const Format = require('../../modules/DiscordFormatter.js');
 const Command = require('../Command.js');
 const CommandError = require('../CommandError.js');
 
-class DropRoleCommand extends Command {
+class GetRoleCommand extends Command {
     constructor() {
         super({
-            name: 'droprole',
-            aliases: ['dr'],
-            group: 'util',
-            description: 'Removes an accessible role from you.',
+            name: 'getrole',
+            aliases: ['gr'],
+            group: 'discord',
+            description: 'Gives you an accessible role.',
             examples: ['@tour', 'leaks'],
             guildOnly: true,
 
@@ -19,7 +19,7 @@ class DropRoleCommand extends Command {
                     key: 'role',
                     label: 'role',
                     type: 'role',
-                    prompt: 'What role would you like to be dropped?'
+                    prompt: 'What role would you like to get?'
                 }
             ]
         });
@@ -28,8 +28,8 @@ class DropRoleCommand extends Command {
     async run({ message, client }, { role }) {
         const { member } = message;
 
-        if (!member.roles.has(role.id)) {
-            throw new CommandError(`${member} doesn't have role '${Format.role(role, '#name (`#id`)')}'.`);
+        if (member.roles.has(role.id)) {
+            throw new CommandError(`${member} already has role '${Format.role(role, '#name (`#id`)')}'.`);
         }
 
         const specialRole = await client.master.database.specialRoles.get(role);
@@ -38,10 +38,10 @@ class DropRoleCommand extends Command {
             throw new CommandError(`Role '${Format.role(role, '#name (`#id`)')}' is not marked as accessible.`);
         }
 
-        await member.roles.remove(role, `Removed accessible role ${Format.role(role)} from ${Format.user(message.author)} as per DropRole Command`);
+        await member.roles.add(role, `Gave accessible role ${Format.role(role)} to ${Format.user(message.author)} as per GetRole Command`);
 
-        return client.sendEmbedSuccess(message.channel, `Removed role '${Format.role(role, '#name')}' from ${member}.`);
+        return client.sendEmbedSuccess(message.channel, `Gave role '${Format.role(role, '#name')}' to ${member}.`);
     }
 }
 
-module.exports = DropRoleCommand;
+module.exports = GetRoleCommand;

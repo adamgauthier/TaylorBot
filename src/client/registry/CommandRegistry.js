@@ -5,10 +5,10 @@ const CachedCommand = require('./CachedCommand.js');
 const CommandLoader = require('../../commands/CommandLoader.js');
 const AttributeLoader = require('../../attributes/AttributeLoader.js');
 
-class CommandRegistry extends Map {
+class CommandRegistry {
     constructor(database) {
-        super();
         this.database = database;
+        this.commandsCache = new Map();
         this.useCountCache = new Map();
     }
 
@@ -63,7 +63,7 @@ class CommandRegistry extends Map {
     cacheCommand(command) {
         const key = command.name.toLowerCase();
 
-        if (this.has(key))
+        if (this.commandsCache.has(key))
             throw new Error(`Command '${command.name}' is already cached.`);
 
         const cached = new CachedCommand(
@@ -73,20 +73,20 @@ class CommandRegistry extends Map {
         );
         cached.command = command;
 
-        this.set(key, cached);
+        this.commandsCache.set(key, cached);
 
         for (const alias of command.aliases) {
             const aliasKey = alias.toLowerCase();
 
-            if (this.has(aliasKey))
+            if (this.commandsCache.has(aliasKey))
                 throw new Error(`Command Key '${aliasKey}' is already cached when setting alias.`);
 
-            this.set(aliasKey, key);
+            this.commandsCache.set(aliasKey, key);
         }
     }
 
     getCommand(name) {
-        const cachedCommand = this.get(name);
+        const cachedCommand = this.commandsCache.get(name);
 
         if (!cachedCommand)
             throw new Error(`Command '${name}' isn't cached.`);
@@ -98,7 +98,7 @@ class CommandRegistry extends Map {
     }
 
     resolve(commandName) {
-        const command = this.get(commandName.toLowerCase());
+        const command = this.commandsCache.get(commandName.toLowerCase());
 
         if (typeof (command) === 'string') {
             return this.getCommand(command);
@@ -125,6 +125,12 @@ class CommandRegistry extends Map {
         else {
             useCount.errorCount += 1;
         }
+    }
+
+    getAllCommands() {
+        return Array.from(
+            this.commandsCache.values()
+        ).filter(val => typeof (val) !== 'string');
     }
 }
 

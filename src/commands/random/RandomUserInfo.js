@@ -8,7 +8,7 @@ class RandomUserInfoCommand extends Command {
         super({
             name: 'randomuserinfo',
             aliases: ['randomuser', 'randomuinfo', 'ruinfo', 'rui'],
-            group: 'info',
+            group: 'random',
             description: 'Gets information about a random user in the server.',
             examples: [''],
             guildOnly: true,

@@ -8,7 +8,7 @@ class AvatarCommand extends Command {
         super({
             name: 'avatar',
             aliases: ['av', 'avi'],
-            group: 'info',
+            group: 'discord',
             description: 'Gets the avatar of a user.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
 

@@ -8,7 +8,7 @@ class RoleInfoCommand extends Command {
         super({
             name: 'roleinfo',
             aliases: ['rinfo'],
-            group: 'info',
+            group: 'discord',
             description: 'Gets information about a role.',
             examples: ['mods', ''],
 

@@ -8,7 +8,7 @@ class ServerStatsCommand extends Command {
         super({
             name: 'serverstats',
             aliases: ['sstats', 'genderstats', 'agestats'],
-            group: 'info',
+            group: 'stats',
             description: 'Gets age and gender stats for a server.',
             examples: [''],
 

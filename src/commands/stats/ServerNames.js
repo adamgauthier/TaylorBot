@@ -13,7 +13,7 @@ class ServerNamesCommand extends Command {
         super({
             name: 'servernames',
             aliases: ['snames', 'guildnames', 'gnames'],
-            group: 'info',
+            group: 'stats',
             description: 'Gets a list of previous names for a server.',
             examples: [''],
 

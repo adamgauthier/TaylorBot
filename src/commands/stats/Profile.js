@@ -10,7 +10,7 @@ class ProfileCommand extends Command {
         super({
             name: 'profile',
             aliases: ['info', 'asl'],
-            group: 'info',
+            group: 'stats',
             description: 'Gets the profile of a user.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
 

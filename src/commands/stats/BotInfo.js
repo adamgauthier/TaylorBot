@@ -11,7 +11,7 @@ class BotInfoCommand extends Command {
         super({
             name: 'botinfo',
             aliases: ['binfo', 'clientinfo', 'version'],
-            group: 'info',
+            group: 'stats',
             description: 'Gets general info about the bot.',
             examples: [''],
 
