@@ -15,15 +15,19 @@ class GambleStatsPresentor {
         const winAmount = global.BigInt(gamble_win_amount);
         const loseAmount = global.BigInt(gamble_lose_amount);
 
-        const winRate = ((winCount * global.BigInt(10000)) / (winCount + loseCount)).toString();
+        const winRate = () => {
+            if (winCount === global.BigInt(0))
+                return '0.00';
 
-        const winRatePercent = `${winRate.substring(0, winRate.length - 2)}.${winRate[winRate.length - 2]}${winRate[winRate.length - 1]}`;
+            const rate = ((winCount * global.BigInt(10000)) / (winCount + loseCount)).toString();
+            return `${rate.substring(0, rate.length - 2)}.${rate[rate.length - 2]}${rate[rate.length - 1]}`;
+        };
 
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([
                 `${member.displayName} has won a total of ${StringUtil.plural(winCount, 'gamble', '**')} (**${MathUtil.formatNumberSuffix(rank)}** in the server).`,
-                `They have also lost ${StringUtil.plural(loseCount, 'gamble', '**')}, meaning they have a win rate of **${winRatePercent}%**.`,
+                `They have also lost ${StringUtil.plural(loseCount, 'gamble', '**')}, meaning they have a win rate of **${winRate()}%**.`,
                 `Overall, they won ${StringUtil.plural(winAmount, 'taypoint', '**')} and lost ${StringUtil.plural(loseAmount, 'taypoint', '**')} through gambling.`
             ].join('\n'));
     }
