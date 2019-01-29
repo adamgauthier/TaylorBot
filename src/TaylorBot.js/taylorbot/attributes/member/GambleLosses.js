@@ -16,7 +16,7 @@ class GambleLossesMemberAttribute extends SimpleStatMemberAttribute {
     }
 
     retrieve(database, member) {
-        return database.guildMembers.getRankedForeignStatFor(member, 'users', 'gamble_stats', 'gamble_win_count', [this.columnName, 'gamble_win_amount', 'gamble_lose_amount']);
+        return database.guildMembers.getRankedForeignStatFor(member, 'users', 'gamble_stats', 'gamble_win_count', [this.columnName, 'gamble_win_amount', 'gamble_lose_count']);
     }
 
     rank(database, guild, entries) {
