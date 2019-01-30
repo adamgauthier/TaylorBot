@@ -5,9 +5,10 @@ namespace TaylorBot.Net.Application.Extensions
 {
     public static class ConfigurationBuilderExtensions
     {
-        public static IConfigurationBuilder AddDefaultTaylorBotConfiguration(this IConfigurationBuilder builder, TaylorBotEnvironment environment)
+        public static IConfigurationBuilder AddTaylorBotApplicationConfiguration(this IConfigurationBuilder builder, TaylorBotEnvironment environment)
         {
             return builder
+                .AddJsonFile(path: $"Settings/logging.{environment}.json", optional: false)
                 .AddJsonFile(path: $"Settings/discord.{environment}.json", optional: false);
         }
     }

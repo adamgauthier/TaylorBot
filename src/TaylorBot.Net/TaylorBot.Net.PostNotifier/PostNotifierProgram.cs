@@ -24,11 +24,12 @@ namespace TaylorBot.Net.PostNotifier
             var environment = TaylorBotEnvironment.CreateCurrent();
 
             var config = new ConfigurationBuilder()
-                .AddDefaultTaylorBotConfiguration(environment)
+                .AddTaylorBotApplicationConfiguration(environment)
                 .Build();
 
             return new ServiceCollection()
-                .AddDefaultTaylorBotServices()
+                .AddTaylorBotApplicationServices()
+                .AddTaylorBotApplicationLogging(config)
                 .AddSingleton<IConfiguration>(config)
                 .AddTransient<IReadyHandler, ReadyHandler>()
                 .BuildServiceProvider();

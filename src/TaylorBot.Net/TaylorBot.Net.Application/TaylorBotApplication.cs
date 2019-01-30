@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Application.Events;
-using TaylorBot.Net.Core;
+using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Application
 {

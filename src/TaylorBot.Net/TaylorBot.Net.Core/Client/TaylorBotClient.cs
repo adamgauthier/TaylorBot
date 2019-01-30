@@ -1,19 +1,24 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Configuration;
+using TaylorBot.Net.Core.Logging;
 
-namespace TaylorBot.Net.Core
+namespace TaylorBot.Net.Core.Client
 {
     public class TaylorBotClient
     {
+        private readonly ILogger<TaylorBotClient> logger;
+        private readonly ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper;
         private readonly ITokenProvider tokenProvider;
 
         public DiscordShardedClient DiscordShardedClient { get; }
 
-        public TaylorBotClient(ITokenProvider tokenProvider, DiscordShardedClient discordShardedClient)
+        public TaylorBotClient(ILogger<TaylorBotClient> logger, ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper, ITokenProvider tokenProvider, DiscordShardedClient discordShardedClient)
         {
+            this.logger = logger;
+            this.logSeverityToLogLevelMapper = logSeverityToLogLevelMapper;
             this.tokenProvider = tokenProvider;
             DiscordShardedClient = discordShardedClient;
 
@@ -28,7 +33,7 @@ namespace TaylorBot.Net.Core
 
         private Task LogAsync(LogMessage log)
         {
-            Console.WriteLine(log.ToString());
+            logger.Log(logSeverityToLogLevelMapper.MapFrom(log.Severity), LogString.From(log.ToString(prependTimestamp: false)));
             return Task.CompletedTask;
         }
     }
