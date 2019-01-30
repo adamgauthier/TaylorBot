@@ -1,6 +1,6 @@
 ﻿{
-  "discord": {
-    "token": "TOKEN_HERE",
-    "shardCount": 1
+  "Discord": {
+    "Token": "TOKEN_HERE",
+    "ShardCount": 1
   }
 }

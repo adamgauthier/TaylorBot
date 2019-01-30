@@ -28,7 +28,7 @@ namespace TaylorBot.Net.PostNotifier
                 .Build();
 
             return new ServiceCollection()
-                .AddTaylorBotApplicationServices()
+                .AddTaylorBotApplicationServices(config)
                 .AddTaylorBotApplicationLogging(config)
                 .AddSingleton<IConfiguration>(config)
                 .AddTransient<IReadyHandler, ReadyHandler>()

@@ -11,15 +11,15 @@ namespace TaylorBot.Net.Core.Client
     {
         private readonly ILogger<TaylorBotClient> logger;
         private readonly ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper;
-        private readonly ITokenProvider tokenProvider;
+        private readonly TaylorBotToken taylorBotToken;
 
         public DiscordShardedClient DiscordShardedClient { get; }
 
-        public TaylorBotClient(ILogger<TaylorBotClient> logger, ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper, ITokenProvider tokenProvider, DiscordShardedClient discordShardedClient)
+        public TaylorBotClient(ILogger<TaylorBotClient> logger, ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper, TaylorBotToken taylorBotToken, DiscordShardedClient discordShardedClient)
         {
             this.logger = logger;
             this.logSeverityToLogLevelMapper = logSeverityToLogLevelMapper;
-            this.tokenProvider = tokenProvider;
+            this.taylorBotToken = taylorBotToken;
             DiscordShardedClient = discordShardedClient;
 
             DiscordShardedClient.Log += LogAsync;
@@ -27,7 +27,7 @@ namespace TaylorBot.Net.Core.Client
 
         public async Task StartAsync()
         {
-            await DiscordShardedClient.LoginAsync(TokenType.Bot, tokenProvider.GetDiscordToken());
+            await DiscordShardedClient.LoginAsync(TokenType.Bot, taylorBotToken.Token);
             await DiscordShardedClient.StartAsync();
         }
 
