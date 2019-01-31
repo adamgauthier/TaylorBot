@@ -30,7 +30,7 @@ class RollStatsPresentor {
             .baseUserEmbed(member.user)
             .setDescription([
                 `${member.displayName} has rolled a total of ${StringUtil.plural(rollCount, 'time', '**')} (**${MathUtil.formatNumberSuffix(rank)}** in the server).`,
-                `They have **${perfect_roll_count}** perfect rolls of 1989.`,
+                `They have ${StringUtil.plural(perfect_roll_count, 'perfect roll', '**')} of 1989.`,
                 perfectRollCount > 0 ?
                     `This means they roughly get a perfect roll every **${rateDecimal()}** rolls.` :
                     `The odds of not getting a perfect roll in that many rolls is roughly **${oddsPercent()}%**.`
