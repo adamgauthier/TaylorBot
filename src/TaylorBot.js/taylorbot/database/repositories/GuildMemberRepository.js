@@ -24,7 +24,7 @@ class GuildMemberRepository {
             return await this._db.any(
                 'SELECT user_id, first_joined_at, alive FROM guilds.guild_members WHERE guild_id = $[guild_id];',
                 {
-                    'guild_id': guild.id
+                    guild_id: guild.id
                 }
             );
         }
@@ -36,8 +36,8 @@ class GuildMemberRepository {
 
     mapMemberToDatabase(guildMember) {
         return {
-            'guild_id': guildMember.guild.id,
-            'user_id': guildMember.id
+            guild_id: guildMember.guild.id,
+            user_id: guildMember.id
         };
     }
 
@@ -86,8 +86,8 @@ class GuildMemberRepository {
                 WHERE alive = TRUE
                 LIMIT $[limit];`,
                 {
-                    'guild_id': guild.id,
-                    'limit': limit
+                    guild_id: guild.id,
+                    limit: limit
                 }
             );
         }
@@ -111,8 +111,8 @@ class GuildMemberRepository {
                 ) AS ranked
                 WHERE ranked.user_id = $[user_id];`,
                 {
-                    'guild_id': guildMember.guild.id,
-                    'user_id': guildMember.id
+                    guild_id: guildMember.guild.id,
+                    user_id: guildMember.id
                 }
             );
         }
@@ -130,14 +130,36 @@ class GuildMemberRepository {
                 WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
                 LIMIT $[limit];`,
                 {
-                    'guild_id': guild.id,
-                    'limit': limit,
+                    guild_id: guild.id,
+                    limit: limit,
                     column
                 }
             );
         }
         catch (e) {
             Log.error(`Getting ranked alive '${column}' for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async _getRankedAliveFor(guildMember, column) {
+        try {
+            return await this._db.one(
+                `SELECT $[column~], rank FROM (
+                    SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
+                    FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
+                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE ${guildMember.user.bot ? '' : 'AND u.is_bot = FALSE'}
+                ) AS ranked
+                WHERE user_id = $[user_id];`,
+                {
+                    guild_id: guildMember.guild.id,
+                    user_id: guildMember.id,
+                    column
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting ranked alive '${column}' for guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
@@ -152,8 +174,8 @@ class GuildMemberRepository {
                 WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
                 LIMIT $[limit];`,
                 {
-                    'guild_id': guild.id,
-                    'limit': limit,
+                    guild_id: guild.id,
+                    limit: limit,
                     column,
                     table: tableName
                 }
@@ -161,28 +183,6 @@ class GuildMemberRepository {
         }
         catch (e) {
             Log.error(`Getting foreign ranked alive '${tableName}.${column}' for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async _getRankedAliveFor(guildMember, column) {
-        try {
-            return await this._db.one(
-                `SELECT $[column~], rank FROM (
-                    SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                    FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
-                ) AS ranked
-                WHERE user_id = $[user_id];`,
-                {
-                    'guild_id': guildMember.guild.id,
-                    'user_id': guildMember.id,
-                    column
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting ranked alive '${column}' for guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
@@ -195,12 +195,12 @@ class GuildMemberRepository {
                     FROM guilds.guild_members AS gm
                         JOIN users.users AS u ON u.user_id = gm.user_id
                         JOIN $[table] AS f ON gm.user_id = f.user_id
-                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE 
+                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE ${guildMember.user.bot ? '' : 'AND u.is_bot = FALSE'}
                 ) AS ranked
                 WHERE user_id = $[user_id];`,
                 {
-                    'guild_id': guildMember.guild.id,
-                    'user_id': guildMember.id,
+                    guild_id: guildMember.guild.id,
+                    user_id: guildMember.id,
                     ranked_column: rankedColumn,
                     columns: [rankedColumn, ...columns],
                     table: tableName
