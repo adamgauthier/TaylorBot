@@ -10,7 +10,7 @@ class IgnoreUserCommand extends Command {
             name: 'ignoreuser',
             aliases: ['iu'],
             group: 'admin',
-            description: 'Makes a role accessible for users to get.',
+            description: 'Ignores a user for a period of time.',
             minimumGroup: UserGroups.Master,
             examples: ['@Enchanted13#1989 12 minutes'],
 
