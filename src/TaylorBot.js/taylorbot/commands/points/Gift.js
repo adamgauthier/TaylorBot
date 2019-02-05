@@ -11,7 +11,7 @@ class GiftCommand extends Command {
             aliases: ['give'],
             group: 'points',
             description: 'Gifts a specified amount of taypoints to pinged users.',
-            examples: ['13 @Enchanted13#1989', 'all @Enchanted13#1989 @Lydia#7147'],
+            examples: ['13 @Enchanted13#1989', 'all @Enchanted13#1989'],
 
             args: [
                 {

@@ -70,12 +70,10 @@ class DiscordEmbedFormatter {
         if (presence.activity)
             embed.addField('Activity', presence.activity.name, true);
 
-        // TODO: Timezones
         embed
             .addField('Server Joined', TimeUtil.formatFull(member.joinedTimestamp))
             .addField('Account Created', TimeUtil.formatFull(user.createdTimestamp))
-            .addField(StringUtil.plural(roles.length, 'Role'), StringUtil.shrinkString(roles.join(', '), 75, ', ...', [',']))
-            .addField(`Shares ${StringUtil.plural(shared.length, 'Server')}`, StringUtil.shrinkString(shared.join(', '), 75, ', ...', [',']));
+            .addField(StringUtil.plural(roles.length, 'Role'), StringUtil.shrinkString(roles.join(', '), 75, ', ...', [',']));
 
         return embed;
     }

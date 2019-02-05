@@ -12,7 +12,7 @@ class RewardCommand extends Command {
             group: 'points',
             description: 'Rewards a specified amount of taypoints to pinged users.',
             minimumGroup: UserGroups.Master,
-            examples: ['13 @Enchanted13#1989', '22 @Enchanted13#1989 @Lydia#7147'],
+            examples: ['13 @Enchanted13#1989', '22 @Enchanted13#1989'],
 
             args: [
                 {
