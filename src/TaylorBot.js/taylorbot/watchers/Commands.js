@@ -64,7 +64,7 @@ class CommandsWatcher extends MessageWatcher {
         const { registry } = client.master;
 
         for (const inhibitor of registry.inhibitors.values()) {
-            if (inhibitor.shouldBeBlocked(messageContext, cachedCommand, argString)) {
+            if (await inhibitor.shouldBeBlocked(messageContext, cachedCommand, argString)) {
                 return;
             }
         }

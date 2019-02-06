@@ -10,9 +10,10 @@ const CommandRegistry = require('./CommandRegistry.js');
 const UserRegistry = require('./UserRegistry.js');
 const InhibitorRegistry = require('./InhibitorRegistry.js');
 const AttributeRegistry = require('./AttributeRegistry.js');
+const ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
 
 class Registry {
-    constructor(database) {
+    constructor(database, redis) {
         this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
@@ -22,6 +23,7 @@ class Registry {
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
         this.commands = new CommandRegistry(database);
         this.users = new UserRegistry(database);
+        this.channelCommands = new ChannelCommandRegistry(database, redis);
     }
 
     async load() {
@@ -60,6 +62,10 @@ class Registry {
         Log.info('Loading users...');
         await this.users.load();
         Log.info('Users loaded!');
+
+        Log.info('Caching channel commands...');
+        await this.channelCommands.cacheChannelCommands();
+        Log.info('Channel commands cached!');
     }
 }
 

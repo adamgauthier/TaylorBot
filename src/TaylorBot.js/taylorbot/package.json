@@ -10,6 +10,7 @@
     "moment-timezone": "^0.5.23",
     "node-fetch": "^2.3.0",
     "pg-promise": "^8.5.5",
+    "redis": "^2.8.0",
     "sherlockjs": "^1.4.0"
   },
   "devDependencies": {

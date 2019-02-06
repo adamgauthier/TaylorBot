@@ -33,6 +33,7 @@ const RollStatsRepository = require('./repositories/RollStatsRepository.js');
 const RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
 const GambleStatsRepository = require('./repositories/GambleStatsRepository.js');
 const DailyPayoutRepository = require('./repositories/DailyPayoutRepository.js');
+const ChannelCommandRepository = require('./repositories/ChannelCommandRepository.js');
 
 class DatabaseDriver {
     constructor() {
@@ -66,6 +67,7 @@ class DatabaseDriver {
         this.rpsStats = new RpsStatsRepository(this._db, this._usersDAO);
         this.gambleStats = new GambleStatsRepository(this._db);
         this.dailyPayouts = new DailyPayoutRepository(this._db, this._usersDAO);
+        this.channelCommands = new ChannelCommandRepository(this._db);
     }
 }
 

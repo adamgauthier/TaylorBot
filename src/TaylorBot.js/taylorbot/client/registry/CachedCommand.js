@@ -3,9 +3,9 @@
 const Format = require('../../modules/DiscordFormatter.js');
 
 class CachedCommand {
-    constructor(name, commandRepository, guildCommandRegistry) {
+    constructor(name, commandRepository, guildCommandRepository) {
         this._commandRepository = commandRepository;
-        this._guildCommandRegistry = guildCommandRegistry;
+        this._guildCommandRepository = guildCommandRepository;
 
         this.name = name;
         this.isDisabled = false;
@@ -39,7 +39,7 @@ class CachedCommand {
         if (!this.disabledIn[guild.id] && enabled)
             throw new Error(`Command '${this.name}' is already enabled in ${Format.guild(guild)}.`);
 
-        await this._guildCommandRegistry.setDisabled(guild, this.name, !enabled);
+        await this._guildCommandRepository.setDisabled(guild, this.name, !enabled);
 
         if (!enabled)
             this.disabledIn[guild.id] = true;

@@ -4,16 +4,18 @@ const DatabaseDriver = require('../database/DatabaseDriver.js');
 const TaylorBotClient = require('./TaylorBotClient.js');
 const Registry = require('./registry/Registry.js');
 const Log = require('../tools/Logger.js');
+const RedisDriver = require('../caching/RedisDriver.js');
 
 class TaylorBotMasterClient {
     constructor() {
         this.database = new DatabaseDriver();
+        this.redis = new RedisDriver();
 
         this.clients = [
             new TaylorBotClient(this)
         ];
 
-        this.registry = new Registry(this.database);
+        this.registry = new Registry(this.database, this.redis);
     }
 
     async load() {
