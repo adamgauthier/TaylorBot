@@ -4,6 +4,11 @@ const TextArgumentType = require('../base/Text.js');
 const ArgumentParsingError = require('../ArgumentParsingError.js');
 
 class ChannelArgumentType extends TextArgumentType {
+    constructor({ channelFilter = () => true } = {}) {
+        super();
+        this.channelFilter = channelFilter;
+    }
+
     get id() {
         return 'channel';
     }
@@ -21,7 +26,7 @@ class ChannelArgumentType extends TextArgumentType {
             }
 
             const search = val.toLowerCase();
-            const channels = guild.channels.filter(ChannelArgumentType.channelFilterInexact(search));
+            const channels = guild.channels.filter(this.channelFilterInexact(search));
             if (channels.size === 0) {
                 throw new ArgumentParsingError(`Could not find channel '${val}'.`);
             }
@@ -35,7 +40,7 @@ class ChannelArgumentType extends TextArgumentType {
                 }
             }
 
-            const exactChannels = channels.filter(ChannelArgumentType.channelFilterExact(search));
+            const exactChannels = channels.filter(this.channelFilterExact(search));
 
             for (const channel of exactChannels.values()) {
                 if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
@@ -53,11 +58,11 @@ class ChannelArgumentType extends TextArgumentType {
         throw new ArgumentParsingError(`Could not find channel '${val}' that you can view.`);
     }
 
-    static channelFilterExact(search) {
-        return channel => channel.name.toLowerCase() === search;
+    channelFilterExact(search) {
+        return channel => channel.name.toLowerCase() === search && this.channelFilter(channel);
     }
 
-    static channelFilterInexact(search) {
+    channelFilterInexact(search) {
         return channel => channel.name.toLowerCase().includes(search);
     }
 }

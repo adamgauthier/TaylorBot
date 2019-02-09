@@ -1,13 +1,14 @@
 'use strict';
 
 const WordArgumentType = require('../base/Word.js');
-const ArgumentParsingError = require('../ArgumentParsingError.js');
 const ChannelArgumentType = require('./Channel.js');
 
 class GuildTextChannelArgumentType extends WordArgumentType {
     constructor() {
         super();
-        this.channelArgumentType = new ChannelArgumentType();
+        this.channelArgumentType = new ChannelArgumentType({
+            channelFilter: channel => channel.type === 'text'
+        });
     }
 
     get id() {
@@ -15,12 +16,7 @@ class GuildTextChannelArgumentType extends WordArgumentType {
     }
 
     parse(val, commandContext, info) {
-        const channel = this.channelArgumentType.parse(val, commandContext, info);
-
-        if (channel.type !== 'text')
-            throw new ArgumentParsingError(`Channel ${channel.name} (\`${channel.id}\`) is not a text channel.`);
-
-        return channel;
+        return this.channelArgumentType.parse(val, commandContext, info);
     }
 }
 
