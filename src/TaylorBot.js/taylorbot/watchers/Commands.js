@@ -117,7 +117,7 @@ class CommandsWatcher extends MessageWatcher {
 
         if (!matches) {
             return client.sendEmbedError(channel, [
-                'Oops! Looks like something was off with your command usage. 🤔',
+                `${author} Oops! Looks like something was off with your command usage. 🤔`,
                 `Command Format: \`${commandContext.usage()}\``,
                 `Example: \`${commandContext.example()}\``,
                 `For examples and details, use \`${commandContext.helpUsage()}\`.`
@@ -156,6 +156,9 @@ class CommandsWatcher extends MessageWatcher {
 
         try {
             await command.run(commandContext, parsedArgs);
+            if (cachedCommand.command.maxDailyUseCount !== null) {
+                await registry.cooldowns.addDailyUseCount(author, cachedCommand);
+            }
         }
         catch (e) {
             if (e instanceof CommandError) {

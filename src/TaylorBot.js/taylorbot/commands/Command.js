@@ -3,7 +3,7 @@
 const UserGroups = require('../client/UserGroups.js');
 
 class Command {
-    constructor({ name, aliases, group, description, minimumGroup, examples, guildOnly, guarded, args }) {
+    constructor({ name, aliases, group, description, minimumGroup, examples, maxDailyUseCount, guildOnly, guarded, args }) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
         }
@@ -22,6 +22,7 @@ class Command {
         this.description = description;
         this.minimumGroup = minimumGroup === undefined ? UserGroups.Everyone : minimumGroup;
         this.examples = examples;
+        this.maxDailyUseCount = maxDailyUseCount === undefined ? null : maxDailyUseCount;
         this.guildOnly = guildOnly === undefined ? false : guildOnly;
         this.guarded = guarded === undefined ? false : guarded;
 

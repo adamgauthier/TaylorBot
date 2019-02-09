@@ -13,9 +13,18 @@ class RedisDriver {
             password: redisConfig.PASSWORD
         });
 
+        this.get = promisify(this.redisClient.get).bind(this.redisClient);
         this.setAdd = promisify(this.redisClient.sadd).bind(this.redisClient);
         this.setRemove = promisify(this.redisClient.srem).bind(this.redisClient);
         this.setIsMember = promisify(this.redisClient.sismember).bind(this.redisClient);
+    }
+
+    multi() {
+        const multi = this.redisClient.multi();
+
+        multi.execute = promisify(multi.exec).bind(multi);
+
+        return multi;
     }
 }
 

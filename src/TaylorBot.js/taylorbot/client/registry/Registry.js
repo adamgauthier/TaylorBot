@@ -11,6 +11,7 @@ const UserRegistry = require('./UserRegistry.js');
 const InhibitorRegistry = require('./InhibitorRegistry.js');
 const AttributeRegistry = require('./AttributeRegistry.js');
 const ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
+const CooldownRegistry = require('./CooldownRegistry.js');
 
 class Registry {
     constructor(database, redis) {
@@ -24,6 +25,7 @@ class Registry {
         this.commands = new CommandRegistry(database);
         this.users = new UserRegistry(database);
         this.channelCommands = new ChannelCommandRegistry(database, redis);
+        this.cooldowns = new CooldownRegistry(redis);
     }
 
     async load() {
