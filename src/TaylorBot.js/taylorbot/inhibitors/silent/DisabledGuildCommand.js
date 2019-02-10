@@ -1,10 +1,10 @@
 'use strict';
 
-const Inhibitor = require('../structures/Inhibitor.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
+const SilentInhibitor = require('../SilentInhibitor.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
 
-class DisabledGuildCommandInhibitor extends Inhibitor {
+class DisabledGuildCommandInhibitor extends SilentInhibitor {
     shouldBeBlocked({ message }, command) {
         const { guild } = message;
 

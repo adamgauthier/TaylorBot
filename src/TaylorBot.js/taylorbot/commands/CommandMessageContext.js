@@ -31,9 +31,7 @@ class CommandMessageContext {
     }
 
     usage() {
-        const keyword = this.messageContext.isGuild ?
-            `${this.messageContext.guildSettings.prefix}${this.command.name}` :
-            this.command.name;
+        const keyword = `${this.messageContext.prefix}${this.command.name}`;
 
         const args = this.args.map(({ info, canBeEmpty, mustBeQuoted }) => {
             const label = canBeEmpty ? `${info.label}?` : info.label;
@@ -61,15 +59,13 @@ class CommandMessageContext {
 
     helpUsage() {
         const helpCommandName = 'help';
-        const keyword = this.messageContext.isGuild ?
-            `${this.messageContext.guildSettings.prefix}${helpCommandName}` :
-            helpCommandName;
+        const keyword = `${this.messageContext.prefix}${helpCommandName}`;
 
         return `${keyword} ${this.command.name}`;
     }
 
     example() {
-        return `${this.messageContext.guildSettings.prefix}${this.command.command.name} ${UnsafeRandomModule.randomInArray(this.command.command.examples)}`;
+        return `${this.messageContext.prefix}${this.command.command.name} ${UnsafeRandomModule.randomInArray(this.command.command.examples)}`;
     }
 }
 

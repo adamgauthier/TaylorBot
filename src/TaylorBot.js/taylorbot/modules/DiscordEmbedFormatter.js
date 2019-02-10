@@ -51,14 +51,10 @@ class DiscordEmbedFormatter {
     }
 
     static member(member) {
-        const { user, client } = member;
+        const { user } = member;
         const { presence } = user;
 
         const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
-
-        const shared = client.guilds.filter(g =>
-            g.members.has(member.id)
-        ).map(g => g.name);
 
         const roles = member.roles.map(r => r.name);
 

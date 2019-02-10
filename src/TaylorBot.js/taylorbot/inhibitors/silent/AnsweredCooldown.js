@@ -1,10 +1,10 @@
 'use strict';
 
-const Inhibitor = require('../structures/Inhibitor.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
+const SilentInhibitor = require('../SilentInhibitor.js');
+const Log = require('../../tools/Logger.js');
+const Format = require('../../modules/DiscordFormatter.js');
 
-class CooldownInhibitor extends Inhibitor {
+class AnsweredCooldownInhibitor extends SilentInhibitor {
     shouldBeBlocked({ message, client }, command) {
         const { author } = message;
         const { lastCommand, lastAnswered } = client.master.registry.users.get(author.id);
@@ -18,4 +18,4 @@ class CooldownInhibitor extends Inhibitor {
     }
 }
 
-module.exports = CooldownInhibitor;
+module.exports = AnsweredCooldownInhibitor;
