@@ -16,8 +16,6 @@ class UserRegistry extends Map {
 
     cacheUser(databaseUser) {
         this.set(databaseUser.user_id, {
-            lastCommand: 0,
-            lastAnswered: 1,
             ignoreUntil: databaseUser.ignore_until.getTime()
         });
     }
@@ -44,24 +42,6 @@ class UserRegistry extends Map {
         await this.database.users.ignore(user, ignoreUntil);
 
         cachedUser.ignoreUntil = ignoreUntil.getTime();
-    }
-
-    updateLastCommand(user, lastCommand) {
-        const cachedUser = this.get(user.id);
-
-        if (!cachedUser)
-            throw new Error(`Can't update lastCommand of user ${Format.user(user)} because it wasn't cached.`);
-
-        cachedUser.lastCommand = lastCommand;
-    }
-
-    updateLastAnswered(user, lastAnswered) {
-        const cacheUser = this.get(user.id);
-
-        if (!cacheUser)
-            throw new Error(`Can't update lastAnswered of user ${Format.user(user)} because it wasn't cached.`);
-
-        cacheUser.lastAnswered = lastAnswered;
     }
 }
 

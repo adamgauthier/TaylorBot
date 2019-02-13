@@ -14,6 +14,11 @@ class RedisDriver {
         });
 
         this.get = promisify(this.redisClient.get).bind(this.redisClient);
+        this.setExpire = promisify(this.redisClient.setex).bind(this.redisClient);
+
+        this.delete = promisify(this.redisClient.del).bind(this.redisClient);
+        this.exists = promisify(this.redisClient.exists).bind(this.redisClient);
+
         this.setAdd = promisify(this.redisClient.sadd).bind(this.redisClient);
         this.setRemove = promisify(this.redisClient.srem).bind(this.redisClient);
         this.setIsMember = promisify(this.redisClient.sismember).bind(this.redisClient);

@@ -162,13 +162,10 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        registry.users.updateLastCommand(author, Date.now());
+        await registry.answeredCooldowns.addUnanswered(author);
 
         try {
             await command.run(commandContext, parsedArgs);
-            if (cachedCommand.command.maxDailyUseCount !== null) {
-                await registry.cooldowns.addDailyUseCount(author, cachedCommand);
-            }
         }
         catch (e) {
             if (e instanceof CommandError) {
@@ -179,7 +176,10 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
         finally {
-            registry.users.updateLastAnswered(author, Date.now());
+            await registry.answeredCooldowns.setAnswered(author);
+            if (cachedCommand.command.maxDailyUseCount !== null) {
+                await registry.cooldowns.addDailyUseCount(author, cachedCommand);
+            }
         }
     }
 }
