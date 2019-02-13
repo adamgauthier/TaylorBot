@@ -23,7 +23,7 @@ class PollCommand extends Command {
         });
     }
 
-    async run({ message: { author, channel }, client, messageContext: { guildSettings: { prefix } } }, { options }) {
+    async run({ message: { author, channel }, client, messageContext: { prefix } }, { options }) {
         const { watchers } = client.master.registry;
 
         const pollsWatcher = watchers.getWatcher('Polls');

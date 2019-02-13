@@ -13,9 +13,10 @@ const AttributeRegistry = require('./AttributeRegistry.js');
 const ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
 const CooldownRegistry = require('./CooldownRegistry.js');
 const AnsweredCooldownRegistry = require('./AnsweredCooldownRegistry.js');
+const HeistRegistry = require('./HeistRegistry.js');
 
 class Registry {
-    constructor(database, redis) {
+    constructor(database, redis, redisHeists) {
         this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
@@ -28,6 +29,7 @@ class Registry {
         this.channelCommands = new ChannelCommandRegistry(database, redis);
         this.cooldowns = new CooldownRegistry(redis);
         this.answeredCooldowns = new AnsweredCooldownRegistry(redis);
+        this.heists = new HeistRegistry(redisHeists);
     }
 
     async load() {

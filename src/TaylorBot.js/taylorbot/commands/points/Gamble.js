@@ -33,7 +33,7 @@ class GambleCommand extends Command {
         const won = roll >= 51;
 
         const { gambled_count, original_count, final_count } = await (won ?
-            client.master.database.gambleStats.winGambledTaypointCount(author, amount, 1) :
+            client.master.database.gambleStats.winGambledTaypointCount(author, amount, '1') :
             client.master.database.gambleStats.loseGambledTaypointCount(author, amount)
         );
 

@@ -1,1 +1,3 @@
-redis.pass
+*.name
+*.pass
+*.port

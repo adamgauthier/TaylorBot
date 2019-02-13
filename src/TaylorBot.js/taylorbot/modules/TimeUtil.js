@@ -13,6 +13,10 @@ class TimeUtil {
         return TimeUtil.wait(secondsToWait * 1000);
     }
 
+    static waitMinutes(minutesToWait) {
+        return TimeUtil.waitSeconds(minutesToWait * 60);
+    }
+
     static formatFull(unixTime) {
         const m = moment.utc(unixTime, 'x');
         return `${m.format('MMMM Do, YYYY \\at HH:mm:ss.SSS')} UTC (${m.fromNow()})`;

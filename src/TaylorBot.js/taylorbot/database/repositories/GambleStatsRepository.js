@@ -4,31 +4,15 @@ const Log = require('../../tools/Logger.js');
 const Format = require('../../modules/DiscordFormatter.js');
 
 class GambleStatsRepository {
-    constructor(db) {
+    constructor(db, usersDAO) {
         this._db = db;
+        this._usersDAO = usersDAO;
     }
 
     async loseGambledTaypointCount(userTo, amount) {
         try {
             return await this._db.tx(async t => {
-                const toRemove = amount.isRelative ?
-                    { query: 'FLOOR(taypoint_count / $[points_divisor])::bigint', params: { points_divisor: amount.divisor } } :
-                    { query: 'LEAST(taypoint_count, $[gamble_points])', params: { gamble_points: amount.count } };
-
-                const result = await t.one(
-                    `UPDATE users.users AS u
-                    SET taypoint_count = GREATEST(0, taypoint_count - ${toRemove.query})
-                    FROM (
-                        SELECT user_id, ${toRemove.query} AS gambled_count, taypoint_count AS original_count
-                        FROM users.users WHERE user_id = $[user_id] FOR UPDATE
-                    ) AS old_u
-                    WHERE u.user_id = old_u.user_id
-                    RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count, old_u.original_count - u.taypoint_count AS lost_count;`,
-                    {
-                        ...toRemove.params,
-                        user_id: userTo.id
-                    }
-                );
+                const result = await this._usersDAO.loseBet(t, userTo.id, amount);
 
                 await t.none(
                     `INSERT INTO users.gamble_stats (user_id, gamble_lose_count, gamble_lose_amount)
@@ -56,25 +40,7 @@ class GambleStatsRepository {
     async winGambledTaypointCount(userTo, amount, payoutMultiplier) {
         try {
             return await this._db.tx(async t => {
-                const toAdd = amount.isRelative ?
-                    { query: 'FLOOR(taypoint_count / $[points_divisor])::bigint', params: { points_divisor: amount.divisor } } :
-                    { query: 'LEAST(taypoint_count, $[gamble_points])', params: { gamble_points: amount.count } };
-
-                const result = await t.one(
-                    `UPDATE users.users AS u
-                    SET taypoint_count = taypoint_count + (${toAdd.query} * $[payout_multiplier])
-                    FROM (
-                        SELECT user_id, ${toAdd.query} AS gambled_count, taypoint_count AS original_count
-                        FROM users.users WHERE user_id = $[user_id] FOR UPDATE
-                    ) AS old_u
-                    WHERE u.user_id = old_u.user_id
-                    RETURNING old_u.gambled_count, old_u.original_count, u.taypoint_count AS final_count, u.taypoint_count - old_u.original_count AS payout_count;`,
-                    {
-                        ...toAdd.params,
-                        payout_multiplier: payoutMultiplier,
-                        user_id: userTo.id
-                    }
-                );
+                const result = await this._usersDAO.winBet(t, userTo.id, amount, payoutMultiplier);
 
                 await t.none(
                     `INSERT INTO users.gamble_stats (user_id, gamble_win_count, gamble_win_amount)
