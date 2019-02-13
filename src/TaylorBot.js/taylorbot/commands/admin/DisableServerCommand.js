@@ -4,11 +4,11 @@ const UserGroups = require('../../client/UserGroups.js');
 const Command = require('../Command.js');
 const CommandError = require('../CommandError.js');
 
-class DisableGuildCommandCommand extends Command {
+class DisableServerCommandCommand extends Command {
     constructor() {
         super({
-            name: 'disableguildcommand',
-            aliases: ['disableservercommand', 'dgc', 'dsc'],
+            name: 'disableservercommand',
+            aliases: ['disableguildcommand', 'dgc', 'dsc'],
             group: 'admin',
             description: 'Disables an enabled command in a server.',
             minimumGroup: UserGroups.Moderators,
@@ -51,4 +51,4 @@ class DisableGuildCommandCommand extends Command {
     }
 }
 
-module.exports = DisableGuildCommandCommand;
+module.exports = DisableServerCommandCommand;
