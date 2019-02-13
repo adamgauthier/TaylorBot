@@ -1,6 +1,6 @@
 {
   "name": "taylorbot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Discord bot created for the r/TaylorSwift Discord server",
   "main": "taylorbot.js",
   "dependencies": {
