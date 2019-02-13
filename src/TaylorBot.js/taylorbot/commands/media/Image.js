@@ -15,6 +15,7 @@ class ImageCommand extends Command {
             group: 'media',
             description: 'Searches images based on the search text provided.',
             examples: ['taylor swift', 'kanye west'],
+            maxDailyUseCount: 10,
             guildOnly: true,
 
             args: [
