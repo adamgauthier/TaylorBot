@@ -52,10 +52,14 @@ class CommandsWatcher extends MessageWatcher {
         try {
             await CommandsWatcher.runCommand(messageContext, cachedCommand, argString);
             registry.commands.addSuccessfulUseCount(cachedCommand);
-        } catch (e) {
-            await client.sendEmbedError(channel, `${author} Oops, an unknown command error occured. Sorry about that. 😕`);
+        }
+        catch (e) {
+            await client.sendEmbedError(channel, `${author} Oops, an unknown command error occurred. Sorry about that. 😕`);
             registry.commands.addUnhandledErrorCount(cachedCommand);
             throw e;
+        }
+        finally {
+            await registry.answeredCooldowns.setAnswered(author);
         }
     }
 
@@ -70,6 +74,7 @@ class CommandsWatcher extends MessageWatcher {
         }
 
         const { author, channel } = message;
+        await registry.answeredCooldowns.addUnanswered(author);
 
         for (const inhibitor of registry.inhibitors.getNoisyInhibitors()) {
             const blockedMessage = await inhibitor.getBlockedMessage(messageContext, cachedCommand, argString);
@@ -162,8 +167,6 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        await registry.answeredCooldowns.addUnanswered(author);
-
         try {
             await command.run(commandContext, parsedArgs);
         }
@@ -176,7 +179,6 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
         finally {
-            await registry.answeredCooldowns.setAnswered(author);
             if (cachedCommand.command.maxDailyUseCount !== null) {
                 await registry.cooldowns.addDailyUseCount(author, cachedCommand);
             }
