@@ -24,11 +24,12 @@ class LastFmPresentor {
         embed.author.name = lastFmUser.user;
         embed.author.url = `https://www.last.fm/user/${lastFmUser.user}`;
 
-        if (recentTracks.track.length === 0) {
-            return embed.setDescription(`This user doesn't have any scrobbles.`);
+        const mostRecentTrack = recentTracks.track[0];
+
+        if (!mostRecentTrack) {
+            return embed.setDescription(`Last.fm user '${lastFmUser.user}' doesn't have any scrobbles.`);
         }
 
-        const mostRecentTrack = recentTracks.track[0];
         const imageUrl = mostRecentTrack.image[2]['#text'] || mostRecentTrack.artist.image[2]['#text'];
         const isNowPlaying = mostRecentTrack['@attr'] && mostRecentTrack['@attr'].nowplaying;
 
