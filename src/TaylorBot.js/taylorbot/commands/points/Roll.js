@@ -25,7 +25,7 @@ class RollCommand extends Command {
         const roll = await RandomModule.getRandIntInclusive(0, 1989);
 
         const { color, reward } = await (async () => {
-            const rewards = { 13: 1, 15: 2, 22: 3, 1989: 5000 };
+            const rewards = { 13: 100, 15: 100, 22: 100, 1989: 5000 };
             switch (roll) {
                 case 13:
                 case 15:
