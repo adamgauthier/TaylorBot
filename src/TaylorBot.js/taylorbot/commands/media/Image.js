@@ -33,7 +33,7 @@ class ImageCommand extends Command {
         const { author, channel } = message;
 
         const {
-            error, items, searchInformation, totalResults
+            error, items, searchInformation
         } = await GoogleImagesModule.search(search, 10);
 
         if (error) {
@@ -43,8 +43,9 @@ class ImageCommand extends Command {
                 throw new CommandError(`Something went wrong while querying Google Images, sorry about that. 😕`);
         }
 
-        if (totalResults === '0')
+        if (searchInformation.totalResults === '0' || !items) {
             throw new CommandError(`No results found for search '${search}'.`);
+        }
 
         const embed = DiscordEmbedFormatter
             .baseUserEmbed(author)
