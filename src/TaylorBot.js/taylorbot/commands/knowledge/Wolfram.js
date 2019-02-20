@@ -13,6 +13,7 @@ class WolframCommand extends Command {
             group: 'knowledge',
             description: 'Search on Wolfram|Alpha!',
             examples: ['convert 5km to miles', 'how many stars are there'],
+            maxDailyUseCount: 10,
 
             args: [
                 {
