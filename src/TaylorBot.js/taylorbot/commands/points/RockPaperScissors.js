@@ -14,6 +14,7 @@ class RockPaperScissorsCommand extends Command {
             group: 'points',
             description: 'Play a game of rock paper scissors with the bot. If you win, you gain 1 taypoint.',
             examples: ['rock', 'paper', 'scissors'],
+            maxDailyUseCount: 6000,
 
             args: [
                 {
