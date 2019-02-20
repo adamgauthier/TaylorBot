@@ -10,6 +10,7 @@ class SetUserAttributeCommand extends Command {
             group: 'attributes',
             description: `Sets your ${attribute.description}.`,
             examples: [attribute.value.example],
+            maxDailyUseCount: attribute.value.maxDailySetCount || null,
 
             args: [
                 {

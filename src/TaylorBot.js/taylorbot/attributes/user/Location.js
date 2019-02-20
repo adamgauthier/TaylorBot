@@ -14,7 +14,8 @@ class LocationAttribute extends SettableUserAttribute {
             value: {
                 label: 'location',
                 type: 'google-place',
-                example: 'Nashville'
+                example: 'Nashville',
+                maxDailySetCount: 3
             },
             presentor: LocationPresentor
         });
