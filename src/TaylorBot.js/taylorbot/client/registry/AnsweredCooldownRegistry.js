@@ -8,7 +8,7 @@ class AnsweredCooldownRegistry {
     }
 
     key(user) {
-        return `unanswered:${user.id}`;
+        return `unanswered:user:${user.id}`;
     }
 
     addUnanswered(user) {

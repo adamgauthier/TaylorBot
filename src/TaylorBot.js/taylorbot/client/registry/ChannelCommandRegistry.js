@@ -9,7 +9,7 @@ class ChannelCommandRegistry {
     }
 
     key(guildId, channelId) {
-        return `${guildId}:${channelId}`;
+        return `disabled-commands:guild:${guildId}:channel:${channelId}`;
     }
 
     async cacheChannelCommands() {
