@@ -14,6 +14,7 @@ class YoutubeCommand extends Command {
             group: 'media',
             description: 'Searches YouTube for videos.',
             examples: ['taylor swift begin again', 'brockhampton gold'],
+            maxDailyUseCount: 100,
 
             args: [
                 {
