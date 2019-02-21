@@ -12,6 +12,7 @@ class WikipediaCommand extends Command {
             group: 'knowledge',
             description: 'Search on Wikipedia!',
             examples: ['taylor swift', 'canada'],
+            maxDailyUseCount: 100,
 
             args: [
                 {
