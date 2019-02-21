@@ -14,6 +14,7 @@ class SubRedditCommand extends Command {
             group: 'media',
             description: 'Gets info on a subreddit!',
             examples: ['taylorswift'],
+            maxDailyUseCount: 100,
 
             args: [
                 {
