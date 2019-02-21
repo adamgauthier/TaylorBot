@@ -2,6 +2,7 @@
 
 const Log = require('../../tools/Logger.js');
 const Format = require('../../modules/DiscordFormatter.js');
+const BigIntMath = require('../../modules/bigint/BigIntMath.js');
 
 class DailyPayoutRepository {
     constructor(db, usersDAO) {
@@ -26,10 +27,10 @@ class DailyPayoutRepository {
         }
     }
 
-    async giveDailyPay(user, payoutCount, streakForBonus, bonusCount) {
+    async giveDailyPay(user, payoutCount, daysForBonus, baseBonusCount, increasingBonusMultiplier) {
         try {
             return await this._db.tx(async t => {
-                const { streak_count } = await this._db.one(
+                const { streak_count, bonus_reward } = await this._db.one(
                     `INSERT INTO users.daily_payouts (user_id)
                     VALUES ($[user_id])
                     ON CONFLICT (user_id) DO UPDATE SET
@@ -39,22 +40,26 @@ class DailyPayoutRepository {
                             THEN daily_payouts.streak_count + 1
                             ELSE 1
                         END)
-                    RETURNING *;`,
+                    RETURNING streak_count, CASE
+                        WHEN streak_count % $[days_for_bonus] = 0
+                        THEN ($[base_bonus] + $[bonus_multiplier] * SQRT(streak_count))::bigint
+                        ELSE 0
+                    END AS bonus_reward;`,
                     {
-                        user_id: user.id
+                        user_id: user.id,
+                        days_for_bonus: daysForBonus,
+                        base_bonus: baseBonusCount,
+                        bonus_multiplier: increasingBonusMultiplier
                     }
                 );
 
-                const bonusPayoutCount =
-                    global.BigInt(streak_count) % global.BigInt(streakForBonus) === global.BigInt(0) ? bonusCount : 0;
-
-                const [{ taypoint_count }] = await this._usersDAO.addTaypointCount(t, [user], payoutCount + bonusPayoutCount);
+                const [{ taypoint_count }] = await this._usersDAO.addTaypointCount(t, [user], (global.BigInt(payoutCount) + global.BigInt(bonus_reward)).toString());
 
                 return {
                     taypoint_count,
                     streak_count,
                     payoutCount,
-                    bonusPayoutCount
+                    bonus_reward
                 };
             });
         }

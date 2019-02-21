@@ -10,7 +10,8 @@ const TimeUtil = require('../../modules/TimeUtil.js');
 
 const PAYOUT_POINTS = 50;
 const STREAK_FOR_BONUS = 5;
-const BONUS_POINTS = 50;
+const BASE_BONUS_POINTS = 41;
+const INCREASING_BONUS_MULTIPLIER = 4;
 
 class DailyPayoutCommand extends Command {
     constructor() {
@@ -43,15 +44,15 @@ class DailyPayoutCommand extends Command {
             taypoint_count,
             streak_count,
             payoutCount,
-            bonusPayoutCount
-        } = await database.dailyPayouts.giveDailyPay(author, PAYOUT_POINTS, STREAK_FOR_BONUS, BONUS_POINTS);
+            bonus_reward
+        } = await database.dailyPayouts.giveDailyPay(author, PAYOUT_POINTS, STREAK_FOR_BONUS, BASE_BONUS_POINTS, INCREASING_BONUS_MULTIPLIER);
 
         const nextStreak = (global.BigInt(streak_count) - global.BigInt(streak_count) % global.BigInt(STREAK_FOR_BONUS)) + global.BigInt(STREAK_FOR_BONUS);
 
         return client.sendEmbed(channel, DiscordEmbedFormatter
             .baseUserEmbed(author)
             .setDescription([
-                `You redeemed ${StringUtil.plural(payoutCount, 'taypoint', '**')} + ${StringUtil.plural(bonusPayoutCount, 'bonus taypoint', '**')}. ` +
+                `You redeemed ${StringUtil.plural(payoutCount, 'taypoint', '**')} + ${StringUtil.plural(bonus_reward, 'bonus taypoint', '**')}. ` +
                 `You now have **${taypoint_count}**. 💰`,
                 `Bonus streak: **${streak_count}**/**${nextStreak}**. Don't miss a day and get a bonus! See you tomorrow! 😄`
             ].join('\n'))
