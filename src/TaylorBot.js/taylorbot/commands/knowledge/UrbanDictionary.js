@@ -15,6 +15,7 @@ class UrbanDictionaryCommand extends Command {
             group: 'knowledge',
             description: 'Search on UrbanDictionary!',
             examples: ['ffs', 'tea'],
+            maxDailyUseCount: 100,
 
             args: [
                 {
