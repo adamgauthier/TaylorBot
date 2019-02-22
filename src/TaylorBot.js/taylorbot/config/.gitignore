@@ -9,6 +9,6 @@ myapifilms.json
 postgresql.json
 lastfm.json
 darksky.json
-redis.json
 patreon.json
+redis-commands.json
 redis-heists.json

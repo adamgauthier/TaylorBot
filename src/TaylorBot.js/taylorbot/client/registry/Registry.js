@@ -16,7 +16,7 @@ const AnsweredCooldownRegistry = require('./AnsweredCooldownRegistry.js');
 const HeistRegistry = require('./HeistRegistry.js');
 
 class Registry {
-    constructor(database, redis, redisHeists) {
+    constructor(database, redisCommands, redisHeists) {
         this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
@@ -26,9 +26,9 @@ class Registry {
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
         this.commands = new CommandRegistry(database);
         this.users = new UserRegistry(database);
-        this.channelCommands = new ChannelCommandRegistry(database, redis);
-        this.cooldowns = new CooldownRegistry(redis);
-        this.answeredCooldowns = new AnsweredCooldownRegistry(redis);
+        this.channelCommands = new ChannelCommandRegistry(database, redisCommands);
+        this.cooldowns = new CooldownRegistry(redisCommands);
+        this.answeredCooldowns = new AnsweredCooldownRegistry(redisCommands);
         this.heists = new HeistRegistry(redisHeists);
     }
 
