@@ -14,7 +14,6 @@ const GuildMemberRepository = require('./repositories/GuildMemberRepository.js')
 const UsernameRepository = require('./repositories/UsernameRepository.js');
 const GuildNameRepository = require('./repositories/GuildNameRepository.js');
 const InstagramCheckerRepository = require('./repositories/InstagramCheckerRepository.js');
-const RedditCheckerRepository = require('./repositories/RedditCheckerRepository.js');
 const YoutubeCheckerRepository = require('./repositories/YoutubeCheckerRepository.js');
 const TumblrCheckerRepository = require('./repositories/TumblrCheckerRepository.js');
 const GuildCommandRepository = require('./repositories/GuildCommandRepository.js');
@@ -50,7 +49,6 @@ class DatabaseDriver {
         this.usernames = new UsernameRepository(this._db);
         this.guildNames = new GuildNameRepository(this._db);
         this.instagramCheckers = new InstagramCheckerRepository(this._db);
-        this.redditCheckers = new RedditCheckerRepository(this._db);
         this.youtubeCheckers = new YoutubeCheckerRepository(this._db);
         this.tumblrCheckers = new TumblrCheckerRepository(this._db);
         this.guildCommands = new GuildCommandRepository(this._db);

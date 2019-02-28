@@ -30,3 +30,6 @@ CREATE TABLE attributes.birthdays
 ALTER TABLE attributes.birthdays OWNER to postgres;
 
 GRANT ALL ON TABLE attributes.birthdays TO taylorbot;
+
+ALTER TABLE checkers.reddit_checker
+    ALTER COLUMN last_created TYPE timestamp with time zone USING TO_TIMESTAMP(last_created);

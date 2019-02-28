@@ -1,9 +1,11 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Core.Client
 {
@@ -35,6 +37,16 @@ namespace TaylorBot.Net.Core.Client
         {
             logger.Log(logSeverityToLogLevelMapper.MapFrom(log.Severity), LogString.From(log.ToString(prependTimestamp: false)));
             return Task.CompletedTask;
+        }
+
+        public SocketGuild ResolveRequiredGuild(SnowflakeId id)
+        {
+            var guild = DiscordShardedClient.GetGuild(id.Id);
+            if (guild == null)
+            {
+                throw new InvalidOperationException($"Could not resolve Guild ID {id}.");
+            }
+            return guild;
         }
     }
 }

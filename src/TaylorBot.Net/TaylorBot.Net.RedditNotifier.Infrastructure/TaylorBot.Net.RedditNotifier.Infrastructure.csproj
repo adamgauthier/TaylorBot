@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

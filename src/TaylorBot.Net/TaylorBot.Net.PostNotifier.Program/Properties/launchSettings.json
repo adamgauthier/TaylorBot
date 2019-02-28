@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TaylorBot.Net.PostNotifier.Program": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "taylorbot:Environment": "development"
+      }
+    }
+  }
+}
