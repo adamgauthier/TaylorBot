@@ -2,15 +2,13 @@
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Program.Events;
-using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.RedditNotifier.Domain;
 
 namespace TaylorBot.Net.PostNotifier.Program.Events
 {
-    public class ReadyHandler : IReadyHandler
+    public class ReadyHandler : IShardReadyHandler
     {
         private readonly ILogger<ReadyHandler> logger;
         private readonly TaylorBotClient taylorBotClient;
@@ -25,12 +23,8 @@ namespace TaylorBot.Net.PostNotifier.Program.Events
             this.redditNotiferApplicationService = redditNotiferApplicationService;
         }
 
-        public Task ReadyAsync(DiscordSocketClient shardClient)
+        public Task ShardReadyAsync(DiscordSocketClient shardClient)
         {
-            logger.LogInformation(LogString.From(
-                $"Shard Number {shardClient.ShardId} is ready! Serving {"guild".DisplayCount(shardClient.Guilds.Count)} out of {taylorBotClient.DiscordShardedClient.Guilds.Count}."
-            ));
-
             singletonTaskRunner.StartTaskIfNotStarted(async () => await redditNotiferApplicationService.StartRedditCheckerAsync());
 
             return Task.CompletedTask;

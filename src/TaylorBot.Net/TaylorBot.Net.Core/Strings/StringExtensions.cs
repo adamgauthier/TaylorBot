@@ -22,5 +22,20 @@ namespace TaylorBot.Net.Core.Strings
         {
             return $"{surroundWith}{count}{surroundWith} {(count != 1 ? singularWord.Pluralize() : singularWord)}";
         }
+
+        public static string DisplayCount(this string singularWord, uint count, string surroundWith = "")
+        {
+            return $"{surroundWith}{count}{surroundWith} {(count != 1 ? singularWord.Pluralize() : singularWord)}";
+        }
+
+        public static string DisplayCount(this string singularWord, long count, string surroundWith = "")
+        {
+            return $"{surroundWith}{count}{surroundWith} {(count != 1 ? singularWord.Pluralize() : singularWord)}";
+        }
+
+        public static string DisplayCount(this string singularWord, ulong count, string surroundWith = "")
+        {
+            return $"{surroundWith}{count}{surroundWith} {(count != 1 ? singularWord.Pluralize() : singularWord)}";
+        }
     }
 }

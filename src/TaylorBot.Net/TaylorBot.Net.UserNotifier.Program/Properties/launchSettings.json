@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TaylorBot.Net.UserNotifier.Program": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "taylorbot:Environment": "Development"
+      }
+    }
+  }
+}

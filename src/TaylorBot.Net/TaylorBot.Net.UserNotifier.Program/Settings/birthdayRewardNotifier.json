@@ -1,0 +1,7 @@
+﻿{
+  "BirthdayRewardNotifier": {
+    "RewardAmount": 0,
+    "TimeSpanBetweenRewards": "1.02:03:04",
+    "TimeSpanBetweenMessages": "1.02:03:04"
+  }
+}

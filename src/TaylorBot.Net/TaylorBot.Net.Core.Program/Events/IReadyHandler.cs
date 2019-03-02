@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Core.Program.Events
 {
-    public interface IReadyHandler
+    public interface IShardReadyHandler
     {
-        Task ReadyAsync(DiscordSocketClient shardClient);
+        Task ShardReadyAsync(DiscordSocketClient shardClient);
     }
 }

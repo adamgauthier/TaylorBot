@@ -19,9 +19,17 @@ namespace TaylorBot.Net.Core.Program
         {
             var client = serviceProvider.GetRequiredService<TaylorBotClient>();
 
-            var readyHandler = serviceProvider.GetService<IReadyHandler>();
-            if (readyHandler != null)
-                client.DiscordShardedClient.ShardReady += readyHandler.ReadyAsync;
+            var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
+            if (shardReadyHandler != null)
+            {
+                client.DiscordShardedClient.ShardReady += shardReadyHandler.ShardReadyAsync;
+            }
+
+            var allReadyHandler = serviceProvider.GetService<IAllReadyHandler>();
+            if (allReadyHandler != null)
+            {
+                client.AllShardsReady += allReadyHandler.AllShardsReadyAsync;
+            }
 
             // Wait 5 seconds to login in case of a boot loop
             await Task.Delay(new TimeSpan(0, 0, 5));

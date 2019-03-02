@@ -1,11 +1,10 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Options;
-using Npgsql;
 using Reddit.Controllers;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.RedditNotifier.Domain;
@@ -13,24 +12,10 @@ using TaylorBot.Net.RedditNotifier.Infrastructure.Models;
 
 namespace TaylorBot.Net.RedditNotifier.Infrastructure
 {
-    public class RedditCheckerRepository : IRedditCheckerRepository
+    public class RedditCheckerRepository : PostgresRepository, IRedditCheckerRepository
     {
-        private IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor;
-
-        public RedditCheckerRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor)
+        public RedditCheckerRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
         {
-            this.optionsMonitor = optionsMonitor;
-        }
-
-        private IDbConnection Connection
-        {
-            get
-            {
-                var options = optionsMonitor.CurrentValue;
-                return new NpgsqlConnection(
-                    $"Server={options.Host};Port={options.Port};Username={options.Username};Password={options.Password};Database={options.Database}"
-                );
-            }
         }
 
         public async Task<IEnumerable<RedditChecker>> GetRedditCheckersAsync()

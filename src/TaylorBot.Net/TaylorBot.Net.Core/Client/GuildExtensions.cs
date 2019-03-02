@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Core.Client
             var channel = socketGuild.GetTextChannel(id.Id);
             if (channel == null)
             {
-                throw new InvalidOperationException($"Could not resolve Text Channel ID {id}.");
+                throw new ArgumentException($"Could not resolve Text Channel ID {id}.");
             }
             return channel;
         }

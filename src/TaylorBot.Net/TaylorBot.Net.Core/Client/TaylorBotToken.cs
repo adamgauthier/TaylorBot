@@ -1,4 +1,4 @@
-﻿namespace TaylorBot.Net.Core.Configuration
+﻿namespace TaylorBot.Net.Core.Client
 {
     public class TaylorBotToken
     {

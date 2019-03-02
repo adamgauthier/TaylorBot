@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using TaylorBot.Net.Core.Program.Environment;
+using TaylorBot.Net.Core.Environment;
 
 namespace TaylorBot.Net.Core.Program.Extensions
 {

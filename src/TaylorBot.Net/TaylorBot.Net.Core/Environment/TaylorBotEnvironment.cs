@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TaylorBot.Net.Core.Program.Environment
+namespace TaylorBot.Net.Core.Environment
 {
     public class TaylorBotEnvironment
     {

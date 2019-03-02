@@ -2,7 +2,6 @@
 
 const Log = require('../../tools/Logger.js');
 const Format = require('../../modules/DiscordFormatter.js');
-const BigIntMath = require('../../modules/bigint/BigIntMath.js');
 
 class DailyPayoutRepository {
     constructor(db, usersDAO) {
