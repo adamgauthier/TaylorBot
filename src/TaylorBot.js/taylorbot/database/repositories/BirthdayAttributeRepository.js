@@ -23,6 +23,21 @@ class BirthdayAttributeRepository {
         }
     }
 
+    async getZodiac(user) {
+        try {
+            return await this._db.oneOrNone(
+                `SELECT zodiac(birthday) FROM attributes.birthdays WHERE user_id = $[user_id];`,
+                {
+                    user_id: user.id
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting zodiac birthday attribute for user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
+
     async set(user, birthdayString) {
         try {
             return await this._db.one(
