@@ -22,7 +22,8 @@ class AgePresentor {
                 .setDescription([
                     `${user.username} is **${age.integer_value}** years old.`,
                     `⚠ This user has set their age manually so it might be outdated. ⚠`,
-                    `Please use \`${context.usage()}\`, your age will automatically update and you will get points on your birthday every year! 🎈`
+                    `Please use \`${context.usage()}\`, your age will automatically update and you will get points on your birthday every year! 🎈`,
+                    `If you don't want to share your exact birthday but still want the points as well as horoscope and age commands, use \`setprivatebirthday\` in DMs. 🕵️‍`
                 ].join('\n'));
         }
 
@@ -36,7 +37,8 @@ class AgePresentor {
                 .setColor('#f04747')
                 .setDescription([
                     `I don't know how old ${user.username} is because their birthday was set without a year. 😕`,
-                    `Please use \`${context.usage()}\`, your age will automatically update and you will get points on your birthday every year! 🎈`
+                    `Please use \`${context.usage()}\`, your age will automatically update and you will get points on your birthday every year! 🎈`,
+                    `If you don't want to share your exact birthday but still want the points as well as horoscope and age commands, use \`setprivatebirthday\` in DMs. 🕵️‍`
                 ].join('\n'));
         }
 

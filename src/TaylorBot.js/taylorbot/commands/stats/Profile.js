@@ -29,13 +29,23 @@ class ProfileCommand extends Command {
         const { master: { database } } = client;
 
         const genderAttribute = await database.textAttributes.get('gender', user);
+        const birthdayAttribute = await database.birthdays.get(user);
         const ageAttribute = await database.integerAttributes.get('age', user);
         const locationAttribute = await database.locationAttributes.get(user);
+
+        const parsedBirthday = birthdayAttribute ? moment.utc(birthdayAttribute.birthday, 'YYYY-MM-DD') : null;
 
         return client.sendEmbed(message.channel,
             DiscordEmbedFormatter
                 .baseUserEmbed(user)
-                .addField('Age', ageAttribute ? ageAttribute.integer_value : 'Not Set 🚫', true)
+                .addField('Age',
+                    birthdayAttribute && parsedBirthday.year() !== 1804 ?
+                        moment.utc().diff(parsedBirthday, 'years') :
+                        ageAttribute ?
+                            `${ageAttribute.integer_value} ⚠` :
+                            'Not Set 🚫',
+                    true
+                )
                 .addField('Gender', genderAttribute ? genderAttribute.attribute_value : 'Not Set 🚫', true)
                 .addField('Location',
                     locationAttribute ?

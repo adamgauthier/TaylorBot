@@ -21,6 +21,7 @@ CREATE TABLE attributes.birthdays
     user_id text NOT NULL,
     birthday date NOT NULL,
     last_reward_at timestamp with time zone DEFAULT NULL,
+    is_private boolean,
     PRIMARY KEY (user_id),
     CONSTRAINT user_id_fk FOREIGN KEY (user_id)
         REFERENCES users.users (user_id) MATCH SIMPLE

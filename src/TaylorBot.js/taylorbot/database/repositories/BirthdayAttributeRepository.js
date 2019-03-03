@@ -11,7 +11,7 @@ class BirthdayAttributeRepository {
     async get(user) {
         try {
             return await this._db.oneOrNone(
-                `SELECT birthday::text FROM attributes.birthdays WHERE user_id = $[user_id];`,
+                `SELECT birthday::text, is_private FROM attributes.birthdays WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
                 }
@@ -38,22 +38,24 @@ class BirthdayAttributeRepository {
         }
     }
 
-    async set(user, birthdayString) {
+    async set(user, birthdayString, isPrivate) {
         try {
             return await this._db.one(
-                `INSERT INTO attributes.birthdays (user_id, birthday)
-                VALUES ($[user_id], date $[birthday_string])
-                ON CONFLICT (user_id) DO UPDATE
-                  SET birthday = excluded.birthday
-                RETURNING user_id, birthday::text;`,
+                `INSERT INTO attributes.birthdays (user_id, birthday, is_private)
+                VALUES ($[user_id], date $[birthday_string], $[is_private])
+                ON CONFLICT (user_id) DO UPDATE SET
+                    birthday = excluded.birthday,
+                    is_private = excluded.is_private
+                RETURNING user_id, birthday::text, is_private;`,
                 {
                     user_id: user.id,
-                    birthday_string: birthdayString
+                    birthday_string: birthdayString,
+                    is_private: !!isPrivate
                 }
             );
         }
         catch (e) {
-            Log.error(`Setting birthday attribute to '${birthdayString}' for user ${Format.user(user)}: ${e}`);
+            Log.error(`Setting birthday attribute to '${birthdayString}', private ${isPrivate} for user ${Format.user(user)}: ${e}`);
             throw e;
         }
     }
@@ -91,7 +93,8 @@ class BirthdayAttributeRepository {
                     date_part('month', birthday)::int,
                     date_part('day', birthday)::int
                 ) AS normalized_birthday
-                WHERE user_id IN (
+                WHERE is_private = FALSE
+                AND user_id IN (
                    SELECT user_id
                    FROM guilds.guild_members
                    WHERE guild_id = $[guild_id] AND alive = TRUE

@@ -25,11 +25,15 @@ class BirthdayUserAttribute extends SettableUserAttribute {
         return database.birthdays.get(user);
     }
 
-    async set(database, user, value) {
-        if (value.year() === 1804) {
-            const age = await database.integerAttributes.get('age', user);
-            if (age) {
-                await database.integerAttributes.clear('age', user);
+    set(database, user, value) {
+        return this.setBirthday(database, user, value, false);
+    }
+
+    async setBirthday(database, user, value, isPrivate) {
+        const age = await database.integerAttributes.get('age', user);
+        if (age) {
+            await database.integerAttributes.clear('age', user);
+            if (value.year() === 1804) {
                 const now = moment.utc();
                 if (now.isBefore(value.year(now.year()))) {
                     value.year(now.year() - (age.integer_value + 1));
@@ -40,7 +44,7 @@ class BirthdayUserAttribute extends SettableUserAttribute {
             }
         }
 
-        return database.birthdays.set(user, value.format('YYYY-MM-DD'));
+        return database.birthdays.set(user, value.format('YYYY-MM-DD'), isPrivate);
     }
 
     list(database, guild, entries) {
@@ -56,7 +60,7 @@ class BirthdayUserAttribute extends SettableUserAttribute {
 
         const parsed = moment.utc(birthdayString, 'YYYY-MM-DD');
 
-        return parsed.format('MMMM Do');
+        return attribute.is_private ? `This user's birthday is private` : parsed.format('MMMM Do');
     }
 }
 

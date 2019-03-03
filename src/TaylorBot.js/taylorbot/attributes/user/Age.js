@@ -39,7 +39,8 @@ class AgeAttribute extends SettableUserAttribute {
 
         throw new CommandError([
             `Setting age directly is no longer supported, please use \`${context.usage()}\`. ⚠`,
-            `This way, your age will automatically update and you will get points on your birthday every year! 🎈`
+            `This way, your age will automatically update and you will get points on your birthday every year! 🎈`,
+            `If you don't want to share your exact birthday but still want the points as well as horoscope and age commands, use \`setprivatebirthday\` in DMs. 🕵️‍`
         ].join('\n'));
     }
 
