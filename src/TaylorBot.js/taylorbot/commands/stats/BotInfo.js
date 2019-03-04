@@ -30,8 +30,8 @@ class BotInfoCommand extends Command {
             .addField('User Store', client.users.size, true)
             .addField('Channel Store', client.channels.size, true)
             .addField('Author', `<@${MASTER_ID}>`, true)
-            .addField('Language', 'javascript', true)
-            .addField('Library', 'discord.js', true);
+            .addField('Language', 'javascript + C#', true)
+            .addField('Library', 'discord.js + Discord.Net', true);
 
         return client.sendEmbed(message.channel, embed);
     }
