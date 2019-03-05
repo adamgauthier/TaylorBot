@@ -9,6 +9,14 @@ const ArgumentParsingError = require('../ArgumentParsingError.js');
 const MIN_AGE = 13;
 const MAX_AGE = 115;
 
+const PARSING_FORMATS_IN_ORDER = [
+    'YYYY-MM-DD', 'YYYY/MM/DD', 'YYYY.MM.DD',
+    'DD-MM-YYYY', 'DD/MM/YYYY', 'DD.MM.YYYY',
+    'MM-DD-YYYY', 'MM/DD/YYYY', 'MM.DD.YYYY',
+    'MM-DD', 'MM/DD', 'MM.DD',
+    'DD-MM', 'DD/MM', 'DD.MM'
+];
+
 class BirthdayArgumentType extends TextArgumentType {
     get id() {
         return 'birthday';
@@ -34,17 +42,12 @@ class BirthdayArgumentType extends TextArgumentType {
     }
 
     parseDate(text) {
-        const withYear = moment.utc(text, 'YYYY-MM-DD', true);
-        if (withYear.isValid())
-            return withYear;
-
-        const withoutYear = moment.utc(text, 'MM-DD', true);
-        if (withoutYear.isValid())
-            return withoutYear;
-
-        const withoutYearReversed = moment.utc(text, 'DD-MM', true);
-        if (withoutYearReversed.isValid())
-            return withoutYearReversed;
+        for (const format of PARSING_FORMATS_IN_ORDER) {
+            const parsed = moment.utc(text, format, true);
+            if (parsed.isValid()) {
+                return parsed;
+            }
+        }
 
         const sherlocked = Sherlock.parse(text);
 
