@@ -75,6 +75,30 @@ class BirthdayAttributeRepository {
         }
     }
 
+    async getAgeStatsInGuild(guild) {
+        try {
+            return await this._db.oneOrNone(
+                `SELECT ROUND(AVG(human_age), 2) AS avg, ROUND(MEDIAN(human_age), 2) AS median
+                FROM (
+                    SELECT date_part('year', age(birthday))::int AS human_age
+                    FROM attributes.birthdays
+                    WHERE date_part('year', birthday)::int != 1804 AND user_id IN (
+                        SELECT user_id
+                        FROM guilds.guild_members
+                        WHERE guild_id = $[guild_id] AND alive = TRUE
+                    )
+                ) AS ages;`,
+                {
+                    guild_id: guild.id
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting age stats for guild ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
     async getUpcomingInGuild(guild, limit) {
         try {
             return await this._db.any(
