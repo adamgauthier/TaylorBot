@@ -18,6 +18,11 @@ namespace TaylorBot.Net.Core.Strings
             return toTruncate.Substring(0, maxLength) + suffix;
         }
 
+        public static string EscapeNewLines(this string toEscape)
+        {
+            return toEscape.Replace("\n", @"\n");
+        }
+
         public static string DisplayCount(this string singularWord, int count, string surroundWith = "")
         {
             return $"{surroundWith}{count}{surroundWith} {(count != 1 ? singularWord.Pluralize() : singularWord)}";

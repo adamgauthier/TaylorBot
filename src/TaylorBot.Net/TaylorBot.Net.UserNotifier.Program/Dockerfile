@@ -9,6 +9,8 @@ COPY ./TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./TaylorBot.
 COPY ./TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj ./TaylorBot.Net.UserNotifier.Program/
 COPY ./TaylorBot.Net.BirthdayReward.Domain/TaylorBot.Net.BirthdayReward.Domain.csproj ./TaylorBot.Net.BirthdayReward.Domain/
 COPY ./TaylorBot.Net.BirthdayReward.Infrastructure/TaylorBot.Net.BirthdayReward.Infrastructure.csproj ./TaylorBot.Net.BirthdayReward.Infrastructure/
+COPY ./TaylorBot.Net.Reminder.Domain/TaylorBot.Net.Reminder.Domain.csproj ./TaylorBot.Net.Reminder.Domain/
+COPY ./TaylorBot.Net.Reminder.Infrastructure/TaylorBot.Net.Reminder.Infrastructure.csproj ./TaylorBot.Net.Reminder.Infrastructure/
 
 RUN dotnet restore
 

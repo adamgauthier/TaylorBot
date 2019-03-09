@@ -21,6 +21,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.BirthdayRewar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.BirthdayReward.Infrastructure", "TaylorBot.Net.BirthdayReward.Infrastructure\TaylorBot.Net.BirthdayReward.Infrastructure.csproj", "{2F0CA9FB-F6E5-48C8-8CD0-27EDE0E330B3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Reminder.Domain", "TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj", "{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Reminder.Infrastructure", "TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj", "{557F2247-A418-4C09-827B-3C4F682CA290}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{2F0CA9FB-F6E5-48C8-8CD0-27EDE0E330B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F0CA9FB-F6E5-48C8-8CD0-27EDE0E330B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F0CA9FB-F6E5-48C8-8CD0-27EDE0E330B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{557F2247-A418-4C09-827B-3C4F682CA290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{557F2247-A418-4C09-827B-3C4F682CA290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{557F2247-A418-4C09-827B-3C4F682CA290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{557F2247-A418-4C09-827B-3C4F682CA290}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,16 +8,6 @@ class ReminderRepository {
         this._db = db;
     }
 
-    async getAll() {
-        try {
-            return await this._db.any('SELECT * FROM users.reminders;');
-        }
-        catch (e) {
-            Log.error(`Getting all reminders: ${e}`);
-            throw e;
-        }
-    }
-
     async fromUser(user) {
         try {
             return await this._db.any(
@@ -47,19 +37,6 @@ class ReminderRepository {
         }
         catch (e) {
             Log.error(`Adding reminder for user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async remove(reminderId) {
-        try {
-            return await this._db.oneOrNone(
-                'DELETE FROM users.reminders WHERE reminder_id = $[reminder_id] RETURNING *;',
-                { reminder_id: reminderId }
-            );
-        }
-        catch (e) {
-            Log.error(`Removing reminder ${reminderId}: ${e}`);
             throw e;
         }
     }

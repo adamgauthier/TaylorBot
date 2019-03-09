@@ -13,6 +13,10 @@ using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
+using TaylorBot.Net.Reminder.Domain.Options;
+using TaylorBot.Net.Reminder.Domain;
+using TaylorBot.Net.Reminder.Domain.DiscordEmbed;
+using TaylorBot.Net.Reminder.Infrastructure;
 
 namespace TaylorBot.Net.UserNotifier.Program
 {
@@ -34,6 +38,7 @@ namespace TaylorBot.Net.UserNotifier.Program
                 .AddTaylorBotApplicationConfiguration(environment)
                 .AddDatabaseConnectionConfiguration(environment)
                 .AddJsonFile(path: $"Settings/birthdayRewardNotifier.{environment}.json", optional: false)
+                .AddJsonFile(path: $"Settings/reminderNotifier.{environment}.json", optional: false)
                 .Build();
 
             return new ServiceCollection()
@@ -41,11 +46,15 @@ namespace TaylorBot.Net.UserNotifier.Program
                 .AddTaylorBotApplicationLogging(config)
                 .ConfigureDatabaseConnection(config)
                 .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")
+                .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
                 .AddTransient<IAllReadyHandler, ReadyHandler>()
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IBirthdayRepository, BirthdayRepository>()
                 .AddTransient<BirthdayRewardNotifierDomainService>()
                 .AddTransient<BirthdayRewardEmbedFactory>()
+                .AddTransient<IReminderRepository, ReminderRepository>()
+                .AddTransient<ReminderNotifierDomainService>()
+                .AddTransient<ReminderEmbedFactory>()
                 .BuildServiceProvider();
         }
     }

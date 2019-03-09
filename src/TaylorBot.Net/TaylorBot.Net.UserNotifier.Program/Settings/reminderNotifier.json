@@ -1,0 +1,6 @@
+﻿{
+  "ReminderNotifier": {
+    "TimeSpanBetweenReminderChecks": "1.02:03:04",
+    "TimeSpanBetweenMessages": "1.02:03:04"
+  }
+}
