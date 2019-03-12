@@ -40,7 +40,7 @@
   },
   "homepage": "https://github.com/louistio/TaylorBot#readme",
   "optionalDependencies": {
-    "erlpack": "github:discordapp/erlpack",
-    "uws": "^9.148.0"
+    "@discordjs/uws": "^11.149.1",
+    "erlpack": "github:discordapp/erlpack"
   }
 }
