@@ -1,5 +1,6 @@
 'use strict';
 
+const moment = require('moment');
 const querystring = require('querystring');
 
 const Command = require('../Command.js');
@@ -47,7 +48,8 @@ class LastFmCollageCommand extends Command {
                 period,
                 rows: size,
                 cols: size,
-                imageSize: 400
+                imageSize: 400,
+                a: moment.utc().endOf('day').format('X')
             })}`)
         );
     }
