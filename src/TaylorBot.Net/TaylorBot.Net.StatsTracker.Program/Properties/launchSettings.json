@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TaylorBot.Net.StatsTracker.Program": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "taylorbot:Environment": "Development"
+      }
+    }
+  }
+}

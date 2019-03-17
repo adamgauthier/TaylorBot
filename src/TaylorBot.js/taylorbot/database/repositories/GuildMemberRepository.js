@@ -253,48 +253,6 @@ class GuildMemberRepository {
         return this._getRankedAliveForeignFor(guildMember, new this._helpers.TableName(table, schema), rankedColumn, additionalColumns);
     }
 
-    async addMinutes(minutesToAdd, minimumLastSpoke, minutesForReward, pointsReward) {
-        try {
-            return await this._db.tx(async t => {
-                await t.none(
-                    `UPDATE guilds.guild_members
-                    SET minute_count = minute_count + $[minutes_to_add]
-                    WHERE last_spoke_at > $[minimum_last_spoke];`,
-                    {
-                        minutes_to_add: minutesToAdd,
-                        minimum_last_spoke: minimumLastSpoke
-                    }
-                );
-                await t.none(
-                    `UPDATE users.users SET
-                       taypoint_count = taypoint_count + $[points_reward]
-                    WHERE user_id IN (
-                        SELECT user_id FROM guilds.guild_members
-                        WHERE minute_count >= minutes_milestone + $[minutes_for_reward]
-                    );`,
-                    {
-                        minutes_for_reward: minutesForReward,
-                        points_reward: pointsReward
-                    }
-                );
-                await t.none(
-                    `UPDATE guilds.guild_members SET
-                       minutes_milestone = (minute_count - (minute_count % $[minutes_for_reward])),
-                       experience = experience + $[points_reward]
-                    WHERE minute_count >= minutes_milestone + $[minutes_for_reward];`,
-                    {
-                        minutes_for_reward: minutesForReward,
-                        points_reward: pointsReward
-                    }
-                );
-            });
-        }
-        catch (e) {
-            Log.error(`Adding minutes: ${e}`);
-            throw e;
-        }
-    }
-
     async updateLastSpoke(guildMember, lastSpokeAt) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {

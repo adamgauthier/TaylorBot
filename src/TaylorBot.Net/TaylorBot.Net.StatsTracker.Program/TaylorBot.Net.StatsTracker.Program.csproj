@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Domain\TaylorBot.Net.MinutesTracker.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Infrastructure\TaylorBot.Net.MinutesTracker.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Settings\*.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Settings\*.Production.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
