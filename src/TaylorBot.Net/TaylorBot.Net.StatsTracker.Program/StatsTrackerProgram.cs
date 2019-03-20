@@ -12,6 +12,8 @@ using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
 using TaylorBot.Net.MinutesTracker.Domain;
 using TaylorBot.Net.MinutesTracker.Infrastructure;
+using TaylorBot.Net.MessagesTracker.Infrastructure;
+using TaylorBot.Net.MessagesTracker.Domain;
 
 namespace TaylorBot.Net.StatsTracker.Program
 {
@@ -41,9 +43,13 @@ namespace TaylorBot.Net.StatsTracker.Program
                 .ConfigureDatabaseConnection(config)
                 .ConfigureRequired<MinutesTrackerOptions>(config, "MinutesTracker")
                 .AddTransient<IShardReadyHandler, ReadyHandler>()
+                .AddTransient<IUserMessageReceivedHandler, UserMessageReceivedHandler>()
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IMinuteRepository, MinutesRepository>()
                 .AddTransient<MinutesTrackerDomainService>()
+                .AddTransient<IMessageRepository, MessagesRepository>()
+                .AddTransient<WordCounter>()
+                .AddTransient<MessagesTrackerDomainService>()
                 .BuildServiceProvider();
         }
     }

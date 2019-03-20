@@ -33,10 +33,6 @@ class StringUtil {
 
         return `${surround}${size}${surround} ${itemName}`;
     }
-
-    static countWords(str) {
-        return (str.match(/\s+/g) || []).length + 1;
-    }
 }
 
 module.exports = StringUtil;

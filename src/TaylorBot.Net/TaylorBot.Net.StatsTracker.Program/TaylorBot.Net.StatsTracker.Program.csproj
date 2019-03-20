@@ -9,6 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessagesTracker.Domain\TaylorBot.Net.MessagesTracker.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessagesTracker.Infrastructure\TaylorBot.Net.MessagesTracker.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Domain\TaylorBot.Net.MinutesTracker.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Infrastructure\TaylorBot.Net.MinutesTracker.Infrastructure.csproj" />
   </ItemGroup>

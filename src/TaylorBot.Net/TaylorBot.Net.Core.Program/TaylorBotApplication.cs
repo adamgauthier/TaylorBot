@@ -3,6 +3,9 @@ using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Client;
+using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Core.Program
 {
@@ -18,6 +21,7 @@ namespace TaylorBot.Net.Core.Program
         public async Task StartAsync()
         {
             var client = serviceProvider.GetRequiredService<TaylorBotClient>();
+            var logger = serviceProvider.GetRequiredService<ILogger<TaylorBotApplication>>();
 
             var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
             if (shardReadyHandler != null)
@@ -29,6 +33,26 @@ namespace TaylorBot.Net.Core.Program
             if (allReadyHandler != null)
             {
                 client.AllShardsReady += allReadyHandler.AllShardsReadyAsync;
+            }
+
+            var userMessageReceivedHandler = serviceProvider.GetService<IUserMessageReceivedHandler>();
+            if (userMessageReceivedHandler != null)
+            {
+                client.DiscordShardedClient.MessageReceived += async (message) =>
+                {
+                    if (message is SocketUserMessage userMessage)
+                    {
+                        try
+                        {
+                            await userMessageReceivedHandler.UserMessageReceivedAsync(userMessage);
+                        }
+                        catch (Exception exception)
+                        {
+                            logger.LogError(exception, LogString.From($"Unhandled exception in {nameof(IUserMessageReceivedHandler)}."));
+                            throw;
+                        }
+                    }
+                };
             }
 
             // Wait 5 seconds to login in case of a boot loop

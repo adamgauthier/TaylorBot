@@ -9,6 +9,8 @@ COPY ./TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./TaylorBot.
 COPY ./TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj ./TaylorBot.Net.StatsTracker.Program/
 COPY ./TaylorBot.Net.MinutesTracker.Domain/TaylorBot.Net.MinutesTracker.Domain.csproj ./TaylorBot.Net.MinutesTracker.Domain/
 COPY ./TaylorBot.Net.MinutesTracker.Infrastructure/TaylorBot.Net.MinutesTracker.Infrastructure.csproj ./TaylorBot.Net.MinutesTracker.Infrastructure/
+COPY ./TaylorBot.Net.MessagesTracker.Domain/TaylorBot.Net.MessagesTracker.Domain.csproj ./TaylorBot.Net.MessagesTracker.Domain/
+COPY ./TaylorBot.Net.MessagesTracker.Infrastructure/TaylorBot.Net.MessagesTracker.Infrastructure.csproj ./TaylorBot.Net.MessagesTracker.Infrastructure/
 
 RUN dotnet restore
 

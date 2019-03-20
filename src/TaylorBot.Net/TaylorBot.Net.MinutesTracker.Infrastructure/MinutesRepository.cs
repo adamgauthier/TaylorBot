@@ -24,7 +24,7 @@ namespace TaylorBot.Net.MinutesTracker.Infrastructure
                     await connection.ExecuteAsync(
                         @"UPDATE guilds.guild_members
                         SET minute_count = minute_count + @MinutesToAdd
-                        WHERE TO_TIMESTAMP(last_spoke_at::double precision / 1000::double precision) > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke;",
+                        WHERE last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke;",
                         new
                         {
                             MinutesToAdd = minutesToAdd,
