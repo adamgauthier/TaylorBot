@@ -10,12 +10,16 @@ const MIN_AGE = 13;
 const MAX_AGE = 115;
 
 const PARSING_FORMATS_IN_ORDER = [
-    'YYYY-MM-DD', 'YYYY/MM/DD', 'YYYY.MM.DD',
-    'DD-MM-YYYY', 'DD/MM/YYYY', 'DD.MM.YYYY',
-    'MM-DD-YYYY', 'MM/DD/YYYY', 'MM.DD.YYYY',
-    'MM-DD', 'MM/DD', 'MM.DD',
-    'DD-MM', 'DD/MM', 'DD.MM'
-];
+    'YYYY-MM-DD',
+    'DD-MM-YYYY',
+    'MM-DD-YYYY',
+    'MM-DD',
+    'DD-MM',
+]
+    .map(f => [f, f.replace(/-/g, '/'), f.replace(/-/g, '.')])
+    .map(formats => [...formats, ...formats.map(f => f.replace('MM', 'M'))])
+    .map(formats => [...formats, ...formats.map(f => f.replace('DD', 'D'))])
+    .flatMap(formats => [...formats, ...formats.map(f => f.replace('YYYY', 'YY'))]);
 
 class BirthdayArgumentType extends TextArgumentType {
     get id() {
