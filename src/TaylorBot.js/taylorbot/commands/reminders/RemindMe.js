@@ -39,6 +39,10 @@ class RemindMeCommand extends Command {
             throw new CommandError(`You can't be reminded more than a year in the future!`);
         }
 
+        if (!remindAbout) {
+            throw new CommandError(`You have to provide a message to remind you about!`);
+        }
+
         const { length: reminderCount } = await reminders.fromUser(author);
 
         if (reminderCount >= REMINDERS_LIMIT) {
