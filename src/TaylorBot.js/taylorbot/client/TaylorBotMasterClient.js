@@ -31,6 +31,12 @@ class TaylorBotMasterClient {
         );
     }
 
+    unload() {
+        Log.info('Unloading all clients...');
+        this.clients.forEach(c => c.destroy());
+        Log.info('Clients unloaded!');
+    }
+
     start() {
         return Promise.all(
             this.clients.map(c => c.start())
