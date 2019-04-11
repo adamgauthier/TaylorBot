@@ -51,6 +51,12 @@ namespace TaylorBot.Net.Core.Client
             await DiscordShardedClient.StartAsync();
         }
 
+        public async Task StopAsync()
+        {
+            await DiscordShardedClient.StopAsync();
+            DiscordRestClient.Dispose();
+        }
+
         private Task LogAsync(LogMessage log)
         {
             logger.Log(logSeverityToLogLevelMapper.MapFrom(log.Severity), LogString.From(log.ToString(prependTimestamp: false)));

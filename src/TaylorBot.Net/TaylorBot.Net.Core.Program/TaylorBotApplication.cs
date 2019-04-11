@@ -6,6 +6,7 @@ using TaylorBot.Net.Core.Client;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Core.Logging;
+using System.Runtime.Loader;
 
 namespace TaylorBot.Net.Core.Program
 {
@@ -22,6 +23,12 @@ namespace TaylorBot.Net.Core.Program
         {
             var client = serviceProvider.GetRequiredService<TaylorBotClient>();
             var logger = serviceProvider.GetRequiredService<ILogger<TaylorBotApplication>>();
+
+            AssemblyLoadContext.Default.Unloading += async (assemblyLoadContext) =>
+            {
+                await client.StopAsync();
+                logger.LogInformation(LogString.From("Clients unloaded!"));
+            };
 
             var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
             if (shardReadyHandler != null)
