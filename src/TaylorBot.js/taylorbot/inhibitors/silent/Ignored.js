@@ -1,23 +1,20 @@
 'use strict';
 
 const SilentInhibitor = require('../SilentInhibitor.js');
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 
 class IgnoredInhibitor extends SilentInhibitor {
-    shouldBeBlocked({ message, client }, command) {
+    shouldBeBlocked({ message, client }) {
         const { author } = message;
 
         const commandTime = Date.now();
         const { ignoreUntil } = client.master.registry.users.get(author.id);
 
         if (commandTime < ignoreUntil) {
-            Log.verbose(`Command '${command.name}' can't be used by ${Format.user(author)} because they are ignored until ${TimeUtil.formatLog(ignoreUntil)}.`);
-            return true;
+            return `They are ignored until ${TimeUtil.formatLog(ignoreUntil)}.`;
         }
 
-        return false;
+        return null;
     }
 }
 

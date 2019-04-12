@@ -68,7 +68,11 @@ class CommandsWatcher extends MessageWatcher {
         const { registry } = client.master;
 
         for (const inhibitor of registry.inhibitors.getSilentInhibitors()) {
-            if (await inhibitor.shouldBeBlocked(messageContext, cachedCommand, argString)) {
+            const logMessage = await inhibitor.shouldBeBlocked(messageContext, cachedCommand, argString);
+            if (logMessage !== null) {
+                Log.warn(
+                    `${Format.user(author)} can't use '${cachedCommand.name}' with args '${argString}' in ${Format.channel(channel)} (silent): ${logMessage}`
+                );
                 return;
             }
         }
@@ -79,9 +83,12 @@ class CommandsWatcher extends MessageWatcher {
         for (const inhibitor of registry.inhibitors.getNoisyInhibitors()) {
             const blockedMessage = await inhibitor.getBlockedMessage(messageContext, cachedCommand, argString);
             if (blockedMessage !== null) {
+                Log.warn(
+                    `${Format.user(author)} can't use '${cachedCommand.name}' with args '${argString}' in ${Format.channel(channel)}: ${blockedMessage.log}`
+                );
                 return client.sendEmbedError(channel, [
                     `${author} Oops! \`${cachedCommand.name}\` was blocked. ⛔`,
-                    blockedMessage
+                    blockedMessage.ui
                 ].join('\n'));
             }
         }
