@@ -13,16 +13,17 @@ namespace TaylorBot.Net.Core.Program
     public class TaylorBotApplication
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly ILogger<TaylorBotApplication> logger;
 
         public TaylorBotApplication(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
+            this.logger = serviceProvider.GetRequiredService<ILogger<TaylorBotApplication>>();
         }
 
         public async Task StartAsync()
         {
             var client = serviceProvider.GetRequiredService<TaylorBotClient>();
-            var logger = serviceProvider.GetRequiredService<ILogger<TaylorBotApplication>>();
 
             AssemblyLoadContext.Default.Unloading += async (assemblyLoadContext) =>
             {
@@ -33,13 +34,15 @@ namespace TaylorBot.Net.Core.Program
             var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
             if (shardReadyHandler != null)
             {
-                client.DiscordShardedClient.ShardReady += shardReadyHandler.ShardReadyAsync;
+                client.DiscordShardedClient.ShardReady += async (socketClient) =>
+                    await WrapTryCatch(shardReadyHandler.ShardReadyAsync(socketClient), nameof(IShardReadyHandler));
             }
 
             var allReadyHandler = serviceProvider.GetService<IAllReadyHandler>();
             if (allReadyHandler != null)
             {
-                client.AllShardsReady += allReadyHandler.AllShardsReadyAsync;
+                client.AllShardsReady += async () =>
+                    await WrapTryCatch(allReadyHandler.AllShardsReadyAsync(), nameof(IAllReadyHandler));
             }
 
             var userMessageReceivedHandler = serviceProvider.GetService<IUserMessageReceivedHandler>();
@@ -49,17 +52,16 @@ namespace TaylorBot.Net.Core.Program
                 {
                     if (message is SocketUserMessage userMessage)
                     {
-                        try
-                        {
-                            await userMessageReceivedHandler.UserMessageReceivedAsync(userMessage);
-                        }
-                        catch (Exception exception)
-                        {
-                            logger.LogError(exception, LogString.From($"Unhandled exception in {nameof(IUserMessageReceivedHandler)}."));
-                            throw;
-                        }
+                        await WrapTryCatch(userMessageReceivedHandler.UserMessageReceivedAsync(userMessage), nameof(IUserMessageReceivedHandler));
                     }
                 };
+            }
+
+            var userUpdatedHandler = serviceProvider.GetService<IUserUpdatedHandler>();
+            if (userUpdatedHandler != null)
+            {
+                client.DiscordShardedClient.UserUpdated += async (oldUser, newUser) =>
+                    await WrapTryCatch(userUpdatedHandler.UserUpdatedAsync(oldUser, newUser), nameof(IUserUpdatedHandler));
             }
 
             // Wait 5 seconds to login in case of a boot loop
@@ -68,6 +70,19 @@ namespace TaylorBot.Net.Core.Program
             await client.StartAsync();
 
             await Task.Delay(-1);
+        }
+
+        private async Task WrapTryCatch(Task task, string handlerName)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, LogString.From($"Unhandled exception in {handlerName}."));
+                throw;
+            }
         }
     }
 }

@@ -1,0 +1,6 @@
+﻿{
+  "Discord": {
+    "Token": "TOKEN_HERE",
+    "ShardCount": 1
+  }
+}

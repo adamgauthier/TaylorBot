@@ -1,0 +1,9 @@
+﻿{
+  "DatabaseConnection": {
+    "Host": "127.0.0.1",
+    "Port": 0,
+    "Database": "A_DATABASE",
+    "Username": "A_USERNAME",
+    "Password": "A_PASSWORD"
+  }
+}
