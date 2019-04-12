@@ -164,7 +164,7 @@ class CommandsWatcher extends MessageWatcher {
             catch (e) {
                 if (e instanceof ArgumentParsingError) {
                     return client.sendEmbedError(channel, [
-                        `Command Format: \`${commandContext.usage()}\``,
+                        `${author} Format: \`${commandContext.usage()}\``,
                         `\`<${info.label}>\`: ${e.message}`
                     ].join('\n'));
                 }
