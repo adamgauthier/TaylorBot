@@ -65,6 +65,7 @@ class CommandsWatcher extends MessageWatcher {
 
     static async runCommand(messageContext, cachedCommand, argString) {
         const { client, message } = messageContext;
+        const { author, channel } = message;
         const { registry } = client.master;
 
         for (const inhibitor of registry.inhibitors.getSilentInhibitors()) {
@@ -77,7 +78,6 @@ class CommandsWatcher extends MessageWatcher {
             }
         }
 
-        const { author, channel } = message;
         await registry.answeredCooldowns.addUnanswered(author);
 
         for (const inhibitor of registry.inhibitors.getNoisyInhibitors()) {
