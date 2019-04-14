@@ -5,8 +5,8 @@ set -o nounset
 
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+network_name=$(cat "${__dir}/../../docker-network.name")
 name=$(cat "${__dir}/redis-commands.name")
-port=$(cat "${__dir}/redis-commands.port")
 password=$(cat "${__dir}/redis-commands.pass")
 
-docker container run -d --name $name -p 127.0.0.1:$port:6379 redis redis-server --requirepass $password
+docker container run -d --name $name --network ${network_name} redis redis-server --requirepass $password

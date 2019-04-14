@@ -23,4 +23,4 @@ backups_path=${container_path}/pg-backups
 mkdir -p ${data_path}
 mkdir -p ${backups_path}
 
-docker container run -d --name taylorbot-postgres --network ${network_name} --env-file ${__dir}/taylorbot-postgres.env -p 127.0.0.1:5432:5432 --mount type=bind,source=${data_path},destination=/var/lib/postgresql/data --mount type=bind,source=${backups_path},destination=/home/pg-backups ${image_name}
+docker container run -d --name taylorbot-postgres --network ${network_name} --env-file ${__dir}/taylorbot-postgres.env --mount type=bind,source=${data_path},destination=/var/lib/postgresql/data --mount type=bind,source=${backups_path},destination=/home/pg-backups ${image_name}
