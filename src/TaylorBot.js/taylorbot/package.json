@@ -14,7 +14,7 @@
     "sherlockjs": "^1.4.0"
   },
   "devDependencies": {
-    "eslint": "^5.14.1",
+    "eslint": "^5.16.0",
     "eslint-plugin-import": "^2.16.0"
   },
   "engines": {
