@@ -12,7 +12,6 @@ const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 class TaylorBotClient extends Discord.Client {
     constructor(master) {
         super({
-            'fetchAllMembers': true,
             'disabledEvents': ['TYPING_START']
         });
 

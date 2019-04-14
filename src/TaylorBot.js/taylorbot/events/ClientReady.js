@@ -6,9 +6,9 @@ const EventHandler = require('../structures/EventHandler.js');
 const Log = require('../tools/Logger.js');
 const Format = require('../modules/DiscordFormatter.js');
 
-class Ready extends EventHandler {
+class ClientReady extends EventHandler {
     constructor() {
-        super(Events.READY);
+        super(Events.CLIENT_READY);
     }
 
     async handler(client) {
@@ -95,4 +95,4 @@ class Ready extends EventHandler {
     }
 }
 
-module.exports = Ready;
+module.exports = ClientReady;
