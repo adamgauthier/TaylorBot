@@ -11,7 +11,7 @@ class TaypointAmountArgumentType extends PositiveSafeIntegerArgumentType {
     }
 
     async parse(val, { client, message }) {
-        switch (val) {
+        switch (val.toLowerCase()) {
             case 'all':
                 return new TaypointAmount({ divisor: 1 });
             case 'half':
