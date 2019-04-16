@@ -21,11 +21,11 @@ class StringUtil {
         return str.substring(0, lastIndex) + adder;
     }
 
-    static plural(size, itemName, surround = '') {
+    static plural(size, itemName, surround = '', useS = false) {
         const isPlural = size !== 1 && size !== global.BigInt(1) && size !== '1';
 
         if (isPlural) {
-            if (itemName.endsWith('y'))
+            if (!useS && itemName.endsWith('y'))
                 itemName = `${itemName.slice(0, -1)}ies`;
             else
                 itemName = `${itemName}s`;
