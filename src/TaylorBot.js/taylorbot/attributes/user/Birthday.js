@@ -9,7 +9,7 @@ class BirthdayUserAttribute extends SettableUserAttribute {
     constructor() {
         super({
             id: 'birthday',
-            aliases: ['bd', 'bday'],
+            aliases: ['bd', 'bday', 'birthdays'],
             description: 'birthday',
             value: {
                 label: 'date',
