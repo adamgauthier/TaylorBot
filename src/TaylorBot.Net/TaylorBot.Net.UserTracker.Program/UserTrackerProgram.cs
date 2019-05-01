@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -9,6 +10,8 @@ using TaylorBot.Net.UserTracker.Program.Events;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.UsernameTracker.Domain;
 using TaylorBot.Net.UsernameTracker.Infrastructure;
+using TaylorBot.Net.QuickStart.Domain.Options;
+using TaylorBot.Net.QuickStart.Domain;
 
 namespace TaylorBot.Net.UserTracker.Program
 {
@@ -29,13 +32,17 @@ namespace TaylorBot.Net.UserTracker.Program
             var config = new ConfigurationBuilder()
                 .AddTaylorBotApplicationConfiguration(environment)
                 .AddDatabaseConnectionConfiguration(environment)
+                .AddJsonFile(path: $"Settings/quickStartEmbed.{environment}.json", optional: false)
                 .Build();
 
             return new ServiceCollection()
                 .AddTaylorBotApplicationServices(config)
                 .AddTaylorBotApplicationLogging(config)
                 .ConfigureDatabaseConnection(config)
+                .ConfigureRequired<QuickStartEmbedOptions>(config, "QuickStartEmbed")
+                .AddTransient<IJoinedGuildHandler, JoinedGuildHandler>()
                 .AddTransient<IUserUpdatedHandler, UserUpdatedHandler>()
+                .AddTransient<QuickStartDomainService>()
                 .AddTransient<UsernameTrackerDomainService>()
                 .AddTransient<IUsernameRepository, UsernameRepository>()
                 .BuildServiceProvider();

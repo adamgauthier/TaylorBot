@@ -1,8 +1,8 @@
 ﻿using Discord;
 using Microsoft.Extensions.Options;
 using Reddit.Controllers;
-using System.Globalization;
 using System.Linq;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
 
@@ -29,7 +29,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed
                 .WithTimestamp(post.Created)
                 .WithAuthor(name: $"r/{post.Subreddit}", url: $"https://www.reddit.com/r/{post.Subreddit}")
                 .WithFooter(text: $"u/{post.Author}", iconUrl: options.RedditPostEmbedIconUrl)
-                .WithColor(uint.Parse(options.RedditPostEmbedColor.TrimStart('#'), NumberStyles.HexNumber));
+                .WithColor(DiscordColor.FromHexString(options.RedditPostEmbedColor));
 
             switch (post)
             {

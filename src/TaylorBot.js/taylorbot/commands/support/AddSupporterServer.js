@@ -29,7 +29,7 @@ class AddSupporterServerCommand extends Command {
 
         const { count } = await database.pros.countUserProGuilds(author);
 
-        if (count + 1 > proUser.subscription_count) {
+        if (Number.parseInt(count) + 1 > proUser.subscription_count) {
             throw new CommandError(`You already have set ${count} supporter servers! If you want to change them, you can use the \`removesupporterserver\` command to first remove your supporter servers.`);
         }
 

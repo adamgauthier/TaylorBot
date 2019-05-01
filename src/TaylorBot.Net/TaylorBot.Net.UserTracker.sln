@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{0E35D01E-742C-4033-8F17-A91E777628F8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.QuickStart.Domain", "TaylorBot.Net.QuickStart.Domain\TaylorBot.Net.QuickStart.Domain.csproj", "{EA7C5094-62E6-4DBB-B788-29BD32B3E410}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{0E35D01E-742C-4033-8F17-A91E777628F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E35D01E-742C-4033-8F17-A91E777628F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E35D01E-742C-4033-8F17-A91E777628F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA7C5094-62E6-4DBB-B788-29BD32B3E410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA7C5094-62E6-4DBB-B788-29BD32B3E410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA7C5094-62E6-4DBB-B788-29BD32B3E410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA7C5094-62E6-4DBB-B788-29BD32B3E410}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

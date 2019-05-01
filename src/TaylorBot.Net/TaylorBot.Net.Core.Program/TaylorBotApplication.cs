@@ -64,6 +64,13 @@ namespace TaylorBot.Net.Core.Program
                     await WrapTryCatch(userUpdatedHandler.UserUpdatedAsync(oldUser, newUser), nameof(IUserUpdatedHandler));
             }
 
+            var joinedGuildHandler = serviceProvider.GetService<IJoinedGuildHandler>();
+            if (joinedGuildHandler != null)
+            {
+                client.DiscordShardedClient.JoinedGuild += async (guild) =>
+                    await WrapTryCatch(joinedGuildHandler.JoinedGuildAsync(guild), nameof(IJoinedGuildHandler));
+            }
+
             // Wait 5 seconds to login in case of a boot loop
             await Task.Delay(new TimeSpan(0, 0, 5));
 
