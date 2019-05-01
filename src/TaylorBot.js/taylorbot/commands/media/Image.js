@@ -17,6 +17,7 @@ class ImageCommand extends Command {
             examples: ['taylor swift', 'kanye west'],
             maxDailyUseCount: 10,
             guildOnly: true,
+            proOnly: true,
 
             args: [
                 {
