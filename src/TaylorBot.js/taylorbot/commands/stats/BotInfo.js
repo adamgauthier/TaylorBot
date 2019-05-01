@@ -25,7 +25,6 @@ class BotInfoCommand extends Command {
             .baseUserEmbed(user)
             .addField('Version', `\`${version}\``, true)
             .addField('Uptime', `\`${client.uptime}\` ms`, true)
-            .addField('Voice Connections', client.voiceConnections.size, true)
             .addField('Guild Store', client.guilds.size, true)
             .addField('User Store', client.users.size, true)
             .addField('Channel Store', client.channels.size, true)

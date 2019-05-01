@@ -5,7 +5,7 @@
   "main": "taylorbot.js",
   "dependencies": {
     "chalk": "^2.4.2",
-    "discord.js": "github:discordjs/discord.js",
+    "discord.js": "git+https://github.com/discordjs/discord.js.git#0d9bc8664dc2dc3b3bf7d35ba7b9050f2797a211",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
     "node-fetch": "^2.3.0",
