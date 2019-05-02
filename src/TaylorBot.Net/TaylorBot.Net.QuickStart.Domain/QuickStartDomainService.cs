@@ -14,8 +14,8 @@ namespace TaylorBot.Net.QuickStart.Domain
     public class QuickStartDomainService
     {
         private readonly ILogger<QuickStartDomainService> logger;
-        private IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor;
-        private TaylorBotClient taylorBotClient;
+        private readonly IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor;
+        private readonly TaylorBotClient taylorBotClient;
 
         public QuickStartDomainService(ILogger<QuickStartDomainService> logger, IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor, TaylorBotClient taylorBotClient)
         {
@@ -27,7 +27,7 @@ namespace TaylorBot.Net.QuickStart.Domain
         public async Task OnGuildJoinedAsync(SocketGuild guild)
         {
             var quickStartEmbedOptions = optionsMonitor.CurrentValue;
-            await guild.DefaultChannel.SendMessageAsync(embed: new EmbedBuilder()
+            var quickStartEmbed = new EmbedBuilder()
                 .WithTitle(quickStartEmbedOptions.Title)
                 .WithDescription(quickStartEmbedOptions.Description)
                 .WithFields(quickStartEmbedOptions.Fields.Select(field => new EmbedFieldBuilder()
@@ -36,9 +36,22 @@ namespace TaylorBot.Net.QuickStart.Domain
                 ))
                 .WithColor(DiscordColor.FromHexString(quickStartEmbedOptions.Color))
                 .WithThumbnailUrl(taylorBotClient.DiscordShardedClient.CurrentUser.GetAvatarUrl())
-                .Build()
-            );
-            logger.LogInformation(LogString.From($"Sent Quick Start embed in {guild.FormatLog()}."));
+                .Build();
+
+
+            var availableChannel = guild.TextChannels
+                .FirstOrDefault(channel => guild.CurrentUser.GetPermissions(channel).Has(ChannelPermission.SendMessages));
+
+            if (availableChannel != default(SocketTextChannel))
+            {
+                await availableChannel.SendMessageAsync(embed: quickStartEmbed);
+                logger.LogInformation(LogString.From($"Sent Quick Start embed in {availableChannel.FormatLog()}."));
+            }
+            else
+            {
+                await guild.Owner.SendMessageAsync(embed: quickStartEmbed);
+                logger.LogInformation(LogString.From($"Sent Quick Start embed to {guild.Owner.FormatLog()}."));
+            }
         }
     }
 }
