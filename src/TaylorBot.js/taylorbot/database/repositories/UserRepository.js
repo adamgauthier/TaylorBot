@@ -40,7 +40,7 @@ class UserRepository {
     }
 
     async add(member) {
-        const { user, guild, joinedTimestamp } = member;
+        const { user, guild, joinedAt } = member;
 
         try {
             return await this._db.tx(async t => {
@@ -51,7 +51,7 @@ class UserRepository {
                 );
                 await t.none(
                     'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($1, $2, $3);',
-                    [guild.id, user.id, joinedTimestamp]
+                    [guild.id, user.id, joinedAt]
                 );
                 await t.none(
                     'INSERT INTO users.usernames (user_id, username) VALUES ($[user_id], $[username]);',

@@ -13,8 +13,19 @@ class JoinedAttribute extends MemberAttribute {
         });
     }
 
-    retrieve(database, member) {
-        return database.guildMembers.getRankedFirstJoinedAtFor(member);
+    async retrieve(database, member) {
+        const result = await database.guildMembers.getRankedFirstJoinedAtFor(member);
+
+        if (result) {
+            return result;
+        }
+
+        if (member.joinedTimestamp !== null) {
+            await database.guildMembers.fixInvalidJoinDate(member);
+            return await database.guildMembers.getRankedFirstJoinedAtFor(member);
+        }
+
+        return null;
     }
 
     rank(database, guild, entries) {

@@ -20,7 +20,7 @@ class GuildMemberRejoinedLoggable extends Loggable {
         return new MessageEmbed()
             .setAuthor(`${user.tag} (${user.id})`, avatarURL, avatarURL)
             .setColor('#009c1a')
-            .setDescription(this.firstJoinedAt !== undefined ?
+            .setDescription(this.firstJoinedAt !== undefined || this.firstJoinedAt !== null ?
                 `\`❕\` This user first joined on ${TimeUtil.formatFull(this.firstJoinedAt)}.` :
                 `\`❕\` I don't know when this user first joined.`
             )

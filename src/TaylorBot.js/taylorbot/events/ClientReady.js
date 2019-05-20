@@ -73,8 +73,9 @@ class ClientReady extends EventHandler {
                     }
                     else {
                         guildMember.nowAlive = true;
-                        if (guildMember.first_joined_at === '9223372036854775807') {
+                        if (guildMember.first_joined_at === null && guildMember.joinedTimestamp !== null) {
                             await database.guildMembers.fixInvalidJoinDate(member);
+                            Log.warn(`Fixed first_joined_at for ${Format.member(member)}.`);
                         }
                     }
 

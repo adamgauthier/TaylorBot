@@ -57,7 +57,7 @@ class GuildMemberRepository {
 
     async add(guildMember) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
-        databaseMember.first_joined_at = guildMember.joinedTimestamp;
+        databaseMember.first_joined_at = guildMember.joinedAt;
         try {
             return await this._db.none(
                 'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($[guild_id], $[user_id], $[first_joined_at]);',
@@ -76,12 +76,12 @@ class GuildMemberRepository {
                 `SELECT first_joined_at, user_id, rank
                 FROM (
                    SELECT
-                       first_joined_at,
-                       user_id,
-                       alive,
-                       rank() OVER (ORDER BY first_joined_at ASC) AS rank
+                        first_joined_at,
+                        user_id,
+                        alive,
+                        rank() OVER (ORDER BY first_joined_at ASC) AS rank
                    FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id]
+                   WHERE guild_id = $[guild_id] AND first_joined_at IS NOT NULL
                 ) AS ranked
                 WHERE alive = TRUE
                 LIMIT $[limit];`,
@@ -99,7 +99,7 @@ class GuildMemberRepository {
 
     async getRankedFirstJoinedAtFor(guildMember) {
         try {
-            return await this._db.one(
+            return await this._db.oneOrNone(
                 `SELECT ranked.first_joined_at, ranked.rank
                 FROM (
                    SELECT
@@ -107,7 +107,7 @@ class GuildMemberRepository {
                        user_id,
                        rank() OVER (ORDER BY first_joined_at ASC) AS rank
                    FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id]
+                   WHERE guild_id = $[guild_id] AND first_joined_at IS NOT NULL
                 ) AS ranked
                 WHERE ranked.user_id = $[user_id];`,
                 {
@@ -258,10 +258,10 @@ class GuildMemberRepository {
         try {
             return await this._db.oneOrNone(
                 `UPDATE guilds.guild_members SET first_joined_at = $[first_joined_at]
-                WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at = 9223372036854775807
+                WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at IS NULL
                 RETURNING *;`,
                 {
-                    'first_joined_at': guildMember.joinedTimestamp,
+                    'first_joined_at': guildMember.joinedAt,
                     ...databaseMember
                 }
             );

@@ -9,17 +9,17 @@ class JoinedPresentor {
         this.attribute = attribute;
     }
 
-    present(commandContext, member, { [this.attribute.columnName]: firstJoinedAt, rank }) {
+    present(commandContext, member, { [this.attribute.columnName]: firstJoinedAt, rank } = {}) {
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
-            .setDescription([
-                `${member.displayName} first joined the server on **${TimeUtil.formatFull(firstJoinedAt)}**.`,
+            .setDescription(firstJoinedAt ? [
+                `${member.displayName} first joined the server on **${TimeUtil.formatFull(firstJoinedAt.getTime())}**.`,
                 `They were the **${MathUtil.formatNumberSuffix(rank)}** user to join.`
-            ].join('\n'));
+            ].join('\n') : `I don't know when ${member.displayName} first joined the server.`);
     }
 
     presentRankEntry(member, { [this.attribute.columnName]: firstJoinedAt, rank }) {
-        return `${rank}: ${member.user.username} - ${TimeUtil.formatMini(firstJoinedAt)}`;
+        return `${rank}: ${member.user.username} - ${TimeUtil.formatMini(firstJoinedAt.getTime())}`;
     }
 }
 
