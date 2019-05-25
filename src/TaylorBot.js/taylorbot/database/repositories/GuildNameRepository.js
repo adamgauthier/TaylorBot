@@ -8,46 +8,6 @@ class GuildNameRepository {
         this._db = db;
     }
 
-    async getAllLatest() {
-        try {
-            return await this._db.any(
-                `SELECT g.guild_name, g.guild_id
-                FROM (
-                   SELECT guild_id, MAX(changed_at) AS max_changed_at
-                   FROM guilds.guild_names
-                   GROUP BY guild_id
-                ) AS maxed
-                JOIN guilds.guild_names AS g ON g.guild_id = maxed.guild_id AND g.changed_at = maxed.max_changed_at;`
-            );
-        }
-        catch (e) {
-            Log.error(`Getting all guild names: ${e}`);
-            throw e;
-        }
-    }
-
-    async getLatest(guild) {
-        try {
-            return await this._db.oneOrNone(
-                `SELECT g.guild_name, g.guild_id
-                FROM (
-                    SELECT guild_id, MAX(changed_at) AS max_changed_at
-                    FROM guilds.guild_names
-                    GROUP BY guild_id
-                ) AS maxed
-                JOIN guilds.guild_names AS g ON g.guild_id = maxed.guild_id AND g.changed_at = maxed.max_changed_at
-                WHERE g.guild_id = $[guild_id];`,
-                {
-                    'guild_id': guild.id
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting latest guild name for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
     mapGuildToGuildNamesDatabase(guild) {
         return {
             'guild_id': guild.id,

@@ -18,21 +18,6 @@ class TextChannelRepository {
         }
     }
 
-    async getAllInGuild(guild) {
-        try {
-            return await this._db.any(
-                'SELECT channel_id FROM guilds.text_channels WHERE guild_id = $[guild_id];',
-                {
-                    'guild_id': guild.id
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting all guild text channels for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
     async getAllLogChannelsInGuild(guild) {
         try {
             return await this._db.any(

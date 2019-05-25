@@ -15,18 +15,9 @@ class GuildRegistry extends Map {
 
     cacheGuild(databaseGuild) {
         this.set(databaseGuild.guild_id, {
-            'prefix': databaseGuild.prefix,
-            'roleGroups': {}
+            prefix: databaseGuild.prefix,
+            roleGroups: {}
         });
-    }
-
-    async addGuild(guild) {
-        if (this.has(guild.id)) {
-            throw new Error(`Adding guild ${Format.guild(guild)}, already cached.`);
-        }
-
-        const databaseGuild = await this.database.guilds.add(guild);
-        this.cacheGuild(databaseGuild);
     }
 
     async changePrefix(guild, prefix) {

@@ -8,6 +8,7 @@ using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Configuration;
 using Discord.Rest;
+using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Core.Program.Extensions
 {
@@ -22,6 +23,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 .AddTransient(provider => new TaylorBotToken(provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.Token))
                 .AddTransient(provider => new DiscordSocketConfig { TotalShards = (int)provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.ShardCount })
                 .AddTransient(provider => new DiscordShardedClient(provider.GetRequiredService<DiscordSocketConfig>()))
+                .AddTransient<TaskExceptionLogger>()
                 .AddSingleton<TaylorBotClient>();
         }
 

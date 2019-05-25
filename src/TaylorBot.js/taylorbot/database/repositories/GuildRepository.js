@@ -38,30 +38,6 @@ class GuildRepository {
         }
     }
 
-    async add(guild) {
-        try {
-            return await this._db.tx(async t => {
-                const inserted = await t.one(
-                    'INSERT INTO guilds.guilds (guild_id) VALUES ($1) RETURNING *;',
-                    [guild.id]
-                );
-                await t.none(
-                    'INSERT INTO guilds.guild_names (guild_id, guild_name) VALUES ($[guild_id], $[guild_name]);',
-                    {
-                        guild_id: guild.id,
-                        guild_name: guild.name
-                    }
-                );
-
-                return inserted;
-            });
-        }
-        catch (e) {
-            Log.error(`Adding guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
     async setPrefix(guild, prefix) {
         try {
             return await this._db.oneOrNone(

@@ -1,0 +1,30 @@
+﻿using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
+using TaylorBot.Net.Core.Logging;
+
+namespace TaylorBot.Net.Core.Tasks
+{
+    public class TaskExceptionLogger
+    {
+        public ILogger<TaskExceptionLogger> logger;
+
+        public TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
+        {
+            this.logger = logger;
+        }
+
+        public async Task LogOnError(Task task, string taskName)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, LogString.From($"Unhandled exception in {taskName}."));
+                throw;
+            }
+        }
+    }
+}

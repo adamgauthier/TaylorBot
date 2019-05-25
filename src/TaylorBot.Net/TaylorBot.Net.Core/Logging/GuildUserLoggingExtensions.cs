@@ -4,9 +4,9 @@ namespace TaylorBot.Net.Core.Logging
 {
     public static class GuildUserLoggingExtensions
     {
-        public static string FormatLog(this IGuild guild)
+        public static string FormatLog(this IGuildUser member)
         {
-            return $"{guild.Name} ({guild.Id})";
+            return $"{member.Username}#{member.Discriminator} ({member.Id}) in {member.Guild.Name} ({member.GuildId})";
         }
     }
 }

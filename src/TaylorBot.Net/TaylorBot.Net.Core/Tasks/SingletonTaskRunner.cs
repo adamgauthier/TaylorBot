@@ -25,7 +25,7 @@ namespace TaylorBot.Net.Core.Tasks
                 {
                     if (runningTask == null)
                     {
-                        runningTask = Task.Factory.StartNew(action);
+                        runningTask = Task.Run(action);
                     }
                     else
                     {

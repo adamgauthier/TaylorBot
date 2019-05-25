@@ -17,80 +17,28 @@ class ClientReady extends EventHandler {
         client.intervalRunner.startAll();
         Log.info('Intervals started!');
 
-        Log.info('Checking new guilds, users and usernames...');
-        await this.syncDatabase(client);
-        Log.info('New guilds, users and usernames checked!');
+        Log.info('Caching new guilds and users...');
+        await this.syncRegistry(client);
+        Log.info('New guilds and users cached!');
     }
 
-    async syncDatabase(client) {
-        const { registry, database } = client.master;
-
-        const allGuildMembers = await database.guildMembers.getAll();
-        const channels = await database.textChannels.getAll();
-        const latestGuildNames = await database.guildNames.getAllLatest();
-        const latestUsernames = new Map(
-            (await database.usernames.getAllLatest())
-                .map(({ user_id, username }) => [user_id, username])
-        );
+    async syncRegistry(client) {
+        const { registry } = client.master;
 
         for (const guild of client.guilds.values()) {
             if (!registry.guilds.has(guild.id)) {
-                Log.warn(`Found new guild ${Format.guild(guild)}.`);
-                await registry.guilds.addGuild(guild);
-            }
-            else {
-                const latestGuildName = latestGuildNames.find(gn => gn.guild_id === guild.id);
-                if (!latestGuildName || guild.name !== latestGuildName.guild_name) {
-                    await database.guildNames.add(guild);
-                    Log.warn(`Added new guild name for ${Format.guild(guild)}.${latestGuildName ? ` Old guild name was ${latestGuildName.guild_name}.` : ''}`);
-                }
+                Log.info(`Adding new guild ${Format.guild(guild)}.`);
+                await registry.guilds.cacheGuild({ guild_id: guild.id, prefix: '!' });
             }
 
-            for (const textChannel of guild.channels.filter(c => c.type === 'text').values()) {
-                if (!channels.some(c => c.channel_id === textChannel.id)) {
-                    Log.warn(`Found new text channel ${Format.channel(textChannel)}.`);
-                    await database.textChannels.add(textChannel);
-                }
-            }
-
-            const guildMembers = allGuildMembers
-                .filter(gm => gm.guild_id === guild.id)
-                .map(gm => { gm.nowAlive = false; return gm; });
             const members = await guild.members.fetch();
 
             for (const member of members.values()) {
                 const { user } = member;
                 if (!registry.users.has(member.id)) {
                     Log.warn(`Found new user ${Format.user(user)} in guild ${Format.guild(guild)}.`);
-                    await registry.users.addUser(member);
-                    latestUsernames.set(user.id, user.username);
+                    await registry.users.cacheUser({ user_id: member.id, ignoreUntil: new Date() });
                 }
-                else {
-                    const guildMember = guildMembers.find(gm => gm.user_id === member.id);
-                    if (!guildMember) {
-                        Log.warn(`Found new member ${Format.member(member)}.`);
-                        await database.guildMembers.add(member);
-                    }
-                    else {
-                        guildMember.nowAlive = true;
-                        if (guildMember.first_joined_at === null && guildMember.joinedTimestamp !== null) {
-                            await database.guildMembers.fixInvalidJoinDate(member);
-                            Log.warn(`Fixed first_joined_at for ${Format.member(member)}.`);
-                        }
-                    }
-
-                    const latestUsername = latestUsernames.get(user.id);
-                    if (!latestUsername || latestUsername !== user.username) {
-                        Log.warn(`Found new username for ${Format.user(user)}.`);
-                        await database.usernames.add(user);
-                        latestUsernames.set(user.id, user.username);
-                    }
-                }
-            }
-
-            const aliveChanged = guildMembers.filter(gm => gm.alive !== gm.nowAlive).map(gm => gm.user_id);
-            if (aliveChanged.length > 0) {
-                await database.guildMembers.reverseAliveInGuild(guild, aliveChanged);
             }
         }
     }
