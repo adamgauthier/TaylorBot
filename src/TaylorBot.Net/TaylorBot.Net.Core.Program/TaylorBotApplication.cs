@@ -73,6 +73,13 @@ namespace TaylorBot.Net.Core.Program
                     await taskExceptionLogger.LogOnError(joinedGuildHandler.JoinedGuildAsync(guild), nameof(IJoinedGuildHandler));
             }
 
+            var guildUpdatedHandler = serviceProvider.GetService<IGuildUpdatedHandler>();
+            if (guildUpdatedHandler != null)
+            {
+                client.DiscordShardedClient.GuildUpdated += async (oldGuild, newGuild) =>
+                    await taskExceptionLogger.LogOnError(guildUpdatedHandler.GuildUpdatedAsync(oldGuild, newGuild), nameof(IGuildUpdatedHandler));
+            }
+
             // Wait 5 seconds to login in case of a boot loop
             await Task.Delay(new TimeSpan(0, 0, 5));
 

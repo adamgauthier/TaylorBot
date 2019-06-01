@@ -62,10 +62,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
                     var latestGuildName = await guildNameRepository.GetLatestGuildNameAsync(guild);
                     if (latestGuildName == default || latestGuildName != guild.Name)
                     {
-                        await guildNameRepository.AddNewGuildNameAsync(guild);
-                        logger.LogInformation(LogString.From(
-                            $"Added new guild name for {guild.FormatLog()}{(latestGuildName != default ? $", previously was '{latestGuildName}'" : "")}."
-                        ));
+                        await UpdateGuildNameAsync(guild, latestGuildName);
                     }
                 }
             }
@@ -129,6 +126,22 @@ namespace TaylorBot.Net.EntityTracker.Domain
             await usernameRepository.AddNewUsernameAsync(user);
             logger.LogInformation(LogString.From(
                 $"Added new username for {user.FormatLog()}{(previousUsername != default ? $", previously was '{previousUsername}'" : "")}."
+            ));
+        }
+
+        public async Task OnGuildUpdatedAsync(SocketGuild oldGuild, SocketGuild newGuild)
+        {
+            if (oldGuild.Name != newGuild.Name)
+            {
+                await UpdateGuildNameAsync(newGuild, oldGuild.Name);
+            }
+        }
+
+        private async Task UpdateGuildNameAsync(IGuild guild, string previousGuildName)
+        {
+            await guildNameRepository.AddNewGuildNameAsync(guild);
+            logger.LogInformation(LogString.From(
+                $"Added new guild name for {guild.FormatLog()}{(previousGuildName != default ? $", previously was '{previousGuildName}'" : "")}."
             ));
         }
     }
