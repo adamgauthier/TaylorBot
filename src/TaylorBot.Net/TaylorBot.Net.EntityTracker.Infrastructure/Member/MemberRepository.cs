@@ -34,13 +34,13 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
             }
         }
 
-        public async Task AddNewMemberIfNotAddedAsync(IGuildUser member)
+        public async Task<MemberAddResult> AddNewMemberIfNotAddedAsync(IGuildUser member)
         {
             using (var connection = Connection)
             {
                 connection.Open();
 
-                await connection.ExecuteAsync(
+                var memberAddedOrUpdatedDto = await connection.QuerySingleAsync<MemberAddedOrUpdatedDto>(
                     @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES (@GuildId, @UserId, @FirstJoinedAt)
                     ON CONFLICT (guild_id, user_id) DO UPDATE SET
                         alive = TRUE,
@@ -49,7 +49,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
                             THEN excluded.first_joined_at
                             ELSE guild_members.first_joined_at
                         END
-                    ;",
+                    RETURNING first_joined_at;",
                     new
                     {
                         GuildId = member.GuildId.ToString(),
@@ -57,6 +57,15 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
                         FirstJoinedAt = member.JoinedAt
                     }
                 );
+
+                if (!memberAddedOrUpdatedDto.first_joined_at.HasValue || member.JoinedAt == memberAddedOrUpdatedDto.first_joined_at)
+                {
+                    return new MemberAddResult();
+                }
+                else
+                {
+                    return new RejoinedMemberAddResult(firstJoinedAt: memberAddedOrUpdatedDto.first_joined_at.Value);
+                }
             }
         }
 

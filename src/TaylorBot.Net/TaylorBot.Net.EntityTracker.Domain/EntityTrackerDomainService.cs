@@ -2,8 +2,10 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.EntityTracker.Domain.Guild;
 using TaylorBot.Net.EntityTracker.Domain.GuildName;
@@ -25,6 +27,20 @@ namespace TaylorBot.Net.EntityTracker.Domain
         private readonly IGuildRepository guildRepository;
         private readonly IGuildNameRepository guildNameRepository;
         private readonly IMemberRepository memberRepository;
+
+        private readonly AsyncEvent<Func<IGuildUser, Task>> guildMemberFirstJoinedEvent = new AsyncEvent<Func<IGuildUser, Task>>();
+        public event Func<IGuildUser, Task> GuildMemberFirstJoinedEvent
+        {
+            add { guildMemberFirstJoinedEvent.Add(value); }
+            remove { guildMemberFirstJoinedEvent.Remove(value); }
+        }
+
+        private readonly AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>> guildMemberRejoinedEvent = new AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>>();
+        public event Func<IGuildUser, DateTimeOffset, Task> GuildMemberRejoinedEvent
+        {
+            add { guildMemberRejoinedEvent.Add(value); }
+            remove { guildMemberRejoinedEvent.Remove(value); }
+        }
 
         public EntityTrackerDomainService(
             ILogger<EntityTrackerDomainService> logger,
@@ -79,26 +95,9 @@ namespace TaylorBot.Net.EntityTracker.Domain
 
             var allMembers = guild.Users;
             await Task.WhenAll(
-                allMembers.Select(async member =>
-                {
-                    var userAddedResult = await userRepository.AddNewUserAsync(member);
-                    if (userAddedResult.WasAdded)
-                    {
-                        logger.LogInformation(LogString.From($"Added new user from member {member.FormatLog()}."));
-                        await memberRepository.AddNewMemberAsync(member);
-                        await usernameRepository.AddNewUsernameAsync(member);
-                    }
-                    else
-                    {
-                        await memberRepository.AddNewMemberIfNotAddedAsync(member);
-
-                        var latestUsername = await usernameRepository.GetLatestUsernameAsync(member);
-                        if (latestUsername == default || latestUsername != member.Username)
-                        {
-                            await UpdateUsernameAsync(member, latestUsername);
-                        }
-                    }
-                }).Append(
+                allMembers.Select(
+                    OnGuildUserJoinedAsync
+                ).Append(
                     memberRepository.SetMembersDeadAsync(guild, allMembers)
                 ).ToArray()
             );
@@ -143,6 +142,37 @@ namespace TaylorBot.Net.EntityTracker.Domain
             logger.LogInformation(LogString.From(
                 $"Added new guild name for {guild.FormatLog()}{(previousGuildName != default ? $", previously was '{previousGuildName}'" : "")}."
             ));
+        }
+
+        public async Task OnGuildUserJoinedAsync(SocketGuildUser guildUser)
+        {
+            var userAddedResult = await userRepository.AddNewUserAsync(guildUser);
+            if (userAddedResult.WasAdded)
+            {
+                logger.LogInformation(LogString.From($"Added new user from member {guildUser.FormatLog()}."));
+                await memberRepository.AddNewMemberAsync(guildUser);
+                await usernameRepository.AddNewUsernameAsync(guildUser);
+                await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
+            }
+            else
+            {
+                var memberAddedResult = await memberRepository.AddNewMemberIfNotAddedAsync(guildUser);
+
+                var latestUsername = await usernameRepository.GetLatestUsernameAsync(guildUser);
+                if (latestUsername == default || latestUsername != guildUser.Username)
+                {
+                    await UpdateUsernameAsync(guildUser, latestUsername);
+                }
+
+                if (memberAddedResult is RejoinedMemberAddResult rejoinedMemberAddResult)
+                {
+                    await guildMemberRejoinedEvent.InvokeAsync(guildUser, rejoinedMemberAddResult.FirstJoinedAt);
+                }
+                else
+                {
+                    await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
+                }
+            }
         }
     }
 }

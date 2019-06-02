@@ -24,6 +24,10 @@ using TaylorBot.Net.EntityTracker.Domain.GuildName;
 using TaylorBot.Net.EntityTracker.Domain.Member;
 using TaylorBot.Net.EntityTracker.Infrastructure.Member;
 using TaylorBot.Net.EntityTracker.Domain.Options;
+using TaylorBot.Net.ChannelLogging.Domain;
+using TaylorBot.Net.ChannelLogging.Infrastructure;
+using TaylorBot.Net.ChannelLogging.Domain.DiscordEmbed;
+using TaylorBot.Net.ChannelLogging.Domain.Options;
 
 namespace TaylorBot.Net.EntityTracker.Program
 {
@@ -46,6 +50,7 @@ namespace TaylorBot.Net.EntityTracker.Program
                 .AddDatabaseConnectionConfiguration(environment)
                 .AddJsonFile(path: $"Settings/entityTracker.{environment}.json", optional: false)
                 .AddJsonFile(path: $"Settings/quickStartEmbed.{environment}.json", optional: false)
+                .AddJsonFile(path: $"Settings/channelLogging.{environment}.json", optional: false)
                 .Build();
 
             return new ServiceCollection()
@@ -54,19 +59,24 @@ namespace TaylorBot.Net.EntityTracker.Program
                 .ConfigureDatabaseConnection(config)
                 .ConfigureRequired<EntityTrackerOptions>(config, "EntityTracker")
                 .ConfigureRequired<QuickStartEmbedOptions>(config, "QuickStartEmbed")
+                .ConfigureRequired<ChannelLoggingOptions>(config, "ChannelLogging")
                 .AddTransient<IShardReadyHandler, ShardReadyHandler>()
                 .AddTransient<IJoinedGuildHandler, QuickStartJoinedGuildHandler>()
                 .AddTransient<IJoinedGuildHandler, UsernameJoinedGuildHandler>()
                 .AddTransient<IUserUpdatedHandler, UserUpdatedHandler>()
                 .AddTransient<IGuildUpdatedHandler, GuildUpdatedHandler>()
+                .AddTransient<IGuildUserJoinedHandler, GuildUserJoinedHandler>()
                 .AddTransient<QuickStartDomainService>()
                 .AddTransient<EntityTrackerDomainService>()
+                .AddTransient<GuildMemberJoinedLoggerService>()
+                .AddTransient<GuildMemberJoinedEmbedFactory>()
                 .AddTransient<IUserRepository, UserRepository>()
                 .AddTransient<IUsernameRepository, UsernameRepository>()
                 .AddTransient<ITextChannelRepository, TextChannelRepository>()
                 .AddTransient<IGuildRepository, GuildRepository>()
                 .AddTransient<IGuildNameRepository, GuildNameRepository>()
                 .AddTransient<IMemberRepository, MemberRepository>()
+                .AddTransient<ILoggingTextChannelRepository, LoggingTextChannelRepository>()
                 .BuildServiceProvider();
         }
     }

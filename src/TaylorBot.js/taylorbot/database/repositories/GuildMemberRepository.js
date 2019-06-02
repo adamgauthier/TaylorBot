@@ -16,35 +16,6 @@ class GuildMemberRepository {
         };
     }
 
-    async get(guildMember) {
-        const databaseMember = this.mapMemberToDatabase(guildMember);
-        try {
-            return await this._db.oneOrNone(
-                'SELECT * FROM guilds.guild_members WHERE guild_id = $[guild_id] AND user_id = $[user_id];',
-                databaseMember
-            );
-        }
-        catch (e) {
-            Log.error(`Getting guild member ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async add(guildMember) {
-        const databaseMember = this.mapMemberToDatabase(guildMember);
-        databaseMember.first_joined_at = guildMember.joinedAt;
-        try {
-            return await this._db.none(
-                'INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($[guild_id], $[user_id], $[first_joined_at]);',
-                databaseMember
-            );
-        }
-        catch (e) {
-            Log.error(`Adding member ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
-    }
-
     async getRankedFirstJoinedAt(guild, limit) {
         try {
             return await this._db.any(
@@ -268,10 +239,6 @@ class GuildMemberRepository {
 
     setDead(member) {
         return this._setAlive(member, false);
-    }
-
-    setAlive(member) {
-        return this._setAlive(member, true);
     }
 }
 
