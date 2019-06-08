@@ -38,11 +38,12 @@ namespace TaylorBot.Net.QuickStart.Domain
                 .WithThumbnailUrl(taylorBotClient.DiscordShardedClient.CurrentUser.GetAvatarUrl())
                 .Build();
 
+            var availableChannel = guild.TextChannels.FirstOrDefault(channel =>
+                IsEveryoneAllowedToSendMessages(guild, channel) &&
+                guild.CurrentUser.GetPermissions(channel).Has(ChannelPermission.SendMessages)
+            );
 
-            var availableChannel = guild.TextChannels
-                .FirstOrDefault(channel => guild.CurrentUser.GetPermissions(channel).Has(ChannelPermission.SendMessages));
-
-            if (availableChannel != default(SocketTextChannel))
+            if (availableChannel != default)
             {
                 await availableChannel.SendMessageAsync(embed: quickStartEmbed);
                 logger.LogInformation(LogString.From($"Sent Quick Start embed in {availableChannel.FormatLog()}."));
@@ -52,6 +53,12 @@ namespace TaylorBot.Net.QuickStart.Domain
                 await guild.Owner.SendMessageAsync(embed: quickStartEmbed);
                 logger.LogInformation(LogString.From($"Sent Quick Start embed to {guild.Owner.FormatLog()}."));
             }
+        }
+
+        private static bool IsEveryoneAllowedToSendMessages(SocketGuild guild, SocketTextChannel channel)
+        {
+            var overwrite = channel.GetPermissionOverwrite(guild.EveryoneRole);
+            return !overwrite.HasValue || overwrite.Value.SendMessages != PermValue.Deny;
         }
     }
 }
