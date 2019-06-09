@@ -1,37 +1,38 @@
 'use strict';
 
-class UserRegistry extends Map {
-    constructor(database) {
-        super();
+const moment = require('moment');
+
+class UserRegistry {
+    constructor(database, redis) {
         this.database = database;
+        this.redis = redis;
     }
 
-    async load() {
+    key(userId) {
+        return `ignored-user:${userId}`;
+    }
+
+    async cacheIgnored() {
         const users = await this.database.users.getAllIgnored();
-        users.forEach(u => this.cacheUser(u));
+        await Promise.all(users.map(u => this.cacheIgnoredUser(u)));
     }
 
-    cacheUser(databaseUser) {
-        this.set(databaseUser.user_id, {
-            ignoreUntil: databaseUser.ignore_until.getTime()
-        });
+    getIgnoredUntil(userId) {
+        return this.redis.get(this.key(userId));
     }
 
-    getOrAdd(user) {
-        const cachedUser = this.get(user.id);
-        if (!cachedUser) {
-            this.cacheUser({ user_id: user.id, ignore_until: new Date() });
-            return this.get(user.id);
-        }
-        return cachedUser;
+    async cacheIgnoredUser(databaseUser) {
+        const secondsUntilNotIgnored = moment.utc(databaseUser.ignore_until, 'X').diff(moment.utc(), 'seconds');
+        await this.redis.setExpire(
+            this.key(databaseUser.user_id),
+            secondsUntilNotIgnored,
+            databaseUser.ignore_until.getTime()
+        );
     }
 
     async ignoreUser(user, ignoreUntil) {
-        const cachedUser = this.getOrAdd(user);
-
         await this.database.users.ignore(user, ignoreUntil);
-
-        cachedUser.ignoreUntil = ignoreUntil.getTime();
+        await this.cacheIgnoredUser({ user_id: user.id, ignore_until: ignoreUntil });
     }
 }
 

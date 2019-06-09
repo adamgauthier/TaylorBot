@@ -25,7 +25,7 @@ class Registry {
         this.guilds = new GuildRegistry(database);
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
         this.commands = new CommandRegistry(database);
-        this.users = new UserRegistry(database);
+        this.users = new UserRegistry(database, redisCommands);
         this.channelCommands = new ChannelCommandRegistry(database, redisCommands);
         this.cooldowns = new CooldownRegistry(redisCommands);
         this.answeredCooldowns = new AnsweredCooldownRegistry(redisCommands);
@@ -65,9 +65,9 @@ class Registry {
         await this.commands.loadAll();
         Log.info('Commands loaded!');
 
-        Log.info('Loading users...');
-        await this.users.load();
-        Log.info('Users loaded!');
+        Log.info('Caching ignored users...');
+        await this.users.cacheIgnored();
+        Log.info('Ignored users cached!');
 
         Log.info('Caching channel commands...');
         await this.channelCommands.cacheChannelCommands();

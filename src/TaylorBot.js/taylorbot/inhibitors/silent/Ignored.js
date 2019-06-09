@@ -4,14 +4,14 @@ const SilentInhibitor = require('../SilentInhibitor.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 
 class IgnoredInhibitor extends SilentInhibitor {
-    shouldBeBlocked({ message, client }) {
+    async shouldBeBlocked({ message, client }) {
         const { author } = message;
 
         const commandTime = Date.now();
-        const cachedUser = client.master.registry.users.get(author.id);
+        const ignoredUntil = await client.master.registry.users.getIgnoredUntil(author.id);
 
-        if (cachedUser && commandTime < cachedUser.ignoreUntil) {
-            return `They are ignored until ${TimeUtil.formatLog(cachedUser.ignoreUntil)}.`;
+        if (ignoredUntil && commandTime < ignoredUntil) {
+            return `They are ignored until ${TimeUtil.formatLog(ignoredUntil)}.`;
         }
 
         return null;
