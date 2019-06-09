@@ -69,7 +69,24 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
             }
         }
 
-        public async Task SetMembersDeadAsync(IGuild guild, IEnumerable<IGuildUser> aliveMembers)
+        public async Task SetMemberDeadAsync(IGuildUser member)
+        {
+            using (var connection = Connection)
+            {
+                connection.Open();
+
+                await connection.ExecuteAsync(
+                    "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND user_id = @UserId;",
+                    new
+                    {
+                        GuildId = member.GuildId.ToString(),
+                        UserId = member.Id.ToString()
+                    }
+                );
+            }
+        }
+
+        public async Task UpdateDeadMembersAsync(IGuild guild, IEnumerable<IGuildUser> aliveMembers)
         {
             using (var connection = Connection)
             {

@@ -98,7 +98,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
                 allMembers.Select(
                     OnGuildUserJoinedAsync
                 ).Append(
-                    memberRepository.SetMembersDeadAsync(guild, allMembers)
+                    memberRepository.UpdateDeadMembersAsync(guild, allMembers)
                 ).ToArray()
             );
         }
@@ -173,6 +173,11 @@ namespace TaylorBot.Net.EntityTracker.Domain
                     await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
                 }
             }
+        }
+
+        public async Task OnGuildUserLeftAsync(SocketGuildUser guildUser)
+        {
+            await memberRepository.SetMemberDeadAsync(guildUser);
         }
 
         public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)

@@ -101,6 +101,15 @@ namespace TaylorBot.Net.Core.Program
                     );
             }
 
+            var guildUserLeftHandler = serviceProvider.GetService<IGuildUserLeftHandler>();
+            if (guildUserLeftHandler != null)
+            {
+                client.DiscordShardedClient.UserLeft += async (guildUser) =>
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await guildUserLeftHandler.GuildUserLeftAsync(guildUser), nameof(IGuildUserLeftHandler)
+                    );
+            }
+
             var textChannelCreatedHandler = serviceProvider.GetService<ITextChannelCreatedHandler>();
             if (textChannelCreatedHandler != null)
             {

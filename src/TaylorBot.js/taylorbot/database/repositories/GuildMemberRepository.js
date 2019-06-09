@@ -217,29 +217,6 @@ class GuildMemberRepository {
             throw e;
         }
     }
-
-    async _setAlive(member, alive) {
-        const databaseMember = this.mapMemberToDatabase(member);
-        try {
-            await this._db.none(
-                `UPDATE guilds.guild_members
-                SET alive = $[alive]
-                WHERE guild_id = $[guild_id] AND user_id = $[user_id];`,
-                {
-                    ...databaseMember,
-                    alive
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Setting guild member ${Format.member(member)} alive to ${alive}: ${e}`);
-            throw e;
-        }
-    }
-
-    setDead(member) {
-        return this._setAlive(member, false);
-    }
 }
 
 module.exports = GuildMemberRepository;
