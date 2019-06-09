@@ -39,7 +39,7 @@ class RockPaperScissorsCommand extends Command {
         if (winner === move) {
             const { taypoint_count } = await client.master.database.rpsStats.winRpsGame(author, winReward);
             color = '#43b581';
-            resultMessage = `You win! 😭 Gave you ${StringUtil.plural(winReward, 'taypoint', '**')}, you now have ${taypoint_count}. 💰`;
+            resultMessage = `You win! 😭 Gave you ${StringUtil.plural(winReward, 'taypoint', '**')}, you now have ${StringUtil.formatNumberString(taypoint_count)}. 💰`;
         }
         else if (winner === opponentMove) {
             color = '#f04747';

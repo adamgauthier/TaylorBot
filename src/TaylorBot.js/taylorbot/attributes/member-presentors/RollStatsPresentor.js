@@ -1,12 +1,13 @@
 'use strict';
 
+const SimpleStatPresentor = require('./SimpleStatPresentor.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
 const MathUtil = require('../../modules/MathUtil.js');
 
-class RollStatsPresentor {
+class RollStatsPresentor extends SimpleStatPresentor {
     constructor(attribute) {
-        this.attribute = attribute;
+        super(attribute);
     }
 
     present(commandContext, member, { roll_count, rank, perfect_roll_count }) {
@@ -35,10 +36,6 @@ class RollStatsPresentor {
                     `This means they roughly get a perfect roll every **${rateDecimal()}** rolls.` :
                     `The odds of not getting a perfect roll in that many rolls is roughly **${oddsPercent()}%**.`
             ].join('\n'));
-    }
-
-    presentRankEntry(member, { [this.attribute.columnName]: stat, rank }) {
-        return `${rank}: ${member.user.username} - ${StringUtil.plural(stat, this.attribute.singularName, '`')}`;
     }
 }
 

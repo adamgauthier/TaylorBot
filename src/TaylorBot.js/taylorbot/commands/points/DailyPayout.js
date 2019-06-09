@@ -52,9 +52,12 @@ class DailyPayoutCommand extends Command {
         return client.sendEmbed(channel, DiscordEmbedFormatter
             .baseUserEmbed(author)
             .setDescription([
-                `You redeemed ${StringUtil.plural(payoutCount, 'taypoint', '**')} + ${StringUtil.plural(bonus_reward, 'bonus taypoint', '**')}. ` +
-                `You now have **${taypoint_count}**. 💰`,
-                `Bonus streak: **${streak_count}**/**${nextStreak}**. Don't miss a day and get a bonus! See you tomorrow! 😄`
+                `You redeemed ${StringUtil.plural(payoutCount, 'taypoint', '**')} + ${StringUtil.plural(
+                    bonus_reward, 'bonus taypoint', '**'
+                )}. You now have **${StringUtil.formatNumberString(taypoint_count)}**. 💰`,
+                `Bonus streak: **${StringUtil.formatNumberString(streak_count)}**/**${StringUtil.formatNumberString(
+                    nextStreak
+                )}**. Don't miss a day and get a bonus! See you tomorrow! 😄`
             ].join('\n'))
         );
     }

@@ -51,7 +51,7 @@ class SubRedditCommand extends Command {
                 .setTimestamp(subredditAbout.created * 1000)
                 .setDescription(subredditAbout.public_description)
                 .addField('Users',
-                    `${StringUtil.plural(subredditAbout.subscribers, 'subscriber', '`')} (\`${subredditAbout.active_user_count}\` online)`
+                    `${StringUtil.plural(subredditAbout.subscribers, 'subscriber', '`')} (\`${StringUtil.formatNumberString(subredditAbout.active_user_count)}\` online)`
                 )
                 .setFooter(subredditAbout.display_name_prefixed, 'https://i.imgur.com/HbUa6WQ.png')
         );

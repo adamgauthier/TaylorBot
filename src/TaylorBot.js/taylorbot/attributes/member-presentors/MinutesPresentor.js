@@ -2,13 +2,14 @@
 
 const moment = require('moment');
 
+const SimpleStatPresentor = require('./SimpleStatPresentor.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
 const MathUtil = require('../../modules/MathUtil.js');
 
-class MinutesPresentor {
+class MinutesPresentor extends SimpleStatPresentor {
     constructor(attribute) {
-        this.attribute = attribute;
+        super(attribute);
     }
 
     present(commandContext, member, { [this.attribute.columnName]: minuteCount, rank }) {
@@ -21,10 +22,6 @@ class MinutesPresentor {
                 `This is roughly equivalent to **${duration.humanize()}** of activity.`,
                 `They are the **${MathUtil.formatNumberSuffix(rank)}** user of the server (excluding users who left).`
             ].join('\n'));
-    }
-
-    presentRankEntry(member, { [this.attribute.columnName]: minuteCount, rank }) {
-        return `${rank}: ${member.user.username} - ${StringUtil.plural(minuteCount, 'minute', '`')}`;
     }
 }
 

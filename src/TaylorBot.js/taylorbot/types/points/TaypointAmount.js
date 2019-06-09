@@ -27,7 +27,9 @@ class TaypointAmountArgumentType extends PositiveSafeIntegerArgumentType {
         const { taypoint_count, has_enough } = await client.master.database.users.hasEnoughTaypointCount(message.author, number);
 
         if (!has_enough)
-            throw new ArgumentParsingError(`You can't spend ${StringUtil.plural(number, 'taypoint', '**')}, you only have **${taypoint_count}**.`);
+            throw new ArgumentParsingError(
+                `You can't spend ${StringUtil.plural(number, 'taypoint', '**')}, you only have **${StringUtil.formatNumberString(taypoint_count)}**.`
+            );
 
         return new TaypointAmount({ count: number });
     }

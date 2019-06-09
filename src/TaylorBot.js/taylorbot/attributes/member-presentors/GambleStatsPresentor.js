@@ -1,12 +1,13 @@
 'use strict';
 
+const SimpleStatPresentor = require('./SimpleStatPresentor.js');
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const StringUtil = require('../../modules/StringUtil.js');
 const MathUtil = require('../../modules/MathUtil.js');
 
-class GambleStatsPresentor {
+class GambleStatsPresentor extends SimpleStatPresentor {
     constructor(attribute) {
-        this.attribute = attribute;
+        super(attribute);
     }
 
     present(commandContext, member, { gamble_win_count, rank, gamble_lose_count, gamble_win_amount, gamble_lose_amount }) {
@@ -30,10 +31,6 @@ class GambleStatsPresentor {
                 `They have also lost ${StringUtil.plural(loseCount, 'gamble', '**')}, meaning they have a win rate of **${winRate()}%**.`,
                 `Overall, they won ${StringUtil.plural(winAmount, 'taypoint', '**')} and lost ${StringUtil.plural(loseAmount, 'taypoint', '**')} through gambling.`
             ].join('\n'));
-    }
-
-    presentRankEntry(member, { [this.attribute.columnName]: stat, rank }) {
-        return `${rank}: ${member.user.username} - ${StringUtil.plural(stat, this.attribute.singularName, '`')}`;
     }
 }
 

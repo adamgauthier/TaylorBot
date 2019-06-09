@@ -74,7 +74,10 @@ class HeistCommand extends Command {
                                 `All thanks to <@${randomHeister.user_id}>, the heist went perfectly. 💯\n` :
                                 `The cops busted the crew because ${FailureReasonRepository.retrieveRandomReason().replace('{user}', `<@${randomHeister.user_id}>`)}. 👮\n`,
                             ...results.map(({ user_id, gambled_count, final_count, payout_count }) =>
-                                `<@${user_id}> Invested ${StringUtil.plural(gambled_count, 'taypoint', '**')}${won ? `, made a profit of **${payout_count}**` : ``}, now has ${final_count}. ${won ? '💰' : '💸'}`
+                                `<@${user_id}> Invested ${StringUtil.plural(
+                                    gambled_count, 'taypoint', '**'
+                                )}${won ? `, made a profit of **${StringUtil.formatNumberString(payout_count)}**` : ``
+                                }, now has ${StringUtil.formatNumberString(final_count)}. ${won ? '💰' : '💸'}`
                             )
                         ].join('\n'), 2000, '...'))
                     );

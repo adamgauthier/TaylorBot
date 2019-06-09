@@ -13,7 +13,7 @@ class DailyStreakPresentor {
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([
-                `${member.displayName} is currently on a **${streak}** day payout streak.`,
+                `${member.displayName} is currently on a **${StringUtil.formatNumberString(streak)}** day payout streak.`,
                 `They are the **${MathUtil.formatNumberSuffix(rank)}** user of the server (excluding users who left).`
             ].join('\n'));
     }

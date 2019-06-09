@@ -31,7 +31,11 @@ class StringUtil {
                 itemName = `${itemName}s`;
         }
 
-        return `${surround}${size}${surround} ${itemName}`;
+        return `${surround}${StringUtil.formatNumberString(size)}${surround} ${itemName}`;
+    }
+
+    static formatNumberString(numberAsString) {
+        return numberAsString.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
     }
 }
 

@@ -41,7 +41,7 @@ class GambleCommand extends Command {
             .baseUserHeader(author)
             .setColor(won ? '#43b581' : '#f04747')
             .setDescription([
-                `Gambled ${StringUtil.plural(gambled_count, 'taypoint', '**')} out of ${original_count}. 💵`,
+                `Gambled ${StringUtil.plural(gambled_count, 'taypoint', '**')} out of ${StringUtil.formatNumberString(original_count)}. 💵`,
                 `Rolled **${roll}**/${limit}. 🎲 You ${won ? 'won! 😄' : 'lost! 😔'}`,
                 `You now have ${StringUtil.plural(final_count, 'taypoint', '**')}. ${won ? '💰' : '💸'}`
             ].join('\n'))
