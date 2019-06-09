@@ -55,24 +55,6 @@ class TextChannelRepository {
         }
     }
 
-    async add(guildChannel) {
-        if (guildChannel.type !== 'text')
-            throw new Error(`Can't add non text channel ${Format.guildChannel(guildChannel)} to text channels.`);
-
-        const databaseChannel = this.mapChannelToDatabase(guildChannel);
-
-        try {
-            return await this._db.none(
-                'INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES ($[guild_id], $[channel_id]);',
-                databaseChannel
-            );
-        }
-        catch (e) {
-            Log.error(`Adding text channel ${Format.guildChannel(guildChannel)}: ${e}`);
-            throw e;
-        }
-    }
-
     async _setLog(guildChannel, isLog) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {

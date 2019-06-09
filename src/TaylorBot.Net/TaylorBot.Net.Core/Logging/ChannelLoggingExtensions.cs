@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Core.Logging
     {
         public static string FormatLog(this IGuildChannel textChannel)
         {
-            return $"{textChannel.Name} ({textChannel.Id}) on {textChannel.Guild.Name} ({textChannel.GuildId})";
+            return $"{textChannel.Name} ({textChannel.Id}) in {textChannel.Guild.Name} ({textChannel.GuildId})";
         }
     }
 }

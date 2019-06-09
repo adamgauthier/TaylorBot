@@ -101,6 +101,20 @@ namespace TaylorBot.Net.Core.Program
                     );
             }
 
+            var textChannelCreatedHandler = serviceProvider.GetService<ITextChannelCreatedHandler>();
+            if (textChannelCreatedHandler != null)
+            {
+                client.DiscordShardedClient.ChannelCreated += async (socketChannel) =>
+                {
+                    if (socketChannel is SocketTextChannel textChannel)
+                    {
+                        await taskExceptionLogger.LogOnError(async () =>
+                            await textChannelCreatedHandler.TextChannelCreatedAsync(textChannel), nameof(ITextChannelCreatedHandler)
+                        );
+                    }
+                };
+            }
+
             // Wait 5 seconds to login in case of a boot loop
             await Task.Delay(new TimeSpan(0, 0, 5));
 

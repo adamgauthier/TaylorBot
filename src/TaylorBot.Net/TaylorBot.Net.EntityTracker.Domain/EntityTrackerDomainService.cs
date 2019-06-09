@@ -174,5 +174,11 @@ namespace TaylorBot.Net.EntityTracker.Domain
                 }
             }
         }
+
+        public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
+        {
+            await textChannelRepository.AddTextChannelAsync(textChannel);
+            logger.LogInformation(LogString.From($"Added new text channel {textChannel.FormatLog()}."));
+        }
     }
 }

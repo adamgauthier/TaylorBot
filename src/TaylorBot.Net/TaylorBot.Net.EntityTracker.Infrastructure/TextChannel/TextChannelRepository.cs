@@ -14,6 +14,23 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel
         {
         }
 
+        public async Task AddTextChannelAsync(ITextChannel textChannel)
+        {
+            using (var connection = Connection)
+            {
+                connection.Open();
+
+                await connection.ExecuteAsync(
+                    "INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES (@GuildId, @ChannelId);",
+                    new
+                    {
+                        GuildId = textChannel.GuildId.ToString(),
+                        ChannelId = textChannel.Id.ToString()
+                    }
+                );
+            }
+        }
+
         public async Task AddTextChannelIfNotAddedAsync(ITextChannel textChannel)
         {
             using (var connection = Connection)
