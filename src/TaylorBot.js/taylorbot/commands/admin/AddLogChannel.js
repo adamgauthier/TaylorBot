@@ -12,7 +12,7 @@ class AddLogChannelCommand extends Command {
             aliases: ['alc'],
             group: 'admin',
             description: 'Indicates the bot that it should log in a channel.',
-            minimumGroup: UserGroups.GuildOwners,
+            mustHavePermission: UserGroups.Master,
             examples: ['#joinlogs', 'log'],
             guildOnly: true,
 

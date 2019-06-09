@@ -9,8 +9,13 @@ module.exports = {
         'accessLevel': 10000,
         'isSpecial': false
     },
+    'GuildManagers': {
+        'name': 'Server Managers (Manage Server Permission)',
+        'accessLevel': 15000,
+        'isSpecial': true
+    },
     'GuildOwners': {
-        'name': 'GuildOwners',
+        'name': 'Server Owners',
         'accessLevel': 20000,
         'isSpecial': true
     },

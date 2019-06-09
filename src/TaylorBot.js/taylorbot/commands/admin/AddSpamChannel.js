@@ -12,7 +12,7 @@ class AddSpamChannelCommand extends Command {
             aliases: ['asc'],
             group: 'admin',
             description: 'Indicates the bot that it should consider a channel as spam.',
-            minimumGroup: UserGroups.GuildOwners,
+            minimumGroup: UserGroups.GuildManagers,
             examples: ['#spam', 'spam-and-bots'],
             guildOnly: true,
 

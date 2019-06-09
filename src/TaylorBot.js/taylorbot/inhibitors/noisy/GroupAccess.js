@@ -1,5 +1,7 @@
 'use strict';
 
+const { Permissions } = require('discord.js');
+
 const NoisyInhibitor = require('../NoisyInhibitor.js');
 const CommandMessageContext = require('../../commands/CommandMessageContext.js');
 const UserGroups = require('../../client/UserGroups.js');
@@ -36,6 +38,9 @@ class GroupAccessInhibitor extends NoisyInhibitor {
 
         if (member) {
             if (member.guild.ownerID === member.id && UserGroups.GuildOwners.accessLevel >= minimumGroupLevel)
+                return true;
+
+            if (UserGroups.GuildManagers.accessLevel >= minimumGroupLevel && member.hasPermission(Permissions.FLAGS.MANAGE_GUILD))
                 return true;
 
             if (GroupAccessInhibitor.roleGroupHasAccess(minimumGroupLevel, member, registry.guilds, registry.groups))

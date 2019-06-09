@@ -12,7 +12,7 @@ class RemoveSpamChannelCommand extends Command {
             aliases: ['rsc'],
             group: 'admin',
             description: 'Indicates the bot that it should stop considering a channel as spam.',
-            minimumGroup: UserGroups.GuildOwners,
+            minimumGroup: UserGroups.GuildManagers,
             examples: ['#spam', 'spam-and-bots'],
             guildOnly: true,
 
