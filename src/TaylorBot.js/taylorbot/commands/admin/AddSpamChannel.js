@@ -31,11 +31,16 @@ class AddSpamChannelCommand extends Command {
         const { database } = client.master;
         const textChannel = await database.textChannels.get(channel);
 
-        if (textChannel.is_spam) {
+        if (!textChannel) {
+            await database.textChannels.upsertSpamChannel(channel, true);
+        }
+        else if (textChannel.is_spam) {
             throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is already a spam channel.`);
         }
+        else {
+            await database.textChannels.setSpam(channel);
+        }
 
-        await database.textChannels.setSpam(channel);
         return client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a spam channel.`);
     }
 }

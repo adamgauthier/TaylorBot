@@ -31,11 +31,16 @@ class RemoveLogChannelCommand extends Command {
         const { database } = client.master;
         const textChannel = await database.textChannels.get(channel);
 
-        if (!textChannel.is_log) {
+        if (!textChannel) {
+            await database.textChannels.upsertLogChannel(channel, false);
+        }
+        else if (!textChannel.is_log) {
             throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is not a log channel.`);
         }
+        else {
+            await database.textChannels.removeLog(channel);
+        }
 
-        await database.textChannels.removeLog(channel);
         return client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a log channel.`);
     }
 }

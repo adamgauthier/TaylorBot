@@ -109,6 +109,42 @@ class TextChannelRepository {
     removeSpam(guildChannel) {
         return this._setSpam(guildChannel, false);
     }
+
+    async upsertSpamChannel(guildChannel, isSpam) {
+        const databaseChannel = this.mapChannelToDatabase(guildChannel);
+        try {
+            return await this._db.none(
+                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_spam) VALUES ($[guild_id], $[channel_id], $[is_spam])
+                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_spam = $[is_spam];`,
+                {
+                    ...databaseChannel,
+                    is_spam: isSpam
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Upserting ${Format.guildChannel(guildChannel)} as spam channel: ${e}`);
+            throw e;
+        }
+    }
+
+    async upsertLogChannel(guildChannel, isLog) {
+        const databaseChannel = this.mapChannelToDatabase(guildChannel);
+        try {
+            return await this._db.none(
+                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_log) VALUES ($[guild_id], $[channel_id], $[is_log])
+                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_log = $[is_log];`,
+                {
+                    ...databaseChannel,
+                    is_log: isLog
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Upserting ${Format.guildChannel(guildChannel)} as log channel: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = TextChannelRepository;

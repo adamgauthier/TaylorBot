@@ -31,11 +31,16 @@ class RemoveSpamChannelCommand extends Command {
         const { database } = client.master;
         const textChannel = await database.textChannels.get(channel);
 
-        if (!textChannel.is_spam) {
+        if (!textChannel) {
+            await database.textChannels.upsertSpamChannel(channel, false);
+        }
+        else if (!textChannel.is_spam) {
             throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is not a spam channel.`);
         }
+        else {
+            await database.textChannels.removeSpam(channel);
+        }
 
-        await database.textChannels.removeSpam(channel);
         return client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a spam channel.`);
     }
 }
