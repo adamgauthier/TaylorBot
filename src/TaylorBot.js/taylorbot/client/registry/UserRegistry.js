@@ -7,7 +7,7 @@ class UserRegistry extends Map {
     }
 
     async load() {
-        const users = await this.database.users.getAll();
+        const users = await this.database.users.getAllIgnored();
         users.forEach(u => this.cacheUser(u));
     }
 
@@ -17,8 +17,17 @@ class UserRegistry extends Map {
         });
     }
 
-    async ignoreUser(user, ignoreUntil) {
+    getOrAdd(user) {
         const cachedUser = this.get(user.id);
+        if (!cachedUser) {
+            this.cacheUser({ user_id: user.id, ignore_until: new Date() });
+            return this.get(user.id);
+        }
+        return cachedUser;
+    }
+
+    async ignoreUser(user, ignoreUntil) {
+        const cachedUser = this.getOrAdd(user);
 
         await this.database.users.ignore(user, ignoreUntil);
 

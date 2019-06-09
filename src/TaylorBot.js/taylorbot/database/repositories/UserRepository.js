@@ -9,9 +9,9 @@ class UserRepository {
         this._usersDAO = usersDAO;
     }
 
-    async getAll() {
+    async getAllIgnored() {
         try {
-            return await this._db.any('SELECT user_id, ignore_until FROM users.users;');
+            return await this._db.any('SELECT user_id, ignore_until FROM users.users WHERE ignore_until >= CURRENT_TIMESTAMP;');
         }
         catch (e) {
             Log.error(`Getting all users: ${e}`);
@@ -23,20 +23,6 @@ class UserRepository {
         return {
             'user_id': user.id
         };
-    }
-
-    async get(user) {
-        const databaseUser = this.mapUserToDatabase(user);
-        try {
-            return await this._db.oneOrNone(
-                'SELECT * FROM users.users WHERE user_id = $[user_id];',
-                databaseUser
-            );
-        }
-        catch (e) {
-            Log.error(`Getting user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
     }
 
     async getTaypointCount(user) {

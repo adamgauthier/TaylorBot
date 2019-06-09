@@ -8,10 +8,10 @@ class IgnoredInhibitor extends SilentInhibitor {
         const { author } = message;
 
         const commandTime = Date.now();
-        const { ignoreUntil } = client.master.registry.users.get(author.id);
+        const cachedUser = client.master.registry.users.get(author.id);
 
-        if (commandTime < ignoreUntil) {
-            return `They are ignored until ${TimeUtil.formatLog(ignoreUntil)}.`;
+        if (cachedUser && commandTime < cachedUser.ignoreUntil) {
+            return `They are ignored until ${TimeUtil.formatLog(cachedUser.ignoreUntil)}.`;
         }
 
         return null;
