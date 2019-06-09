@@ -1,14 +1,15 @@
 'use strict';
 
-const MemberAttribute = require('../MemberAttribute.js');
+const SimpleStatMemberAttribute = require('../SimpleStatMemberAttribute.js');
 const MinutesPresentor = require('../member-presentors/MinutesPresentor.js');
 
-class MinutesAttribute extends MemberAttribute {
+class MinutesAttribute extends SimpleStatMemberAttribute {
     constructor() {
         super({
             id: 'minutes',
             description: 'total minutes active',
             columnName: 'minute_count',
+            singularName: 'minute',
             presentor: MinutesPresentor
         });
     }

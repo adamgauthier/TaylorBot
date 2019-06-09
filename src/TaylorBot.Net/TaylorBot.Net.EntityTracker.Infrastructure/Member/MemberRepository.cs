@@ -93,7 +93,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
                 connection.Open();
 
                 await connection.ExecuteAsync(
-                    "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND alive = TRUE AND user_id <> ANY(@UserIds);",
+                    "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND alive = TRUE AND NOT(user_id = ANY(@UserIds));",
                     new
                     {
                         GuildId = guild.Id.ToString(),

@@ -94,13 +94,13 @@ namespace TaylorBot.Net.EntityTracker.Domain
             await guild.DownloadUsersAsync();
 
             var allMembers = guild.Users;
-            await Task.WhenAll(
-                allMembers.Select(
-                    OnGuildUserJoinedAsync
-                ).Append(
-                    memberRepository.UpdateDeadMembersAsync(guild, allMembers)
-                ).ToArray()
-            );
+
+            await memberRepository.UpdateDeadMembersAsync(guild, allMembers);
+
+            foreach (var member in allMembers)
+            {
+                await OnGuildUserJoinedAsync(member);
+            }
         }
 
         public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
