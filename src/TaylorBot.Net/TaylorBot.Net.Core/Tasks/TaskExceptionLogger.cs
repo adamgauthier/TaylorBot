@@ -26,5 +26,10 @@ namespace TaylorBot.Net.Core.Tasks
                 throw;
             }
         }
+
+        public Task LogOnError(Func<Task> task, string taskName)
+        {
+            return LogOnError(task(), taskName);
+        }
     }
 }

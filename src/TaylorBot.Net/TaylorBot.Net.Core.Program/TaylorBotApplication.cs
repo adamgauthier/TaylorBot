@@ -38,14 +38,18 @@ namespace TaylorBot.Net.Core.Program
             if (shardReadyHandler != null)
             {
                 client.DiscordShardedClient.ShardReady += async (socketClient) =>
-                    await taskExceptionLogger.LogOnError(shardReadyHandler.ShardReadyAsync(socketClient), nameof(IShardReadyHandler));
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await shardReadyHandler.ShardReadyAsync(socketClient), nameof(IShardReadyHandler)
+                    );
             }
 
             var allReadyHandler = serviceProvider.GetService<IAllReadyHandler>();
             if (allReadyHandler != null)
             {
                 client.AllShardsReady += async () =>
-                    await taskExceptionLogger.LogOnError(allReadyHandler.AllShardsReadyAsync(), nameof(IAllReadyHandler));
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await allReadyHandler.AllShardsReadyAsync(), nameof(IAllReadyHandler)
+                    );
             }
 
             var userMessageReceivedHandler = serviceProvider.GetService<IUserMessageReceivedHandler>();
@@ -55,7 +59,9 @@ namespace TaylorBot.Net.Core.Program
                 {
                     if (message is SocketUserMessage userMessage)
                     {
-                        await taskExceptionLogger.LogOnError(userMessageReceivedHandler.UserMessageReceivedAsync(userMessage), nameof(IUserMessageReceivedHandler));
+                        await taskExceptionLogger.LogOnError(async () =>
+                            await userMessageReceivedHandler.UserMessageReceivedAsync(userMessage), nameof(IUserMessageReceivedHandler)
+                        );
                     }
                 };
             }
@@ -64,27 +70,35 @@ namespace TaylorBot.Net.Core.Program
             if (userUpdatedHandler != null)
             {
                 client.DiscordShardedClient.UserUpdated += async (oldUser, newUser) =>
-                    await taskExceptionLogger.LogOnError(userUpdatedHandler.UserUpdatedAsync(oldUser, newUser), nameof(IUserUpdatedHandler));
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await userUpdatedHandler.UserUpdatedAsync(oldUser, newUser), nameof(IUserUpdatedHandler)
+                    );
             }
 
             foreach (var joinedGuildHandler in serviceProvider.GetServices<IJoinedGuildHandler>())
             {
                 client.DiscordShardedClient.JoinedGuild += async (guild) =>
-                    await taskExceptionLogger.LogOnError(joinedGuildHandler.JoinedGuildAsync(guild), nameof(IJoinedGuildHandler));
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await joinedGuildHandler.JoinedGuildAsync(guild), nameof(IJoinedGuildHandler)
+                    );
             }
 
             var guildUpdatedHandler = serviceProvider.GetService<IGuildUpdatedHandler>();
             if (guildUpdatedHandler != null)
             {
                 client.DiscordShardedClient.GuildUpdated += async (oldGuild, newGuild) =>
-                    await taskExceptionLogger.LogOnError(guildUpdatedHandler.GuildUpdatedAsync(oldGuild, newGuild), nameof(IGuildUpdatedHandler));
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await guildUpdatedHandler.GuildUpdatedAsync(oldGuild, newGuild), nameof(IGuildUpdatedHandler)
+                    );
             }
 
             var guildUserJoinedHandler = serviceProvider.GetService<IGuildUserJoinedHandler>();
             if (guildUserJoinedHandler != null)
             {
                 client.DiscordShardedClient.UserJoined += async (guildUser) =>
-                    await taskExceptionLogger.LogOnError(guildUserJoinedHandler.GuildUserJoinedAsync(guildUser), nameof(IGuildUserJoinedHandler));
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await guildUserJoinedHandler.GuildUserJoinedAsync(guildUser), nameof(IGuildUserJoinedHandler)
+                    );
             }
 
             // Wait 5 seconds to login in case of a boot loop
