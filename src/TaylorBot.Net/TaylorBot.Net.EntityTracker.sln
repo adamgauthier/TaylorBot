@@ -9,23 +9,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.EntityTracker.Program", "TaylorBot.Net.EntityTracker.Program\TaylorBot.Net.EntityTracker.Program.csproj", "{5829E17B-5DCA-49BC-B43A-300F14A09908}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.EntityTracker.Program", "src\TaylorBot.Net.EntityTracker.Program\TaylorBot.Net.EntityTracker.Program.csproj", "{5829E17B-5DCA-49BC-B43A-300F14A09908}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.EntityTracker.Infrastructure", "TaylorBot.Net.EntityTracker.Infrastructure\TaylorBot.Net.EntityTracker.Infrastructure.csproj", "{AA766BCD-CF57-4294-99E0-834E8E80EAF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.EntityTracker.Infrastructure", "src\TaylorBot.Net.EntityTracker.Infrastructure\TaylorBot.Net.EntityTracker.Infrastructure.csproj", "{AA766BCD-CF57-4294-99E0-834E8E80EAF7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.EntityTracker.Domain", "TaylorBot.Net.EntityTracker.Domain\TaylorBot.Net.EntityTracker.Domain.csproj", "{744897A9-FA70-4309-B71F-86C8EBE8814E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.EntityTracker.Domain", "src\TaylorBot.Net.EntityTracker.Domain\TaylorBot.Net.EntityTracker.Domain.csproj", "{744897A9-FA70-4309-B71F-86C8EBE8814E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core", "TaylorBot.Net.Core\TaylorBot.Net.Core.csproj", "{AEEBE61B-63E2-4358-92BC-46EBB2E7805A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core", "src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj", "{AEEBE61B-63E2-4358-92BC-46EBB2E7805A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastructure", "TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{4E9A51B6-0B0E-491A-8A54-0957806D4B44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastructure", "src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{4E9A51B6-0B0E-491A-8A54-0957806D4B44}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{0E35D01E-742C-4033-8F17-A91E777628F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{0E35D01E-742C-4033-8F17-A91E777628F8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.QuickStart.Domain", "TaylorBot.Net.QuickStart.Domain\TaylorBot.Net.QuickStart.Domain.csproj", "{EA7C5094-62E6-4DBB-B788-29BD32B3E410}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.QuickStart.Domain", "src\TaylorBot.Net.QuickStart.Domain\TaylorBot.Net.QuickStart.Domain.csproj", "{EA7C5094-62E6-4DBB-B788-29BD32B3E410}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.ChannelLogging.Domain", "TaylorBot.Net.ChannelLogging.Domain\TaylorBot.Net.ChannelLogging.Domain.csproj", "{497A24F9-4DDE-4216-A589-83EFF5253AA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.ChannelLogging.Domain", "src\TaylorBot.Net.ChannelLogging.Domain\TaylorBot.Net.ChannelLogging.Domain.csproj", "{497A24F9-4DDE-4216-A589-83EFF5253AA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.ChannelLogging.Infrastructure", "TaylorBot.Net.ChannelLogging.Infrastructure\TaylorBot.Net.ChannelLogging.Infrastructure.csproj", "{E43CD69B-E0AA-4B49-B71F-6AD7E932408C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.ChannelLogging.Infrastructure", "src\TaylorBot.Net.ChannelLogging.Infrastructure\TaylorBot.Net.ChannelLogging.Infrastructure.csproj", "{E43CD69B-E0AA-4B49-B71F-6AD7E932408C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

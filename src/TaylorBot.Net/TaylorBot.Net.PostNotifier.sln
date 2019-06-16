@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.PostNotifier.Program", "TaylorBot.Net.PostNotifier.Program\TaylorBot.Net.PostNotifier.Program.csproj", "{049280F5-EC68-4045-944F-021E04ED98A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.PostNotifier.Program", "src\TaylorBot.Net.PostNotifier.Program\TaylorBot.Net.PostNotifier.Program.csproj", "{049280F5-EC68-4045-944F-021E04ED98A4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core", "TaylorBot.Net.Core\TaylorBot.Net.Core.csproj", "{CA083279-6679-4EE9-A9D3-B76F792CC59C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core", "src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj", "{CA083279-6679-4EE9-A9D3-B76F792CC59C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{112D99D4-47A2-401C-9497-0D8802CFC48F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{112D99D4-47A2-401C-9497-0D8802CFC48F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FD1FCC48-A1A3-4950-9E32-36B6C914B718}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,11 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Domain", "TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj", "{FDB8BBF4-9614-44BB-9B83-EF9932645D55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Domain", "src\TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj", "{FDB8BBF4-9614-44BB-9B83-EF9932645D55}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Infrastructure", "TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj", "{B89AD3E5-0EE8-4372-A2C8-B3F980E3BCE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Infrastructure", "src\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj", "{B89AD3E5-0EE8-4372-A2C8-B3F980E3BCE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.Core.Infrastructure", "TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{555C2C9A-58A0-47EC-9317-6638B7B4F99F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.Core.Infrastructure", "src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{555C2C9A-58A0-47EC-9317-6638B7B4F99F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
