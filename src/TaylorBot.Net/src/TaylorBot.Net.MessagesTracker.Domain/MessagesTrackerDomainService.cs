@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.MessagesTracker.Domain
 {
@@ -8,13 +7,11 @@ namespace TaylorBot.Net.MessagesTracker.Domain
     {
         private readonly IMessageRepository messageRepository;
         private readonly WordCounter wordCounter;
-        private readonly TaylorBotClient taylorBotClient;
 
-        public MessagesTrackerDomainService(IMessageRepository messageRepository, WordCounter wordCounter, TaylorBotClient taylorBotClient)
+        public MessagesTrackerDomainService(IMessageRepository messageRepository, WordCounter wordCounter)
         {
             this.messageRepository = messageRepository;
             this.wordCounter = wordCounter;
-            this.taylorBotClient = taylorBotClient;
         }
 
         public async Task OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketGuildUser guildUser, SocketUserMessage message)

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.489
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.StatsTracker.Program", "src\TaylorBot.Net.StatsTracker.Program\TaylorBot.Net.StatsTracker.Program.csproj", "{E65B58D5-553F-46D6-9A61-4BF0426B6408}"
 EndProject
@@ -24,6 +24,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessagesTracker.Infrastructure", "src\TaylorBot.Net.MessagesTracker.Infrastructure\TaylorBot.Net.MessagesTracker.Infrastructure.csproj", "{B3B02CAF-AFD3-424A-80F3-3216DDDE492A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessagesTracker.Domain", "src\TaylorBot.Net.MessagesTracker.Domain\TaylorBot.Net.MessagesTracker.Domain.csproj", "{B97FF3D6-FD38-485C-AE6B-E433784947FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{48D45EDE-4629-4E30-916E-E171FDDDE038}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Tests.Core", "test\TaylorBot.Net.Tests.Core\TaylorBot.Net.Tests.Core.csproj", "{40A0435D-81F1-4D01-9303-C1C548F36E0F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessagesTracker.Domain.Tests", "test\TaylorBot.Net.MessagesTracker.Domain.Tests\TaylorBot.Net.MessagesTracker.Domain.Tests.csproj", "{10A46290-BE57-403C-9C0E-B04A74F012CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,9 +69,21 @@ Global
 		{B97FF3D6-FD38-485C-AE6B-E433784947FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B97FF3D6-FD38-485C-AE6B-E433784947FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B97FF3D6-FD38-485C-AE6B-E433784947FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{40A0435D-81F1-4D01-9303-C1C548F36E0F} = {48D45EDE-4629-4E30-916E-E171FDDDE038}
+		{10A46290-BE57-403C-9C0E-B04A74F012CE} = {48D45EDE-4629-4E30-916E-E171FDDDE038}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29E2F1D-2D5F-4859-894A-D90C262DB2E5}

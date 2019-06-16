@@ -10,7 +10,7 @@ namespace TaylorBot.Net.MessagesTracker.Domain
         {
             var matchesCount = regex.Matches(input).Count;
 
-            return matchesCount != 0 ? matchesCount : 1;
+            return matchesCount != 0 ? matchesCount + 1 : 1;
         }
     }
 }

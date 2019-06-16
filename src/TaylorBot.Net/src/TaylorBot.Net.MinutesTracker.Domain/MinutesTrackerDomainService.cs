@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
-using TaylorBot.Net.Core.Client;
 using System;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Core.Logging;
@@ -13,18 +12,15 @@ namespace TaylorBot.Net.MinutesTracker.Domain
         private readonly ILogger<MinutesTrackerDomainService> logger;
         private readonly IOptionsMonitor<MinutesTrackerOptions> optionsMonitor;
         private readonly IMinuteRepository minuteRepository;
-        private readonly TaylorBotClient taylorBotClient;
 
         public MinutesTrackerDomainService(
             ILogger<MinutesTrackerDomainService> logger,
             IOptionsMonitor<MinutesTrackerOptions> optionsMonitor,
-            IMinuteRepository minuteRepository,
-            TaylorBotClient taylorBotClient)
+            IMinuteRepository minuteRepository)
         {
             this.logger = logger;
             this.optionsMonitor = optionsMonitor;
             this.minuteRepository = minuteRepository;
-            this.taylorBotClient = taylorBotClient;
         }
 
         public async Task StartMinutesAdderAsync()
