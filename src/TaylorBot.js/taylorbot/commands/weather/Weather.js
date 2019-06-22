@@ -28,7 +28,7 @@ class WeatherCommand extends Command {
     async run({ message: { channel }, client }, { user }) {
         const location = await client.master.database.locationAttributes.get(user);
         if (!location)
-            throw new CommandError(`${user.username}'s location is not set.`);
+            throw new CommandError(`${user.username}'s location is not set. They can use the \`setlocation\` command to set it.`);
 
         const { currently } = await DarkSkyModule.getCurrentForecast(location.latitude, location.longitude);
 
