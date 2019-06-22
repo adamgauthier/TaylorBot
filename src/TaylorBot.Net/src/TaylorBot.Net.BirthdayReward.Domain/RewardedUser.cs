@@ -1,5 +1,5 @@
-﻿using TaylorBot.Net.Core.Snowflake;
-using TaylorBot.Net.Core.Strings;
+﻿using Humanizer;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.BirthdayReward.Domain
 {
@@ -16,7 +16,7 @@ namespace TaylorBot.Net.BirthdayReward.Domain
 
         public override string ToString()
         {
-            return $"Rewarded User ID {UserId}, now has {"point".DisplayCount(PointsAfterReward)}";
+            return $"Rewarded User ID {UserId}, now has {"point".ToQuantity(PointsAfterReward)}";
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -7,7 +8,6 @@ using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
 using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
-using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.BirthdayReward.Domain
 {
@@ -38,12 +38,12 @@ namespace TaylorBot.Net.BirthdayReward.Domain
             while (true)
             {
                 var rewardAmount = optionsMonitor.CurrentValue.RewardAmount;
-                logger.LogTrace(LogString.From($"Rewarding eligible users with {"birthday point".DisplayCount(rewardAmount)}."));
+                logger.LogTrace(LogString.From($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}."));
                 foreach (var rewardedUser in await birthdayRepository.RewardEligibleUsersAsync(rewardAmount))
                 {
                     try
                     {
-                        logger.LogTrace(LogString.From($"Rewarded {"birthday point".DisplayCount(rewardAmount)} to {rewardedUser}."));
+                        logger.LogTrace(LogString.From($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}."));
                         var user = await taylorBotClient.ResolveRequiredUserAsync(rewardedUser.UserId);
                         await user.SendMessageAsync(embed: birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
                     }
