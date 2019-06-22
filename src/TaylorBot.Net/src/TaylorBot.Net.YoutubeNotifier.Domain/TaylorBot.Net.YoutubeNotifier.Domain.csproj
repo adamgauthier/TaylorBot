@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.40.2.1593" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj" />
+  </ItemGroup>
+
+</Project>

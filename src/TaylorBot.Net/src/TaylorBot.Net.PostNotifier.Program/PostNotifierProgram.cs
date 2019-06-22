@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Reddit;
@@ -15,6 +17,10 @@ using TaylorBot.Net.RedditNotifier.Domain;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
 using TaylorBot.Net.RedditNotifier.Infrastructure;
+using TaylorBot.Net.YoutubeNotifier.Domain;
+using TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed;
+using TaylorBot.Net.YoutubeNotifier.Domain.Options;
+using TaylorBot.Net.YoutubeNotifier.Infrastructure;
 
 namespace TaylorBot.Net.PostNotifier.Program
 {
@@ -37,6 +43,8 @@ namespace TaylorBot.Net.PostNotifier.Program
                 .AddDatabaseConnectionConfiguration(environment)
                 .AddJsonFile(path: $"Settings/redditNotifier.{environment}.json", optional: false)
                 .AddJsonFile(path: $"Settings/redditAuth.{environment}.json", optional: false)
+                .AddJsonFile(path: $"Settings/youtubeNotifier.{environment}.json", optional: false)
+                .AddJsonFile(path: $"Settings/youtubeAuth.{environment}.json", optional: false)
                 .Build();
 
             return new ServiceCollection()
@@ -50,11 +58,22 @@ namespace TaylorBot.Net.PostNotifier.Program
                     var auth = provider.GetRequiredService<IOptionsMonitor<RedditAuthOptions>>().CurrentValue;
                     return new RedditAPI(appId: auth.AppId, appSecret: auth.AppSecret, refreshToken: auth.RefreshToken);
                 })
+                .ConfigureRequired<YoutubeNotifierOptions>(config, "YoutubeNotifier")
+                .ConfigureRequired<YoutubeAuthOptions>(config, "YoutubeAuth")
+                .AddSingleton(provider =>
+                {
+                    var auth = provider.GetRequiredService<IOptionsMonitor<YoutubeAuthOptions>>().CurrentValue;
+                    return new BaseClientService.Initializer() { ApiKey = auth.ApiKey };
+                })
                 .AddTransient<IShardReadyHandler, ReadyHandler>()
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IRedditCheckerRepository, RedditCheckerRepository>()
                 .AddTransient<RedditNotifierService>()
                 .AddTransient<RedditPostToEmbedMapper>()
+                .AddTransient<YouTubeService>()
+                .AddTransient<IYoutubeCheckerRepository, YoutubeCheckerRepository>()
+                .AddTransient<YoutubeNotifierService>()
+                .AddTransient<YoutubePostToEmbedMapper>()
                 .BuildServiceProvider();
         }
     }

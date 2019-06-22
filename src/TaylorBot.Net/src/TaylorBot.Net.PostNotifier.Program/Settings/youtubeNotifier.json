@@ -1,0 +1,7 @@
+﻿{
+  "YoutubeNotifier": {
+    "TimeSpanBetweenRequests": "1.02:03:04",
+    "YoutubePostEmbedIconUrl": "AN_ICON_URL",
+    "YoutubePostEmbedColor": "#000000"
+  }
+}

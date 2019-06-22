@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -8,7 +9,6 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
-using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Core.Client
 {
@@ -66,14 +66,14 @@ namespace TaylorBot.Net.Core.Client
         private Task ShardReadyAsync(DiscordSocketClient shardClient)
         {
             logger.LogInformation(LogString.From(
-                $"Shard Number {shardClient.ShardId} is ready! Serving {"guild".DisplayCount(shardClient.Guilds.Count)} out of {DiscordShardedClient.Guilds.Count}."
+                $"Shard Number {shardClient.ShardId} is ready! Serving {"guild".ToQuantity(shardClient.Guilds.Count)} out of {DiscordShardedClient.Guilds.Count}."
             ));
 
             Interlocked.Increment(ref shardReadyCount);
             if (shardReadyCount >= DiscordShardedClient.Shards.Count)
             {
                 logger.LogInformation(LogString.From(
-                    $"All {"shard".DisplayCount(DiscordShardedClient.Shards.Count)} are ready!"
+                    $"All {"shard".ToQuantity(DiscordShardedClient.Shards.Count)} ready!"
                 ));
                 return allShardsReadyEvent.InvokeAsync();
             }

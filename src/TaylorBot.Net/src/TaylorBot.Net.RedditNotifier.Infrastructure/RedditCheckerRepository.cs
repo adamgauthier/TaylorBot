@@ -44,7 +44,7 @@ namespace TaylorBot.Net.RedditNotifier.Infrastructure
                       WHERE subreddit = @SubredditName AND guild_id = @GuildId AND channel_id = @ChannelId;",
                     new
                     {
-                        SubredditName = redditPost.Subreddit,
+                        SubredditName = redditChecker.SubredditName,
                         GuildId = redditChecker.GuildId.ToString(),
                         ChannelId = redditChecker.ChannelId.ToString(),
                         LastPostId = redditPost.Id,

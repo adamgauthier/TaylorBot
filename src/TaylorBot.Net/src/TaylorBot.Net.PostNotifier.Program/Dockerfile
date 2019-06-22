@@ -9,6 +9,8 @@ COPY ./TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./TaylorBot.
 COPY ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj ./TaylorBot.Net.PostNotifier.Program/
 COPY ./TaylorBot.Net.RedditNotifier.Domain/TaylorBot.Net.RedditNotifier.Domain.csproj ./TaylorBot.Net.RedditNotifier.Domain/
 COPY ./TaylorBot.Net.RedditNotifier.Infrastructure/TaylorBot.Net.RedditNotifier.Infrastructure.csproj ./TaylorBot.Net.RedditNotifier.Infrastructure/
+COPY ./TaylorBot.Net.YoutubeNotifier.Domain/TaylorBot.Net.YoutubeNotifier.Domain.csproj ./TaylorBot.Net.YoutubeNotifier.Domain/
+COPY ./TaylorBot.Net.YoutubeNotifier.Infrastructure/TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj ./TaylorBot.Net.YoutubeNotifier.Infrastructure/
 
 RUN dotnet restore
 

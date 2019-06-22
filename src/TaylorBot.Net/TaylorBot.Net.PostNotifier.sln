@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.329
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.PostNotifier.Program", "src\TaylorBot.Net.PostNotifier.Program\TaylorBot.Net.PostNotifier.Program.csproj", "{049280F5-EC68-4045-944F-021E04ED98A4}"
 EndProject
@@ -19,7 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Infrastructure", "src\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj", "{B89AD3E5-0EE8-4372-A2C8-B3F980E3BCE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.Core.Infrastructure", "src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{555C2C9A-58A0-47EC-9317-6638B7B4F99F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastructure", "src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{555C2C9A-58A0-47EC-9317-6638B7B4F99F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.YoutubeNotifier.Domain", "src\TaylorBot.Net.YoutubeNotifier.Domain\TaylorBot.Net.YoutubeNotifier.Domain.csproj", "{F1D25B0F-D387-479B-BF94-BE05D90614C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.YoutubeNotifier.Infrastructure", "src\TaylorBot.Net.YoutubeNotifier.Infrastructure\TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj", "{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +55,14 @@ Global
 		{555C2C9A-58A0-47EC-9317-6638B7B4F99F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{555C2C9A-58A0-47EC-9317-6638B7B4F99F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{555C2C9A-58A0-47EC-9317-6638B7B4F99F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1D25B0F-D387-479B-BF94-BE05D90614C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1D25B0F-D387-479B-BF94-BE05D90614C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1D25B0F-D387-479B-BF94-BE05D90614C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1D25B0F-D387-479B-BF94-BE05D90614C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
