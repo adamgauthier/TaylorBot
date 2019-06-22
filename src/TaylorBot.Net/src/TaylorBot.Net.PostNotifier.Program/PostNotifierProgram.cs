@@ -53,7 +53,7 @@ namespace TaylorBot.Net.PostNotifier.Program
                 .AddTransient<IShardReadyHandler, ReadyHandler>()
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IRedditCheckerRepository, RedditCheckerRepository>()
-                .AddTransient<RedditNotiferDomainService>()
+                .AddTransient<RedditNotifierService>()
                 .AddTransient<RedditPostToEmbedMapper>()
                 .BuildServiceProvider();
         }

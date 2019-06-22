@@ -11,17 +11,17 @@ using TaylorBot.Net.RedditNotifier.Domain.Options;
 
 namespace TaylorBot.Net.RedditNotifier.Domain
 {
-    public class RedditNotiferDomainService
+    public class RedditNotifierService
     {
-        private readonly ILogger<RedditNotiferDomainService> logger;
+        private readonly ILogger<RedditNotifierService> logger;
         private readonly IOptionsMonitor<RedditNotifierOptions> optionsMonitor;
         private readonly IRedditCheckerRepository redditCheckerRepository;
         private readonly RedditAPI redditAPI;
         private readonly RedditPostToEmbedMapper redditPostToEmbedMapper;
         private readonly TaylorBotClient taylorBotClient;
 
-        public RedditNotiferDomainService(
-            ILogger<RedditNotiferDomainService> logger,
+        public RedditNotifierService(
+            ILogger<RedditNotifierService> logger,
             IOptionsMonitor<RedditNotifierOptions> optionsMonitor,
             IRedditCheckerRepository redditCheckerRepository,
             RedditAPI redditAPI,

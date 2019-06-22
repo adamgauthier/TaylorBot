@@ -9,9 +9,9 @@ namespace TaylorBot.Net.PostNotifier.Program.Events
     public class ReadyHandler : IShardReadyHandler
     {
         private readonly SingletonTaskRunner singletonTaskRunner;
-        private readonly RedditNotiferDomainService redditNotiferApplicationService;
+        private readonly RedditNotifierService redditNotiferApplicationService;
 
-        public ReadyHandler(SingletonTaskRunner singletonTaskRunner, RedditNotiferDomainService redditNotiferApplicationService)
+        public ReadyHandler(SingletonTaskRunner singletonTaskRunner, RedditNotifierService redditNotiferApplicationService)
         {
             this.singletonTaskRunner = singletonTaskRunner;
             this.redditNotiferApplicationService = redditNotiferApplicationService;
