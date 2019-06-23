@@ -19,12 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Settings\*.Development.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Settings\*.Production.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Settings\*.Development.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Settings\*.Production.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
