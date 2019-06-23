@@ -1,5 +1,5 @@
 # https://github.com/BretFisher/node-docker-good-defaults/
-FROM node:11
+FROM node:12
 
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
