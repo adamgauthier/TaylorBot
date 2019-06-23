@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TaylorBot.Net.ChannelLogging.Domain\TaylorBot.Net.ChannelLogging.Domain.csproj" />
-    <ProjectReference Include="..\TaylorBot.Net.ChannelLogging.Infrastructure\TaylorBot.Net.ChannelLogging.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.QuickStart.Domain\TaylorBot.Net.QuickStart.Domain.csproj" />

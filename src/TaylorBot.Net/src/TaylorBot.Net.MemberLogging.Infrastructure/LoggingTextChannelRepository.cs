@@ -9,7 +9,7 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using Dapper;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.ChannelLogging.Infrastructure
+namespace TaylorBot.Net.MemberLogging.Infrastructure
 {
     public class LoggingTextChannelRepository : PostgresRepository, ILoggingTextChannelRepository
     {

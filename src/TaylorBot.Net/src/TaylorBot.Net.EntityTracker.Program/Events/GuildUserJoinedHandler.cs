@@ -3,7 +3,7 @@ using TaylorBot.Net.Core.Program.Events;
 using Discord.WebSocket;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.ChannelLogging.Domain;
+using TaylorBot.Net.MemberLogging.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events
 {

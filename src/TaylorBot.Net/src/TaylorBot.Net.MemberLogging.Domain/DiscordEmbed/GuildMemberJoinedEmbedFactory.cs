@@ -3,9 +3,9 @@ using Humanizer;
 using Microsoft.Extensions.Options;
 using System;
 using System.Globalization;
-using TaylorBot.Net.ChannelLogging.Domain.Options;
+using TaylorBot.Net.MemberLogging.Domain.Options;
 
-namespace TaylorBot.Net.ChannelLogging.Domain.DiscordEmbed
+namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed
 {
     public class GuildMemberJoinedEmbedFactory
     {
@@ -14,9 +14,9 @@ namespace TaylorBot.Net.ChannelLogging.Domain.DiscordEmbed
 
         private static readonly CultureInfo USCultureInfo = new CultureInfo("en-US");
 
-        private readonly IOptionsMonitor<ChannelLoggingOptions> optionsMonitor;
+        private readonly IOptionsMonitor<MemberLoggingOptions> optionsMonitor;
 
-        public GuildMemberJoinedEmbedFactory(IOptionsMonitor<ChannelLoggingOptions> optionsMonitor)
+        public GuildMemberJoinedEmbedFactory(IOptionsMonitor<MemberLoggingOptions> optionsMonitor)
         {
             this.optionsMonitor = optionsMonitor;
         }

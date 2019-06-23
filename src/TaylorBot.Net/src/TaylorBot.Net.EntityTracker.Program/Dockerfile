@@ -8,8 +8,8 @@ COPY ./TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.cspro
 COPY ./TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./TaylorBot.Net.Core.Program/
 COPY ./TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj ./TaylorBot.Net.EntityTracker.Program/
 COPY ./TaylorBot.Net.QuickStart.Domain/TaylorBot.Net.QuickStart.Domain.csproj ./TaylorBot.Net.QuickStart.Domain/
-COPY ./TaylorBot.Net.ChannelLogging.Domain/TaylorBot.Net.ChannelLogging.Domain.csproj ./TaylorBot.Net.ChannelLogging.Domain/
-COPY ./TaylorBot.Net.ChannelLogging.Infrastructure/TaylorBot.Net.ChannelLogging.Infrastructure.csproj ./TaylorBot.Net.ChannelLogging.Infrastructure/
+COPY ./TaylorBot.Net.MemberLogging.Domain/TaylorBot.Net.MemberLogging.Domain.csproj ./TaylorBot.Net.MemberLogging.Domain/
+COPY ./TaylorBot.Net.MemberLogging.Infrastructure/TaylorBot.Net.MemberLogging.Infrastructure.csproj ./TaylorBot.Net.MemberLogging.Infrastructure/
 COPY ./TaylorBot.Net.EntityTracker.Domain/TaylorBot.Net.EntityTracker.Domain.csproj ./TaylorBot.Net.EntityTracker.Domain/
 COPY ./TaylorBot.Net.EntityTracker.Infrastructure/TaylorBot.Net.EntityTracker.Infrastructure.csproj ./TaylorBot.Net.EntityTracker.Infrastructure/
 

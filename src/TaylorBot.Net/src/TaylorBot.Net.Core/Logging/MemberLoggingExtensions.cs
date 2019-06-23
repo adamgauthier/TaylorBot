@@ -2,7 +2,7 @@
 
 namespace TaylorBot.Net.Core.Logging
 {
-    public static class ChannelLoggingExtensions
+    public static class MemberLoggingExtensions
     {
         public static string FormatLog(this IGuildChannel textChannel)
         {

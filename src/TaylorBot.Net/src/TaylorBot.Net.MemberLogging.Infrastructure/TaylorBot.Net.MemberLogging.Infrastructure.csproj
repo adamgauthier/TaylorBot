@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TaylorBot.Net.ChannelLogging.Domain\TaylorBot.Net.ChannelLogging.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,4 @@
-﻿namespace TaylorBot.Net.ChannelLogging.Infrastructure
+﻿namespace TaylorBot.Net.MemberLogging.Infrastructure
 {
     public class LogChannelDto
     {

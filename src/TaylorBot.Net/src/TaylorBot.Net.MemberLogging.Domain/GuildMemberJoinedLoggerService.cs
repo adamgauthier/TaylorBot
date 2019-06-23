@@ -2,11 +2,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.ChannelLogging.Domain.DiscordEmbed;
+using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
-namespace TaylorBot.Net.ChannelLogging.Domain
+namespace TaylorBot.Net.MemberLogging.Domain
 {
     public class GuildMemberJoinedLoggerService
     {

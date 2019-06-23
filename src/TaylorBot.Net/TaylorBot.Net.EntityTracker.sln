@@ -23,9 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.QuickStart.Domain", "src\TaylorBot.Net.QuickStart.Domain\TaylorBot.Net.QuickStart.Domain.csproj", "{EA7C5094-62E6-4DBB-B788-29BD32B3E410}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.ChannelLogging.Domain", "src\TaylorBot.Net.ChannelLogging.Domain\TaylorBot.Net.ChannelLogging.Domain.csproj", "{497A24F9-4DDE-4216-A589-83EFF5253AA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Domain", "src\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj", "{497A24F9-4DDE-4216-A589-83EFF5253AA7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.ChannelLogging.Infrastructure", "src\TaylorBot.Net.ChannelLogging.Infrastructure\TaylorBot.Net.ChannelLogging.Infrastructure.csproj", "{E43CD69B-E0AA-4B49-B71F-6AD7E932408C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Infrastructure", "src\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj", "{E43CD69B-E0AA-4B49-B71F-6AD7E932408C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
