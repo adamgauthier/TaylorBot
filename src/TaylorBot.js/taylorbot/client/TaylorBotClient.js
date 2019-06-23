@@ -7,7 +7,6 @@ const { loginToken } = require('../config/discord.json');
 const Log = require('../tools/Logger.js');
 const IntervalRunner = require('../intervals/IntervalRunner.js');
 const EmbedUtil = require('../modules/EmbedUtil.js');
-const TextChannelLogger = require('../modules/logging/TextChannelLogger.js');
 
 class TaylorBotClient extends Discord.Client {
     constructor(master) {
@@ -18,7 +17,6 @@ class TaylorBotClient extends Discord.Client {
         this.master = master;
 
         this.intervalRunner = new IntervalRunner(this);
-        this.textChannelLogger = new TextChannelLogger(this);
     }
 
     async load() {

@@ -3,5 +3,6 @@
     public class MemberBanLoggingOptions
     {
         public string MemberBannedEmbedColorHex { get; set; }
+        public string MemberUnbannedEmbedColorHex { get; set; }
     }
 }

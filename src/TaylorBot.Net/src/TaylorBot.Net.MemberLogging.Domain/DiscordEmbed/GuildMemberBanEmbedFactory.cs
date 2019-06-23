@@ -26,5 +26,18 @@ namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed
                 .WithFooter("User banned")
                 .Build();
         }
+
+        public Embed CreateMemberUnbanned(IUser user)
+        {
+            var options = optionsMonitor.CurrentValue;
+            var avatarUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl();
+
+            return new EmbedBuilder()
+                .WithAuthor($"{user.Username}#{user.Discriminator} ({user.Id})", avatarUrl, avatarUrl)
+                .WithCurrentTimestamp()
+                .WithColor(DiscordColor.FromHexString(options.MemberUnbannedEmbedColorHex))
+                .WithFooter("User unbanned")
+                .Build();
+        }
     }
 }

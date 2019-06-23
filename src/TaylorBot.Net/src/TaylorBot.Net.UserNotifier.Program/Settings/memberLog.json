@@ -3,6 +3,7 @@
     "MemberLeftEmbedColorHex": ""
   },
   "MemberBan": {
-    "MemberBannedEmbedColorHex": ""
+    "MemberBannedEmbedColorHex": "",
+    "MemberUnbannedEmbedColorHex": ""
   }
 }

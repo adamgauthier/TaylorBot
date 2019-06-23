@@ -24,5 +24,13 @@ namespace TaylorBot.Net.MemberLogging.Domain
             if (logTextChannel != null)
                 await logTextChannel.SendMessageAsync(embed: guildMemberBanEmbedFactory.CreateMemberBanned(user));
         }
+
+        public async Task OnGuildMemberUnbannedAsync(IUser user, IGuild guild)
+        {
+            var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guild);
+
+            if (logTextChannel != null)
+                await logTextChannel.SendMessageAsync(embed: guildMemberBanEmbedFactory.CreateMemberUnbanned(user));
+        }
     }
 }
