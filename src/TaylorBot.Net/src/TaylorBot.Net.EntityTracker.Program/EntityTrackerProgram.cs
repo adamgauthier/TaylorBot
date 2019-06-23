@@ -2,32 +2,32 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Configuration;
+using TaylorBot.Net.Core.Environment;
+using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
-using TaylorBot.Net.Core.Environment;
-using TaylorBot.Net.EntityTracker.Program.Events;
-using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.EntityTracker.Domain;
-using TaylorBot.Net.QuickStart.Domain.Options;
-using TaylorBot.Net.QuickStart.Domain;
-using TaylorBot.Net.EntityTracker.Infrastructure.Username;
-using TaylorBot.Net.EntityTracker.Domain.Username;
-using TaylorBot.Net.EntityTracker.Infrastructure.User;
-using TaylorBot.Net.EntityTracker.Domain.User;
-using TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
-using TaylorBot.Net.EntityTracker.Domain.TextChannel;
-using TaylorBot.Net.EntityTracker.Infrastructure.Guild;
 using TaylorBot.Net.EntityTracker.Domain.Guild;
-using TaylorBot.Net.EntityTracker.Infrastructure.GuildName;
 using TaylorBot.Net.EntityTracker.Domain.GuildName;
 using TaylorBot.Net.EntityTracker.Domain.Member;
-using TaylorBot.Net.EntityTracker.Infrastructure.Member;
 using TaylorBot.Net.EntityTracker.Domain.Options;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
+using TaylorBot.Net.EntityTracker.Domain.User;
+using TaylorBot.Net.EntityTracker.Domain.Username;
+using TaylorBot.Net.EntityTracker.Infrastructure.Guild;
+using TaylorBot.Net.EntityTracker.Infrastructure.GuildName;
+using TaylorBot.Net.EntityTracker.Infrastructure.Member;
+using TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
+using TaylorBot.Net.EntityTracker.Infrastructure.User;
+using TaylorBot.Net.EntityTracker.Infrastructure.Username;
+using TaylorBot.Net.EntityTracker.Program.Events;
 using TaylorBot.Net.MemberLogging.Domain;
-using TaylorBot.Net.MemberLogging.Infrastructure;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.MemberLogging.Domain.Options;
+using TaylorBot.Net.MemberLogging.Infrastructure;
+using TaylorBot.Net.QuickStart.Domain;
+using TaylorBot.Net.QuickStart.Domain.Options;
 
 namespace TaylorBot.Net.EntityTracker.Program
 {
@@ -70,6 +70,7 @@ namespace TaylorBot.Net.EntityTracker.Program
                 .AddTransient<ITextChannelCreatedHandler, TextChannelCreatedHandler>()
                 .AddTransient<QuickStartDomainService>()
                 .AddTransient<EntityTrackerDomainService>()
+                .AddTransient<MemberLogChannelFinder>()
                 .AddTransient<GuildMemberJoinedLoggerService>()
                 .AddTransient<GuildMemberJoinedEmbedFactory>()
                 .AddTransient<IUserRepository, UserRepository>()

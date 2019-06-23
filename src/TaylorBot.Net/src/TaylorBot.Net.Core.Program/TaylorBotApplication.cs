@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using TaylorBot.Net.Core.Program.Events;
-using TaylorBot.Net.Core.Client;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TaylorBot.Net.Core.Logging;
+using System;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Core.Program

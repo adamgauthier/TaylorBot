@@ -1,25 +1,23 @@
 ﻿using Discord;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.EntityTracker.Domain.TextChannel;
+using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
 namespace TaylorBot.Net.MemberLogging.Domain
 {
     public class GuildMemberJoinedLoggerService
     {
-        private readonly ILoggingTextChannelRepository loggingTextChannelRepository;
+        private readonly MemberLogChannelFinder memberLogChannelFinder;
         private readonly TaskExceptionLogger taskExceptionLogger;
         private readonly GuildMemberJoinedEmbedFactory guildMemberJoinedEmbedFactory;
 
         public GuildMemberJoinedLoggerService(
-            ILoggingTextChannelRepository loggingTextChannelRepository,
+            MemberLogChannelFinder memberLogChannelFinder,
             TaskExceptionLogger taskExceptionLogger,
             GuildMemberJoinedEmbedFactory guildMemberJoinedEmbedFactory)
         {
-            this.loggingTextChannelRepository = loggingTextChannelRepository;
+            this.memberLogChannelFinder = memberLogChannelFinder;
             this.taskExceptionLogger = taskExceptionLogger;
             this.guildMemberJoinedEmbedFactory = guildMemberJoinedEmbedFactory;
         }
@@ -35,7 +33,7 @@ namespace TaylorBot.Net.MemberLogging.Domain
 
         private async Task LogGuildMemberFirstJoinedAsync(IGuildUser guildUser)
         {
-            var logTextChannel = await FindLogChannelAsync(guildUser.Guild);
+            var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guildUser.Guild);
 
             if (logTextChannel != null)
                 await logTextChannel.SendMessageAsync(embed: guildMemberJoinedEmbedFactory.CreateMemberFirstJoined(guildUser));
@@ -52,20 +50,10 @@ namespace TaylorBot.Net.MemberLogging.Domain
 
         private async Task LogGuildMemberRejoinedAsync(IGuildUser guildUser, DateTimeOffset firstJoinedAt)
         {
-            var logTextChannel = await FindLogChannelAsync(guildUser.Guild);
+            var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guildUser.Guild);
 
             if (logTextChannel != null)
                 await logTextChannel.SendMessageAsync(embed: guildMemberJoinedEmbedFactory.CreateMemberRejoined(guildUser, firstJoinedAt));
-        }
-
-        private async Task<ITextChannel> FindLogChannelAsync(IGuild guild)
-        {
-            var logChannels = await loggingTextChannelRepository.GetLogChannelsForGuildAsync(guild);
-            var textChannels = await guild.GetTextChannelsAsync();
-
-            return textChannels.FirstOrDefault(channel =>
-                logChannels.Any(logChannel => logChannel.ChannelId.Id == channel.Id)
-            );
         }
     }
 }

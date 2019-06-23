@@ -11,6 +11,8 @@ COPY ./TaylorBot.Net.BirthdayReward.Domain/TaylorBot.Net.BirthdayReward.Domain.c
 COPY ./TaylorBot.Net.BirthdayReward.Infrastructure/TaylorBot.Net.BirthdayReward.Infrastructure.csproj ./TaylorBot.Net.BirthdayReward.Infrastructure/
 COPY ./TaylorBot.Net.Reminder.Domain/TaylorBot.Net.Reminder.Domain.csproj ./TaylorBot.Net.Reminder.Domain/
 COPY ./TaylorBot.Net.Reminder.Infrastructure/TaylorBot.Net.Reminder.Infrastructure.csproj ./TaylorBot.Net.Reminder.Infrastructure/
+COPY ./TaylorBot.Net.MemberLogging.Domain/TaylorBot.Net.MemberLogging.Domain.csproj ./TaylorBot.Net.MemberLogging.Domain/
+COPY ./TaylorBot.Net.MemberLogging.Infrastructure/TaylorBot.Net.MemberLogging.Infrastructure.csproj ./TaylorBot.Net.MemberLogging.Infrastructure/
 
 RUN dotnet restore
 
