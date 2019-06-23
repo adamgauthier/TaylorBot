@@ -54,8 +54,10 @@ namespace TaylorBot.Net.UserNotifier.Program
                 .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")
                 .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
                 .ConfigureRequired<MemberLeftLoggingOptions>(config, "MemberLeft")
+                .ConfigureRequired<MemberBanLoggingOptions>(config, "MemberBan")
                 .AddTransient<IAllReadyHandler, ReadyHandler>()
                 .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
+                .AddTransient<IGuildUserBannedHandler, GuildUserBannedHandler>()
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IBirthdayRepository, BirthdayRepository>()
                 .AddTransient<BirthdayRewardNotifierDomainService>()
@@ -67,6 +69,8 @@ namespace TaylorBot.Net.UserNotifier.Program
                 .AddTransient<MemberLogChannelFinder>()
                 .AddTransient<GuildMemberLeftEmbedFactory>()
                 .AddTransient<GuildMemberLeftLoggerService>()
+                .AddTransient<GuildMemberBanEmbedFactory>()
+                .AddTransient<GuildMemberBanLoggerService>()
                 .BuildServiceProvider();
         }
     }

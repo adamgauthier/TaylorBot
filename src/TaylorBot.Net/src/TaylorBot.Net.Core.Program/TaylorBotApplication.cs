@@ -110,6 +110,15 @@ namespace TaylorBot.Net.Core.Program
                     );
             }
 
+            var guildUserBannedHandler = serviceProvider.GetService<IGuildUserBannedHandler>();
+            if (guildUserBannedHandler != null)
+            {
+                client.DiscordShardedClient.UserBanned += async (user, guild) =>
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await guildUserBannedHandler.GuildUserBannedAsync(user, guild), nameof(IGuildUserBannedHandler)
+                    );
+            }
+
             var textChannelCreatedHandler = serviceProvider.GetService<ITextChannelCreatedHandler>();
             if (textChannelCreatedHandler != null)
             {
