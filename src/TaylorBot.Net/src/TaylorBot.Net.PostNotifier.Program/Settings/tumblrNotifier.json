@@ -1,0 +1,12 @@
+﻿{
+  "TumblrNotifier": {
+    "TimeSpanBetweenRequests": "1.02:03:04",
+    "TumblrPostEmbedIconUrl": "AN_ICON_URL",
+    "TumblrPostEmbedColor": "#000000",
+    "TumblrLinkPostThumbnailUrl": "A_THUMBNAIL_URL",
+    "TumblrDefaultVideoThumbnailUrl": "A_THUMBNAIL_URL",
+    "TumblrTextPostThumbnailUrl": "A_THUMBNAIL_URL",
+    "TumblrQuotePostThumbnailUrl": "A_THUMBNAIL_URL",
+    "TumblrAudioPostThumbnailUrl": "A_THUMBNAIL_URL"
+  }
+}

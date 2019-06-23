@@ -11,6 +11,8 @@ COPY ./TaylorBot.Net.RedditNotifier.Domain/TaylorBot.Net.RedditNotifier.Domain.c
 COPY ./TaylorBot.Net.RedditNotifier.Infrastructure/TaylorBot.Net.RedditNotifier.Infrastructure.csproj ./TaylorBot.Net.RedditNotifier.Infrastructure/
 COPY ./TaylorBot.Net.YoutubeNotifier.Domain/TaylorBot.Net.YoutubeNotifier.Domain.csproj ./TaylorBot.Net.YoutubeNotifier.Domain/
 COPY ./TaylorBot.Net.YoutubeNotifier.Infrastructure/TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj ./TaylorBot.Net.YoutubeNotifier.Infrastructure/
+COPY ./TaylorBot.Net.TumblrNotifier.Domain/TaylorBot.Net.TumblrNotifier.Domain.csproj ./TaylorBot.Net.TumblrNotifier.Domain/
+COPY ./TaylorBot.Net.TumblrNotifier.Infrastructure/TaylorBot.Net.TumblrNotifier.Infrastructure.csproj ./TaylorBot.Net.TumblrNotifier.Infrastructure/
 
 RUN dotnet restore
 

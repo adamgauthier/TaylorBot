@@ -14,6 +14,8 @@
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.TumblrNotifier.Domain\TaylorBot.Net.TumblrNotifier.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.TumblrNotifier.Infrastructure\TaylorBot.Net.TumblrNotifier.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.YoutubeNotifier.Domain\TaylorBot.Net.YoutubeNotifier.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.YoutubeNotifier.Infrastructure\TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj" />
   </ItemGroup>

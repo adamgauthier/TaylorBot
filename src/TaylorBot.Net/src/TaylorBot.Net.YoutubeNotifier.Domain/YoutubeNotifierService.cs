@@ -36,7 +36,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
             this.taylorBotClient = taylorBotClient;
         }
 
-        public async Task StartRedditCheckerAsync()
+        public async Task StartYoutubeCheckerAsync()
         {
             while (true)
             {

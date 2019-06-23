@@ -1,4 +1,7 @@
-﻿using Google.Apis.Services;
+﻿using DontPanic.TumblrSharp;
+using DontPanic.TumblrSharp.Client;
+using DontPanic.TumblrSharp.OAuth;
+using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +20,10 @@ using TaylorBot.Net.RedditNotifier.Domain;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
 using TaylorBot.Net.RedditNotifier.Infrastructure;
+using TaylorBot.Net.TumblrNotifier.Domain;
+using TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed;
+using TaylorBot.Net.TumblrNotifier.Domain.Options;
+using TaylorBot.Net.TumblrNotifier.Infrastructure;
 using TaylorBot.Net.YoutubeNotifier.Domain;
 using TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.YoutubeNotifier.Domain.Options;
@@ -45,6 +52,8 @@ namespace TaylorBot.Net.PostNotifier.Program
                 .AddJsonFile(path: $"Settings/redditAuth.{environment}.json", optional: false)
                 .AddJsonFile(path: $"Settings/youtubeNotifier.{environment}.json", optional: false)
                 .AddJsonFile(path: $"Settings/youtubeAuth.{environment}.json", optional: false)
+                .AddJsonFile(path: $"Settings/tumblrAuth.{environment}.json", optional: false)
+                .AddJsonFile(path: $"Settings/tumblrNotifier.{environment}.json", optional: false)
                 .Build();
 
             return new ServiceCollection()
@@ -65,6 +74,17 @@ namespace TaylorBot.Net.PostNotifier.Program
                     var auth = provider.GetRequiredService<IOptionsMonitor<YoutubeAuthOptions>>().CurrentValue;
                     return new BaseClientService.Initializer() { ApiKey = auth.ApiKey };
                 })
+                .ConfigureRequired<TumblrNotifierOptions>(config, "TumblrNotifier")
+                .ConfigureRequired<TumblrAuthOptions>(config, "TumblrAuth")
+                .AddSingleton(provider =>
+                {
+                    var auth = provider.GetRequiredService<IOptionsMonitor<TumblrAuthOptions>>().CurrentValue;
+                    return new TumblrClientFactory().Create<TumblrClient>(
+                        consumerKey: auth.ConsumerKey,
+                        consumerSecret: auth.ConsumerSecret,
+                        new Token(key: auth.Token, secret: auth.TokenSecret)
+                    );
+                })
                 .AddTransient<IShardReadyHandler, ReadyHandler>()
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IRedditCheckerRepository, RedditCheckerRepository>()
@@ -74,6 +94,9 @@ namespace TaylorBot.Net.PostNotifier.Program
                 .AddTransient<IYoutubeCheckerRepository, YoutubeCheckerRepository>()
                 .AddTransient<YoutubeNotifierService>()
                 .AddTransient<YoutubePostToEmbedMapper>()
+                .AddTransient<ITumblrCheckerRepository, TumblrCheckerRepository>()
+                .AddTransient<TumblrNotifierService>()
+                .AddTransient<TumblrPostToEmbedMapper>()
                 .BuildServiceProvider();
         }
     }

@@ -21,9 +21,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastructure", "src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{555C2C9A-58A0-47EC-9317-6638B7B4F99F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.YoutubeNotifier.Domain", "src\TaylorBot.Net.YoutubeNotifier.Domain\TaylorBot.Net.YoutubeNotifier.Domain.csproj", "{F1D25B0F-D387-479B-BF94-BE05D90614C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.YoutubeNotifier.Domain", "src\TaylorBot.Net.YoutubeNotifier.Domain\TaylorBot.Net.YoutubeNotifier.Domain.csproj", "{F1D25B0F-D387-479B-BF94-BE05D90614C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.YoutubeNotifier.Infrastructure", "src\TaylorBot.Net.YoutubeNotifier.Infrastructure\TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj", "{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.YoutubeNotifier.Infrastructure", "src\TaylorBot.Net.YoutubeNotifier.Infrastructure\TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj", "{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.TumblrNotifier.Domain", "src\TaylorBot.Net.TumblrNotifier.Domain\TaylorBot.Net.TumblrNotifier.Domain.csproj", "{F22192B8-CA7D-4B61-BDDA-81854A31677F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.TumblrNotifier.Infrastructure", "src\TaylorBot.Net.TumblrNotifier.Infrastructure\TaylorBot.Net.TumblrNotifier.Infrastructure.csproj", "{0B93C11F-B5E6-4430-99CE-E999715D9BF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +67,14 @@ Global
 		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DE67E34-2D8A-480F-9D5D-4723B50A4BC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F22192B8-CA7D-4B61-BDDA-81854A31677F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F22192B8-CA7D-4B61-BDDA-81854A31677F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F22192B8-CA7D-4B61-BDDA-81854A31677F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F22192B8-CA7D-4B61-BDDA-81854A31677F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
