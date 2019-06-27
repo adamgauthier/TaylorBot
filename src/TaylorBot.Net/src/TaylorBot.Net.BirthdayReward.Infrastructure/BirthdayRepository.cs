@@ -3,10 +3,10 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Infrastructure.Options;
-using TaylorBot.Net.BirthdayReward.Infrastructure.Models;
 using TaylorBot.Net.BirthdayReward.Domain;
+using TaylorBot.Net.BirthdayReward.Infrastructure.Models;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.BirthdayReward.Infrastructure
@@ -27,7 +27,10 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure
                     var eligibleUsers = await connection.QueryAsync<EligibleUserDto>(
                         @"UPDATE attributes.birthdays SET last_reward_at = CURRENT_TIMESTAMP
                         WHERE (last_reward_at IS NULL OR last_reward_at <= CURRENT_TIMESTAMP - INTERVAL '360 DAYS')
-                        AND (make_date(date_part('year', CURRENT_DATE)::int, date_part('month', birthday)::int, date_part('day', birthday)::int) BETWEEN CURRENT_DATE - 2 AND CURRENT_DATE)
+                        AND (
+                            (birthday + (INTERVAL '1 YEAR' * (date_part('year', CURRENT_DATE) - date_part('year', birthday))))
+                            BETWEEN CURRENT_DATE - 2 AND CURRENT_DATE
+                        )
                         RETURNING user_id;"
                     );
 
