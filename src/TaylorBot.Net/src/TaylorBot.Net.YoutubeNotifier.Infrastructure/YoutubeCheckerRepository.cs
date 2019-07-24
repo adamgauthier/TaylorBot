@@ -28,7 +28,8 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
                     guildId: new SnowflakeId(checker.guild_id),
                     channelId: new SnowflakeId(checker.channel_id),
                     playlistId: checker.playlist_id,
-                    lastVideoId: checker.last_video_id
+                    lastVideoId: checker.last_video_id,
+                    lastPublishedAt: checker.last_published_at
                 ));
             }
         }
@@ -39,14 +40,17 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
             {
                 connection.Open();
                 await connection.ExecuteAsync(
-                    @"UPDATE checkers.youtube_checker SET last_video_id = @LastVideoId
+                    @"UPDATE checkers.youtube_checker SET
+                        last_video_id = @LastVideoId,
+                        last_published_at = @LastPublishedAt
                       WHERE playlist_id = @PlaylistId AND guild_id = @GuildId AND channel_id = @ChannelId;",
                     new
                     {
                         PlaylistId = youtubeChecker.PlaylistId,
                         GuildId = youtubeChecker.GuildId.ToString(),
                         ChannelId = youtubeChecker.ChannelId.ToString(),
-                        LastVideoId = youtubePost.ResourceId.VideoId
+                        LastVideoId = youtubePost.ResourceId.VideoId,
+                        LastPublishedAt = youtubePost.PublishedAt.Value
                     }
                 );
             }
