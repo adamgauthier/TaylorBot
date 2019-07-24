@@ -7,7 +7,7 @@ class ShowPollCommand extends Command {
     constructor() {
         super({
             name: 'showpoll',
-            aliases: ['spoll'],
+            aliases: ['spoll', 'pollshow'],
             group: 'fun',
             description: 'Shows the current results of a poll in a channel!',
             examples: [''],
