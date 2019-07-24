@@ -22,7 +22,7 @@ class Registry {
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
         this.groups = new GroupRegistry(database);
-        this.guilds = new GuildRegistry(database);
+        this.guilds = new GuildRegistry(database, redisCommands);
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
         this.commands = new CommandRegistry(database);
         this.users = new UserRegistry(database, redisCommands);

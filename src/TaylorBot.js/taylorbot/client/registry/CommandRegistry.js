@@ -21,15 +21,6 @@ class CommandRegistry {
             ...(await AttributeLoader.loadUserAttributeCommands())
         ];
 
-        const databaseCommandsNotInFiles = databaseCommands
-            .filter(dc =>
-                !commands.some(c => c.name === dc.name)
-            )
-            .map(dc => dc.name);
-
-        if (databaseCommandsNotInFiles.length > 0)
-            throw new Error(`Found database commands not in files: ${databaseCommandsNotInFiles.join(',')}.`);
-
         const fileCommandsNotInDatabase = commands.filter(command =>
             !databaseCommands.some(c => c.name === command.name)
         );

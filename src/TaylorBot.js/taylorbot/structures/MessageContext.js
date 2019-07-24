@@ -4,6 +4,7 @@ class MessageContext {
     constructor(message, client) {
         this.message = message;
         this.client = client;
+        this.prefix = '';
     }
 
     get isGuild() {
@@ -12,11 +13,6 @@ class MessageContext {
 
     get guildSettings() {
         return this.client.master.registry.guilds.get(this.message.guild.id);
-    }
-
-    get prefix() {
-        return this.isGuild ?
-            this.guildSettings.prefix : '';
     }
 }
 

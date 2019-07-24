@@ -16,7 +16,7 @@ class GuildCreate extends EventHandler {
 
         if (!registry.guilds.has(guild.id)) {
             Log.info(`Adding new guild ${Format.guild(guild)}.`);
-            await registry.guilds.cacheGuild({ guild_id: guild.id, prefix: '!' });
+            await registry.guilds.cacheGuild({ guild_id: guild.id });
         }
     }
 }

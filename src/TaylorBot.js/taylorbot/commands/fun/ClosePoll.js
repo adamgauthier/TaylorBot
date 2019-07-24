@@ -19,7 +19,7 @@ class ClosePollCommand extends Command {
         });
     }
 
-    async run({ message: { author, channel }, client, messageContext: { guildSettings: { prefix } } }) {
+    async run({ message: { author, channel }, client, messageContext: { prefix } }) {
         const { watchers } = client.master.registry;
 
         const pollsWatcher = watchers.getWatcher('Polls');

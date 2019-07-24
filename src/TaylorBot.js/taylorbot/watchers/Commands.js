@@ -19,7 +19,8 @@ class CommandsWatcher extends MessageWatcher {
 
         let text = message.content;
         if (messageContext.isGuild) {
-            const { prefix } = messageContext.guildSettings;
+            const prefix = await client.master.registry.guilds.getPrefix(message.guild);
+            messageContext.prefix = prefix;
 
             if (text.startsWith(prefix)) {
                 text = text.substring(prefix.length);

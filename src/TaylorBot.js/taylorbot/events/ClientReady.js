@@ -28,7 +28,7 @@ class ClientReady extends EventHandler {
         for (const guild of client.guilds.values()) {
             if (!registry.guilds.has(guild.id)) {
                 Log.info(`Adding new guild ${Format.guild(guild)}.`);
-                await registry.guilds.cacheGuild({ guild_id: guild.id, prefix: '!' });
+                await registry.guilds.cacheGuild({ guild_id: guild.id });
             }
         }
     }

@@ -12,6 +12,7 @@ class RedisDriver {
         });
 
         this.get = promisify(this.redisClient.get).bind(this.redisClient);
+        this.set = promisify(this.redisClient.set).bind(this.redisClient);
         this.setExpire = promisify(this.redisClient.setex).bind(this.redisClient);
 
         this.eval = promisify(this.redisClient.eval).bind(this.redisClient);

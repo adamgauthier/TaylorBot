@@ -32,7 +32,7 @@ class SetPrefixCommand extends Command {
         const { guilds } = client.master.registry;
         const { guild } = message;
 
-        const currentPrefix = guilds.get(guild.id).prefix;
+        const currentPrefix = await guilds.getPrefix(message.guild);
 
         if (currentPrefix === prefix) {
             throw new CommandError(`The prefix for ${Format.guild(guild, '#name (`#id`)')} is already '${currentPrefix}'.`);

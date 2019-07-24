@@ -17,7 +17,7 @@ class ShowPollCommand extends Command {
         });
     }
 
-    async run({ message: { channel }, client, messageContext: { guildSettings: { prefix } } }) {
+    async run({ message: { channel }, client, messageContext: { prefix } }) {
         const { watchers } = client.master.registry;
 
         const pollsWatcher = watchers.getWatcher('Polls');

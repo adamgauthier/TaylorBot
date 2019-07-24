@@ -38,6 +38,22 @@ class GuildRepository {
         }
     }
 
+    async getPrefix(guild) {
+        const databaseGuild = this.mapGuildToDatabase(guild);
+        try {
+            return await this._db.oneOrNone(
+                `INSERT INTO guilds.guilds (guild_id) VALUES ($[guild_id])
+                ON CONFLICT(guild_id) DO UPDATE SET prefix = guilds.guilds.prefix
+                RETURNING prefix;`,
+                databaseGuild
+            );
+        }
+        catch (e) {
+            Log.error(`Getting guild prefix ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
     async setPrefix(guild, prefix) {
         try {
             return await this._db.oneOrNone(

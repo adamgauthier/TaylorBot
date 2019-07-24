@@ -1,0 +1,5 @@
+﻿{
+  "CommandClient": {
+    "UseRedisCache": true
+  }
+}
