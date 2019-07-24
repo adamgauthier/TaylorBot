@@ -9,7 +9,7 @@ class ClosePollCommand extends Command {
     constructor() {
         super({
             name: 'closepoll',
-            aliases: ['cpoll'],
+            aliases: ['cpoll', 'pollclose'],
             group: 'fun',
             description: 'Closes a poll in a channel!',
             examples: [''],
