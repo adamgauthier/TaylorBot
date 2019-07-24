@@ -3,20 +3,20 @@ WORKDIR /app
 
 # copy csproj and restore as distinct layers
 COPY ./TaylorBot.Net.PostNotifier.sln ./
-COPY ./TaylorBot.Net.Core/TaylorBot.Net.Core.csproj ./TaylorBot.Net.Core/
-COPY ./TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj ./TaylorBot.Net.Core.Infrastructure/
-COPY ./TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./TaylorBot.Net.Core.Program/
-COPY ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj ./TaylorBot.Net.PostNotifier.Program/
-COPY ./TaylorBot.Net.RedditNotifier.Domain/TaylorBot.Net.RedditNotifier.Domain.csproj ./TaylorBot.Net.RedditNotifier.Domain/
-COPY ./TaylorBot.Net.RedditNotifier.Infrastructure/TaylorBot.Net.RedditNotifier.Infrastructure.csproj ./TaylorBot.Net.RedditNotifier.Infrastructure/
-COPY ./TaylorBot.Net.YoutubeNotifier.Domain/TaylorBot.Net.YoutubeNotifier.Domain.csproj ./TaylorBot.Net.YoutubeNotifier.Domain/
-COPY ./TaylorBot.Net.YoutubeNotifier.Infrastructure/TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj ./TaylorBot.Net.YoutubeNotifier.Infrastructure/
-COPY ./TaylorBot.Net.TumblrNotifier.Domain/TaylorBot.Net.TumblrNotifier.Domain.csproj ./TaylorBot.Net.TumblrNotifier.Domain/
-COPY ./TaylorBot.Net.TumblrNotifier.Infrastructure/TaylorBot.Net.TumblrNotifier.Infrastructure.csproj ./TaylorBot.Net.TumblrNotifier.Infrastructure/
+COPY ./src/TaylorBot.Net.Core/TaylorBot.Net.Core.csproj ./src/TaylorBot.Net.Core/
+COPY ./src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj ./src/TaylorBot.Net.Core.Infrastructure/
+COPY ./src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./src/TaylorBot.Net.Core.Program/
+COPY ./src/TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj ./src/TaylorBot.Net.PostNotifier.Program/
+COPY ./src/TaylorBot.Net.RedditNotifier.Domain/TaylorBot.Net.RedditNotifier.Domain.csproj ./src/TaylorBot.Net.RedditNotifier.Domain/
+COPY ./src/TaylorBot.Net.RedditNotifier.Infrastructure/TaylorBot.Net.RedditNotifier.Infrastructure.csproj ./src/TaylorBot.Net.RedditNotifier.Infrastructure/
+COPY ./src/TaylorBot.Net.YoutubeNotifier.Domain/TaylorBot.Net.YoutubeNotifier.Domain.csproj ./src/TaylorBot.Net.YoutubeNotifier.Domain/
+COPY ./src/TaylorBot.Net.YoutubeNotifier.Infrastructure/TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj ./src/TaylorBot.Net.YoutubeNotifier.Infrastructure/
+COPY ./src/TaylorBot.Net.TumblrNotifier.Domain/TaylorBot.Net.TumblrNotifier.Domain.csproj ./src/TaylorBot.Net.TumblrNotifier.Domain/
+COPY ./src/TaylorBot.Net.TumblrNotifier.Infrastructure/TaylorBot.Net.TumblrNotifier.Infrastructure.csproj ./src/TaylorBot.Net.TumblrNotifier.Infrastructure/
 
 RUN dotnet restore
 
 # copy and build everything else
 COPY . ./
-RUN dotnet publish -c Release -o out ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
-ENTRYPOINT ["dotnet", "TaylorBot.Net.PostNotifier.Program/out/TaylorBot.Net.PostNotifier.Program.dll"]
+RUN dotnet publish -c Release -o out ./src/TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
+ENTRYPOINT ["dotnet", "src/TaylorBot.Net.PostNotifier.Program/out/TaylorBot.Net.PostNotifier.Program.dll"]

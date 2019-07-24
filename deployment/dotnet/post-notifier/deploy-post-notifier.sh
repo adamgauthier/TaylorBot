@@ -11,7 +11,7 @@ network_name=$(cat "${__dir}/../../docker-network.name")
 env_file_path=${__dir}/../taylorbot.net.env
 taylorbot_net_path=${__dir}/../../../src/TaylorBot.Net
 build_context_path=${taylorbot_net_path}
-docker_file_path=${taylorbot_net_path}/TaylorBot.Net.PostNotifier.Program/Dockerfile
+docker_file_path=${taylorbot_net_path}/src/TaylorBot.Net.PostNotifier.Program/Dockerfile
 
 docker build -t ${image_name} -f ${docker_file_path} ${build_context_path}
 docker container run -d --name ${container_name} --network ${network_name} --env-file ${env_file_path} --restart=on-failure:100 ${image_name}
