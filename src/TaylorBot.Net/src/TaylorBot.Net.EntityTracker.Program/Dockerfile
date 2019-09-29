@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.2-sdk
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -14,7 +14,11 @@ COPY ./TaylorBot.Net.EntityTracker.Infrastructure/TaylorBot.Net.EntityTracker.In
 
 RUN dotnet restore ./TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
 
-# copy and build everything else
-COPY . ./
-RUN dotnet publish -c Release -o out ./TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
-ENTRYPOINT ["dotnet", "TaylorBot.Net.EntityTracker.Program/out/TaylorBot.Net.EntityTracker.Program.dll"]
+# copy and publish app and libraries
+COPY . ./src/
+RUN dotnet publish -c Release -o out ./src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
+
+FROM mcr.microsoft.com/dotnet/core/runtime:3.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/out ./
+ENTRYPOINT ["dotnet", "TaylorBot.Net.EntityTracker.Program.dll"]

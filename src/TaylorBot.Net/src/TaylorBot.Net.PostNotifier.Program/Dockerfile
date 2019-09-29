@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.2-sdk
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -15,7 +15,11 @@ COPY ./TaylorBot.Net.TumblrNotifier.Infrastructure/TaylorBot.Net.TumblrNotifier.
 
 RUN dotnet restore ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
 
-# copy and build everything else
-COPY . ./
-RUN dotnet publish -c Release -o out ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
-ENTRYPOINT ["dotnet", "TaylorBot.Net.PostNotifier.Program/out/TaylorBot.Net.PostNotifier.Program.dll"]
+# copy and publish app and libraries
+COPY . ./src/
+RUN dotnet publish -c Release -o out ./src/TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
+
+FROM mcr.microsoft.com/dotnet/core/runtime:3.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/out ./
+ENTRYPOINT ["dotnet", "TaylorBot.Net.PostNotifier.Program.dll"]

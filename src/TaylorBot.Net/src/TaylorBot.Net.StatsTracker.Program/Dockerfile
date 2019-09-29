@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.2-sdk
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -13,7 +13,11 @@ COPY ./TaylorBot.Net.MessagesTracker.Infrastructure/TaylorBot.Net.MessagesTracke
 
 RUN dotnet restore ./TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
 
-# copy and build everything else
-COPY . ./
-RUN dotnet publish -c Release -o out ./TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
-ENTRYPOINT ["dotnet", "TaylorBot.Net.StatsTracker.Program/out/TaylorBot.Net.StatsTracker.Program.dll"]
+# copy and publish app and libraries
+COPY . ./src/
+RUN dotnet publish -c Release -o out ./src/TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
+
+FROM mcr.microsoft.com/dotnet/core/runtime:3.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/out ./
+ENTRYPOINT ["dotnet", "TaylorBot.Net.StatsTracker.Program.dll"]
