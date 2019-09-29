@@ -26,7 +26,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed
             var builder = new EmbedBuilder()
                 .WithTitle(post.Title.Truncate(65))
                 .WithUrl($"https://redd.it/{post.Id}")
-                .WithTimestamp(post.Listing.CreatedUTC)
+                .WithTimestamp(post.Created)
                 .WithAuthor(name: $"r/{post.Subreddit}", url: $"https://www.reddit.com/r/{post.Subreddit}")
                 .WithFooter(text: $"u/{post.Author}", iconUrl: options.RedditPostEmbedIconUrl)
                 .WithColor(DiscordColor.FromHexString(options.RedditPostEmbedColor));
