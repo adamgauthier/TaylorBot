@@ -23,7 +23,7 @@ namespace TaylorBot.Net.StatsTracker.Program
         {
             using (var services = new StatsTrackerProgram().ConfigureServices())
             {
-                await new TaylorBotApplication(services).StartAsync();
+                await new TaylorBotHostedService(services).StartAsync();
             }
         }
 

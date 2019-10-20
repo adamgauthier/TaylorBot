@@ -31,7 +31,7 @@ namespace TaylorBot.Net.UserNotifier.Program
         {
             using (var services = new UserNotifierProgram().ConfigureServices())
             {
-                await new TaylorBotApplication(services).StartAsync();
+                await new TaylorBotHostedService(services).StartAsync();
             }
         }
 

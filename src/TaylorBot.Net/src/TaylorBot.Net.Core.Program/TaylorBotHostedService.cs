@@ -1,8 +1,10 @@
 ﻿using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
@@ -11,29 +13,27 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Core.Program
 {
-    public class TaylorBotApplication
+    public class TaylorBotHostedService : IHostedService
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly ILogger<TaylorBotApplication> logger;
+        private readonly ILogger<TaylorBotHostedService> logger;
         private readonly TaskExceptionLogger taskExceptionLogger;
+        private TaylorBotClient client;
 
-        public TaylorBotApplication(IServiceProvider serviceProvider)
+        public TaylorBotHostedService(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
-            this.logger = serviceProvider.GetRequiredService<ILogger<TaylorBotApplication>>();
+            this.logger = serviceProvider.GetRequiredService<ILogger<TaylorBotHostedService>>();
             this.taskExceptionLogger = serviceProvider.GetRequiredService<TaskExceptionLogger>();
         }
 
-        public async Task StartAsync()
+        private void CreateClient()
         {
-            var client = serviceProvider.GetRequiredService<TaylorBotClient>();
+            client = serviceProvider.GetRequiredService<TaylorBotClient>();
+        }
 
-            AssemblyLoadContext.Default.Unloading += async (assemblyLoadContext) =>
-            {
-                await client.StopAsync();
-                logger.LogInformation(LogString.From("Clients unloaded!"));
-            };
-
+        private async Task StartClientAsync()
+        {
             var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
             if (shardReadyHandler != null)
             {
@@ -146,8 +146,34 @@ namespace TaylorBot.Net.Core.Program
             await Task.Delay(new TimeSpan(0, 0, 5));
 
             await client.StartAsync();
+        }
+
+        [Obsolete("Use as " + nameof(IHostedService))]
+        public async Task StartAsync()
+        {
+            CreateClient();
+
+            AssemblyLoadContext.Default.Unloading += async (assemblyLoadContext) =>
+            {
+                await client.StopAsync();
+                logger.LogInformation(LogString.From("Clients unloaded!"));
+            };
+
+            await StartClientAsync();
 
             await Task.Delay(-1);
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            CreateClient();
+            await StartClientAsync();
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            await client.StopAsync();
+            logger.LogInformation(LogString.From("Clients unloaded!"));
         }
     }
 }

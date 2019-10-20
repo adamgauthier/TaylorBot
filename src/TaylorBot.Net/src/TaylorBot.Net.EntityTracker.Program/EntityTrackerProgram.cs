@@ -37,7 +37,7 @@ namespace TaylorBot.Net.EntityTracker.Program
         {
             using (var services = new EntityTrackerProgram().ConfigureServices())
             {
-                await new TaylorBotApplication(services).StartAsync();
+                await new TaylorBotHostedService(services).StartAsync();
             }
         }
 
