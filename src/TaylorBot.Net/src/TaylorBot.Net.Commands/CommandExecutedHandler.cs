@@ -53,8 +53,15 @@ namespace TaylorBot.Net.Commands
                     .Build());
                     break;
 
+                case PreconditionResult preconditionResult:
+                    await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
+                        .WithColor(TaylorBotColors.ErrorColor)
+                        .WithDescription($"{context.User.Mention} {preconditionResult.ErrorReason}")
+                    .Build());
+                    break;
+
                 default:
-                    logger.LogError(LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}."));
+                    logger.LogError(LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}"));
                     break;
             }
         }

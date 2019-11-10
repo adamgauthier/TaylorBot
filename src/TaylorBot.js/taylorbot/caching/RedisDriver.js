@@ -23,6 +23,7 @@ class RedisDriver {
         this.setRemove = promisify(this.redisClient.srem).bind(this.redisClient);
         this.setIsMember = promisify(this.redisClient.sismember).bind(this.redisClient);
 
+        this.hashGet = promisify(this.redisClient.hget).bind(this.redisClient);
         this.hashSet = promisify(this.redisClient.hset).bind(this.redisClient);
     }
 

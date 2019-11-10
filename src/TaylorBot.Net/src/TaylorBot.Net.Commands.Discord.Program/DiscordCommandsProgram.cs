@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
+using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
@@ -58,6 +59,15 @@ namespace TaylorBot.Net.Commands.Discord.Program
                             return options.UseRedisCache ?
                                 provider.GetRequiredService<CommandPrefixRedisCacheRepository>() :
                                 (ICommandPrefixRepository)provider.GetRequiredService<CommandPrefixPostgresRepository>();
+                        })
+                        .AddTransient<DisabledCommandPostgresRepository>()
+                        .AddTransient<DisabledCommandRedisCacheRepository>()
+                        .AddTransient(provider =>
+                        {
+                            var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
+                            return options.UseRedisCache ?
+                                provider.GetRequiredService<DisabledCommandRedisCacheRepository>() :
+                                (IDisabledCommandRepository)provider.GetRequiredService<DisabledCommandPostgresRepository>();
                         });
                 })
                 .Build();

@@ -6,8 +6,9 @@ const CommandLoader = require('../../commands/CommandLoader.js');
 const AttributeLoader = require('../../attributes/AttributeLoader.js');
 
 class CommandRegistry {
-    constructor(database) {
+    constructor(database, redis) {
         this.database = database;
+        this.redis = redis;
         this.commandsCache = new Map();
         this.useCountCache = new Map();
     }
@@ -39,11 +40,6 @@ class CommandRegistry {
 
         commands.forEach(c => this.cacheCommand(c));
 
-        databaseCommands.forEach(c => {
-            if (!c.enabled)
-                this.getCommand(c.name).isDisabled = true;
-        });
-
         const guildCommands = await this.database.guildCommands.getAll();
         guildCommands.forEach(gc => {
             if (gc.disabled)
@@ -59,7 +55,7 @@ class CommandRegistry {
 
         const cached = new CachedCommand(
             command.name,
-            this.database.commands,
+            this,
             this.database.guildCommands
         );
         cached.command = command;
@@ -122,6 +118,28 @@ class CommandRegistry {
         return Array.from(
             this.commandsCache.values()
         ).filter(val => typeof (val) !== 'string');
+    }
+
+    get enabledRedisKey() {
+        return 'enabled-commands';
+    }
+
+    async insertOrGetIsCommandDisabled(command) {
+        const isEnabled = await this.redis.hashGet(this.enabledRedisKey, command.name);
+
+        if (isEnabled === null) {
+            const { enabled } = await this.database.commands.insertOrGetIsCommandDisabled(command);
+            await this.redis.hashSet(this.enabledRedisKey, command.name, enabled ? 1 : 0);
+            return !enabled;
+        }
+
+        return isEnabled === '0';
+    }
+
+    async setGlobalEnabled(commandName, setEnabled) {
+        const { enabled } = await this.database.commands.setEnabled(commandName, setEnabled);
+        await this.redis.hashSet(this.enabledRedisKey, commandName, enabled);
+        return enabled;
     }
 }
 

@@ -68,6 +68,24 @@ class CommandRepository {
             throw e;
         }
     }
+
+    async insertOrGetIsCommandDisabled(command) {
+        try {
+            return await this._db.one(
+                `INSERT INTO commands.commands (name) VALUES ($[command_name])
+                ON CONFLICT (name) DO UPDATE SET enabled = commands.commands.enabled
+                RETURNING enabled;`,
+                {
+                    command_name: command.name
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Inserting or getting is disabled for ${command.name}: ${e}`);
+            throw e;
+        }
+    }
+
 }
 
 module.exports = CommandRepository;

@@ -24,7 +24,7 @@ class Registry {
         this.groups = new GroupRegistry(database);
         this.guilds = new GuildRegistry(database, redisCommands);
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
-        this.commands = new CommandRegistry(database);
+        this.commands = new CommandRegistry(database, redisCommands);
         this.users = new UserRegistry(database, redisCommands);
         this.channelCommands = new ChannelCommandRegistry(database, redisCommands);
         this.cooldowns = new CooldownRegistry(redisCommands);

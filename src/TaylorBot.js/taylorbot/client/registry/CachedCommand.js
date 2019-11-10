@@ -3,25 +3,16 @@
 const Format = require('../../modules/DiscordFormatter.js');
 
 class CachedCommand {
-    constructor(name, commandRepository, guildCommandRepository) {
-        this._commandRepository = commandRepository;
+    constructor(name, commandRegistry, guildCommandRepository) {
+        this._commandRegistry = commandRegistry;
         this._guildCommandRepository = guildCommandRepository;
 
         this.name = name;
-        this.isDisabled = false;
         this.disabledIn = {};
     }
 
     async setEnabled(enabled) {
-        if (this.isDisabled && !enabled)
-            throw new Error(`Command '${this.name}' is already disabled.`);
-
-        if (!this.isDisabled && enabled)
-            throw new Error(`Command '${this.name}' is already enabled.`);
-
-        await this._commandRepository.setEnabled(this.name, enabled);
-
-        this.isDisabled = !enabled;
+        await this._commandRegistry.setGlobalEnabled(this.name, enabled);
     }
 
     enableCommand() {
