@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.User;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules
 {
     [Name("DiscordInfo")]
-    public class DiscordInfoModule : TaylorBotModuleBase
+    public class DiscordInfoModule : TaylorBotModule
     {
         [Command("avatar")]
         [Alias("av", "avi")]

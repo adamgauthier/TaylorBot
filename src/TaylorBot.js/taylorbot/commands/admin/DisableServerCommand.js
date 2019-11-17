@@ -34,7 +34,9 @@ class DisableServerCommandCommand extends Command {
     }
 
     async run({ message, client }, { command, guild }) {
-        if (command.disabledIn[guild.id]) {
+        const isDisabled = await client.master.registry.guildCommands.getIsGuildCommandDisabled(guild, command);
+
+        if (isDisabled) {
             throw new CommandError(`Command \`${command.name}\` is already disabled in ${guild.name}.`);
         }
 

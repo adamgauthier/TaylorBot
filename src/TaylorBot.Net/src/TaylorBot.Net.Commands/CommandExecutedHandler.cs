@@ -53,7 +53,7 @@ namespace TaylorBot.Net.Commands
                     .Build());
                     break;
 
-                case PreconditionResult preconditionResult:
+                case PreconditionResult preconditionResult when preconditionResult.ErrorReason != null:
                     await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription($"{context.User.Mention} {preconditionResult.ErrorReason}")

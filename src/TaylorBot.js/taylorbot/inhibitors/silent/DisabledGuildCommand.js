@@ -3,13 +3,15 @@
 const SilentInhibitor = require('../SilentInhibitor.js');
 
 class DisabledGuildCommandInhibitor extends SilentInhibitor {
-    shouldBeBlocked({ message }, command) {
+    async shouldBeBlocked({ message, client }, command) {
         const { guild } = message;
 
         if (!guild)
             return null;
 
-        if (command.disabledIn[guild.id]) {
+        const isDisabled = await client.master.registry.commands.getIsGuildCommandDisabled(guild, command);
+
+        if (isDisabled) {
             return 'The command is disabled in this guild.';
         }
 

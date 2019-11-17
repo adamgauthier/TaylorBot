@@ -85,7 +85,6 @@ class CommandRepository {
             throw e;
         }
     }
-
 }
 
 module.exports = CommandRepository;

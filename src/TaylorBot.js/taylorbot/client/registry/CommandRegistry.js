@@ -39,12 +39,6 @@ class CommandRegistry {
         }
 
         commands.forEach(c => this.cacheCommand(c));
-
-        const guildCommands = await this.database.guildCommands.getAll();
-        guildCommands.forEach(gc => {
-            if (gc.disabled)
-                this.getCommand(gc.command_name).disabledIn[gc.guild_id] = true;
-        });
     }
 
     cacheCommand(command) {
@@ -140,6 +134,29 @@ class CommandRegistry {
         const { enabled } = await this.database.commands.setEnabled(commandName, setEnabled);
         await this.redis.hashSet(this.enabledRedisKey, commandName, enabled);
         return enabled;
+    }
+
+    enabledGuildRedisKey(guild) {
+        return `enabled-commands:guild:${guild.id}`;
+    }
+
+    async getIsGuildCommandDisabled(guild, command) {
+        const isEnabled = await this.redis.hashGet(this.enabledGuildRedisKey(guild), command.name);
+
+        if (isEnabled === null) {
+            const { disabled } = await this.database.guildCommands.getIsGuildCommandDisabled(guild, command);
+            await this.redis.hashSet(this.enabledGuildRedisKey(guild), command.name, (!disabled) ? 1 : 0);
+            await this.redis.expire(this.enabledGuildRedisKey(guild), 6 * 60 * 60);
+            return disabled;
+        }
+
+        return isEnabled === '0';
+    }
+
+    async setGuildEnabled(guild, commandName, enabled) {
+        const { disabled } = await this.database.guildCommands.setDisabled(guild, commandName, !enabled);
+        await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, !disabled);
+        return !disabled;
     }
 }
 
