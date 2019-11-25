@@ -12,7 +12,7 @@ class DarkSkyEmbedModule {
             .setTitle(dataPoint.summary)
             .setDescription([
                 `${celsius}°C/${fahrenheit}°F`,
-                `Wind: ${dataPoint.windSpeed} km/h`,
+                `Wind: ${dataPoint.windSpeed} m/s`,
                 `Humidity: ${Math.round(dataPoint.humidity * 100)}%`
             ].join('\n'))
             .setThumbnail(`https://darksky.net/images/weather-icons/${dataPoint.icon}.png`)
