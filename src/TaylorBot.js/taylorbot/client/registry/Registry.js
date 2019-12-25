@@ -68,10 +68,6 @@ class Registry {
         Log.info('Caching ignored users...');
         await this.users.cacheIgnored();
         Log.info('Ignored users cached!');
-
-        Log.info('Caching channel commands...');
-        await this.channelCommands.cacheChannelCommands();
-        Log.info('Channel commands cached!');
     }
 }
 

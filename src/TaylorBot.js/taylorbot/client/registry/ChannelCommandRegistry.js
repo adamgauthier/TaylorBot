@@ -1,7 +1,5 @@
 'use strict';
 
-const ArrayUtil = require('../../modules/ArrayUtil.js');
-
 class ChannelCommandRegistry {
     constructor(database, redis) {
         this.database = database;
@@ -9,41 +7,38 @@ class ChannelCommandRegistry {
     }
 
     key(guildId, channelId) {
-        return `disabled-commands:guild:${guildId}:channel:${channelId}`;
-    }
-
-    async cacheChannelCommands() {
-        const groupedChannelCommands = ArrayUtil.groupBy(
-            await this.database.channelCommands.getAll(),
-            channelCommand => this.key(channelCommand.guild_id, channelCommand.channel_id)
-        );
-
-        for (const [key, channelCommands] of groupedChannelCommands.entries()) {
-            await this.redis.setAdd(key, channelCommands.map(c => c.command_id));
-        }
+        return `enabled-commands:guild:${guildId}:channel:${channelId}`;
     }
 
     async isCommandDisabledInChannel(guildTextChannel, command) {
-        const result = await this.redis.setIsMember(
-            this.key(guildTextChannel.guild.id, guildTextChannel.id),
-            command.name
-        );
-        return !!result;
+        const key = this.key(guildTextChannel.guild.id, guildTextChannel.id);
+        const isEnabled = await this.redis.hashGet(key, command.name);
+
+        if (isEnabled === null) {
+            const { disabled } = await this.database.channelCommands.getIsCommandDisabledInChannel(guildTextChannel, command);
+            await this.redis.hashSet(key, command.name, (!disabled) ? 1 : 0);
+            await this.redis.expire(key, 6 * 60 * 60);
+            return disabled;
+        }
+
+        return isEnabled === '0';
     }
 
     async disableCommandInChannel(guildTextChannel, command) {
         await this.database.channelCommands.disableCommandInChannel(guildTextChannel, command);
-        await this.redis.setAdd(
+        await this.redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
-            command.name
+            command.name,
+            false
         );
     }
 
     async enableCommandInChannel(guildTextChannel, command) {
         await this.database.channelCommands.enableCommandInChannel(guildTextChannel, command);
-        await this.redis.setRemove(
+        await this.redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
-            command.name
+            command.name,
+            true
         );
     }
 }

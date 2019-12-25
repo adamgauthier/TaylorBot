@@ -8,12 +8,22 @@ class ChannelCommandRepository {
         this._db = db;
     }
 
-    async getAll() {
+    async getIsCommandDisabledInChannel(guildTextChannel, command) {
         try {
-            return await this._db.any('SELECT * FROM guilds.channel_commands;');
+            return await this._db.one(
+                `SELECT EXISTS(
+                    SELECT 1 FROM guilds.channel_commands
+                    WHERE guild_id = $[guild_id] AND channel_id = $[channel_id] AND command_id = $[command_id]
+                );`,
+                {
+                    guild_id: guildTextChannel.guild.id,
+                    channel_id: guildTextChannel.id,
+                    command_id: command.name
+                }
+            );
         }
         catch (e) {
-            Log.error(`Getting all channel commands: ${e}`);
+            Log.error(`Getting is disabled for ${command.name} in ${Format.guildChannel(guildTextChannel)}: ${e}`);
             throw e;
         }
     }

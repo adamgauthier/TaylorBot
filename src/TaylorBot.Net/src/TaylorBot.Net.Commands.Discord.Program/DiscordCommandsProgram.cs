@@ -77,6 +77,15 @@ namespace TaylorBot.Net.Commands.Discord.Program
                             return options.UseRedisCache ?
                                 provider.GetRequiredService<DisabledGuildCommandRedisCacheRepository>() :
                                 (IDisabledGuildCommandRepository)provider.GetRequiredService<DisabledGuildCommandPostgresRepository>();
+                        })
+                        .AddTransient<DisabledGuildChannelCommandPostgresRepository>()
+                        .AddTransient<DisabledGuildChannelCommandRedisCacheRepository>()
+                        .AddTransient(provider =>
+                        {
+                            var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
+                            return options.UseRedisCache ?
+                                provider.GetRequiredService<DisabledGuildChannelCommandRedisCacheRepository>() :
+                                (IDisabledGuildChannelCommandRepository)provider.GetRequiredService<DisabledGuildChannelCommandPostgresRepository>();
                         });
                 })
                 .Build();
