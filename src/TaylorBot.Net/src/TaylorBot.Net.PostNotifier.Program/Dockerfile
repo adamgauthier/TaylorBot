@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -19,7 +19,7 @@ RUN dotnet restore ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifi
 COPY . ./src/
 RUN dotnet publish -c Release -o out ./src/TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/core/runtime:3.0 AS runtime
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1 AS runtime
 WORKDIR /app
 COPY --from=build /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.PostNotifier.Program.dll"]
