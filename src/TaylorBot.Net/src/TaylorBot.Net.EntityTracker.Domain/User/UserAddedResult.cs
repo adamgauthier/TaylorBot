@@ -1,6 +1,13 @@
 ﻿namespace TaylorBot.Net.EntityTracker.Domain.User
 {
-    public class UserAddedResult
+    public interface IUserAddedResult
+    {
+        bool WasAdded { get; }
+        bool WasUsernameChanged { get; }
+        string PreviousUsername { get; }
+    }
+
+    public class UserAddedResult : IUserAddedResult
     {
         public bool WasAdded { get; }
         public bool WasUsernameChanged { get; }

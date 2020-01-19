@@ -34,6 +34,22 @@ class UsernameRepository {
             throw e;
         }
     }
+
+    async addNewUsernameAsync(user) {
+        try {
+            return await this._db.none(
+                `INSERT INTO users.usernames (user_id, username) VALUES ($[user_id], $[username]);`,
+                {
+                    user_id: user.id,
+                    username: user.username
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Adding new username for ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = UsernameRepository;

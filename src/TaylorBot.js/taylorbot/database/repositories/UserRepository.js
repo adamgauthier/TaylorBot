@@ -9,16 +9,6 @@ class UserRepository {
         this._usersDAO = usersDAO;
     }
 
-    async getAllIgnored() {
-        try {
-            return await this._db.any('SELECT user_id, ignore_until FROM users.users WHERE ignore_until >= CURRENT_TIMESTAMP;');
-        }
-        catch (e) {
-            Log.error(`Getting all users: ${e}`);
-            throw e;
-        }
-    }
-
     mapUserToDatabase(user) {
         return {
             'user_id': user.id
@@ -114,11 +104,31 @@ class UserRepository {
         }
     }
 
-    async ignore(user, ignoreUntil) {
+    async insertOrGetUserIgnoreUntil(user) {
         const databaseUser = this.mapUserToDatabase(user);
         try {
             return await this._db.one(
-                'UPDATE users.users SET ignore_until = $[ignore_until] WHERE user_id = $[user_id] RETURNING *;',
+                `INSERT INTO users.users (user_id, is_bot, username, previous_username) VALUES ($[user_id], $[is_bot], $[username], NULL)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    previous_username = users.users.username,
+                    username = excluded.username
+                RETURNING
+                    ignore_until, previous_username IS NULL AS was_inserted,
+                    previous_username IS DISTINCT FROM username AS username_changed, previous_username;`,
+                { ...databaseUser, is_bot: !!user.bot, username: user.username }
+            );
+        }
+        catch (e) {
+            Log.error(`Inserting or getting user ${Format.user(user)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async ignore(user, ignoreUntil) {
+        const databaseUser = this.mapUserToDatabase(user);
+        try {
+            await this._db.none(
+                'UPDATE users.users SET ignore_until = $[ignore_until] WHERE user_id = $[user_id];',
                 { ...databaseUser, ignore_until: ignoreUntil }
             );
         }

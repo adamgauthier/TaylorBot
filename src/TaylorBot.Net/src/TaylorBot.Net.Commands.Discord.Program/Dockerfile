@@ -8,6 +8,8 @@ COPY ./src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj ./Taylor
 COPY ./src/TaylorBot.Net.Commands/TaylorBot.Net.Commands.csproj ./TaylorBot.Net.Commands/
 COPY ./src/TaylorBot.Net.Commands.Infrastructure/TaylorBot.Net.Commands.Infrastructure.csproj ./TaylorBot.Net.Commands.Infrastructure/
 COPY ./src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj ./TaylorBot.Net.Commands.Discord.Program/
+COPY ./src/TaylorBot.Net.EntityTracker.Domain/TaylorBot.Net.EntityTracker.Domain.csproj ./TaylorBot.Net.EntityTracker.Domain/
+COPY ./src/TaylorBot.Net.EntityTracker.Infrastructure/TaylorBot.Net.EntityTracker.Infrastructure.csproj ./TaylorBot.Net.EntityTracker.Infrastructure/
 COPY ./NuGet.config ./
 
 RUN dotnet restore ./TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
@@ -19,6 +21,8 @@ COPY ./src/TaylorBot.Net.Core.Program ./TaylorBot.Net.Core.Program
 COPY ./src/TaylorBot.Net.Commands ./TaylorBot.Net.Commands
 COPY ./src/TaylorBot.Net.Commands.Infrastructure ./TaylorBot.Net.Commands.Infrastructure
 COPY ./src/TaylorBot.Net.Commands.Discord.Program ./TaylorBot.Net.Commands.Discord.Program
+COPY ./src/TaylorBot.Net.EntityTracker.Domain ./TaylorBot.Net.EntityTracker.Domain
+COPY ./src/TaylorBot.Net.EntityTracker.Infrastructure ./TaylorBot.Net.EntityTracker.Infrastructure
 
 RUN dotnet publish -c Release -o out ./TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 

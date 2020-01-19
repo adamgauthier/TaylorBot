@@ -1,5 +1,7 @@
 'use strict';
 
+const moment = require('moment');
+
 const SilentInhibitor = require('../SilentInhibitor.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 
@@ -7,11 +9,11 @@ class IgnoredInhibitor extends SilentInhibitor {
     async shouldBeBlocked({ message, client }) {
         const { author } = message;
 
-        const commandTime = Date.now();
-        const ignoredUntil = await client.master.registry.users.getIgnoredUntil(author.id);
+        const ignoredUntil = await client.master.registry.users.getIgnoredUntil(author);
 
-        if (ignoredUntil && commandTime < ignoredUntil) {
-            return `They are ignored until ${TimeUtil.formatLog(ignoredUntil)}.`;
+        const commandTime = moment();
+        if (commandTime.isBefore(ignoredUntil)) {
+            return `They are ignored until ${TimeUtil.formatLog(ignoredUntil.valueOf())}.`;
         }
 
         return null;

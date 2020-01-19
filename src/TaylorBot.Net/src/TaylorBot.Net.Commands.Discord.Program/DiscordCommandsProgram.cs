@@ -13,6 +13,9 @@ using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.Core.Program.Extensions;
+using TaylorBot.Net.EntityTracker.Domain;
+using TaylorBot.Net.EntityTracker.Domain.Username;
+using TaylorBot.Net.EntityTracker.Infrastructure.Username;
 
 namespace TaylorBot.Net.Commands.Discord.Program
 {
@@ -86,7 +89,18 @@ namespace TaylorBot.Net.Commands.Discord.Program
                             return options.UseRedisCache ?
                                 provider.GetRequiredService<DisabledGuildChannelCommandRedisCacheRepository>() :
                                 (IDisabledGuildChannelCommandRepository)provider.GetRequiredService<DisabledGuildChannelCommandPostgresRepository>();
-                        });
+                        })
+                        .AddTransient<IgnoredUserPostgresRepository>()
+                        .AddTransient<IgnoredUserRedisCacheRepository>()
+                        .AddTransient(provider =>
+                        {
+                            var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
+                            return options.UseRedisCache ?
+                                provider.GetRequiredService<IgnoredUserRedisCacheRepository>() :
+                                (IIgnoredUserRepository)provider.GetRequiredService<IgnoredUserPostgresRepository>();
+                        })
+                        .AddTransient<UsernameTrackerDomainService>()
+                        .AddTransient<IUsernameRepository, UsernameRepository>();
                 })
                 .Build();
 

@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.EntityTracker.Domain\TaylorBot.Net.EntityTracker.Domain.csproj" />
   </ItemGroup>
 
 </Project>

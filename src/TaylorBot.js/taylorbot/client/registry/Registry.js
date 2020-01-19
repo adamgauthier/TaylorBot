@@ -64,10 +64,6 @@ class Registry {
         Log.info('Loading commands...');
         await this.commands.loadAll();
         Log.info('Commands loaded!');
-
-        Log.info('Caching ignored users...');
-        await this.users.cacheIgnored();
-        Log.info('Ignored users cached!');
     }
 }
 

@@ -10,6 +10,7 @@
     <ProjectReference Include="..\TaylorBot.Net.Commands\TaylorBot.Net.Commands.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.EntityTracker.Infrastructure\TaylorBot.Net.EntityTracker.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -69,6 +69,7 @@ namespace TaylorBot.Net.EntityTracker.Program
                 .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
                 .AddTransient<ITextChannelCreatedHandler, TextChannelCreatedHandler>()
                 .AddTransient<QuickStartDomainService>()
+                .AddTransient<UsernameTrackerDomainService>()
                 .AddTransient<EntityTrackerDomainService>()
                 .AddTransient<MemberLogChannelFinder>()
                 .AddTransient<GuildMemberJoinedLoggerService>()

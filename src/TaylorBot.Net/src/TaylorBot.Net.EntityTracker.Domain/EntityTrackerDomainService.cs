@@ -13,7 +13,6 @@ using TaylorBot.Net.EntityTracker.Domain.Member;
 using TaylorBot.Net.EntityTracker.Domain.Options;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using TaylorBot.Net.EntityTracker.Domain.User;
-using TaylorBot.Net.EntityTracker.Domain.Username;
 
 namespace TaylorBot.Net.EntityTracker.Domain
 {
@@ -21,8 +20,8 @@ namespace TaylorBot.Net.EntityTracker.Domain
     {
         private readonly ILogger<EntityTrackerDomainService> logger;
         private readonly IOptionsMonitor<EntityTrackerOptions> optionsMonitor;
+        private readonly UsernameTrackerDomainService usernameTrackerDomainService;
         private readonly IUserRepository userRepository;
-        private readonly IUsernameRepository usernameRepository;
         private readonly ITextChannelRepository textChannelRepository;
         private readonly IGuildRepository guildRepository;
         private readonly IGuildNameRepository guildNameRepository;
@@ -45,8 +44,8 @@ namespace TaylorBot.Net.EntityTracker.Domain
         public EntityTrackerDomainService(
             ILogger<EntityTrackerDomainService> logger,
             IOptionsMonitor<EntityTrackerOptions> optionsMonitor,
+            UsernameTrackerDomainService usernameTrackerDomainService,
             IUserRepository userRepository,
-            IUsernameRepository usernameRepository,
             ITextChannelRepository textChannelRepository,
             IGuildRepository guildRepository,
             IGuildNameRepository guildNameRepository,
@@ -54,8 +53,8 @@ namespace TaylorBot.Net.EntityTracker.Domain
         {
             this.logger = logger;
             this.optionsMonitor = optionsMonitor;
+            this.usernameTrackerDomainService = usernameTrackerDomainService;
             this.userRepository = userRepository;
-            this.usernameRepository = usernameRepository;
             this.textChannelRepository = textChannelRepository;
             this.guildRepository = guildRepository;
             this.guildNameRepository = guildNameRepository;
@@ -117,22 +116,9 @@ namespace TaylorBot.Net.EntityTracker.Domain
             if (oldUser.Username != newUser.Username)
             {
                 var userAddedResult = await userRepository.AddNewUserAsync(newUser);
-                if (userAddedResult.WasAdded)
-                {
-                    logger.LogInformation(LogString.From($"Added new user {newUser.FormatLog()}."));
-                    await usernameRepository.AddNewUsernameAsync(newUser);
-                }
-                else if (userAddedResult.WasUsernameChanged)
-                {
-                    await UpdateUsernameAsync(newUser, userAddedResult.PreviousUsername);
-                }
-            }
-        }
 
-        private async Task UpdateUsernameAsync(IUser user, string previousUsername)
-        {
-            await usernameRepository.AddNewUsernameAsync(user);
-            logger.LogInformation(LogString.From($"Added new username for {user.FormatLog()}, previously was '{previousUsername}'."));
+                await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(newUser, userAddedResult);
+            }
         }
 
         public async Task OnGuildUpdatedAsync(SocketGuild oldGuild, SocketGuild newGuild)
@@ -154,21 +140,20 @@ namespace TaylorBot.Net.EntityTracker.Domain
         public async Task OnGuildUserJoinedAsync(SocketGuildUser guildUser)
         {
             var userAddedResult = await userRepository.AddNewUserAsync(guildUser);
+            await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(guildUser, userAddedResult);
+
             if (userAddedResult.WasAdded)
             {
-                logger.LogInformation(LogString.From($"Added new user from member {guildUser.FormatLog()}."));
-                await memberRepository.AddNewMemberAsync(guildUser);
-                await usernameRepository.AddNewUsernameAsync(guildUser);
-                await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
+                var memberAdded = await memberRepository.AddNewMemberAsync(guildUser);
+                if (memberAdded)
+                {
+                    logger.LogInformation(LogString.From($"Added new member {guildUser.FormatLog()}."));
+                    await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
+                }
             }
             else
             {
-                var memberAddedResult = await memberRepository.AddNewMemberIfNotAddedAsync(guildUser);
-
-                if (userAddedResult.WasUsernameChanged)
-                {
-                    await UpdateUsernameAsync(guildUser, userAddedResult.PreviousUsername);
-                }
+                var memberAddedResult = await memberRepository.AddNewMemberOrUpdateAsync(guildUser);
 
                 if (memberAddedResult is RejoinedMemberAddResult rejoinedMemberAddResult)
                 {
