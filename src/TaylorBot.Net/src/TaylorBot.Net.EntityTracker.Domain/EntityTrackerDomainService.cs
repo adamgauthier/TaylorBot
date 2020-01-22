@@ -116,16 +116,23 @@ namespace TaylorBot.Net.EntityTracker.Domain
         {
             if (oldUser.Username != newUser.Username)
             {
-                await UpdateUsernameAsync(newUser, oldUser.Username);
+                var userAddedResult = await userRepository.AddNewUserAsync(newUser);
+                if (userAddedResult.WasAdded)
+                {
+                    logger.LogInformation(LogString.From($"Added new user {newUser.FormatLog()}."));
+                    await usernameRepository.AddNewUsernameAsync(newUser);
+                }
+                else if (userAddedResult.WasUsernameChanged)
+                {
+                    await UpdateUsernameAsync(newUser, userAddedResult.PreviousUsername);
+                }
             }
         }
 
         private async Task UpdateUsernameAsync(IUser user, string previousUsername)
         {
             await usernameRepository.AddNewUsernameAsync(user);
-            logger.LogInformation(LogString.From(
-                $"Added new username for {user.FormatLog()}{(previousUsername != default ? $", previously was '{previousUsername}'" : "")}."
-            ));
+            logger.LogInformation(LogString.From($"Added new username for {user.FormatLog()}, previously was '{previousUsername}'."));
         }
 
         public async Task OnGuildUpdatedAsync(SocketGuild oldGuild, SocketGuild newGuild)
@@ -158,10 +165,9 @@ namespace TaylorBot.Net.EntityTracker.Domain
             {
                 var memberAddedResult = await memberRepository.AddNewMemberIfNotAddedAsync(guildUser);
 
-                var latestUsername = await usernameRepository.GetLatestUsernameAsync(guildUser);
-                if (latestUsername == default || latestUsername != guildUser.Username)
+                if (userAddedResult.WasUsernameChanged)
                 {
-                    await UpdateUsernameAsync(guildUser, latestUsername);
+                    await UpdateUsernameAsync(guildUser, userAddedResult.PreviousUsername);
                 }
 
                 if (memberAddedResult is RejoinedMemberAddResult rejoinedMemberAddResult)
