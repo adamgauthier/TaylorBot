@@ -69,6 +69,7 @@ class SettableUserAttribute extends UserAttribute {
             ArrayUtil.chunk(attributes, 20),
             new MemberEmbedDescriptionPageMessage(
                 embed,
+                client.master.database,
                 guild,
                 (member, attribute) => `${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${this.formatValue(attribute)}`
             )

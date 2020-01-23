@@ -1,11 +1,16 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.Commands.Types
 {
@@ -142,7 +147,32 @@ namespace TaylorBot.Net.Commands.Types
             }
 
             if (results.Count > 0)
-                return TypeReaderResult.FromSuccess(results.Values.ToImmutableArray());
+            {
+                var allMatches = results.Values.ToImmutableArray();
+                var bestUser = (T)allMatches.OrderByDescending(y => y.Score).First().Value;
+
+                var ignoredUserRepository = services.GetRequiredService<IIgnoredUserRepository>();
+                var usernameTrackerDomainService = services.GetRequiredService<UsernameTrackerDomainService>();
+
+                var getUserIgnoreUntilResult = await ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(bestUser);
+                await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(bestUser, getUserIgnoreUntilResult);
+
+                if (bestUser is IGuildUser bestGuildUser)
+                {
+                    var memberRepository = services.GetRequiredService<IMemberRepository>();
+
+                    var memberAdded = await memberRepository.AddOrUpdateMemberAsync(bestGuildUser);
+
+                    if (memberAdded)
+                    {
+                        services.GetRequiredService<ILogger<CustomUserTypeReader<T>>>().LogInformation(LogString.From(
+                            $"Added new member {bestGuildUser.FormatLog()}."
+                        ));
+                    }
+                }
+
+                return TypeReaderResult.FromSuccess(allMatches);
+            }
 
             return TypeReaderResult.FromError(CommandError.ObjectNotFound, $"Could not find user '{input}'. Mention with @ to make sure I find them.");
         }

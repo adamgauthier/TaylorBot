@@ -15,6 +15,15 @@ class MemberArgumentType extends TextArgumentType {
     }
 
     async parse(val, commandContext, info) {
+        const member = this._parse(val, commandContext, info);
+
+        await commandContext.client.master.registry.users.getIgnoredUntil(member.user);
+        await commandContext.client.master.registry.guilds.addOrUpdateMemberAsync(member);
+
+        return member;
+    }
+
+    async _parse(val, commandContext, info) {
         const { guild } = commandContext.message;
 
         if (guild) {

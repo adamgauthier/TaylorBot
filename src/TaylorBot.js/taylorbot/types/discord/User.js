@@ -15,10 +15,19 @@ class UserArgumentType extends TextArgumentType {
     }
 
     async parse(val, commandContext, info) {
+        const member = this._parse(val, commandContext, info);
+
+        await commandContext.client.master.registry.users.getIgnoredUntil(member.user);
+        await commandContext.client.master.registry.guilds.addOrUpdateMemberAsync(member);
+
+        return member.user;
+    }
+
+    async _parse(val, commandContext, info) {
         const { message, client } = commandContext;
         if (message.guild) {
-            const member = await this.memberArgumentType.parse(val, commandContext, info);
-            return member.user;
+            const member = await this.memberArgumentType._parse(val, commandContext, info);
+            return member;
         }
         else {
             const matches = val.trim().match(/^(?:<@!?)?([0-9]+)>?$/);
@@ -28,19 +37,19 @@ class UserArgumentType extends TextArgumentType {
                 if (matches) {
                     const member = guild.members.get(matches[1]);
                     if (member)
-                        return member.user;
+                        return member;
                 }
 
                 const search = val.toLowerCase();
                 const inexactMembers = guild.members.filter(MemberArgumentType.memberFilterInexact(search));
 
                 if (inexactMembers.size === 1) {
-                    return inexactMembers.first().user;
+                    return inexactMembers.first();
                 }
                 else if (inexactMembers.size > 1) {
                     const exactMembers = inexactMembers.filter(MemberArgumentType.memberFilterExact(search));
 
-                    return exactMembers.size > 0 ? exactMembers.first().user : inexactMembers.first().user;
+                    return exactMembers.size > 0 ? exactMembers.first() : inexactMembers.first();
                 }
             }
 

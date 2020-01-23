@@ -245,6 +245,22 @@ class GuildMemberRepository {
             throw e;
         }
     }
+
+
+    async setDead(memberIds) {
+        try {
+            await this._db.none(
+                `UPDATE guilds.guild_members SET alive = FALSE WHERE user_id IN ($[user_ids:csv]);`,
+                {
+                    user_ids: memberIds,
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Setting dead ${memberIds.join()}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = GuildMemberRepository;

@@ -51,6 +51,7 @@ class MemberAttribute extends Attribute {
             ArrayUtil.chunk(members, 10),
             new MemberEmbedDescriptionPageMessage(
                 embed,
+                client.master.database,
                 guild,
                 (member, attribute) => this.presentor.presentRankEntry(member, attribute)
             )
