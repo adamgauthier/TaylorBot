@@ -5,6 +5,7 @@ const EventEmitter = require('events');
 const DiscordEmbedFormatter = require('../DiscordEmbedFormatter.js');
 const StringUtil = require('../StringUtil.js');
 const Option = require('./Option.js');
+const { MASTER_ID } = require('../../config/config.json');
 
 class Poll extends EventEmitter {
     constructor(client, channel, owner, options) {
@@ -64,7 +65,7 @@ class Poll extends EventEmitter {
     }
 
     canClose(user) {
-        return this.owner.id === user.id;
+        return this.owner.id === user.id || MASTER_ID === user.id;
     }
 
     vote(user, number) {
