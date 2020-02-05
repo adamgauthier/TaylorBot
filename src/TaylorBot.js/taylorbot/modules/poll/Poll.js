@@ -69,18 +69,27 @@ class Poll extends EventEmitter {
     }
 
     vote(user, number) {
-        const option = this.options.get(number);
-        if (option) {
+        if (number === 0) {
             const oldVote = this.votes.get(user.id);
             if (oldVote) {
                 this.options.get(oldVote).decrementVoteCount();
+                this.votes.delete(user.id);
             }
+        }
+        else {
+            const option = this.options.get(number);
+            if (option) {
+                const oldVote = this.votes.get(user.id);
+                if (oldVote) {
+                    this.options.get(oldVote).decrementVoteCount();
+                }
 
-            this.votes.set(user.id, number);
-            this.options.get(number).incrementVoteCount();
+                this.votes.set(user.id, number);
+                this.options.get(number).incrementVoteCount();
 
-            clearTimeout(this.closeTimeout);
-            this.setCloseTimeout();
+                clearTimeout(this.closeTimeout);
+                this.setCloseTimeout();
+            }
         }
     }
 }

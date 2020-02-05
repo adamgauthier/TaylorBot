@@ -47,7 +47,7 @@ class PollsWatcher extends MessageWatcher {
         if (poll && !author.bot) {
             const vote = Number.parseInt(content);
 
-            if (!Number.isNaN(vote)) {
+            if (!Number.isNaN(vote) && vote >= 0) {
                 poll.vote(author, vote);
             }
         }
