@@ -1,6 +1,7 @@
 'use strict';
 
 const TextUserAttribute = require('../TextUserAttribute.js');
+const DiscordFormatter = require('../../modules/DiscordFormatter.js');
 
 class TumblrAttribute extends TextUserAttribute {
     constructor() {
@@ -17,8 +18,8 @@ class TumblrAttribute extends TextUserAttribute {
     }
 
     format(attribute) {
-        const value = super.formatValue(attribute);
-        return `[${value}](https://${value}.tumblr.com/)`;
+        const value = attribute.attribute_value;
+        return `[${DiscordFormatter.escapeDiscordMarkdown(value)}](https://${value}.tumblr.com/)`;
     }
 }
 

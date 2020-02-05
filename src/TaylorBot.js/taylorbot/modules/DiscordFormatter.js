@@ -52,6 +52,10 @@ class DiscordFormatter {
             .replace('#gName', role.guild.name)
             .replace('#gId', role.guild.id);
     }
+
+    static escapeDiscordMarkdown(string) {
+        return string.replace(/(_|\*|`|~|>)/g, '\\$1');
+    }
 }
 
 module.exports = DiscordFormatter;

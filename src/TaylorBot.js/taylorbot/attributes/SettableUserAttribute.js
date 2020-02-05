@@ -1,6 +1,7 @@
 'use strict';
 
 const UserAttribute = require('./UserAttribute.js');
+const DiscordFormatter = require('../modules/DiscordFormatter.js');
 const DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
 const PageMessage = require('../modules/paging/PageMessage.js');
 const MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
@@ -69,7 +70,7 @@ class SettableUserAttribute extends UserAttribute {
             new MemberEmbedDescriptionPageMessage(
                 embed,
                 guild,
-                (member, attribute) => `${member.user.username} - ${this.formatValue(attribute)}`
+                (member, attribute) => `${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${this.formatValue(attribute)}`
             )
         );
     }

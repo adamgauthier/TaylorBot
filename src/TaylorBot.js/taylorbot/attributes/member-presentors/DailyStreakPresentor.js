@@ -3,6 +3,7 @@
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const MathUtil = require('../../modules/MathUtil.js');
 const StringUtil = require('../../modules/StringUtil.js');
+const DiscordFormatter = require('../../modules/DiscordFormatter.js');
 
 class DailyStreakPresentor {
     constructor(attribute) {
@@ -19,7 +20,7 @@ class DailyStreakPresentor {
     }
 
     presentRankEntry(member, { [this.attribute.columnName]: stat, rank }) {
-        return `${rank}: ${member.user.username} - ${StringUtil.plural(stat, 'day', '`', true)}`;
+        return `${rank}: ${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${StringUtil.plural(stat, 'day', '`', true)}`;
     }
 }
 

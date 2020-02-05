@@ -1,6 +1,7 @@
 'use strict';
 
 const TextUserAttribute = require('../TextUserAttribute.js');
+const DiscordFormatter = require('../../modules/DiscordFormatter.js');
 
 class InstagramAttribute extends TextUserAttribute {
     constructor() {
@@ -18,8 +19,8 @@ class InstagramAttribute extends TextUserAttribute {
     }
 
     formatValue(attribute) {
-        const value = super.formatValue(attribute);
-        return `[${value}](https://www.instagram.com/${value}/)`;
+        const value = attribute.attribute_value;
+        return `[${DiscordFormatter.escapeDiscordMarkdown(value)}](https://www.instagram.com/${value}/)`;
     }
 }
 

@@ -2,6 +2,7 @@
 
 const SettableUserAttribute = require('./SettableUserAttribute.js');
 const SimplePresentor = require('./user-presentors/SimplePresentor.js');
+const DiscordFormatter = require('../modules/DiscordFormatter.js');
 
 class TextUserAttribute extends SettableUserAttribute {
     constructor(options) {
@@ -30,7 +31,7 @@ class TextUserAttribute extends SettableUserAttribute {
     }
 
     formatValue(attribute) {
-        return attribute.attribute_value;
+        return DiscordFormatter.escapeDiscordMarkdown(attribute.attribute_value);
     }
 }
 

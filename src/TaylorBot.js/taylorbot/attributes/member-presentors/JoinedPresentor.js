@@ -3,6 +3,7 @@
 const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 const TimeUtil = require('../../modules/TimeUtil.js');
 const MathUtil = require('../../modules/MathUtil.js');
+const DiscordFormatter = require('../../modules/DiscordFormatter.js');
 
 class JoinedPresentor {
     constructor(attribute) {
@@ -19,7 +20,7 @@ class JoinedPresentor {
     }
 
     presentRankEntry(member, { [this.attribute.columnName]: firstJoinedAt, rank }) {
-        return `${rank}: ${member.user.username} - ${TimeUtil.formatMini(firstJoinedAt.getTime())}`;
+        return `${rank}: ${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${TimeUtil.formatMini(firstJoinedAt.getTime())}`;
     }
 }
 

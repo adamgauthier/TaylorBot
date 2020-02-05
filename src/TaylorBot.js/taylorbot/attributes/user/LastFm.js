@@ -2,6 +2,7 @@
 
 const TextUserAttribute = require('../TextUserAttribute.js');
 const LastFmPresentor = require('../user-presentors/LastFmPresentor.js');
+const DiscordFormatter = require('../../modules/DiscordFormatter.js');
 
 class LastFmAttribute extends TextUserAttribute {
     constructor() {
@@ -20,8 +21,8 @@ class LastFmAttribute extends TextUserAttribute {
     }
 
     formatValue(attribute) {
-        const value = super.formatValue(attribute);
-        return `[${value}](https://www.last.fm/user/${value}/)`;
+        const value = attribute.attribute_value;
+        return `[${DiscordFormatter.escapeDiscordMarkdown(value)}](https://www.last.fm/user/${value}/)`;
     }
 }
 
