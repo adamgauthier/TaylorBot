@@ -18,7 +18,8 @@ namespace TaylorBot.Net.Commands.Extensions
                     DefaultRunMode = RunMode.Async
                 }))
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
-                .AddTransient<CommandExecutedHandler>();
+                .AddTransient<CommandExecutedHandler>()
+                .AddTransient<CommandServiceLogger>();
         }
     }
 }

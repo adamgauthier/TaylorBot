@@ -26,7 +26,9 @@ namespace TaylorBot.Net.Commands
         {
             var commandService = _serviceProvider.GetRequiredService<CommandService>();
             var commandExecutedHandler = _serviceProvider.GetRequiredService<CommandExecutedHandler>();
+            var commandServiceLogger = _serviceProvider.GetRequiredService<CommandServiceLogger>();
 
+            commandService.Log += commandServiceLogger.OnCommandServiceLogAsync;
             commandService.CommandExecuted += commandExecutedHandler.OnCommandExecutedAsync;
 
             commandService.AddTypeReader<IUser>(new CustomUserTypeReader<IUser>(), replaceDefault: true);

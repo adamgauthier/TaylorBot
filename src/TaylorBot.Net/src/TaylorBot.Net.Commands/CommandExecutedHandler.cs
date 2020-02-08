@@ -18,6 +18,15 @@ namespace TaylorBot.Net.Commands
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
         {
+            if (result.Error == CommandError.UnknownCommand)
+            {
+                return;
+            }
+
+            _logger.LogInformation(LogString.From(
+                $"{context.User.FormatLog()} used '{context.Message.Content.Replace("\n", "\\n")}' in {context.Channel.FormatLog()}"
+            ));
+
             if (result.IsSuccess)
                 return;
 
