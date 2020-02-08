@@ -19,7 +19,10 @@ namespace TaylorBot.Net.Commands.Preconditions
             var isDisabled = await commandDisabledRepository.InsertOrGetIsCommandDisabledAsync(command);
 
             return isDisabled ?
-                PreconditionResult.FromError($"You can't use `{command.Name}` because it is globally disabled right now. Please check back later.") :
+                TaylorBotPreconditionResult.FromUserError(
+                    privateReason: $"{command.Name} is globally disabled",
+                    userReason: $"You can't use `{command.Name}` because it is globally disabled right now. Please check back later."
+                ) :
                 PreconditionResult.FromSuccess();
         }
     }

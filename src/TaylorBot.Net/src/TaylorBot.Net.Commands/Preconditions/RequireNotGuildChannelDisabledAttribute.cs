@@ -3,6 +3,7 @@ using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.Preconditions
 {
@@ -25,10 +26,13 @@ namespace TaylorBot.Net.Commands.Preconditions
             var isDisabled = await guildChannelCommandDisabledRepository.IsGuildChannelCommandDisabledAsync(textChannel, command);
 
             return isDisabled ?
-                PreconditionResult.FromError(string.Join('\n', new[] {
-                    $"You can't use `{command.Name}` because it is disabled in {textChannel.Mention}.",
-                    $"You can re-enable it by typing `{commandContext.CommandPrefix}ecc {command.Name}`."
-                })) :
+                TaylorBotPreconditionResult.FromUserError(
+                    privateReason: $"{command.Name} is disabled in {textChannel.FormatLog()}",
+                    userReason: string.Join('\n', new[] {
+                        $"You can't use `{command.Name}` because it is disabled in {textChannel.Mention}.",
+                        $"You can re-enable it by typing `{commandContext.CommandPrefix}ecc {command.Name}`."
+                    })
+                ) :
                 PreconditionResult.FromSuccess();
         }
     }

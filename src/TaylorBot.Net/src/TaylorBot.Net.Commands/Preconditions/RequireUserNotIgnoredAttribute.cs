@@ -44,7 +44,7 @@ namespace TaylorBot.Net.Commands.Preconditions
             await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
 
             return DateTimeOffset.Now < getUserIgnoreUntilResult.IgnoreUntil ?
-                PreconditionResult.FromError(reason: null) :
+                TaylorBotPreconditionResult.FromPrivateError($"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}") :
                 PreconditionResult.FromSuccess();
         }
     }

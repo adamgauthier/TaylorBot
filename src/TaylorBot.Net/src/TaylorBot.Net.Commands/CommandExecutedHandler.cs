@@ -9,11 +9,11 @@ namespace TaylorBot.Net.Commands
 {
     public class CommandExecutedHandler
     {
-        private readonly ILogger<CommandExecutedHandler> logger;
+        private readonly ILogger<CommandExecutedHandler> _logger;
 
         public CommandExecutedHandler(ILogger<CommandExecutedHandler> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands
                     switch (result.Error)
                     {
                         case CommandError.Exception:
-                            logger.LogError(executeResult.Exception, LogString.From("Unhandled exception in command:"));
+                            _logger.LogError(executeResult.Exception, LogString.From("Unhandled exception in command:"));
                             await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
                                 .WithColor(TaylorBotColors.ErrorColor)
                                 .WithDescription($"{context.User.Mention} Oops, an unknown command error occurred. Sorry about that. 😕")
@@ -37,7 +37,7 @@ namespace TaylorBot.Net.Commands
                             break;
 
                         default:
-                            logger.LogError(executeResult.Exception, LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}:"));
+                            _logger.LogError(executeResult.Exception, LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}:"));
                             break;
                     }
                     break;
@@ -53,15 +53,21 @@ namespace TaylorBot.Net.Commands
                     .Build());
                     break;
 
-                case PreconditionResult preconditionResult when preconditionResult.ErrorReason != null:
-                    await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription($"{context.User.Mention} {preconditionResult.ErrorReason}")
-                    .Build());
+                case TaylorBotPreconditionResult preconditionResult:
+                    _logger.LogInformation(LogString.From(
+                        $"{commandContext.User.FormatLog()} precondition failure: {preconditionResult.ErrorReason}."
+                    ));
+                    if (preconditionResult.UserReason != null)
+                    {
+                        await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
+                            .WithColor(TaylorBotColors.ErrorColor)
+                            .WithDescription($"{context.User.Mention} {preconditionResult.UserReason}")
+                        .Build());
+                    }
                     break;
 
                 default:
-                    logger.LogError(LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}"));
+                    _logger.LogError(LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}"));
                     break;
             }
         }
