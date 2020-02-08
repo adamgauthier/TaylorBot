@@ -100,7 +100,16 @@ namespace TaylorBot.Net.Commands.Discord.Program
                                 (IIgnoredUserRepository)provider.GetRequiredService<IgnoredUserPostgresRepository>();
                         })
                         .AddTransient<UsernameTrackerDomainService>()
-                        .AddTransient<IUsernameRepository, UsernameRepository>();
+                        .AddTransient<IUsernameRepository, UsernameRepository>()
+                        .AddTransient<MemberPostgresRepository>()
+                        .AddTransient<MemberRedisCacheRepository>()
+                        .AddTransient(provider =>
+                        {
+                            var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
+                            return options.UseRedisCache ?
+                                provider.GetRequiredService<MemberRedisCacheRepository>() :
+                                (IMemberRepository)provider.GetRequiredService<MemberPostgresRepository>();
+                        });
                 })
                 .Build();
 

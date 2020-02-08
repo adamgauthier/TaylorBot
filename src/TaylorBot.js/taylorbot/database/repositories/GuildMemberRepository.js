@@ -217,6 +217,34 @@ class GuildMemberRepository {
             throw e;
         }
     }
+
+    async addOrUpdateMemberAsync(guildMember) {
+        const databaseMember = this.mapMemberToDatabase(guildMember);
+        try {
+            const { experience } = await this._db.one(
+                `INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($[guild_id], $[user_id], $[first_joined_at])
+                ON CONFLICT (guild_id, user_id) DO UPDATE SET
+                    alive = TRUE,
+                    first_joined_at = CASE
+                        WHEN guild_members.first_joined_at IS NULL AND excluded.first_joined_at IS NOT NULL
+                        THEN excluded.first_joined_at
+                        ELSE guild_members.first_joined_at
+                    END,
+                    experience = guild_members.experience + 1
+                RETURNING experience;`,
+                {
+                    'first_joined_at': guildMember.joinedAt,
+                    ...databaseMember
+                }
+            );
+
+            return experience === '0';
+        }
+        catch (e) {
+            Log.error(`Adding or updating ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
 }
 
 module.exports = GuildMemberRepository;

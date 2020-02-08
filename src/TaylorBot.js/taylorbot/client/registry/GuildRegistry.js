@@ -49,6 +49,27 @@ class GuildRegistry extends Map {
 
         return cachedPrefix;
     }
+
+    memberKey(member) {
+        return `command-user:guild:${member.guild.id}:user:${member.id}`;
+    }
+
+    async addOrUpdateMemberAsync(member) {
+        const key = this.memberKey(member);
+        const cachedMember = await this.redis.get(key);
+
+        if (!cachedMember) {
+            const memberAdded = await this.database.guildMembers.addOrUpdateMemberAsync(member);
+            await this.redis.setExpire(
+                key,
+                1 * 60 * 60,
+                1
+            );
+            return memberAdded;
+        }
+
+        return false;
+    }
 }
 
 module.exports = GuildRegistry;
