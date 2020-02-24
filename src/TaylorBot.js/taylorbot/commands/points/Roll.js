@@ -25,11 +25,12 @@ class RollCommand extends Command {
         const roll = await RandomModule.getRandIntInclusive(0, 1989);
 
         const { color, reward } = await (async () => {
-            const rewards = { 13: 100, 15: 100, 22: 100, 1989: 5000 };
+            const rewards = { 13: 100, 15: 100, 22: 100, 420: 100, 1989: 5000 };
             switch (roll) {
                 case 13:
                 case 15:
-                case 22: {
+                case 22:
+                case 420: {
                     const reward = rewards[roll];
                     await database.rollStats.winRoll(author, reward);
                     return { color: '#43b581', reward };
