@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Logging;
 
@@ -10,14 +11,23 @@ namespace TaylorBot.Net.Commands
     public class CommandExecutedHandler
     {
         private readonly ILogger<CommandExecutedHandler> _logger;
+        private readonly IOngoingCommandRepository _ongoingCommandRepository;
 
-        public CommandExecutedHandler(ILogger<CommandExecutedHandler> logger)
+        public CommandExecutedHandler(ILogger<CommandExecutedHandler> logger, IOngoingCommandRepository ongoingCommandRepository)
         {
             _logger = logger;
+            _ongoingCommandRepository = ongoingCommandRepository;
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
         {
+            var commandContext = (TaylorBotShardedCommandContext)context;
+
+            if (commandContext.WasOnGoingCommandAdded)
+            {
+                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User);
+            }
+
             if (result.Error == CommandError.UnknownCommand)
             {
                 return;
@@ -28,9 +38,9 @@ namespace TaylorBot.Net.Commands
             ));
 
             if (result.IsSuccess)
+            {
                 return;
-
-            var commandContext = (TaylorBotShardedCommandContext)context;
+            }
 
             switch (result)
             {

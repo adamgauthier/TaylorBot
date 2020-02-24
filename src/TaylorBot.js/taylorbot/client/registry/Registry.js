@@ -12,7 +12,7 @@ const InhibitorRegistry = require('./InhibitorRegistry.js');
 const AttributeRegistry = require('./AttributeRegistry.js');
 const ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
 const CooldownRegistry = require('./CooldownRegistry.js');
-const AnsweredCooldownRegistry = require('./AnsweredCooldownRegistry.js');
+const OnGoingCommandRegistry = require('./OnGoingCommandRegistry.js');
 const HeistRegistry = require('./HeistRegistry.js');
 
 class Registry {
@@ -28,7 +28,7 @@ class Registry {
         this.users = new UserRegistry(database, redisCommands);
         this.channelCommands = new ChannelCommandRegistry(database, redisCommands);
         this.cooldowns = new CooldownRegistry(redisCommands);
-        this.answeredCooldowns = new AnsweredCooldownRegistry(redisCommands);
+        this.onGoingCommands = new OnGoingCommandRegistry(redisCommands);
         this.heists = new HeistRegistry(redisHeists);
     }
 

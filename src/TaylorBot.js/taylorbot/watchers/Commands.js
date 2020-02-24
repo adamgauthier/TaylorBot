@@ -60,7 +60,8 @@ class CommandsWatcher extends MessageWatcher {
             throw e;
         }
         finally {
-            await registry.answeredCooldowns.setAnswered(author);
+            if (messageContext.wasOnGoingCommandAdded)
+                await registry.onGoingCommands.removeOngoingCommandAsync(author);
         }
     }
 
@@ -78,8 +79,6 @@ class CommandsWatcher extends MessageWatcher {
                 return;
             }
         }
-
-        await registry.answeredCooldowns.addUnanswered(author);
 
         for (const inhibitor of registry.inhibitors.getNoisyInhibitors()) {
             const blockedMessage = await inhibitor.getBlockedMessage(messageContext, cachedCommand, argString);

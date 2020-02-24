@@ -5,6 +5,7 @@ class MessageContext {
         this.message = message;
         this.client = client;
         this.prefix = '';
+        this.wasOnGoingCommandAdded = false;
     }
 
     get isGuild() {

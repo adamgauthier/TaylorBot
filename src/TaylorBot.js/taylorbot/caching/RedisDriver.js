@@ -27,6 +27,8 @@ class RedisDriver {
         this.hashSet = promisify(this.redisClient.hset).bind(this.redisClient);
 
         this.expire = promisify(this.redisClient.expire).bind(this.redisClient);
+        this.increment = promisify(this.redisClient.incr).bind(this.redisClient);
+        this.decrement = promisify(this.redisClient.decr).bind(this.redisClient);
     }
 
     multi() {

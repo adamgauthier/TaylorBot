@@ -8,6 +8,7 @@ namespace TaylorBot.Net.Commands
     [RequireNotGuildChannelDisabled]
     [RequireUserNotIgnored]
     [RequireMemberTracked]
+    [RequireUserNoOngoingCommandAtttribute]
     public abstract class TaylorBotModule : ModuleBase<TaylorBotShardedCommandContext>
     {
     }
