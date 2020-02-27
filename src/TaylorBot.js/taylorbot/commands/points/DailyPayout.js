@@ -40,12 +40,18 @@ class DailyPayoutCommand extends Command {
             ].join('\n'));
         }
 
+        const payResult = await database.dailyPayouts.giveDailyPay(author, PAYOUT_POINTS, STREAK_FOR_BONUS, BASE_BONUS_POINTS, INCREASING_BONUS_MULTIPLIER);
+
+        if (payResult === null) {
+            throw new CommandError('You already redeemed your daily payout today.');
+        }
+
         const {
             taypoint_count,
             streak_count,
             payoutCount,
             bonus_reward
-        } = await database.dailyPayouts.giveDailyPay(author, PAYOUT_POINTS, STREAK_FOR_BONUS, BASE_BONUS_POINTS, INCREASING_BONUS_MULTIPLIER);
+        } = payResult;
 
         const nextStreak = (global.BigInt(streak_count) - global.BigInt(streak_count) % global.BigInt(STREAK_FOR_BONUS)) + global.BigInt(STREAK_FOR_BONUS);
 
