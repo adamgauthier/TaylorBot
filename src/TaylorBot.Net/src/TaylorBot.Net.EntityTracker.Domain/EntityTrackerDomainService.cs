@@ -61,7 +61,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
             this.memberRepository = memberRepository;
         }
 
-        public async Task OnGuildJoinedAsync(SocketGuild guild)
+        public async Task OnGuildJoinedAsync(SocketGuild guild, bool downloadAllUsers)
         {
             var guildAddedResult = await guildRepository.AddGuildIfNotAddedAsync(guild);
 
@@ -90,13 +90,10 @@ namespace TaylorBot.Net.EntityTracker.Domain
                 ).ToArray()
             );
 
-            await guild.DownloadUsersAsync();
+            if (downloadAllUsers)
+                await guild.DownloadUsersAsync();
 
-            var allMembers = guild.Users;
-
-            await memberRepository.UpdateDeadMembersAsync(guild, allMembers);
-
-            foreach (var member in allMembers)
+            foreach (var member in guild.Users)
             {
                 await OnGuildUserJoinedAsync(member);
             }
@@ -106,7 +103,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
         {
             foreach (var guild in shardClient.Guilds)
             {
-                await OnGuildJoinedAsync(guild);
+                await OnGuildJoinedAsync(guild, downloadAllUsers: false);
                 await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
             }
         }

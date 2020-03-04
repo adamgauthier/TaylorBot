@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using Discord;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure.Options;
@@ -79,23 +77,6 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
                     {
                         GuildId = member.GuildId.ToString(),
                         UserId = member.Id.ToString()
-                    }
-                );
-            }
-        }
-
-        public async Task UpdateDeadMembersAsync(IGuild guild, IEnumerable<IGuildUser> aliveMembers)
-        {
-            using (var connection = Connection)
-            {
-                connection.Open();
-
-                await connection.ExecuteAsync(
-                    "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND alive = TRUE AND NOT(user_id = ANY(@UserIds));",
-                    new
-                    {
-                        GuildId = guild.Id.ToString(),
-                        UserIds = aliveMembers.Select(m => m.Id.ToString()).ToList()
                     }
                 );
             }

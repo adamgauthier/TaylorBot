@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using Discord.WebSocket;
+using System.Threading.Tasks;
 using TaylorBot.Net.Core.Program.Events;
-using Discord.WebSocket;
-using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events
 {
@@ -20,7 +20,7 @@ namespace TaylorBot.Net.EntityTracker.Program.Events
         public Task JoinedGuildAsync(SocketGuild guild)
         {
             Task.Run(async () => await taskExceptionLogger.LogOnError(
-                entityTrackerDomainService.OnGuildJoinedAsync(guild), nameof(entityTrackerDomainService.OnGuildJoinedAsync)
+                entityTrackerDomainService.OnGuildJoinedAsync(guild, downloadAllUsers: true), nameof(entityTrackerDomainService.OnGuildJoinedAsync)
             ));
             return Task.CompletedTask;
         }
