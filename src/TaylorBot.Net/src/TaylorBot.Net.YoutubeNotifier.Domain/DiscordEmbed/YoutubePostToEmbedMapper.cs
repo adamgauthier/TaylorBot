@@ -23,7 +23,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed
             var builder = new EmbedBuilder()
                 .WithTitle(post.Title.Truncate(65))
                 .WithDescription(post.Description.Truncate(200))
-                .WithUrl($"https://youtu.be/${post.ResourceId.VideoId}")
+                .WithUrl($"https://youtu.be/{post.ResourceId.VideoId}")
                 .WithThumbnailUrl(post.Thumbnails.Medium.Url)
                 .WithTimestamp(post.PublishedAt.Value)
                 .WithAuthor(name: post.ChannelTitle, url: $"https://www.youtube.com/channel/{post.ChannelId}")
