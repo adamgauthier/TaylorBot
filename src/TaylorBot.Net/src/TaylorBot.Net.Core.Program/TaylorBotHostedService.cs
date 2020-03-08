@@ -66,6 +66,17 @@ namespace TaylorBot.Net.Core.Program
                 };
             }
 
+            var messageDeletedHandler = serviceProvider.GetService<IMessageDeletedHandler>();
+            if (messageDeletedHandler != null)
+            {
+                client.DiscordShardedClient.MessageDeleted += async (message, channel) =>
+                {
+                    await taskExceptionLogger.LogOnError(async () =>
+                        await messageDeletedHandler.UserMessageDeletedAsync(message, channel), nameof(IMessageDeletedHandler)
+                    );
+                };
+            }
+
             var userUpdatedHandler = serviceProvider.GetService<IUserUpdatedHandler>();
             if (userUpdatedHandler != null)
             {

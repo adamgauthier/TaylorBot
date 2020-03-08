@@ -12,6 +12,8 @@ COPY ./TaylorBot.Net.Reminder.Domain/TaylorBot.Net.Reminder.Domain.csproj ./Tayl
 COPY ./TaylorBot.Net.Reminder.Infrastructure/TaylorBot.Net.Reminder.Infrastructure.csproj ./TaylorBot.Net.Reminder.Infrastructure/
 COPY ./TaylorBot.Net.MemberLogging.Domain/TaylorBot.Net.MemberLogging.Domain.csproj ./TaylorBot.Net.MemberLogging.Domain/
 COPY ./TaylorBot.Net.MemberLogging.Infrastructure/TaylorBot.Net.MemberLogging.Infrastructure.csproj ./TaylorBot.Net.MemberLogging.Infrastructure/
+COPY ./TaylorBot.Net.MessageLogging.Domain/TaylorBot.Net.MessageLogging.Domain.csproj ./TaylorBot.Net.MessageLogging.Domain/
+COPY ./TaylorBot.Net.MessageLogging.Infrastructure/TaylorBot.Net.MessageLogging.Infrastructure.csproj ./TaylorBot.Net.MessageLogging.Infrastructure/
 
 RUN dotnet restore ./TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 

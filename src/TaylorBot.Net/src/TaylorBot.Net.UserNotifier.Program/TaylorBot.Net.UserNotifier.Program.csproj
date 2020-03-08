@@ -12,6 +12,8 @@
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessageLogging.Domain\TaylorBot.Net.MessageLogging.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessageLogging.Infrastructure\TaylorBot.Net.MessageLogging.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj" />
   </ItemGroup>

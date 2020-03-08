@@ -4,5 +4,6 @@
     {
         public string Token { get; set; }
         public uint ShardCount { get; set; }
+        public uint? MessageCacheSize { get; set; }
     }
 }

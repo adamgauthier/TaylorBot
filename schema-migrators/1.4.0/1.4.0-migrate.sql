@@ -19,3 +19,6 @@ UPDATE users.users SET username = '' WHERE username IS NULL;
 
 ALTER TABLE users.users
     ALTER COLUMN username SET NOT NULL;
+
+ALTER TABLE guilds.text_channels
+    ADD COLUMN is_message_log boolean NOT NULL DEFAULT FALSE;

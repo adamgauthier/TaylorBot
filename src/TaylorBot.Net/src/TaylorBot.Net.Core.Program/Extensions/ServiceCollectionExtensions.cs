@@ -22,7 +22,19 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 .AddTransient<ILogSeverityToLogLevelMapper, LogSeverityToLogLevelMapper>()
                 .AddTransient<DiscordRestClient>()
                 .AddTransient(provider => new TaylorBotToken(provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.Token))
-                .AddTransient(provider => new DiscordSocketConfig { TotalShards = (int)provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.ShardCount })
+                .AddTransient(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
+
+                    var config = new DiscordSocketConfig { TotalShards = (int)options.ShardCount };
+
+                    if (options.MessageCacheSize.HasValue)
+                    {
+                        config.MessageCacheSize = (int)options.MessageCacheSize.Value;
+                    }
+
+                    return config;
+                })
                 .AddTransient(provider => new DiscordShardedClient(provider.GetRequiredService<DiscordSocketConfig>()))
                 .AddTransient<TaskExceptionLogger>()
                 .AddSingleton<TaylorBotClient>();

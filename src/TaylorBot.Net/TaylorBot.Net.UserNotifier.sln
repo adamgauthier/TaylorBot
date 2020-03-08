@@ -29,6 +29,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Infrastructure", "src\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj", "{A61E6FD3-9DB0-463A-9BD0-DC8E78FC8B52}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessageLogging.Domain", "src\TaylorBot.Net.MessageLogging.Domain\TaylorBot.Net.MessageLogging.Domain.csproj", "{8D886BF0-D4DC-4AF2-8503-943847309B64}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessageLogging.Infrastructure", "src\TaylorBot.Net.MessageLogging.Infrastructure\TaylorBot.Net.MessageLogging.Infrastructure.csproj", "{113A71E6-1865-426C-A3B4-8810C6636CEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,14 @@ Global
 		{A61E6FD3-9DB0-463A-9BD0-DC8E78FC8B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A61E6FD3-9DB0-463A-9BD0-DC8E78FC8B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A61E6FD3-9DB0-463A-9BD0-DC8E78FC8B52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D886BF0-D4DC-4AF2-8503-943847309B64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D886BF0-D4DC-4AF2-8503-943847309B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D886BF0-D4DC-4AF2-8503-943847309B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D886BF0-D4DC-4AF2-8503-943847309B64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{113A71E6-1865-426C-A3B4-8810C6636CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{113A71E6-1865-426C-A3B4-8810C6636CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{113A71E6-1865-426C-A3B4-8810C6636CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{113A71E6-1865-426C-A3B4-8810C6636CEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
