@@ -1,15 +1,15 @@
 ﻿using Discord;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.EntityTracker.Domain.TextChannel;
+using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 
 namespace TaylorBot.Net.MemberLogging.Domain
 {
     public class MemberLogChannelFinder
     {
-        private readonly ILoggingTextChannelRepository loggingTextChannelRepository;
+        private readonly IMemberLoggingChannelRepository loggingTextChannelRepository;
 
-        public MemberLogChannelFinder(ILoggingTextChannelRepository loggingTextChannelRepository)
+        public MemberLogChannelFinder(IMemberLoggingChannelRepository loggingTextChannelRepository)
         {
             this.loggingTextChannelRepository = loggingTextChannelRepository;
         }

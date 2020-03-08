@@ -21,10 +21,10 @@ class TextChannelRepository {
     async getAllLogChannelsInGuild(guild) {
         try {
             return await this._db.any(
-                'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_log = $[is_log];',
+                'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_member_log = $[is_member_log];',
                 {
                     'guild_id': guild.id,
-                    'is_log': true
+                    'is_member_log': true
                 }
             );
         }
@@ -59,11 +59,11 @@ class TextChannelRepository {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this._db.oneOrNone(
-                `UPDATE guilds.text_channels SET is_log = $[is_log]
+                `UPDATE guilds.text_channels SET is_member_log = $[is_member_log]
                 WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
                 RETURNING *;`,
                 {
-                    'is_log': isLog,
+                    'is_member_log': isLog,
                     ...databaseChannel
                 }
             );
@@ -132,11 +132,11 @@ class TextChannelRepository {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this._db.none(
-                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_log) VALUES ($[guild_id], $[channel_id], $[is_log])
-                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_log = $[is_log];`,
+                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_member_log) VALUES ($[guild_id], $[channel_id], $[is_member_log])
+                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_member_log = $[is_member_log];`,
                 {
                     ...databaseChannel,
-                    is_log: isLog
+                    is_member_log: isLog
                 }
             );
         }

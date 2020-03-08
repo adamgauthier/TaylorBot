@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace TaylorBot.Net.EntityTracker.Domain.TextChannel
+namespace TaylorBot.Net.MemberLogging.Domain.TextChannel
 {
-    public interface ILoggingTextChannelRepository
+    public interface IMemberLoggingChannelRepository
     {
         Task<IEnumerable<LogChannel>> GetLogChannelsForGuildAsync(IGuild guild);
     }

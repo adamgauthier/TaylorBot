@@ -1,6 +1,6 @@
 ﻿using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.EntityTracker.Domain.TextChannel
+namespace TaylorBot.Net.MemberLogging.Domain.TextChannel
 {
     public class LogChannel
     {

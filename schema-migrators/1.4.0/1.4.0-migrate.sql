@@ -22,3 +22,6 @@ ALTER TABLE users.users
 
 ALTER TABLE guilds.text_channels
     ADD COLUMN is_message_log boolean NOT NULL DEFAULT FALSE;
+
+ALTER TABLE guilds.text_channels
+    RENAME is_log TO is_member_log;

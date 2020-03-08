@@ -25,6 +25,7 @@ using TaylorBot.Net.EntityTracker.Program.Events;
 using TaylorBot.Net.MemberLogging.Domain;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.MemberLogging.Domain.Options;
+using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Infrastructure;
 using TaylorBot.Net.QuickStart.Domain;
 using TaylorBot.Net.QuickStart.Domain.Options;
@@ -80,7 +81,7 @@ namespace TaylorBot.Net.EntityTracker.Program
                 .AddTransient<IGuildRepository, GuildRepository>()
                 .AddTransient<IGuildNameRepository, GuildNameRepository>()
                 .AddTransient<IMemberRepository, MemberRepository>()
-                .AddTransient<ILoggingTextChannelRepository, LoggingTextChannelRepository>()
+                .AddTransient<IMemberLoggingChannelRepository, MemberLoggingChannelRepository>()
                 .BuildServiceProvider();
         }
     }

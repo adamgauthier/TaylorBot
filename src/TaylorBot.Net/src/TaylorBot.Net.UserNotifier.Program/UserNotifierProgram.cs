@@ -12,10 +12,10 @@ using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Domain;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.MemberLogging.Domain.Options;
+using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Infrastructure;
 using TaylorBot.Net.MessageLogging.Domain;
 using TaylorBot.Net.MessageLogging.Domain.DiscordEmbed;
@@ -74,7 +74,7 @@ namespace TaylorBot.Net.UserNotifier.Program
                 .AddTransient<IReminderRepository, ReminderRepository>()
                 .AddTransient<ReminderNotifierDomainService>()
                 .AddTransient<ReminderEmbedFactory>()
-                .AddTransient<ILoggingTextChannelRepository, LoggingTextChannelRepository>()
+                .AddTransient<IMemberLoggingChannelRepository, MemberLoggingChannelRepository>()
                 .AddTransient<MemberLogChannelFinder>()
                 .AddTransient<GuildMemberLeftEmbedFactory>()
                 .AddTransient<GuildMemberLeftLoggerService>()
