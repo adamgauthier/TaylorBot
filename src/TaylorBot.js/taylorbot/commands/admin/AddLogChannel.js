@@ -11,12 +11,18 @@ class AddLogChannelCommand extends Command {
             name: 'addlogchannel',
             aliases: ['alc'],
             group: 'admin',
-            description: 'Indicates the bot that it should log in a channel.',
-            mustHavePermission: UserGroups.Master,
-            examples: ['#joinlogs', 'log'],
+            description: 'Set an existing channel as a type of log channel for the bot to log in.',
+            minimumGroup: UserGroups.GuildManagers,
+            examples: ['member #joinlogs', 'message #message-log'],
             guildOnly: true,
 
             args: [
+                {
+                    key: 'type',
+                    label: 'log-type',
+                    prompt: 'What type of log channel do you want to add?',
+                    type: 'channel-log-type'
+                },
                 {
                     key: 'channel',
                     label: 'channel',
@@ -27,20 +33,27 @@ class AddLogChannelCommand extends Command {
         });
     }
 
-    async run({ message, client }, { channel }) {
+    async run({ message, client }, { type, channel }) {
         const { database } = client.master;
-        const logChannels = await database.textChannels.getAllLogChannelsInGuild(message.guild);
+
+        const { guild_exists } = await database.pros.proGuildExists(channel.guild);
+        if (guild_exists === false) {
+            throw new CommandError(`Log channels are restricted to supporter servers, use \`support\` for more info.`);
+        }
+
+        const logChannels = await database.textChannels.getAllLogChannelsInGuild(message.guild, type);
 
         if (logChannels.some(c => c.channel_id === channel.id)) {
-            throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is already a log channel.`);
+            throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is already a ${type} log channel.`);
         }
 
         if (logChannels.length > 0) {
-            throw new CommandError(`There can only be 1 log channel for a server.`);
+            throw new CommandError(`There can only be 1 ${type} log channel for a server.`);
         }
 
-        await database.textChannels.upsertLogChannel(channel, true);
-        return client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a log channel.`);
+        await database.textChannels.upsertLogChannel(channel, type);
+
+        return client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a ${type} log channel.`);
     }
 }
 

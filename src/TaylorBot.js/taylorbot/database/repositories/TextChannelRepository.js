@@ -18,18 +18,17 @@ class TextChannelRepository {
         }
     }
 
-    async getAllLogChannelsInGuild(guild) {
+    async getAllLogChannelsInGuild(guild, type) {
         try {
             return await this._db.any(
-                'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_member_log = $[is_member_log];',
+                `SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_${type}_log = TRUE;`,
                 {
-                    'guild_id': guild.id,
-                    'is_member_log': true
+                    guild_id: guild.id
                 }
             );
         }
         catch (e) {
-            Log.error(`Getting all guild log channels for guild ${Format.guild(guild)}: ${e}`);
+            Log.error(`Getting all guild ${type} log channels for guild ${Format.guild(guild)}: ${e}`);
             throw e;
         }
     }
@@ -55,31 +54,23 @@ class TextChannelRepository {
         }
     }
 
-    async _setLog(guildChannel, isLog) {
+    async removeLog(guildChannel, type) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this._db.oneOrNone(
-                `UPDATE guilds.text_channels SET is_member_log = $[is_member_log]
+                `UPDATE guilds.text_channels SET is_${type}_log = $[is_log]
                 WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
                 RETURNING *;`,
                 {
-                    'is_member_log': isLog,
+                    is_log: false,
                     ...databaseChannel
                 }
             );
         }
         catch (e) {
-            Log.error(`Setting ${Format.guildChannel(guildChannel)} as log channel: ${e}`);
+            Log.error(`Removing ${Format.guildChannel(guildChannel)} as a ${type} log channel: ${e}`);
             throw e;
         }
-    }
-
-    setLog(guildChannel) {
-        return this._setLog(guildChannel, true);
-    }
-
-    removeLog(guildChannel) {
-        return this._setLog(guildChannel, false);
     }
 
     async _setSpam(guildChannel, isSpam) {
@@ -128,20 +119,32 @@ class TextChannelRepository {
         }
     }
 
-    async upsertLogChannel(guildChannel, isLog) {
+    async upsertLogChannel(guildChannel, type) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this._db.none(
-                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_member_log) VALUES ($[guild_id], $[channel_id], $[is_member_log])
-                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_member_log = $[is_member_log];`,
-                {
-                    ...databaseChannel,
-                    is_member_log: isLog
-                }
+                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_${type}_log) VALUES ($[guild_id], $[channel_id], TRUE)
+                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_${type}_log = TRUE;`,
+                databaseChannel
             );
         }
         catch (e) {
-            Log.error(`Upserting ${Format.guildChannel(guildChannel)} as log channel: ${e}`);
+            Log.error(`Upserting ${Format.guildChannel(guildChannel)} as a ${type} log channel: ${e}`);
+            throw e;
+        }
+    }
+
+    async insertChannel(guildChannel) {
+        const databaseChannel = this.mapChannelToDatabase(guildChannel);
+        try {
+            return await this._db.none(
+                `INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES ($[guild_id], $[channel_id])
+                ON CONFLICT (guild_id, channel_id) DO NOTHING;`,
+                databaseChannel
+            );
+        }
+        catch (e) {
+            Log.error(`Inserting ${Format.guildChannel(guildChannel)}: ${e}`);
             throw e;
         }
     }

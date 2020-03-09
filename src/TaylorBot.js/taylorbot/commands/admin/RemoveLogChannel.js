@@ -11,12 +11,18 @@ class RemoveLogChannelCommand extends Command {
             name: 'removelogchannel',
             aliases: ['rlc'],
             group: 'admin',
-            description: 'Indicates the bot that it should stop logging in a channel.',
+            description: 'Stop the bot from logging a type of logs in a channel.',
             minimumGroup: UserGroups.GuildManagers,
-            examples: ['#joinlogs', 'log'],
+            examples: ['member #joinlogs', 'message #message-log'],
             guildOnly: true,
 
             args: [
+                {
+                    key: 'type',
+                    label: 'log-type',
+                    prompt: 'What type of log channel do you want to remove?',
+                    type: 'channel-log-type'
+                },
                 {
                     key: 'channel',
                     label: 'channel',
@@ -27,21 +33,21 @@ class RemoveLogChannelCommand extends Command {
         });
     }
 
-    async run({ message, client }, { channel }) {
+    async run({ message, client }, { type, channel }) {
         const { database } = client.master;
         const textChannel = await database.textChannels.get(channel);
 
         if (!textChannel) {
-            await database.textChannels.upsertLogChannel(channel, false);
+            await database.textChannels.insertChannel(channel);
         }
-        else if (!textChannel.is_member_log) {
-            throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is not a member log channel.`);
+        else if (!textChannel[`is_${type}_log`]) {
+            throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is not a ${type} log channel.`);
         }
         else {
-            await database.textChannels.removeLog(channel);
+            await database.textChannels.removeLog(channel, type);
         }
 
-        return client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a member log channel.`);
+        return client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a ${type} log channel.`);
     }
 }
 
