@@ -25,3 +25,7 @@ ALTER TABLE guilds.text_channels
 
 ALTER TABLE guilds.text_channels
     RENAME is_log TO is_member_log;
+
+DELETE FROM guilds.channel_commands WHERE command_id = 'cleverbot';
+
+DELETE FROM commands.commands WHERE name = 'cleverbot';

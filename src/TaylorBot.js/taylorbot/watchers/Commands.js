@@ -17,27 +17,26 @@ class CommandsWatcher extends MessageWatcher {
 
         const messageContext = new MessageContext(message, client);
 
-        let text = message.content;
         if (messageContext.isGuild) {
             const prefix = await client.master.registry.guilds.getPrefix(message.guild);
             messageContext.prefix = prefix;
+        }
 
-            if (text.startsWith(prefix)) {
-                text = text.substring(prefix.length);
-            }
-            else {
-                const { id } = client.user;
-                const matches =
-                    text.match(new RegExp(`^<@${id}> (.+)$`)) ||
-                    text.match(new RegExp(`^(.+) <@${id}>$`));
+        let text = message.content;
+        const mentionPrefix = `<@${client.user.id}> `;
+        const mentionGuildPrefix = `<@!${client.user.id}> `;
 
-                if (matches) {
-                    text = `cleverbot ${matches.slice(1)[0]}`;
-                }
-                else {
-                    return;
-                }
-            }
+        if (text.startsWith(messageContext.prefix)) {
+            text = text.substring(messageContext.prefix.length);
+        }
+        else if (text.startsWith(mentionPrefix)) {
+            text = text.substring(mentionPrefix.length);
+        }
+        else if (text.startsWith(mentionGuildPrefix)) {
+            text = text.substring(mentionGuildPrefix.length);
+        }
+        else {
+            return;
         }
 
         const { registry } = client.master;

@@ -21,7 +21,6 @@ const RoleGroupRepository = require('./repositories/RoleGroupRepository.js');
 const SpecialRoleRepository = require('./repositories/SpecialRoleRepository.js');
 const ReminderRepository = require('./repositories/ReminderRepository.js');
 const TextChannelRepository = require('./repositories/TextChannelRepository.js');
-const CleverBotSessionRepository = require('./repositories/CleverBotSessionRepository.js');
 const AttributeRepository = require('./repositories/AttributeRepository.js');
 const TextAttributeRepository = require('./repositories/TextAttributeRepository.js');
 const IntegerAttributeRepository = require('./repositories/IntegerAttributeRepository.js');
@@ -55,7 +54,6 @@ class DatabaseDriver {
         this.specialRoles = new SpecialRoleRepository(this._db);
         this.reminders = new ReminderRepository(this._db);
         this.textChannels = new TextChannelRepository(this._db);
-        this.cleverbotSessions = new CleverBotSessionRepository(this._db);
         this.attributes = new AttributeRepository(this._db, this._helpers);
         this.textAttributes = new TextAttributeRepository(this._db);
         this.integerAttributes = new IntegerAttributeRepository(this._db);
