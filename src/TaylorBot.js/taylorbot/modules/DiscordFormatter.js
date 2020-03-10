@@ -54,7 +54,7 @@ class DiscordFormatter {
     }
 
     static escapeDiscordMarkdown(string) {
-        return string.replace(/(_|\*|`|~|>)/g, '\\$1');
+        return string.replace(/(_|\*|`|~|^> )/gm, '\\$1');
     }
 }
 

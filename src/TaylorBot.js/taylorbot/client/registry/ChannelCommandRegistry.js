@@ -15,10 +15,10 @@ class ChannelCommandRegistry {
         const isEnabled = await this.redis.hashGet(key, command.name);
 
         if (isEnabled === null) {
-            const { disabled } = await this.database.channelCommands.getIsCommandDisabledInChannel(guildTextChannel, command);
-            await this.redis.hashSet(key, command.name, (!disabled) ? 1 : 0);
+            const { exists } = await this.database.channelCommands.getIsCommandDisabledInChannel(guildTextChannel, command);
+            await this.redis.hashSet(key, command.name, (!exists) ? 1 : 0);
             await this.redis.expire(key, 6 * 60 * 60);
-            return disabled;
+            return exists;
         }
 
         return isEnabled === '0';
@@ -29,7 +29,7 @@ class ChannelCommandRegistry {
         await this.redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
             command.name,
-            false
+            0
         );
     }
 
@@ -38,7 +38,7 @@ class ChannelCommandRegistry {
         await this.redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
             command.name,
-            true
+            1
         );
     }
 }

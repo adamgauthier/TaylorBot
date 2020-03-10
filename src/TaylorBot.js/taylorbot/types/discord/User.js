@@ -15,7 +15,7 @@ class UserArgumentType extends TextArgumentType {
     }
 
     async parse(val, commandContext, info) {
-        const member = this._parse(val, commandContext, info);
+        const member = await this._parse(val, commandContext, info);
 
         await commandContext.client.master.registry.users.getIgnoredUntil(member.user);
         await commandContext.client.master.registry.guilds.addOrUpdateMemberAsync(member);

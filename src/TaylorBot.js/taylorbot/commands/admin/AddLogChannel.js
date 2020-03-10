@@ -20,7 +20,7 @@ class AddLogChannelCommand extends Command {
                 {
                     key: 'type',
                     label: 'log-type',
-                    prompt: 'What type of log channel do you want to add?',
+                    prompt: 'What type of log channel do you want to add? Member logs include joins, leaves and bans. Message logs include deleted messages.',
                     type: 'channel-log-type'
                 },
                 {

@@ -144,10 +144,10 @@ class CommandRegistry {
         const isEnabled = await this.redis.hashGet(this.enabledGuildRedisKey(guild), command.name);
 
         if (isEnabled === null) {
-            const { disabled } = await this.database.guildCommands.getIsGuildCommandDisabled(guild, command);
-            await this.redis.hashSet(this.enabledGuildRedisKey(guild), command.name, (!disabled) ? 1 : 0);
+            const { exists } = await this.database.guildCommands.getIsGuildCommandDisabled(guild, command);
+            await this.redis.hashSet(this.enabledGuildRedisKey(guild), command.name, (!exists) ? 1 : 0);
             await this.redis.expire(this.enabledGuildRedisKey(guild), 6 * 60 * 60);
-            return disabled;
+            return exists;
         }
 
         return isEnabled === '0';
@@ -155,7 +155,7 @@ class CommandRegistry {
 
     async setGuildEnabled(guild, commandName, enabled) {
         const { disabled } = await this.database.guildCommands.setDisabled(guild, commandName, !enabled);
-        await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, !disabled);
+        await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, (!disabled) ? 1 : 0);
         return !disabled;
     }
 }
