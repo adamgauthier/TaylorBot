@@ -16,7 +16,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain
         private readonly ILogger<RedditNotifierService> logger;
         private readonly IOptionsMonitor<RedditNotifierOptions> optionsMonitor;
         private readonly IRedditCheckerRepository redditCheckerRepository;
-        private readonly RedditAPI redditAPI;
+        private readonly RedditClient redditClient;
         private readonly RedditPostToEmbedMapper redditPostToEmbedMapper;
         private readonly TaylorBotClient taylorBotClient;
 
@@ -24,14 +24,14 @@ namespace TaylorBot.Net.RedditNotifier.Domain
             ILogger<RedditNotifierService> logger,
             IOptionsMonitor<RedditNotifierOptions> optionsMonitor,
             IRedditCheckerRepository redditCheckerRepository,
-            RedditAPI redditAPI,
+            RedditClient redditClient,
             RedditPostToEmbedMapper redditPostToEmbedMapper,
             TaylorBotClient taylorBotClient)
         {
             this.logger = logger;
             this.optionsMonitor = optionsMonitor;
             this.redditCheckerRepository = redditCheckerRepository;
-            this.redditAPI = redditAPI;
+            this.redditClient = redditClient;
             this.redditPostToEmbedMapper = redditPostToEmbedMapper;
             this.taylorBotClient = taylorBotClient;
         }
@@ -46,7 +46,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain
                     {
                         var channel = taylorBotClient.ResolveRequiredGuild(redditChecker.GuildId).GetRequiredTextChannel(redditChecker.ChannelId);
 
-                        var newestPost = redditAPI.Subreddit(name: redditChecker.SubredditName).Posts.GetNew(limit: 1).Single();
+                        var newestPost = redditClient.Subreddit(name: redditChecker.SubredditName).Posts.GetNew(limit: 1).Single();
 
                         if (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt)
                         {

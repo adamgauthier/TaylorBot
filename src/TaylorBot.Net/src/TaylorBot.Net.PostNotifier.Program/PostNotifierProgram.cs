@@ -69,7 +69,7 @@ namespace TaylorBot.Net.PostNotifier.Program
                         .AddSingleton(provider =>
                         {
                             var auth = provider.GetRequiredService<IOptionsMonitor<RedditAuthOptions>>().CurrentValue;
-                            return new RedditAPI(appId: auth.AppId, appSecret: auth.AppSecret, refreshToken: auth.RefreshToken);
+                            return new RedditClient(appId: auth.AppId, appSecret: auth.AppSecret, refreshToken: auth.RefreshToken);
                         })
                         .ConfigureRequired<YoutubeNotifierOptions>(config, "YoutubeNotifier")
                         .ConfigureRequired<YoutubeAuthOptions>(config, "YoutubeAuth")
