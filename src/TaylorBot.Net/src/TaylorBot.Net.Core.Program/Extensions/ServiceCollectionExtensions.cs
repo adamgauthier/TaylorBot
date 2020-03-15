@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;
@@ -38,15 +37,6 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 .AddTransient(provider => new DiscordShardedClient(provider.GetRequiredService<DiscordSocketConfig>()))
                 .AddTransient<TaskExceptionLogger>()
                 .AddSingleton<TaylorBotClient>();
-        }
-
-        [Obsolete("Use as " + nameof(ILoggingBuilder))]
-        public static IServiceCollection AddTaylorBotApplicationLogging(this IServiceCollection services, IConfiguration configuration)
-        {
-            return services
-                .AddLogging(configure =>
-                    configure.AddConsole().AddConfiguration(configuration.GetSection("Logging"))
-                );
         }
 
         public static ILoggingBuilder AddTaylorBotApplicationLogging(this ILoggingBuilder builder, IConfiguration configuration)

@@ -1,19 +1,20 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Configuration;
+using TaylorBot.Net.Core.Environment;
+using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.StatsTracker.Program.Events;
-using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Infrastructure.Configuration;
-using TaylorBot.Net.MinutesTracker.Domain.Options;
-using TaylorBot.Net.MinutesTracker.Domain;
-using TaylorBot.Net.MinutesTracker.Infrastructure;
-using TaylorBot.Net.MessagesTracker.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
+using TaylorBot.Net.MessagesTracker.Infrastructure;
+using TaylorBot.Net.MinutesTracker.Domain;
+using TaylorBot.Net.MinutesTracker.Domain.Options;
+using TaylorBot.Net.MinutesTracker.Infrastructure;
+using TaylorBot.Net.StatsTracker.Program.Events;
 
 namespace TaylorBot.Net.StatsTracker.Program
 {
@@ -21,36 +22,42 @@ namespace TaylorBot.Net.StatsTracker.Program
     {
         public static async Task Main()
         {
-            using (var services = new StatsTrackerProgram().ConfigureServices())
-            {
-                await new TaylorBotHostedService(services).StartAsync();
-            }
-        }
-
-        private ServiceProvider ConfigureServices()
-        {
             var environment = TaylorBotEnvironment.CreateCurrent();
 
-            var config = new ConfigurationBuilder()
-                .AddTaylorBotApplicationConfiguration(environment)
-                .AddDatabaseConnectionConfiguration(environment)
-                .AddJsonFile(path: $"Settings/minutesTracker.{environment}.json", optional: false)
+            var host = new HostBuilder()
+                .UseEnvironment(environment.ToString())
+                .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
+                {
+                    var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
+                    appConfig
+                        .AddTaylorBotApplicationConfiguration(environment)
+                        .AddDatabaseConnectionConfiguration(environment)
+                        .AddJsonFile(path: $"Settings/minutesTracker.{env}.json", optional: false);
+                })
+                .ConfigureLogging((hostBuilderContext, logging) =>
+                {
+                    logging.AddTaylorBotApplicationLogging(hostBuilderContext.Configuration);
+                })
+                .ConfigureServices((hostBuilderContext, services) =>
+                {
+                    var config = hostBuilderContext.Configuration;
+                    services
+                        .AddHostedService<TaylorBotHostedService>()
+                        .AddTaylorBotApplicationServices(config)
+                        .ConfigureDatabaseConnection(config)
+                        .ConfigureRequired<MinutesTrackerOptions>(config, "MinutesTracker")
+                        .AddTransient<IShardReadyHandler, ReadyHandler>()
+                        .AddTransient<IUserMessageReceivedHandler, UserMessageReceivedHandler>()
+                        .AddTransient<SingletonTaskRunner>()
+                        .AddTransient<IMinuteRepository, MinutesRepository>()
+                        .AddTransient<MinutesTrackerDomainService>()
+                        .AddTransient<IMessageRepository, MessagesRepository>()
+                        .AddTransient<WordCounter>()
+                        .AddTransient<MessagesTrackerDomainService>();
+                })
                 .Build();
 
-            return new ServiceCollection()
-                .AddTaylorBotApplicationServices(config)
-                .AddTaylorBotApplicationLogging(config)
-                .ConfigureDatabaseConnection(config)
-                .ConfigureRequired<MinutesTrackerOptions>(config, "MinutesTracker")
-                .AddTransient<IShardReadyHandler, ReadyHandler>()
-                .AddTransient<IUserMessageReceivedHandler, UserMessageReceivedHandler>()
-                .AddTransient<SingletonTaskRunner>()
-                .AddTransient<IMinuteRepository, MinutesRepository>()
-                .AddTransient<MinutesTrackerDomainService>()
-                .AddTransient<IMessageRepository, MessagesRepository>()
-                .AddTransient<WordCounter>()
-                .AddTransient<MessagesTrackerDomainService>()
-                .BuildServiceProvider();
+            await host.RunAsync();
         }
     }
 }

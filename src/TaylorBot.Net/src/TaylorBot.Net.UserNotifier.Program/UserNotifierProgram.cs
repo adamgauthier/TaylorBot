@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
@@ -34,57 +35,63 @@ namespace TaylorBot.Net.UserNotifier.Program
     {
         public static async Task Main()
         {
-            using (var services = new UserNotifierProgram().ConfigureServices())
-            {
-                await new TaylorBotHostedService(services).StartAsync();
-            }
-        }
-
-        private ServiceProvider ConfigureServices()
-        {
             var environment = TaylorBotEnvironment.CreateCurrent();
 
-            var config = new ConfigurationBuilder()
-                .AddTaylorBotApplicationConfiguration(environment)
-                .AddDatabaseConnectionConfiguration(environment)
-                .AddJsonFile(path: $"Settings/birthdayRewardNotifier.{environment}.json", optional: false)
-                .AddJsonFile(path: $"Settings/reminderNotifier.{environment}.json", optional: false)
-                .AddJsonFile(path: $"Settings/memberLog.{environment}.json", optional: false)
-                .AddJsonFile(path: $"Settings/messageLog.{environment}.json", optional: false)
+            var host = new HostBuilder()
+                .UseEnvironment(environment.ToString())
+                .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
+                {
+                    var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
+                    appConfig
+                        .AddTaylorBotApplicationConfiguration(environment)
+                        .AddDatabaseConnectionConfiguration(environment)
+                        .AddJsonFile(path: $"Settings/birthdayRewardNotifier.{env}.json", optional: false)
+                        .AddJsonFile(path: $"Settings/reminderNotifier.{env}.json", optional: false)
+                        .AddJsonFile(path: $"Settings/memberLog.{env}.json", optional: false)
+                        .AddJsonFile(path: $"Settings/messageLog.{env}.json", optional: false);
+                })
+                .ConfigureLogging((hostBuilderContext, logging) =>
+                {
+                    logging.AddTaylorBotApplicationLogging(hostBuilderContext.Configuration);
+                })
+                .ConfigureServices((hostBuilderContext, services) =>
+                {
+                    var config = hostBuilderContext.Configuration;
+                    services
+                        .AddHostedService<TaylorBotHostedService>()
+                        .AddTaylorBotApplicationServices(config)
+                        .ConfigureDatabaseConnection(config)
+                        .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")
+                        .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
+                        .ConfigureRequired<MemberLeftLoggingOptions>(config, "MemberLeft")
+                        .ConfigureRequired<MemberBanLoggingOptions>(config, "MemberBan")
+                        .ConfigureRequired<MessageDeletedLoggingOptions>(config, "MessageDeleted")
+                        .AddTransient<IAllReadyHandler, ReadyHandler>()
+                        .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
+                        .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
+                        .AddTransient<IGuildUserUnbannedHandler, GuildUserBanHandler>()
+                        .AddTransient<IMessageDeletedHandler, MessageDeletedHandler>()
+                        .AddTransient<SingletonTaskRunner>()
+                        .AddTransient<IBirthdayRepository, BirthdayRepository>()
+                        .AddTransient<BirthdayRewardNotifierDomainService>()
+                        .AddTransient<BirthdayRewardEmbedFactory>()
+                        .AddTransient<IReminderRepository, ReminderRepository>()
+                        .AddTransient<ReminderNotifierDomainService>()
+                        .AddTransient<ReminderEmbedFactory>()
+                        .AddTransient<IMemberLoggingChannelRepository, MemberLoggingChannelRepository>()
+                        .AddTransient<MemberLogChannelFinder>()
+                        .AddTransient<GuildMemberLeftEmbedFactory>()
+                        .AddTransient<GuildMemberLeftLoggerService>()
+                        .AddTransient<GuildMemberBanEmbedFactory>()
+                        .AddTransient<GuildMemberBanLoggerService>()
+                        .AddTransient<IMessageLoggingChannelRepository, MessageLoggingChannelRepository>()
+                        .AddTransient<MessageLogChannelFinder>()
+                        .AddTransient<MessageDeletedEmbedFactory>()
+                        .AddTransient<MessageDeletedLoggerService>();
+                })
                 .Build();
 
-            return new ServiceCollection()
-                .AddTaylorBotApplicationServices(config)
-                .AddTaylorBotApplicationLogging(config)
-                .ConfigureDatabaseConnection(config)
-                .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")
-                .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
-                .ConfigureRequired<MemberLeftLoggingOptions>(config, "MemberLeft")
-                .ConfigureRequired<MemberBanLoggingOptions>(config, "MemberBan")
-                .ConfigureRequired<MessageDeletedLoggingOptions>(config, "MessageDeleted")
-                .AddTransient<IAllReadyHandler, ReadyHandler>()
-                .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
-                .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
-                .AddTransient<IGuildUserUnbannedHandler, GuildUserBanHandler>()
-                .AddTransient<IMessageDeletedHandler, MessageDeletedHandler>()
-                .AddTransient<SingletonTaskRunner>()
-                .AddTransient<IBirthdayRepository, BirthdayRepository>()
-                .AddTransient<BirthdayRewardNotifierDomainService>()
-                .AddTransient<BirthdayRewardEmbedFactory>()
-                .AddTransient<IReminderRepository, ReminderRepository>()
-                .AddTransient<ReminderNotifierDomainService>()
-                .AddTransient<ReminderEmbedFactory>()
-                .AddTransient<IMemberLoggingChannelRepository, MemberLoggingChannelRepository>()
-                .AddTransient<MemberLogChannelFinder>()
-                .AddTransient<GuildMemberLeftEmbedFactory>()
-                .AddTransient<GuildMemberLeftLoggerService>()
-                .AddTransient<GuildMemberBanEmbedFactory>()
-                .AddTransient<GuildMemberBanLoggerService>()
-                .AddTransient<IMessageLoggingChannelRepository, MessageLoggingChannelRepository>()
-                .AddTransient<MessageLogChannelFinder>()
-                .AddTransient<MessageDeletedEmbedFactory>()
-                .AddTransient<MessageDeletedLoggerService>()
-                .BuildServiceProvider();
+            await host.RunAsync();
         }
     }
 }

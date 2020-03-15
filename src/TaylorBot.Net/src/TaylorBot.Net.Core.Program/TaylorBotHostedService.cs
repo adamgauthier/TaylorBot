@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
@@ -153,26 +152,10 @@ namespace TaylorBot.Net.Core.Program
                 };
             }
 
-            // Wait 5 seconds to login in case of a boot loop
-            await Task.Delay(new TimeSpan(0, 0, 5));
+            // Wait to login in case of a boot loop
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
             await client.StartAsync();
-        }
-
-        [Obsolete("Use as " + nameof(IHostedService))]
-        public async Task StartAsync()
-        {
-            CreateClient();
-
-            AssemblyLoadContext.Default.Unloading += async (assemblyLoadContext) =>
-            {
-                await client.StopAsync();
-                logger.LogInformation(LogString.From("Clients unloaded!"));
-            };
-
-            await StartClientAsync();
-
-            await Task.Delay(-1);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
