@@ -65,20 +65,16 @@ namespace TaylorBot.Net.EntityTracker.Domain
         {
             var guildAddedResult = await guildRepository.AddGuildIfNotAddedAsync(guild);
 
-            async Task AddGuildName()
+            async Task AddGuildNameAsync()
             {
                 if (guildAddedResult.WasAdded)
                 {
                     logger.LogInformation(LogString.From($"Added new guild {guild.FormatLog()}."));
                     await guildNameRepository.AddNewGuildNameAsync(guild);
                 }
-                else
+                else if (guildAddedResult.WasGuildNameChanged)
                 {
-                    var latestGuildName = await guildNameRepository.GetLatestGuildNameAsync(guild);
-                    if (latestGuildName == default || latestGuildName != guild.Name)
-                    {
-                        await UpdateGuildNameAsync(guild, latestGuildName);
-                    }
+                    await UpdateGuildNameAsync(guild, guildAddedResult.PreviousGuildName);
                 }
             }
 
@@ -86,7 +82,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
                 guild.TextChannels.Select(textChannel =>
                     textChannelRepository.AddTextChannelIfNotAddedAsync(textChannel)
                 ).Append(
-                    AddGuildName()
+                    AddGuildNameAsync()
                 ).ToArray()
             );
 
@@ -122,7 +118,17 @@ namespace TaylorBot.Net.EntityTracker.Domain
         {
             if (oldGuild.Name != newGuild.Name)
             {
-                await UpdateGuildNameAsync(newGuild, oldGuild.Name);
+                var guildAddedResult = await guildRepository.AddGuildIfNotAddedAsync(newGuild);
+
+                if (guildAddedResult.WasAdded)
+                {
+                    logger.LogInformation(LogString.From($"Added new guild {newGuild.FormatLog()}."));
+                    await guildNameRepository.AddNewGuildNameAsync(newGuild);
+                }
+                else if (guildAddedResult.WasGuildNameChanged)
+                {
+                    await UpdateGuildNameAsync(newGuild, guildAddedResult.PreviousGuildName);
+                }
             }
         }
 
