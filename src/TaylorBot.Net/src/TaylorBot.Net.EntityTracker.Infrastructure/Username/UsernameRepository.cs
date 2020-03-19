@@ -14,10 +14,9 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Username
         {
         }
 
-        public async Task AddNewUsernameAsync(IUser user)
+        public async ValueTask AddNewUsernameAsync(IUser user)
         {
             using var connection = Connection;
-            connection.Open();
 
             await connection.ExecuteAsync(
                 "INSERT INTO users.usernames (user_id, username) VALUES (@UserId, @Username);",

@@ -5,8 +5,8 @@ namespace TaylorBot.Net.EntityTracker.Domain.Member
 {
     public interface IMemberRepository
     {
-        Task<bool> AddNewMemberAsync(IGuildUser member);
-        Task<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member);
-        Task SetMemberDeadAsync(IGuildUser member);
+        ValueTask<bool> AddNewMemberAsync(IGuildUser member);
+        ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member);
+        ValueTask SetMemberDeadAsync(IGuildUser member);
     }
 }

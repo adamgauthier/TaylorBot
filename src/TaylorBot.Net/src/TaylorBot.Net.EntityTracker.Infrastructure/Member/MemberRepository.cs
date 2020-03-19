@@ -14,7 +14,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
         {
         }
 
-        public async Task<bool> AddNewMemberAsync(IGuildUser member)
+        public async ValueTask<bool> AddNewMemberAsync(IGuildUser member)
         {
             using var connection = Connection;
 
@@ -33,7 +33,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
             return result;
         }
 
-        public async Task<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member)
+        public async ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member)
         {
             using var connection = Connection;
 
@@ -65,21 +65,18 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
             }
         }
 
-        public async Task SetMemberDeadAsync(IGuildUser member)
+        public async ValueTask SetMemberDeadAsync(IGuildUser member)
         {
-            using (var connection = Connection)
-            {
-                connection.Open();
+            using var connection = Connection;
 
-                await connection.ExecuteAsync(
-                    "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND user_id = @UserId;",
-                    new
-                    {
-                        GuildId = member.GuildId.ToString(),
-                        UserId = member.Id.ToString()
-                    }
-                );
-            }
+            await connection.ExecuteAsync(
+                "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND user_id = @UserId;",
+                new
+                {
+                    GuildId = member.GuildId.ToString(),
+                    UserId = member.Id.ToString()
+                }
+            );
         }
     }
 }

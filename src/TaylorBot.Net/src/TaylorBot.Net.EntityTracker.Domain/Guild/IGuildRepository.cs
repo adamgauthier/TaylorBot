@@ -5,6 +5,6 @@ namespace TaylorBot.Net.EntityTracker.Domain.Guild
 {
     public interface IGuildRepository
     {
-        Task<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild);
+        ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild);
     }
 }

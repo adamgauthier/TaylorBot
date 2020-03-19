@@ -21,7 +21,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild
             public string previous_guild_name { get; set; }
         }
 
-        public async Task<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)
+        public async ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)
         {
             using var connection = Connection;
 

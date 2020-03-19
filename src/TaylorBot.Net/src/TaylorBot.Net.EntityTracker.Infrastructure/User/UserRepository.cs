@@ -14,7 +14,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.User
         {
         }
 
-        public async Task<UserAddedResult> AddNewUserAsync(IUser user)
+        public async ValueTask<UserAddedResult> AddNewUserAsync(IUser user)
         {
             using var connection = Connection;
 
