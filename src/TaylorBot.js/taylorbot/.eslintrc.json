@@ -1,0 +1,73 @@
+{
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "import",
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "max-classes-per-file": [
+            "error"
+        ],
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "quotes": [
+            "error",
+            "single",
+            {
+                "avoidEscape": true,
+                "allowTemplateLiterals": true
+            }
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "prefer-const": [
+            "error"
+        ],
+        "no-var": [
+            "error"
+        ],
+        "no-trailing-spaces": "error",
+        "no-console": "off",
+        "import/no-unresolved": [
+            "error",
+            {
+                "commonjs": true
+            }
+        ],
+        "import/extensions": [
+            "error",
+            "always"
+        ]
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".json"
+                ]
+            }
+        }
+    }
+}

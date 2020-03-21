@@ -1,13 +1,11 @@
-'use strict';
-
 process.on('unhandledRejection', reason => { throw reason; });
 
-const TaylorBotMasterClient = require('./client/TaylorBotMasterClient.js');
-const TimeUtil = require('./modules/TimeUtil.js');
+import TaylorBotMasterClient = require('./client/TaylorBotMasterClient.js');
+import TimeUtil = require('./modules/TimeUtil.js');
 
 const masterClient = new TaylorBotMasterClient();
 
-const gracefulExit = () => {
+const gracefulExit = (): never => {
     masterClient.unload();
     process.exit(0);
 };
@@ -15,7 +13,7 @@ const gracefulExit = () => {
 process.on('SIGINT', gracefulExit);
 process.on('SIGTERM', gracefulExit);
 
-const main = async () => {
+const main = async (): Promise<void> => {
     await masterClient.load();
     await TimeUtil.waitSeconds(6);
     await masterClient.start();

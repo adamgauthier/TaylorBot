@@ -28,11 +28,13 @@ RUN npm ci && npm cache clean --force
 ENV PATH /opt/node_app/node_modules/.bin:$PATH
 
 # copy in our source code last, as it changes the most
+RUN mkdir /opt/node_app/app
 WORKDIR /opt/node_app/app
 COPY . .
+RUN tsc --project .
 
 # if you want to use npm start instead, then use `docker run --init in production`
 # so that signals are passed properly. Note the code in index.js is needed to catch Docker signals
 # using node here is still more graceful stopping then npm with --init afaik
 # I still can't come up with a good production way to run with npm and graceful shutdown
-ENTRYPOINT [ "node", "./taylorbot.js" ]
+ENTRYPOINT [ "node", "./dist/taylorbot.js" ]
