@@ -1,5 +1,3 @@
-'use strict';
-
 const DatabaseDriver = require('../database/DatabaseDriver.js');
 const TaylorBotClient = require('./TaylorBotClient.js');
 const Registry = require('./registry/Registry.js');
@@ -41,22 +39,6 @@ class TaylorBotMasterClient {
         return Promise.all(
             this.clients.map(c => c.start())
         );
-    }
-
-    sendEmbed(textBasedChannel, embed) {
-        return textBasedChannel.send('', { embed });
-    }
-
-    resolveUser(userId) {
-        for (const client of this.clients) {
-            const user = client.users.resolve(userId);
-
-            if (user) {
-                return user;
-            }
-        }
-
-        return null;
     }
 }
 

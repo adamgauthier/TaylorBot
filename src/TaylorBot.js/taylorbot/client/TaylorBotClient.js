@@ -1,5 +1,3 @@
-'use strict';
-
 const Discord = require('discord.js');
 
 const EventLoader = require('../modules/EventLoader.js');
@@ -181,15 +179,6 @@ class TaylorBotClient extends Discord.Client {
             }
         }
         return null;
-    }
-
-    replyTo(msg, text, options) {
-        msg = this.resolveMessage(msg);
-
-        if (!(msg.channel instanceof Discord.DMChannel))
-            text = `${msg.author.toString()} ${text}`;
-
-        return this.sendMessage(msg.channel, text, options);
     }
 
     async sendMessage(recipient, text, options) {
