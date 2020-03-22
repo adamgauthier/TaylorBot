@@ -1,6 +1,6 @@
 process.on('unhandledRejection', reason => { throw reason; });
 
-import TaylorBotMasterClient = require('./client/TaylorBotMasterClient.js');
+import { TaylorBotMasterClient } from './client/TaylorBotMasterClient';
 import TimeUtil = require('./modules/TimeUtil.js');
 
 const masterClient = new TaylorBotMasterClient();

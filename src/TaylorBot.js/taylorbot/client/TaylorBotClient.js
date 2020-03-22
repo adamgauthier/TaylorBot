@@ -27,8 +27,8 @@ class TaylorBotClient extends Discord.Client {
         Log.info('Intervals loaded!');
     }
 
-    start() {
-        return this.login(loginToken);
+    async start() {
+        await this.login(loginToken);
     }
 
     resolveTextBasedChannel(textBasedResolvable) {
