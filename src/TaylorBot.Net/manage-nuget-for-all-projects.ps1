@@ -1,10 +1,10 @@
 $solutionName = "TaylorBot.Net";
-dotnet new sln --name $solutionName;
+dotnet new sln --name $solutionName --output $PSScriptRoot;
 
-$solutionPath = "$solutionName.sln";
+$solutionPath = "$PSScriptRoot/$solutionName.sln";
 
-$allProjectPaths = (Get-ChildItem . -Filter *.csproj -Recurse) | Select-Object -ExpandProperty FullName;
-dotnet sln "$solutionName.sln" add @allProjectPaths;
+$allProjectPaths = (Get-ChildItem $PSScriptRoot -Filter *.csproj -Recurse) | Select-Object -ExpandProperty FullName;
+dotnet sln $solutionPath add @allProjectPaths;
 
-(Start-Process "$solutionName.sln" -PassThru).WaitForExit();
+(Start-Process $solutionPath -PassThru).WaitForExit();
 Remove-Item -Path $solutionPath;
