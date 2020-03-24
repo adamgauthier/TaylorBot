@@ -1,10 +1,11 @@
 'use strict';
 
-const Command = require('../Command.js');
-const CommandMessageContext = require('../CommandMessageContext.js');
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const ArrayUtil = require('../../modules/ArrayUtil.js');
-const UserGroups = require('../../client/UserGroups.js');
+import Command = require('../Command.js');
+import CommandMessageContext = require('../CommandMessageContext.js');
+import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import ArrayUtil = require('../../modules/ArrayUtil.js');
+import UserGroups = require('../../client/UserGroups.js');
+import CachedCommand = require('../../client/registry/CachedCommand.js');
 
 class HelpCommand extends Command {
     constructor() {
@@ -26,7 +27,7 @@ class HelpCommand extends Command {
         });
     }
 
-    run(commandContext, { command }) {
+    run(commandContext: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
         const { message: { channel, author }, client, messageContext } = commandContext;
 
         if (command.command.name === commandContext.command.command.name) {
@@ -43,11 +44,11 @@ class HelpCommand extends Command {
             ];
 
             const groupedCommands = ArrayUtil.groupBy(
-                client.master.registry.commands.getAllCommands().filter(
-                    c => FEATURED_GROUPS.map(group => group.name).includes(c.command.group) &&
-                        c.command.minimumGroup !== UserGroups.Master
+                client.master.registry.commands.getAllCommands().filter((c: CachedCommand) =>
+                    FEATURED_GROUPS.map(group => group.name).includes(c.command.group) &&
+                    c.command.minimumGroup !== UserGroups.Master
                 ),
-                c => `${c.command.group} ${FEATURED_GROUPS.find(group => group.name === c.command.group).emoji}`
+                (c: CachedCommand) => `${c.command.group} ${FEATURED_GROUPS.find(group => group.name === c.command.group)?.emoji}`
             );
 
             const embed = DiscordEmbedFormatter.baseUserEmbed(author)
@@ -55,7 +56,7 @@ class HelpCommand extends Command {
 
             for (const [group, groupCommands] of groupedCommands.entries()) {
                 embed.addField(group, groupCommands.map(
-                    c => c.command.name
+                    (c: CachedCommand) => c.command.name
                 ).join(', '), true);
             }
 
@@ -71,7 +72,7 @@ class HelpCommand extends Command {
                     .setDescription(command.command.description)
                     .addField('Usage', [
                         `\`${helpCommandContext.usage()}\``,
-                        ...helpCommandContext.argsUsage().map(({ identifier, hint }) => `\`${identifier}\`: ${hint}`)
+                        ...helpCommandContext.argsUsage().map(({ identifier, hint }: { identifier: string; hint: string }) => `\`${identifier}\`: ${hint}`)
                     ].join('\n'))
                     .addField('Example', `\`${helpCommandContext.example()}\``)
             );
@@ -79,4 +80,4 @@ class HelpCommand extends Command {
     }
 }
 
-module.exports = HelpCommand;
+export = HelpCommand;

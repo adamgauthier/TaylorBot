@@ -1,20 +1,25 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import CachedCommand = require('./CachedCommand.js');
+import { CommandLoader } from '../../commands/CommandLoader';
+import AttributeLoader = require('../../attributes/AttributeLoader.js');
+import DatabaseDriver = require('../../database/DatabaseDriver.js');
+import RedisDriver = require('../../caching/RedisDriver.js');
+import Command = require('../../commands/Command.js');
+import { Guild } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const CachedCommand = require('./CachedCommand.js');
-const CommandLoader = require('../../commands/CommandLoader.js');
-const AttributeLoader = require('../../attributes/AttributeLoader.js');
+export class CommandRegistry {
+    database: DatabaseDriver;
+    redis: RedisDriver;
+    #commandsCache = new Map<string, CachedCommand>();
+    useCountCache = new Map<string, { count: number; errorCount: number }>();
 
-class CommandRegistry {
-    constructor(database, redis) {
+    constructor(database: DatabaseDriver, redis: RedisDriver) {
         this.database = database;
         this.redis = redis;
-        this.commandsCache = new Map();
-        this.useCountCache = new Map();
     }
 
-    async loadAll() {
-        const databaseCommands = await this.database.commands.getAll();
+    async loadAll(): Promise<void> {
+        const databaseCommands: { name: string }[] = await this.database.commands.getAll();
 
         const commands = [
             ...(await CommandLoader.loadAll()),
@@ -41,33 +46,32 @@ class CommandRegistry {
         commands.forEach(c => this.cacheCommand(c));
     }
 
-    cacheCommand(command) {
+    cacheCommand(command: Command): void {
         const key = command.name.toLowerCase();
 
-        if (this.commandsCache.has(key))
+        if (this.#commandsCache.has(key))
             throw new Error(`Command '${command.name}' is already cached.`);
 
         const cached = new CachedCommand(
             command.name,
-            this,
-            this.database.guildCommands
+            this
         );
         cached.command = command;
 
-        this.commandsCache.set(key, cached);
+        this.#commandsCache.set(key, cached);
 
         for (const alias of command.aliases) {
             const aliasKey = alias.toLowerCase();
 
-            if (this.commandsCache.has(aliasKey))
+            if (this.#commandsCache.has(aliasKey))
                 throw new Error(`Command Key '${aliasKey}' is already cached when setting alias.`);
 
-            this.commandsCache.set(aliasKey, key);
+            this.#commandsCache.set(aliasKey, key);
         }
     }
 
-    getCommand(name) {
-        const cachedCommand = this.commandsCache.get(name);
+    getCommand(name: string): CachedCommand {
+        const cachedCommand = this.#commandsCache.get(name);
 
         if (!cachedCommand)
             throw new Error(`Command '${name}' isn't cached.`);
@@ -78,8 +82,8 @@ class CommandRegistry {
         return cachedCommand;
     }
 
-    resolve(commandName) {
-        const command = this.commandsCache.get(commandName.toLowerCase());
+    resolve(commandName: string): CachedCommand | undefined {
+        const command = this.#commandsCache.get(commandName.toLowerCase());
 
         if (typeof (command) === 'string') {
             return this.getCommand(command);
@@ -88,7 +92,7 @@ class CommandRegistry {
         return command;
     }
 
-    addSuccessfulUseCount(command) {
+    addSuccessfulUseCount(command: CachedCommand): void {
         const useCount = this.useCountCache.get(command.name);
         if (!useCount) {
             this.useCountCache.set(command.name, { count: 1, errorCount: 0 });
@@ -98,7 +102,7 @@ class CommandRegistry {
         }
     }
 
-    addUnhandledErrorCount(command) {
+    addUnhandledErrorCount(command: CachedCommand): void {
         const useCount = this.useCountCache.get(command.name);
         if (!useCount) {
             this.useCountCache.set(command.name, { count: 0, errorCount: 1 });
@@ -108,17 +112,17 @@ class CommandRegistry {
         }
     }
 
-    getAllCommands() {
+    getAllCommands(): CachedCommand[] {
         return Array.from(
-            this.commandsCache.values()
+            this.#commandsCache.values()
         ).filter(val => typeof (val) !== 'string');
     }
 
-    get enabledRedisKey() {
+    get enabledRedisKey(): string {
         return 'enabled-commands';
     }
 
-    async insertOrGetIsCommandDisabled(command) {
+    async insertOrGetIsCommandDisabled(command: CachedCommand): Promise<boolean> {
         const isEnabled = await this.redis.hashGet(this.enabledRedisKey, command.name);
 
         if (isEnabled === null) {
@@ -130,17 +134,17 @@ class CommandRegistry {
         return isEnabled === '0';
     }
 
-    async setGlobalEnabled(commandName, setEnabled) {
+    async setGlobalEnabled(commandName: string, setEnabled: boolean): Promise<boolean> {
         const { enabled } = await this.database.commands.setEnabled(commandName, setEnabled);
         await this.redis.hashSet(this.enabledRedisKey, commandName, enabled);
         return enabled;
     }
 
-    enabledGuildRedisKey(guild) {
+    enabledGuildRedisKey(guild: Guild): string {
         return `enabled-commands:guild:${guild.id}`;
     }
 
-    async getIsGuildCommandDisabled(guild, command) {
+    async getIsGuildCommandDisabled(guild: Guild, command: CachedCommand): Promise<boolean> {
         const isEnabled = await this.redis.hashGet(this.enabledGuildRedisKey(guild), command.name);
 
         if (isEnabled === null) {
@@ -153,11 +157,9 @@ class CommandRegistry {
         return isEnabled === '0';
     }
 
-    async setGuildEnabled(guild, commandName, enabled) {
+    async setGuildEnabled(guild: Guild, commandName: string, enabled: boolean): Promise<boolean> {
         const { disabled } = await this.database.guildCommands.setDisabled(guild, commandName, !enabled);
         await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, (!disabled) ? 1 : 0);
         return !disabled;
     }
 }
-
-module.exports = CommandRegistry;

@@ -1,22 +1,38 @@
 'use strict';
 
-const Log = require('../../tools/Logger.js');
-const TypeRegistry = require('./TypeRegistry.js');
-const MessageWatcherRegistry = require('./MessageWatcherRegistry.js');
-const GroupRegistry = require('./GroupRegistry.js');
-const GuildRegistry = require('./GuildRegistry.js');
-const GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
-const CommandRegistry = require('./CommandRegistry.js');
-const UserRegistry = require('./UserRegistry.js');
-const InhibitorRegistry = require('./InhibitorRegistry.js');
-const AttributeRegistry = require('./AttributeRegistry.js');
-const ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
-const CooldownRegistry = require('./CooldownRegistry.js');
-const OnGoingCommandRegistry = require('./OnGoingCommandRegistry.js');
-const HeistRegistry = require('./HeistRegistry.js');
+import Log = require('../../tools/Logger.js');
+import TypeRegistry = require('./TypeRegistry.js');
+import MessageWatcherRegistry = require('./MessageWatcherRegistry.js');
+import GroupRegistry = require('./GroupRegistry.js');
+import GuildRegistry = require('./GuildRegistry.js');
+import GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
+import { CommandRegistry } from './CommandRegistry';
+import UserRegistry = require('./UserRegistry.js');
+import InhibitorRegistry = require('./InhibitorRegistry.js');
+import AttributeRegistry = require('./AttributeRegistry.js');
+import ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
+import CooldownRegistry = require('./CooldownRegistry.js');
+import OnGoingCommandRegistry = require('./OnGoingCommandRegistry.js');
+import HeistRegistry = require('./HeistRegistry.js');
+import DatabaseDriver = require('../../database/DatabaseDriver.js');
+import RedisDriver = require('../../caching/RedisDriver.js');
 
-class Registry {
-    constructor(database, redisCommands, redisHeists) {
+export class Registry {
+    types: TypeRegistry;
+    attributes: AttributeRegistry;
+    inhibitors: InhibitorRegistry;
+    watchers: MessageWatcherRegistry;
+    groups: GroupRegistry;
+    guilds: GuildRegistry;
+    roleGroups: GuildRoleGroupRegistry;
+    commands: CommandRegistry;
+    users: UserRegistry;
+    channelCommands: ChannelCommandRegistry;
+    cooldowns: CooldownRegistry;
+    onGoingCommands: OnGoingCommandRegistry;
+    heists: HeistRegistry;
+
+    constructor(database: DatabaseDriver, redisCommands: RedisDriver, redisHeists: RedisDriver) {
         this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
@@ -32,7 +48,7 @@ class Registry {
         this.heists = new HeistRegistry(redisHeists);
     }
 
-    async load() {
+    async load(): Promise<void> {
         Log.info('Loading attributes...');
         await this.attributes.loadAll();
         Log.info('Attributes loaded!');
@@ -66,5 +82,3 @@ class Registry {
         Log.info('Commands loaded!');
     }
 }
-
-module.exports = Registry;

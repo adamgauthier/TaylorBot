@@ -5,6 +5,7 @@ class CachedCommand {
         this._commandRegistry = commandRegistry;
 
         this.name = name;
+        this.command = null;
     }
 
     async setEnabled(enabled) {

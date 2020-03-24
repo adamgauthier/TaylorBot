@@ -1,14 +1,13 @@
-'use strict';
+import fsWithCallbacks = require('fs');
+const fs = fsWithCallbacks.promises;
+import path = require('path');
 
-const fs = require('fs').promises;
-const path = require('path');
-
-const BaseCommand = require('./Command.js');
+import BaseCommand = require('./Command.js');
 
 const commandsPath = __dirname;
 
-class CommandLoader {
-    static async loadAll() {
+export class CommandLoader {
+    static async loadAll(): Promise<BaseCommand[]> {
         const dirEntries = await fs.readdir(commandsPath, { withFileTypes: true });
         const subDirectories = dirEntries.filter(de => de.isDirectory());
 
@@ -35,5 +34,3 @@ class CommandLoader {
             });
     }
 }
-
-module.exports = CommandLoader;
