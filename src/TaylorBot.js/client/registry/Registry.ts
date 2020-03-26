@@ -1,8 +1,6 @@
-'use strict';
-
 import Log = require('../../tools/Logger.js');
 import TypeRegistry = require('./TypeRegistry.js');
-import MessageWatcherRegistry = require('./MessageWatcherRegistry.js');
+import { MessageWatcherRegistry } from './MessageWatcherRegistry';
 import GroupRegistry = require('./GroupRegistry.js');
 import GuildRegistry = require('./GuildRegistry.js');
 import GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');

@@ -1,18 +1,19 @@
-'use strict';
-
-const MessageWatcher = require('../structures/MessageWatcher.js');
-const Log = require('../tools/Logger.js');
-const Format = require('../modules/DiscordFormatter.js');
-const ArrayUtil = require('../modules/ArrayUtil.js');
-const CommandError = require('../commands/CommandError.js');
-const ArgumentParsingError = require('../types/ArgumentParsingError.js');
-const MessageContext = require('../structures/MessageContext.js');
-const CommandMessageContext = require('../commands/CommandMessageContext.js');
+import { MessageWatcher } from '../structures/MessageWatcher';
+import Log = require('../tools/Logger.js');
+import Format = require('../modules/DiscordFormatter.js');
+import ArrayUtil = require('../modules/ArrayUtil.js');
+import CommandError = require('../commands/CommandError.js');
+import ArgumentParsingError = require('../types/ArgumentParsingError.js');
+import MessageContext = require('../structures/MessageContext.js');
+import CommandMessageContext = require('../commands/CommandMessageContext.js');
+import { Message } from 'discord.js';
+import TaylorBotClient = require('../client/TaylorBotClient.js');
+import CachedCommand = require('../client/registry/CachedCommand.js');
 
 class CommandsWatcher extends MessageWatcher {
-    async messageHandler(client, message) {
+    async messageHandler(client: TaylorBotClient, message: Message): Promise<void> {
         const { author, channel } = message;
-        if (author.bot)
+        if (client.user === null || author === null || author.bot)
             return;
 
         const messageContext = new MessageContext(message, client);
@@ -64,7 +65,7 @@ class CommandsWatcher extends MessageWatcher {
         }
     }
 
-    static async runCommand(messageContext, cachedCommand, argString) {
+    static async runCommand(messageContext: MessageContext, cachedCommand: CachedCommand, argString: string) {
         const { client, message } = messageContext;
         const { author, channel } = message;
         const { registry } = client.master;
@@ -98,7 +99,10 @@ class CommandsWatcher extends MessageWatcher {
         const { command } = cachedCommand;
 
         const regexString =
-            commandContext.args.reduceRight((acc, { mustBeQuoted, includesSpaces, includesNewLines, canBeEmpty }) => {
+            commandContext.args.reduceRight((
+                acc: string,
+                { mustBeQuoted, includesSpaces, includesNewLines, canBeEmpty }: { mustBeQuoted: boolean; includesSpaces: boolean; includesNewLines: boolean; canBeEmpty: boolean }
+            ) => {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';
 
@@ -111,8 +115,8 @@ class CommandsWatcher extends MessageWatcher {
                     invalidCharacters.push('\\n');
                 }
 
-                const matching = invalidChars => `([^${invalidChars.join('')}]${quantifier})`;
-                const matchingQuoted = invalidChars => [`"${matching(['"', ...invalidChars])}"`, `'${matching(["'", ...invalidChars])}'`];
+                const matching = (invalidChars: string[]): string => `([^${invalidChars.join('')}]${quantifier})`;
+                const matchingQuoted = (invalidChars: string[]): string[] => [`"${matching(['"', ...invalidChars])}"`, `'${matching(["'", ...invalidChars])}'`];
 
                 const groups = [];
 
@@ -147,7 +151,7 @@ class CommandsWatcher extends MessageWatcher {
 
         const matchedGroups = matches.slice(1).filter(m => m !== undefined);
 
-        const parsedArgs = {};
+        const parsedArgs: Record<string, any> = {};
 
         for (const [match, { info, type }] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
             if (match === '') {
@@ -192,4 +196,4 @@ class CommandsWatcher extends MessageWatcher {
     }
 }
 
-module.exports = CommandsWatcher;
+export = CommandsWatcher;
