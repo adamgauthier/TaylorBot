@@ -7,7 +7,7 @@ import ArgumentParsingError = require('../types/ArgumentParsingError.js');
 import MessageContext = require('../structures/MessageContext.js');
 import CommandMessageContext = require('../commands/CommandMessageContext.js');
 import { Message } from 'discord.js';
-import TaylorBotClient = require('../client/TaylorBotClient.js');
+import { TaylorBotClient } from '../client/TaylorBotClient';
 import CachedCommand = require('../client/registry/CachedCommand.js');
 
 class CommandsWatcher extends MessageWatcher {
@@ -65,7 +65,7 @@ class CommandsWatcher extends MessageWatcher {
         }
     }
 
-    static async runCommand(messageContext: MessageContext, cachedCommand: CachedCommand, argString: string) {
+    static async runCommand(messageContext: MessageContext, cachedCommand: CachedCommand, argString: string): Promise<void> {
         const { client, message } = messageContext;
         const { author, channel } = message;
         const { registry } = client.master;

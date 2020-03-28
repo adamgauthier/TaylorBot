@@ -1,7 +1,7 @@
 import { MessageWatcher } from '../structures/MessageWatcher';
 import { Poll } from '../modules/poll/Poll';
 import { Message, User, TextChannel } from 'discord.js';
-import TaylorBotClient = require('../client/TaylorBotClient.js');
+import { TaylorBotClient } from '../client/TaylorBotClient';
 
 class PollsWatcher extends MessageWatcher {
     #polls = new Map<string, Poll>();

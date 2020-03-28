@@ -27,7 +27,7 @@ class InstagramInterval extends Interval {
         const { guild_id, channel_id, instagram_username, last_post_code } = current;
 
         try {
-            const guild = client.resolveGuild(guild_id);
+            const guild = client.guilds.get(guild_id);
             if (!guild) throw new Error(`Guild ID '${guild_id}' could not be resolved`);
 
             const channel = guild.channels.get(channel_id);

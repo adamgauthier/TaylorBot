@@ -1,12 +1,10 @@
-'use strict';
-
 import events = require('events');
 
 import DiscordEmbedFormatter = require('../DiscordEmbedFormatter.js');
 import StringUtil = require('../StringUtil.js');
 import Option = require('./Option.js');
 import DISCORD_CONFIG = require('../../config/config.json');
-import TaylorBotClient = require('../../client/TaylorBotClient.js');
+import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { User, TextChannel } from 'discord.js';
 
 export class Poll extends events.EventEmitter {
@@ -48,11 +46,11 @@ export class Poll extends events.EventEmitter {
         this.setCloseTimeout();
     }
 
-    close(): Promise<void> {
+    async close(): Promise<void> {
         if (this.#closeTimeout == null) throw new Error(`Can't close a poll that hasn't been started.`);
 
         clearTimeout(this.#closeTimeout);
-        return this.client.sendEmbed(this.channel, DiscordEmbedFormatter
+        await this.client.sendEmbed(this.channel, DiscordEmbedFormatter
             .baseUserEmbed(this.owner)
             .setTitle(`Poll '${this.channel.name}' closed! Results:`)
             .setDescription(Array.from(
@@ -62,8 +60,8 @@ export class Poll extends events.EventEmitter {
         );
     }
 
-    show(): Promise<void> {
-        return this.client.sendEmbed(this.channel, DiscordEmbedFormatter
+    async show(): Promise<void> {
+        await this.client.sendEmbed(this.channel, DiscordEmbedFormatter
             .baseUserEmbed(this.owner)
             .setTitle(`Poll '${this.channel.name}' current results:`)
             .setDescription(Array.from(

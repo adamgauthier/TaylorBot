@@ -4,7 +4,7 @@ import path = require('path');
 
 import Log = require('../../tools/Logger.js');
 import { MessageWatcher } from '../../structures/MessageWatcher';
-import TaylorBotClient = require('../TaylorBotClient.js');
+import { TaylorBotClient } from '../TaylorBotClient';
 import { Message } from 'discord.js';
 
 const watchersPath = path.join(__dirname, '..', '..', 'watchers');

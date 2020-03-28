@@ -2,7 +2,7 @@ import redisCommandsConfig = require('../config/redis-commands.json');
 import redisHeistsConfig = require('../config/redis-heists.json');
 
 import DatabaseDriver = require('../database/DatabaseDriver.js');
-import TaylorBotClient = require('./TaylorBotClient.js');
+import { TaylorBotClient } from './TaylorBotClient';
 import { Registry } from './registry/Registry';
 import Log = require('../tools/Logger.js');
 import RedisDriver = require('../caching/RedisDriver.js');

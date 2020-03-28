@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import TaylorBotClient = require('../client/TaylorBotClient.js');
+import { TaylorBotClient } from '../client/TaylorBotClient';
 
 export abstract class MessageWatcher {
     enabled: boolean;
