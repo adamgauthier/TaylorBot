@@ -8,7 +8,7 @@ import MessageContext = require('../structures/MessageContext.js');
 import CommandMessageContext = require('../commands/CommandMessageContext.js');
 import { Message } from 'discord.js';
 import { TaylorBotClient } from '../client/TaylorBotClient';
-import CachedCommand = require('../client/registry/CachedCommand.js');
+import { CachedCommand } from '../client/registry/CachedCommand';
 
 class CommandsWatcher extends MessageWatcher {
     async messageHandler(client: TaylorBotClient, message: Message): Promise<void> {
@@ -66,7 +66,7 @@ class CommandsWatcher extends MessageWatcher {
     }
 
     static async runCommand(messageContext: MessageContext, cachedCommand: CachedCommand, argString: string): Promise<void> {
-        const { client, message } = messageContext;
+        const { client, message }: { client: TaylorBotClient; message: Message } = messageContext;
         const { author, channel } = message;
         const { registry } = client.master;
 
@@ -86,10 +86,11 @@ class CommandsWatcher extends MessageWatcher {
                 Log.warn(
                     `${Format.user(author)} can't use '${cachedCommand.name}' with args '${argString}' in ${Format.channel(channel)}: ${blockedMessage.log}`
                 );
-                return client.sendEmbedError(channel, [
+                await client.sendEmbedError(channel, [
                     `${author} Oops! \`${cachedCommand.name}\` was blocked. ⛔`,
                     blockedMessage.ui
                 ].join('\n'));
+                return;
             }
         }
 
@@ -141,12 +142,13 @@ class CommandsWatcher extends MessageWatcher {
         const matches = argString.match(regex);
 
         if (!matches) {
-            return client.sendEmbedError(channel, [
+            await client.sendEmbedError(channel, [
                 `${author} Oops! Looks like something was off with your command usage. 🤔`,
                 `Command Format: \`${commandContext.usage()}\``,
                 `Example: \`${commandContext.example()}\``,
                 `For examples and details, use \`${commandContext.helpUsage()}\`.`
             ].join('\n'));
+            return;
         }
 
         const matchedGroups = matches.slice(1).filter(m => m !== undefined);
@@ -166,10 +168,11 @@ class CommandsWatcher extends MessageWatcher {
             }
             catch (e) {
                 if (e instanceof ArgumentParsingError) {
-                    return client.sendEmbedError(channel, [
+                    await client.sendEmbedError(channel, [
                         `${author} Format: \`${commandContext.usage()}\``,
                         `\`<${info.label}>\`: ${e.message}`
                     ].join('\n'));
+                    return;
                 }
                 else {
                     throw e;
@@ -182,7 +185,8 @@ class CommandsWatcher extends MessageWatcher {
         }
         catch (e) {
             if (e instanceof CommandError) {
-                return client.sendEmbedError(channel, e.message);
+                await client.sendEmbedError(channel, e.message);
+                return;
             }
             else {
                 throw e;

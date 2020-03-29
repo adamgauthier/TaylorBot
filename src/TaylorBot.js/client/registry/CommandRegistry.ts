@@ -1,5 +1,5 @@
 import Log = require('../../tools/Logger.js');
-import CachedCommand = require('./CachedCommand.js');
+import { CachedCommand } from './CachedCommand.js';
 import { CommandLoader } from '../../commands/CommandLoader';
 import AttributeLoader = require('../../attributes/AttributeLoader.js');
 import DatabaseDriver = require('../../database/DatabaseDriver.js');
@@ -54,9 +54,9 @@ export class CommandRegistry {
 
         const cached = new CachedCommand(
             command.name,
+            command,
             this
         );
-        cached.command = command;
 
         this.#commandsCache.set(key, cached);
 

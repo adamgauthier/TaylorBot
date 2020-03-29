@@ -5,7 +5,7 @@ import CommandMessageContext = require('../CommandMessageContext.js');
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import ArrayUtil = require('../../modules/ArrayUtil.js');
 import UserGroups = require('../../client/UserGroups.js');
-import CachedCommand = require('../../client/registry/CachedCommand.js');
+import { CachedCommand } from '../../client/registry/CachedCommand.js';
 
 class HelpCommand extends Command {
     constructor() {

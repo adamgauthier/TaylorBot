@@ -1,9 +1,8 @@
-'use strict';
-
-const SilentInhibitor = require('../SilentInhibitor.js');
+import { SilentInhibitor } from '../SilentInhibitor';
+import MessageContext = require('../../structures/MessageContext');
 
 class AnsweredCooldownInhibitor extends SilentInhibitor {
-    async shouldBeBlocked(messageContext) {
+    async shouldBeBlocked(messageContext: MessageContext): Promise<string | null> {
         const { author } = messageContext.message;
         const { onGoingCommands } = messageContext.client.master.registry;
 
@@ -24,4 +23,4 @@ class AnsweredCooldownInhibitor extends SilentInhibitor {
     }
 }
 
-module.exports = AnsweredCooldownInhibitor;
+export = AnsweredCooldownInhibitor;

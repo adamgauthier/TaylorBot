@@ -1,9 +1,9 @@
-'use strict';
-
-const NoisyInhibitor = require('../NoisyInhibitor.js');
+import { NoisyInhibitor } from '../NoisyInhibitor';
+import { TaylorBotClient } from '../../client/TaylorBotClient';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 
 class DisabledCommandInhibitor extends NoisyInhibitor {
-    async getBlockedMessage(messageContext, command) {
+    async getBlockedMessage(messageContext: { client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const isDisabled = await messageContext.client.master.registry.commands.insertOrGetIsCommandDisabled(command);
         if (isDisabled) {
             return {
@@ -16,4 +16,4 @@ class DisabledCommandInhibitor extends NoisyInhibitor {
     }
 }
 
-module.exports = DisabledCommandInhibitor;
+export = DisabledCommandInhibitor;

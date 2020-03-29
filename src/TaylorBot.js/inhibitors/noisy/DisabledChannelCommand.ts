@@ -1,9 +1,10 @@
-'use strict';
-
-const NoisyInhibitor = require('../NoisyInhibitor.js');
+import { NoisyInhibitor } from '../NoisyInhibitor';
+import { Message } from 'discord.js';
+import { TaylorBotClient } from '../../client/TaylorBotClient';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 
 class DisabledChannelCommandInhibitor extends NoisyInhibitor {
-    async getBlockedMessage({ client, message, prefix }, command) {
+    async getBlockedMessage({ client, message, prefix }: { message: Message; client: TaylorBotClient; prefix: string }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { channel } = message;
 
         if (channel.type === 'text') {
@@ -24,4 +25,4 @@ class DisabledChannelCommandInhibitor extends NoisyInhibitor {
     }
 }
 
-module.exports = DisabledChannelCommandInhibitor;
+export = DisabledChannelCommandInhibitor;

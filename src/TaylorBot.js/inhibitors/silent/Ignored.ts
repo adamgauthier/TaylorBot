@@ -1,12 +1,12 @@
-'use strict';
+import moment = require('moment');
 
-const moment = require('moment');
-
-const SilentInhibitor = require('../SilentInhibitor.js');
-const TimeUtil = require('../../modules/TimeUtil.js');
+import TimeUtil = require('../../modules/TimeUtil.js');
+import { SilentInhibitor } from '../SilentInhibitor';
+import { Message } from 'discord.js';
+import { TaylorBotClient } from '../../client/TaylorBotClient.js';
 
 class IgnoredInhibitor extends SilentInhibitor {
-    async shouldBeBlocked({ message, client }) {
+    async shouldBeBlocked({ message, client }: { message: Message; client: TaylorBotClient }): Promise<string | null> {
         const { author } = message;
 
         const ignoredUntil = await client.master.registry.users.getIgnoredUntil(author);
@@ -20,4 +20,4 @@ class IgnoredInhibitor extends SilentInhibitor {
     }
 }
 
-module.exports = IgnoredInhibitor;
+export = IgnoredInhibitor;

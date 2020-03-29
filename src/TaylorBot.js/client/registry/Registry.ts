@@ -6,7 +6,7 @@ import GuildRegistry = require('./GuildRegistry.js');
 import GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
 import { CommandRegistry } from './CommandRegistry';
 import UserRegistry = require('./UserRegistry.js');
-import InhibitorRegistry = require('./InhibitorRegistry.js');
+import { InhibitorRegistry } from './InhibitorRegistry';
 import AttributeRegistry = require('./AttributeRegistry.js');
 import ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
 import CooldownRegistry = require('./CooldownRegistry.js');

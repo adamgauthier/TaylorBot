@@ -1,11 +1,12 @@
-'use strict';
+import moment = require('moment');
 
-const moment = require('moment');
-
-const NoisyInhibitor = require('../NoisyInhibitor.js');
+import { NoisyInhibitor } from '../NoisyInhibitor';
+import { Message } from 'discord.js';
+import { TaylorBotClient } from '../../client/TaylorBotClient';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 
 class CommandCooldown extends NoisyInhibitor {
-    async getBlockedMessage({ message, client }, command) {
+    async getBlockedMessage({ message, client }: { message: Message; client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { maxDailyUseCount } = command.command;
         if (maxDailyUseCount !== null) {
             const { registry } = client.master;
@@ -39,4 +40,4 @@ class CommandCooldown extends NoisyInhibitor {
     }
 }
 
-module.exports = CommandCooldown;
+export = CommandCooldown;

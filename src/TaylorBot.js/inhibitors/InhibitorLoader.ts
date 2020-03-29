@@ -1,14 +1,13 @@
-'use strict';
-
-const fs = require('fs').promises;
-const path = require('path');
-
-const Inhibitor = require('./Inhibitor.js');
+import fsWithCallbacks = require('fs');
+const fs = fsWithCallbacks.promises;
+import path = require('path');
+import { NoisyInhibitor } from './NoisyInhibitor';
+import { SilentInhibitor } from './SilentInhibitor';
 
 const inhibitorsPath = __dirname;
 
-class InhibitorLoader {
-    static async loadAll() {
+export class InhibitorLoader {
+    static async loadAll(): Promise<(SilentInhibitor | NoisyInhibitor)[]> {
         const dirEntries = await fs.readdir(inhibitorsPath, { withFileTypes: true });
         const subDirectories = dirEntries.filter(de => de.isDirectory());
 
@@ -28,12 +27,8 @@ class InhibitorLoader {
             .filter(file => file.ext === '.js')
             .map(path.format)
             .map(require)
-            .map(Type => {
-                if (!(Type.prototype instanceof Inhibitor))
-                    throw new Error(`Loading all inhibitors: inhibitor ${Type.name} doesn't extend base inhibitor class.`);
+            .map((Type: new () => (SilentInhibitor | NoisyInhibitor)) => {
                 return new Type();
             });
     }
 }
-
-module.exports = InhibitorLoader;

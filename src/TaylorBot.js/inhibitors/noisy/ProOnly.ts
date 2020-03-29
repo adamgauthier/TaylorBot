@@ -1,9 +1,10 @@
-'use strict';
-
-const NoisyInhibitor = require('../NoisyInhibitor.js');
+import { NoisyInhibitor } from '../NoisyInhibitor';
+import { CachedCommand } from '../../client/registry/CachedCommand';
+import { Message } from 'discord.js';
+import { TaylorBotClient } from '../../client/TaylorBotClient';
 
 class ProOnlyInhibitor extends NoisyInhibitor {
-    async getBlockedMessage({ message, client }, command) {
+    async getBlockedMessage({ message, client }: { message: Message; client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         if (command.command.proOnly) {
             const { database } = client.master;
             const { author, channel, guild } = message;
@@ -37,4 +38,4 @@ class ProOnlyInhibitor extends NoisyInhibitor {
     }
 }
 
-module.exports = ProOnlyInhibitor;
+export = ProOnlyInhibitor;
