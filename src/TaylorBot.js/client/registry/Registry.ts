@@ -7,12 +7,12 @@ import GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
 import { CommandRegistry } from './CommandRegistry';
 import UserRegistry = require('./UserRegistry.js');
 import { InhibitorRegistry } from './InhibitorRegistry';
-import AttributeRegistry = require('./AttributeRegistry.js');
+import { AttributeRegistry } from './AttributeRegistry.js';
 import ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
 import CooldownRegistry = require('./CooldownRegistry.js');
 import OnGoingCommandRegistry = require('./OnGoingCommandRegistry.js');
 import HeistRegistry = require('./HeistRegistry.js');
-import DatabaseDriver = require('../../database/DatabaseDriver.js');
+import { DatabaseDriver } from '../../database/DatabaseDriver.js';
 import RedisDriver = require('../../caching/RedisDriver.js');
 
 export class Registry {

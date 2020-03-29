@@ -11,7 +11,7 @@ class ListableAttributeArgumentType extends AttributeArgumentType {
     parse(val, commandContext, arg) {
         const attribute = super.parse(val, commandContext, arg);
 
-        if (!attribute.canList)
+        if (attribute.list === null)
             throw new ArgumentParsingError(`Attribute '${val}' can't be listed.`);
 
         return attribute;

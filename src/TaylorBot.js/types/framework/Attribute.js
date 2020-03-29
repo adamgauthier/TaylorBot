@@ -8,7 +8,7 @@ class AttributeArgumentType extends WordArgumentType {
         return 'attribute';
     }
 
-    parse(val, { client }) {
+    parse(val, { client }, arg) {
         const attribute = client.master.registry.attributes.resolve(val);
 
         if (!attribute)

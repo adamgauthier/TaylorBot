@@ -1,8 +1,8 @@
 import Log = require('../../tools/Logger.js');
 import { CachedCommand } from './CachedCommand.js';
 import { CommandLoader } from '../../commands/CommandLoader';
-import AttributeLoader = require('../../attributes/AttributeLoader.js');
-import DatabaseDriver = require('../../database/DatabaseDriver.js');
+import { AttributeLoader } from '../../attributes/AttributeLoader.js';
+import { DatabaseDriver } from '../../database/DatabaseDriver.js';
 import RedisDriver = require('../../caching/RedisDriver.js');
 import Command = require('../../commands/Command.js');
 import { Guild } from 'discord.js';

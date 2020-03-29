@@ -4,6 +4,7 @@
   "description": "Discord bot created for the r/TaylorSwift Discord server",
   "main": "taylorbot.js",
   "dependencies": {
+    "@types/moment-timezone": "^0.5.13",
     "@types/node": "^13.9.2",
     "@types/ws": "^7.2.3",
     "chalk": "^2.4.2",
