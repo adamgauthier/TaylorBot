@@ -1,11 +1,11 @@
 'use strict';
 
 import Command = require('../Command.js');
-import CommandMessageContext = require('../CommandMessageContext.js');
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import ArrayUtil = require('../../modules/ArrayUtil.js');
 import UserGroups = require('../../client/UserGroups.js');
 import { CachedCommand } from '../../client/registry/CachedCommand.js';
+import { CommandMessageContext } from '../CommandMessageContext';
 
 class HelpCommand extends Command {
     constructor() {
@@ -27,7 +27,7 @@ class HelpCommand extends Command {
         });
     }
 
-    run(commandContext: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
+    async run(commandContext: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
         const { message: { channel, author }, client, messageContext } = commandContext;
 
         if (command.command.name === commandContext.command.command.name) {
@@ -44,7 +44,7 @@ class HelpCommand extends Command {
             ];
 
             const groupedCommands = ArrayUtil.groupBy(
-                client.master.registry.commands.getAllCommands().filter((c: CachedCommand) =>
+                client.master.registry.commands.getAllCommands().filter(c =>
                     FEATURED_GROUPS.map(group => group.name).includes(c.command.group) &&
                     c.command.minimumGroup !== UserGroups.Master
                 ),
@@ -60,19 +60,19 @@ class HelpCommand extends Command {
                 ).join(', '), true);
             }
 
-            return client.sendEmbed(channel, embed);
+            await client.sendEmbed(channel, embed);
         }
         else {
             const helpCommandContext = new CommandMessageContext(messageContext, command);
 
-            return client.sendEmbed(channel,
+            await client.sendEmbed(channel,
                 DiscordEmbedFormatter
                     .baseUserEmbed(author)
                     .setTitle(`Command '${command.name}'`)
                     .setDescription(command.command.description)
                     .addField('Usage', [
                         `\`${helpCommandContext.usage()}\``,
-                        ...helpCommandContext.argsUsage().map(({ identifier, hint }: { identifier: string; hint: string }) => `\`${identifier}\`: ${hint}`)
+                        ...helpCommandContext.argsUsage().map(({ identifier, hint }) => `\`${identifier}\`: ${hint}`)
                     ].join('\n'))
                     .addField('Example', `\`${helpCommandContext.example()}\``)
             );

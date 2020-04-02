@@ -1,7 +1,7 @@
 import Command = require('../../commands/Command.js');
-import { TaylorBotClient } from '../../client/TaylorBotClient.js';
 import { Message } from 'discord.js';
-import { SettableUserAttribute } from '../SettableUserAttribute.js';
+import { SettableUserAttribute } from '../SettableUserAttribute';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class ClearUserAttributeCommand extends Command {
     readonly #attribute: SettableUserAttribute;
@@ -19,7 +19,7 @@ export class ClearUserAttributeCommand extends Command {
         this.#attribute = attribute;
     }
 
-    async run(commandContext: { client: TaylorBotClient; message: Message }): Promise<Message> {
+    async run(commandContext: CommandMessageContext): Promise<Message> {
         const { client, message } = commandContext;
         return client.sendEmbed(
             message.channel,

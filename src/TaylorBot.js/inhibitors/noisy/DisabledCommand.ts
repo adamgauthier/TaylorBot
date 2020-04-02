@@ -1,9 +1,9 @@
 import { NoisyInhibitor } from '../NoisyInhibitor';
-import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { CachedCommand } from '../../client/registry/CachedCommand';
+import { MessageContext } from '../../structures/MessageContext';
 
 class DisabledCommandInhibitor extends NoisyInhibitor {
-    async getBlockedMessage(messageContext: { client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    async getBlockedMessage(messageContext: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const isDisabled = await messageContext.client.master.registry.commands.insertOrGetIsCommandDisabled(command);
         if (isDisabled) {
             return {

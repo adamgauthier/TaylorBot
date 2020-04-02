@@ -1,12 +1,11 @@
 import moment = require('moment');
 
 import { NoisyInhibitor } from '../NoisyInhibitor';
-import { Message } from 'discord.js';
-import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { CachedCommand } from '../../client/registry/CachedCommand';
+import { MessageContext } from '../../structures/MessageContext';
 
 class CommandCooldown extends NoisyInhibitor {
-    async getBlockedMessage({ message, client }: { message: Message; client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    async getBlockedMessage({ message, client }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { maxDailyUseCount } = command.command;
         if (maxDailyUseCount !== null) {
             const { registry } = client.master;

@@ -4,7 +4,7 @@ import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js')
 import { UserAttributePresenter } from '../UserAttributePresenter.js';
 import { UserAttribute } from '../UserAttribute.js';
 import { User, MessageEmbed } from 'discord.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class LastFmPresenter implements UserAttributePresenter {
     constructor(_: UserAttribute) { }

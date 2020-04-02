@@ -1,14 +1,34 @@
-'use strict';
+import UnsafeRandomModule = require('../modules/random/UnsafeRandomModule.js');
+import { CachedCommand } from '../client/registry/CachedCommand';
+import { TaylorBotClient } from '../client/TaylorBotClient';
+import ArgumentType = require('../types/ArgumentType.js');
+import { Message } from 'discord.js';
+import { MessageContext } from '../structures/MessageContext';
 
-const UnsafeRandomModule = require('../modules/random/UnsafeRandomModule.js');
+type ArgumentInfo = {
+    key: string;
+    label: string;
+    type: string;
+    prompt: string;
+    mustBeQuoted: boolean;
+    includesSpaces: boolean;
+    includesNewLines: boolean;
+};
 
-class CommandMessageContext {
-    constructor(messageContext, command) {
-        this.messageContext = messageContext;
-        this.command = command;
+export type CommandArgumentInfo = {
+    info: ArgumentInfo;
+    mustBeQuoted: boolean;
+    includesSpaces: boolean;
+    includesNewLines: boolean;
+    type: ArgumentType;
+    canBeEmpty: boolean;
+};
 
-        this.args = this.command.command.args.map(info => {
-            const type = this.client.master.registry.types.getType(info.type);
+export class CommandMessageContext {
+    readonly args: CommandArgumentInfo[];
+    constructor(public readonly messageContext: MessageContext, public readonly command: CachedCommand) {
+        this.args = this.command.command.args.map((info: ArgumentInfo) => {
+            const type: ArgumentType = this.client.master.registry.types.getType(info.type);
             const canBeEmpty = type.canBeEmpty(messageContext, info);
 
             return {
@@ -22,15 +42,15 @@ class CommandMessageContext {
         });
     }
 
-    get client() {
+    get client(): TaylorBotClient {
         return this.messageContext.client;
     }
 
-    get message() {
+    get message(): Message {
         return this.messageContext.message;
     }
 
-    usage() {
+    usage(): string {
         const keyword = `${this.messageContext.prefix}${this.command.name}`;
 
         const args = this.args.map(({ info, canBeEmpty, mustBeQuoted }) => {
@@ -41,7 +61,7 @@ class CommandMessageContext {
         return [keyword, ...args].join(' ');
     }
 
-    argsUsage() {
+    argsUsage(): { identifier: string; hint: string }[] {
         return this.args.map(({ info, canBeEmpty, mustBeQuoted }) => {
             const label = canBeEmpty ? `${info.label}?` : info.label;
             let hint = info.prompt;
@@ -57,16 +77,14 @@ class CommandMessageContext {
         });
     }
 
-    helpUsage() {
+    helpUsage(): string {
         const helpCommandName = 'help';
         const keyword = `${this.messageContext.prefix}${helpCommandName}`;
 
         return `${keyword} ${this.command.name}`;
     }
 
-    example() {
+    example(): string {
         return `${this.messageContext.prefix}${this.command.command.name} ${UnsafeRandomModule.randomInArray(this.command.command.examples)}`;
     }
 }
-
-module.exports = CommandMessageContext;

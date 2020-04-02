@@ -1,9 +1,9 @@
 import CommandError = require('../../commands/CommandError.js');
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
 import { AgePresenter } from '../user-presenters/AgePresenter.js';
 import { SettableUserAttribute } from '../SettableUserAttribute.js';
 import { DatabaseDriver } from '../../database/DatabaseDriver.js';
 import { User, MessageEmbed } from 'discord.js';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 class AgeAttribute extends SettableUserAttribute {
     constructor() {
@@ -36,7 +36,7 @@ class AgeAttribute extends SettableUserAttribute {
     }
 
     setCommand(commandContext: CommandMessageContext, _: any): Promise<MessageEmbed> {
-        const setCommand = commandContext.client.master.registry.commands.resolve(`setbirthday`);
+        const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
         const context = new CommandMessageContext(commandContext.messageContext, setCommand);
 
         throw new CommandError([

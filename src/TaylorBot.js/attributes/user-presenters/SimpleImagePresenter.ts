@@ -1,8 +1,8 @@
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import { UserAttributePresenter } from '../UserAttributePresenter.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
 import { User, MessageEmbed } from 'discord.js';
 import { UserAttribute } from '../UserAttribute.js';
+import { CommandMessageContext } from '../../commands/CommandMessageContext.js';
 
 export class SimpleImagePresenter implements UserAttributePresenter {
     readonly #attribute: UserAttribute;

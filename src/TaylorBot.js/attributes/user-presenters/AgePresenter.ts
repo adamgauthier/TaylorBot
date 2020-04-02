@@ -1,10 +1,10 @@
 import moment = require('moment');
 
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
 import { UserAttributePresenter } from '../UserAttributePresenter.js';
 import { UserAttribute } from '../UserAttribute.js';
 import { MessageEmbed, User } from 'discord.js';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class AgePresenter implements UserAttributePresenter {
     constructor(_: UserAttribute) { }
@@ -13,7 +13,7 @@ export class AgePresenter implements UserAttributePresenter {
         const embed = DiscordEmbedFormatter.baseUserEmbed(user);
 
         if (!birthday) {
-            const setCommand = commandContext.client.master.registry.commands.resolve(`setbirthday`);
+            const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
             const context = new CommandMessageContext(commandContext.messageContext, setCommand);
 
             return Promise.resolve(
@@ -31,7 +31,7 @@ export class AgePresenter implements UserAttributePresenter {
         const parsedBirthday = moment.utc(birthday.birthday, 'YYYY-MM-DD');
 
         if (parsedBirthday.year() === 1804) {
-            const setCommand = commandContext.client.master.registry.commands.resolve(`setbirthday`);
+            const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
             const context = new CommandMessageContext(commandContext.messageContext, setCommand);
 
             return Promise.resolve(

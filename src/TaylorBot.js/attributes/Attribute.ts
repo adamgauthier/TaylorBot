@@ -1,7 +1,7 @@
 import { DatabaseDriver } from '../database/DatabaseDriver';
 import { Guild } from 'discord.js';
-import CommandMessageContext = require('../commands/CommandMessageContext');
 import PageMessage = require('../modules/paging/PageMessage');
+import { CommandMessageContext } from '../commands/CommandMessageContext';
 
 export type AttributeParameters = { id: string; aliases: string[]; description: string; list: ((database: DatabaseDriver, guild: Guild, entries: number) => Promise<any>) | null };
 

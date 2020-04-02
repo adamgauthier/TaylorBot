@@ -4,8 +4,8 @@ import MathUtil = require('../../modules/MathUtil.js');
 import DiscordFormatter = require('../../modules/DiscordFormatter.js');
 import { MemberAttributePresenter } from '../MemberAttributePresenter.js';
 import { MessageEmbed, GuildMember } from 'discord.js';
-import { MemberAttribute } from '../MemberAttribute.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
+import { MemberAttribute } from '../MemberAttribute';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class JoinedPresenter implements MemberAttributePresenter {
     constructor(private readonly attribute: MemberAttribute) {

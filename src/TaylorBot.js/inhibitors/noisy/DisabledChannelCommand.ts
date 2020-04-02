@@ -1,10 +1,9 @@
 import { NoisyInhibitor } from '../NoisyInhibitor';
-import { Message } from 'discord.js';
-import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { CachedCommand } from '../../client/registry/CachedCommand';
+import { MessageContext } from '../../structures/MessageContext';
 
 class DisabledChannelCommandInhibitor extends NoisyInhibitor {
-    async getBlockedMessage({ client, message, prefix }: { message: Message; client: TaylorBotClient; prefix: string }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    async getBlockedMessage({ client, message, prefix }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { channel } = message;
 
         if (channel.type === 'text') {

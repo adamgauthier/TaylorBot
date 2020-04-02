@@ -1,5 +1,5 @@
 import { SimpleStatPresenter } from './SimpleStatPresenter';
-import CommandMessageContext = require('../../commands/CommandMessageContext');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
 
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');

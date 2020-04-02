@@ -4,10 +4,9 @@ import PageMessage = require('../modules/paging/PageMessage.js');
 import MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
 import ArrayUtil = require('../modules/ArrayUtil.js');
 import { UserAttribute, UserAttributeParameters } from './UserAttribute.js';
-import { Guild, GuildMember, User, MessageEmbed, Message } from 'discord.js';
+import { Guild, GuildMember, User, MessageEmbed } from 'discord.js';
 import { DatabaseDriver } from '../database/DatabaseDriver.js';
-import { TaylorBotClient } from '../client/TaylorBotClient.js';
-import CommandMessageContext = require('../commands/CommandMessageContext.js');
+import { CommandMessageContext } from '../commands/CommandMessageContext';
 
 export type SettableUserAttributeParameters = Omit<UserAttributeParameters, 'canSet'> & { value: { label: string; type: string; example: string; maxDailySetCount?: number } };
 
@@ -34,7 +33,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
             .setDescription(`Your ${this.description} has been set to '${this.formatValue(attribute)}'. ✅`);
     }
 
-    async clearCommand({ message, client }: { message: Message; client: TaylorBotClient }): Promise<MessageEmbed> {
+    async clearCommand({ message, client }: CommandMessageContext): Promise<MessageEmbed> {
         const { author } = message;
         if (author === null)
             throw new Error(`Author can't be null.`);
@@ -45,7 +44,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
             .setDescription(`Your ${this.description} has been cleared. ✅`);
     }
 
-    async listCommand({ client, message }: { message: Message; client: TaylorBotClient }, guild: Guild): Promise<PageMessage> {
+    async listCommand({ client, message }: CommandMessageContext, guild: Guild): Promise<PageMessage> {
         if (this.list === null)
             throw new Error(`Can't list this attribute.`);
 

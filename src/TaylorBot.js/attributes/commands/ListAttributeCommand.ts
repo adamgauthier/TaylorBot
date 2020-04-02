@@ -1,6 +1,6 @@
 import Command = require('../../commands/Command');
 import { Attribute } from '../Attribute';
-import CommandMessageContext = require('../../commands/CommandMessageContext');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class ListAttributeCommand extends Command {
     readonly #attribute: Attribute;
@@ -20,6 +20,8 @@ export class ListAttributeCommand extends Command {
 
     async run(commandContext: CommandMessageContext): Promise<void> {
         const { guild, channel } = commandContext.message;
+        if (guild === null)
+            throw new Error(`This command can only be used in a guild.`);
 
         const pageMessage = await this.#attribute.listCommand(commandContext, guild);
 

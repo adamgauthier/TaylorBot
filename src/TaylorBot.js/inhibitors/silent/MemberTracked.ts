@@ -1,11 +1,10 @@
 import Format = require('../../modules/DiscordFormatter.js');
 import Log = require('../../tools/Logger.js');
 import { SilentInhibitor } from '../SilentInhibitor.js';
-import { Message } from 'discord.js';
-import { TaylorBotClient } from '../../client/TaylorBotClient.js';
+import { MessageContext } from '../../structures/MessageContext.js';
 
 class MemberTracked extends SilentInhibitor {
-    async shouldBeBlocked({ message, client }: { message: Message; client: TaylorBotClient }): Promise<string | null> {
+    async shouldBeBlocked({ message, client }: MessageContext): Promise<string | null> {
         const { member } = message;
 
         if (!member)

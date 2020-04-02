@@ -1,14 +1,14 @@
 import ArgumentParsingError = require('../ArgumentParsingError.js');
 import UserAttributeArgumentType = require('./UserAttribute');
 import { UserAttribute } from '../../attributes/UserAttribute';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
+import { CommandMessageContext, CommandArgumentInfo } from '../../commands/CommandMessageContext';
 
 class SettableAttributeArgumentType extends UserAttributeArgumentType {
     get id(): string {
         return 'settable-attribute';
     }
 
-    parse(val: string, commandContext: CommandMessageContext, arg: any): UserAttribute {
+    parse(val: string, commandContext: CommandMessageContext, arg: CommandArgumentInfo): UserAttribute {
         const attribute = super.parse(val, commandContext, arg);
 
         if (!attribute.canSet)

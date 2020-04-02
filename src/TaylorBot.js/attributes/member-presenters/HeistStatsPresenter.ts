@@ -2,8 +2,8 @@ import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js')
 import StringUtil = require('../../modules/StringUtil.js');
 import MathUtil = require('../../modules/MathUtil.js');
 import { SimpleStatPresenter } from './SimpleStatPresenter.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
 import { GuildMember, MessageEmbed } from 'discord.js';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class HeistStatsPresenter extends SimpleStatPresenter {
     present(commandContext: CommandMessageContext, member: GuildMember, { heist_win_count, rank, heist_lose_count, heist_win_amount, heist_lose_amount }: Record<string, any> & { rank: string }): MessageEmbed {

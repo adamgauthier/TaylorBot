@@ -1,7 +1,7 @@
 import Command = require('../../commands/Command.js');
 import { GuildMember, Message } from 'discord.js';
 import { MemberAttribute } from '../MemberAttribute.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class GetMemberAttributeCommand extends Command {
     readonly #attribute: MemberAttribute;

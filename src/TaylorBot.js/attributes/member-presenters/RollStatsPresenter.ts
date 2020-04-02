@@ -3,7 +3,7 @@ import StringUtil = require('../../modules/StringUtil.js');
 import MathUtil = require('../../modules/MathUtil.js');
 import { SimpleStatPresenter } from './SimpleStatPresenter.js';
 import { MessageEmbed, GuildMember } from 'discord.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class RollStatsPresenter extends SimpleStatPresenter {
     present(commandContext: CommandMessageContext, member: GuildMember, { roll_count, rank, perfect_roll_count }: Record<string, any> & { rank: string }): MessageEmbed {

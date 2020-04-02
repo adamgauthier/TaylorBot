@@ -43,7 +43,7 @@ class Command {
                 prompt,
                 mustBeQuoted: mustBeQuoted === undefined ? false : mustBeQuoted,
                 includesSpaces: includesSpaces === undefined ? false : includesSpaces,
-                includeNewLines: includeNewLines === undefined ? false : includeNewLines
+                includesNewLines: includeNewLines === undefined ? false : includeNewLines
             };
         });
     }

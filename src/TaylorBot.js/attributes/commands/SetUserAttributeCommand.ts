@@ -1,6 +1,5 @@
 import Command = require('../../commands/Command');
-import CommandMessageContext = require('../../commands/CommandMessageContext');
-import { TaylorBotClient } from '../../client/TaylorBotClient';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { Message } from 'discord.js';
 import { SettableUserAttribute } from '../SettableUserAttribute';
 
@@ -29,7 +28,7 @@ export class SetUserAttributeCommand extends Command {
     }
 
     async run(commandContext: CommandMessageContext, { value }: { value: any }): Promise<Message> {
-        const { client, message }: { client: TaylorBotClient; message: Message } = commandContext;
+        const { client, message } = commandContext;
         return client.sendEmbed(
             message.channel,
             await this.#attribute.setCommand(commandContext, value)

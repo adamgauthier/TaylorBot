@@ -1,9 +1,9 @@
 import { NoisyInhibitor } from '../NoisyInhibitor';
-import { Message } from 'discord.js';
 import { CachedCommand } from '../../client/registry/CachedCommand';
+import { MessageContext } from '../../structures/MessageContext';
 
 class GuildOnlyInhibitor extends NoisyInhibitor {
-    getBlockedMessage({ message }: { message: Message }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    getBlockedMessage({ message }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { channel } = message;
 
         if (command.command.guildOnly && channel.type !== 'text') {

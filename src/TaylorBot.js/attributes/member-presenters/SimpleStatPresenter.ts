@@ -4,9 +4,9 @@ import MathUtil = require('../../modules/MathUtil.js');
 import DiscordFormatter = require('../../modules/DiscordFormatter.js');
 import { MemberAttributePresenter } from '../MemberAttributePresenter.js';
 import { GuildMember, MessageEmbed } from 'discord.js';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
 import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute.js';
 import { MemberAttribute } from '../MemberAttribute.js';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class SimpleStatPresenter implements MemberAttributePresenter {
     protected attribute: SimpleStatMemberAttribute;

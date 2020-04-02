@@ -1,5 +1,5 @@
 import { SilentInhibitor } from '../SilentInhibitor';
-import MessageContext = require('../../structures/MessageContext');
+import { MessageContext } from '../../structures/MessageContext';
 
 class AnsweredCooldownInhibitor extends SilentInhibitor {
     async shouldBeBlocked(messageContext: MessageContext): Promise<string | null> {

@@ -1,12 +1,10 @@
 import { Attribute, AttributeParameters } from './Attribute';
 import DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
-import CommandMessageContext = require('../commands/CommandMessageContext.js');
 import { DatabaseDriver } from '../database/DatabaseDriver';
 import { User, MessageEmbed, Guild } from 'discord.js';
-import { TaylorBotClient } from '../client/TaylorBotClient';
-import MessageContext = require('../structures/MessageContext');
 import { UserAttributePresenter } from './UserAttributePresenter';
 import PageMessage = require('../modules/paging/PageMessage');
+import { CommandMessageContext } from '../commands/CommandMessageContext';
 
 export type UserAttributeParameters = AttributeParameters & { presenter: new (a: UserAttribute) => UserAttributePresenter; canSet: boolean };
 
@@ -27,7 +25,7 @@ export abstract class UserAttribute extends Attribute {
         const attribute = await this.retrieve(commandContext.client.master.database, user);
 
         if (!attribute) {
-            const { client, messageContext }: { client: TaylorBotClient; messageContext: MessageContext } = commandContext;
+            const { client, messageContext } = commandContext;
             const embed = DiscordEmbedFormatter.baseUserHeader(user).setColor('#f04747');
             const setCommand = client.master.registry.commands.resolve(`set${this.id}`);
 

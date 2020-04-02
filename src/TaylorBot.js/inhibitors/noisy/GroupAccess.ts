@@ -1,17 +1,17 @@
 import { Permissions, Message, GuildMember } from 'discord.js';
 
 import { NoisyInhibitor } from '../NoisyInhibitor';
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
 import UserGroups = require('../../client/UserGroups.js');
 import DISCORD_CONFIG = require('../../config/config.json');
-import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { Registry } from '../../client/registry/Registry';
 import GuildRegistry = require('../../client/registry/GuildRegistry');
 import GroupRegistry = require('../../client/registry/GroupRegistry');
 import { CachedCommand } from '../../client/registry/CachedCommand';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
+import { MessageContext } from '../../structures/MessageContext';
 
 class GroupAccessInhibitor extends NoisyInhibitor {
-    getBlockedMessage(messageContext: { message: Message; client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    getBlockedMessage(messageContext: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { message, client } = messageContext;
         const { registry } = client.master;
         const { minimumGroup } = command.command;

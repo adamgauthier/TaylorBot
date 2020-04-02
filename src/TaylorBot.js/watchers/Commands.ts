@@ -4,11 +4,11 @@ import Format = require('../modules/DiscordFormatter.js');
 import ArrayUtil = require('../modules/ArrayUtil.js');
 import CommandError = require('../commands/CommandError.js');
 import ArgumentParsingError = require('../types/ArgumentParsingError.js');
-import MessageContext = require('../structures/MessageContext.js');
-import CommandMessageContext = require('../commands/CommandMessageContext.js');
 import { Message } from 'discord.js';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 import { CachedCommand } from '../client/registry/CachedCommand';
+import { CommandMessageContext } from '../commands/CommandMessageContext';
+import { MessageContext } from '../structures/MessageContext';
 
 class CommandsWatcher extends MessageWatcher {
     async messageHandler(client: TaylorBotClient, message: Message): Promise<void> {
@@ -66,7 +66,7 @@ class CommandsWatcher extends MessageWatcher {
     }
 
     static async runCommand(messageContext: MessageContext, cachedCommand: CachedCommand, argString: string): Promise<void> {
-        const { client, message }: { client: TaylorBotClient; message: Message } = messageContext;
+        const { client, message } = messageContext;
         const { author, channel } = message;
         const { registry } = client.master;
 
@@ -101,8 +101,8 @@ class CommandsWatcher extends MessageWatcher {
 
         const regexString =
             commandContext.args.reduceRight((
-                acc: string,
-                { mustBeQuoted, includesSpaces, includesNewLines, canBeEmpty }: { mustBeQuoted: boolean; includesSpaces: boolean; includesNewLines: boolean; canBeEmpty: boolean }
+                acc,
+                { mustBeQuoted, includesSpaces, includesNewLines, canBeEmpty }
             ) => {
                 const quantifier = canBeEmpty ? '*' : '+';
                 const separator = canBeEmpty ? '[\\ ]{0,1}' : ' ';

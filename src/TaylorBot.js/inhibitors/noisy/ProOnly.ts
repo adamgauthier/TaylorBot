@@ -1,10 +1,9 @@
 import { NoisyInhibitor } from '../NoisyInhibitor';
 import { CachedCommand } from '../../client/registry/CachedCommand';
-import { Message } from 'discord.js';
-import { TaylorBotClient } from '../../client/TaylorBotClient';
+import { MessageContext } from '../../structures/MessageContext';
 
 class ProOnlyInhibitor extends NoisyInhibitor {
-    async getBlockedMessage({ message, client }: { message: Message; client: TaylorBotClient }, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    async getBlockedMessage({ message, client }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         if (command.command.proOnly) {
             const { database } = client.master;
             const { author, channel, guild } = message;

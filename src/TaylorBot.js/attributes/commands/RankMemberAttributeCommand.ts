@@ -1,5 +1,5 @@
 import Command = require('../../commands/Command');
-import CommandMessageContext = require('../../commands/CommandMessageContext');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { MemberAttribute } from '../MemberAttribute';
 
 export class RankMemberAttributeCommand extends Command {
@@ -21,6 +21,8 @@ export class RankMemberAttributeCommand extends Command {
 
     async run(commandContext: CommandMessageContext): Promise<void> {
         const { guild, channel } = commandContext.message;
+        if (guild === null)
+            throw new Error(`This command can only be used in a guild.`);
 
         const pageMessage = await this.#attribute.rankCommand(commandContext, guild);
 

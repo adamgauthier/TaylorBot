@@ -1,7 +1,7 @@
 import { UserAttribute } from '../UserAttribute';
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import { UserAttributePresenter } from '../UserAttributePresenter';
-import CommandMessageContext = require('../../commands/CommandMessageContext');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { User, MessageEmbed } from 'discord.js';
 
 export class SimplePresenter implements UserAttributePresenter {

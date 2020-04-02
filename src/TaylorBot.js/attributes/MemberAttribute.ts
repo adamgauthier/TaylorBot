@@ -4,10 +4,9 @@ import PageMessage = require('../modules/paging/PageMessage.js');
 import MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
 import ArrayUtil = require('../modules/ArrayUtil.js');
 import { DatabaseDriver } from '../database/DatabaseDriver';
-import { GuildMember, Guild, MessageEmbed, Message } from 'discord.js';
-import CommandMessageContext = require('../commands/CommandMessageContext');
-import { TaylorBotClient } from '../client/TaylorBotClient';
+import { GuildMember, Guild, MessageEmbed } from 'discord.js';
 import { MemberAttributePresenter } from './MemberAttributePresenter';
+import { CommandMessageContext } from '../commands/CommandMessageContext';
 
 export type MemberAttributeParameters = Omit<AttributeParameters, 'list'> & { presenter: new (a: MemberAttribute) => MemberAttributePresenter; columnName: string };
 
@@ -39,7 +38,7 @@ export abstract class MemberAttribute extends Attribute {
 
     abstract rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]>;
 
-    async rankCommand({ message, client }: { message: Message; client: TaylorBotClient }, guild: Guild): Promise<PageMessage> {
+    async rankCommand({ message, client }: CommandMessageContext, guild: Guild): Promise<PageMessage> {
         const members = await this.rank(client.master.database, guild, 100);
 
         const embed = DiscordEmbedFormatter

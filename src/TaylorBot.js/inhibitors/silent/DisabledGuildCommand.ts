@@ -1,10 +1,9 @@
 import { SilentInhibitor } from '../SilentInhibitor';
 import { CachedCommand } from '../../client/registry/CachedCommand';
-import { Message } from 'discord.js';
-import { TaylorBotClient } from '../../client/TaylorBotClient';
+import { MessageContext } from '../../structures/MessageContext';
 
 class DisabledGuildCommandInhibitor extends SilentInhibitor {
-    async shouldBeBlocked({ message, client }: { message: Message; client: TaylorBotClient }, command: CachedCommand): Promise<string | null> {
+    async shouldBeBlocked({ message, client }: MessageContext, command: CachedCommand): Promise<string | null> {
         const { guild } = message;
 
         if (!guild)

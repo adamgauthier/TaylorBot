@@ -1,4 +1,4 @@
-import MessageContext = require('../structures/MessageContext');
+import { MessageContext } from '../structures/MessageContext';
 import { CachedCommand } from '../client/registry/CachedCommand';
 
 export abstract class NoisyInhibitor {

@@ -1,4 +1,4 @@
-import CommandMessageContext = require('../../commands/CommandMessageContext.js');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import MathUtil = require('../../modules/MathUtil.js');

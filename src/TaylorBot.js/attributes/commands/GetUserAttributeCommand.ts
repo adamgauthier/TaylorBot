@@ -1,7 +1,7 @@
 import Command = require('../../commands/Command');
 import { Message, User } from 'discord.js';
 import { UserAttribute } from '../UserAttribute';
-import CommandMessageContext = require('../../commands/CommandMessageContext');
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class GetUserAttributeCommand extends Command {
     readonly #attribute: UserAttribute;
