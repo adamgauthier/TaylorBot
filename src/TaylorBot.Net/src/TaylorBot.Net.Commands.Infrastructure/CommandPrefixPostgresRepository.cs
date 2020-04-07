@@ -18,12 +18,15 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = Connection;
 
             return await connection.QuerySingleAsync<string>(
-                @"INSERT INTO guilds.guilds (guild_id) VALUES (@GuildId)
-                  ON CONFLICT(guild_id) DO UPDATE SET prefix = guilds.guilds.prefix
-                  RETURNING prefix;",
+                @"INSERT INTO guilds.guilds (guild_id, guild_name, previous_guild_name) VALUES (@GuildId, @GuildName, NULL)
+                ON CONFLICT (guild_id) DO UPDATE SET
+                    previous_guild_name = guilds.guilds.guild_name,
+                    guild_name = excluded.guild_name
+                RETURNING prefix;",
                 new
                 {
-                    GuildId = guild.Id.ToString()
+                    GuildId = guild.Id.ToString(),
+                    GuildName = guild.Name
                 }
             );
         }

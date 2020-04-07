@@ -17,15 +17,16 @@ namespace TaylorBot.Net.Commands.Infrastructure
         public async Task<bool> InsertOrGetIsCommandDisabledAsync(CommandInfo command)
         {
             using var connection = Connection;
-            connection.Open();
 
             var enabled = await connection.QuerySingleOrDefaultAsync<bool>(
-                @"INSERT INTO commands.commands (name) VALUES (@CommandName)
-                ON CONFLICT (name) DO UPDATE SET enabled = commands.commands.enabled
+                @"INSERT INTO commands.commands (name, aliases) VALUES (@CommandName, @Aliases)
+                ON CONFLICT (name) DO UPDATE SET
+                    aliases = excluded.aliases
                 RETURNING enabled;",
                 new
                 {
-                    CommandName = command.Name
+                    CommandName = command.Name,
+                    Aliases = command.Aliases
                 }
             );
 

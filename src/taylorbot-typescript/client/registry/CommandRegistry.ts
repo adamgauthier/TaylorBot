@@ -1,4 +1,3 @@
-import Log = require('../../tools/Logger.js');
 import { CachedCommand } from './CachedCommand.js';
 import { CommandLoader } from '../../commands/CommandLoader';
 import { AttributeLoader } from '../../attributes/AttributeLoader.js';
@@ -19,29 +18,11 @@ export class CommandRegistry {
     }
 
     async loadAll(): Promise<void> {
-        const databaseCommands: { name: string }[] = await this.database.commands.getAll();
-
         const commands = [
             ...(await CommandLoader.loadAll()),
             ...(await AttributeLoader.loadMemberAttributeCommands()),
             ...(await AttributeLoader.loadUserAttributeCommands())
         ];
-
-        const fileCommandsNotInDatabase = commands.filter(command =>
-            !databaseCommands.some(c => c.name === command.name)
-        );
-
-        if (fileCommandsNotInDatabase.length > 0) {
-            Log.info(`Found new file commands ${fileCommandsNotInDatabase.map(c => c.name).join(',')}. Adding to database.`);
-
-            const inserted = await this.database.commands.addAll(
-                fileCommandsNotInDatabase.map(command => {
-                    return { 'name': command.name };
-                })
-            );
-
-            databaseCommands.push(...inserted);
-        }
 
         commands.forEach(c => this.cacheCommand(c));
     }

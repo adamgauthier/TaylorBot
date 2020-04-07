@@ -20,7 +20,8 @@ class GuildRepository {
 
     mapGuildToDatabase(guild) {
         return {
-            'guild_id': guild.id
+            guild_id: guild.id,
+            guild_name: guild.name
         };
     }
 
@@ -42,8 +43,10 @@ class GuildRepository {
         const databaseGuild = this.mapGuildToDatabase(guild);
         try {
             return await this._db.oneOrNone(
-                `INSERT INTO guilds.guilds (guild_id) VALUES ($[guild_id])
-                ON CONFLICT(guild_id) DO UPDATE SET prefix = guilds.guilds.prefix
+                `INSERT INTO guilds.guilds (guild_id, guild_name, previous_guild_name) VALUES ($[guild_id], $[guild_name], NULL)
+                ON CONFLICT (guild_id) DO UPDATE SET
+                    previous_guild_name = guilds.guilds.guild_name,
+                    guild_name = excluded.guild_name
                 RETURNING prefix;`,
                 databaseGuild
             );

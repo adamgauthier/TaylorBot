@@ -72,11 +72,13 @@ class CommandRepository {
     async insertOrGetIsCommandDisabled(command) {
         try {
             return await this._db.one(
-                `INSERT INTO commands.commands (name) VALUES ($[command_name])
-                ON CONFLICT (name) DO UPDATE SET enabled = commands.commands.enabled
+                `INSERT INTO commands.commands (name, aliases) VALUES ($[command_name], $[aliases])
+                ON CONFLICT (name) DO UPDATE SET
+                    aliases = excluded.aliases
                 RETURNING enabled;`,
                 {
-                    command_name: command.name
+                    command_name: command.name,
+                    aliases: command.command.aliases
                 }
             );
         }

@@ -19,3 +19,11 @@ UPDATE guilds.guilds SET guild_name = '' WHERE guild_name IS NULL;
 
 ALTER TABLE guilds.guilds
     ALTER COLUMN guild_name SET NOT NULL;
+
+ALTER TABLE commands.commands
+    ADD COLUMN aliases text[];
+
+UPDATE commands.commands SET aliases = '{}';
+
+ALTER TABLE commands.commands
+    ALTER COLUMN aliases SET NOT NULL;
