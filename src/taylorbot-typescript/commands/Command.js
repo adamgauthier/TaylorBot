@@ -6,7 +6,7 @@ class Command {
     constructor({
         name, aliases = undefined, group, description, minimumGroup = undefined,
         examples, maxDailyUseCount = undefined, guildOnly = undefined,
-        proOnly = undefined, guarded = undefined, args
+        proOnly = undefined, args
     }) {
         if (new.target === Command) {
             throw new Error(`Can't instantiate abstract ${this.constructor.name} class.`);
@@ -29,7 +29,6 @@ class Command {
         this.maxDailyUseCount = maxDailyUseCount === undefined ? null : maxDailyUseCount;
         this.guildOnly = guildOnly === undefined ? false : guildOnly;
         this.proOnly = proOnly === undefined ? false : proOnly;
-        this.guarded = guarded === undefined ? false : guarded;
 
         this.args = args.map(({ key, label, type, prompt, mustBeQuoted, includesSpaces, includeNewLines }) => {
             if (!key) {

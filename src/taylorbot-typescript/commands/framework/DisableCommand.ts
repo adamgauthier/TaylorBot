@@ -1,8 +1,8 @@
-'use strict';
-
-const UserGroups = require('../../client/UserGroups.js');
-const Command = require('../Command.js');
-const CommandError = require('../CommandError.js');
+import UserGroups = require('../../client/UserGroups.js');
+import Command = require('../Command.js');
+import CommandError = require('../CommandError.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 
 class DisableCommandCommand extends Command {
     constructor() {
@@ -13,7 +13,6 @@ class DisableCommandCommand extends Command {
             description: 'Disables a command globally.',
             minimumGroup: UserGroups.Master,
             examples: ['avatar', 'uinfo'],
-            guarded: true,
 
             args: [
                 {
@@ -26,10 +25,10 @@ class DisableCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }, { command }) {
-        const { enabled } = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
+    async run({ message, client }: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
+        const isDisabled = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
 
-        if (!enabled) {
+        if (isDisabled) {
             throw new CommandError(`Command '${command.name}' is already disabled.`);
         }
 
@@ -37,13 +36,13 @@ class DisableCommandCommand extends Command {
             throw new CommandError(`Can't disable '${command.name}' because it's a Master command.`);
         }
 
-        if (command.command.guarded) {
-            throw new CommandError(`Can't disable '${command.name}' because it's guarded.`);
+        if (command.command.group === 'framework') {
+            throw new CommandError(`Can't disable '${command.name}' because it's a framework command.`);
         }
 
         await command.disableCommand();
-        return client.sendEmbedSuccess(message.channel, `Successfully disabled '${command.name}' globally.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully disabled '${command.name}' globally.`);
     }
 }
 
-module.exports = DisableCommandCommand;
+export = DisableCommandCommand;

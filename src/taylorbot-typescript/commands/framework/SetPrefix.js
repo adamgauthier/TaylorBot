@@ -15,7 +15,6 @@ class SetPrefixCommand extends Command {
             minimumGroup: UserGroups.Moderators,
             examples: ['.', '!'],
             guildOnly: true,
-            guarded: true,
 
             args: [
                 {

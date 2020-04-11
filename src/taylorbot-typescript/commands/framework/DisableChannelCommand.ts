@@ -1,20 +1,20 @@
-'use strict';
-
-const Command = require('../Command.js');
-const CommandError = require('../CommandError.js');
-const UserGroups = require('../../client/UserGroups.js');
+import Command = require('../Command.js');
+import CommandError = require('../CommandError.js');
+import UserGroups = require('../../client/UserGroups.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { CachedCommand } from '../../client/registry/CachedCommand';
+import { TextChannel } from 'discord.js';
 
 class DisableChannelCommandCommand extends Command {
     constructor() {
         super({
             name: 'disablechannelcommand',
             aliases: ['dcc'],
-            group: 'admin',
+            group: 'framework',
             description: 'Disables a command in a channel.',
             minimumGroup: UserGroups.Moderators,
             examples: ['roll general', 'gamble'],
             guildOnly: true,
-            guarded: true,
 
             args: [
                 {
@@ -33,19 +33,19 @@ class DisableChannelCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }, { command, channel }) {
+    async run({ message, client }: CommandMessageContext, { command, channel }: { command: CachedCommand; channel: TextChannel }): Promise<void> {
         if (command.command.minimumGroup === UserGroups.Master) {
             throw new CommandError(`Can't disable \`${command.name}\` because it's a Master command.`);
         }
 
-        if (command.command.guarded) {
-            throw new CommandError(`Can't disable \`${command.name}\` because it's guarded.`);
+        if (command.command.group === 'framework') {
+            throw new CommandError(`Can't disable \`${command.name}\` because it's a framework command.`);
         }
 
         await client.master.registry.channelCommands.disableCommandInChannel(channel, command);
 
-        return client.sendEmbedSuccess(message.channel, `Successfully disabled \`${command.name}\` in ${channel}.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully disabled \`${command.name}\` in ${channel}.`);
     }
 }
 
-module.exports = DisableChannelCommandCommand;
+export = DisableChannelCommandCommand;

@@ -1,8 +1,8 @@
-'use strict';
-
-const UserGroups = require('../../client/UserGroups.js');
-const Command = require('../Command.js');
-const CommandError = require('../CommandError.js');
+import UserGroups = require('../../client/UserGroups.js');
+import Command = require('../Command.js');
+import CommandError = require('../CommandError.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 
 class EnableCommandCommand extends Command {
     constructor() {
@@ -13,7 +13,6 @@ class EnableCommandCommand extends Command {
             description: 'Enables a disabled command globally.',
             minimumGroup: UserGroups.Master,
             examples: ['avatar', 'uinfo'],
-            guarded: true,
 
             args: [
                 {
@@ -26,16 +25,16 @@ class EnableCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }, { command }) {
-        const { enabled } = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
+    async run({ message, client }: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
+        const isDisabled = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
 
-        if (enabled) {
+        if (!isDisabled) {
             throw new CommandError(`Command '${command.name}' is already enabled.`);
         }
 
         await command.enableCommand();
-        return client.sendEmbedSuccess(message.channel, `Successfully enabled '${command.name}' globally.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully enabled '${command.name}' globally.`);
     }
 }
 
-module.exports = EnableCommandCommand;
+export = EnableCommandCommand;

@@ -15,7 +15,6 @@ class SetRoleGroupCommand extends Command {
             minimumGroup: UserGroups.GuildManagers,
             examples: ['@admins Moderators', 'owners Moderators'],
             guildOnly: true,
-            guarded: true,
 
             args: [
                 {

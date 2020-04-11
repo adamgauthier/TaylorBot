@@ -1,19 +1,19 @@
-'use strict';
-
-const Command = require('../Command.js');
-const UserGroups = require('../../client/UserGroups.js');
+import Command = require('../Command.js');
+import UserGroups = require('../../client/UserGroups.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { CachedCommand } from '../../client/registry/CachedCommand';
+import { TextChannel } from 'discord.js';
 
 class EnableChannelCommandCommand extends Command {
     constructor() {
         super({
             name: 'enablechannelcommand',
             aliases: ['ecc'],
-            group: 'admin',
+            group: 'framework',
             description: 'Enables a disabled command in a channel.',
             minimumGroup: UserGroups.Moderators,
             examples: ['roll general', 'gamble'],
             guildOnly: true,
-            guarded: true,
 
             args: [
                 {
@@ -32,11 +32,11 @@ class EnableChannelCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }, { command, channel }) {
+    async run({ message, client }: CommandMessageContext, { command, channel }: { command: CachedCommand; channel: TextChannel }): Promise<void> {
         await client.master.registry.channelCommands.enableCommandInChannel(channel, command);
 
-        return client.sendEmbedSuccess(message.channel, `Successfully enabled \`${command.name}\` in ${channel}.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${command.name}\` in ${channel}.`);
     }
 }
 
-module.exports = EnableChannelCommandCommand;
+export = EnableChannelCommandCommand;

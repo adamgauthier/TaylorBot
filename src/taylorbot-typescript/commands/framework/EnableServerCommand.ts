@@ -1,20 +1,20 @@
-'use strict';
-
-const UserGroups = require('../../client/UserGroups.js');
-const Command = require('../Command.js');
-const CommandError = require('../CommandError.js');
+import UserGroups = require('../../client/UserGroups.js');
+import Command = require('../Command.js');
+import CommandError = require('../CommandError.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { CachedCommand } from '../../client/registry/CachedCommand';
+import { Guild } from 'discord.js';
 
 class EnableServerCommandCommand extends Command {
     constructor() {
         super({
             name: 'enableservercommand',
             aliases: ['enableguildcommand', 'egc', 'esc'],
-            group: 'admin',
+            group: 'framework',
             description: 'Enables a disabled command in a server.',
             minimumGroup: UserGroups.Moderators,
             examples: ['avatar', 'uinfo'],
             guildOnly: true,
-            guarded: true,
 
             args: [
                 {
@@ -33,7 +33,7 @@ class EnableServerCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }, { command, guild }) {
+    async run({ message, client }: CommandMessageContext, { command, guild }: { command: CachedCommand; guild: Guild }): Promise<void> {
         const isDisabled = await client.master.registry.commands.getIsGuildCommandDisabled(guild, command);
 
         if (!isDisabled) {
@@ -41,8 +41,8 @@ class EnableServerCommandCommand extends Command {
         }
 
         await command.enableIn(guild);
-        return client.sendEmbedSuccess(message.channel, `Successfully enabled \`${command.name}\` in ${guild.name}.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${command.name}\` in ${guild.name}.`);
     }
 }
 
-module.exports = EnableServerCommandCommand;
+export = EnableServerCommandCommand;
