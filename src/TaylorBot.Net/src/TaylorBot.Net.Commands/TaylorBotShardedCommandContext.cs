@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands
     public class TaylorBotShardedCommandContext : ShardedCommandContext
     {
         public string CommandPrefix { get; }
-        public bool WasOnGoingCommandAdded { get; set; }
+        public string OnGoingCommandAddedToPool { get; set; }
 
         public TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : base(client, msg)
         {

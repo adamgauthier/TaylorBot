@@ -19,14 +19,16 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = Connection;
 
             var enabled = await connection.QuerySingleOrDefaultAsync<bool>(
-                @"INSERT INTO commands.commands (name, aliases) VALUES (@CommandName, @Aliases)
+                @"INSERT INTO commands.commands (name, aliases, module_name) VALUES (@CommandName, @Aliases, @ModuleName)
                 ON CONFLICT (name) DO UPDATE SET
-                    aliases = excluded.aliases
+                    aliases = excluded.aliases,
+                    module_name = excluded.module_name
                 RETURNING enabled;",
                 new
                 {
                     CommandName = command.Name,
-                    Aliases = command.Aliases
+                    Aliases = command.Aliases,
+                    ModuleName = command.Module.Name
                 }
             );
 

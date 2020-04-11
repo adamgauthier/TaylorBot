@@ -1,10 +1,8 @@
-'use strict';
-
 import Command = require('../Command.js');
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import ArrayUtil = require('../../modules/ArrayUtil.js');
 import UserGroups = require('../../client/UserGroups.js');
-import { CachedCommand } from '../../client/registry/CachedCommand.js';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class HelpCommand extends Command {
@@ -12,25 +10,31 @@ class HelpCommand extends Command {
         super({
             name: 'help',
             aliases: ['command'],
-            group: 'framework',
+            group: 'Help',
             description: 'Provides help for a command.',
             examples: ['avatar', 'uinfo'],
 
             args: [
                 {
-                    key: 'command',
+                    key: 'commandName',
                     label: 'command',
-                    type: 'command-or-itself',
+                    type: 'existing-command-name-or-itself',
                     prompt: 'What command would you like to get help for?'
                 }
             ]
         });
     }
 
-    async run(commandContext: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
+    async run(commandContext: CommandMessageContext, { commandName }: { commandName: string }): Promise<void> {
         const { message: { channel, author }, client, messageContext } = commandContext;
 
-        if (command.command.name === commandContext.command.command.name) {
+        const command = client.master.registry.commands.resolve(commandName);
+
+        // Command is on another service
+        if (command === undefined)
+            return;
+
+        if (command.name === commandContext.command.command.name) {
             const FEATURED_GROUPS = [
                 { name: 'discord', emoji: '💬' },
                 { name: 'fun', emoji: '🎭' },

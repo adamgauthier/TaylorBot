@@ -2,15 +2,17 @@
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Modules;
 
 namespace TaylorBot.Net.Commands.Preconditions
 {
     public interface IOngoingCommandRepository
     {
-        Task<bool> HasAnyOngoingCommandAsync(IUser user);
-        Task AddOngoingCommandAsync(IUser user);
-        Task RemoveOngoingCommandAsync(IUser user);
+        Task<bool> HasAnyOngoingCommandAsync(IUser user, string pool);
+        Task AddOngoingCommandAsync(IUser user, string pool);
+        Task RemoveOngoingCommandAsync(IUser user, string pool);
     }
 
     public class RequireUserNoOngoingCommandAtttribute : PreconditionAttribute
@@ -19,7 +21,11 @@ namespace TaylorBot.Net.Commands.Preconditions
         {
             var ongoingCommandRepository = services.GetRequiredService<IOngoingCommandRepository>();
 
-            var hasAnyOngoingCommand = await ongoingCommandRepository.HasAnyOngoingCommandAsync(context.User);
+            var pool = command.Module.Name == ModuleNames.Help ?
+                $"help.{Assembly.GetEntryAssembly().GetName().Name.ToLowerInvariant()}" :
+                string.Empty;
+
+            var hasAnyOngoingCommand = await ongoingCommandRepository.HasAnyOngoingCommandAsync(context.User, pool);
 
             if (hasAnyOngoingCommand)
             {
@@ -27,8 +33,8 @@ namespace TaylorBot.Net.Commands.Preconditions
             }
             else
             {
-                await ongoingCommandRepository.AddOngoingCommandAsync(context.User);
-                ((TaylorBotShardedCommandContext)context).WasOnGoingCommandAdded = true;
+                await ongoingCommandRepository.AddOngoingCommandAsync(context.User, pool);
+                ((TaylorBotShardedCommandContext)context).OnGoingCommandAddedToPool = pool;
                 return PreconditionResult.FromSuccess();
             }
         }

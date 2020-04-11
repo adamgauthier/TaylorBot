@@ -27,9 +27,9 @@ class EnableCommandCommand extends Command {
     }
 
     async run({ message, client }, { command }) {
-        const isDisabled = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
+        const { enabled } = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
 
-        if (!isDisabled) {
+        if (enabled) {
             throw new CommandError(`Command '${command.name}' is already enabled.`);
         }
 

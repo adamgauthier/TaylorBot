@@ -15,7 +15,7 @@ import UsernameRepository = require('./repositories/UsernameRepository.js');
 import GuildNameRepository = require('./repositories/GuildNameRepository.js');
 import InstagramCheckerRepository = require('./repositories/InstagramCheckerRepository.js');
 import GuildCommandRepository = require('./repositories/GuildCommandRepository.js');
-import CommandRepository = require('./repositories/CommandRepository.js');
+import { CommandRepository } from './repositories/CommandRepository';
 import UserGroupRepository = require('./repositories/UserGroupRepository.js');
 import RoleGroupRepository = require('./repositories/RoleGroupRepository.js');
 import SpecialRoleRepository = require('./repositories/SpecialRoleRepository.js');
@@ -74,7 +74,7 @@ export class DatabaseDriver {
         this.guildNames = new GuildNameRepository(db);
         this.instagramCheckers = new InstagramCheckerRepository(db);
         this.guildCommands = new GuildCommandRepository(db);
-        this.commands = new CommandRepository(db, helpers);
+        this.commands = new CommandRepository(db);
         this.userGroups = new UserGroupRepository(db, helpers);
         this.roleGroups = new RoleGroupRepository(db);
         this.specialRoles = new SpecialRoleRepository(db);

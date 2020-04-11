@@ -23,9 +23,9 @@ namespace TaylorBot.Net.Commands
         {
             var commandContext = (TaylorBotShardedCommandContext)context;
 
-            if (commandContext.WasOnGoingCommandAdded)
+            if (commandContext.OnGoingCommandAddedToPool != null)
             {
-                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User);
+                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.OnGoingCommandAddedToPool);
             }
 
             if (result.Error == CommandError.UnknownCommand)

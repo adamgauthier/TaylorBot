@@ -8,36 +8,40 @@ namespace TaylorBot.Net.Commands.Infrastructure
 {
     public class OnGoingCommandInMemoryRepository : IOngoingCommandRepository
     {
-        private readonly IDictionary<ulong, long> ongoingCommands = new ConcurrentDictionary<ulong, long>();
+        private readonly IDictionary<string, long> ongoingCommands = new ConcurrentDictionary<string, long>();
 
-        public Task AddOngoingCommandAsync(IUser user)
+        private string GetKey(IUser user, string pool) => $"{user.Id}{pool}";
+
+        public Task AddOngoingCommandAsync(IUser user, string pool)
         {
-            if (ongoingCommands.TryGetValue(user.Id, out var count))
+            var key = GetKey(user, pool);
+            if (ongoingCommands.TryGetValue(key, out var count))
             {
-                ongoingCommands.Remove(user.Id);
-                ongoingCommands.Add(user.Id, count + 1);
+                ongoingCommands.Remove(key);
+                ongoingCommands.Add(key, count + 1);
             }
             else
             {
-                ongoingCommands.Add(user.Id, 1);
+                ongoingCommands.Add(key, 1);
             }
 
             return Task.CompletedTask;
         }
 
-        public Task<bool> HasAnyOngoingCommandAsync(IUser user)
+        public Task<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
         {
             return Task.FromResult(
-                ongoingCommands.TryGetValue(user.Id, out var count) && count > 0
+                ongoingCommands.TryGetValue(GetKey(user, pool), out var count) && count > 0
             );
         }
 
-        public Task RemoveOngoingCommandAsync(IUser user)
+        public Task RemoveOngoingCommandAsync(IUser user, string pool)
         {
-            if (ongoingCommands.TryGetValue(user.Id, out var count))
+            var key = GetKey(user, pool);
+            if (ongoingCommands.TryGetValue(key, out var count))
             {
-                ongoingCommands.Remove(user.Id);
-                ongoingCommands.Add(user.Id, count - 1);
+                ongoingCommands.Remove(key);
+                ongoingCommands.Add(key, count - 1);
             }
 
             return Task.CompletedTask;

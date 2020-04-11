@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Modules;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program;
 
@@ -33,6 +34,7 @@ namespace TaylorBot.Net.Commands
 
             commandService.AddTypeReader<IUser>(new CustomUserTypeReader<IUser>(), replaceDefault: true);
 
+            await commandService.AddModuleAsync<HelpModule>(_serviceProvider);
             await commandService.AddModulesAsync(
                 assembly: Assembly.GetEntryAssembly(),
                 services: _serviceProvider

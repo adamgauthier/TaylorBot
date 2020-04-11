@@ -27,3 +27,9 @@ UPDATE commands.commands SET aliases = '{}';
 
 ALTER TABLE commands.commands
     ALTER COLUMN aliases SET NOT NULL;
+
+ALTER TABLE commands.commands
+    ADD COLUMN module_name text NOT NULL DEFAULT '';
+
+ALTER TABLE commands.commands    
+    ALTER COLUMN module_name DROP DEFAULT;

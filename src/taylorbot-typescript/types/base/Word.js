@@ -7,7 +7,7 @@ class WordArgumentType extends ArgumentType {
         return 'word';
     }
 
-    parse(val) {
+    parse(val, commandContext, arg) {
         return val;
     }
 }
