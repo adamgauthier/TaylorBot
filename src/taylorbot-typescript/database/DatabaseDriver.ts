@@ -29,7 +29,7 @@ import RollStatsRepository = require('./repositories/RollStatsRepository.js');
 import RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
 import GambleStatsRepository = require('./repositories/GambleStatsRepository.js');
 import DailyPayoutRepository = require('./repositories/DailyPayoutRepository.js');
-import ChannelCommandRepository = require('./repositories/ChannelCommandRepository.js');
+import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
 import HeistStatsRepository = require('./repositories/HeistStatsRepository.js');
 import BirthdayAttributeRepository = require('./repositories/BirthdayAttributeRepository.js');
 import ProRepository = require('./repositories/ProRepository.js');

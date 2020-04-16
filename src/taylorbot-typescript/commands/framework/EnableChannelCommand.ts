@@ -1,8 +1,8 @@
 import Command = require('../Command.js');
 import UserGroups = require('../../client/UserGroups.js');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { CachedCommand } from '../../client/registry/CachedCommand';
 import { TextChannel } from 'discord.js';
+import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class EnableChannelCommandCommand extends Command {
     constructor() {
@@ -17,9 +17,9 @@ class EnableChannelCommandCommand extends Command {
 
             args: [
                 {
-                    key: 'command',
+                    key: 'databaseCommand',
                     label: 'command',
-                    type: 'command',
+                    type: 'database-command',
                     prompt: 'What command would you like to enable?'
                 },
                 {
@@ -32,10 +32,10 @@ class EnableChannelCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { command, channel }: { command: CachedCommand; channel: TextChannel }): Promise<void> {
-        await client.master.registry.channelCommands.enableCommandInChannel(channel, command);
+    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: TextChannel }): Promise<void> {
+        await client.master.registry.channelCommands.enableCommandInChannel(channel, databaseCommand);
 
-        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${command.name}\` in ${channel}.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${databaseCommand.name}\` in ${channel}.`);
     }
 }
 

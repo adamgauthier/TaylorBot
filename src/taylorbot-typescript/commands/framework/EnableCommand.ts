@@ -1,8 +1,8 @@
 import UserGroups = require('../../client/UserGroups.js');
 import Command = require('../Command.js');
-import CommandError = require('../CommandError.js');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { CachedCommand } from '../../client/registry/CachedCommand';
+import { DatabaseCommand } from '../../database/repositories/CommandRepository';
+import CommandError = require('../CommandError.js');
 
 class EnableCommandCommand extends Command {
     constructor() {
@@ -16,24 +16,22 @@ class EnableCommandCommand extends Command {
 
             args: [
                 {
-                    key: 'command',
+                    key: 'databaseCommand',
                     label: 'command',
-                    type: 'command',
+                    type: 'database-command',
                     prompt: 'What command would you like to enable?'
                 }
             ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { command }: { command: CachedCommand }): Promise<void> {
-        const isDisabled = await client.master.registry.commands.insertOrGetIsCommandDisabled(command);
-
-        if (!isDisabled) {
-            throw new CommandError(`Command '${command.name}' is already enabled.`);
+    async run({ message, client }: CommandMessageContext, { databaseCommand }: { databaseCommand: DatabaseCommand }): Promise<void> {
+        if (databaseCommand.enabled) {
+            throw new CommandError(`Command \`${databaseCommand.name}\` is already enabled.`);
         }
 
-        await command.enableCommand();
-        await client.sendEmbedSuccess(message.channel, `Successfully enabled '${command.name}' globally.`);
+        await client.master.registry.commands.setGlobalEnabled(databaseCommand.name, true);
+        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${databaseCommand.name}\` globally.`);
     }
 }
 

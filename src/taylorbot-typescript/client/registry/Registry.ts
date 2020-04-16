@@ -8,7 +8,7 @@ import { CommandRegistry } from './CommandRegistry';
 import UserRegistry = require('./UserRegistry.js');
 import { InhibitorRegistry } from './InhibitorRegistry';
 import { AttributeRegistry } from './AttributeRegistry.js';
-import ChannelCommandRegistry = require('./ChannelCommandRegistry.js');
+import { ChannelCommandRegistry } from './ChannelCommandRegistry';
 import CooldownRegistry = require('./CooldownRegistry.js');
 import OnGoingCommandRegistry = require('./OnGoingCommandRegistry.js');
 import HeistRegistry = require('./HeistRegistry.js');

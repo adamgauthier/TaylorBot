@@ -2,8 +2,8 @@ import UserGroups = require('../../client/UserGroups.js');
 import Command = require('../Command.js');
 import CommandError = require('../CommandError.js');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { CachedCommand } from '../../client/registry/CachedCommand';
 import { Guild } from 'discord.js';
+import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class DisableServerCommandCommand extends Command {
     constructor() {
@@ -18,9 +18,9 @@ class DisableServerCommandCommand extends Command {
 
             args: [
                 {
-                    key: 'command',
+                    key: 'databaseCommand',
                     label: 'command',
-                    type: 'command',
+                    type: 'database-command',
                     prompt: 'What command would you like to disable?'
                 },
                 {
@@ -33,23 +33,13 @@ class DisableServerCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { command, guild }: { command: CachedCommand; guild: Guild }): Promise<void> {
-        const isDisabled = await client.master.registry.commands.getIsGuildCommandDisabled(guild, command);
-
-        if (isDisabled) {
-            throw new CommandError(`Command \`${command.name}\` is already disabled in ${guild.name}.`);
+    async run({ message, client }: CommandMessageContext, { databaseCommand, guild }: { databaseCommand: DatabaseCommand; guild: Guild }): Promise<void> {
+        if (databaseCommand.module_name.toLowerCase() === 'framework') {
+            throw new CommandError(`Can't disable \`${databaseCommand.name}\` because it's a framework command.`);
         }
 
-        if (command.command.minimumGroup === UserGroups.Master) {
-            throw new CommandError(`Can't disable \`${command.name}\` because it's a Master command.`);
-        }
-
-        if (command.command.group === 'framework') {
-            throw new CommandError(`Can't disable \`${command.name}\` because it's a framework command.`);
-        }
-
-        await command.disableIn(guild);
-        await client.sendEmbedSuccess(message.channel, `Successfully disabled \`${command.name}\` in ${guild.name}.`);
+        await client.master.registry.commands.setGuildEnabled(guild, databaseCommand.name, false);
+        await client.sendEmbedSuccess(message.channel, `Successfully disabled \`${databaseCommand.name}\` in ${guild.name}.`);
     }
 }
 

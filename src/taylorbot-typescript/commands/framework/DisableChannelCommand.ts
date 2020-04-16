@@ -2,8 +2,8 @@ import Command = require('../Command.js');
 import CommandError = require('../CommandError.js');
 import UserGroups = require('../../client/UserGroups.js');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { CachedCommand } from '../../client/registry/CachedCommand';
 import { TextChannel } from 'discord.js';
+import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class DisableChannelCommandCommand extends Command {
     constructor() {
@@ -18,9 +18,9 @@ class DisableChannelCommandCommand extends Command {
 
             args: [
                 {
-                    key: 'command',
+                    key: 'databaseCommand',
                     label: 'command',
-                    type: 'command',
+                    type: 'database-command',
                     prompt: 'What command would you like to enable?'
                 },
                 {
@@ -33,18 +33,14 @@ class DisableChannelCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { command, channel }: { command: CachedCommand; channel: TextChannel }): Promise<void> {
-        if (command.command.minimumGroup === UserGroups.Master) {
-            throw new CommandError(`Can't disable \`${command.name}\` because it's a Master command.`);
+    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: TextChannel }): Promise<void> {
+        if (databaseCommand.module_name.toLowerCase() === 'framework') {
+            throw new CommandError(`Can't disable \`${databaseCommand.name}\` because it's a framework command.`);
         }
 
-        if (command.command.group === 'framework') {
-            throw new CommandError(`Can't disable \`${command.name}\` because it's a framework command.`);
-        }
+        await client.master.registry.channelCommands.disableCommandInChannel(channel, databaseCommand);
 
-        await client.master.registry.channelCommands.disableCommandInChannel(channel, command);
-
-        await client.sendEmbedSuccess(message.channel, `Successfully disabled \`${command.name}\` in ${channel}.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully disabled \`${databaseCommand.name}\` in ${channel}.`);
     }
 }
 

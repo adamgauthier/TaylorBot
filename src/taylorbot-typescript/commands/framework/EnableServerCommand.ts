@@ -1,9 +1,8 @@
 import UserGroups = require('../../client/UserGroups.js');
 import Command = require('../Command.js');
-import CommandError = require('../CommandError.js');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { CachedCommand } from '../../client/registry/CachedCommand';
 import { Guild } from 'discord.js';
+import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class EnableServerCommandCommand extends Command {
     constructor() {
@@ -18,9 +17,9 @@ class EnableServerCommandCommand extends Command {
 
             args: [
                 {
-                    key: 'command',
+                    key: 'databaseCommand',
                     label: 'command',
-                    type: 'command',
+                    type: 'database-command',
                     prompt: 'What command would you like to enable?'
                 },
                 {
@@ -33,15 +32,9 @@ class EnableServerCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { command, guild }: { command: CachedCommand; guild: Guild }): Promise<void> {
-        const isDisabled = await client.master.registry.commands.getIsGuildCommandDisabled(guild, command);
-
-        if (!isDisabled) {
-            throw new CommandError(`Command \`${command.name}\` is already enabled in ${guild.name}.`);
-        }
-
-        await command.enableIn(guild);
-        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${command.name}\` in ${guild.name}.`);
+    async run({ message, client }: CommandMessageContext, { databaseCommand, guild }: { databaseCommand: DatabaseCommand; guild: Guild }): Promise<void> {
+        await client.master.registry.commands.setGuildEnabled(guild, databaseCommand.name, true);
+        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${databaseCommand.name}\` in ${guild.name}.`);
     }
 }
 

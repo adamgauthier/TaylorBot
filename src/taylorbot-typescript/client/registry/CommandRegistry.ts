@@ -35,8 +35,7 @@ export class CommandRegistry {
 
         const cached = new CachedCommand(
             command.name,
-            command,
-            this
+            command
         );
 
         this.#commandsCache.set(key, cached);
@@ -117,7 +116,7 @@ export class CommandRegistry {
 
     async setGlobalEnabled(commandName: string, setEnabled: boolean): Promise<boolean> {
         const { enabled } = await this.database.commands.setEnabled(commandName, setEnabled);
-        await this.redis.hashSet(this.enabledRedisKey, commandName, enabled);
+        await this.redis.hashSet(this.enabledRedisKey, commandName, enabled ? 1 : 0);
         return enabled;
     }
 

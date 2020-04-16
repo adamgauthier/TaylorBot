@@ -2,6 +2,8 @@ import Log = require('../../tools/Logger.js');
 import * as pgPromise from 'pg-promise';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 
+export type DatabaseCommand = { name: string; module_name: string; enabled: boolean };
+
 export class CommandRepository {
     #db: pgPromise.IDatabase<unknown>;
     constructor(db: pgPromise.IDatabase<unknown>) {
@@ -65,10 +67,10 @@ export class CommandRepository {
         }
     }
 
-    async getCommandName(nameOrAlias: string): Promise<{ name: string } | null> {
+    async getCommand(nameOrAlias: string): Promise<DatabaseCommand | null> {
         try {
             return await this.#db.oneOrNone(
-                `SELECT name FROM commands.commands WHERE name = $[name_or_alias] OR $[name_or_alias] = ANY(aliases);`,
+                `SELECT name, enabled, module_name FROM commands.commands WHERE name = $[name_or_alias] OR $[name_or_alias] = ANY(aliases);`,
                 {
                     name_or_alias: nameOrAlias
                 }
@@ -80,10 +82,10 @@ export class CommandRepository {
         }
     }
 
-    async getCommandNamesFromModuleName(moduleName: string): Promise<{ name: string }[]> {
+    async getCommandsFromModuleName(moduleName: string): Promise<DatabaseCommand[]> {
         try {
             return await this.#db.manyOrNone(
-                `SELECT name FROM commands.commands WHERE LOWER(module_name) = $[module_name];`,
+                `SELECT name, enabled, module_name FROM commands.commands WHERE LOWER(module_name) = $[module_name];`,
                 {
                     module_name: moduleName
                 }

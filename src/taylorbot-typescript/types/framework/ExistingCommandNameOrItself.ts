@@ -18,12 +18,12 @@ class ExistingCommandNameOrItself extends WordArgumentType {
     async parse(val: string, { client }: CommandMessageContext): Promise<string> {
         const sanitizedInput = val.trim().toLowerCase();
 
-        const result = await client.master.database.commands.getCommandName(sanitizedInput);
+        const result = await client.master.database.commands.getCommand(sanitizedInput);
 
         if (result != null)
             return result.name;
 
-        const results = await client.master.database.commands.getCommandNamesFromModuleName(sanitizedInput);
+        const results = await client.master.database.commands.getCommandsFromModuleName(sanitizedInput);
         const notInService = results.find(({ name }) => client.master.registry.commands.resolve(name) === undefined);
 
         if (results.length === 0 || notInService === undefined)
