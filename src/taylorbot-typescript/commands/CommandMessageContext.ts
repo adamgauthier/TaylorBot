@@ -85,6 +85,6 @@ export class CommandMessageContext {
     }
 
     example(): string {
-        return `${this.messageContext.prefix}${this.command.command.name} ${UnsafeRandomModule.randomInArray(this.command.command.examples)}`;
+        return `${this.messageContext.prefix}${this.command.command.name} ${UnsafeRandomModule.randomInArray(this.command.command.examples)}`.trimEnd();
     }
 }
