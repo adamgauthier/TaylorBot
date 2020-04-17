@@ -1,9 +1,9 @@
-'use strict';
-
-const UserGroups = require('../../client/UserGroups.js');
-const Format = require('../../modules/DiscordFormatter.js');
-const Command = require('../Command.js');
-const CommandError = require('../../commands/CommandError.js');
+import UserGroups = require('../../client/UserGroups.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import Command = require('../Command.js');
+import CommandError = require('../../commands/CommandError.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { TextChannel } from 'discord.js';
 
 class AddLogChannelCommand extends Command {
     constructor() {
@@ -33,7 +33,7 @@ class AddLogChannelCommand extends Command {
         });
     }
 
-    async run({ message, client }, { type, channel }) {
+    async run({ message, client }: CommandMessageContext, { type, channel }: { type: 'message' | 'member'; channel: TextChannel }): Promise<void> {
         const { database } = client.master;
 
         const { guild_exists } = await database.pros.proGuildExists(channel.guild);
@@ -41,7 +41,7 @@ class AddLogChannelCommand extends Command {
             throw new CommandError(`Log channels are restricted to supporter servers, use \`support\` for more info.`);
         }
 
-        const logChannels = await database.textChannels.getAllLogChannelsInGuild(message.guild, type);
+        const logChannels: { channel_id: string }[] = await database.textChannels.getAllLogChannelsInGuild(message.guild, type);
 
         if (logChannels.some(c => c.channel_id === channel.id)) {
             throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is already a ${type} log channel.`);
@@ -53,8 +53,8 @@ class AddLogChannelCommand extends Command {
 
         await database.textChannels.upsertLogChannel(channel, type);
 
-        return client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a ${type} log channel.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a ${type} log channel.`);
     }
 }
 
-module.exports = AddLogChannelCommand;
+export = AddLogChannelCommand;

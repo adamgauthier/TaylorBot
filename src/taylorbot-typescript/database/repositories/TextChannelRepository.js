@@ -73,6 +73,23 @@ class TextChannelRepository {
         }
     }
 
+    async removeAllLogsInGuild(guild) {
+        try {
+            return await this._db.manyOrNone(
+                `UPDATE guilds.text_channels SET is_message_log = FALSE, is_member_log = FALSE
+                WHERE guild_id = $[guild_id] AND (is_message_log = TRUE OR is_member_log = TRUE)
+                RETURNING channel_id;`,
+                {
+                    guild_id: guild.id
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Removing all ${type} log channels from ${Format.guild(guild)}: ${e}`);
+            throw e;
+        }
+    }
+
     async _setSpam(guildChannel, isSpam) {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {

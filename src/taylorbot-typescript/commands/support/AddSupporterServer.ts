@@ -1,7 +1,6 @@
-'use strict';
-
-const Command = require('../Command.js');
-const CommandError = require('../CommandError.js');
+import Command = require('../Command.js');
+import CommandError = require('../CommandError.js');
+import { CommandMessageContext } from '../CommandMessageContext';
 
 class AddSupporterServerCommand extends Command {
     constructor() {
@@ -17,8 +16,10 @@ class AddSupporterServerCommand extends Command {
         });
     }
 
-    async run({ message, client }) {
+    async run({ message, client }: CommandMessageContext): Promise<void> {
         const { author, guild } = message;
+        if (author == null || guild == null)
+            throw new Error('This command must be ran with an author and a guild.');
         const { database } = client.master;
 
         const proUser = await database.pros.getUser(author);
@@ -35,8 +36,8 @@ class AddSupporterServerCommand extends Command {
 
         await database.pros.addUserProGuild(author, guild);
 
-        return client.sendEmbedSuccess(message.channel, `Successfully added '${guild.name}' to your supporter servers.`);
+        await client.sendEmbedSuccess(message.channel, `Successfully added '${guild.name}' to your supporter servers.`);
     }
 }
 
-module.exports = AddSupporterServerCommand;
+export = AddSupporterServerCommand;

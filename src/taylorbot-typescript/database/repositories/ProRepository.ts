@@ -1,16 +1,17 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import * as pgPromise from 'pg-promise';
+import Format = require('../../modules/DiscordFormatter.js');
+import { User, Guild } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
-
-class ProRepository {
-    constructor(db) {
-        this._db = db;
+export class ProRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async proGuildExists(guild) {
+    async proGuildExists(guild: Guild): Promise<{ guild_exists: boolean }> {
         try {
-            return await this._db.one(
+            return await this.#db.one(
                 'SELECT (COUNT(*) > 0) AS guild_exists FROM guilds.pro_guilds WHERE guild_id = $[guild_id];',
                 {
                     guild_id: guild.id
@@ -23,9 +24,9 @@ class ProRepository {
         }
     }
 
-    async getUser(user) {
+    async getUser(user: User): Promise<{ expires_at: Date | null; subscription_count: number } | null> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 'SELECT * FROM users.pro_users WHERE user_id = $[user_id];',
                 {
                     user_id: user.id
@@ -38,9 +39,9 @@ class ProRepository {
         }
     }
 
-    async countUserProGuilds(user) {
+    async countUserProGuilds(user: User): Promise<{ count: string }> {
         try {
-            return await this._db.one(
+            return await this.#db.one(
                 'SELECT COUNT(*) FROM guilds.pro_guilds WHERE pro_user_id = $[user_id];',
                 {
                     user_id: user.id
@@ -53,9 +54,9 @@ class ProRepository {
         }
     }
 
-    async addUserProGuild(user, guild) {
+    async addUserProGuild(user: User, guild: Guild): Promise<void> {
         try {
-            return await this._db.none(
+            await this.#db.none(
                 'INSERT INTO guilds.pro_guilds (guild_id, pro_user_id) VALUES ($[guild_id], $[user_id]);',
                 {
                     user_id: user.id,
@@ -69,9 +70,9 @@ class ProRepository {
         }
     }
 
-    async removeUserProGuild(user, guild) {
+    async removeUserProGuild(user: User, guild: Guild): Promise<void> {
         try {
-            return await this._db.none(
+            await this.#db.none(
                 'DELETE FROM guilds.pro_guilds WHERE guild_id = $[guild_id] AND pro_user_id = $[user_id];',
                 {
                     user_id: user.id,
@@ -85,5 +86,3 @@ class ProRepository {
         }
     }
 }
-
-module.exports = ProRepository;

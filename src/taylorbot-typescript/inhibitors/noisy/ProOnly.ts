@@ -6,9 +6,11 @@ class ProOnlyInhibitor extends NoisyInhibitor {
     async getBlockedMessage({ message, client }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         if (command.command.proOnly) {
             const { database } = client.master;
-            const { author, channel, guild } = message;
+            const { author, guild } = message;
+            if (author == null)
+                throw new Error(`Can't check pro only without an author.`);
 
-            if (channel.type === 'text') {
+            if (guild !== null) {
                 const { guild_exists } = await database.pros.proGuildExists(guild);
                 if (guild_exists === false) {
                     const proUser = await database.pros.getUser(author);
