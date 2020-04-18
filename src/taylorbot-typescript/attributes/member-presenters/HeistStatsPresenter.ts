@@ -1,9 +1,9 @@
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import StringUtil = require('../../modules/StringUtil.js');
-import MathUtil = require('../../modules/MathUtil.js');
-import { SimpleStatPresenter } from './SimpleStatPresenter.js';
+import { SimpleStatPresenter } from './SimpleStatPresenter';
 import { GuildMember, MessageEmbed } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
+import { MathUtil } from '../../modules/util/MathUtil';
 
 export class HeistStatsPresenter extends SimpleStatPresenter {
     present(commandContext: CommandMessageContext, member: GuildMember, { heist_win_count, rank, heist_lose_count, heist_win_amount, heist_lose_amount }: Record<string, any> & { rank: string }): MessageEmbed {
@@ -23,7 +23,7 @@ export class HeistStatsPresenter extends SimpleStatPresenter {
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([
-                `${member.displayName} has won a total of ${StringUtil.plural(winCount, 'heist', '**')} (**${MathUtil.formatNumberSuffix(rank)}** in the server).`,
+                `${member.displayName} has won a total of ${StringUtil.plural(winCount, 'heist', '**')} (**${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in the server).`,
                 `They have also failed ${StringUtil.plural(loseCount, 'heist', '**')}, meaning they have a success rate of **${successRate()}%**.`,
                 `Overall, they won ${StringUtil.plural(winAmount, 'taypoint', '**')} and lost ${StringUtil.plural(loseAmount, 'taypoint', '**')} through heists.`
             ].join('\n'));

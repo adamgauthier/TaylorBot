@@ -1,11 +1,11 @@
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import MathUtil = require('../../modules/MathUtil.js');
 import StringUtil = require('../../modules/StringUtil.js');
 import DiscordFormatter = require('../../modules/DiscordFormatter.js');
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
 import { MemberAttribute } from '../MemberAttribute';
+import { MathUtil } from '../../modules/util/MathUtil';
 
 export class DailyStreakPresenter implements MemberAttributePresenter {
     readonly #attribute: MemberAttribute;
@@ -21,7 +21,7 @@ export class DailyStreakPresenter implements MemberAttributePresenter {
             .baseUserEmbed(member.user)
             .setDescription([
                 `${member.displayName} is currently on a **${StringUtil.formatNumberString(streak)}** day payout streak.`,
-                `They are the **${MathUtil.formatNumberSuffix(rank)}** user of the server (excluding users who left).`
+                `They are the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user of the server (excluding users who left).`
             ].join('\n'));
     }
 

@@ -1,10 +1,9 @@
 import { SimpleStatPresenter } from './SimpleStatPresenter';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
-
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import StringUtil = require('../../modules/StringUtil.js');
-import MathUtil = require('../../modules/MathUtil.js');
+import { MathUtil } from '../../modules/util/MathUtil';
 
 export class GambleStatsPresenter extends SimpleStatPresenter {
     present(commandContext: CommandMessageContext, member: GuildMember, { gamble_win_count, rank, gamble_lose_count, gamble_win_amount, gamble_lose_amount }: Record<string, any> & { rank: string }): MessageEmbed {
@@ -24,7 +23,7 @@ export class GambleStatsPresenter extends SimpleStatPresenter {
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([
-                `${member.displayName} has won a total of ${StringUtil.plural(winCount, 'gamble', '**')} (**${MathUtil.formatNumberSuffix(rank)}** in the server).`,
+                `${member.displayName} has won a total of ${StringUtil.plural(winCount, 'gamble', '**')} (**${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in the server).`,
                 `They have also lost ${StringUtil.plural(loseCount, 'gamble', '**')}, meaning they have a win rate of **${winRate()}%**.`,
                 `Overall, they won ${StringUtil.plural(winAmount, 'taypoint', '**')} and lost ${StringUtil.plural(loseAmount, 'taypoint', '**')} through gambling.`
             ].join('\n'));

@@ -1,12 +1,12 @@
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import StringUtil = require('../../modules/StringUtil.js');
-import MathUtil = require('../../modules/MathUtil.js');
 import DiscordFormatter = require('../../modules/DiscordFormatter.js');
-import { MemberAttributePresenter } from '../MemberAttributePresenter.js';
+import { MemberAttributePresenter } from '../MemberAttributePresenter';
 import { GuildMember, MessageEmbed } from 'discord.js';
-import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute.js';
-import { MemberAttribute } from '../MemberAttribute.js';
+import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute';
+import { MemberAttribute } from '../MemberAttribute';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
+import { MathUtil } from '../../modules/util/MathUtil';
 
 export class SimpleStatPresenter implements MemberAttributePresenter {
     protected attribute: SimpleStatMemberAttribute;
@@ -22,7 +22,7 @@ export class SimpleStatPresenter implements MemberAttributePresenter {
             .baseUserEmbed(member.user)
             .setDescription([
                 `${member.displayName} has ${StringUtil.plural(stat, this.attribute.singularName, '**')}.`,
-                `They are the **${MathUtil.formatNumberSuffix(rank)}** user of the server (excluding users who left).`
+                `They are the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user of the server (excluding users who left).`
             ].join('\n'));
     }
 

@@ -1,7 +1,5 @@
-'use strict';
-
-class MathUtil {
-    static formatNumberSuffix(number) {
+export class MathUtil {
+    static formatNumberSuffix(number: number): string {
         const j = number % 10;
         const k = number % 100;
 
@@ -15,5 +13,3 @@ class MathUtil {
         return `${number}th`;
     }
 }
-
-module.exports = MathUtil;

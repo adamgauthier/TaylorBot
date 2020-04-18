@@ -1,9 +1,9 @@
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import StringUtil = require('../../modules/StringUtil.js');
-import MathUtil = require('../../modules/MathUtil.js');
 import { SimpleStatPresenter } from './SimpleStatPresenter.js';
 import { MessageEmbed, GuildMember } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
+import { MathUtil } from '../../modules/util/MathUtil';
 
 export class RollStatsPresenter extends SimpleStatPresenter {
     present(commandContext: CommandMessageContext, member: GuildMember, { roll_count, rank, perfect_roll_count }: Record<string, any> & { rank: string }): MessageEmbed {
@@ -26,7 +26,7 @@ export class RollStatsPresenter extends SimpleStatPresenter {
         return DiscordEmbedFormatter
             .baseUserEmbed(member.user)
             .setDescription([
-                `${member.displayName} has rolled a total of ${StringUtil.plural(rollCount, 'time', '**')} (**${MathUtil.formatNumberSuffix(rank)}** in the server).`,
+                `${member.displayName} has rolled a total of ${StringUtil.plural(rollCount, 'time', '**')} (**${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in the server).`,
                 `They have ${StringUtil.plural(perfect_roll_count, 'perfect roll', '**')} of 1989.`,
                 perfectRollCount > 0 ?
                     `This means they roughly get a perfect roll every **${rateDecimal()}** rolls.` :
