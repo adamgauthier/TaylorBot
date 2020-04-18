@@ -2,7 +2,7 @@ import DiscordFormatter = require('../modules/DiscordFormatter.js');
 import DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
 import PageMessage = require('../modules/paging/PageMessage.js');
 import MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
-import ArrayUtil = require('../modules/ArrayUtil.js');
+import { ArrayUtil } from '../modules/util/ArrayUtil';
 import { UserAttribute, UserAttributeParameters } from './UserAttribute.js';
 import { Guild, GuildMember, User, MessageEmbed } from 'discord.js';
 import { DatabaseDriver } from '../database/DatabaseDriver.js';

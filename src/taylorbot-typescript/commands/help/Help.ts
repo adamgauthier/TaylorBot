@@ -1,8 +1,7 @@
 import Command = require('../Command.js');
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import ArrayUtil = require('../../modules/ArrayUtil.js');
+import { ArrayUtil } from '../../modules/util/ArrayUtil';
 import UserGroups = require('../../client/UserGroups.js');
-import { CachedCommand } from '../../client/registry/CachedCommand';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class HelpCommand extends Command {
@@ -52,7 +51,7 @@ class HelpCommand extends Command {
                     FEATURED_GROUPS.map(group => group.name).includes(c.command.group) &&
                     c.command.minimumGroup !== UserGroups.Master
                 ),
-                (c: CachedCommand) => `${c.command.group} ${FEATURED_GROUPS.find(group => group.name === c.command.group)?.emoji}`
+                c => `${c.command.group} ${FEATURED_GROUPS.find(group => group.name === c.command.group)?.emoji}`
             );
 
             const embed = DiscordEmbedFormatter.baseUserEmbed(author)
@@ -60,7 +59,7 @@ class HelpCommand extends Command {
 
             for (const [group, groupCommands] of groupedCommands.entries()) {
                 embed.addField(group, groupCommands.map(
-                    (c: CachedCommand) => c.command.name
+                    c => c.command.name
                 ).join(', '), true);
             }
 

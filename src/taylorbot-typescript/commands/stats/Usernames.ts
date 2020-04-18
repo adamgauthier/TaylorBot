@@ -1,11 +1,11 @@
-'use strict';
-
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const Command = require('../Command.js');
-const TimeUtil = require('../../modules/TimeUtil.js');
-const ArrayUtil = require('../../modules/ArrayUtil.js');
-const PageMessage = require('../../modules/paging/PageMessage.js');
-const EmbedDescriptionPageEditor = require('../../modules/paging/editors/EmbedDescriptionPageEditor.js');
+import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import Command = require('../Command.js');
+import TimeUtil = require('../../modules/TimeUtil.js');
+import { ArrayUtil } from '../../modules/util/ArrayUtil';
+import PageMessage = require('../../modules/paging/PageMessage.js');
+import EmbedDescriptionPageEditor = require('../../modules/paging/editors/EmbedDescriptionPageEditor.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { User } from 'discord.js';
 
 class UsernamesCommand extends Command {
     constructor() {
@@ -27,7 +27,7 @@ class UsernamesCommand extends Command {
         });
     }
 
-    async run({ message, client }, { user }) {
+    async run({ message, client }: CommandMessageContext, { user }: { user: User }): Promise<void> {
         const { channel, author } = message;
         const usernames = await client.master.database.usernames.getHistory(user, 75);
         const embed = DiscordEmbedFormatter.baseUserEmbed(user);
@@ -44,4 +44,4 @@ class UsernamesCommand extends Command {
     }
 }
 
-module.exports = UsernamesCommand;
+export = UsernamesCommand;

@@ -1,31 +1,25 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { User } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
-
-class UsernameRepository {
-    constructor(db) {
-        this._db = db;
+export class UsernameRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    mapUserToUsernameDatabase(user) {
-        return {
-            user_id: user.id,
-            username: user.username
-        };
-    }
-
-    async getHistory(user, limit) {
+    async getHistory(user: User, limit: number): Promise<{ username: string; changed_at: Date }[]> {
         try {
-            return await this._db.any(
+            return await this.#db.any(
                 `SELECT username, changed_at
                 FROM users.usernames
                 WHERE user_id = $[user_id]
                 ORDER BY changed_at DESC
                 LIMIT $[max_rows];`,
                 {
-                    'user_id': user.id,
-                    'max_rows': limit
+                    user_id: user.id,
+                    max_rows: limit
                 }
             );
         }
@@ -35,9 +29,9 @@ class UsernameRepository {
         }
     }
 
-    async addNewUsernameAsync(user) {
+    async addNewUsernameAsync(user: User): Promise<void> {
         try {
-            return await this._db.none(
+            await this.#db.none(
                 `INSERT INTO users.usernames (user_id, username) VALUES ($[user_id], $[username]);`,
                 {
                     user_id: user.id,
@@ -51,5 +45,3 @@ class UsernameRepository {
         }
     }
 }
-
-module.exports = UsernameRepository;

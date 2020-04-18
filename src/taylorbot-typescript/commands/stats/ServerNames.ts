@@ -1,12 +1,11 @@
-'use strict';
-
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const Command = require('../Command.js');
-const TimeUtil = require('../../modules/TimeUtil.js');
-
-const ArrayUtil = require('../../modules/ArrayUtil.js');
-const PageMessage = require('../../modules/paging/PageMessage.js');
-const EmbedDescriptionPageEditor = require('../../modules/paging/editors/EmbedDescriptionPageEditor.js');
+import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import Command = require('../Command.js');
+import TimeUtil = require('../../modules/TimeUtil.js');
+import { ArrayUtil } from '../../modules/util/ArrayUtil';
+import PageMessage = require('../../modules/paging/PageMessage.js');
+import EmbedDescriptionPageEditor = require('../../modules/paging/editors/EmbedDescriptionPageEditor.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { Guild } from 'discord.js';
 
 class ServerNamesCommand extends Command {
     constructor() {
@@ -28,7 +27,7 @@ class ServerNamesCommand extends Command {
         });
     }
 
-    async run({ message, client }, { guild }) {
+    async run({ message, client }: CommandMessageContext, { guild }: { guild: Guild }): Promise<void> {
         const { channel, author } = message;
         const guildNames = await client.master.database.guildNames.getHistory(guild, 75);
         const embed = DiscordEmbedFormatter.baseGuildHeader(guild);
@@ -45,4 +44,4 @@ class ServerNamesCommand extends Command {
     }
 }
 
-module.exports = ServerNamesCommand;
+export = ServerNamesCommand;
