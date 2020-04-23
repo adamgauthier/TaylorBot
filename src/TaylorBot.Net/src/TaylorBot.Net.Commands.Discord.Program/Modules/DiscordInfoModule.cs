@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         [Command("avatar")]
         [Alias("av", "avi")]
         [Summary("Displays the avatar of a user.")]
-        public Task AvatarAsync(
+        public Task<RuntimeResult> AvatarAsync(
             [Summary("What user would you like to see the avatar of?")]
             IUser user = null
         )
@@ -20,10 +20,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             if (user == null)
                 user = Context.User;
 
-            return ReplyAsync(embed: new EmbedBuilder()
+            var embed = new EmbedBuilder()
                 .WithUserAsAuthorAndColor(user)
                 .WithImageUrl(user.GetAvatarUrlOrDefault(size: 2048))
-            .Build());
+            .Build();
+
+            return Task.FromResult<RuntimeResult>(new TaylorBotEmbedResult(embed));
         }
     }
 }

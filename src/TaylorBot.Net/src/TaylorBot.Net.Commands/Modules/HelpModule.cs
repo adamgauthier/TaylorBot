@@ -28,7 +28,7 @@ namespace TaylorBot.Net.Commands.Modules
         [Command("help")]
         [Alias("command")]
         [Summary("Lists help and information for a module's commands.")]
-        public async Task HelpAsync(string moduleOrCommand = null)
+        public async Task<RuntimeResult> HelpAsync(string moduleOrCommand = null)
         {
             if (moduleOrCommand != null)
             {
@@ -73,9 +73,11 @@ namespace TaylorBot.Net.Commands.Modules
                         );
                     }
 
-                    await ReplyAsync(embed: builder.Build());
+                    return new TaylorBotEmbedResult(builder.Build());
                 }
             }
+
+            return new TaylorBotEmptyResult();
         }
     }
 }

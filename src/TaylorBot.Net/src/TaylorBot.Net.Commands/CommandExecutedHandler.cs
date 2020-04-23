@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
@@ -39,7 +40,18 @@ namespace TaylorBot.Net.Commands
 
             if (result.IsSuccess)
             {
-                return;
+                switch (result)
+                {
+                    case TaylorBotEmbedResult embedResult:
+                        await context.Channel.SendMessageAsync(embed: embedResult.Embed);
+                        return;
+
+                    case TaylorBotEmptyResult emptyResult:
+                        return;
+
+                    default:
+                        throw new InvalidOperationException($"Unexpected command success result: {result.GetType()}");
+                }
             }
 
             switch (result)

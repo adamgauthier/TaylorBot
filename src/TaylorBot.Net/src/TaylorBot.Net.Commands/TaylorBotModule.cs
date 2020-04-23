@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands
     [RequireUserNotIgnored]
     [RequireMemberTracked]
     [RequireUserNoOngoingCommandAtttribute]
-    public abstract class TaylorBotModule : ModuleBase<TaylorBotShardedCommandContext>
+    public abstract class TaylorBotModule : ModuleBase<ITaylorBotCommandContext>
     {
     }
 }

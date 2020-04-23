@@ -4,7 +4,14 @@ using System.Linq;
 
 namespace TaylorBot.Net.Commands
 {
-    public class TaylorBotShardedCommandContext : ShardedCommandContext
+    public interface ITaylorBotCommandContext : ICommandContext
+    {
+        string CommandPrefix { get; }
+        string OnGoingCommandAddedToPool { get; set; }
+        string GetUsage(CommandInfo commandInfo);
+    }
+
+    public class TaylorBotShardedCommandContext : ShardedCommandContext, ITaylorBotCommandContext
     {
         public string CommandPrefix { get; }
         public string OnGoingCommandAddedToPool { get; set; }

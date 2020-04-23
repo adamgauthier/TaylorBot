@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TaylorBot.Net.Commands.Discord.Program\TaylorBot.Net.Commands.Discord.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.Tests.Core\TaylorBot.Net.Tests.Core.csproj" />
+  </ItemGroup>
+
+</Project>
