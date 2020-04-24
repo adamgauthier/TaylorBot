@@ -21,7 +21,7 @@ class DisableChannelCommandCommand extends Command {
                     key: 'databaseCommand',
                     label: 'command',
                     type: 'database-command',
-                    prompt: 'What command would you like to enable?'
+                    prompt: 'What command would you like to disable?'
                 },
                 {
                     key: 'channel',

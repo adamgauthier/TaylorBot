@@ -20,7 +20,7 @@ class EvalCommand extends Command {
                     key: 'code',
                     label: 'code',
                     type: 'multiline-text',
-                    prompt: 'What role would you like to be dropped?'
+                    prompt: 'What code would you like to be evaluated?'
                 }
             ]
         });
