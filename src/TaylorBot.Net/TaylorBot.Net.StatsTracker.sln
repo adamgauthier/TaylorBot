@@ -27,8 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessagesTrack
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{48D45EDE-4629-4E30-916E-E171FDDDE038}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Tests.Core", "test\TaylorBot.Net.Tests.Core\TaylorBot.Net.Tests.Core.csproj", "{40A0435D-81F1-4D01-9303-C1C548F36E0F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessagesTracker.Domain.Tests", "test\TaylorBot.Net.MessagesTracker.Domain.Tests\TaylorBot.Net.MessagesTracker.Domain.Tests.csproj", "{10A46290-BE57-403C-9C0E-B04A74F012CE}"
 EndProject
 Global
@@ -69,10 +67,6 @@ Global
 		{B97FF3D6-FD38-485C-AE6B-E433784947FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B97FF3D6-FD38-485C-AE6B-E433784947FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B97FF3D6-FD38-485C-AE6B-E433784947FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{40A0435D-81F1-4D01-9303-C1C548F36E0F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10A46290-BE57-403C-9C0E-B04A74F012CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -82,7 +76,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{40A0435D-81F1-4D01-9303-C1C548F36E0F} = {48D45EDE-4629-4E30-916E-E171FDDDE038}
 		{10A46290-BE57-403C-9C0E-B04A74F012CE} = {48D45EDE-4629-4E30-916E-E171FDDDE038}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
