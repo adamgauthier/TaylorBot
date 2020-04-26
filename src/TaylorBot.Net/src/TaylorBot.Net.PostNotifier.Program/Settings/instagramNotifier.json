@@ -1,0 +1,7 @@
+﻿{
+  "InstagramNotifier": {
+    "TimeSpanBetweenRequests": "1.02:03:04",
+    "InstagramPostEmbedIconUrl": "AN_ICON_URL",
+    "InstagramPostEmbedColor": "#000000"
+  }
+}

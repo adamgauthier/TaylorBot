@@ -12,6 +12,8 @@ COPY ./TaylorBot.Net.YoutubeNotifier.Domain/TaylorBot.Net.YoutubeNotifier.Domain
 COPY ./TaylorBot.Net.YoutubeNotifier.Infrastructure/TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj ./TaylorBot.Net.YoutubeNotifier.Infrastructure/
 COPY ./TaylorBot.Net.TumblrNotifier.Domain/TaylorBot.Net.TumblrNotifier.Domain.csproj ./TaylorBot.Net.TumblrNotifier.Domain/
 COPY ./TaylorBot.Net.TumblrNotifier.Infrastructure/TaylorBot.Net.TumblrNotifier.Infrastructure.csproj ./TaylorBot.Net.TumblrNotifier.Infrastructure/
+COPY ./TaylorBot.Net.InstagramNotifier.Domain/TaylorBot.Net.InstagramNotifier.Domain.csproj ./TaylorBot.Net.InstagramNotifier.Domain/
+COPY ./TaylorBot.Net.InstagramNotifier.Infrastructure/TaylorBot.Net.InstagramNotifier.Infrastructure.csproj ./TaylorBot.Net.InstagramNotifier.Infrastructure/
 
 RUN dotnet restore ./TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
 

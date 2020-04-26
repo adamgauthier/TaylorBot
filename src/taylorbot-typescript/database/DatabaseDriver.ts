@@ -13,7 +13,6 @@ import UserRepository = require('./repositories/UserRepository.js');
 import GuildMemberRepository = require('./repositories/GuildMemberRepository.js');
 import { UsernameRepository } from './repositories/UsernameRepository';
 import { GuildNameRepository } from './repositories/GuildNameRepository';
-import InstagramCheckerRepository = require('./repositories/InstagramCheckerRepository.js');
 import GuildCommandRepository = require('./repositories/GuildCommandRepository.js');
 import { CommandRepository } from './repositories/CommandRepository';
 import UserGroupRepository = require('./repositories/UserGroupRepository.js');
@@ -40,7 +39,6 @@ export class DatabaseDriver {
     readonly guildMembers: GuildMemberRepository;
     readonly usernames: UsernameRepository;
     readonly guildNames: GuildNameRepository;
-    readonly instagramCheckers: InstagramCheckerRepository;
     readonly guildCommands: GuildCommandRepository;
     readonly commands: CommandRepository;
     readonly userGroups: UserGroupRepository;
@@ -72,7 +70,6 @@ export class DatabaseDriver {
         this.guildMembers = new GuildMemberRepository(db, helpers);
         this.usernames = new UsernameRepository(db);
         this.guildNames = new GuildNameRepository(db);
-        this.instagramCheckers = new InstagramCheckerRepository(db);
         this.guildCommands = new GuildCommandRepository(db);
         this.commands = new CommandRepository(db);
         this.userGroups = new UserGroupRepository(db, helpers);

@@ -27,7 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.YoutubeNotifi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.TumblrNotifier.Domain", "src\TaylorBot.Net.TumblrNotifier.Domain\TaylorBot.Net.TumblrNotifier.Domain.csproj", "{F22192B8-CA7D-4B61-BDDA-81854A31677F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaylorBot.Net.TumblrNotifier.Infrastructure", "src\TaylorBot.Net.TumblrNotifier.Infrastructure\TaylorBot.Net.TumblrNotifier.Infrastructure.csproj", "{0B93C11F-B5E6-4430-99CE-E999715D9BF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.TumblrNotifier.Infrastructure", "src\TaylorBot.Net.TumblrNotifier.Infrastructure\TaylorBot.Net.TumblrNotifier.Infrastructure.csproj", "{0B93C11F-B5E6-4430-99CE-E999715D9BF7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.InstagramNotifier.Domain", "src\TaylorBot.Net.InstagramNotifier.Domain\TaylorBot.Net.InstagramNotifier.Domain.csproj", "{BC7F4684-8A70-404A-BA36-B2D77966DC5F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.InstagramNotifier.Infrastructure", "src\TaylorBot.Net.InstagramNotifier.Infrastructure\TaylorBot.Net.InstagramNotifier.Infrastructure.csproj", "{A0904D66-3631-4059-B58D-4D3D6A9546B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +79,14 @@ Global
 		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B93C11F-B5E6-4430-99CE-E999715D9BF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC7F4684-8A70-404A-BA36-B2D77966DC5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC7F4684-8A70-404A-BA36-B2D77966DC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC7F4684-8A70-404A-BA36-B2D77966DC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC7F4684-8A70-404A-BA36-B2D77966DC5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0904D66-3631-4059-B58D-4D3D6A9546B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0904D66-3631-4059-B58D-4D3D6A9546B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0904D66-3631-4059-B58D-4D3D6A9546B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0904D66-3631-4059-B58D-4D3D6A9546B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

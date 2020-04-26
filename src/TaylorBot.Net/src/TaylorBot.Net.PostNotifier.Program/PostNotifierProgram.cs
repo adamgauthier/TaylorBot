@@ -16,6 +16,10 @@ using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.InstagramNotifier.Domain;
+using TaylorBot.Net.InstagramNotifier.Domain.DiscordEmbed;
+using TaylorBot.Net.InstagramNotifier.Domain.Options;
+using TaylorBot.Net.InstagramNotifier.Infrastructure;
 using TaylorBot.Net.PostNotifier.Program.Events;
 using TaylorBot.Net.RedditNotifier.Domain;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
@@ -51,7 +55,8 @@ namespace TaylorBot.Net.PostNotifier.Program
                         .AddJsonFile(path: $"Settings/youtubeNotifier.{env}.json", optional: false)
                         .AddJsonFile(path: $"Settings/youtubeAuth.{env}.json", optional: false)
                         .AddJsonFile(path: $"Settings/tumblrAuth.{env}.json", optional: false)
-                        .AddJsonFile(path: $"Settings/tumblrNotifier.{env}.json", optional: false);
+                        .AddJsonFile(path: $"Settings/tumblrNotifier.{env}.json", optional: false)
+                        .AddJsonFile(path: $"Settings/instagramNotifier.{env}.json", optional: false);
                 })
                 .ConfigureLogging((hostBuilderContext, logging) =>
                 {
@@ -89,6 +94,7 @@ namespace TaylorBot.Net.PostNotifier.Program
                                 new Token(key: auth.Token, secret: auth.TokenSecret)
                             );
                         })
+                        .ConfigureRequired<InstagramNotifierOptions>(config, "InstagramNotifier")
                         .AddTransient<IShardReadyHandler, ReadyHandler>()
                         .AddTransient<SingletonTaskRunner>()
                         .AddTransient<IRedditCheckerRepository, RedditCheckerRepository>()
@@ -100,7 +106,11 @@ namespace TaylorBot.Net.PostNotifier.Program
                         .AddTransient<YoutubePostToEmbedMapper>()
                         .AddTransient<ITumblrCheckerRepository, TumblrCheckerRepository>()
                         .AddTransient<TumblrNotifierService>()
-                        .AddTransient<TumblrPostToEmbedMapper>();
+                        .AddTransient<TumblrPostToEmbedMapper>()
+                        .AddTransient<IInstagramCheckerRepository, InstagramCheckerPostgresRepository>()
+                        .AddTransient<IInstagramClient, InstagramRestClient>()
+                        .AddTransient<InstagramNotifierService>()
+                        .AddTransient<InstagramPostToEmbedMapper>();
                 })
                 .Build();
 

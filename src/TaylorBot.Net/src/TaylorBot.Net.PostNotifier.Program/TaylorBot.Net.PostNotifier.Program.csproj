@@ -8,10 +8,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.3" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.InstagramNotifier.Domain\TaylorBot.Net.InstagramNotifier.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.InstagramNotifier.Infrastructure\TaylorBot.Net.InstagramNotifier.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.TumblrNotifier.Domain\TaylorBot.Net.TumblrNotifier.Domain.csproj" />
