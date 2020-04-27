@@ -118,7 +118,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                             return options.UseRedisCache ?
                                 provider.GetRequiredService<OnGoingCommandRedisRepository>() :
                                 (IOngoingCommandRepository)provider.GetRequiredService<OnGoingCommandInMemoryRepository>();
-                        });
+                        })
+                        .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>();
                 })
                 .Build();
 

@@ -13,11 +13,13 @@ namespace TaylorBot.Net.Commands
     {
         private readonly ILogger<CommandExecutedHandler> _logger;
         private readonly IOngoingCommandRepository _ongoingCommandRepository;
+        private readonly ICommandUsageRepository _commandUsageRepository;
 
-        public CommandExecutedHandler(ILogger<CommandExecutedHandler> logger, IOngoingCommandRepository ongoingCommandRepository)
+        public CommandExecutedHandler(ILogger<CommandExecutedHandler> logger, IOngoingCommandRepository ongoingCommandRepository, ICommandUsageRepository commandUsageRepository)
         {
             _logger = logger;
             _ongoingCommandRepository = ongoingCommandRepository;
+            _commandUsageRepository = commandUsageRepository;
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
@@ -44,14 +46,16 @@ namespace TaylorBot.Net.Commands
                 {
                     case TaylorBotEmbedResult embedResult:
                         await context.Channel.SendMessageAsync(embed: embedResult.Embed);
-                        return;
+                        break;
 
                     case TaylorBotEmptyResult emptyResult:
-                        return;
+                        break;
 
                     default:
                         throw new InvalidOperationException($"Unexpected command success result: {result.GetType()}");
                 }
+                _commandUsageRepository.AddSuccessfulUseCount(optCommandInfo.Value);
+                return;
             }
 
             switch (result)
@@ -71,6 +75,7 @@ namespace TaylorBot.Net.Commands
                             _logger.LogError(executeResult.Exception, LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}:"));
                             break;
                     }
+                    _commandUsageRepository.AddUnhandledErrorCount(optCommandInfo.Value);
                     break;
 
                 case ParseResult parseResult:
