@@ -71,6 +71,10 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         break;
                 }
             }
+            else
+            {
+                builder.AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id).ToString("u", CultureInfo.InvariantCulture), inline: true);
+            }
 
             return builder.Build();
         }
