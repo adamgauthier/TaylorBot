@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Preconditions;
@@ -119,7 +120,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                                 provider.GetRequiredService<OnGoingCommandRedisRepository>() :
                                 (IOngoingCommandRepository)provider.GetRequiredService<OnGoingCommandInMemoryRepository>();
                         })
-                        .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>();
+                        .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>()
+                        .AddTransient<UserStatusStringMapper>();
                 })
                 .Build();
 
