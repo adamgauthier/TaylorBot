@@ -50,30 +50,6 @@ class DiscordEmbedFormatter {
         return guild.iconURL({ format: 'png' });
     }
 
-    static member(member) {
-        const { user } = member;
-        const { presence } = user;
-
-        const avatarURL = DiscordEmbedFormatter.getAvatarURL(user);
-
-        const roles = member.roles.map(r => r.name);
-
-        const embed = DiscordEmbedFormatter.baseUserEmbed(user, avatarURL)
-            .setURL(avatarURL)
-            .setThumbnail(avatarURL)
-            .addField('ID', `\`${user.id}\``, true);
-
-        if (presence.activity)
-            embed.addField('Activity', presence.activity.name, true);
-
-        embed
-            .addField('Server Joined', TimeUtil.formatFull(member.joinedTimestamp))
-            .addField('Account Created', TimeUtil.formatFull(user.createdTimestamp))
-            .addField(StringUtil.plural(roles.length, 'Role'), StringUtil.shrinkString(roles.join(', '), 75, ', ...', [',']));
-
-        return embed;
-    }
-
     static guild(guild) {
         const iconURL = DiscordEmbedFormatter.getIconURL(guild);
 

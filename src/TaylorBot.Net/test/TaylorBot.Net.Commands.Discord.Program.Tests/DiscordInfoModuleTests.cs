@@ -1,6 +1,7 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
@@ -59,6 +60,33 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(user);
 
             result.Embed.Description.Should().Contain(ACustomStatus);
+        }
+
+        [Fact]
+        public async Task UserInfoAsync_ThenReturnsIdFieldEmbed()
+        {
+            const ulong AnId = 1;
+            var guildUser = A.Fake<IGuildUser>();
+            A.CallTo(() => guildUser.Id).Returns(AnId);
+
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.UserInfoAsync(guildUser);
+
+            result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
+        }
+
+        [Fact]
+        public async Task RandomUserInfoAsync_ThenReturnsIdFieldEmbedFromGuildUsers()
+        {
+            const ulong AnId = 1;
+            var guildUser = A.Fake<IGuildUser>();
+            A.CallTo(() => guildUser.Id).Returns(AnId);
+            var guild = A.Fake<IGuild>();
+            A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser });
+            A.CallTo(() => _commandContext.Guild).Returns(guild);
+
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.RandomUserInfoAsync();
+
+            result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
     }
 }
