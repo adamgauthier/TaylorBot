@@ -53,7 +53,7 @@ class DiscordEmbedFormatter {
     static guild(guild) {
         const iconURL = DiscordEmbedFormatter.getIconURL(guild);
 
-        const { channels, roles, owner, region, createdTimestamp, memberCount, presences } = guild;
+        const { channels, roles, owner, region, createdTimestamp, memberCount } = guild;
         const categories = channels.filter(c => c.type === 'category');
         const textChannels = channels.filter(c => c.type === 'text');
         const voiceChannels = channels.filter(c => c.type === 'voice');
@@ -61,7 +61,7 @@ class DiscordEmbedFormatter {
         const embed = DiscordEmbedFormatter.baseGuildHeader(guild)
             .addField('ID', `\`${guild.id}\``, true)
             .addField('Owner', owner.toString(), true)
-            .addField(StringUtil.plural(memberCount, 'Member'), `\`${presences.filter(p => p.status === 'online').size}\` Online`, true)
+            .addField('Members', `\`${memberCount}\``, true)
             .addField('Region', region, true)
             .addField('Created', TimeUtil.formatFull(createdTimestamp))
             .addField(
