@@ -31,6 +31,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         [Summary("Displays the avatar of a user.")]
         public Task<RuntimeResult> AvatarAsync(
             [Summary("What user would you like to see the avatar of?")]
+            [Remainder]
             IUser user = null
         )
         {
@@ -49,6 +50,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         [Summary("Displays the status of a user.")]
         public Task<RuntimeResult> StatusAsync(
             [Summary("What user would you like to see the status of?")]
+            [Remainder]
             IUser user = null
         )
         {
@@ -107,6 +109,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public Task<RuntimeResult> UserInfoAsync(
             [Summary("What user would you like to see the info of?")]
             [OverrideTypeReader(typeof(CustomUserTypeReader<IGuildUser>))]
+            [Remainder]
             IGuildUser member = null
         )
         {

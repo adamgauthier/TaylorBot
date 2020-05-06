@@ -65,16 +65,13 @@ namespace TaylorBot.Net.Commands
                     {
                         case CommandError.Exception:
                             _logger.LogError(executeResult.Exception, LogString.From("Unhandled exception in command:"));
-                            await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
-                                .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription($"{context.User.Mention} Oops, an unknown command error occurred. Sorry about that. 😕")
-                            .Build());
                             break;
 
                         default:
                             _logger.LogError(executeResult.Exception, LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}:"));
                             break;
                     }
+                    await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
                     _commandUsageRepository.AddUnhandledErrorCount(optCommandInfo.Value);
                     break;
 
@@ -84,7 +81,9 @@ namespace TaylorBot.Net.Commands
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(string.Join('\n',
                             $"{context.User.Mention} Format: `{commandContext.GetUsage(cmd)}`",
-                            $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}"
+                            parseResult.ErrorParameter != null ?
+                                $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}" :
+                                parseResult.ErrorReason
                         ))
                     .Build());
                     break;
@@ -104,8 +103,17 @@ namespace TaylorBot.Net.Commands
 
                 default:
                     _logger.LogError(LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}"));
+                    await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
                     break;
             }
+        }
+
+        private Embed CreateUnknownErrorEmbed(IUser user)
+        {
+            return new EmbedBuilder()
+                .WithColor(TaylorBotColors.ErrorColor)
+                .WithDescription($"{user.Mention} Oops, an unknown command error occurred. Sorry about that. 😕")
+            .Build();
         }
     }
 }
