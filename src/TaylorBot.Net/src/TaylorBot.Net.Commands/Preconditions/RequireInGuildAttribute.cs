@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Preconditions
@@ -11,8 +12,8 @@ namespace TaylorBot.Net.Commands.Preconditions
             if (context.Guild == null)
             {
                 return Task.FromResult<PreconditionResult>(TaylorBotPreconditionResult.FromUserError(
-                    privateReason: $"{command.Name} can only be used in a guild",
-                    userReason: $"You can't use `{command.Name}` because it can only be used in a server."
+                    privateReason: $"{command.Aliases.First()} can only be used in a guild",
+                    userReason: $"You can't use `{command.Aliases.First()}` because it can only be used in a server."
                 ));
             }
 

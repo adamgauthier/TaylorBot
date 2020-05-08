@@ -1,8 +1,8 @@
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
-import WordArgumentType = require('../base/Word.js');
+import TextArgumentType = require('../base/Text.js');
 import ArgumentParsingError = require('../ArgumentParsingError.js');
 
-class ExistingCommandNameOrItself extends WordArgumentType {
+class ExistingCommandNameOrItself extends TextArgumentType {
     get id(): string {
         return 'existing-command-name-or-itself';
     }

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
@@ -26,7 +27,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 RETURNING enabled;",
                 new
                 {
-                    CommandName = command.Name,
+                    CommandName = command.Aliases.First(),
                     Aliases = command.Aliases,
                     ModuleName = command.Module.Name
                 }

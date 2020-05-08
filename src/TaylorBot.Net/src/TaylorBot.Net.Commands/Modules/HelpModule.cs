@@ -28,7 +28,11 @@ namespace TaylorBot.Net.Commands.Modules
         [Command("help")]
         [Alias("command")]
         [Summary("Lists help and information for a module's commands.")]
-        public async Task<RuntimeResult> HelpAsync(string moduleOrCommand = null)
+        public async Task<RuntimeResult> HelpAsync(
+            [Summary("The module or command to list help for")]
+            [Remainder]
+            string moduleOrCommand = null
+        )
         {
             if (moduleOrCommand != null)
             {
@@ -51,7 +55,7 @@ namespace TaylorBot.Net.Commands.Modules
                             descriptionLines = descriptionLines.Append(module.Remarks);
 
                         if (module.Aliases.Any(a => !string.IsNullOrWhiteSpace(a)))
-                            descriptionLines = descriptionLines.Append($"Prefixes: {string.Join(",", module.Aliases)}");
+                            descriptionLines = descriptionLines.Append($"Prefix: `{module.Aliases.First()}`");
 
                         if (module.Submodules.Any())
                             descriptionLines = descriptionLines.Append($"Submodules: {module.Submodules.Select(m => m.Name)}");

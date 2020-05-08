@@ -1,9 +1,9 @@
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
-import WordArgumentType = require('../base/Word.js');
+import TextArgumentType = require('../base/Text.js');
 import ArgumentParsingError = require('../ArgumentParsingError.js');
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
-class DatabaseCommandArgumentType extends WordArgumentType {
+class DatabaseCommandArgumentType extends TextArgumentType {
     get id(): string {
         return 'database-command';
     }

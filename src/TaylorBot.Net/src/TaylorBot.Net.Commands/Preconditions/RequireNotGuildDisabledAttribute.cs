@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Logging;
 
@@ -24,7 +25,7 @@ namespace TaylorBot.Net.Commands.Preconditions
             var isDisabled = await guildCommandDisabledRepository.IsGuildCommandDisabledAsync(context.Guild, command);
 
             return isDisabled ?
-                TaylorBotPreconditionResult.FromPrivateError($"{command.Name} is disabled in {context.Guild.FormatLog()}") :
+                TaylorBotPreconditionResult.FromPrivateError($"{command.Aliases.First()} is disabled in {context.Guild.FormatLog()}") :
                 PreconditionResult.FromSuccess();
         }
     }

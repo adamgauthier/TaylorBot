@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Preconditions
@@ -20,8 +21,8 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             return isDisabled ?
                 TaylorBotPreconditionResult.FromUserError(
-                    privateReason: $"{command.Name} is globally disabled",
-                    userReason: $"You can't use `{command.Name}` because it is globally disabled right now. Please check back later."
+                    privateReason: $"{command.Aliases.First()} is globally disabled",
+                    userReason: $"You can't use `{command.Aliases.First()}` because it is globally disabled right now. Please check back later."
                 ) :
                 PreconditionResult.FromSuccess();
         }

@@ -13,7 +13,7 @@ class TextArgumentType extends ArgumentType {
         return 'text';
     }
 
-    parse(val) {
+    parse(val, commandContext, arg) {
         return val;
     }
 }

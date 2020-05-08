@@ -3,6 +3,7 @@ using Discord.Commands;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure.Options;
@@ -39,7 +40,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
         public void AddSuccessfulUseCount(CommandInfo command)
         {
             _usageCache.AddOrUpdate(
-                command.Name,
+                command.Aliases.First(),
                 new CommandUsage(successfulUseCount: 1, unhandledErrorCount: 0),
                 (name, usage) => usage.IncrementUseCount()
             );
@@ -48,7 +49,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
         public void AddUnhandledErrorCount(CommandInfo command)
         {
             _usageCache.AddOrUpdate(
-                command.Name,
+                command.Aliases.First(),
                 new CommandUsage(successfulUseCount: 0, unhandledErrorCount: 1),
                 (name, usage) => usage.IncrementErrorCount()
             );

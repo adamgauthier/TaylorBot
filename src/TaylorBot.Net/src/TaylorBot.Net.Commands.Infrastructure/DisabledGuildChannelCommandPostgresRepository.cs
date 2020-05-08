@@ -2,6 +2,7 @@
 using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Options;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
@@ -29,7 +30,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 {
                     GuildId = textChannel.GuildId.ToString(),
                     ChannelId = textChannel.Id.ToString(),
-                    CommandId = command.Name
+                    CommandId = command.Aliases.First()
                 }
             );
 

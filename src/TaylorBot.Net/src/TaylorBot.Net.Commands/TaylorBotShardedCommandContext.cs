@@ -21,9 +21,9 @@ namespace TaylorBot.Net.Commands
             CommandPrefix = commandPrefix;
         }
 
-        public string GetUsage(CommandInfo commandInfo)
+        public string GetUsage(CommandInfo command)
         {
-            return $"{CommandPrefix}{commandInfo.Name} {string.Join(" ", commandInfo.Parameters.Select(p => $"<{p.Name}{(p.IsOptional ? "?" : "")}>"))}";
+            return $"{CommandPrefix}{command.Aliases.First()} {string.Join(" ", command.Parameters.Select(p => $"<{p.Name}{(p.IsOptional ? "?" : "")}>"))}".TrimEnd();
         }
     }
 }

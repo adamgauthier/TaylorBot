@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Logging;
 
@@ -27,10 +28,10 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             return isDisabled ?
                 TaylorBotPreconditionResult.FromUserError(
-                    privateReason: $"{command.Name} is disabled in {textChannel.FormatLog()}",
+                    privateReason: $"{command.Aliases.First()} is disabled in {textChannel.FormatLog()}",
                     userReason: string.Join('\n', new[] {
-                        $"You can't use `{command.Name}` because it is disabled in {textChannel.Mention}.",
-                        $"You can re-enable it by typing `{commandContext.CommandPrefix}ecc {command.Name}`."
+                        $"You can't use `{command.Aliases.First()}` because it is disabled in {textChannel.Mention}.",
+                        $"You can re-enable it by typing `{commandContext.CommandPrefix}ecc {command.Aliases.First()}`."
                     })
                 ) :
                 PreconditionResult.FromSuccess();
