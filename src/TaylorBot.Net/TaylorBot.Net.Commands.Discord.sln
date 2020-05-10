@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{08C3333B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Commands.Discord.Program.Tests", "test\TaylorBot.Net.Commands.Discord.Program.Tests\TaylorBot.Net.Commands.Discord.Program.Tests.csproj", "{358808D2-C814-492A-A445-7235FF9F2590}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Commands.Tests", "test\TaylorBot.Net.Commands.Tests\TaylorBot.Net.Commands.Tests.csproj", "{4219C46F-5273-4D9D-A8DE-704D88C301F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,12 +73,17 @@ Global
 		{358808D2-C814-492A-A445-7235FF9F2590}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{358808D2-C814-492A-A445-7235FF9F2590}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{358808D2-C814-492A-A445-7235FF9F2590}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4219C46F-5273-4D9D-A8DE-704D88C301F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4219C46F-5273-4D9D-A8DE-704D88C301F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4219C46F-5273-4D9D-A8DE-704D88C301F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4219C46F-5273-4D9D-A8DE-704D88C301F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{358808D2-C814-492A-A445-7235FF9F2590} = {08C3333B-E2AC-435E-A36C-66591EC32EE1}
+		{4219C46F-5273-4D9D-A8DE-704D88C301F2} = {08C3333B-E2AC-435E-A36C-66591EC32EE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A724264-5403-4E81-BAE9-B0B221ED9273}

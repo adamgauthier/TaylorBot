@@ -133,7 +133,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             {
                 embed.AddField(
                     "Role".ToQuantity(member.RoleIds.Count),
-                    string.Join(", ", member.RoleIds.Select(id => $"<@&{id}>")).Truncate(75)
+                    string.Join(", ", member.RoleIds.Select(id => MentionUtils.MentionRole(id))).Truncate(75)
                 );
             }
 

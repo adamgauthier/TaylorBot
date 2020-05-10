@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Discord;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -9,6 +10,7 @@ using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
@@ -46,6 +48,12 @@ namespace TaylorBot.Net.Commands.Discord.Program
                     var config = hostBuilderContext.Configuration;
                     services
                         .AddHostedService<TaylorBotCommandHostedService>()
+                        .AddTransient<MentionedUserTypeReader<IUser>>()
+                        .AddTransient<CustomUserTypeReader<IUser>>()
+                        .AddTransient<MentionedUserTypeReader<IGuildUser>>()
+                        .AddTransient<CustomUserTypeReader<IGuildUser>>()
+                        .AddTransient<MentionedUserNotAuthorTypeReader<IGuildUser>>()
+                        .AddTransient<MentionedUserNotAuthorTypeReader<IUser>>()
                         .AddTaylorBotCommandServices(config)
                         .ConfigureDatabaseConnection(config)
                         .ConfigureRequired<RedisConnectionOptions>(config, "RedisCommandsConnection")

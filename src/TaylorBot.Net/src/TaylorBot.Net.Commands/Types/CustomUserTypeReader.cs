@@ -21,27 +21,33 @@ namespace TaylorBot.Net.Commands.Types
     public class CustomUserTypeReader<T> : TypeReader
         where T : class, IUser
     {
+        private readonly MentionedUserTypeReader<T> _mentionedUserTypeReader;
+
+        public CustomUserTypeReader(MentionedUserTypeReader<T> mentionedUserTypeReader)
+        {
+            _mentionedUserTypeReader = mentionedUserTypeReader;
+        }
+
         /// <inheritdoc />
         public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
             var results = new Dictionary<ulong, TypeReaderValue>();
-            var channelUsers = context.Channel.GetUsersAsync(CacheMode.CacheOnly).Flatten(); // it's better
+            var channelUsers = context.Channel.GetUsersAsync(CacheMode.CacheOnly).Flatten();
             IReadOnlyCollection<IGuildUser> guildUsers = ImmutableArray.Create<IGuildUser>();
 
             if (context.Guild != null)
                 guildUsers = await context.Guild.GetUsersAsync(CacheMode.CacheOnly).ConfigureAwait(false);
 
-            //By Mention (1.0)
-            if (MentionUtils.TryParseUser(input, out var id))
+
+            // By Mention (1.0)
+            var mentionned = await _mentionedUserTypeReader.ReadAsync(context, input, services);
+            if (mentionned.Values != null)
             {
-                if (context.Guild != null)
-                    AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 1.00f);
-                else
-                    AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 1.00f);
+                AddResult(results, ((MentionedUser<T>)mentionned.Values.Single().Value).User, 1.00f);
             }
 
-            //By Id (0.9)
-            if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            // By Id (0.9)
+            if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out var id))
             {
                 if (context.Guild != null)
                     AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 0.90f);
@@ -49,8 +55,8 @@ namespace TaylorBot.Net.Commands.Types
                     AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 0.90f);
             }
 
-            //By Username + Discriminator (0.7-0.85)
-            //By Discriminator (0.3-0.45)
+            // By Username + Discriminator (0.7-0.85)
+            // By Discriminator (0.3-0.45)
             int index = input.LastIndexOf('#');
             if (index >= 0)
             {
@@ -75,7 +81,7 @@ namespace TaylorBot.Net.Commands.Types
                 }
             }
 
-            //By Username (0.2-0.65)
+            // By Username (0.2-0.65)
             {
                 await channelUsers
                     .ForEachAsync(u =>
@@ -110,7 +116,7 @@ namespace TaylorBot.Net.Commands.Types
                 }
             }
 
-            //By Nickname (0.2-0.65)
+            // By Nickname (0.2-0.65)
             {
                 await channelUsers
                     .OfType<IGuildUser>()
