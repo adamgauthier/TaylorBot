@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessagesTracker.Domain\TaylorBot.Net.MessagesTracker.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessagesTracker.Infrastructure\TaylorBot.Net.MessagesTracker.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Domain\TaylorBot.Net.MinutesTracker.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Infrastructure\TaylorBot.Net.MinutesTracker.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Settings\*.Development.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Settings\*.Production.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.4" />
+  </ItemGroup>
+
+</Project>

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.UserNotifier.Program", "src\TaylorBot.Net.UserNotifier.Program\TaylorBot.Net.UserNotifier.Program.csproj", "{F63C4940-5D7F-49FB-B249-5E5AA7729A90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.UserNotifier.Program", "Program.UserNotifier\src\TaylorBot.Net.UserNotifier.Program\TaylorBot.Net.UserNotifier.Program.csproj", "{F63C4940-5D7F-49FB-B249-5E5AA7729A90}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{9315035E-B605-4687-AA54-82142195CE7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Program", "Core\src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj", "{9315035E-B605-4687-AA54-82142195CE7B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6FD7BAE2-F8D9-4AB4-91FD-AA2C07E78CEB}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,25 +13,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core", "src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj", "{7124FE78-4373-4275-9576-83791414C75C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core", "Core\src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj", "{7124FE78-4373-4275-9576-83791414C75C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastructure", "src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{C70EFA7A-E395-4C3F-BB8A-60741064CE47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Infrastructure", "Core\src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj", "{C70EFA7A-E395-4C3F-BB8A-60741064CE47}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.BirthdayReward.Domain", "src\TaylorBot.Net.BirthdayReward.Domain\TaylorBot.Net.BirthdayReward.Domain.csproj", "{DDB0DF51-2903-46BA-B0D8-210964A99DEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.BirthdayReward.Domain", "Program.UserNotifier\src\TaylorBot.Net.BirthdayReward.Domain\TaylorBot.Net.BirthdayReward.Domain.csproj", "{DDB0DF51-2903-46BA-B0D8-210964A99DEE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.BirthdayReward.Infrastructure", "src\TaylorBot.Net.BirthdayReward.Infrastructure\TaylorBot.Net.BirthdayReward.Infrastructure.csproj", "{2F0CA9FB-F6E5-48C8-8CD0-27EDE0E330B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.BirthdayReward.Infrastructure", "Program.UserNotifier\src\TaylorBot.Net.BirthdayReward.Infrastructure\TaylorBot.Net.BirthdayReward.Infrastructure.csproj", "{2F0CA9FB-F6E5-48C8-8CD0-27EDE0E330B3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Reminder.Domain", "src\TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj", "{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Reminder.Domain", "Program.UserNotifier\src\TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj", "{BAC1E318-21E6-4091-999D-EE4EC6CC84D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Reminder.Infrastructure", "src\TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj", "{557F2247-A418-4C09-827B-3C4F682CA290}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Reminder.Infrastructure", "Program.UserNotifier\src\TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj", "{557F2247-A418-4C09-827B-3C4F682CA290}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Domain", "src\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj", "{227A3192-37ED-469D-BA96-2D90D6A2BC9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Domain", "Core\src\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj", "{227A3192-37ED-469D-BA96-2D90D6A2BC9F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Infrastructure", "src\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj", "{A61E6FD3-9DB0-463A-9BD0-DC8E78FC8B52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MemberLogging.Infrastructure", "Core\src\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj", "{A61E6FD3-9DB0-463A-9BD0-DC8E78FC8B52}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessageLogging.Domain", "src\TaylorBot.Net.MessageLogging.Domain\TaylorBot.Net.MessageLogging.Domain.csproj", "{8D886BF0-D4DC-4AF2-8503-943847309B64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessageLogging.Domain", "Program.UserNotifier\src\TaylorBot.Net.MessageLogging.Domain\TaylorBot.Net.MessageLogging.Domain.csproj", "{8D886BF0-D4DC-4AF2-8503-943847309B64}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessageLogging.Infrastructure", "src\TaylorBot.Net.MessageLogging.Infrastructure\TaylorBot.Net.MessageLogging.Infrastructure.csproj", "{113A71E6-1865-426C-A3B4-8810C6636CEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.MessageLogging.Infrastructure", "Program.UserNotifier\src\TaylorBot.Net.MessageLogging.Infrastructure\TaylorBot.Net.MessageLogging.Infrastructure.csproj", "{113A71E6-1865-426C-A3B4-8810C6636CEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
