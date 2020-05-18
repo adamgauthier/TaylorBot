@@ -1,23 +1,24 @@
 ﻿using Dapper;
 using Discord.Commands;
-using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 
 namespace TaylorBot.Net.Commands.Infrastructure
 {
-    public class DisabledCommandPostgresRepository : PostgresRepository, IDisabledCommandRepository
+    public class DisabledCommandPostgresRepository : IDisabledCommandRepository
     {
-        public DisabledCommandPostgresRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public DisabledCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         public async Task<bool> InsertOrGetIsCommandDisabledAsync(CommandInfo command)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var enabled = await connection.QuerySingleOrDefaultAsync<bool>(
                 @"INSERT INTO commands.commands (name, aliases, module_name) VALUES (@CommandName, @Aliases, @ModuleName)

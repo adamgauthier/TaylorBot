@@ -1,23 +1,24 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 
 namespace TaylorBot.Net.Commands.Infrastructure
 {
-    public class IgnoredUserPostgresRepository : PostgresRepository, IIgnoredUserRepository
+    public class IgnoredUserPostgresRepository : IIgnoredUserRepository
     {
-        public IgnoredUserPostgresRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public IgnoredUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         public async Task<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var userAddedOrUpdatedDto = await connection.QuerySingleAsync<UserAddedOrUpdatedDto>(
                 @"INSERT INTO users.users (user_id, is_bot, username, previous_username) VALUES (@UserId, @IsBot, @Username, NULL)

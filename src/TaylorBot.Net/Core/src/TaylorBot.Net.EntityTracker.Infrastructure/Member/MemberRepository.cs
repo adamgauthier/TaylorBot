@@ -1,22 +1,23 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.EntityTracker.Domain.Member;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 {
-    public class MemberRepository : PostgresRepository, IMemberRepository
+    public class MemberRepository : IMemberRepository
     {
-        public MemberRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public MemberRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         public async ValueTask<bool> AddNewMemberAsync(IGuildUser member)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var result = await connection.QuerySingleOrDefaultAsync<bool>(
                 @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES (@GuildId, @UserId, @FirstJoinedAt)
@@ -35,7 +36,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 
         public async ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var memberAddedOrUpdatedDto = await connection.QuerySingleAsync<MemberAddedOrUpdatedDto>(
                 @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES (@GuildId, @UserId, @FirstJoinedAt)
@@ -67,7 +68,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 
         public async ValueTask SetMemberDeadAsync(IGuildUser member)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND user_id = @UserId;",

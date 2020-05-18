@@ -1,22 +1,23 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel
 {
-    public class TextChannelRepository : PostgresRepository, ITextChannelRepository
+    public class TextChannelRepository : ITextChannelRepository
     {
-        public TextChannelRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public TextChannelRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         public async ValueTask AddTextChannelAsync(ITextChannel textChannel)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES (@GuildId, @ChannelId);",
@@ -30,7 +31,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel
 
         public async Task AddTextChannelIfNotAddedAsync(ITextChannel textChannel)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES (@GuildId, @ChannelId) ON CONFLICT (guild_id, channel_id) DO NOTHING;",

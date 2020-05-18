@@ -1,21 +1,22 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 
 namespace TaylorBot.Net.Commands.Infrastructure
 {
-    public class CommandPrefixPostgresRepository : PostgresRepository, ICommandPrefixRepository
+    public class CommandPrefixPostgresRepository : ICommandPrefixRepository
     {
-        public CommandPrefixPostgresRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public CommandPrefixPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         public async Task<string> GetOrInsertGuildPrefixAsync(IGuild guild)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<string>(
                 @"INSERT INTO guilds.guilds (guild_id, guild_name, previous_guild_name) VALUES (@GuildId, @GuildName, NULL)

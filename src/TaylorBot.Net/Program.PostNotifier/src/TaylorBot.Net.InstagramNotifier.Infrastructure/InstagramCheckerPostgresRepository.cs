@@ -1,20 +1,21 @@
 ﻿using Dapper;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.InstagramNotifier.Domain;
 
 namespace TaylorBot.Net.InstagramNotifier.Infrastructure
 {
-    public class InstagramCheckerPostgresRepository : PostgresRepository, IInstagramCheckerRepository
+    public class InstagramCheckerPostgresRepository : IInstagramCheckerRepository
     {
-        public InstagramCheckerPostgresRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public InstagramCheckerPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         private class InstagramCheckerDto
@@ -28,7 +29,7 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
 
         public async ValueTask<IEnumerable<InstagramChecker>> GetInstagramCheckersAsync()
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var checkers = await connection.QueryAsync<InstagramCheckerDto>("SELECT * FROM checkers.instagram_checker;");
             return checkers.Select(checker => new InstagramChecker(
@@ -42,7 +43,7 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
 
         public async ValueTask UpdateLastPostAsync(InstagramChecker instagramChecker, InstagramPost instagramPost)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE checkers.instagram_checker SET last_post_code = @LastPostCode, last_taken_at = @LastTakenAt

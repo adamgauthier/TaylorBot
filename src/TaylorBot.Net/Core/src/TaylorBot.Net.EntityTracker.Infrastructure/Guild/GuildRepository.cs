@@ -1,17 +1,18 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.EntityTracker.Domain.Guild;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild
 {
-    public class GuildRepository : PostgresRepository, IGuildRepository
+    public class GuildRepository : IGuildRepository
     {
-        public GuildRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public GuildRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         private class GuildAddedOrUpdatedDto
@@ -23,7 +24,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild
 
         public async ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var guildAddedOrUpdatedDto = await connection.QuerySingleAsync<GuildAddedOrUpdatedDto>(
                 @"INSERT INTO guilds.guilds (guild_id, guild_name, previous_guild_name) VALUES (@GuildId, @GuildName, NULL)

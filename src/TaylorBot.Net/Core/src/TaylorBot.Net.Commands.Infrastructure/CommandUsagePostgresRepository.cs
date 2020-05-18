@@ -11,13 +11,15 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Infrastructure
 {
-    public class CommandUsagePostgresRepository : PostgresRepository, ICommandUsageRepository
+    public class CommandUsagePostgresRepository : ICommandUsageRepository
     {
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
         private readonly ConcurrentDictionary<string, CommandUsage> _usageCache = new ConcurrentDictionary<string, CommandUsage>();
         private readonly TaskExceptionLogger _taskExceptionLogger;
 
-        public CommandUsagePostgresRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor, TaskExceptionLogger taskExceptionLogger) : base(optionsMonitor)
+        public CommandUsagePostgresRepository(PostgresConnectionFactory postgresConnectionFactory, IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor, TaskExceptionLogger taskExceptionLogger)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
             _taskExceptionLogger = taskExceptionLogger;
             Task.Run(async () =>
                 await _taskExceptionLogger.LogOnError(async () =>
@@ -57,7 +59,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         private async ValueTask UpdateUsageCountAsync(string commandName, CommandUsage commandUsage)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE commands.commands SET

@@ -1,22 +1,23 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.EntityTracker.Domain.User;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.User
 {
-    public class UserRepository : PostgresRepository, IUserRepository
+    public class UserRepository : IUserRepository
     {
-        public UserRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public UserRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         public async ValueTask<UserAddedResult> AddNewUserAsync(IUser user)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var userAddedOrUpdatedDto = await connection.QuerySingleAsync<UserAddedOrUpdatedDto>(
                 @"INSERT INTO users.users (user_id, is_bot, username, previous_username) VALUES (@UserId, @IsBot, @Username, NULL)

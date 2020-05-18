@@ -1,21 +1,22 @@
 ﻿using Dapper;
 using Discord;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Infrastructure.Options;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 {
-    public class TaypointWillPostgresRepository : PostgresRepository, ITaypointWillRepository
+    public class TaypointWillPostgresRepository : ITaypointWillRepository
     {
-        public TaypointWillPostgresRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor) : base(optionsMonitor)
+        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+        public TaypointWillPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
+            _postgresConnectionFactory = postgresConnectionFactory;
         }
 
         private class WillDto
@@ -26,7 +27,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<Will>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var willDtos = await connection.QueryAsync<WillDto>(
                 @"SELECT DISTINCT ON (user_id) user_id, last_spoke_at AS max_last_spoke_at
@@ -56,7 +57,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             var transferDtos = await connection.QueryAsync<TransferDto>(
                 @"WITH
@@ -93,7 +94,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         public async ValueTask RemoveWillsAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
         {
-            using var connection = Connection;
+            using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"DELETE FROM users.taypoint_wills

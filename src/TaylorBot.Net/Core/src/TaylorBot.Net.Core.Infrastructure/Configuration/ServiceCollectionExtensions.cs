@@ -12,7 +12,8 @@ namespace TaylorBot.Net.Core.Infrastructure.Configuration
         public static IServiceCollection AddPostgresConnection(this IServiceCollection services, IConfiguration configuration)
         {
             return services
-                .ConfigureRequired<DatabaseConnectionOptions>(configuration, "DatabaseConnection");
+                .ConfigureRequired<DatabaseConnectionOptions>(configuration, "DatabaseConnection")
+                .AddTransient<PostgresConnectionFactory>();
         }
 
         public static IServiceCollection AddRedisConnection(this IServiceCollection services, IConfiguration configuration)
