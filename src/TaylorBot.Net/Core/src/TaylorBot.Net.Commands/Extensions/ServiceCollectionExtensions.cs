@@ -1,6 +1,8 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 
@@ -19,7 +21,13 @@ namespace TaylorBot.Net.Commands.Extensions
                 }))
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
                 .AddTransient<CommandExecutedHandler>()
-                .AddTransient<CommandServiceLogger>();
+                .AddTransient<CommandServiceLogger>()
+                .AddTransient<MentionedUserTypeReader<IUser>>()
+                .AddTransient<CustomUserTypeReader<IUser>>()
+                .AddTransient<MentionedUserTypeReader<IGuildUser>>()
+                .AddTransient<CustomUserTypeReader<IGuildUser>>()
+                .AddTransient<MentionedUserNotAuthorTypeReader<IGuildUser>>()
+                .AddTransient<MentionedUserNotAuthorTypeReader<IUser>>();
         }
     }
 }

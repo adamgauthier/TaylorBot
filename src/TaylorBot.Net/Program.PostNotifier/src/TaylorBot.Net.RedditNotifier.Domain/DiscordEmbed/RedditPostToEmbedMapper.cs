@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Reddit.Controllers;
 using System.Linq;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
 
 namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed
@@ -40,7 +41,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed
                     break;
                 case LinkPost linkPost:
                     builder
-                        .WithDescription($"🔺 {"point".ToQuantity(post.Score, "`#,0`")}, {"comment".ToQuantity(post.Listing.NumComments, "`#,0`")} 💬")
+                        .WithDescription($"🔺 {"point".ToQuantity(post.Score, TaylorBotFormats.CodedReadable)}, {"comment".ToQuantity(post.Listing.NumComments, TaylorBotFormats.CodedReadable)} 💬")
                         .WithThumbnailUrl(post.Listing.Spoiler ? options.RedditPostEmbedLinkPostSpoilerThumbnailUrl :
                             DOMAINS_TO_USE_URL_AS_THUMBNAIL.Any(domain => domain == linkPost.Listing.Domain) ? linkPost.URL :
                                 linkPost.Thumbnail != "default" ? linkPost.Thumbnail : options.RedditPostEmbedLinkPostNoThumbnailUrl

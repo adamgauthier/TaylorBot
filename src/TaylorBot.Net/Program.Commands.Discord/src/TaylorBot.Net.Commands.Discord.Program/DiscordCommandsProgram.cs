@@ -1,5 +1,4 @@
-﻿using Discord;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -7,10 +6,11 @@ using StackExchange.Redis;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.Services;
+using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Preconditions;
-using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
@@ -37,7 +37,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTaylorBotApplicationConfiguration(environment)
                         .AddDatabaseConnectionConfiguration(environment)
                         .AddJsonFile(path: $"Settings/redisCommandsConnection.{env}.json", optional: false)
-                        .AddJsonFile(path: $"Settings/commandClient.{env}.json", optional: false);
+                        .AddJsonFile(path: $"Settings/commandClient.{env}.json", optional: false)
+                        .AddJsonFile(path: $"Settings/taypointWill.{env}.json", optional: false);
                 })
                 .ConfigureLogging((hostBuilderContext, logging) =>
                 {
@@ -48,16 +49,11 @@ namespace TaylorBot.Net.Commands.Discord.Program
                     var config = hostBuilderContext.Configuration;
                     services
                         .AddHostedService<TaylorBotCommandHostedService>()
-                        .AddTransient<MentionedUserTypeReader<IUser>>()
-                        .AddTransient<CustomUserTypeReader<IUser>>()
-                        .AddTransient<MentionedUserTypeReader<IGuildUser>>()
-                        .AddTransient<CustomUserTypeReader<IGuildUser>>()
-                        .AddTransient<MentionedUserNotAuthorTypeReader<IGuildUser>>()
-                        .AddTransient<MentionedUserNotAuthorTypeReader<IUser>>()
                         .AddTaylorBotCommandServices(config)
                         .ConfigureDatabaseConnection(config)
                         .ConfigureRequired<RedisConnectionOptions>(config, "RedisCommandsConnection")
                         .ConfigureRequired<CommandClientOptions>(config, "CommandClient")
+                        .ConfigureRequired<TaypointWillOptions>(config, "TaypointWill")
                         .AddSingleton(provider =>
                         {
                             var options = provider.GetRequiredService<IOptionsMonitor<RedisConnectionOptions>>().CurrentValue;
@@ -129,7 +125,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                                 (IOngoingCommandRepository)provider.GetRequiredService<OnGoingCommandInMemoryRepository>();
                         })
                         .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>()
-                        .AddTransient<UserStatusStringMapper>();
+                        .AddTransient<UserStatusStringMapper>()
+                        .AddTransient<ITaypointWillRepository, TaypointWillPostgresRepository>();
                 })
                 .Build();
 

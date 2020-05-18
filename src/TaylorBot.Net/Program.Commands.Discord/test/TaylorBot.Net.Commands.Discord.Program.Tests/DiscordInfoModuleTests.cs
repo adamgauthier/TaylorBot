@@ -2,7 +2,6 @@
 using FakeItEasy;
 using FluentAssertions;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Services;
@@ -21,8 +20,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public DiscordInfoModuleTests()
         {
             _discordInfoModule = new DiscordInfoModule(_userStatusStringMapper);
-            var setContext = _discordInfoModule.GetType().GetMethod("Discord.Commands.IModuleBase.SetContext", BindingFlags.Instance | BindingFlags.NonPublic);
-            setContext.Invoke(_discordInfoModule, new object[] { _commandContext });
+            _discordInfoModule.SetContext(_commandContext);
         }
 
         [Fact]

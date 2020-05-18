@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Humanizer;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Services;
@@ -17,7 +16,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
     [Name("DiscordInfo")]
     public class DiscordInfoModule : TaylorBotModule
     {
-        public static readonly CultureInfo _culture = new CultureInfo("en-US");
         public static readonly Random _random = new Random();
         public readonly UserStatusStringMapper _userStatusStringMapper;
 
@@ -125,9 +123,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 embed.AddField("Activity", member.Activity.Name, inline: true);
 
             if (member.JoinedAt.HasValue)
-                embed.AddField("Server Joined", member.JoinedAt.Value.FormatFullUserDate(_culture));
+                embed.AddField("Server Joined", member.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));
 
-            embed.AddField("Account Created", member.CreatedAt.FormatFullUserDate(_culture));
+            embed.AddField("Account Created", member.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
             if (member.RoleIds.Any())
             {

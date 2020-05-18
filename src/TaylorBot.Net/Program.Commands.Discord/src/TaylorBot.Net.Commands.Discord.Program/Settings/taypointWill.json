@@ -1,0 +1,5 @@
+﻿{
+  "TaypointWill": {
+    "DaysOfInactivityBeforeWillCanBeClaimed": 90
+  }
+}
