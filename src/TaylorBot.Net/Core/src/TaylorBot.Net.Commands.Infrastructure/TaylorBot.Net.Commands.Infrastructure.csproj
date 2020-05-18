@@ -5,12 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TaylorBot.Net.Commands\TaylorBot.Net.Commands.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.EntityTracker.Infrastructure\TaylorBot.Net.EntityTracker.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
 {
     public static class ConfigurationBuilderExtensions
     {
-        public static IConfigurationBuilder AddTaylorBotApplicationConfiguration(this IConfigurationBuilder builder, TaylorBotEnvironment environment)
+        public static IConfigurationBuilder AddTaylorBotApplication(this IConfigurationBuilder builder, TaylorBotEnvironment environment)
         {
             return builder
                 .AddJsonFile(path: $"Settings/logging.{environment}.json", optional: false)

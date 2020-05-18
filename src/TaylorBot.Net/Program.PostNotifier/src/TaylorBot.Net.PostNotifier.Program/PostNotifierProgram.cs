@@ -48,8 +48,8 @@ namespace TaylorBot.Net.PostNotifier.Program
                 {
                     var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
                     appConfig
-                        .AddTaylorBotApplicationConfiguration(environment)
-                        .AddDatabaseConnectionConfiguration(environment)
+                        .AddTaylorBotApplication(environment)
+                        .AddDatabaseConnection(environment)
                         .AddJsonFile(path: $"Settings/redditNotifier.{env}.json", optional: false)
                         .AddJsonFile(path: $"Settings/redditAuth.{env}.json", optional: false)
                         .AddJsonFile(path: $"Settings/youtubeNotifier.{env}.json", optional: false)
@@ -68,7 +68,7 @@ namespace TaylorBot.Net.PostNotifier.Program
                     services
                         .AddHostedService<TaylorBotHostedService>()
                         .AddTaylorBotApplicationServices(config)
-                        .ConfigureDatabaseConnection(config)
+                        .AddPostgresConnection(config)
                         .ConfigureRequired<RedditNotifierOptions>(config, "RedditNotifier")
                         .ConfigureRequired<RedditAuthOptions>(config, "RedditAuth")
                         .AddSingleton(provider =>

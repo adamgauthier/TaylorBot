@@ -43,8 +43,8 @@ namespace TaylorBot.Net.UserNotifier.Program
                 {
                     var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
                     appConfig
-                        .AddTaylorBotApplicationConfiguration(environment)
-                        .AddDatabaseConnectionConfiguration(environment)
+                        .AddTaylorBotApplication(environment)
+                        .AddDatabaseConnection(environment)
                         .AddJsonFile(path: $"Settings/birthdayRewardNotifier.{env}.json", optional: false)
                         .AddJsonFile(path: $"Settings/reminderNotifier.{env}.json", optional: false)
                         .AddJsonFile(path: $"Settings/memberLog.{env}.json", optional: false)
@@ -60,7 +60,7 @@ namespace TaylorBot.Net.UserNotifier.Program
                     services
                         .AddHostedService<TaylorBotHostedService>()
                         .AddTaylorBotApplicationServices(config)
-                        .ConfigureDatabaseConnection(config)
+                        .AddPostgresConnection(config)
                         .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")
                         .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
                         .ConfigureRequired<MemberLeftLoggingOptions>(config, "MemberLeft")

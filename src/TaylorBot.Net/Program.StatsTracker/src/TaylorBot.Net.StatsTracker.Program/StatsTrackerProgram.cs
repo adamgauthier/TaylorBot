@@ -30,8 +30,8 @@ namespace TaylorBot.Net.StatsTracker.Program
                 {
                     var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
                     appConfig
-                        .AddTaylorBotApplicationConfiguration(environment)
-                        .AddDatabaseConnectionConfiguration(environment)
+                        .AddTaylorBotApplication(environment)
+                        .AddDatabaseConnection(environment)
                         .AddJsonFile(path: $"Settings/minutesTracker.{env}.json", optional: false);
                 })
                 .ConfigureLogging((hostBuilderContext, logging) =>
@@ -44,7 +44,7 @@ namespace TaylorBot.Net.StatsTracker.Program
                     services
                         .AddHostedService<TaylorBotHostedService>()
                         .AddTaylorBotApplicationServices(config)
-                        .ConfigureDatabaseConnection(config)
+                        .AddPostgresConnection(config)
                         .ConfigureRequired<MinutesTrackerOptions>(config, "MinutesTracker")
                         .AddTransient<IShardReadyHandler, ReadyHandler>()
                         .AddTransient<IUserMessageReceivedHandler, UserMessageReceivedHandler>()

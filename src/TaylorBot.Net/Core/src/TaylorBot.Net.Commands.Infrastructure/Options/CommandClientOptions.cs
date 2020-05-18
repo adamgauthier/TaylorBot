@@ -1,4 +1,4 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Options
+﻿namespace TaylorBot.Net.Commands.Infrastructure.Options
 {
     public class CommandClientOptions
     {

@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddTaylorBotCommandServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration)
         {
             return services
                 .AddTaylorBotApplicationServices(configuration)
