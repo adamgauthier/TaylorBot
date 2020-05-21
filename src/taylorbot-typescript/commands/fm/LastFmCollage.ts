@@ -1,11 +1,10 @@
-'use strict';
+import moment = require('moment');
+import querystring = require('querystring');
 
-const moment = require('moment');
-const querystring = require('querystring');
-
-const Command = require('../Command.js');
-const CommandError = require('../CommandError.js');
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import Command = require('../Command.js');
+import CommandError = require('../CommandError.js');
+import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { CommandMessageContext } from '../CommandMessageContext';
 
 class LastFmCollageCommand extends Command {
     constructor() {
@@ -33,14 +32,14 @@ class LastFmCollageCommand extends Command {
         });
     }
 
-    async run({ message, client }, { period, size }) {
+    async run({ message, client }: CommandMessageContext, { period, size }: { period: string; size: number }): Promise<void> {
         const user = message.author;
         const attribute = await client.master.database.textAttributes.get('lastfm', user);
         if (!attribute) {
-            throw new CommandError(`${user.username}'s Last.fm username is not set. They can use the \`setlastfm\` command to set it.`);
+            throw new CommandError(`${user?.username}'s Last.fm username is not set. They can use the \`setlastfm\` command to set it.`);
         }
 
-        return client.sendEmbed(message.channel, DiscordEmbedFormatter
+        await client.sendEmbed(message.channel, DiscordEmbedFormatter
             .baseUserEmbed(user)
             .setTitle(`Last.fm ${size}x${size} collage for period '${period}'`)
             .setImage(`https://lastfmtopalbums.dinduks.com/patchwork.php?${querystring.stringify({
@@ -55,4 +54,4 @@ class LastFmCollageCommand extends Command {
     }
 }
 
-module.exports = LastFmCollageCommand;
+export = LastFmCollageCommand;
