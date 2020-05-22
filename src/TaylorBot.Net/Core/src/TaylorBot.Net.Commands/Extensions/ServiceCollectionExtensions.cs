@@ -22,6 +22,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
                 .AddTransient<CommandExecutedHandler>()
                 .AddTransient<CommandServiceLogger>()
+                .AddTransient<IUserTracker, UserTracker>()
                 .AddTransient<MentionedUserTypeReader<IUser>>()
                 .AddTransient<CustomUserTypeReader<IUser>>()
                 .AddTransient<MentionedUserTypeReader<IGuildUser>>()

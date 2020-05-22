@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Services;
+using TaylorBot.Net.Commands.Types;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests
@@ -15,11 +16,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 
         private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
         private readonly UserStatusStringMapper _userStatusStringMapper = new UserStatusStringMapper();
+        private readonly IUserTracker _userTracker = A.Fake<IUserTracker>(o => o.Strict());
         private readonly DiscordInfoModule _discordInfoModule;
 
         public DiscordInfoModuleTests()
         {
-            _discordInfoModule = new DiscordInfoModule(_userStatusStringMapper);
+            _discordInfoModule = new DiscordInfoModule(_userStatusStringMapper, _userTracker);
             _discordInfoModule.SetContext(_commandContext);
         }
 
@@ -29,8 +31,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const string AnAvatarURL = "https://cdn.discordapp.com/avatars/1/1.png";
             var user = A.Fake<IUser>();
             A.CallTo(() => user.GetAvatarUrl(ImageFormat.Auto, 2048)).Returns(AnAvatarURL);
+            var userArgument = A.Fake<IUserArgument<IUser>>();
+            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.AvatarAsync(user);
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.AvatarAsync(userArgument);
 
             result.Embed.Image.Value.Url.Should().Be(AnAvatarURL);
         }
@@ -42,8 +46,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var user = A.Fake<IUser>();
             A.CallTo(() => user.Activity).Returns(null);
             A.CallTo(() => user.Status).Returns(AUserStatus);
+            var userArgument = A.Fake<IUserArgument<IUser>>();
+            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(user);
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(userArgument);
 
             result.Embed.Description.Should().Be(_userStatusStringMapper.MapStatusToString(AUserStatus));
         }
@@ -54,8 +60,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const string ACustomStatus = "the end of a decade but the start of an age";
             var user = A.Fake<IUser>();
             A.CallTo(() => user.Activity).Returns(_presenceFactory.CreateCustomStatus(ACustomStatus));
+            var userArgument = A.Fake<IUserArgument<IUser>>();
+            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(user);
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(userArgument);
 
             result.Embed.Description.Should().Contain(ACustomStatus);
         }
@@ -66,8 +74,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const ulong AnId = 1;
             var guildUser = A.Fake<IGuildUser>();
             A.CallTo(() => guildUser.Id).Returns(AnId);
+            var userArgument = A.Fake<IUserArgument<IGuildUser>>();
+            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(guildUser);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.UserInfoAsync(guildUser);
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.UserInfoAsync(userArgument);
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
@@ -81,6 +91,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var guild = A.Fake<IGuild>();
             A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser });
             A.CallTo(() => _commandContext.Guild).Returns(guild);
+            A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(guildUser)).Returns(default);
 
             var result = (TaylorBotEmbedResult)await _discordInfoModule.RandomUserInfoAsync();
 

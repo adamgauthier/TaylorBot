@@ -18,55 +18,58 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
     {
         public static readonly Random _random = new Random();
         public readonly UserStatusStringMapper _userStatusStringMapper;
+        public readonly IUserTracker _userTracker;
 
-        public DiscordInfoModule(UserStatusStringMapper userStatusStringMapper)
+        public DiscordInfoModule(UserStatusStringMapper userStatusStringMapper, IUserTracker userTracker)
         {
             _userStatusStringMapper = userStatusStringMapper;
+            _userTracker = userTracker;
         }
 
         [Command("avatar")]
         [Alias("av", "avi")]
         [Summary("Displays the avatar of a user.")]
-        public Task<RuntimeResult> AvatarAsync(
+        public async Task<RuntimeResult> AvatarAsync(
             [Summary("What user would you like to see the avatar of?")]
             [Remainder]
-            IUser user = null
+            IUserArgument<IUser> user = null
         )
         {
-            if (user == null)
-                user = Context.User;
+            var u = user == null ?
+                Context.User :
+                await user.GetTrackedUserAsync();
 
             var embed = new EmbedBuilder()
-                .WithUserAsAuthorAndColor(user)
-                .WithImageUrl(user.GetAvatarUrlOrDefault(size: 2048))
+                .WithUserAsAuthorAndColor(u)
+                .WithImageUrl(u.GetAvatarUrlOrDefault(size: 2048))
             .Build();
 
-            return Task.FromResult<RuntimeResult>(new TaylorBotEmbedResult(embed));
+            return new TaylorBotEmbedResult(embed);
         }
 
         [Command("status")]
         [Summary("Displays the status of a user.")]
-        public Task<RuntimeResult> StatusAsync(
+        public async Task<RuntimeResult> StatusAsync(
             [Summary("What user would you like to see the status of?")]
             [Remainder]
-            IUser user = null
+            IUserArgument<IUser> user = null
         )
         {
-            if (user == null)
-                user = Context.User;
+            var u = user == null ?
+                Context.User :
+                await user.GetTrackedUserAsync();
 
-            var embed = new EmbedBuilder()
-                .WithUserAsAuthorAndColor(user);
+            var embed = new EmbedBuilder().WithUserAsAuthorAndColor(u);
 
-            if (user.Activity == null)
+            if (u.Activity == null)
             {
                 embed
                     .WithTitle("Status")
-                    .WithDescription(_userStatusStringMapper.MapStatusToString(user.Status));
+                    .WithDescription(_userStatusStringMapper.MapStatusToString(u.Status));
             }
             else
             {
-                switch (user.Activity)
+                switch (u.Activity)
                 {
                     case CustomStatusGame customStatus:
                         embed
@@ -92,50 +95,51 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                         break;
 
                     default:
-                        embed.WithDescription(user.Activity.Name);
+                        embed.WithDescription(u.Activity.Name);
                         break;
                 }
             }
 
-            return Task.FromResult<RuntimeResult>(new TaylorBotEmbedResult(embed.Build()));
+            return new TaylorBotEmbedResult(embed.Build());
         }
 
         [RequireInGuild]
         [Command("userinfo")]
         [Alias("uinfo")]
         [Summary("Gets discord information about a user.")]
-        public Task<RuntimeResult> UserInfoAsync(
+        public async Task<RuntimeResult> UserInfoAsync(
             [Summary("What user would you like to see the info of?")]
             [OverrideTypeReader(typeof(CustomUserTypeReader<IGuildUser>))]
             [Remainder]
-            IGuildUser member = null
+            IUserArgument<IGuildUser> member = null
         )
         {
-            if (member == null)
-                member = (IGuildUser)Context.User;
+            var guildUser = member == null ?
+                (IGuildUser)Context.User :
+                await member.GetTrackedUserAsync();
 
             var embed = new EmbedBuilder()
-                .WithUserAsAuthorAndColor(member)
-                .WithThumbnailUrl(member.GetAvatarUrlOrDefault(size: 2048))
-                .AddField("Id", $"`{member.Id}`", inline: true);
+                .WithUserAsAuthorAndColor(guildUser)
+                .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
+                .AddField("Id", $"`{guildUser.Id}`", inline: true);
 
-            if (member.Activity != null && !string.IsNullOrWhiteSpace(member.Activity.Name))
-                embed.AddField("Activity", member.Activity.Name, inline: true);
+            if (guildUser.Activity != null && !string.IsNullOrWhiteSpace(guildUser.Activity.Name))
+                embed.AddField("Activity", guildUser.Activity.Name, inline: true);
 
-            if (member.JoinedAt.HasValue)
-                embed.AddField("Server Joined", member.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));
+            if (guildUser.JoinedAt.HasValue)
+                embed.AddField("Server Joined", guildUser.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));
 
-            embed.AddField("Account Created", member.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
+            embed.AddField("Account Created", guildUser.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
-            if (member.RoleIds.Any())
+            if (guildUser.RoleIds.Any())
             {
                 embed.AddField(
-                    "Role".ToQuantity(member.RoleIds.Count),
-                    string.Join(", ", member.RoleIds.Select(id => MentionUtils.MentionRole(id))).Truncate(75)
+                    "Role".ToQuantity(guildUser.RoleIds.Count),
+                    string.Join(", ", guildUser.RoleIds.Select(id => MentionUtils.MentionRole(id))).Truncate(75)
                 );
             }
 
-            return Task.FromResult<RuntimeResult>(new TaylorBotEmbedResult(embed.Build()));
+            return new TaylorBotEmbedResult(embed.Build());
         }
 
         [RequireInGuild]
@@ -146,7 +150,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         {
             var cachedUsers = await Context.Guild.GetUsersAsync(CacheMode.CacheOnly);
             var randomUser = cachedUsers.ElementAt(_random.Next(cachedUsers.Count));
-            return await UserInfoAsync(randomUser);
+            return await UserInfoAsync(new UserArgument<IGuildUser>(randomUser, _userTracker));
         }
     }
 }

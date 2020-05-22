@@ -32,11 +32,12 @@ namespace TaylorBot.Net.Commands
             commandService.Log += commandServiceLogger.OnCommandServiceLogAsync;
             commandService.CommandExecuted += commandExecutedHandler.OnCommandExecutedAsync;
 
-            commandService.AddTypeReader<IUser>(_serviceProvider.GetRequiredService<CustomUserTypeReader<IUser>>(), replaceDefault: true);
-            commandService.AddTypeReader<MentionedUser<IUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IUser>>());
-            commandService.AddTypeReader<MentionedUser<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IGuildUser>>());
-            commandService.AddTypeReader<MentionedUserNotAuthor<IUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IUser>>());
-            commandService.AddTypeReader<MentionedUserNotAuthor<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
+            commandService.AddTypeReader<IUserArgument<IUser>>(_serviceProvider.GetRequiredService<CustomUserTypeReader<IUser>>());
+            commandService.AddTypeReader<IUserArgument<IGuildUser>>(_serviceProvider.GetRequiredService<CustomUserTypeReader<IGuildUser>>());
+            commandService.AddTypeReader<IMentionedUser<IUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IUser>>());
+            commandService.AddTypeReader<IMentionedUser<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IGuildUser>>());
+            commandService.AddTypeReader<IMentionedUserNotAuthor<IUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IUser>>());
+            commandService.AddTypeReader<IMentionedUserNotAuthor<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
 
             await commandService.AddModuleAsync<HelpModule>(_serviceProvider);
             await commandService.AddModulesAsync(

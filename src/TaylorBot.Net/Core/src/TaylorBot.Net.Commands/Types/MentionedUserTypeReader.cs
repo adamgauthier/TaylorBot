@@ -5,19 +5,18 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Types
 {
-    public class MentionedUser<T> where T : class, IUser
-    {
-        public T User { get; }
-
-        public MentionedUser(T user)
-        {
-            User = user;
-        }
-    }
+    public interface IMentionedUser<T> : IUserArgument<T> where T : class, IUser { }
 
     public class MentionedUserTypeReader<T> : TypeReader
         where T : class, IUser
     {
+        private readonly IUserTracker _userTracker;
+
+        public MentionedUserTypeReader(IUserTracker userTracker)
+        {
+            _userTracker = userTracker;
+        }
+
         public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
             if (MentionUtils.TryParseUser(input, out var id))
@@ -26,7 +25,7 @@ namespace TaylorBot.Net.Commands.Types
                     (T)await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) :
                     (T)await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false);
 
-                return TypeReaderResult.FromSuccess(new MentionedUser<T>(user));
+                return TypeReaderResult.FromSuccess(new UserArgument<T>(user, _userTracker));
             }
             else
             {

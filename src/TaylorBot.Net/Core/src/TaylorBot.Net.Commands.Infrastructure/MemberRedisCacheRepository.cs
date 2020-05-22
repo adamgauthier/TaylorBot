@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _memberPostgresRepository = memberPostgresRepository;
         }
 
-        public async Task<bool> AddOrUpdateMemberAsync(IGuildUser member)
+        public async ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = $"command-user:guild:{member.GuildId}:user:{member.Id}";
@@ -25,7 +25,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
             if (!cachedMember.HasValue)
             {
-                var memberAdded = await _memberPostgresRepository.AddOrUpdateMemberAsync(member);
+                var memberAdded = await _memberPostgresRepository.AddOrUpdateMemberAsync(member, lastSpokeAt);
                 await redis.StringSetAsync(
                     key,
                     true,

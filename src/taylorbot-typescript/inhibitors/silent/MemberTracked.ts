@@ -10,7 +10,7 @@ class MemberTracked extends SilentInhibitor {
         if (!member)
             return null;
 
-        const memberAdded = await client.master.registry.guilds.addOrUpdateMemberAsync(member);
+        const memberAdded = await client.master.registry.guilds.addOrUpdateMemberAsync(member, message.createdAt);
 
         if (memberAdded) {
             Log.verbose(`Added new member ${Format.member(member)}.`);

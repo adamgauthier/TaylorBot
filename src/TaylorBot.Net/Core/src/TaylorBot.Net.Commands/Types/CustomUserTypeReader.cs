@@ -1,58 +1,76 @@
 ﻿using Discord;
 using Discord.Commands;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Preconditions;
-using TaylorBot.Net.Core.Logging;
-using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.Commands.Types
 {
-    /// <summary>
-    ///     A <see cref="TypeReader"/> for parsing objects implementing <see cref="IUser"/>.
-    /// </summary>
-    /// <typeparam name="T">The type to be checked; must implement <see cref="IUser"/>.</typeparam>
     public class CustomUserTypeReader<T> : TypeReader
         where T : class, IUser
     {
         private readonly MentionedUserTypeReader<T> _mentionedUserTypeReader;
+        private readonly IUserTracker _userTracker;
 
-        public CustomUserTypeReader(MentionedUserTypeReader<T> mentionedUserTypeReader)
+        public CustomUserTypeReader(MentionedUserTypeReader<T> mentionedUserTypeReader, IUserTracker userTracker)
         {
             _mentionedUserTypeReader = mentionedUserTypeReader;
+            _userTracker = userTracker;
         }
 
-        /// <inheritdoc />
+        private class UserVal<U> where U : class, IUser
+        {
+            public IUserArgument<U> UserArgument { get; }
+            public float Score { get; }
+
+            public UserVal(IUserArgument<U> userArgument, float score)
+            {
+                UserArgument = userArgument;
+                Score = score;
+            }
+        }
+
+        private void AddResultIfTypeMatches(Dictionary<ulong, UserVal<T>> results, IUser user, float score)
+        {
+            if (user is T casted && !results.ContainsKey(user.Id))
+            {
+                results.Add(casted.Id, new UserVal<T>(
+                    new UserArgument<T>(casted, _userTracker),
+                    score
+                ));
+            }
+        }
+
         public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
-            var results = new Dictionary<ulong, TypeReaderValue>();
-            var channelUsers = context.Channel.GetUsersAsync(CacheMode.CacheOnly).Flatten();
-            IReadOnlyCollection<IGuildUser> guildUsers = ImmutableArray.Create<IGuildUser>();
+            var results = new Dictionary<ulong, UserVal<T>>();
 
-            if (context.Guild != null)
-                guildUsers = await context.Guild.GetUsersAsync(CacheMode.CacheOnly).ConfigureAwait(false);
+            var channelUsers = context.Channel.GetUsersAsync(CacheMode.CacheOnly).Flatten();
+
+            IReadOnlyCollection<IGuildUser> guildUsers = context.Guild != null ?
+                await context.Guild.GetUsersAsync(CacheMode.CacheOnly).ConfigureAwait(false) :
+                ImmutableArray.Create<IGuildUser>();
 
 
             // By Mention (1.0)
             var mentionned = await _mentionedUserTypeReader.ReadAsync(context, input, services);
             if (mentionned.Values != null)
             {
-                AddResult(results, ((MentionedUser<T>)mentionned.Values.Single().Value).User, 1.00f);
+                var result = (IUserArgument<T>)mentionned.Values.Single().Value;
+                results.Add(result.UserId, new UserVal<T>(result, 1.00f));
             }
 
             // By Id (0.9)
             if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out var id))
             {
-                if (context.Guild != null)
-                    AddResult(results, await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 0.90f);
-                else
-                    AddResult(results, await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) as T, 0.90f);
+                var user = context.Guild != null ?
+                    await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) :
+                    await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false);
+
+                AddResultIfTypeMatches(results, user, 0.90f);
             }
 
             // By Username + Discriminator (0.7-0.85)
@@ -66,18 +84,21 @@ namespace TaylorBot.Net.Commands.Types
                     var channelUsernameMatches = await channelUsers.Where(x => x.DiscriminatorValue == discriminator)
                         .ToLookupAsync(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase))
                         .ConfigureAwait(false);
+
                     foreach (var channelUser in channelUsernameMatches[true])
-                        AddResult(results, channelUser as T, channelUser.Username == username ? 0.85f : 0.75f);
+                        AddResultIfTypeMatches(results, channelUser, channelUser.Username == username ? 0.85f : 0.75f);
                     foreach (var channelUser in channelUsernameMatches[false])
-                        AddResult(results, channelUser as T, channelUser.Username == username ? 0.45f : 0.40f);
+                        AddResultIfTypeMatches(results, channelUser, channelUser.Username == username ? 0.45f : 0.40f);
+
 
                     var guildUsernameMatches = await channelUsers.Where(x => x.DiscriminatorValue == discriminator)
                         .ToLookupAsync(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase))
                         .ConfigureAwait(false);
+
                     foreach (var guildUser in guildUsernameMatches[true])
-                        AddResult(results, guildUser as T, guildUser.Username == username ? 0.80f : 0.70f);
+                        AddResultIfTypeMatches(results, guildUser, guildUser.Username == username ? 0.80f : 0.70f);
                     foreach (var guildUser in guildUsernameMatches[false])
-                        AddResult(results, guildUser as T, guildUser.Username == username ? 0.35f : 0.30f);
+                        AddResultIfTypeMatches(results, guildUser, guildUser.Username == username ? 0.35f : 0.30f);
                 }
             }
 
@@ -90,11 +111,11 @@ namespace TaylorBot.Net.Commands.Types
                         {
                             if (string.Equals(input, u.Username, StringComparison.OrdinalIgnoreCase))
                             {
-                                AddResult(results, u as T, u.Username == input ? 0.65f : 0.55f);
+                                AddResultIfTypeMatches(results, u, u.Username == input ? 0.65f : 0.55f);
                             }
                             else
                             {
-                                AddResult(results, u as T, 0.25f);
+                                AddResultIfTypeMatches(results, u, 0.25f);
                             }
                         }
                     });
@@ -106,11 +127,11 @@ namespace TaylorBot.Net.Commands.Types
                     {
                         if (string.Equals(input, guildUser.Username, StringComparison.OrdinalIgnoreCase))
                         {
-                            AddResult(results, guildUser as T, guildUser.Username == input ? 0.60f : 0.50f);
+                            AddResultIfTypeMatches(results, guildUser, guildUser.Username == input ? 0.60f : 0.50f);
                         }
                         else
                         {
-                            AddResult(results, guildUser as T, 0.20f);
+                            AddResultIfTypeMatches(results, guildUser, 0.20f);
                         }
                     }
                 }
@@ -127,11 +148,11 @@ namespace TaylorBot.Net.Commands.Types
                         {
                             if (string.Equals(input, u.Nickname, StringComparison.OrdinalIgnoreCase))
                             {
-                                AddResult(results, u as T, u.Nickname == input ? 0.65f : 0.55f);
+                                AddResultIfTypeMatches(results, u, u.Nickname == input ? 0.65f : 0.55f);
                             }
                             else
                             {
-                                AddResult(results, u as T, 0.25f);
+                                AddResultIfTypeMatches(results, u, 0.25f);
                             }
                         }
                     });
@@ -142,11 +163,11 @@ namespace TaylorBot.Net.Commands.Types
                     {
                         if (string.Equals(input, guildUser.Nickname, StringComparison.OrdinalIgnoreCase))
                         {
-                            AddResult(results, guildUser as T, guildUser.Nickname == input ? 0.60f : 0.50f);
+                            AddResultIfTypeMatches(results, guildUser, guildUser.Nickname == input ? 0.60f : 0.50f);
                         }
                         else
                         {
-                            AddResult(results, guildUser as T, 0.20f);
+                            AddResultIfTypeMatches(results, guildUser, 0.20f);
                         }
                     }
                 }
@@ -154,39 +175,12 @@ namespace TaylorBot.Net.Commands.Types
 
             if (results.Count > 0)
             {
-                var allMatches = results.Values.ToImmutableArray();
-                var bestUser = (T)allMatches.OrderByDescending(y => y.Score).First().Value;
-
-                var ignoredUserRepository = services.GetRequiredService<IIgnoredUserRepository>();
-                var usernameTrackerDomainService = services.GetRequiredService<UsernameTrackerDomainService>();
-
-                var getUserIgnoreUntilResult = await ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(bestUser);
-                await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(bestUser, getUserIgnoreUntilResult);
-
-                if (bestUser is IGuildUser bestGuildUser)
-                {
-                    var memberRepository = services.GetRequiredService<IMemberRepository>();
-
-                    var memberAdded = await memberRepository.AddOrUpdateMemberAsync(bestGuildUser);
-
-                    if (memberAdded)
-                    {
-                        services.GetRequiredService<ILogger<CustomUserTypeReader<T>>>().LogInformation(LogString.From(
-                            $"Added new member {bestGuildUser.FormatLog()}."
-                        ));
-                    }
-                }
-
-                return TypeReaderResult.FromSuccess(allMatches);
+                return TypeReaderResult.FromSuccess(
+                    results.Values.Select(u => new TypeReaderValue(u.UserArgument, u.Score)).ToImmutableArray()
+                );
             }
 
             return TypeReaderResult.FromError(CommandError.ObjectNotFound, $"Could not find user '{input}'. Mention with @ to make sure I find them.");
-        }
-
-        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T user, float score)
-        {
-            if (user != null && !results.ContainsKey(user.Id))
-                results.Add(user.Id, new TypeReaderValue(user, score));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Discord;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
@@ -15,12 +16,12 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<bool> AddOrUpdateMemberAsync(IGuildUser member)
+        public async ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             var experience = await connection.QuerySingleAsync<long>(
-                @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES (@GuildId, @UserId, @FirstJoinedAt)
+                @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at, last_spoke_at) VALUES (@GuildId, @UserId, @FirstJoinedAt, @LastSpokeAt)
                 ON CONFLICT (guild_id, user_id) DO UPDATE SET
                     alive = TRUE,
                     first_joined_at = CASE
@@ -28,13 +29,19 @@ namespace TaylorBot.Net.Commands.Infrastructure
                         THEN excluded.first_joined_at
                         ELSE guild_members.first_joined_at
                     END,
-                    experience = guild_members.experience + 1
+                    experience = guild_members.experience + 1,
+                    last_spoke_at = CASE
+                        WHEN excluded.last_spoke_at IS NULL
+                        THEN guild_members.last_spoke_at
+                        ELSE excluded.last_spoke_at
+                    END
                 RETURNING experience;",
                 new
                 {
                     GuildId = member.GuildId.ToString(),
                     UserId = member.Id.ToString(),
-                    FirstJoinedAt = member.JoinedAt
+                    FirstJoinedAt = member.JoinedAt,
+                    LastSpokeAt = lastSpokeAt
                 }
             );
 

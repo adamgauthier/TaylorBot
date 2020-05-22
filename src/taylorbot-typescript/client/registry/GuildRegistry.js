@@ -51,12 +51,12 @@ class GuildRegistry extends Map {
         return `command-user:guild:${member.guild.id}:user:${member.id}`;
     }
 
-    async addOrUpdateMemberAsync(member) {
+    async addOrUpdateMemberAsync(member, lastSpokeAt) {
         const key = this.memberKey(member);
         const cachedMember = await this.redis.get(key);
 
         if (!cachedMember) {
-            const memberAdded = await this.database.guildMembers.addOrUpdateMemberAsync(member);
+            const memberAdded = await this.database.guildMembers.addOrUpdateMemberAsync(member, lastSpokeAt);
             await this.redis.setExpire(
                 key,
                 1 * 60 * 60,

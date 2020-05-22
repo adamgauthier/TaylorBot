@@ -6,15 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Types
 {
-    public class MentionedUserNotAuthor<T> where T : class, IUser
-    {
-        public T User { get; }
-
-        public MentionedUserNotAuthor(T user)
-        {
-            User = user;
-        }
-    }
+    public interface IMentionedUserNotAuthor<T> : IUserArgument<T> where T : class, IUser { }
 
     public class MentionedUserNotAuthorTypeReader<T> : TypeReader
         where T : class, IUser
@@ -31,12 +23,12 @@ namespace TaylorBot.Net.Commands.Types
             var result = await _mentionedUserTypeReader.ReadAsync(context, input, services);
             if (result.Values != null)
             {
-                var mentioned = (MentionedUser<T>)result.Values.Single().Value;
-                if (mentioned.User == context.User)
+                var mentioned = (IUserArgument<T>)result.Values.Single().Value;
+                if (mentioned.UserId == context.User.Id)
                 {
                     return TypeReaderResult.FromError(CommandError.ParseFailed, $"You can't mention yourself.");
                 }
-                return TypeReaderResult.FromSuccess(new MentionedUserNotAuthor<T>(mentioned.User));
+                return TypeReaderResult.FromSuccess(mentioned);
             }
             else
             {

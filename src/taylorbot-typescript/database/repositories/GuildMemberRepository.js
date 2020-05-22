@@ -218,11 +218,11 @@ class GuildMemberRepository {
         }
     }
 
-    async addOrUpdateMemberAsync(guildMember) {
+    async addOrUpdateMemberAsync(guildMember, lastSpokeAt) {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
             const { experience } = await this._db.one(
-                `INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES ($[guild_id], $[user_id], $[first_joined_at])
+                `INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at, last_spoke_at) VALUES ($[guild_id], $[user_id], $[first_joined_at], $[last_spoke_at])
                 ON CONFLICT (guild_id, user_id) DO UPDATE SET
                     alive = TRUE,
                     first_joined_at = CASE
@@ -230,10 +230,16 @@ class GuildMemberRepository {
                         THEN excluded.first_joined_at
                         ELSE guild_members.first_joined_at
                     END,
-                    experience = guild_members.experience + 1
+                    experience = guild_members.experience + 1,
+                    last_spoke_at = CASE
+                        WHEN excluded.last_spoke_at IS NULL
+                        THEN guild_members.last_spoke_at
+                        ELSE excluded.last_spoke_at
+                    END
                 RETURNING experience;`,
                 {
-                    'first_joined_at': guildMember.joinedAt,
+                    first_joined_at: guildMember.joinedAt,
+                    last_spoke_at: lastSpokeAt,
                     ...databaseMember
                 }
             );

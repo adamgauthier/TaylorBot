@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 {
     public interface IMemberRepository
     {
-        Task<bool> AddOrUpdateMemberAsync(IGuildUser member);
+        ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt);
     }
 
     public class RequireMemberTrackedAttribute : PreconditionAttribute
@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             var memberRepository = services.GetRequiredService<IMemberRepository>();
 
-            var memberAdded = await memberRepository.AddOrUpdateMemberAsync(guildUser);
+            var memberAdded = await memberRepository.AddOrUpdateMemberAsync(guildUser, lastSpokeAt: context.Message.Timestamp);
 
             if (memberAdded)
             {
