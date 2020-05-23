@@ -8,6 +8,7 @@ using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.Core.User;
 

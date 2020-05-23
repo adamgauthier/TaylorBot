@@ -8,12 +8,18 @@ namespace TaylorBot.Net.Core.Time
     {
         public static string FormatFullUserDate(this DateTimeOffset date, CultureInfo culture)
         {
-            return $"{date.ToString("MMMM", culture)} {date.Day.Ordinalize(culture)}, {date.ToString(@"yyyy \a\t HH:mm:ss.fff \U\T\C", culture)} ({date.Humanize(culture: culture)})";
+            var inUTC = date.ToUniversalTime();
+            return $"{inUTC.ToString("MMMM", culture)} {inUTC.Day.Ordinalize(culture)}, {inUTC.ToString(@"yyyy \a\t HH:mm:ss.fff \U\T\C", culture)} ({inUTC.Humanize(culture: culture)})";
         }
 
         public static string FormatShortUserDate(this DateTimeOffset date, CultureInfo culture)
         {
             return $"{date.ToString("MMMM", culture)} {date.Day.Ordinalize(culture)}, {date.ToString(@"yyyy", culture)} ({date.Humanize(culture: culture)})";
+        }
+
+        public static string FormatShortUserLogDate(this DateTimeOffset date)
+        {
+            return date.ToString("u", CultureInfo.InvariantCulture);
         }
     }
 }

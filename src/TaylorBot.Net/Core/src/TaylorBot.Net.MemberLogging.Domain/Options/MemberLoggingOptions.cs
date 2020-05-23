@@ -2,6 +2,7 @@
 {
     public class MemberLoggingOptions
     {
-        public string FirstJoinedAtUTCFormat { get; set; }
+        public string FirstJoinedEmbedColor { get; set; }
+        public string RejoinedEmbedColor { get; set; }
     }
 }

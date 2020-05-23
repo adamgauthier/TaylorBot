@@ -6,10 +6,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Options;
-using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Time;
 

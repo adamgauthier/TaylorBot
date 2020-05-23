@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Services
+namespace TaylorBot.Net.Core.Globalization
 {
     public class TaylorBotCulture
     {

@@ -1,19 +1,15 @@
 ﻿using Discord;
-using Humanizer;
 using Microsoft.Extensions.Options;
 using System;
-using System.Globalization;
+using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.MemberLogging.Domain.Options;
 
 namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed
 {
     public class GuildMemberJoinedEmbedFactory
     {
-        private static readonly Color FirstJoinedColor = new Color(116, 214, 0);
-        private static readonly Color RejoinedColor = new Color(0, 156, 26);
-
-        private static readonly CultureInfo USCultureInfo = new CultureInfo("en-US");
-
         private readonly IOptionsMonitor<MemberLoggingOptions> optionsMonitor;
 
         public GuildMemberJoinedEmbedFactory(IOptionsMonitor<MemberLoggingOptions> optionsMonitor)
@@ -33,19 +29,16 @@ namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed
         public Embed CreateMemberFirstJoined(IGuildUser guildUser)
         {
             return CreateBaseEmbed(guildUser)
-                .WithColor(FirstJoinedColor)
+                .WithColor(DiscordColor.FromHexString(optionsMonitor.CurrentValue.FirstJoinedEmbedColor))
                 .WithFooter("User joined")
                 .Build();
         }
 
         public Embed CreateMemberRejoined(IGuildUser guildUser, DateTimeOffset firstJoinedAt)
         {
-            var options = optionsMonitor.CurrentValue;
-            var utcFirstJoinedAt = firstJoinedAt.UtcDateTime;
-
             return CreateBaseEmbed(guildUser)
-                .WithColor(RejoinedColor)
-                .WithDescription($"`❕` {guildUser.Mention} first joined on {utcFirstJoinedAt.ToString(options.FirstJoinedAtUTCFormat)} ({firstJoinedAt.Humanize(culture: USCultureInfo)}).")
+                .WithColor(DiscordColor.FromHexString(optionsMonitor.CurrentValue.RejoinedEmbedColor))
+                .WithDescription($"`❕` {guildUser.Mention} first joined on {firstJoinedAt.FormatFullUserDate(TaylorBotCulture.Culture)}.")
                 .WithFooter("User rejoined")
                 .Build();
         }

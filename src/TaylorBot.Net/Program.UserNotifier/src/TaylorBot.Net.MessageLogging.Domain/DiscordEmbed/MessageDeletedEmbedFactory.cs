@@ -1,8 +1,8 @@
 ﻿using Discord;
 using Microsoft.Extensions.Options;
-using System.Globalization;
 using System.Linq;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.MessageLogging.Domain.Options;
 
 namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
@@ -34,11 +34,11 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
 
                 builder
                     .WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl)
-                    .AddField("Sent At", message.Timestamp.ToString("u", CultureInfo.InvariantCulture), inline: true);
+                    .AddField("Sent At", message.Timestamp.FormatShortUserLogDate(), inline: true);
 
                 if (message.EditedTimestamp.HasValue)
                 {
-                    builder.AddField("Edited At", message.EditedTimestamp.Value.ToString("u", CultureInfo.InvariantCulture), inline: true);
+                    builder.AddField("Edited At", message.EditedTimestamp.Value.FormatShortUserLogDate(), inline: true);
                 }
 
                 if (message.Activity != null)
@@ -73,7 +73,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             }
             else
             {
-                builder.AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id).ToString("u", CultureInfo.InvariantCulture), inline: true);
+                builder.AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatShortUserLogDate(), inline: true);
             }
 
             return builder.Build();
@@ -81,15 +81,12 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
 
         private string GetSystemMessageTypeString(MessageType messageType)
         {
-            switch (messageType)
+            return messageType switch
             {
-                case MessageType.ChannelPinnedMessage:
-                    return "A message was pinned";
-                case MessageType.GuildMemberJoin:
-                    return "A user joined the server";
-                default:
-                    return messageType.ToString();
-            }
+                MessageType.ChannelPinnedMessage => "A message was pinned",
+                MessageType.GuildMemberJoin => "A user joined the server",
+                _ => messageType.ToString()
+            };
         }
     }
 }

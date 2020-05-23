@@ -1,5 +1,6 @@
 ﻿{
   "MemberLogging": {
-    "FirstJoinedAtUTCFormat": ""
+    "FirstJoinedEmbedColor": "#000000",
+    "RejoinedEmbedColor": "#000000"
   }
 }
