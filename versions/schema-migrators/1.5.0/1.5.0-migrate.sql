@@ -5,7 +5,7 @@ CREATE TABLE users.taypoint_wills
 (
     owner_user_id text NOT NULL,
     beneficiary_user_id text NOT NULL,
-    PRIMARY KEY (owner_user_id, beneficiary_user_id),
+    PRIMARY KEY (owner_user_id),
     CONSTRAINT owner_user_id_fk FOREIGN KEY (owner_user_id)
         REFERENCES users.users (user_id) MATCH SIMPLE
         ON UPDATE NO ACTION

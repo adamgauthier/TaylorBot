@@ -19,6 +19,37 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
+        private class WillAddDto
+        {
+            public string beneficiary_user_id { get; set; }
+        }
+
+        public async ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var willAddDto = await connection.QuerySingleAsync<WillAddDto>(
+                @"INSERT INTO users.taypoint_wills (owner_user_id, beneficiary_user_id) VALUES (@OwnerId, @BeneficiaryId)
+                ON CONFLICT (owner_user_id) DO UPDATE SET
+                    owner_user_id = users.taypoint_wills.owner_user_id
+                RETURNING beneficiary_user_id;",
+                new
+                {
+                    OwnerId = owner.Id.ToString(),
+                    BeneficiaryId = beneficiary.Id.ToString()
+                }
+            );
+
+            if (willAddDto.beneficiary_user_id == beneficiary.Id.ToString())
+            {
+                return new WillAddedResult();
+            }
+            else
+            {
+                return new WillNotAddedResult(currentBeneficiaryId: new SnowflakeId(willAddDto.beneficiary_user_id));
+            }
+        }
+
         private class WillDto
         {
             public string user_id { get; set; }

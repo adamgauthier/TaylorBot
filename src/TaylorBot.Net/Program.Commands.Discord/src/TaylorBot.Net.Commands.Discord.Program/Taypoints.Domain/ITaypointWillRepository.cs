@@ -32,8 +32,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
         }
     }
 
+    public interface IWillAddResult { }
+
+    public class WillAddedResult : IWillAddResult { }
+
+    public class WillNotAddedResult : IWillAddResult
+    {
+        public SnowflakeId CurrentBeneficiaryId { get; }
+
+        public WillNotAddedResult(SnowflakeId currentBeneficiaryId)
+        {
+            CurrentBeneficiaryId = currentBeneficiaryId;
+        }
+    }
+
     public interface ITaypointWillRepository
     {
+        ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary);
         ValueTask<IReadOnlyCollection<Will>> GetWillsWithBeneficiaryAsync(IUser beneficiary);
         ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser);
         ValueTask RemoveWillsAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary);
