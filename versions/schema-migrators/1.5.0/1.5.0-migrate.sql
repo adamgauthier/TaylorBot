@@ -5,6 +5,7 @@ CREATE TABLE users.taypoint_wills
 (
     owner_user_id text NOT NULL,
     beneficiary_user_id text NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (owner_user_id),
     CONSTRAINT owner_user_id_fk FOREIGN KEY (owner_user_id)
         REFERENCES users.users (user_id) MATCH SIMPLE

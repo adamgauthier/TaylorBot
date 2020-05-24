@@ -60,6 +60,28 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         }
 
         [Fact]
+        public async Task ClearAsync_WhenWillNotRemoved_ThenReturnsErrorEmbed()
+        {
+            A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
+            A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillNotRemovedResult());
+
+            var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task ClearAsync_WhenWillRemoved_ThenReturnsSuccessEmbed()
+        {
+            A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
+            A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1)));
+
+            var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
         public async Task ClaimAsync_WhenWillWith1DayAfterInactivityThreshold_ThenReturnsErrorEmbed()
         {
             const uint InactiveDaysForClaim = 20;
@@ -91,7 +113,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 new Transfer(willOwnerId, 0, 100),
                 new Transfer(commandUserId, 100, 0)
             });
-            A.CallTo(() => _taypointWillRepository.RemoveWillsAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
+            A.CallTo(() => _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
 
             var result = (TaylorBotEmbedResult)await _taypointWillModule.ClaimAsync();
 

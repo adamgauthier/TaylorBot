@@ -69,6 +69,38 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             return new TaylorBotEmbedResult(embed.Build());
         }
 
+        [Command("clear")]
+        [Summary("Clears your taypoint will.")]
+        public async Task<RuntimeResult> ClearAsync()
+        {
+            var result = await _taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
+
+            var embed = new EmbedBuilder()
+                .WithUserAsAuthor(Context.User);
+
+            switch (result)
+            {
+                case WillRemovedResult willRemoved:
+                    embed
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"Your taypoint will with {MentionUtils.MentionUser(willRemoved.RemovedBeneficiaryId.Id)} has been cleared.",
+                            $"You can add a beneficiary again with `{Context.CommandPrefix}taypointwill add`."
+                        }));
+                    break;
+                case WillNotRemovedResult _:
+                    embed
+                        .WithColor(TaylorBotColors.ErrorColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"You don't have a taypoint will to clear.",
+                            $"Start adding a beneficiary with `{Context.CommandPrefix}taypointwill add`."
+                        }));
+                    break;
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
+        }
+
         [Command("claim")]
         [Summary("Claims the taypoints from all inactive users that added you to their taypoint will.")]
         public async Task<RuntimeResult> ClaimAsync()
@@ -84,7 +116,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             {
                 var ownerUserIds = expiredWills.Select(r => r.OwnerUserId).ToList();
                 var transfers = await _taypointWillRepository.TransferAllPointsAsync(ownerUserIds, Context.User);
-                await _taypointWillRepository.RemoveWillsAsync(ownerUserIds, Context.User);
+                await _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(ownerUserIds, Context.User);
                 var transfersTo = transfers.ToLookup(t => t.UserId.Id == Context.User.Id);
                 var receiver = transfersTo[true].Single();
                 var gifters = transfersTo[false].ToList();

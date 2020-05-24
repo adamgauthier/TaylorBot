@@ -50,6 +50,35 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             }
         }
 
+        private class WillRemoveDto
+        {
+            public string beneficiary_user_id { get; set; }
+        }
+
+        public async ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var willRemoveDto = await connection.QuerySingleOrDefaultAsync<WillRemoveDto>(
+                @"DELETE FROM users.taypoint_wills
+                WHERE owner_user_id = @OwnerId
+                RETURNING beneficiary_user_id;",
+                new
+                {
+                    OwnerId = owner.Id.ToString()
+                }
+            );
+
+            if (willRemoveDto == null)
+            {
+                return new WillNotRemovedResult();
+            }
+            else
+            {
+                return new WillRemovedResult(new SnowflakeId(willRemoveDto.beneficiary_user_id));
+            }
+        }
+
         private class WillDto
         {
             public string user_id { get; set; }
@@ -123,7 +152,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             )).ToList();
         }
 
-        public async ValueTask RemoveWillsAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
+        public async ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
