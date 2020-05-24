@@ -1,0 +1,62 @@
+trigger:
+  - master
+  
+resources:
+- repo: self
+
+variables:
+  dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.EntityTracker/Dockerfile'
+  dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
+  testImageTag: 'taylorbot/entity-tracker-tests'
+  testResultsPath: '$(Build.ArtifactStagingDirectory)/TestResults'
+  containerImageTag: 'taylorbot/entity-tracker:$(Build.SourceVersion)'
+  containerImageFilePath: '$(Build.ArtifactStagingDirectory)/entity-tracker.tar'
+
+stages:
+- stage: build
+  displayName: 'Build container image'
+  jobs:  
+  - job: build
+    displayName: 'Run tests and build container image'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: 'Build test container image'
+      inputs:
+        command: build
+        dockerfile: $(dockerfilePath)
+        buildContext: $(dockerBuildContext)
+        arguments: '--pull --target test --tag $(testImageTag)'
+
+    - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag)
+      displayName: 'Run tests'
+
+    - task: Docker@2
+      displayName: 'Build final container image'
+      inputs:
+        command: build
+        dockerfile: $(dockerfilePath)
+        buildContext: $(dockerBuildContext)
+        arguments: '--pull --tag $(containerImageTag)'
+
+    - task: PublishTestResults@2
+      displayName: 'Publish tests results'
+      inputs:
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '*.trx'
+        searchFolder: $(testResultsPath)
+
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish code coverage report'
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(testResultsPath)/**/coverage.cobertura.xml'
+        pathToSources: $(dockerBuildContext)
+
+    - script: docker save --output $(containerImageFilePath) $(containerImageTag)
+      displayName: 'Save container image to file'
+
+    - publish: $(containerImageFilePath)
+      artifact: 'Docker Image'
+      displayName: 'Publish built container image'
