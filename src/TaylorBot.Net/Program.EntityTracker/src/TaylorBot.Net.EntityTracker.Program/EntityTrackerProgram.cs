@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
@@ -24,23 +23,21 @@ namespace TaylorBot.Net.EntityTracker.Program
     {
         public static async Task Main()
         {
-            var environment = TaylorBotEnvironment.CreateCurrent();
-
-            var host = new HostBuilder()
-                .UseEnvironment(environment.ToString())
+            var host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
                 {
-                    var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
+                    appConfig.Sources.Clear();
+
+                    var env = hostBuilderContext.HostingEnvironment;
+
                     appConfig
-                        .AddTaylorBotApplication(environment)
-                        .AddDatabaseConnection(environment)
-                        .AddEntityTracker(environment)
-                        .AddJsonFile(path: $"Settings/memberLogging.{environment}.json", optional: false)
-                        .AddJsonFile(path: $"Settings/quickStartEmbed.{env}.json", optional: false);
-                })
-                .ConfigureLogging((hostBuilderContext, logging) =>
-                {
-                    logging.AddTaylorBotApplicationLogging(hostBuilderContext.Configuration);
+                        .AddTaylorBotApplication(env)
+                        .AddDatabaseConnection(env)
+                        .AddEntityTracker()
+                        .AddJsonFile(path: "Settings/memberLogging.json", optional: false)
+                        .AddJsonFile(path: "Settings/quickStartEmbed.json", optional: false);
+
+                    appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
                 .ConfigureServices((hostBuilderContext, services) =>
                 {

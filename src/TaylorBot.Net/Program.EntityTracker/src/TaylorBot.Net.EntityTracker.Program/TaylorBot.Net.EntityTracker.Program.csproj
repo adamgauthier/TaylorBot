@@ -16,8 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Settings\*.Development.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Settings\*.Production.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Settings\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

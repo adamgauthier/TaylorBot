@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
@@ -22,21 +21,19 @@ namespace TaylorBot.Net.StatsTracker.Program
     {
         public static async Task Main()
         {
-            var environment = TaylorBotEnvironment.CreateCurrent();
-
-            var host = new HostBuilder()
-                .UseEnvironment(environment.ToString())
+            var host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
                 {
-                    var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
+                    appConfig.Sources.Clear();
+
+                    var env = hostBuilderContext.HostingEnvironment;
+
                     appConfig
-                        .AddTaylorBotApplication(environment)
-                        .AddDatabaseConnection(environment)
-                        .AddJsonFile(path: $"Settings/minutesTracker.{env}.json", optional: false);
-                })
-                .ConfigureLogging((hostBuilderContext, logging) =>
-                {
-                    logging.AddTaylorBotApplicationLogging(hostBuilderContext.Configuration);
+                        .AddTaylorBotApplication(env)
+                        .AddDatabaseConnection(env)
+                        .AddJsonFile(path: "Settings/minutesTracker.json", optional: false);
+
+                    appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
                 .ConfigureServices((hostBuilderContext, services) =>
                 {

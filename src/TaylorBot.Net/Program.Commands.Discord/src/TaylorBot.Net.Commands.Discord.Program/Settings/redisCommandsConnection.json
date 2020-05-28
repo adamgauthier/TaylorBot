@@ -1,7 +1,6 @@
 ﻿{
   "RedisCommandsConnection": {
-    "Host": "127.0.0.1",
-    "Port": 0,
-    "Password": "A_PASSWORD"
+    "Host": "taylorbot-redis-commands",
+    "Port": 6379
   }
 }

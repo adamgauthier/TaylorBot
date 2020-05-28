@@ -9,7 +9,6 @@ using TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program.Extensions;
 
@@ -19,23 +18,21 @@ namespace TaylorBot.Net.Commands.Discord.Program
     {
         public static async Task Main()
         {
-            var environment = TaylorBotEnvironment.CreateCurrent();
-
-            var host = new HostBuilder()
-                .UseEnvironment(environment.ToString())
+            var host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
                 {
-                    var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
+                    appConfig.Sources.Clear();
+
+                    var env = hostBuilderContext.HostingEnvironment;
+
                     appConfig
-                        .AddTaylorBotApplication(environment)
-                        .AddDatabaseConnection(environment)
-                        .AddRedisConnection(environment)
-                        .AddCommandClient(environment)
-                        .AddJsonFile(path: $"Settings/taypointWill.{env}.json", optional: false);
-                })
-                .ConfigureLogging((hostBuilderContext, logging) =>
-                {
-                    logging.AddTaylorBotApplicationLogging(hostBuilderContext.Configuration);
+                        .AddTaylorBotApplication(env)
+                        .AddDatabaseConnection(env)
+                        .AddRedisConnection(env)
+                        .AddCommandClient(env)
+                        .AddJsonFile(path: "Settings/taypointWill.json", optional: false);
+
+                    appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
                 .ConfigureServices((hostBuilderContext, services) =>
                 {

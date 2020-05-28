@@ -1,10 +1,10 @@
 ﻿{
   "RedditNotifier": {
-    "TimeSpanBetweenRequests": "1.02:03:04",
-    "RedditPostEmbedIconUrl": "AN_ICON_URL",
-    "RedditPostEmbedColor": "#000000",
-    "RedditPostEmbedSelfPostSpoilerDescription": "A_DESCRIPTION",
-    "RedditPostEmbedLinkPostSpoilerThumbnailUrl": "A_SPOILER_URL",
-    "RedditPostEmbedLinkPostNoThumbnailUrl": "A_THUMBNAIL_URL"
+    "TimeSpanBetweenRequests": "0.00:00:20",
+    "RedditPostEmbedIconUrl": "https://i.imgur.com/HbUa6WQ.png",
+    "RedditPostEmbedColor": "#FF5700",
+    "RedditPostEmbedSelfPostSpoilerDescription": "[Spoiler]",
+    "RedditPostEmbedLinkPostSpoilerThumbnailUrl": "https://i.imgur.com/oCFUKo7.png",
+    "RedditPostEmbedLinkPostNoThumbnailUrl": "https://i.imgur.com/Z22fPpC.png"
   }
 }

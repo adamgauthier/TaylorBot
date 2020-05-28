@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Guild;
 using TaylorBot.Net.EntityTracker.Domain.GuildName;
@@ -21,10 +20,10 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure
 {
     public static class ConfigurationBuilderExtensions
     {
-        public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder, TaylorBotEnvironment environment)
+        public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder)
         {
             return builder
-                .AddJsonFile(path: $"Settings/entityTracker.{environment}.json", optional: false);
+                .AddJsonFile(path: $"Settings/entityTracker.json", optional: false);
         }
     }
 

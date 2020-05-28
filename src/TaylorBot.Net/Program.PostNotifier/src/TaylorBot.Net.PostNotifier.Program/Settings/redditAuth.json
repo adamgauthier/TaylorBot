@@ -1,7 +1,0 @@
-﻿{
-  "RedditAuth": {
-    "AppId": "APP_ID",
-    "AppSecret": "APP_SECRET",
-    "RefreshToken": "REFRESH_TOKEN"
-  }
-}

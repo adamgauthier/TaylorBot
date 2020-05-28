@@ -1,7 +1,6 @@
 ﻿{
   "Discord": {
-    "Token": "TOKEN_HERE",
     "ShardCount": 1,
-    "MessageCacheSize": 1
+    "MessageCacheSize": 10
   }
 }

@@ -1,9 +1,9 @@
 ﻿{
   "MemberLeft": {
-    "MemberLeftEmbedColorHex": ""
+    "MemberLeftEmbedColorHex": "#FD6A02"
   },
   "MemberBan": {
-    "MemberBannedEmbedColorHex": "",
-    "MemberUnbannedEmbedColorHex": ""
+    "MemberBannedEmbedColorHex": "#FF5252",
+    "MemberUnbannedEmbedColorHex": "#BE29EC"
   }
 }

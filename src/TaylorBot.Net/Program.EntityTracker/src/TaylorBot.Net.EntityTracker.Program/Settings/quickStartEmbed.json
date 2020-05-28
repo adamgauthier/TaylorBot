@@ -1,13 +1,21 @@
 ﻿{
   "QuickStartEmbed": {
-    "Title": "",
-    "Description": "",
+    "Title": "TaylorBot Quick Start Guide",
+    "Description": "Thank you for inviting me! Here's a few tips to start. 😊",
     "Fields": [
       {
-        "Name": "",
-        "Value": ""
+        "Name": "Prefix",
+        "Value": "My default prefix is `!`, which means I will only answer to commands starting with it. To change it, server managers can use the `setprefix` command. ❕"
+      },
+      {
+        "Name": "Spam Channels",
+        "Value": "If you have any commands/bots channels, please use the `addspamchannel` command in each of them! 🤖"
+      },
+      {
+        "Name": "More Help",
+        "Value": "Looking for help or have more questions? Use the `help` command or [click here to join the TaylorBot server](https://discord.gg/3qVNd5P). 📖"
       }
     ],
-    "Color": ""
+    "Color": "#00c3ff"
   }
 }

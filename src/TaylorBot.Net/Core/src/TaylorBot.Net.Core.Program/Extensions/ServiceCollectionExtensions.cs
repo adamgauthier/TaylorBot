@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
@@ -37,13 +36,6 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 .AddTransient(provider => new DiscordShardedClient(provider.GetRequiredService<DiscordSocketConfig>()))
                 .AddTransient<TaskExceptionLogger>()
                 .AddSingleton<TaylorBotClient>();
-        }
-
-        public static ILoggingBuilder AddTaylorBotApplicationLogging(this ILoggingBuilder builder, IConfiguration configuration)
-        {
-            return builder
-                .AddConsole()
-                .AddConfiguration(configuration.GetSection("Logging"));
         }
     }
 }

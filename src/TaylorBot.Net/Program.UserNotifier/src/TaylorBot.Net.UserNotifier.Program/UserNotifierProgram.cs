@@ -7,7 +7,6 @@ using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
 using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.BirthdayReward.Infrastructure;
 using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
@@ -35,24 +34,22 @@ namespace TaylorBot.Net.UserNotifier.Program
     {
         public static async Task Main()
         {
-            var environment = TaylorBotEnvironment.CreateCurrent();
-
-            var host = new HostBuilder()
-                .UseEnvironment(environment.ToString())
+            var host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
                 {
-                    var env = hostBuilderContext.HostingEnvironment.EnvironmentName;
+                    appConfig.Sources.Clear();
+
+                    var env = hostBuilderContext.HostingEnvironment;
+
                     appConfig
-                        .AddTaylorBotApplication(environment)
-                        .AddDatabaseConnection(environment)
-                        .AddJsonFile(path: $"Settings/birthdayRewardNotifier.{env}.json", optional: false)
-                        .AddJsonFile(path: $"Settings/reminderNotifier.{env}.json", optional: false)
-                        .AddJsonFile(path: $"Settings/memberLog.{env}.json", optional: false)
-                        .AddJsonFile(path: $"Settings/messageLog.{env}.json", optional: false);
-                })
-                .ConfigureLogging((hostBuilderContext, logging) =>
-                {
-                    logging.AddTaylorBotApplicationLogging(hostBuilderContext.Configuration);
+                        .AddTaylorBotApplication(env)
+                        .AddDatabaseConnection(env)
+                        .AddJsonFile(path: "Settings/birthdayRewardNotifier.json", optional: false)
+                        .AddJsonFile(path: "Settings/reminderNotifier.json", optional: false)
+                        .AddJsonFile(path: "Settings/memberLog.json", optional: false)
+                        .AddJsonFile(path: "Settings/messageLog.json", optional: false);
+
+                    appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
                 .ConfigureServices((hostBuilderContext, services) =>
                 {

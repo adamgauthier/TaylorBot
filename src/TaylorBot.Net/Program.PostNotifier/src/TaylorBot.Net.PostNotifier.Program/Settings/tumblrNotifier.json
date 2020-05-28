@@ -1,12 +1,12 @@
 ﻿{
   "TumblrNotifier": {
-    "TimeSpanBetweenRequests": "1.02:03:04",
-    "TumblrPostEmbedIconUrl": "AN_ICON_URL",
-    "TumblrPostEmbedColor": "#000000",
-    "TumblrLinkPostThumbnailUrl": "A_THUMBNAIL_URL",
-    "TumblrDefaultVideoThumbnailUrl": "A_THUMBNAIL_URL",
-    "TumblrTextPostThumbnailUrl": "A_THUMBNAIL_URL",
-    "TumblrQuotePostThumbnailUrl": "A_THUMBNAIL_URL",
-    "TumblrAudioPostThumbnailUrl": "A_THUMBNAIL_URL"
+    "TimeSpanBetweenRequests": "0.00:01:30",
+    "TumblrPostEmbedIconUrl": "https://i.imgur.com/vKz0iHQ.png",
+    "TumblrPostEmbedColor": "#36465D",
+    "TumblrLinkPostThumbnailUrl": "https://i.imgur.com/1zeAyat.png",
+    "TumblrDefaultVideoThumbnailUrl": "https://i.imgur.com/R8x5Qp6.png",
+    "TumblrTextPostThumbnailUrl": "https://i.imgur.com/QEi1hXM.png",
+    "TumblrQuotePostThumbnailUrl": "https://i.imgur.com/Xz5GKKh.png",
+    "TumblrAudioPostThumbnailUrl": "https://i.imgur.com/NM5J5SD.png"
   }
 }

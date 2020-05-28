@@ -1,21 +1,22 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Configuration;
-using TaylorBot.Net.Core.Environment;
 using TaylorBot.Net.EntityTracker.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure
 {
     public static class ConfigurationBuilderExtensions
     {
-        public static IConfigurationBuilder AddCommandClient(this IConfigurationBuilder builder, TaylorBotEnvironment environment)
+        public static IConfigurationBuilder AddCommandClient(this IConfigurationBuilder builder, IHostEnvironment environment)
         {
             return builder
-                .AddEntityTracker(environment)
-                .AddJsonFile(path: $"Settings/commandClient.{environment}.json", optional: false);
+                .AddEntityTracker()
+                .AddJsonFile(path: "Settings/commandClient.json", optional: false)
+                .AddJsonFile(path: $"Settings/commandClient.{environment.EnvironmentName}.json", optional: true);
         }
     }
 

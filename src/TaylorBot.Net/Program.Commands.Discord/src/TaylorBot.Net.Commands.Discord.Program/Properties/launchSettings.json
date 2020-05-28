@@ -3,7 +3,7 @@
     "TaylorBot.Net.Commands.Discord.Program": {
       "commandName": "Project",
       "environmentVariables": {
-        "taylorbot:Environment": "Development"
+        "DOTNET_ENVIRONMENT": "Development"
       }
     }
   }
