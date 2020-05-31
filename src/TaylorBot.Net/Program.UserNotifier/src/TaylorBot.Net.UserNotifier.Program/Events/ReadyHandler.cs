@@ -8,34 +8,38 @@ namespace TaylorBot.Net.UserNotifier.Program.Events
 {
     public class ReadyHandler : IAllReadyHandler
     {
-        private readonly SingletonTaskRunner birthdaySingletonTaskRunner;
-        private readonly SingletonTaskRunner reminderSingletonTaskRunner;
-        private readonly BirthdayRewardNotifierDomainService birthdayRewardNotifierDomainService;
-        private readonly ReminderNotifierDomainService reminderNotifierDomainService;
+        private readonly SingletonTaskRunner _birthdaySingletonTaskRunner;
+        private readonly SingletonTaskRunner _reminderSingletonTaskRunner;
+        private readonly BirthdayRewardNotifierDomainService _birthdayRewardNotifierDomainService;
+        private readonly ReminderNotifierDomainService _reminderNotifierDomainService;
+        private readonly TaskExceptionLogger _taskExceptionLogger;
 
         public ReadyHandler(
             SingletonTaskRunner birthdaySingletonTaskRunner,
             SingletonTaskRunner reminderSingletonTaskRunner,
             BirthdayRewardNotifierDomainService birthdayRewardNotifierDomainService,
-            ReminderNotifierDomainService reminderNotifierDomainService)
+            ReminderNotifierDomainService reminderNotifierDomainService,
+            TaskExceptionLogger taskExceptionLogger
+        )
         {
-            this.birthdaySingletonTaskRunner = birthdaySingletonTaskRunner;
-            this.reminderSingletonTaskRunner = reminderSingletonTaskRunner;
-            this.birthdayRewardNotifierDomainService = birthdayRewardNotifierDomainService;
-            this.reminderNotifierDomainService = reminderNotifierDomainService;
+            _birthdaySingletonTaskRunner = birthdaySingletonTaskRunner;
+            _reminderSingletonTaskRunner = reminderSingletonTaskRunner;
+            _birthdayRewardNotifierDomainService = birthdayRewardNotifierDomainService;
+            _reminderNotifierDomainService = reminderNotifierDomainService;
+            _taskExceptionLogger = taskExceptionLogger;
         }
 
         public Task AllShardsReadyAsync()
         {
-            birthdaySingletonTaskRunner.StartTaskIfNotStarted(async () =>
-            {
-                await birthdayRewardNotifierDomainService.StartBirthdayRewardCheckerAsync();
-            });
+            _ = _birthdaySingletonTaskRunner.StartTaskIfNotStarted(
+                _birthdayRewardNotifierDomainService.StartCheckingBirthdaysAsync,
+                nameof(BirthdayRewardNotifierDomainService)
+            );
 
-            reminderSingletonTaskRunner.StartTaskIfNotStarted(async () =>
-            {
-                await reminderNotifierDomainService.StartReminderCheckerAsync();
-            });
+            _ = _reminderSingletonTaskRunner.StartTaskIfNotStarted(
+                _reminderNotifierDomainService.StartCheckingRemindersAsync,
+                nameof(ReminderNotifierDomainService)
+            );
 
             return Task.CompletedTask;
         }

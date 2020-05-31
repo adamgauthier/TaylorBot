@@ -13,12 +13,12 @@ namespace TaylorBot.Net.RedditNotifier.Domain
 {
     public class RedditNotifierService
     {
-        private readonly ILogger<RedditNotifierService> logger;
-        private readonly IOptionsMonitor<RedditNotifierOptions> optionsMonitor;
-        private readonly IRedditCheckerRepository redditCheckerRepository;
-        private readonly RedditClient redditClient;
-        private readonly RedditPostToEmbedMapper redditPostToEmbedMapper;
-        private readonly TaylorBotClient taylorBotClient;
+        private readonly ILogger<RedditNotifierService> _logger;
+        private readonly IOptionsMonitor<RedditNotifierOptions> _optionsMonitor;
+        private readonly IRedditCheckerRepository _redditCheckerRepository;
+        private readonly RedditClient _redditClient;
+        private readonly RedditPostToEmbedMapper _redditPostToEmbedMapper;
+        private readonly ITaylorBotClient _taylorBotClient;
 
         public RedditNotifierService(
             ILogger<RedditNotifierService> logger,
@@ -26,44 +26,55 @@ namespace TaylorBot.Net.RedditNotifier.Domain
             IRedditCheckerRepository redditCheckerRepository,
             RedditClient redditClient,
             RedditPostToEmbedMapper redditPostToEmbedMapper,
-            TaylorBotClient taylorBotClient)
+            ITaylorBotClient taylorBotClient)
         {
-            this.logger = logger;
-            this.optionsMonitor = optionsMonitor;
-            this.redditCheckerRepository = redditCheckerRepository;
-            this.redditClient = redditClient;
-            this.redditPostToEmbedMapper = redditPostToEmbedMapper;
-            this.taylorBotClient = taylorBotClient;
+            _logger = logger;
+            _optionsMonitor = optionsMonitor;
+            _redditCheckerRepository = redditCheckerRepository;
+            _redditClient = redditClient;
+            _redditPostToEmbedMapper = redditPostToEmbedMapper;
+            _taylorBotClient = taylorBotClient;
         }
 
-        public async Task StartRedditCheckerAsync()
+        public async Task StartCheckingRedditsAsync()
         {
             while (true)
             {
-                foreach (var redditChecker in await redditCheckerRepository.GetRedditCheckersAsync())
+                try
                 {
-                    try
+                    await CheckAllRedditsAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(CheckAllRedditsAsync)}."));
+                }
+                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            }
+        }
+
+        public async ValueTask CheckAllRedditsAsync()
+        {
+            foreach (var redditChecker in await _redditCheckerRepository.GetRedditCheckersAsync())
+            {
+                try
+                {
+                    var channel = _taylorBotClient.ResolveRequiredGuild(redditChecker.GuildId).GetRequiredTextChannel(redditChecker.ChannelId);
+
+                    var newestPost = _redditClient.Subreddit(name: redditChecker.SubredditName).Posts.GetNew(limit: 1).Single();
+
+                    if (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt)
                     {
-                        var channel = taylorBotClient.ResolveRequiredGuild(redditChecker.GuildId).GetRequiredTextChannel(redditChecker.ChannelId);
-
-                        var newestPost = redditClient.Subreddit(name: redditChecker.SubredditName).Posts.GetNew(limit: 1).Single();
-
-                        if (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt)
-                        {
-                            logger.LogTrace(LogString.From($"Found new Reddit post for {redditChecker}: {newestPost.Id}."));
-                            await channel.SendMessageAsync(embed: redditPostToEmbedMapper.ToEmbed(newestPost));
-                            await redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
-                        }
+                        _logger.LogTrace(LogString.From($"Found new Reddit post for {redditChecker}: {newestPost.Id}."));
+                        await channel.SendMessageAsync(embed: _redditPostToEmbedMapper.ToEmbed(newestPost));
+                        await _redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
                     }
-                    catch (Exception exception)
-                    {
-                        logger.LogError(exception, LogString.From($"Exception occurred when checking {redditChecker}."));
-                    }
-
-                    await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, LogString.From($"Exception occurred when checking {redditChecker}."));
                 }
 
-                await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
             }
         }
     }

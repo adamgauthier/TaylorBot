@@ -10,13 +10,13 @@ namespace TaylorBot.Net.Commands
     public class CommandHandler : IUserMessageReceivedHandler
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly TaylorBotClient _taylorBotClient;
+        private readonly ITaylorBotClient _taylorBotClient;
         private readonly CommandService _commandService;
         private readonly ICommandPrefixRepository _commandPrefixRepository;
 
         public CommandHandler(
             IServiceProvider serviceProvider,
-            TaylorBotClient taylorBotClient,
+            ITaylorBotClient taylorBotClient,
             CommandService commandService,
             ICommandPrefixRepository commandPrefixRepository
         )

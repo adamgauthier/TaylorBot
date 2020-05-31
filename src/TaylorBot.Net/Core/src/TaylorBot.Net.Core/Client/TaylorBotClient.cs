@@ -12,7 +12,22 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Core.Client
 {
-    public class TaylorBotClient
+    public interface ITaylorBotClient
+    {
+        event Func<Task> AllShardsReady;
+
+        DiscordShardedClient DiscordShardedClient { get; }
+        DiscordRestClient DiscordRestClient { get; }
+
+        Task StartAsync();
+        Task StopAsync();
+
+        SocketGuild ResolveRequiredGuild(SnowflakeId id);
+
+        Task<IUser> ResolveRequiredUserAsync(SnowflakeId id);
+    }
+
+    public class TaylorBotClient : ITaylorBotClient
     {
         private readonly ILogger<TaylorBotClient> logger;
         private readonly ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper;

@@ -8,10 +8,10 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
 {
     public class UserMessageReceivedHandler : IUserMessageReceivedHandler
     {
-        private readonly TaylorBotClient taylorBotClient;
+        private readonly ITaylorBotClient taylorBotClient;
         private readonly MessagesTrackerDomainService messagesTrackerDomainService;
 
-        public UserMessageReceivedHandler(TaylorBotClient taylorBotClient, MessagesTrackerDomainService messagesTrackerDomainService)
+        public UserMessageReceivedHandler(ITaylorBotClient taylorBotClient, MessagesTrackerDomainService messagesTrackerDomainService)
         {
             this.taylorBotClient = taylorBotClient;
             this.messagesTrackerDomainService = messagesTrackerDomainService;

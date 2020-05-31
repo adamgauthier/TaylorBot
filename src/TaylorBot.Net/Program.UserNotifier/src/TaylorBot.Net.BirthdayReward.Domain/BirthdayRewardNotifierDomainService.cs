@@ -13,49 +13,63 @@ namespace TaylorBot.Net.BirthdayReward.Domain
 {
     public class BirthdayRewardNotifierDomainService
     {
-        private readonly ILogger<BirthdayRewardNotifierDomainService> logger;
-        private readonly IOptionsMonitor<BirthdayRewardNotifierOptions> optionsMonitor;
-        private readonly IBirthdayRepository birthdayRepository;
-        private readonly BirthdayRewardEmbedFactory birthdayRewardEmbedFactory;
-        private readonly TaylorBotClient taylorBotClient;
+        private readonly ILogger<BirthdayRewardNotifierDomainService> _logger;
+        private readonly IOptionsMonitor<BirthdayRewardNotifierOptions> _optionsMonitor;
+        private readonly IBirthdayRepository _birthdayRepository;
+        private readonly BirthdayRewardEmbedFactory _birthdayRewardEmbedFactory;
+        private readonly ITaylorBotClient _taylorBotClient;
 
         public BirthdayRewardNotifierDomainService(
             ILogger<BirthdayRewardNotifierDomainService> logger,
             IOptionsMonitor<BirthdayRewardNotifierOptions> optionsMonitor,
             IBirthdayRepository birthdayRepository,
             BirthdayRewardEmbedFactory birthdayRewardEmbedFactory,
-            TaylorBotClient taylorBotClient)
+            ITaylorBotClient taylorBotClient)
         {
-            this.logger = logger;
-            this.optionsMonitor = optionsMonitor;
-            this.birthdayRewardEmbedFactory = birthdayRewardEmbedFactory;
-            this.birthdayRepository = birthdayRepository;
-            this.taylorBotClient = taylorBotClient;
+            _logger = logger;
+            _optionsMonitor = optionsMonitor;
+            _birthdayRewardEmbedFactory = birthdayRewardEmbedFactory;
+            _birthdayRepository = birthdayRepository;
+            _taylorBotClient = taylorBotClient;
         }
 
-        public async Task StartBirthdayRewardCheckerAsync()
+        public async Task StartCheckingBirthdaysAsync()
         {
             while (true)
             {
-                var rewardAmount = optionsMonitor.CurrentValue.RewardAmount;
-                logger.LogTrace(LogString.From($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}."));
-                foreach (var rewardedUser in await birthdayRepository.RewardEligibleUsersAsync(rewardAmount))
+                try
                 {
-                    try
-                    {
-                        logger.LogTrace(LogString.From($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}."));
-                        var user = await taylorBotClient.ResolveRequiredUserAsync(rewardedUser.UserId);
-                        await user.SendMessageAsync(embed: birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
-                    }
-                    catch (Exception exception)
-                    {
-                        logger.LogError(exception, LogString.From($"Exception occurred when attempting to notify {rewardedUser} about their birthday reward."));
-                    }
+                    await RewardBirthdaysAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(RewardBirthdaysAsync)}."));
+                    await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
+                    continue;
+                }
+                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRewards);
+            }
+        }
 
-                    await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
+        public async ValueTask RewardBirthdaysAsync()
+        {
+            var rewardAmount = _optionsMonitor.CurrentValue.RewardAmount;
+            _logger.LogTrace(LogString.From($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}."));
+
+            foreach (var rewardedUser in await _birthdayRepository.RewardEligibleUsersAsync(rewardAmount))
+            {
+                try
+                {
+                    _logger.LogTrace(LogString.From($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}."));
+                    var user = await _taylorBotClient.ResolveRequiredUserAsync(rewardedUser.UserId);
+                    await user.SendMessageAsync(embed: _birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, LogString.From($"Exception occurred when attempting to notify {rewardedUser} about their birthday reward."));
                 }
 
-                await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRewards);
+                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
             }
         }
     }

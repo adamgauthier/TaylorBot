@@ -11,14 +11,15 @@ namespace TaylorBot.Net.PostNotifier.Program.Events
 {
     public class ReadyHandler : IShardReadyHandler
     {
-        private readonly SingletonTaskRunner redditSingletonTaskRunner;
-        private readonly SingletonTaskRunner youtubeSingletonTaskRunner;
-        private readonly SingletonTaskRunner tumblrSingletonTaskRunner;
-        private readonly SingletonTaskRunner instagramSingletonTaskRunner;
-        private readonly RedditNotifierService redditNotiferService;
-        private readonly YoutubeNotifierService youtubeNotiferService;
-        private readonly TumblrNotifierService tumblrNotifierService;
-        private readonly InstagramNotifierService instagramNotifierService;
+        private readonly SingletonTaskRunner _redditSingletonTaskRunner;
+        private readonly SingletonTaskRunner _youtubeSingletonTaskRunner;
+        private readonly SingletonTaskRunner _tumblrSingletonTaskRunner;
+        private readonly SingletonTaskRunner _instagramSingletonTaskRunner;
+        private readonly RedditNotifierService _redditNotiferService;
+        private readonly YoutubeNotifierService _youtubeNotiferService;
+        private readonly TumblrNotifierService _tumblrNotifierService;
+        private readonly InstagramNotifierService _instagramNotifierService;
+        private readonly TaskExceptionLogger _taskExceptionLogger;
 
         public ReadyHandler(
             SingletonTaskRunner redditSingletonTaskRunner,
@@ -28,26 +29,42 @@ namespace TaylorBot.Net.PostNotifier.Program.Events
             RedditNotifierService redditNotiferService,
             YoutubeNotifierService youtubeNotiferService,
             TumblrNotifierService tumblrNotifierService,
-            InstagramNotifierService instagramNotifierService
+            InstagramNotifierService instagramNotifierService,
+            TaskExceptionLogger taskExceptionLogger
         )
         {
-            this.redditSingletonTaskRunner = redditSingletonTaskRunner;
-            this.youtubeSingletonTaskRunner = youtubeSingletonTaskRunner;
-            this.tumblrSingletonTaskRunner = tumblrSingletonTaskRunner;
-            this.instagramSingletonTaskRunner = instagramSingletonTaskRunner;
-            this.redditNotiferService = redditNotiferService;
-            this.youtubeNotiferService = youtubeNotiferService;
-            this.tumblrNotifierService = tumblrNotifierService;
-            this.instagramNotifierService = instagramNotifierService;
+            _redditSingletonTaskRunner = redditSingletonTaskRunner;
+            _youtubeSingletonTaskRunner = youtubeSingletonTaskRunner;
+            _tumblrSingletonTaskRunner = tumblrSingletonTaskRunner;
+            _instagramSingletonTaskRunner = instagramSingletonTaskRunner;
+            _redditNotiferService = redditNotiferService;
+            _youtubeNotiferService = youtubeNotiferService;
+            _tumblrNotifierService = tumblrNotifierService;
+            _instagramNotifierService = instagramNotifierService;
+            _taskExceptionLogger = taskExceptionLogger;
         }
 
         public Task ShardReadyAsync(DiscordSocketClient shardClient)
         {
-            redditSingletonTaskRunner.StartTaskIfNotStarted(async () => await redditNotiferService.StartRedditCheckerAsync());
-            youtubeSingletonTaskRunner.StartTaskIfNotStarted(async () => await youtubeNotiferService.StartYoutubeCheckerAsync());
-            tumblrSingletonTaskRunner.StartTaskIfNotStarted(async () => await tumblrNotifierService.StartTumblrCheckerAsync());
-            tumblrSingletonTaskRunner.StartTaskIfNotStarted(async () => await tumblrNotifierService.StartTumblrCheckerAsync());
-            instagramSingletonTaskRunner.StartTaskIfNotStarted(async () => await instagramNotifierService.StartInstagramCheckerAsync());
+            _ = _redditSingletonTaskRunner.StartTaskIfNotStarted(
+                _redditNotiferService.StartCheckingRedditsAsync,
+                nameof(RedditNotifierService)
+            );
+
+            _ = _youtubeSingletonTaskRunner.StartTaskIfNotStarted(
+                _youtubeNotiferService.StartCheckingYoutubesAsync,
+                nameof(YoutubeNotifierService)
+            );
+
+            _ = _tumblrSingletonTaskRunner.StartTaskIfNotStarted(
+                _tumblrNotifierService.StartCheckingTumblrsAsync,
+                nameof(TumblrNotifierService)
+            );
+
+            _ = _instagramSingletonTaskRunner.StartTaskIfNotStarted(
+                _instagramNotifierService.StartCheckingInstagramsAsync,
+                nameof(InstagramNotifierService)
+            );
 
             return Task.CompletedTask;
         }

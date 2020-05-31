@@ -1,22 +1,28 @@
-﻿using System.Threading.Tasks;
+﻿using Discord.WebSocket;
+using System.Threading.Tasks;
 using TaylorBot.Net.Core.Program.Events;
-using Discord.WebSocket;
+using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.QuickStart.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events
 {
     public class QuickStartJoinedGuildHandler : IJoinedGuildHandler
     {
-        private readonly QuickStartDomainService quickStartDomainService;
+        private readonly QuickStartDomainService _quickStartDomainService;
+        private readonly TaskExceptionLogger _taskExceptionLogger;
 
-        public QuickStartJoinedGuildHandler(QuickStartDomainService quickStartDomainService)
+        public QuickStartJoinedGuildHandler(QuickStartDomainService quickStartDomainService, TaskExceptionLogger taskExceptionLogger)
         {
-            this.quickStartDomainService = quickStartDomainService;
+            _quickStartDomainService = quickStartDomainService;
+            _taskExceptionLogger = taskExceptionLogger;
         }
 
         public Task JoinedGuildAsync(SocketGuild guild)
         {
-            Task.Run(async () => await quickStartDomainService.OnGuildJoinedAsync(guild));
+            _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(
+                _quickStartDomainService.OnGuildJoinedAsync(guild),
+                nameof(QuickStartDomainService)
+            ));
             return Task.CompletedTask;
         }
     }

@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Core.Program
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger<TaylorBotHostedService> logger;
         private readonly TaskExceptionLogger taskExceptionLogger;
-        private TaylorBotClient client;
+        private ITaylorBotClient client;
 
         public TaylorBotHostedService(IServiceProvider serviceProvider)
         {
@@ -28,7 +28,7 @@ namespace TaylorBot.Net.Core.Program
 
         private void CreateClient()
         {
-            client = serviceProvider.GetRequiredService<TaylorBotClient>();
+            client = serviceProvider.GetRequiredService<ITaylorBotClient>();
         }
 
         private async Task StartClientAsync()

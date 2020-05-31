@@ -7,38 +7,42 @@ namespace TaylorBot.Net.Core.Tasks
 {
     public class SingletonTaskRunner
     {
-        private readonly object lockObject = new object();
-        private Task runningTask;
+        private readonly object _lockObject = new object();
+        private Task _runningTask;
 
-        private readonly ILogger<SingletonTaskRunner> logger;
+        private readonly ILogger<SingletonTaskRunner> _logger;
+        private readonly TaskExceptionLogger _taskExceptionLogger;
 
-        public SingletonTaskRunner(ILogger<SingletonTaskRunner> logger)
+        public SingletonTaskRunner(ILogger<SingletonTaskRunner> logger, TaskExceptionLogger taskExceptionLogger)
         {
-            this.logger = logger;
+            _logger = logger;
+            _taskExceptionLogger = taskExceptionLogger;
         }
 
-        public Task StartTaskIfNotStarted(Action action)
+        public Task StartTaskIfNotStarted(Func<Task> action, string taskName)
         {
-            if (runningTask == null)
+            if (_runningTask == null)
             {
-                lock (lockObject)
+                lock (_lockObject)
                 {
-                    if (runningTask == null)
+                    if (_runningTask == null)
                     {
-                        runningTask = Task.Run(action);
+                        _runningTask = Task.Run(async () =>
+                            await _taskExceptionLogger.LogOnError(action, taskName)
+                        );
                     }
                     else
                     {
-                        logger.LogWarning(LogString.From("Attempted to start task but it was already started."));
+                        _logger.LogWarning(LogString.From("Attempted to start task but it was already started."));
                     }
                 }
             }
             else
             {
-                logger.LogWarning(LogString.From("Attempted to start task but it was already started."));
+                _logger.LogWarning(LogString.From("Attempted to start task but it was already started."));
             }
 
-            return runningTask;
+            return _runningTask;
         }
     }
 }

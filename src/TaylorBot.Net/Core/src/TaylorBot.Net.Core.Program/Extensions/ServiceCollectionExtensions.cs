@@ -35,7 +35,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 })
                 .AddTransient(provider => new DiscordShardedClient(provider.GetRequiredService<DiscordSocketConfig>()))
                 .AddTransient<TaskExceptionLogger>()
-                .AddSingleton<TaylorBotClient>();
+                .AddSingleton<ITaylorBotClient, TaylorBotClient>();
         }
     }
 }

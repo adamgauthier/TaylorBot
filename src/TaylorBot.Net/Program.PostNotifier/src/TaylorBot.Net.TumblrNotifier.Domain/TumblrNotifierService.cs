@@ -14,12 +14,12 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
 {
     public class TumblrNotifierService
     {
-        private readonly ILogger<TumblrNotifierService> logger;
-        private readonly IOptionsMonitor<TumblrNotifierOptions> optionsMonitor;
-        private readonly ITumblrCheckerRepository tumblrCheckerRepository;
-        private readonly TumblrClient tumblrClient;
-        private readonly TumblrPostToEmbedMapper tumblrPostToEmbedMapper;
-        private readonly TaylorBotClient taylorBotClient;
+        private readonly ILogger<TumblrNotifierService> _logger;
+        private readonly IOptionsMonitor<TumblrNotifierOptions> _optionsMonitor;
+        private readonly ITumblrCheckerRepository _tumblrCheckerRepository;
+        private readonly TumblrClient _tumblrClient;
+        private readonly TumblrPostToEmbedMapper _tumblrPostToEmbedMapper;
+        private readonly ITaylorBotClient _taylorBotClient;
 
         public TumblrNotifierService(
             ILogger<TumblrNotifierService> logger,
@@ -27,46 +27,57 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
             ITumblrCheckerRepository tumblrCheckerRepository,
             TumblrClient tumblrClient,
             TumblrPostToEmbedMapper tumblrPostToEmbedMapper,
-            TaylorBotClient taylorBotClient)
+            ITaylorBotClient taylorBotClient)
         {
-            this.logger = logger;
-            this.optionsMonitor = optionsMonitor;
-            this.tumblrCheckerRepository = tumblrCheckerRepository;
-            this.tumblrClient = tumblrClient;
-            this.tumblrPostToEmbedMapper = tumblrPostToEmbedMapper;
-            this.taylorBotClient = taylorBotClient;
+            _logger = logger;
+            _optionsMonitor = optionsMonitor;
+            _tumblrCheckerRepository = tumblrCheckerRepository;
+            _tumblrClient = tumblrClient;
+            _tumblrPostToEmbedMapper = tumblrPostToEmbedMapper;
+            _taylorBotClient = taylorBotClient;
         }
 
-        public async Task StartTumblrCheckerAsync()
+        public async Task StartCheckingTumblrsAsync()
         {
             while (true)
             {
-                foreach (var tumblrChecker in await tumblrCheckerRepository.GetTumblrCheckersAsync())
+                try
                 {
-                    try
+                    await CheckAllTumblrsAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(CheckAllTumblrsAsync)}."));
+                }
+                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            }
+        }
+
+        public async ValueTask CheckAllTumblrsAsync()
+        {
+            foreach (var tumblrChecker in await _tumblrCheckerRepository.GetTumblrCheckersAsync())
+            {
+                try
+                {
+                    var channel = _taylorBotClient.ResolveRequiredGuild(tumblrChecker.GuildId).GetRequiredTextChannel(tumblrChecker.ChannelId);
+
+                    var response = await _tumblrClient.GetPostsAsync(blogName: tumblrChecker.BlogName, filter: PostFilter.Text, count: 1);
+                    var blog = response.Blog;
+                    var newestPost = response.Result.Single();
+
+                    if (newestPost.ShortUrl != tumblrChecker.LastPostShortUrl)
                     {
-                        var channel = taylorBotClient.ResolveRequiredGuild(tumblrChecker.GuildId).GetRequiredTextChannel(tumblrChecker.ChannelId);
-
-                        var response = await tumblrClient.GetPostsAsync(blogName: tumblrChecker.BlogName, filter: PostFilter.Text, count: 1);
-                        var blog = response.Blog;
-                        var newestPost = response.Result.Single();
-
-                        if (newestPost.ShortUrl != tumblrChecker.LastPostShortUrl)
-                        {
-                            logger.LogTrace(LogString.From($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}."));
-                            await channel.SendMessageAsync(embed: tumblrPostToEmbedMapper.ToEmbed(newestPost, blog));
-                            await tumblrCheckerRepository.UpdateLastPostAsync(tumblrChecker, newestPost);
-                        }
+                        _logger.LogTrace(LogString.From($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}."));
+                        await channel.SendMessageAsync(embed: _tumblrPostToEmbedMapper.ToEmbed(newestPost, blog));
+                        await _tumblrCheckerRepository.UpdateLastPostAsync(tumblrChecker, newestPost);
                     }
-                    catch (Exception exception)
-                    {
-                        logger.LogError(exception, LogString.From($"Exception occurred when checking {tumblrChecker}."));
-                    }
-
-                    await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, LogString.From($"Exception occurred when checking {tumblrChecker}."));
                 }
 
-                await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
             }
         }
     }

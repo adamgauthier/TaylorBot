@@ -1,48 +1,38 @@
-﻿using System.Threading.Tasks;
+﻿using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.MinutesTracker.Domain;
-using Discord.WebSocket;
-using System;
-using Microsoft.Extensions.Logging;
-using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.StatsTracker.Program.Events
 {
     public class ReadyHandler : IShardReadyHandler
     {
-        private readonly ILogger<ReadyHandler> logger;
-        private readonly TaylorBotClient taylorBotClient;
-        private readonly SingletonTaskRunner minuteSingletonTaskRunner;
-        private readonly MinutesTrackerDomainService minutesTrackerDomainService;
+        private readonly ILogger<ReadyHandler> _logger;
+        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly SingletonTaskRunner _minuteSingletonTaskRunner;
+        private readonly MinutesTrackerDomainService _minutesTrackerDomainService;
 
         public ReadyHandler(
             ILogger<ReadyHandler> logger,
-            TaylorBotClient taylorBotClient,
+            ITaylorBotClient taylorBotClient,
             SingletonTaskRunner minuteSingletonTaskRunner,
             MinutesTrackerDomainService minutesTrackerDomainService)
         {
-            this.logger = logger;
-            this.taylorBotClient = taylorBotClient;
-            this.minuteSingletonTaskRunner = minuteSingletonTaskRunner;
-            this.minutesTrackerDomainService = minutesTrackerDomainService;
+            _logger = logger;
+            _taylorBotClient = taylorBotClient;
+            _minuteSingletonTaskRunner = minuteSingletonTaskRunner;
+            _minutesTrackerDomainService = minutesTrackerDomainService;
         }
 
         public Task ShardReadyAsync(DiscordSocketClient shardClient)
         {
-            minuteSingletonTaskRunner.StartTaskIfNotStarted(async () =>
-            {
-                try
-                {
-                    await minutesTrackerDomainService.StartMinutesAdderAsync();
-                }
-                catch (Exception exception)
-                {
-                    logger.LogError(exception, LogString.From($"Unhandled exception in {nameof(minutesTrackerDomainService.StartMinutesAdderAsync)}."));
-                    throw;
-                }
-            });
+            _ = _minuteSingletonTaskRunner.StartTaskIfNotStarted(
+                _minutesTrackerDomainService.StartMinutesAdderAsync,
+                nameof(MinutesTrackerDomainService)
+            );
 
             return Task.CompletedTask;
         }

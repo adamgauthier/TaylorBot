@@ -15,9 +15,9 @@ namespace TaylorBot.Net.QuickStart.Domain
     {
         private readonly ILogger<QuickStartDomainService> logger;
         private readonly IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor;
-        private readonly TaylorBotClient taylorBotClient;
+        private readonly ITaylorBotClient taylorBotClient;
 
-        public QuickStartDomainService(ILogger<QuickStartDomainService> logger, IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor, TaylorBotClient taylorBotClient)
+        public QuickStartDomainService(ILogger<QuickStartDomainService> logger, IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor, ITaylorBotClient taylorBotClient)
         {
             this.logger = logger;
             this.optionsMonitor = optionsMonitor;
