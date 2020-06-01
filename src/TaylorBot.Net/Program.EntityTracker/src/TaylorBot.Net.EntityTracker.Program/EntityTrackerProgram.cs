@@ -49,6 +49,7 @@ namespace TaylorBot.Net.EntityTracker.Program
                         .AddEntityTrackerInfrastructure(config)
                         .ConfigureRequired<QuickStartEmbedOptions>(config, "QuickStartEmbed")
                         .AddTransient<QuickStartDomainService>()
+                        .AddTransient<QuickStartChannelFinder>()
                         .ConfigureRequired<MemberLoggingOptions>(config, "MemberLogging")
                         .AddTransient<MemberLogChannelFinder>()
                         .AddTransient<GuildMemberJoinedLoggerService>()

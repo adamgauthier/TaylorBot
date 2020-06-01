@@ -13,52 +13,51 @@ namespace TaylorBot.Net.QuickStart.Domain
 {
     public class QuickStartDomainService
     {
-        private readonly ILogger<QuickStartDomainService> logger;
-        private readonly IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor;
-        private readonly ITaylorBotClient taylorBotClient;
+        private readonly ILogger<QuickStartDomainService> _logger;
+        private readonly IOptionsMonitor<QuickStartEmbedOptions> _optionsMonitor;
+        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly QuickStartChannelFinder _quickStartChannelFinder;
 
-        public QuickStartDomainService(ILogger<QuickStartDomainService> logger, IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor, ITaylorBotClient taylorBotClient)
+        public QuickStartDomainService(
+            ILogger<QuickStartDomainService> logger,
+            IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor,
+            ITaylorBotClient taylorBotClient,
+            QuickStartChannelFinder quickStartChannelFinder
+        )
         {
-            this.logger = logger;
-            this.optionsMonitor = optionsMonitor;
-            this.taylorBotClient = taylorBotClient;
+            _logger = logger;
+            _optionsMonitor = optionsMonitor;
+            _taylorBotClient = taylorBotClient;
+            _quickStartChannelFinder = quickStartChannelFinder;
         }
 
         public async Task OnGuildJoinedAsync(SocketGuild guild)
         {
-            var quickStartEmbedOptions = optionsMonitor.CurrentValue;
+            var options = _optionsMonitor.CurrentValue;
+
             var quickStartEmbed = new EmbedBuilder()
-                .WithTitle(quickStartEmbedOptions.Title)
-                .WithDescription(quickStartEmbedOptions.Description)
-                .WithFields(quickStartEmbedOptions.Fields.Select(field => new EmbedFieldBuilder()
+                .WithTitle(options.Title)
+                .WithDescription(options.Description)
+                .WithFields(options.Fields.Select(field => new EmbedFieldBuilder()
                     .WithName(field.Name)
                     .WithValue(field.Value)
                 ))
-                .WithColor(DiscordColor.FromHexString(quickStartEmbedOptions.Color))
-                .WithThumbnailUrl(taylorBotClient.DiscordShardedClient.CurrentUser.GetAvatarUrl())
+                .WithColor(DiscordColor.FromHexString(options.Color))
+                .WithThumbnailUrl(_taylorBotClient.DiscordShardedClient.CurrentUser.GetAvatarUrl())
                 .Build();
 
-            var availableChannel = guild.TextChannels.FirstOrDefault(channel =>
-                IsEveryoneAllowedToSendMessages(guild, channel) &&
-                guild.CurrentUser.GetPermissions(channel).Has(ChannelPermission.SendMessages)
-            );
+            var quickStartChannel = await _quickStartChannelFinder.FindQuickStartChannelAsync<SocketGuild, SocketTextChannel>(guild);
 
-            if (availableChannel != default)
+            if (quickStartChannel != null)
             {
-                await availableChannel.SendMessageAsync(embed: quickStartEmbed);
-                logger.LogInformation(LogString.From($"Sent Quick Start embed in {availableChannel.FormatLog()}."));
+                await quickStartChannel.SendMessageAsync(embed: quickStartEmbed);
+                _logger.LogInformation(LogString.From($"Sent Quick Start embed in {quickStartChannel.FormatLog()}."));
             }
             else
             {
                 await guild.Owner.SendMessageAsync(embed: quickStartEmbed);
-                logger.LogInformation(LogString.From($"Sent Quick Start embed to {guild.Owner.FormatLog()}."));
+                _logger.LogInformation(LogString.From($"Sent Quick Start embed to {guild.Owner.FormatLog()}."));
             }
-        }
-
-        private static bool IsEveryoneAllowedToSendMessages(SocketGuild guild, SocketTextChannel channel)
-        {
-            var overwrite = channel.GetPermissionOverwrite(guild.EveryoneRole);
-            return !overwrite.HasValue || overwrite.Value.SendMessages != PermValue.Deny;
         }
     }
 }
