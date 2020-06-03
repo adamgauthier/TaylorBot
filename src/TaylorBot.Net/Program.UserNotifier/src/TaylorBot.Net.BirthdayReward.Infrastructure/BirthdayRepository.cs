@@ -18,7 +18,7 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<IEnumerable<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)
+        public async ValueTask<IReadOnlyCollection<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
             connection.Open();
@@ -36,7 +36,7 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure
 
             var rewardedUsers = await connection.QueryAsync<RewardedUserDto>(
                 @"UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd
-                        WHERE user_id = ANY(@UserIds) RETURNING user_id, taypoint_count;",
+                WHERE user_id = ANY(@UserIds) RETURNING user_id, taypoint_count;",
                 new
                 {
                     PointsToAdd = rewardAmount,
@@ -46,7 +46,9 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure
 
             transaction.Commit();
 
-            return rewardedUsers.Select(u => new RewardedUser(new SnowflakeId(u.user_id), u.taypoint_count));
+            return rewardedUsers.Select(
+                u => new RewardedUser(new SnowflakeId(u.user_id), u.taypoint_count)
+            ).ToList();
         }
     }
 }

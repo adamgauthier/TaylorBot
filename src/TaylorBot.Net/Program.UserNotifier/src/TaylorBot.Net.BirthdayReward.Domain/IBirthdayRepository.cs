@@ -5,6 +5,6 @@ namespace TaylorBot.Net.BirthdayReward.Domain
 {
     public interface IBirthdayRepository
     {
-        Task<IEnumerable<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount);
+        ValueTask<IReadOnlyCollection<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount);
     }
 }

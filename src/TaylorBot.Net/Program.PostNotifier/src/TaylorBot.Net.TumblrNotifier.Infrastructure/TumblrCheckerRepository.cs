@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.TumblrNotifier.Domain;
-using TaylorBot.Net.TumblrNotifier.Infrastructure.Models;
 
 namespace TaylorBot.Net.TumblrNotifier.Infrastructure
 {
@@ -19,21 +18,31 @@ namespace TaylorBot.Net.TumblrNotifier.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<IEnumerable<TumblrChecker>> GetTumblrCheckersAsync()
+        private class TumblrCheckerDto
+        {
+            public string guild_id { get; set; }
+            public string channel_id { get; set; }
+            public string tumblr_user { get; set; }
+            public string last_link { get; set; }
+        }
+
+        public async ValueTask<IReadOnlyCollection<TumblrChecker>> GetTumblrCheckersAsync()
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var checkers = await connection.QueryAsync<TumblrCheckerDto>("SELECT * FROM checkers.tumblr_checker;");
+            var checkers = await connection.QueryAsync<TumblrCheckerDto>(
+                "SELECT guild_id, channel_id, tumblr_user, last_link FROM checkers.tumblr_checker;"
+            );
 
             return checkers.Select(checker => new TumblrChecker(
                 guildId: new SnowflakeId(checker.guild_id),
                 channelId: new SnowflakeId(checker.channel_id),
                 blogName: checker.tumblr_user,
                 lastPostShortUrl: checker.last_link
-            ));
+            )).ToList();
         }
 
-        public async Task UpdateLastPostAsync(TumblrChecker tumblrChecker, BasePost tumblrPost)
+        public async ValueTask UpdateLastPostAsync(TumblrChecker tumblrChecker, BasePost tumblrPost)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 

@@ -23,7 +23,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
             public string channel_id { get; set; }
         }
 
-        public async Task<IEnumerable<LogChannel>> GetMessageLogChannelsForGuildAsync(IGuild guild)
+        public async ValueTask<IReadOnlyCollection<LogChannel>> GetMessageLogChannelsForGuildAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -35,7 +35,9 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
                 }
             );
 
-            return logChannels.Select(logChannel => new LogChannel(new SnowflakeId(logChannel.channel_id)));
+            return logChannels.Select(
+                logChannel => new LogChannel(new SnowflakeId(logChannel.channel_id))
+            ).ToList();
         }
     }
 }

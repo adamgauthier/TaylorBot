@@ -27,18 +27,21 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
             public DateTime last_taken_at { get; set; }
         }
 
-        public async ValueTask<IEnumerable<InstagramChecker>> GetInstagramCheckersAsync()
+        public async ValueTask<IReadOnlyCollection<InstagramChecker>> GetInstagramCheckersAsync()
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var checkers = await connection.QueryAsync<InstagramCheckerDto>("SELECT * FROM checkers.instagram_checker;");
+            var checkers = await connection.QueryAsync<InstagramCheckerDto>(
+                "SELECT guild_id, channel_id, instagram_username, last_post_code, last_taken_at FROM checkers.instagram_checker;"
+            );
+
             return checkers.Select(checker => new InstagramChecker(
                 guildId: new SnowflakeId(checker.guild_id),
                 channelId: new SnowflakeId(checker.channel_id),
                 instagramUsername: checker.instagram_username,
                 lastPostCode: checker.last_post_code,
                 lastPostTakenAt: checker.last_taken_at
-            ));
+            )).ToList();
         }
 
         public async ValueTask UpdateLastPostAsync(InstagramChecker instagramChecker, InstagramPost instagramPost)

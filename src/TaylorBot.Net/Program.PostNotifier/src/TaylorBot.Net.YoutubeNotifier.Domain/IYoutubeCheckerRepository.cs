@@ -6,7 +6,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
 {
     public interface IYoutubeCheckerRepository
     {
-        Task<IEnumerable<YoutubeChecker>> GetYoutubeCheckersAsync();
-        Task UpdateLastPostAsync(YoutubeChecker youtubeChecker, PlaylistItemSnippet youtubePost);
+        ValueTask<IReadOnlyCollection<YoutubeChecker>> GetYoutubeCheckersAsync();
+        ValueTask UpdateLastPostAsync(YoutubeChecker youtubeChecker, PlaylistItemSnippet youtubePost);
     }
 }

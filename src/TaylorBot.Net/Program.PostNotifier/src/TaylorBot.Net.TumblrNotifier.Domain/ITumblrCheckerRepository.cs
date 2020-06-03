@@ -6,7 +6,7 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
 {
     public interface ITumblrCheckerRepository
     {
-        Task<IEnumerable<TumblrChecker>> GetTumblrCheckersAsync();
-        Task UpdateLastPostAsync(TumblrChecker tumblrChecker, BasePost tumblrPost);
+        ValueTask<IReadOnlyCollection<TumblrChecker>> GetTumblrCheckersAsync();
+        ValueTask UpdateLastPostAsync(TumblrChecker tumblrChecker, BasePost tumblrPost);
     }
 }

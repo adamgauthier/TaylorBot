@@ -7,7 +7,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
 {
     public interface IInstagramCheckerRepository
     {
-        ValueTask<IEnumerable<InstagramChecker>> GetInstagramCheckersAsync();
+        ValueTask<IReadOnlyCollection<InstagramChecker>> GetInstagramCheckersAsync();
         ValueTask UpdateLastPostAsync(InstagramChecker instagramChecker, InstagramPost instagramPost);
     }
 

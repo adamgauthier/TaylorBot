@@ -17,6 +17,6 @@ namespace TaylorBot.Net.MessageLogging.Domain.TextChannel
 
     public interface IMessageLoggingChannelRepository
     {
-        Task<IEnumerable<LogChannel>> GetMessageLogChannelsForGuildAsync(IGuild guild);
+        ValueTask<IReadOnlyCollection<LogChannel>> GetMessageLogChannelsForGuildAsync(IGuild guild);
     }
 }

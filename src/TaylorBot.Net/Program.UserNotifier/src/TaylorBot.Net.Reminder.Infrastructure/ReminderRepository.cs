@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Reminder.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<IEnumerable<Domain.Reminder>> GetExpiredRemindersAsync()
+        public async ValueTask<IReadOnlyCollection<Domain.Reminder>> GetExpiredRemindersAsync()
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -26,10 +26,15 @@ namespace TaylorBot.Net.Reminder.Infrastructure
                 "SELECT reminder_id, user_id, reminder_text, created_at FROM users.reminders WHERE CURRENT_TIMESTAMP > remind_at;"
             );
 
-            return reminders.Select(r => new Domain.Reminder(r.reminder_id, new SnowflakeId(r.user_id), r.created_at, r.reminder_text));
+            return reminders.Select(r => new Domain.Reminder(
+                r.reminder_id,
+                new SnowflakeId(r.user_id),
+                r.created_at,
+                r.reminder_text
+            )).ToList();
         }
 
-        public async Task RemoveReminderAsync(Domain.Reminder reminder)
+        public async ValueTask RemoveReminderAsync(Domain.Reminder reminder)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 

@@ -18,7 +18,7 @@ namespace TaylorBot.Net.MemberLogging.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<IEnumerable<LogChannel>> GetLogChannelsForGuildAsync(IGuild guild)
+        public async ValueTask<IReadOnlyCollection<LogChannel>> GetLogChannelsForGuildAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -30,7 +30,9 @@ namespace TaylorBot.Net.MemberLogging.Infrastructure
                 }
             );
 
-            return logChannels.Select(logChannel => new LogChannel(new SnowflakeId(logChannel.channel_id)));
+            return logChannels.Select(
+                logChannel => new LogChannel(new SnowflakeId(logChannel.channel_id))
+            ).ToList();
         }
     }
 }

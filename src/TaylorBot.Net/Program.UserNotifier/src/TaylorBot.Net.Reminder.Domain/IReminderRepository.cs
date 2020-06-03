@@ -5,7 +5,7 @@ namespace TaylorBot.Net.Reminder.Domain
 {
     public interface IReminderRepository
     {
-        Task<IEnumerable<Reminder>> GetExpiredRemindersAsync();
-        Task RemoveReminderAsync(Reminder reminder);
+        ValueTask<IReadOnlyCollection<Reminder>> GetExpiredRemindersAsync();
+        ValueTask RemoveReminderAsync(Reminder reminder);
     }
 }
