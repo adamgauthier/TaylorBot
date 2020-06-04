@@ -7,9 +7,9 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
         public SnowflakeId GuildId { get; }
         public SnowflakeId ChannelId { get; }
         public string BlogName { get; }
-        public string LastPostShortUrl { get; }
+        public string? LastPostShortUrl { get; }
 
-        public TumblrChecker(SnowflakeId guildId, SnowflakeId channelId, string blogName, string lastPostShortUrl)
+        public TumblrChecker(SnowflakeId guildId, SnowflakeId channelId, string blogName, string? lastPostShortUrl)
         {
             GuildId = guildId;
             ChannelId = channelId;

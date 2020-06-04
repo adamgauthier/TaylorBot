@@ -2,9 +2,9 @@
 {
     public class TumblrAuthOptions
     {
-        public string ConsumerKey { get; set; }
-        public string ConsumerSecret { get; set; }
-        public string Token { get; set; }
-        public string TokenSecret { get; set; }
+        public string ConsumerKey { get; set; } = null!;
+        public string ConsumerSecret { get; set; } = null!;
+        public string Token { get; set; } = null!;
+        public string TokenSecret { get; set; } = null!;
     }
 }

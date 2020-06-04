@@ -2,8 +2,8 @@
 {
     public class RedditAuthOptions
     {
-        public string AppId { get; set; }
-        public string AppSecret { get; set; }
-        public string RefreshToken { get; set; }
+        public string AppId { get; set; } = null!;
+        public string AppSecret { get; set; } = null!;
+        public string RefreshToken { get; set; } = null!;
     }
 }

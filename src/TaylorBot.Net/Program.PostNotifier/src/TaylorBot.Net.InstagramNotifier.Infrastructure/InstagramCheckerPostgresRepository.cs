@@ -20,10 +20,10 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
 
         private class InstagramCheckerDto
         {
-            public string guild_id { get; set; }
-            public string channel_id { get; set; }
-            public string instagram_username { get; set; }
-            public string last_post_code { get; set; }
+            public string guild_id { get; set; } = null!;
+            public string channel_id { get; set; } = null!;
+            public string instagram_username { get; set; } = null!;
+            public string? last_post_code { get; set; }
             public DateTime last_taken_at { get; set; }
         }
 

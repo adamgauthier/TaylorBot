@@ -16,10 +16,10 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
         public SnowflakeId GuildId { get; }
         public SnowflakeId ChannelId { get; }
         public string InstagramUsername { get; }
-        public string LastPostCode { get; }
+        public string? LastPostCode { get; }
         public DateTimeOffset LastPostTakenAt { get; }
 
-        public InstagramChecker(SnowflakeId guildId, SnowflakeId channelId, string instagramUsername, string lastPostCode, DateTimeOffset lastPostTakenAt)
+        public InstagramChecker(SnowflakeId guildId, SnowflakeId channelId, string instagramUsername, string? lastPostCode, DateTimeOffset lastPostTakenAt)
         {
             GuildId = guildId;
             ChannelId = channelId;

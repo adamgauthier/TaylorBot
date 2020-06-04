@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +20,10 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
 
         private class YoutubeCheckerDto
         {
-            public string guild_id { get; set; }
-            public string channel_id { get; set; }
-            public string playlist_id { get; set; }
-            public string last_video_id { get; set; }
+            public string guild_id { get; set; } = null!;
+            public string channel_id { get; set; } = null!;
+            public string playlist_id { get; set; } = null!;
+            public string? last_video_id { get; set; }
             public DateTimeOffset? last_published_at { get; set; }
         }
 
@@ -45,22 +44,26 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
             )).ToList();
         }
 
-        public async ValueTask UpdateLastPostAsync(YoutubeChecker youtubeChecker, PlaylistItemSnippet youtubePost)
+        public async ValueTask UpdateLastPostAsync(YoutubeChecker youtubeChecker, ParsedPlaylistItemSnippet youtubePost)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE checkers.youtube_checker SET
                     last_video_id = @LastVideoId,
-                    last_published_at = @LastPublishedAt
+                    last_published_at = CASE
+                        WHEN @LastPublishedAt IS NULL
+                        THEN last_published_at
+                        ELSE @LastPublishedAt
+                    END
                 WHERE playlist_id = @PlaylistId AND guild_id = @GuildId AND channel_id = @ChannelId;",
                 new
                 {
                     PlaylistId = youtubeChecker.PlaylistId,
                     GuildId = youtubeChecker.GuildId.ToString(),
                     ChannelId = youtubeChecker.ChannelId.ToString(),
-                    LastVideoId = youtubePost.ResourceId.VideoId,
-                    LastPublishedAt = youtubePost.PublishedAt.Value
+                    LastVideoId = youtubePost.Snippet.ResourceId.VideoId,
+                    LastPublishedAt = youtubePost.PublishedAt
                 }
             );
         }

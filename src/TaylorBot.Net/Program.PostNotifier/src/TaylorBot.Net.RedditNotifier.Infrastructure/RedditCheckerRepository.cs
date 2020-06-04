@@ -21,11 +21,11 @@ namespace TaylorBot.Net.RedditNotifier.Infrastructure
 
         private class RedditCheckerDto
         {
-            public string guild_id { get; set; }
-            public string channel_id { get; set; }
-            public string subreddit { get; set; }
-            public string last_post_id { get; set; }
-            public DateTime last_created { get; set; }
+            public string guild_id { get; set; } = null!;
+            public string channel_id { get; set; } = null!;
+            public string subreddit { get; set; } = null!;
+            public string? last_post_id { get; set; }
+            public DateTime? last_created { get; set; }
         }
 
         public async ValueTask<IReadOnlyCollection<RedditChecker>> GetRedditCheckersAsync()

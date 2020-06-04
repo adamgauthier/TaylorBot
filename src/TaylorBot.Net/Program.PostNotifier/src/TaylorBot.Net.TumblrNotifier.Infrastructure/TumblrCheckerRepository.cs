@@ -20,10 +20,10 @@ namespace TaylorBot.Net.TumblrNotifier.Infrastructure
 
         private class TumblrCheckerDto
         {
-            public string guild_id { get; set; }
-            public string channel_id { get; set; }
-            public string tumblr_user { get; set; }
-            public string last_link { get; set; }
+            public string guild_id { get; set; } = null!;
+            public string channel_id { get; set; } = null!;
+            public string tumblr_user { get; set; } = null!;
+            public string? last_link { get; set; }
         }
 
         public async ValueTask<IReadOnlyCollection<TumblrChecker>> GetTumblrCheckersAsync()
