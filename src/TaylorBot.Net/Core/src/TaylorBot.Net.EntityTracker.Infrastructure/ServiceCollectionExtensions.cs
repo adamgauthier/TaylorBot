@@ -23,7 +23,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure
         public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder)
         {
             return builder
-                .AddJsonFile(path: $"Settings/entityTracker.json", optional: false);
+                .AddJsonFile(path: $"Settings/entityTracker.json", optional: false, reloadOnChange: true);
         }
     }
 

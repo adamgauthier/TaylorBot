@@ -49,10 +49,10 @@ namespace TaylorBot.Net.PostNotifier.Program
                     appConfig
                         .AddTaylorBotApplication(env)
                         .AddDatabaseConnection(env)
-                        .AddJsonFile(path: "Settings/redditNotifier.json", optional: false)
-                        .AddJsonFile(path: "Settings/youtubeNotifier.json", optional: false)
-                        .AddJsonFile(path: "Settings/tumblrNotifier.json", optional: false)
-                        .AddJsonFile(path: "Settings/instagramNotifier.json", optional: false);
+                        .AddJsonFile(path: "Settings/redditNotifier.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/youtubeNotifier.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/tumblrNotifier.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/instagramNotifier.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })

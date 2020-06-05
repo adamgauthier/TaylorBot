@@ -44,10 +44,10 @@ namespace TaylorBot.Net.UserNotifier.Program
                     appConfig
                         .AddTaylorBotApplication(env)
                         .AddDatabaseConnection(env)
-                        .AddJsonFile(path: "Settings/birthdayRewardNotifier.json", optional: false)
-                        .AddJsonFile(path: "Settings/reminderNotifier.json", optional: false)
-                        .AddJsonFile(path: "Settings/memberLog.json", optional: false)
-                        .AddJsonFile(path: "Settings/messageLog.json", optional: false);
+                        .AddJsonFile(path: "Settings/birthdayRewardNotifier.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/reminderNotifier.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/memberLog.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/messageLog.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })

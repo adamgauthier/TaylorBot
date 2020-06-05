@@ -15,8 +15,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
         {
             return builder
                 .AddEntityTracker()
-                .AddJsonFile(path: "Settings/commandClient.json", optional: false)
-                .AddJsonFile(path: $"Settings/commandClient.{environment.EnvironmentName}.json", optional: true);
+                .AddJsonFile(path: "Settings/commandClient.json", optional: false, reloadOnChange: true)
+                .AddJsonFile(path: $"Settings/commandClient.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }
     }
 

@@ -31,7 +31,7 @@ namespace TaylorBot.Net.StatsTracker.Program
                     appConfig
                         .AddTaylorBotApplication(env)
                         .AddDatabaseConnection(env)
-                        .AddJsonFile(path: "Settings/minutesTracker.json", optional: false);
+                        .AddJsonFile(path: "Settings/minutesTracker.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })

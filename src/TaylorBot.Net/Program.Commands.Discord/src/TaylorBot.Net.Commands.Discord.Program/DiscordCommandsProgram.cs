@@ -30,7 +30,7 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddDatabaseConnection(env)
                         .AddRedisConnection(env)
                         .AddCommandClient(env)
-                        .AddJsonFile(path: "Settings/taypointWill.json", optional: false);
+                        .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })

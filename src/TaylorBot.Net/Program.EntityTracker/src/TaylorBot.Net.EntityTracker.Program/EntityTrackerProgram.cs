@@ -34,8 +34,8 @@ namespace TaylorBot.Net.EntityTracker.Program
                         .AddTaylorBotApplication(env)
                         .AddDatabaseConnection(env)
                         .AddEntityTracker()
-                        .AddJsonFile(path: "Settings/memberLogging.json", optional: false)
-                        .AddJsonFile(path: "Settings/quickStartEmbed.json", optional: false);
+                        .AddJsonFile(path: "Settings/memberLogging.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/quickStartEmbed.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
