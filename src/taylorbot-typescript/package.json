@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/moment-timezone": "^0.5.13",
     "@types/node": "^13.9.2",
+    "@types/redis": "^2.8.22",
     "@types/ws": "^7.2.3",
     "chalk": "^2.4.2",
     "discord.js": "git+https://github.com/discordjs/discord.js.git#f79f0243438a89c4d8a910461800b1adff2fe6e5",

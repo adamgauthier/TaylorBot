@@ -1,8 +1,8 @@
-import { CachedCommand } from './CachedCommand.js';
+import { CachedCommand } from './CachedCommand';
 import { CommandLoader } from '../../commands/CommandLoader';
-import { AttributeLoader } from '../../attributes/AttributeLoader.js';
-import { DatabaseDriver } from '../../database/DatabaseDriver.js';
-import RedisDriver = require('../../caching/RedisDriver.js');
+import { AttributeLoader } from '../../attributes/AttributeLoader';
+import { DatabaseDriver } from '../../database/DatabaseDriver';
+import { RedisDriver } from '../../caching/RedisDriver';
 import Command = require('../../commands/Command.js');
 import { Guild } from 'discord.js';
 
@@ -107,7 +107,7 @@ export class CommandRegistry {
 
         if (isEnabled === null) {
             const { enabled } = await this.database.commands.insertOrGetIsCommandDisabled(command);
-            await this.redis.hashSet(this.enabledRedisKey, command.name, enabled ? 1 : 0);
+            await this.redis.hashSet(this.enabledRedisKey, command.name, enabled ? '1' : '0');
             return !enabled;
         }
 
@@ -116,7 +116,7 @@ export class CommandRegistry {
 
     async setGlobalEnabled(commandName: string, setEnabled: boolean): Promise<boolean> {
         const { enabled } = await this.database.commands.setEnabled(commandName, setEnabled);
-        await this.redis.hashSet(this.enabledRedisKey, commandName, enabled ? 1 : 0);
+        await this.redis.hashSet(this.enabledRedisKey, commandName, enabled ? '1' : '0');
         return enabled;
     }
 
@@ -129,7 +129,7 @@ export class CommandRegistry {
 
         if (isEnabled === null) {
             const { exists } = await this.database.guildCommands.getIsGuildCommandDisabled(guild, command);
-            await this.redis.hashSet(this.enabledGuildRedisKey(guild), command.name, (!exists) ? 1 : 0);
+            await this.redis.hashSet(this.enabledGuildRedisKey(guild), command.name, (!exists) ? '1' : '0');
             await this.redis.expire(this.enabledGuildRedisKey(guild), 6 * 60 * 60);
             return exists;
         }
@@ -139,7 +139,7 @@ export class CommandRegistry {
 
     async setGuildEnabled(guild: Guild, commandName: string, enabled: boolean): Promise<boolean> {
         const { disabled } = await this.database.guildCommands.setDisabled(guild, commandName, !enabled);
-        await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, (!disabled) ? 1 : 0);
+        await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, (!disabled) ? '1' : '0');
         return !disabled;
     }
 }

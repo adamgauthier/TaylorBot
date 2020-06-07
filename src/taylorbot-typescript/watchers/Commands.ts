@@ -16,10 +16,10 @@ class CommandsWatcher extends MessageWatcher {
         if (client.user === null || author === null || author.bot)
             return;
 
-        const messageContext = new MessageContext(message, client);
+        const messageContext = new MessageContext(author, message, client);
 
         if (messageContext.isGuild) {
-            const prefix = await client.master.registry.guilds.getPrefix(message.guild);
+            const prefix = await client.master.registry.guilds.getPrefix(message.guild!);
             messageContext.prefix = prefix;
         }
 
@@ -66,8 +66,8 @@ class CommandsWatcher extends MessageWatcher {
     }
 
     static async runCommand(messageContext: MessageContext, cachedCommand: CachedCommand, argString: string): Promise<void> {
-        const { client, message } = messageContext;
-        const { author, channel } = message;
+        const { author, client, message } = messageContext;
+        const { channel } = message;
         const { registry } = client.master;
 
         for (const inhibitor of registry.inhibitors.getSilentInhibitors()) {

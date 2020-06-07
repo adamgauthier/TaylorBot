@@ -5,7 +5,7 @@ import { DatabaseDriver } from '../database/DatabaseDriver';
 import { TaylorBotClient } from './TaylorBotClient';
 import { Registry } from './registry/Registry';
 import Log = require('../tools/Logger.js');
-import RedisDriver = require('../caching/RedisDriver.js');
+import { RedisDriver} from '../caching/RedisDriver';
 
 export class TaylorBotMasterClient {
     #clients: TaylorBotClient[];

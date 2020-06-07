@@ -1,10 +1,10 @@
-import { Message } from 'discord.js';
+import { Message, User } from 'discord.js';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 
 export class MessageContext {
     prefix = '';
     wasOnGoingCommandAdded = false;
-    constructor(public readonly message: Message, public readonly client: TaylorBotClient) {
+    constructor(public readonly author: User, public readonly message: Message, public readonly client: TaylorBotClient) {
     }
 
     get isGuild(): boolean {

@@ -3,7 +3,7 @@ import { MessageContext } from '../../structures/MessageContext';
 
 class AnsweredCooldownInhibitor extends SilentInhibitor {
     async shouldBeBlocked(messageContext: MessageContext): Promise<string | null> {
-        const { author } = messageContext.message;
+        const { author } = messageContext;
         const { onGoingCommands } = messageContext.client.master.registry;
 
         if (messageContext.wasOnGoingCommandAdded) {

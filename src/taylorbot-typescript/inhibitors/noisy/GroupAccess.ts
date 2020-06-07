@@ -1,10 +1,10 @@
-import { Permissions, Message, GuildMember } from 'discord.js';
+import { Permissions, Message, GuildMember, User } from 'discord.js';
 
 import { NoisyInhibitor } from '../NoisyInhibitor';
 import UserGroups = require('../../client/UserGroups.js');
 import DISCORD_CONFIG = require('../../config/config.json');
 import { Registry } from '../../client/registry/Registry';
-import GuildRegistry = require('../../client/registry/GuildRegistry');
+import { GuildRegistry } from '../../client/registry/GuildRegistry';
 import GroupRegistry = require('../../client/registry/GroupRegistry');
 import { CachedCommand } from '../../client/registry/CachedCommand';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
@@ -12,10 +12,10 @@ import { MessageContext } from '../../structures/MessageContext';
 
 class GroupAccessInhibitor extends NoisyInhibitor {
     getBlockedMessage(messageContext: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
-        const { message, client } = messageContext;
+        const { author, message, client } = messageContext;
         const { registry } = client.master;
         const { minimumGroup } = command.command;
-        if (GroupAccessInhibitor.groupHasAccess(minimumGroup.accessLevel, message, registry)) {
+        if (GroupAccessInhibitor.groupHasAccess(minimumGroup.accessLevel, author, message, registry)) {
             return Promise.resolve(null);
         }
 
@@ -31,11 +31,8 @@ class GroupAccessInhibitor extends NoisyInhibitor {
         });
     }
 
-    static groupHasAccess(minimumGroupLevel: number, message: Message, registry: Registry): boolean {
-        if (message.author === null)
-            throw new Error(`Author can't be null.`);
-
-        const { accessLevel } = message.author.id === DISCORD_CONFIG.MASTER_ID ? UserGroups.Master : UserGroups.Everyone;
+    static groupHasAccess(minimumGroupLevel: number, author: User, message: Message, registry: Registry): boolean {
+        const { accessLevel } = author.id === DISCORD_CONFIG.MASTER_ID ? UserGroups.Master : UserGroups.Everyone;
 
         if (accessLevel >= minimumGroupLevel)
             return true;

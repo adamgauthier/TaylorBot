@@ -21,10 +21,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
 
     abstract clear(database: DatabaseDriver, user: User): Promise<void>;
 
-    async setCommand({ message, client }: CommandMessageContext, value: any): Promise<MessageEmbed> {
-        const { author } = message;
-        if (author === null)
-            throw new Error(`Author can't be null.`);
+    async setCommand({ author, client }: CommandMessageContext, value: any): Promise<MessageEmbed> {
         const attribute = await this.set(client.master.database, author, value);
 
         return DiscordEmbedFormatter
@@ -33,10 +30,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
             .setDescription(`Your ${this.description} has been set to '${this.formatValue(attribute)}'. ✅`);
     }
 
-    async clearCommand({ message, client }: CommandMessageContext): Promise<MessageEmbed> {
-        const { author } = message;
-        if (author === null)
-            throw new Error(`Author can't be null.`);
+    async clearCommand({ author, client }: CommandMessageContext): Promise<MessageEmbed> {
         await this.clear(client.master.database, author);
 
         return DiscordEmbedFormatter

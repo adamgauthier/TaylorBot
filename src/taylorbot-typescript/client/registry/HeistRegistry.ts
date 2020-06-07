@@ -1,20 +1,22 @@
-'use strict';
+import TaypointAmount = require('../../modules/points/TaypointAmount.js');
+import { RedisDriver } from '../../caching/RedisDriver.js';
+import { Guild, User } from 'discord.js';
 
-const TaypointAmount = require('../../modules/points/TaypointAmount.js');
+export class HeistRegistry {
+    #redis: RedisDriver;
 
-class HeistRegistry {
-    constructor(redis) {
-        this.redis = redis;
+    constructor(redis: RedisDriver) {
+        this.#redis = redis;
     }
 
-    key(guild) {
+    key(guild: Guild): string {
         return `heist:guild:${guild.id}`;
     }
 
-    async enterHeist(user, guild, amount, heistDelayMinutes) {
+    async enterHeist(user: User, guild: Guild, amount: TaypointAmount, heistDelayMinutes: number): Promise<{ created: boolean; updated: boolean }> {
         const key = this.key(guild);
 
-        const [exists, wasSet] = await this.redis.eval(
+        const [exists, wasSet] = await this.#redis.eval(
             `local exists = redis.call('exists', KEYS[1])
             local wasSet = redis.call('hset', KEYS[1], ARGV[1], ARGV[2])
             if exists == 0 then
@@ -34,18 +36,16 @@ class HeistRegistry {
         };
     }
 
-    async completeHeist(guild) {
+    async completeHeist(guild: Guild): Promise<{ userId: string; amount: TaypointAmount }[]> {
         const key = this.key(guild);
-        const multi = this.redis.multi();
+        const multi = this.#redis.multi();
 
         multi.hgetall(key);
         multi.del(key);
 
-        const [keys] = await multi.execute();
+        const [keys]: { [key: string]: string }[] = await multi.execute();
 
         return Object.entries(keys)
             .map(([userId, amount]) => ({ userId, amount: new TaypointAmount(JSON.parse(amount)) }));
     }
 }
-
-module.exports = HeistRegistry;

@@ -2,7 +2,7 @@ import UnsafeRandomModule = require('../modules/random/UnsafeRandomModule.js');
 import { CachedCommand } from '../client/registry/CachedCommand';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 import ArgumentType = require('../types/ArgumentType.js');
-import { Message } from 'discord.js';
+import { Message, User } from 'discord.js';
 import { MessageContext } from '../structures/MessageContext';
 
 type ArgumentInfo = {
@@ -44,6 +44,10 @@ export class CommandMessageContext {
 
     get client(): TaylorBotClient {
         return this.messageContext.client;
+    }
+
+    get author(): User {
+        return this.messageContext.author;
     }
 
     get message(): Message {

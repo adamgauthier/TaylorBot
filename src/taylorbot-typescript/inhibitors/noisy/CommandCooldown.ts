@@ -5,11 +5,10 @@ import { CachedCommand } from '../../client/registry/CachedCommand';
 import { MessageContext } from '../../structures/MessageContext';
 
 class CommandCooldown extends NoisyInhibitor {
-    async getBlockedMessage({ message, client }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    async getBlockedMessage({ author, client }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         const { maxDailyUseCount } = command.command;
         if (maxDailyUseCount !== null) {
             const { registry } = client.master;
-            const { author } = message;
 
             const dailyCount = await registry.cooldowns.getDailyUseCount(author, command);
 

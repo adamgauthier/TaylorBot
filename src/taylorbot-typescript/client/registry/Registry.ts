@@ -2,18 +2,18 @@ import Log = require('../../tools/Logger.js');
 import TypeRegistry = require('./TypeRegistry.js');
 import { MessageWatcherRegistry } from './MessageWatcherRegistry';
 import GroupRegistry = require('./GroupRegistry.js');
-import GuildRegistry = require('./GuildRegistry.js');
+import { GuildRegistry } from './GuildRegistry';
 import GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
 import { CommandRegistry } from './CommandRegistry';
-import UserRegistry = require('./UserRegistry.js');
+import { UserRegistry } from './UserRegistry';
 import { InhibitorRegistry } from './InhibitorRegistry';
-import { AttributeRegistry } from './AttributeRegistry.js';
+import { AttributeRegistry } from './AttributeRegistry';
 import { ChannelCommandRegistry } from './ChannelCommandRegistry';
-import CooldownRegistry = require('./CooldownRegistry.js');
-import OnGoingCommandRegistry = require('./OnGoingCommandRegistry.js');
-import HeistRegistry = require('./HeistRegistry.js');
-import { DatabaseDriver } from '../../database/DatabaseDriver.js';
-import RedisDriver = require('../../caching/RedisDriver.js');
+import { CooldownRegistry } from './CooldownRegistry';
+import { OnGoingCommandRegistry } from './OnGoingCommandRegistry';
+import { HeistRegistry } from './HeistRegistry';
+import { DatabaseDriver } from '../../database/DatabaseDriver';
+import { RedisDriver } from '../../caching/RedisDriver';
 
 export class Registry {
     types: TypeRegistry;

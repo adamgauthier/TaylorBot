@@ -1,5 +1,5 @@
 import { DatabaseDriver } from '../../database/DatabaseDriver';
-import RedisDriver = require('../../caching/RedisDriver.js');
+import { RedisDriver } from '../../caching/RedisDriver';
 import { TextChannel } from 'discord.js';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 import { CachedCommand } from './CachedCommand';
@@ -23,7 +23,7 @@ export class ChannelCommandRegistry {
 
         if (isEnabled === null) {
             const { exists } = await this.#database.channelCommands.getIsCommandDisabledInChannel(guildTextChannel, command);
-            await this.#redis.hashSet(key, command.name, (!exists) ? 1 : 0);
+            await this.#redis.hashSet(key, command.name, (!exists) ? '1' : '0');
             await this.#redis.expire(key, 6 * 60 * 60);
             return exists;
         }
@@ -36,7 +36,7 @@ export class ChannelCommandRegistry {
         await this.#redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
             command.name,
-            0
+            '0'
         );
     }
 
@@ -45,7 +45,7 @@ export class ChannelCommandRegistry {
         await this.#redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
             command.name,
-            1
+            '1'
         );
     }
 }
