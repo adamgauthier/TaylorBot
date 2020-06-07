@@ -97,5 +97,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
+
+        [Fact]
+        public async Task RoleInfoAsync_ThenReturnsIdFieldEmbed()
+        {
+            const ulong AnId = 1;
+            var role = A.Fake<IRole>();
+            A.CallTo(() => role.Id).Returns(AnId);
+
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.RoleInfoAsync(role);
+
+            result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
+        }
     }
 }

@@ -110,7 +110,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         [Summary("Gets discord information about a user.")]
         public async Task<RuntimeResult> UserInfoAsync(
             [Summary("What user would you like to see the info of?")]
-            [OverrideTypeReader(typeof(CustomUserTypeReader<IGuildUser>))]
             [Remainder]
             IUserArgument<IGuildUser> member = null
         )
@@ -152,6 +151,41 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             var cachedUsers = await Context.Guild.GetUsersAsync(CacheMode.CacheOnly);
             var randomUser = cachedUsers.ElementAt(_random.Next(cachedUsers.Count));
             return await UserInfoAsync(new UserArgument<IGuildUser>(randomUser, _userTracker));
+        }
+
+        [RequireInGuild]
+        [Command("roleinfo")]
+        [Alias("rinfo")]
+        [Summary("Gets discord information about a role.")]
+        public async Task<RuntimeResult> RoleInfoAsync(
+            [Summary("What role would you like to see the info of?")]
+            [Remainder]
+            IRole role = null
+        )
+        {
+            if (role == null)
+            {
+                var guildUser = (IGuildUser)Context.User;
+                role = guildUser.Guild.GetRole(guildUser.RoleIds.First());
+            }
+
+            var members = (await role.Guild.GetUsersAsync(CacheMode.CacheOnly)).Where(m => m.RoleIds.Contains(role.Id)).ToList();
+
+            var embed = new EmbedBuilder()
+                .WithColor(role.Color)
+                .WithAuthor(role.Name)
+                .AddField("Id", $"`{role.Id}`", inline: true)
+                .AddField("Color", $"`{role.Color}`", inline: true)
+                .AddField("Server Id", $"`{role.Guild.Id}`", inline: true)
+                .AddField("Hoisted", role.IsHoisted ? "✅" : "❌", inline: true)
+                .AddField("Managed", role.IsManaged ? "✅" : "❌", inline: true)
+                .AddField("Mentionable", role.IsMentionable ? "✅" : "❌", inline: true)
+                .AddField("Created", role.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
+                .AddField("Members",
+                    $"**({members.Count}{(members.Any() ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
+                );
+
+            return new TaylorBotEmbedResult(embed.Build());
         }
     }
 }

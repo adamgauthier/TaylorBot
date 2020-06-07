@@ -115,25 +115,6 @@ class DiscordEmbedFormatter {
 
         return embed;
     }
-
-    static role(role) {
-        const { members, guild } = role;
-        const embed = new MessageEmbed()
-            .setColor(role.color)
-            .setAuthor(role.name)
-            .addField('ID', `\`${role.id}\``, true)
-            .addField('Color', `\`${role.hexColor}\``, true)
-            .addField('Server', `${guild.name} (\`${guild.id}\`)`, true)
-            .addField('Created', TimeUtil.formatFull(role.createdTimestamp))
-            .addField(
-                StringUtil.plural(members.size, 'Member'),
-                members.size > 0 ?
-                    StringUtil.shrinkString(members.map(m => m.displayName).join(', '), 75, ', ...', [',']) :
-                    '[None]'
-            );
-
-        return embed;
-    }
 }
 
 module.exports = DiscordEmbedFormatter;
