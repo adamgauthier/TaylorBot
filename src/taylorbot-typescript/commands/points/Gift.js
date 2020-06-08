@@ -9,7 +9,7 @@ class GiftCommand extends Command {
         super({
             name: 'gift',
             aliases: ['give'],
-            group: 'points',
+            group: 'Points 💰',
             description: 'Gifts a specified amount of taypoints to pinged users.',
             examples: ['13 @Enchanted13#1989', 'all @Enchanted13#1989'],
 

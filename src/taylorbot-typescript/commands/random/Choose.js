@@ -9,7 +9,7 @@ class ChooseCommand extends Command {
         super({
             name: 'choose',
             aliases: ['choice'],
-            group: 'random',
+            group: 'Random 🎲',
             description: 'Chooses a random option for you.',
             examples: ['Cake, Pie'],
 

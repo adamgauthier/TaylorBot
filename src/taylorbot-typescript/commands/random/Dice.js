@@ -9,7 +9,7 @@ class DiceCommand extends Command {
     constructor() {
         super({
             name: 'dice',
-            group: 'random',
+            group: 'Random 🎲',
             description: 'Rolls a dice with the specified amount of faces.',
             examples: ['6', '13', '22'],
 

@@ -12,7 +12,7 @@ class UsernamesCommand extends Command {
         super({
             name: 'usernames',
             aliases: ['names'],
-            group: 'stats',
+            group: 'Stats 📊',
             description: 'Gets a list of previous usernames for a user.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
 

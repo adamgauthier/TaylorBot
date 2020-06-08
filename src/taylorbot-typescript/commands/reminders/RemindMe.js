@@ -13,7 +13,7 @@ class RemindMeCommand extends Command {
         super({
             name: 'remindme',
             aliases: ['remind', 'reminder'],
-            group: 'reminders',
+            group: 'Reminders ⏰',
             description: 'Sets a reminder for the future.',
             examples: [`1 hour watch movie`, `10 minutes pizza party`],
 

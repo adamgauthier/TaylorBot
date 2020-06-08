@@ -8,7 +8,7 @@ class ChannelStatsCommand extends Command {
         super({
             name: 'channelstats',
             aliases: ['cstats'],
-            group: 'stats',
+            group: 'Stats 📊',
             description: 'Gets stored stats about a text channel.',
             examples: ['', '#general'],
 

@@ -9,7 +9,7 @@ class RewardCommand extends Command {
     constructor() {
         super({
             name: 'reward',
-            group: 'points',
+            group: 'Points 💰',
             description: 'Rewards a specified amount of taypoints to pinged users.',
             minimumGroup: UserGroups.Master,
             examples: ['13 @Enchanted13#1989', '22 @Enchanted13#1989'],

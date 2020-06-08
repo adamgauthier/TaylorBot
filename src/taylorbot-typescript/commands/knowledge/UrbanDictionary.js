@@ -12,7 +12,7 @@ class UrbanDictionaryCommand extends Command {
         super({
             name: 'urbandictionary',
             aliases: ['urban'],
-            group: 'knowledge',
+            group: 'Knowledge ❓',
             description: 'Search on UrbanDictionary!',
             examples: ['ffs', 'tea'],
             maxDailyUseCount: 100,

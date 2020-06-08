@@ -9,7 +9,7 @@ class WeatherCommand extends Command {
     constructor() {
         super({
             name: 'weather',
-            group: 'weather',
+            group: 'Weather 🌦',
             description: `Get current weather forecast for a user's location. Weather data is [Powered by Dark Sky](https://darksky.net/poweredby/).`,
             examples: ['@Enchanted13#1989', 'Enchanted13'],
             maxDailyUseCount: 15,

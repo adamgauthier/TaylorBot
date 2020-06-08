@@ -8,7 +8,7 @@ class ServerInfoCommand extends Command {
         super({
             name: 'serverinfo',
             aliases: ['sinfo', 'guildinfo', 'ginfo'],
-            group: 'discord',
+            group: 'DiscordInfo 💬',
             description: 'Gets information about a server.',
             examples: [''],
 

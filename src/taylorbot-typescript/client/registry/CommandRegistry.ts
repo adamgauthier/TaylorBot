@@ -92,12 +92,6 @@ export class CommandRegistry {
         }
     }
 
-    getAllCommands(): CachedCommand[] {
-        return Array.from(
-            this.#commandsCache.values()
-        ).filter(val => typeof (val) !== 'string');
-    }
-
     get enabledRedisKey(): string {
         return 'enabled-commands';
     }

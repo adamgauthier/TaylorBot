@@ -10,7 +10,7 @@ class WolframCommand extends Command {
         super({
             name: 'wolfram',
             aliases: ['wolframalpha', 'wa'],
-            group: 'knowledge',
+            group: 'Knowledge ❓',
             description: 'Search on Wolfram|Alpha!',
             examples: ['convert 5km to miles', 'how many stars are there'],
             maxDailyUseCount: 10,

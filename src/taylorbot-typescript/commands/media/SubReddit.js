@@ -11,7 +11,7 @@ class SubRedditCommand extends Command {
         super({
             name: 'subreddit',
             aliases: ['sub'],
-            group: 'media',
+            group: 'Media 📷',
             description: 'Gets info on a subreddit!',
             examples: ['taylorswift'],
             maxDailyUseCount: 100,

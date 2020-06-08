@@ -7,7 +7,7 @@ class ClearRemindersCommand extends Command {
         super({
             name: 'clearreminders',
             aliases: ['clearreminder', 'cr'],
-            group: 'reminders',
+            group: 'Reminders ⏰',
             description: 'Clears all your reminders.',
             examples: [''],
 

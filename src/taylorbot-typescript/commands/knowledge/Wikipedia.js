@@ -9,7 +9,7 @@ class WikipediaCommand extends Command {
         super({
             name: 'wikipedia',
             aliases: ['wiki'],
-            group: 'knowledge',
+            group: 'Knowledge ❓',
             description: 'Search on Wikipedia!',
             examples: ['taylor swift', 'canada'],
             maxDailyUseCount: 100,

@@ -9,7 +9,7 @@ class GetRoleCommand extends Command {
         super({
             name: 'getrole',
             aliases: ['gr'],
-            group: 'discord',
+            group: 'roles',
             description: 'Gives you an accessible role.',
             examples: ['@tour', 'leaks'],
             guildOnly: true,

@@ -7,7 +7,7 @@ class PollCommand extends Command {
     constructor() {
         super({
             name: 'poll',
-            group: 'fun',
+            group: 'Fun 🎭',
             description: 'Create a poll in a channel! Use the `closepoll` command to close a poll!',
             examples: ['Cake, Pie'],
             guildOnly: true,

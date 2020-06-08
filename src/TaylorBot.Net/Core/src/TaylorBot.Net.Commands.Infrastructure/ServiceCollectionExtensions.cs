@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Infrastructure.Options;
+using TaylorBot.Net.Commands.Modules;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.EntityTracker.Infrastructure;
@@ -90,7 +91,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
                         provider.GetRequiredService<OnGoingCommandRedisRepository>() :
                         (IOngoingCommandRepository)provider.GetRequiredService<OnGoingCommandInMemoryRepository>();
                 })
-                .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>();
+                .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>()
+                .AddSingleton<ICommandRepository, CommandPostgresRepository>();
         }
     }
 }

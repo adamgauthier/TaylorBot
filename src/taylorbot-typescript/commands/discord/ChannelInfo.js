@@ -8,7 +8,7 @@ class ChannelInfoCommand extends Command {
         super({
             name: 'channelinfo',
             aliases: ['cinfo'],
-            group: 'discord',
+            group: 'DiscordInfo 💬',
             description: 'Gets information about a channel.',
             examples: ['', '#general'],
 

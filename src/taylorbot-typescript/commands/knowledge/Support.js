@@ -10,7 +10,7 @@ class SupportCommand extends Command {
         super({
             name: 'support',
             aliases: ['donate', 'patreon'],
-            group: 'knowledge',
+            group: 'Knowledge ❓',
             description: 'Gives information about where you can support TaylorBot!',
             examples: [''],
 

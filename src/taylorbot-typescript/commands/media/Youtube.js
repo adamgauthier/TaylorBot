@@ -11,7 +11,7 @@ class YoutubeCommand extends Command {
         super({
             name: 'youtube',
             aliases: ['yt', 'ytn', 'ytt'],
-            group: 'media',
+            group: 'Media 📷',
             description: 'Searches YouTube for videos.',
             examples: ['taylor swift begin again', 'brockhampton gold'],
             maxDailyUseCount: 100,

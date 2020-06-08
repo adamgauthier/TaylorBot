@@ -8,7 +8,7 @@ class ShowPollCommand extends Command {
         super({
             name: 'showpoll',
             aliases: ['spoll', 'pollshow'],
-            group: 'fun',
+            group: 'Fun 🎭',
             description: 'Shows the current results of a poll in a channel!',
             examples: [''],
             guildOnly: true,

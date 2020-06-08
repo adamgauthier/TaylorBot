@@ -17,7 +17,7 @@ class HeistCommand extends Command {
     constructor() {
         super({
             name: 'heist',
-            group: 'points',
+            group: 'Points 💰',
             description: 'Start or join a taypoints bank heist in the current channel! The more points you invest into the heist, the more you get if the heist succeeds!',
             examples: ['13', 'all'],
             maxDailyUseCount: 150,

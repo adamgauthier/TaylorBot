@@ -10,7 +10,7 @@ class ClosePollCommand extends Command {
         super({
             name: 'closepoll',
             aliases: ['cpoll', 'pollclose'],
-            group: 'fun',
+            group: 'Fun 🎭',
             description: 'Closes a poll in a channel!',
             examples: [''],
             guildOnly: true,

@@ -11,7 +11,7 @@ class ReactPollCommand extends Command {
         super({
             name: 'reactpoll',
             aliases: ['rpoll'],
-            group: 'fun',
+            group: 'Fun 🎭',
             description: 'Creates a quick poll for a few options with reactions!',
             examples: ['Cake, Pie'],
             guildOnly: true,

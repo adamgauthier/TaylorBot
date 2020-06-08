@@ -11,7 +11,7 @@ class RockPaperScissorsCommand extends Command {
         super({
             name: 'rockpaperscissors',
             aliases: ['rps'],
-            group: 'points',
+            group: 'Points 💰',
             description: 'Play a game of rock paper scissors with the bot. If you win, you gain 1 taypoint.',
             examples: ['rock', 'paper', 'scissors'],
             maxDailyUseCount: 6000,

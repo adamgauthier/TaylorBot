@@ -12,7 +12,7 @@ class HoroscopeCommand extends Command {
         super({
             name: 'horoscope',
             aliases: ['hs'],
-            group: 'knowledge',
+            group: 'Knowledge ❓',
             description: 'Gets the horoscope of a user based on their set birthday.',
             examples: ['@Enchanted13#1989', 'Enchanted13'],
             maxDailyUseCount: 20,

@@ -10,7 +10,7 @@ class SuperGambleCommand extends Command {
         super({
             name: 'supergamble',
             aliases: ['sgamble'],
-            group: 'points',
+            group: 'Points 💰',
             description: 'Gamble a specified amount of taypoints. If you roll 91-100, you win 9x the gambled amount, if you roll 1-90, you lose that amount.',
             examples: ['13', 'all'],
 

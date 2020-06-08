@@ -18,7 +18,7 @@ class DailyPayoutCommand extends Command {
         super({
             name: 'dailypayout',
             aliases: ['daily'],
-            group: 'points',
+            group: 'Points 💰',
             description: 'Awards you with your daily amount of taypoints.',
             examples: [''],
 

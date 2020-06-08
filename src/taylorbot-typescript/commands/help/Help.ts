@@ -1,7 +1,5 @@
 import Command = require('../Command.js');
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import { ArrayUtil } from '../../modules/util/ArrayUtil';
-import UserGroups = require('../../client/UserGroups.js');
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class HelpCommand extends Command {
@@ -29,57 +27,23 @@ class HelpCommand extends Command {
 
         const command = client.master.registry.commands.resolve(commandName);
 
-        // Command is on another service
-        if (command === undefined)
+        // Command is on another service or general help
+        if (command === undefined || command.name === commandContext.command.command.name)
             return;
 
-        if (command.name === commandContext.command.command.name) {
-            const FEATURED_GROUPS = [
-                { name: 'discord', emoji: '💬' },
-                { name: 'fun', emoji: '🎭' },
-                { name: 'knowledge', emoji: '❓' },
-                { name: 'media', emoji: '📷' },
-                { name: 'points', emoji: '💰' },
-                { name: 'random', emoji: '🎲' },
-                { name: 'reminders', emoji: '⏰' },
-                { name: 'stats', emoji: '📊' },
-                { name: 'weather', emoji: '🌦' }
-            ];
+        const helpCommandContext = new CommandMessageContext(messageContext, command);
 
-            const groupedCommands = ArrayUtil.groupBy(
-                client.master.registry.commands.getAllCommands().filter(c =>
-                    FEATURED_GROUPS.map(group => group.name).includes(c.command.group) &&
-                    c.command.minimumGroup !== UserGroups.Master
-                ),
-                c => `${c.command.group} ${FEATURED_GROUPS.find(group => group.name === c.command.group)?.emoji}`
-            );
-
-            const embed = DiscordEmbedFormatter.baseUserEmbed(author)
-                .setDescription(`Here are some featured commands, use \`${commandContext.usage()}\` for any of them. 😊`);
-
-            for (const [group, groupCommands] of groupedCommands.entries()) {
-                embed.addField(group, groupCommands.map(
-                    c => c.command.name
-                ).join(', '), true);
-            }
-
-            await client.sendEmbed(channel, embed);
-        }
-        else {
-            const helpCommandContext = new CommandMessageContext(messageContext, command);
-
-            await client.sendEmbed(channel,
-                DiscordEmbedFormatter
-                    .baseUserEmbed(author)
-                    .setTitle(`Command '${command.name}'`)
-                    .setDescription(command.command.description)
-                    .addField('Usage', [
-                        `\`${helpCommandContext.usage()}\``,
-                        ...helpCommandContext.argsUsage().map(({ identifier, hint }) => `\`${identifier}\`: ${hint}`)
-                    ].join('\n'))
-                    .addField('Example', `\`${helpCommandContext.example()}\``)
-            );
-        }
+        await client.sendEmbed(channel,
+            DiscordEmbedFormatter
+                .baseUserEmbed(author)
+                .setTitle(`Command '${command.name}'`)
+                .setDescription(command.command.description)
+                .addField('Usage', [
+                    `\`${helpCommandContext.usage()}\``,
+                    ...helpCommandContext.argsUsage().map(({ identifier, hint }) => `\`${identifier}\`: ${hint}`)
+                ].join('\n'))
+                .addField('Example', `\`${helpCommandContext.example()}\``)
+        );
     }
 }
 

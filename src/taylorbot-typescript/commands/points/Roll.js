@@ -9,7 +9,7 @@ class RollCommand extends Command {
     constructor() {
         super({
             name: 'roll',
-            group: 'points',
+            group: 'Points 💰',
             description: 'Rolls a number between 0 and 1989. Rolling 13, 15, 22 or 1989 will yield a reward.',
             examples: [''],
             maxDailyUseCount: 1989,

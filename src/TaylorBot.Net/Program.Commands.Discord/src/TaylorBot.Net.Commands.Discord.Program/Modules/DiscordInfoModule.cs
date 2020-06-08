@@ -14,7 +14,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules
 {
-    [Name("DiscordInfo")]
+    [Name("DiscordInfo 💬")]
     public class DiscordInfoModule : TaylorBotModule
     {
         public static readonly Random _random = new Random();
