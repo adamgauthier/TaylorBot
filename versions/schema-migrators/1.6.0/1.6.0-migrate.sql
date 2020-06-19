@@ -7,3 +7,15 @@ UPDATE commands.commands SET module_name = 'Points 💰' WHERE module_name = 'po
 UPDATE commands.commands SET module_name = 'Reminders ⏰' WHERE module_name = 'reminders';
 UPDATE commands.commands SET module_name = 'Stats 📊' WHERE module_name = 'stats';
 UPDATE commands.commands SET module_name = 'Weather 🌦' WHERE module_name = 'weather';
+
+CREATE TABLE guilds.jail_roles
+(
+    guild_id text NOT NULL,
+    jail_role_id text NOT NULL,
+    set_at timestamp without time zone NOT NULL,
+    PRIMARY KEY (guild_id)
+);
+
+ALTER TABLE guilds.jail_roles OWNER to postgres;
+
+GRANT ALL ON TABLE guilds.jail_roles TO taylorbot;

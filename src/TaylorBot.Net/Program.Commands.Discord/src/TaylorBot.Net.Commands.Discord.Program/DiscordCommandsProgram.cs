@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
@@ -45,7 +47,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddRedisConnection(config)
                         .ConfigureRequired<TaypointWillOptions>(config, "TaypointWill")
                         .AddTransient<UserStatusStringMapper>()
-                        .AddTransient<ITaypointWillRepository, TaypointWillPostgresRepository>();
+                        .AddTransient<ITaypointWillRepository, TaypointWillPostgresRepository>()
+                        .AddTransient<IJailRepository, JailPostgresRepository>();
                 })
                 .Build();
 
