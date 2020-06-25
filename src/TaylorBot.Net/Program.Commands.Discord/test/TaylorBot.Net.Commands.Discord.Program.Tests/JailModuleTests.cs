@@ -1,10 +1,13 @@
 ﻿using Discord;
+using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
+using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Snowflake;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests
@@ -23,6 +26,65 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             _jailModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.Guild).Returns(_guild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
+            A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
+        }
+
+        [Fact]
+        public async Task JailAsync_WhenNoJailRoleSet_ThenReturnsErrorEmbed()
+        {
+            A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(null);
+
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict()));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task JailAsync_WhenJailRoleDeleted_ThenReturnsErrorEmbed()
+        {
+            const ulong AnId = 1;
+            A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
+            A.CallTo(() => _guild.GetRole(AnId)).Returns(null);
+
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict()));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task JailAsync_WhenForbiddenJailRoleAdd_ThenReturnsErrorEmbed()
+        {
+            const ulong AnId = 1;
+            A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
+            var jailRole = A.Fake<IRole>();
+            A.CallTo(() => _guild.GetRole(AnId)).Returns(jailRole);
+            var user = A.Fake<IGuildUser>(o => o.Strict());
+            A.CallTo(() => user.Mention).Returns(string.Empty);
+            var mentionedUser = A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict());
+            A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);
+            A.CallTo(() => user.AddRoleAsync(jailRole, null)).ThrowsAsync(new HttpException(System.Net.HttpStatusCode.Forbidden, A.Fake<IRequest>(), null, null));
+
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(mentionedUser);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task JailAsync_WhenJailRoleSetAndCanBeAdded_ThenReturnsSuccessEmbed()
+        {
+            const ulong AnId = 1;
+            A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
+            var jailRole = A.Fake<IRole>(o => o.Strict());
+            A.CallTo(() => _guild.GetRole(AnId)).Returns(jailRole);
+            var user = A.Fake<IGuildUser>(o => o.Strict());
+            A.CallTo(() => user.Mention).Returns(string.Empty);
+            var mentionedUser = A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict());
+            A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);
+            A.CallTo(() => user.AddRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
+
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(mentionedUser);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
 
         [Fact]

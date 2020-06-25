@@ -3,6 +3,7 @@ using Discord.Commands;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions
 {
@@ -49,19 +50,6 @@ namespace TaylorBot.Net.Commands.Preconditions
                     );
                 }
             }
-        }
-    }
-
-    public class PermissionStringMapper
-    {
-        public string MapGuildPermissionToString(GuildPermission guildPermission)
-        {
-            return guildPermission switch
-            {
-                GuildPermission.ManageGuild => "Manage Server",
-                GuildPermission.KickMembers => "Kick Members",
-                _ => throw new ArgumentOutOfRangeException(nameof(guildPermission), guildPermission, "No mapping defined."),
-            };
         }
     }
 }

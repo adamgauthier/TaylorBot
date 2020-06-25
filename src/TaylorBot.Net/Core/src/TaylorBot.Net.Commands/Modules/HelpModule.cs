@@ -75,8 +75,12 @@ namespace TaylorBot.Net.Commands.Modules
                 {
                     await _disabledCommandRepository.InsertOrGetIsCommandDisabledAsync(command);
 
+                    var alias = command.Aliases.First();
+                    if (alias.Contains(' '))
+                        alias = string.Join(' ', alias.Split(' ').Skip(1));
+
                     builder.AddField(field => field
-                        .WithName($"**{command.Name}**")
+                        .WithName($"**{alias}**")
                         .WithValue(string.Join("\n", new[] {
                             command.Summary,
                             (!string.IsNullOrEmpty(command.Remarks) ? $"({command.Remarks})" : ""),

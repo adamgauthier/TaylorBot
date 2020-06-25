@@ -3,6 +3,7 @@ using Discord;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure
 {
@@ -31,6 +32,26 @@ namespace TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure
                     JailRoleId = jailRole.Id.ToString()
                 }
             );
+        }
+
+        private class GetJailRoleDto
+        {
+            public string jail_role_id { get; set; }
+        }
+
+        public async ValueTask<JailRole> GetJailRoleAsync(IGuild guild)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var role = await connection.QuerySingleOrDefaultAsync<GetJailRoleDto>(
+                @"SELECT jail_role_id FROM guilds.jail_roles WHERE guild_id = @GuildId;",
+                new
+                {
+                    GuildId = guild.Id.ToString()
+                }
+            );
+
+            return role != null ? new JailRole(new SnowflakeId(role.jail_role_id)) : null;
         }
     }
 }
