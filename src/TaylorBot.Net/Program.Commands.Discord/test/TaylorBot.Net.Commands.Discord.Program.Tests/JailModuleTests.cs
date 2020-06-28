@@ -51,20 +51,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
 
-        [Fact]
-        public async Task JailAsync_WhenForbiddenJailRoleAdd_ThenReturnsErrorEmbed()
+        private IRole SetupValidJailRole()
         {
             const ulong AnId = 1;
             A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
             var jailRole = A.Fake<IRole>();
+            A.CallTo(() => jailRole.Id).Returns(AnId);
             A.CallTo(() => _guild.GetRole(AnId)).Returns(jailRole);
-            var user = A.Fake<IGuildUser>(o => o.Strict());
-            A.CallTo(() => user.Mention).Returns(string.Empty);
+            return jailRole;
+        }
+
+        private IMentionedUserNotAuthor<IGuildUser> CreateMentionedUser(IGuildUser user)
+        {
             var mentionedUser = A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict());
             A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);
+            return mentionedUser;
+        }
+
+        [Fact]
+        public async Task JailAsync_WhenForbiddenJailRoleAdd_ThenReturnsErrorEmbed()
+        {
+            var jailRole = SetupValidJailRole();
+            var user = A.Fake<IGuildUser>(o => o.Strict());
+            A.CallTo(() => user.Mention).Returns(string.Empty);
             A.CallTo(() => user.AddRoleAsync(jailRole, null)).ThrowsAsync(new HttpException(System.Net.HttpStatusCode.Forbidden, A.Fake<IRequest>(), null, null));
 
-            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(mentionedUser);
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(CreateMentionedUser(user));
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -72,17 +84,26 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [Fact]
         public async Task JailAsync_WhenJailRoleSetAndCanBeAdded_ThenReturnsSuccessEmbed()
         {
-            const ulong AnId = 1;
-            A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
-            var jailRole = A.Fake<IRole>(o => o.Strict());
-            A.CallTo(() => _guild.GetRole(AnId)).Returns(jailRole);
+            var jailRole = SetupValidJailRole();
             var user = A.Fake<IGuildUser>(o => o.Strict());
             A.CallTo(() => user.Mention).Returns(string.Empty);
-            var mentionedUser = A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict());
-            A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);
             A.CallTo(() => user.AddRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
 
-            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(mentionedUser);
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(CreateMentionedUser(user));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task Free_WhenJailRoleSetAndCanBeRemoved_ThenReturnsSuccessEmbed()
+        {
+            var jailRole = SetupValidJailRole();
+            var user = A.Fake<IGuildUser>(o => o.Strict());
+            A.CallTo(() => user.Mention).Returns(string.Empty);
+            A.CallTo(() => user.RoleIds).Returns(new[] { jailRole.Id });
+            A.CallTo(() => user.RemoveRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
+
+            var result = (TaylorBotEmbedResult)await _jailModule.FreeAsync(CreateMentionedUser(user));
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
