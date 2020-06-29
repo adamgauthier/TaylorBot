@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain;
+using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
@@ -32,7 +34,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddDatabaseConnection(env)
                         .AddRedisConnection(env)
                         .AddCommandClient(env)
-                        .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true);
+                        .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/dailyPayout.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
@@ -48,7 +51,9 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .ConfigureRequired<TaypointWillOptions>(config, "TaypointWill")
                         .AddTransient<UserStatusStringMapper>()
                         .AddTransient<ITaypointWillRepository, TaypointWillPostgresRepository>()
-                        .AddTransient<IJailRepository, JailPostgresRepository>();
+                        .AddTransient<IJailRepository, JailPostgresRepository>()
+                        .ConfigureRequired<DailyPayoutOptions>(config, "DailyPayout")
+                        .AddTransient<IDailyPayoutRepository, DailyPayoutPostgresRepository>();
                 })
                 .Build();
 

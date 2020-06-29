@@ -1,0 +1,8 @@
+﻿{
+  "DailyPayout": {
+    "DailyPayoutAmount": 50,
+    "DaysForBonus": 5,
+    "BaseBonusAmount": 41,
+    "IncreasingBonusModifier": 4
+  }
+}

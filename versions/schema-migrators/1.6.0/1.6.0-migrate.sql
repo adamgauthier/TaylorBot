@@ -19,3 +19,5 @@ CREATE TABLE guilds.jail_roles
 ALTER TABLE guilds.jail_roles OWNER to postgres;
 
 GRANT ALL ON TABLE guilds.jail_roles TO taylorbot;
+
+UPDATE commands.commands SET name = 'daily' WHERE name = 'dailypayout';

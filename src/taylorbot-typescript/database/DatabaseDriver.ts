@@ -27,7 +27,6 @@ import LocationAttributeRepository = require('./repositories/LocationAttributeRe
 import RollStatsRepository = require('./repositories/RollStatsRepository.js');
 import RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
 import GambleStatsRepository = require('./repositories/GambleStatsRepository.js');
-import DailyPayoutRepository = require('./repositories/DailyPayoutRepository.js');
 import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
 import HeistStatsRepository = require('./repositories/HeistStatsRepository.js');
 import BirthdayAttributeRepository = require('./repositories/BirthdayAttributeRepository.js');
@@ -53,7 +52,6 @@ export class DatabaseDriver {
     readonly rollStats: RollStatsRepository;
     readonly rpsStats: RpsStatsRepository;
     readonly gambleStats: GambleStatsRepository;
-    readonly dailyPayouts: DailyPayoutRepository;
     readonly channelCommands: ChannelCommandRepository;
     readonly heistStats: HeistStatsRepository;
     readonly birthdays: BirthdayAttributeRepository;
@@ -84,7 +82,6 @@ export class DatabaseDriver {
         this.rollStats = new RollStatsRepository(db, usersDAO);
         this.rpsStats = new RpsStatsRepository(db, usersDAO);
         this.gambleStats = new GambleStatsRepository(db, usersDAO);
-        this.dailyPayouts = new DailyPayoutRepository(db, usersDAO);
         this.channelCommands = new ChannelCommandRepository(db);
         this.heistStats = new HeistStatsRepository(db, usersDAO);
         this.birthdays = new BirthdayAttributeRepository(db);
