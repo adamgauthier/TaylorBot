@@ -18,6 +18,13 @@ CREATE TABLE guilds.jail_roles
 ALTER TABLE guilds.jail_roles OWNER to postgres;
 GRANT ALL ON TABLE guilds.jail_roles TO taylorbot;
 
+ALTER TABLE guilds.channel_commands
+DROP CONSTRAINT command_id_fk,
+ADD CONSTRAINT command_id_fk
+   FOREIGN KEY (command_id)
+   REFERENCES commands.commands(name)
+   ON UPDATE CASCADE;
+
 UPDATE commands.commands SET name = 'daily' WHERE name = 'dailypayout';
 
 CREATE TABLE commands.messages_of_the_day
