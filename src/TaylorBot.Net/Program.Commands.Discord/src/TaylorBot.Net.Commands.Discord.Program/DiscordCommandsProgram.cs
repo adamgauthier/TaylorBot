@@ -53,7 +53,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTransient<ITaypointWillRepository, TaypointWillPostgresRepository>()
                         .AddTransient<IJailRepository, JailPostgresRepository>()
                         .ConfigureRequired<DailyPayoutOptions>(config, "DailyPayout")
-                        .AddTransient<IDailyPayoutRepository, DailyPayoutPostgresRepository>();
+                        .AddTransient<IDailyPayoutRepository, DailyPayoutPostgresRepository>()
+                        .AddTransient<IMessageOfTheDayRepository, MessageOfTheDayPostgresRepository>();
                 })
                 .Build();
 

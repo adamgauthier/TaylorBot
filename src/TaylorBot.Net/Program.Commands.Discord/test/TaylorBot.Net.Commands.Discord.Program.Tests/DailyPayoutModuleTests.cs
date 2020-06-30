@@ -13,13 +13,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
         private readonly IDailyPayoutRepository _dailyPayoutRepository = A.Fake<IDailyPayoutRepository>(o => o.Strict());
+        private readonly IMessageOfTheDayRepository _messageOfTheDayRepository = A.Fake<IMessageOfTheDayRepository>(o => o.Strict());
         private readonly DailyPayoutModule _dailyPayoutModule;
 
         public DailyPayoutModuleTests()
         {
-            _dailyPayoutModule = new DailyPayoutModule(_dailyPayoutRepository);
+            _dailyPayoutModule = new DailyPayoutModule(_dailyPayoutRepository, _messageOfTheDayRepository);
             _dailyPayoutModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
+            A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
         }
 
         [Theory]
@@ -28,6 +30,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [InlineData(2, 1, 2)]
         public async Task DailyAsync_ThenReturnsEmbedWithNextBonus(uint daysForBonus, uint currentStreak, uint streakForNextBonus)
         {
+            A.CallTo(() => _messageOfTheDayRepository.GetAllMessagesAsync()).Returns(new[] { new MessageOfTheDay("Hello", null) });
             A.CallTo(() => _dailyPayoutRepository.CanUserRedeemAsync(_commandUser)).Returns(new UserCanRedeem());
             A.CallTo(() => _dailyPayoutRepository.RedeemDailyPayoutAsync(_commandUser)).Returns(new RedeemResult(
                 payoutAmount: 0,

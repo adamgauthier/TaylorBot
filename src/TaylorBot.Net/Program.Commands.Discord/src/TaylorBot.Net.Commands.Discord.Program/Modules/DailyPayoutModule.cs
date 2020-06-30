@@ -1,6 +1,8 @@
 ﻿using Discord;
 using Discord.Commands;
 using Humanizer;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain;
 using TaylorBot.Net.Core.Colors;
@@ -16,10 +18,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
     public class DailyPayoutModule : TaylorBotModule
     {
         private readonly IDailyPayoutRepository _dailyPayoutRepository;
+        private readonly IMessageOfTheDayRepository _messageOfTheDayRepository;
 
-        public DailyPayoutModule(IDailyPayoutRepository dailyPayoutRepository)
+        public DailyPayoutModule(IDailyPayoutRepository dailyPayoutRepository, IMessageOfTheDayRepository messageOfTheDayRepository)
         {
             _dailyPayoutRepository = dailyPayoutRepository;
+            _messageOfTheDayRepository = messageOfTheDayRepository;
         }
 
         [Command]
@@ -52,6 +56,18 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .Build());
             }
 
+            var messages = await _messageOfTheDayRepository.GetAllMessagesAsync();
+
+            var now = DateTimeOffset.UtcNow;
+
+            var messagePriorities = messages.ToLookup(m => m.MessagePriority != null && now >= m.MessagePriority.From && now <= m.MessagePriority.To);
+            var priorities = messagePriorities[true].ToList();
+            var nonPriorities = messagePriorities[false].ToList();
+
+            var messagesToConsider = priorities.Any() ? priorities : nonPriorities;
+
+            var messageOfTheDay = messagesToConsider[now.DayOfYear % messagesToConsider.Count].Message;
+
             var nextStreakForBonus = (redeemResult.CurrentDailyStreak - redeemResult.CurrentDailyStreak % redeemResult.DaysForBonus) + redeemResult.DaysForBonus;
             var format = TaylorBotFormats.BoldReadable;
 
@@ -61,7 +77,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     $"You redeemed {"taypoint".ToQuantity(redeemResult.PayoutAmount, format)} + {"bonus point".ToQuantity(redeemResult.BonusAmount, format)}." +
                         $" You now have {redeemResult.TotalTaypointCount.ToString(format)}. 💰",
                     $"Bonus streak: {redeemResult.CurrentDailyStreak.ToString(format)}/{nextStreakForBonus.ToString(format)}." +
-                        " Don't miss a day and get a bonus! See you tomorrow! 😄"
+                        " Don't miss a day and get a bonus! See you tomorrow! 😄",
+                    $"\n**Daily Message:** {messageOfTheDay.Replace("{prefix}", Context.CommandPrefix)}"
                 }))
             .Build());
         }

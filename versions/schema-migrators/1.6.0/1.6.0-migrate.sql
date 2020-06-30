@@ -12,12 +12,21 @@ CREATE TABLE guilds.jail_roles
 (
     guild_id text NOT NULL,
     jail_role_id text NOT NULL,
-    set_at timestamp without time zone NOT NULL,
+    set_at timestamp with time zone NOT NULL,
     PRIMARY KEY (guild_id)
 );
-
 ALTER TABLE guilds.jail_roles OWNER to postgres;
-
 GRANT ALL ON TABLE guilds.jail_roles TO taylorbot;
 
 UPDATE commands.commands SET name = 'daily' WHERE name = 'dailypayout';
+
+CREATE TABLE commands.messages_of_the_day
+(
+    message text NOT NULL,
+    added_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    priority_from timestamp with time zone,
+    priority_to timestamp with time zone,
+    PRIMARY KEY (message)
+);
+ALTER TABLE commands.messages_of_the_day OWNER to postgres;
+GRANT ALL ON TABLE commands.messages_of_the_day TO taylorbot;

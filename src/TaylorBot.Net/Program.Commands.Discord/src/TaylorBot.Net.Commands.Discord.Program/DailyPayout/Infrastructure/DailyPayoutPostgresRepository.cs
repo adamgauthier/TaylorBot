@@ -42,7 +42,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
                 }
             );
 
-            return canRedeem != null && canRedeem.can_redeem ?
+            return canRedeem == null || canRedeem.can_redeem ?
                 (ICanUserRedeemResult)new UserCanRedeem() :
                 new UserCantRedeem(canRedeem.can_redeem_at);
         }
