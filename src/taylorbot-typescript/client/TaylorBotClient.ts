@@ -3,7 +3,7 @@ import Discord = require('discord.js');
 import { EventLoader } from '../modules/EventLoader';
 import DISCORD_CONFIG = require('../config/discord.json');
 import Log = require('../tools/Logger.js');
-import IntervalRunner = require('../intervals/IntervalRunner.js');
+import { IntervalRunner } from '../intervals/IntervalRunner';
 import EmbedUtil = require('../modules/EmbedUtil.js');
 import { TaylorBotMasterClient } from './TaylorBotMasterClient';
 

@@ -1,18 +1,17 @@
-'use strict';
+import fsWithCallbacks = require('fs');
+const fs = fsWithCallbacks.promises;
+import path = require('path');
 
-const fs = require('fs').promises;
-const path = require('path');
-
-const BaseInterval = require('./Interval.js');
+import { Interval } from './Interval';
 
 const intervalsPath = __dirname;
 
-class IntervalLoader {
-    static async loadAll() {
+export class IntervalLoader {
+    static async loadAll(): Promise<Interval[]> {
         const dirEntries = await fs.readdir(intervalsPath, { withFileTypes: true });
         const subDirectories = dirEntries.filter(de => de.isDirectory());
 
-        const filesInSubDirectories = [];
+        const filesInSubDirectories: string[] = [];
 
         for (const subDirectory of subDirectories.map(de => path.join(intervalsPath, de.name))) {
             const subDirEntries = await fs.readdir(subDirectory, { withFileTypes: true });
@@ -27,13 +26,7 @@ class IntervalLoader {
             .map(path.parse)
             .filter(file => file.ext === '.js')
             .map(path.format)
-            .map(require)
-            .map(Interval => {
-                if (!(Interval.prototype instanceof BaseInterval))
-                    throw new Error(`Loading all intervals: interval ${Interval.name} doesn't extend base interval class.`);
-                return new Interval();
-            });
+            .map(file => require(file))
+            .map((loaded: new () => Interval) => new loaded());
     }
 }
-
-module.exports = IntervalLoader;
