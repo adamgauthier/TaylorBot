@@ -50,6 +50,7 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddRedisConnection(config)
                         .ConfigureRequired<TaypointWillOptions>(config, "TaypointWill")
                         .AddTransient<UserStatusStringMapper>()
+                        .AddTransient<ChannelTypeStringMapper>()
                         .AddTransient<ITaypointWillRepository, TaypointWillPostgresRepository>()
                         .AddTransient<IJailRepository, JailPostgresRepository>()
                         .ConfigureRequired<DailyPayoutOptions>(config, "DailyPayout")

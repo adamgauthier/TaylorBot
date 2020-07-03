@@ -15,13 +15,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         private readonly PresenceFactory _presenceFactory = new PresenceFactory();
 
         private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ChannelTypeStringMapper _channelTypeStringMapper = new ChannelTypeStringMapper();
         private readonly UserStatusStringMapper _userStatusStringMapper = new UserStatusStringMapper();
         private readonly IUserTracker _userTracker = A.Fake<IUserTracker>(o => o.Strict());
         private readonly DiscordInfoModule _discordInfoModule;
 
         public DiscordInfoModuleTests()
         {
-            _discordInfoModule = new DiscordInfoModule(_userStatusStringMapper, _userTracker);
+            _discordInfoModule = new DiscordInfoModule(_userStatusStringMapper, _channelTypeStringMapper, _userTracker);
             _discordInfoModule.SetContext(_commandContext);
         }
 
@@ -106,6 +107,18 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => role.Id).Returns(AnId);
 
             var result = (TaylorBotEmbedResult)await _discordInfoModule.RoleInfoAsync(role);
+
+            result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
+        }
+
+        [Fact]
+        public async Task ChannelInfoAsync_ThenReturnsIdFieldEmbed()
+        {
+            const ulong AnId = 1;
+            var channel = A.Fake<ITextChannel>();
+            A.CallTo(() => channel.Id).Returns(AnId);
+
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.ChannelInfoAsync(channel);
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }

@@ -19,11 +19,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
     {
         public static readonly Random _random = new Random();
         public readonly UserStatusStringMapper _userStatusStringMapper;
+        public readonly ChannelTypeStringMapper _channelTypeStringMapper;
         public readonly IUserTracker _userTracker;
 
-        public DiscordInfoModule(UserStatusStringMapper userStatusStringMapper, IUserTracker userTracker)
+        public DiscordInfoModule(UserStatusStringMapper userStatusStringMapper, ChannelTypeStringMapper channelTypeStringMapper, IUserTracker userTracker)
         {
             _userStatusStringMapper = userStatusStringMapper;
+            _channelTypeStringMapper = channelTypeStringMapper;
             _userTracker = userTracker;
         }
 
@@ -184,6 +186,58 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .AddField("Members",
                     $"**({members.Count}{(members.Any() ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
                 );
+
+            return new TaylorBotEmbedResult(embed.Build());
+        }
+
+        [Command("channelinfo")]
+        [Alias("cinfo")]
+        [Summary("Gets discord information about a channel.")]
+        public async Task<RuntimeResult> ChannelInfoAsync(
+            [Summary("What channel would you like to see the info of?")]
+            [Remainder]
+            IChannel channel = null
+        )
+        {
+            if (channel == null)
+            {
+                channel = Context.Channel;
+            }
+
+            var embed = new EmbedBuilder()
+                .WithAuthor(channel is ITextChannel t && t.IsNsfw ? $"{channel.Name} 🔞" : channel.Name)
+                .AddField("Id", $"`{channel.Id}`", inline: true)
+                .AddField("Type", _channelTypeStringMapper.MapChannelToTypeString(channel), inline: true)
+                .AddField("Created", channel.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
+
+            if (channel is INestedChannel nested && nested.CategoryId.HasValue)
+            {
+                var parent = await nested.Guild.GetChannelAsync(nested.CategoryId.Value);
+                embed.AddField("Category", $"{parent.Name} (`{parent.Id}`)", inline: true);
+            }
+
+            if (channel is IGuildChannel guildChannel)
+            {
+                embed.AddField("Server", $"{guildChannel.Guild.Name} (`{guildChannel.GuildId}`)", inline: true);
+                switch (guildChannel)
+                {
+                    case ITextChannel text:
+                        embed.AddField("Topic", string.IsNullOrEmpty(text.Topic) ? "None" : text.Topic);
+                        break;
+                    case IVoiceChannel voice:
+                        embed
+                            .AddField("Bitrate", $"{voice.Bitrate} bps", inline: true)
+                            .AddField("User Limit", voice.UserLimit.HasValue ? $"{voice.UserLimit.Value}" : "None", inline: true);
+                        break;
+                    case ICategoryChannel category:
+                        var channels = await category.Guild.GetChannelsAsync();
+                        var children = channels.OfType<INestedChannel>().Where(c => c.CategoryId.HasValue && c.CategoryId.Value == category.Id);
+                        embed.AddField("Channels", string.Join(", ", children.Select(c => c.Name)).Truncate(75));
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             return new TaylorBotEmbedResult(embed.Build());
         }
