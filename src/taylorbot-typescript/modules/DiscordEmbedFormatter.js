@@ -42,39 +42,12 @@ class DiscordEmbedFormatter {
         const isVip = guild.features.includes('VIP_REGIONS');
 
         return new MessageEmbed()
-            .setAuthor(`${guild.name} ${guild.verified ? '✅' : ''} ${isVip ? '⭐' : ''}`, iconURL, iconURL)
+            .setAuthor(`${guild.name}${isVip ? ' ⭐' : ''}`, iconURL, iconURL)
             .setColor(guild.roles.highest.color);
     }
 
     static getIconURL(guild) {
         return guild.iconURL({ format: 'png' });
-    }
-
-    static guild(guild) {
-        const iconURL = DiscordEmbedFormatter.getIconURL(guild);
-
-        const { channels, roles, owner, region, createdTimestamp, memberCount } = guild;
-        const categories = channels.filter(c => c.type === 'category');
-        const textChannels = channels.filter(c => c.type === 'text');
-        const voiceChannels = channels.filter(c => c.type === 'voice');
-
-        const embed = DiscordEmbedFormatter.baseGuildHeader(guild)
-            .addField('ID', `\`${guild.id}\``, true)
-            .addField('Owner', owner.toString(), true)
-            .addField('Members', `\`${memberCount}\``, true)
-            .addField('Region', region, true)
-            .addField('Created', TimeUtil.formatFull(createdTimestamp))
-            .addField(
-                StringUtil.plural(channels.size, 'Channel'),
-                `${StringUtil.plural(categories.size, 'Category', '`')}, \`${textChannels.size}\` Text, \`${voiceChannels.size}\` Voice`)
-            .addField(StringUtil.plural(roles.size, 'Role'), StringUtil.shrinkString(roles.array().join(', '), 75, ', ...', [',']));
-
-        if (iconURL) {
-            embed.setThumbnail(iconURL);
-            embed.setURL(iconURL);
-        }
-
-        return embed;
     }
 }
 

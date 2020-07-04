@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Humanizer;
 using System;
 using System.Linq;
@@ -137,7 +138,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             {
                 embed.AddField(
                     "Role".ToQuantity(guildUser.RoleIds.Count),
-                    string.Join(", ", guildUser.RoleIds.Select(id => MentionUtils.MentionRole(id))).Truncate(75)
+                    string.Join(", ", guildUser.RoleIds.Take(4).Select(id => MentionUtils.MentionRole(id))) + (guildUser.RoleIds.Count > 4 ? ", ..." : string.Empty)
                 );
             }
 
@@ -237,6 +238,50 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     default:
                         break;
                 }
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
+        }
+
+        [RequireInGuild]
+        [Command("serverinfo")]
+        [Alias("sinfo", "guildinfo", "ginfo")]
+        [Summary("Gets discord information about the current server.")]
+        public async Task<RuntimeResult> ServerInfoAsync()
+        {
+            var guild = Context.Guild;
+            var channels = await guild.GetChannelsAsync();
+            var orderedRoles = guild.Roles.OrderByDescending(r => r.Position).ToList();
+
+            var embed = new EmbedBuilder()
+                .WithAuthor(guild.Features.Contains("VIP_REGIONS") ? $"{guild.Name} ⭐" : guild.Name, guild.IconUrl)
+                .WithColor(orderedRoles.First().Color)
+                .AddField("Id", $"`{guild.Id}`", inline: true)
+                .AddField("Owner", MentionUtils.MentionUser(guild.OwnerId), inline: true)
+                .AddField("Members", guild is SocketGuild socketGuild ? $"{socketGuild.MemberCount}" : "?", inline: true)
+                .AddField("Voice Region", guild.VoiceRegionId, inline: true)
+                .AddField("Boosts", guild.PremiumSubscriptionCount, inline: true)
+                .AddField("Custom Emotes", guild.Emotes.Count, inline: true)
+                .AddField("Created", guild.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
+
+            if (!string.IsNullOrWhiteSpace(guild.Description))
+            {
+                embed.AddField("Description", guild.Description);
+            }
+
+            embed
+                .AddField(
+                    "Channel".ToQuantity(channels.Count),
+                    $"{channels.OfType<ICategoryChannel>().Count()} Category, {channels.OfType<ITextChannel>().Count()} Text, {channels.OfType<IVoiceChannel>().Count()} Voice"
+                )
+                .AddField(
+                    "Role".ToQuantity(orderedRoles.Count),
+                    string.Join(", ", orderedRoles.Take(4).Select(r => r.Mention)) + (orderedRoles.Count > 4 ? ", ..." : string.Empty)
+                );
+
+            if (guild.IconUrl != null)
+            {
+                embed.WithThumbnailUrl(guild.IconUrl);
             }
 
             return new TaylorBotEmbedResult(embed.Build());
