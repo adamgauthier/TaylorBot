@@ -40,6 +40,7 @@ namespace TaylorBot.Net.Commands
             commandService.AddTypeReader<IMentionedUserNotAuthor<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
             commandService.AddTypeReader<IRole>(_serviceProvider.GetRequiredService<CustomRoleTypeReader<IRole>>(), replaceDefault: true);
             commandService.AddTypeReader<IChannel>(_serviceProvider.GetRequiredService<CustomChannelTypeReader<IChannel>>(), replaceDefault: true);
+            commandService.AddTypeReader<PositiveInt32>(new ConstrainedIntTypeReader<PositiveInt32.Factory>(PositiveInt32.Min));
 
             await commandService.AddModuleAsync<HelpModule>(_serviceProvider);
             await commandService.AddModulesAsync(
