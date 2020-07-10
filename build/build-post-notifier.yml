@@ -29,6 +29,15 @@ stages:
         buildContext: $(dockerBuildContext)
         arguments: '--pull --target test --tag $(testImageTag)'
 
+    - task: BuildQualityChecks@7
+      displayName: 'Check warnings in build'
+      continueOnError: true
+      inputs:
+        checkWarnings: true
+        warningFailOption: fixed
+        warningTaskFilters: '/^Build test container image$/'
+        warningFilters: '/(\d+)\sWarning\(s\)/i'
+
     - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag)
       displayName: 'Run tests'
 

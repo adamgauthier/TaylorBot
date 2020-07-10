@@ -13,7 +13,7 @@ RUN dotnet restore ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
 COPY ./Program.UserNotifier/src ./Program.UserNotifier/src
-RUN dotnet build -c Release --no-restore ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
+RUN dotnet build --configuration Release --no-restore ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 
 # test stage -- exposes optional entrypoint
 # target entrypoint with: docker build --target test
@@ -26,10 +26,12 @@ RUN dotnet sln ./Tests.sln add ./Core/test/**/*.csproj
 COPY ./Program.UserNotifier/test ./Program.UserNotifier/test
 RUN dotnet sln ./Tests.sln add ./Program.UserNotifier/test/**/*.csproj
 
-ENTRYPOINT ["dotnet", "test", "Tests.sln", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
+RUN dotnet build --configuration Release ./Tests.sln
+
+ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
 
 FROM build AS publish
-RUN dotnet publish -c Release --no-build --output out ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
+RUN dotnet publish --configuration Release --no-build --output out ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1 AS runtime
 WORKDIR /app

@@ -13,7 +13,7 @@ RUN dotnet restore ./Program.StatsTracker/src/TaylorBot.Net.StatsTracker.Program
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
 COPY ./Program.StatsTracker/src ./Program.StatsTracker/src
-RUN dotnet build -c Release --no-restore ./Program.StatsTracker/src/TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
+RUN dotnet build --configuration Release --no-restore ./Program.StatsTracker/src/TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
 
 # test stage -- exposes optional entrypoint
 # target entrypoint with: docker build --target test
@@ -26,10 +26,12 @@ RUN dotnet sln ./Tests.sln add ./Core/test/**/*.csproj
 COPY ./Program.StatsTracker/test ./Program.StatsTracker/test
 RUN dotnet sln ./Tests.sln add ./Program.StatsTracker/test/**/*.csproj
 
-ENTRYPOINT ["dotnet", "test", "Tests.sln", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
+RUN dotnet build --configuration Release ./Tests.sln
+
+ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
 
 FROM build AS publish
-RUN dotnet publish -c Release --no-build --output out ./Program.StatsTracker/src/TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
+RUN dotnet publish --configuration Release --no-build --output out ./Program.StatsTracker/src/TaylorBot.Net.StatsTracker.Program/TaylorBot.Net.StatsTracker.Program.csproj
 
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1 AS runtime
 WORKDIR /app
