@@ -6,9 +6,9 @@ namespace TaylorBot.Net.QuickStart.Domain
 {
     public class QuickStartChannelFinder
     {
-        public async ValueTask<U> FindQuickStartChannelAsync<T, U>(T guild)
+        public async ValueTask<U?> FindQuickStartChannelAsync<T, U>(T guild)
             where T : IGuild
-            where U : ITextChannel
+            where U : class, ITextChannel
         {
             var textChannels = (await guild.GetTextChannelsAsync()).Cast<U>();
             var currentUser = await guild.GetCurrentUserAsync();
@@ -19,7 +19,7 @@ namespace TaylorBot.Net.QuickStart.Domain
             ).ToList();
 
             if (!availableChannels.Any())
-                return default;
+                return null;
 
             foreach (var name in new[] { "general", "main" })
             {

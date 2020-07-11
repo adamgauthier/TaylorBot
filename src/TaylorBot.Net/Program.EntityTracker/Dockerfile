@@ -5,6 +5,7 @@ WORKDIR /app
 COPY ./Core/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Core/src/${file%.*}/; done
 
+COPY ./Program.EntityTracker/Directory.Build.props ./Program.EntityTracker/Directory.Build.props
 COPY ./Program.EntityTracker/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.EntityTracker/src/${file%.*}/ && mv $file Program.EntityTracker/src/${file%.*}/; done
 
