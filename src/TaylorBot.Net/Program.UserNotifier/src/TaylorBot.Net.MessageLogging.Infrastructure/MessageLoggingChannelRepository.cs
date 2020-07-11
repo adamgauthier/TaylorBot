@@ -20,7 +20,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
 
         private class LogChannelDto
         {
-            public string channel_id { get; set; }
+            public string channel_id { get; set; } = null!;
         }
 
         public async ValueTask<IReadOnlyCollection<LogChannel>> GetMessageLogChannelsForGuildAsync(IGuild guild)

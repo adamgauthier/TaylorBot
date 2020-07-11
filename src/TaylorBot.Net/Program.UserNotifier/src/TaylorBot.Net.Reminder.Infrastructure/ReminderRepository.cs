@@ -1,11 +1,11 @@
 ﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Reminder.Domain;
-using TaylorBot.Net.Reminder.Infrastructure.Models;
 
 namespace TaylorBot.Net.Reminder.Infrastructure
 {
@@ -16,6 +16,14 @@ namespace TaylorBot.Net.Reminder.Infrastructure
         public ReminderRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
+        }
+
+        private class ReminderDto
+        {
+            public Guid reminder_id { get; set; }
+            public string user_id { get; set; } = null!;
+            public string reminder_text { get; set; } = null!;
+            public DateTime created_at { get; set; }
         }
 
         public async ValueTask<IReadOnlyCollection<Domain.Reminder>> GetExpiredRemindersAsync()

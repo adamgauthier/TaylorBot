@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain;
-using TaylorBot.Net.BirthdayReward.Infrastructure.Models;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 
@@ -16,6 +15,17 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure
         public BirthdayRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
+        }
+
+        private class EligibleUserDto
+        {
+            public string user_id { get; set; } = null!;
+        }
+
+        private class RewardedUserDto
+        {
+            public string user_id { get; set; } = null!;
+            public long taypoint_count { get; set; }
         }
 
         public async ValueTask<IReadOnlyCollection<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)

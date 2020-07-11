@@ -5,6 +5,7 @@ WORKDIR /app
 COPY ./Core/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Core/src/${file%.*}/; done
 
+COPY ./Program.UserNotifier/Directory.Build.props ./Program.UserNotifier/Directory.Build.props
 COPY ./Program.UserNotifier/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.UserNotifier/src/${file%.*}/ && mv $file Program.UserNotifier/src/${file%.*}/; done
 

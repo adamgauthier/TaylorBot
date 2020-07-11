@@ -2,6 +2,6 @@
 {
     public class MessageDeletedLoggingOptions
     {
-        public string MessageDeletedEmbedColorHex { get; set; }
+        public string MessageDeletedEmbedColorHex { get; set; } = null!;
     }
 }
