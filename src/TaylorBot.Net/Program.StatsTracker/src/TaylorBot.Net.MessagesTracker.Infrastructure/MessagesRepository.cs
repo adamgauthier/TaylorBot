@@ -23,9 +23,9 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
 
             var textChannelMessageCountAddedDto = await connection.QuerySingleAsync<ChannelMessageCountChangedDto>(
                 @"UPDATE guilds.text_channels
-                    SET message_count = message_count + @MessageCountToAdd
-                    WHERE guild_id = @GuildId AND channel_id = @ChannelId
-                    RETURNING is_spam;",
+                SET message_count = message_count + @MessageCountToAdd
+                WHERE guild_id = @GuildId AND channel_id = @ChannelId
+                RETURNING is_spam;",
                 new
                 {
                     MessageCountToAdd = messageCountToAdd,
@@ -43,10 +43,10 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
 
             await connection.ExecuteAsync(
                 @"UPDATE guilds.guild_members SET
-                       message_count = message_count + @MessageCountToAdd,
-                       word_count = word_count + @WordCountToAdd,
-                       last_spoke_at = @LastSpokeAt
-                    WHERE guild_id = @GuildId AND user_id = @UserId;",
+                    message_count = message_count + @MessageCountToAdd,
+                    word_count = word_count + @WordCountToAdd,
+                    last_spoke_at = @LastSpokeAt
+                WHERE guild_id = @GuildId AND user_id = @UserId;",
                 new
                 {
                     MessageCountToAdd = messageCountToAdd,
@@ -64,7 +64,7 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
 
             await connection.ExecuteAsync(
                 @"UPDATE guilds.guild_members SET last_spoke_at = @LastSpokeAt
-                    WHERE guild_id = @GuildId AND user_id = @UserId;",
+                WHERE guild_id = @GuildId AND user_id = @UserId;",
                 new
                 {
                     LastSpokeAt = lastSpokeAt,
