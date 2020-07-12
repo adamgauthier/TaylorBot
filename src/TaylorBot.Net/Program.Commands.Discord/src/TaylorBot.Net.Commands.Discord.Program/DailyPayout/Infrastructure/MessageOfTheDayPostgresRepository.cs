@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
 
         private class MessageDto
         {
-            public string message { get; set; }
+            public string message { get; set; } = null!;
             public DateTimeOffset? priority_from { get; set; }
             public DateTimeOffset? priority_to { get; set; }
         }

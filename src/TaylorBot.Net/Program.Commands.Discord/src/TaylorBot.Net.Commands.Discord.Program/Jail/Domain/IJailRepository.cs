@@ -17,6 +17,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Jail.Domain
     public interface IJailRepository
     {
         ValueTask SetJailRoleAsync(IGuild guild, IRole jailRole);
-        ValueTask<JailRole> GetJailRoleAsync(IGuild guild);
+        ValueTask<JailRole?> GetJailRoleAsync(IGuild guild);
     }
 }

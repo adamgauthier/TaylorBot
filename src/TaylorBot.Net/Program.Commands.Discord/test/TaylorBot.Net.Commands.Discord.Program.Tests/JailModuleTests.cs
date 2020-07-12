@@ -44,7 +44,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             const ulong AnId = 1;
             A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
-            A.CallTo(() => _guild.GetRole(AnId)).Returns(null);
+            A.CallTo(() => _guild.GetRole(AnId)).Returns(null!);
 
             var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict()));
 

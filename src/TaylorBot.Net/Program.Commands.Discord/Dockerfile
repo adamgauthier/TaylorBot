@@ -5,6 +5,7 @@ WORKDIR /app
 COPY ./Core/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Core/src/${file%.*}/; done
 
+COPY ./Program.Commands.Discord/Directory.Build.props ./Program.Commands.Discord/Directory.Build.props
 COPY ./Program.Commands.Discord/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.Commands.Discord/src/${file%.*}/ && mv $file Program.Commands.Discord/src/${file%.*}/; done
 

@@ -37,7 +37,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 
             var result = (TaylorBotEmbedResult)await _discordInfoModule.AvatarAsync(userArgument);
 
-            result.Embed.Image.Value.Url.Should().Be(AnAvatarURL);
+            result.Embed.Image!.Value.Url.Should().Be(AnAvatarURL);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             const UserStatus AUserStatus = UserStatus.DoNotDisturb;
             var user = A.Fake<IUser>();
-            A.CallTo(() => user.Activity).Returns(null);
+            A.CallTo(() => user.Activity).Returns(null!);
             A.CallTo(() => user.Status).Returns(AUserStatus);
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);

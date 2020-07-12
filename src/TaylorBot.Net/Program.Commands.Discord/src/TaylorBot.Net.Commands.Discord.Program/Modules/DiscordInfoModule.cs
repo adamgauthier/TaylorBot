@@ -36,7 +36,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> AvatarAsync(
             [Summary("What user would you like to see the avatar of?")]
             [Remainder]
-            IUserArgument<IUser> user = null
+            IUserArgument<IUser>? user = null
         )
         {
             var u = user == null ?
@@ -56,7 +56,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> StatusAsync(
             [Summary("What user would you like to see the status of?")]
             [Remainder]
-            IUserArgument<IUser> user = null
+            IUserArgument<IUser>? user = null
         )
         {
             var u = user == null ?
@@ -114,7 +114,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> UserInfoAsync(
             [Summary("What user would you like to see the info of?")]
             [Remainder]
-            IUserArgument<IGuildUser> member = null
+            IUserArgument<IGuildUser>? member = null
         )
         {
             var guildUser = member == null ?
@@ -163,7 +163,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> RoleInfoAsync(
             [Summary("What role would you like to see the info of?")]
             [Remainder]
-            IRole role = null
+            IRole? role = null
         )
         {
             if (role == null)
@@ -197,7 +197,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> ChannelInfoAsync(
             [Summary("What channel would you like to see the info of?")]
             [Remainder]
-            IChannel channel = null
+            IChannel? channel = null
         )
         {
             if (channel == null)

@@ -21,7 +21,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         private class WillAddDto
         {
-            public string beneficiary_user_id { get; set; }
+            public string beneficiary_user_id { get; set; } = null!;
         }
 
         public async ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary)
@@ -52,7 +52,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         private class WillRemoveDto
         {
-            public string beneficiary_user_id { get; set; }
+            public string beneficiary_user_id { get; set; } = null!;
         }
 
         public async ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner)
@@ -81,7 +81,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         private class WillDto
         {
-            public string user_id { get; set; }
+            public string user_id { get; set; } = null!;
             public DateTimeOffset max_last_spoke_at { get; set; }
         }
 
@@ -110,7 +110,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
 
         private class TransferDto
         {
-            public string user_id { get; set; }
+            public string user_id { get; set; } = null!;
             public long taypoint_count { get; set; }
             public long original_taypoint_count { get; set; }
         }

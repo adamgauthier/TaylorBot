@@ -59,7 +59,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
             public long taypoint_count { get; set; }
         }
 
-        public async ValueTask<RedeemResult> RedeemDailyPayoutAsync(IUser user)
+        public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user)
         {
             var options = _options.CurrentValue;
 

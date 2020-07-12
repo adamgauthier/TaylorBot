@@ -36,10 +36,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure
 
         private class GetJailRoleDto
         {
-            public string jail_role_id { get; set; }
+            public string jail_role_id { get; set; } = null!;
         }
 
-        public async ValueTask<JailRole> GetJailRoleAsync(IGuild guild)
+        public async ValueTask<JailRole?> GetJailRoleAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 

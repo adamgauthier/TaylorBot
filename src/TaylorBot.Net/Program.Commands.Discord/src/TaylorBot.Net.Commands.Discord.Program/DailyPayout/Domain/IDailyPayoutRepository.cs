@@ -34,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain
     public interface IDailyPayoutRepository
     {
         ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(IUser user);
-        ValueTask<RedeemResult> RedeemDailyPayoutAsync(IUser user);
+        ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user);
     }
 }
 

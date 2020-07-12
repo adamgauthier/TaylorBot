@@ -19,9 +19,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain
     public class MessageOfTheDay
     {
         public string Message { get; }
-        public MessagePriority MessagePriority { get; }
+        public MessagePriority? MessagePriority { get; }
 
-        public MessageOfTheDay(string message, MessagePriority messagePriority)
+        public MessageOfTheDay(string message, MessagePriority? messagePriority)
         {
             Message = message;
             MessagePriority = messagePriority;

@@ -2,6 +2,7 @@
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using Xunit;
 
@@ -33,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 
         public static IEnumerable<object[]> GetAllEnumValues()
         {
-            foreach (var val in Enum.GetValues(typeof(UserStatus)))
+            foreach (var val in Enum.GetValues(typeof(UserStatus)).Cast<UserStatus>())
             {
                 yield return new object[] { val };
             }
