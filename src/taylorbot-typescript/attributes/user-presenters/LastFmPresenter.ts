@@ -39,8 +39,8 @@ export class LastFmPresenter implements UserAttributePresenter {
             embed.setThumbnail(imageUrl);
 
         return embed
-            .addField('Artist', `[${mostRecentTrack.artist.name}](${mostRecentTrack.artist.url.replace(')', '%29')})`, true)
-            .addField('Track', `[${mostRecentTrack.name}](${mostRecentTrack.url.replace(')', '%29')})`, true)
+            .addField('Artist', `[${mostRecentTrack.artist.name}](${mostRecentTrack.artist.url.replace(/\)/g, '%29')})`, true)
+            .addField('Track', `[${mostRecentTrack.name}](${mostRecentTrack.url.replace(/\)/g, '%29')})`, true)
             .setFooter([
                 isNowPlaying ? 'Now Playing' : 'Most Recent Track',
                 `Total Scrobbles: ${lastFmUser.total}`
