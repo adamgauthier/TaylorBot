@@ -16,9 +16,9 @@ namespace TaylorBot.Net.Commands.Preconditions
 
         public bool WasUsernameChanged { get; }
 
-        public string PreviousUsername { get; }
+        public string? PreviousUsername { get; }
 
-        public GetUserIgnoreUntilResult(DateTimeOffset ignoreUntil, bool wasAdded, bool wasUsernameChanged, string previousUsername)
+        public GetUserIgnoreUntilResult(DateTimeOffset ignoreUntil, bool wasAdded, bool wasUsernameChanged, string? previousUsername)
         {
             IgnoreUntil = ignoreUntil;
             WasAdded = wasAdded;

@@ -2,10 +2,10 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
+COPY ./Directory.Build.props ./Directory.Build.props
 COPY ./Core/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Core/src/${file%.*}/; done
 
-COPY ./Program.StatsTracker/Directory.Build.props ./Program.StatsTracker/Directory.Build.props
 COPY ./Program.StatsTracker/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.StatsTracker/src/${file%.*}/ && mv $file Program.StatsTracker/src/${file%.*}/; done
 

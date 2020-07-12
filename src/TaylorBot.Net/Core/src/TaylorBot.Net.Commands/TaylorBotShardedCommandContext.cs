@@ -7,14 +7,14 @@ namespace TaylorBot.Net.Commands
     public interface ITaylorBotCommandContext : ICommandContext
     {
         string CommandPrefix { get; }
-        string OnGoingCommandAddedToPool { get; set; }
+        string? OnGoingCommandAddedToPool { get; set; }
         string GetUsage(CommandInfo commandInfo);
     }
 
     public class TaylorBotShardedCommandContext : ShardedCommandContext, ITaylorBotCommandContext
     {
         public string CommandPrefix { get; }
-        public string OnGoingCommandAddedToPool { get; set; }
+        public string? OnGoingCommandAddedToPool { get; set; }
 
         public TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : base(client, msg)
         {

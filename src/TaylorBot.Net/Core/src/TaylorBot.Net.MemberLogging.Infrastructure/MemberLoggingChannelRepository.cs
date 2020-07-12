@@ -18,6 +18,11 @@ namespace TaylorBot.Net.MemberLogging.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
+        private class LogChannelDto
+        {
+            public string channel_id { get; set; } = null!;
+        }
+
         public async ValueTask<IReadOnlyCollection<LogChannel>> GetLogChannelsForGuildAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();

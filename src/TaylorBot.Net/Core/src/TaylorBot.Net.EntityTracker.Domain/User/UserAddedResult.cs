@@ -4,16 +4,16 @@
     {
         bool WasAdded { get; }
         bool WasUsernameChanged { get; }
-        string PreviousUsername { get; }
+        string? PreviousUsername { get; }
     }
 
     public class UserAddedResult : IUserAddedResult
     {
         public bool WasAdded { get; }
         public bool WasUsernameChanged { get; }
-        public string PreviousUsername { get; }
+        public string? PreviousUsername { get; }
 
-        public UserAddedResult(bool wasAdded, bool wasUsernameChanged, string previousUsername)
+        public UserAddedResult(bool wasAdded, bool wasUsernameChanged, string? previousUsername)
         {
             WasAdded = wasAdded;
             WasUsernameChanged = wasUsernameChanged;

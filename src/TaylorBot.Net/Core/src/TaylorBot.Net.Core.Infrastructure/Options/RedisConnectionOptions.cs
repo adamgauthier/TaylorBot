@@ -2,8 +2,8 @@
 {
     public class RedisConnectionOptions
     {
-        public string Host { get; set; }
+        public string Host { get; set; } = null!;
         public uint Port { get; set; }
-        public string Password { get; set; }
+        public string Password { get; set; } = null!;
     }
 }

@@ -2,7 +2,7 @@
 {
     public class DiscordOptions
     {
-        public string Token { get; set; }
+        public string Token { get; set; } = null!;
         public uint ShardCount { get; set; }
         public uint? MessageCacheSize { get; set; }
     }

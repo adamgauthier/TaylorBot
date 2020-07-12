@@ -23,7 +23,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         {
             var mentionedUserTypeReader = new MentionedUserTypeReader<IUser>(_userTracker);
             var channel = A.Fake<IMessageChannel>(o => o.Strict());
-            A.CallTo(() => _commandContext.Guild).Returns(null);
+            A.CallTo(() => _commandContext.Guild).Returns(null!);
             A.CallTo(() => _commandContext.Channel).Returns(channel);
             A.CallTo(() => channel.GetUserAsync(AnId, CacheMode.AllowDownload, null)).Returns(AUser);
             A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(AUser)).Returns(default);

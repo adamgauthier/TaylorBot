@@ -132,11 +132,11 @@ namespace TaylorBot.Net.EntityTracker.Domain
             }
         }
 
-        private async Task UpdateGuildNameAsync(IGuild guild, string previousGuildName)
+        private async Task UpdateGuildNameAsync(IGuild guild, string? previousGuildName)
         {
             await guildNameRepository.AddNewGuildNameAsync(guild);
             logger.LogInformation(LogString.From(
-                $"Added new guild name for {guild.FormatLog()}{(previousGuildName != default ? $", previously was '{previousGuildName}'" : "")}."
+                $"Added new guild name for {guild.FormatLog()}{(previousGuildName != null ? $", previously was '{previousGuildName}'" : "")}."
             ));
         }
 

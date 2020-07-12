@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <Features>strict</Features>
-  </PropertyGroup>
-</Project>

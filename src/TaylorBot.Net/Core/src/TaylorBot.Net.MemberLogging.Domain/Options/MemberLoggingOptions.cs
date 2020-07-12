@@ -2,7 +2,7 @@
 {
     public class MemberLoggingOptions
     {
-        public string FirstJoinedEmbedColor { get; set; }
-        public string RejoinedEmbedColor { get; set; }
+        public string FirstJoinedEmbedColor { get; set; } = null!;
+        public string RejoinedEmbedColor { get; set; } = null!;
     }
 }

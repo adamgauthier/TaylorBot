@@ -2,6 +2,6 @@
 {
     public class MemberLeftLoggingOptions
     {
-        public string MemberLeftEmbedColorHex { get; set; }
+        public string MemberLeftEmbedColorHex { get; set; } = null!;
     }
 }

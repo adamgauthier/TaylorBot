@@ -15,6 +15,13 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.User
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
+        private class UserAddedOrUpdatedDto
+        {
+            public bool was_inserted { get; set; }
+            public bool username_changed { get; set; }
+            public string? previous_username { get; set; }
+        }
+
         public async ValueTask<UserAddedResult> AddNewUserAsync(IUser user)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();

@@ -2,7 +2,7 @@
 {
     public class MemberBanLoggingOptions
     {
-        public string MemberBannedEmbedColorHex { get; set; }
-        public string MemberUnbannedEmbedColorHex { get; set; }
+        public string MemberBannedEmbedColorHex { get; set; } = null!;
+        public string MemberUnbannedEmbedColorHex { get; set; } = null!;
     }
 }

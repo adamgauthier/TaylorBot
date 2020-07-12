@@ -4,9 +4,9 @@ namespace TaylorBot.Net.Commands
 {
     public class TaylorBotPreconditionResult : PreconditionResult
     {
-        public string UserReason { get; }
+        public string? UserReason { get; }
 
-        protected TaylorBotPreconditionResult(CommandError? error, string errorReason, string userReason) : base(error, errorReason)
+        protected TaylorBotPreconditionResult(CommandError? error, string errorReason, string? userReason) : base(error, errorReason)
         {
             UserReason = userReason;
         }

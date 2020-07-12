@@ -19,7 +19,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild
         {
             public bool was_inserted { get; set; }
             public bool guild_name_changed { get; set; }
-            public string previous_guild_name { get; set; }
+            public string? previous_guild_name { get; set; }
         }
 
         public async ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)

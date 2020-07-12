@@ -17,8 +17,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         private class CommandDto
         {
-            public string name { get; set; }
-            public string module_name { get; set; }
+            public string name { get; set; } = null!;
+            public string module_name { get; set; } = null!;
         }
 
         public async ValueTask<IReadOnlyCollection<ICommandRepository.Command>> GetAllCommandsAsync()

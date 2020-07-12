@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Core.Program
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger<TaylorBotHostedService> logger;
         private readonly TaskExceptionLogger taskExceptionLogger;
-        private ITaylorBotClient client;
+        private ITaylorBotClient? client;
 
         public TaylorBotHostedService(IServiceProvider serviceProvider)
         {
@@ -26,13 +26,10 @@ namespace TaylorBot.Net.Core.Program
             this.taskExceptionLogger = serviceProvider.GetRequiredService<TaskExceptionLogger>();
         }
 
-        private void CreateClient()
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             client = serviceProvider.GetRequiredService<ITaylorBotClient>();
-        }
 
-        private async Task StartClientAsync()
-        {
             var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
             if (shardReadyHandler != null)
             {
@@ -158,16 +155,13 @@ namespace TaylorBot.Net.Core.Program
             await client.StartAsync();
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            CreateClient();
-            await StartClientAsync();
-        }
-
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await client.StopAsync();
-            logger.LogInformation(LogString.From("Clients unloaded!"));
+            if (client != null)
+            {
+                await client.StopAsync();
+                logger.LogInformation(LogString.From("Clients unloaded!"));
+            }
         }
     }
 }

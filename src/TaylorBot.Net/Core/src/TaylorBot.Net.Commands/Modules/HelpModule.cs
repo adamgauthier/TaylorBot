@@ -34,7 +34,7 @@ namespace TaylorBot.Net.Commands.Modules
         public async Task<RuntimeResult> HelpAsync(
             [Summary("The module or command to list help for")]
             [Remainder]
-            string moduleOrCommand = null
+            string? moduleOrCommand = null
         )
         {
             var module = moduleOrCommand == null ? _commands.Modules.Single(m => m.Name == ModuleNames.Help) :
