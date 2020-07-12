@@ -17,10 +17,6 @@ using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.MemberLogging.Domain.Options;
 using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Infrastructure;
-using TaylorBot.Net.MessageLogging.Domain;
-using TaylorBot.Net.MessageLogging.Domain.DiscordEmbed;
-using TaylorBot.Net.MessageLogging.Domain.Options;
-using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 using TaylorBot.Net.MessageLogging.Infrastructure;
 using TaylorBot.Net.Reminder.Domain;
 using TaylorBot.Net.Reminder.Domain.DiscordEmbed;
@@ -44,10 +40,11 @@ namespace TaylorBot.Net.UserNotifier.Program
                     appConfig
                         .AddTaylorBotApplication(env)
                         .AddDatabaseConnection(env)
+                        .AddRedisConnection(env)
+                        .AddMessageLogging(env)
                         .AddJsonFile(path: "Settings/birthdayRewardNotifier.json", optional: false, reloadOnChange: true)
                         .AddJsonFile(path: "Settings/reminderNotifier.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile(path: "Settings/memberLog.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile(path: "Settings/messageLog.json", optional: false, reloadOnChange: true);
+                        .AddJsonFile(path: "Settings/memberLog.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
@@ -58,11 +55,12 @@ namespace TaylorBot.Net.UserNotifier.Program
                         .AddHostedService<TaylorBotHostedService>()
                         .AddTaylorBotApplicationServices(config)
                         .AddPostgresConnection(config)
+                        .AddRedisConnection(config)
+                        .AddMessageLoggingInfrastructure(config)
                         .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")
                         .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
                         .ConfigureRequired<MemberLeftLoggingOptions>(config, "MemberLeft")
                         .ConfigureRequired<MemberBanLoggingOptions>(config, "MemberBan")
-                        .ConfigureRequired<MessageDeletedLoggingOptions>(config, "MessageDeleted")
                         .AddTransient<IAllReadyHandler, ReadyHandler>()
                         .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
                         .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
@@ -80,11 +78,7 @@ namespace TaylorBot.Net.UserNotifier.Program
                         .AddTransient<GuildMemberLeftEmbedFactory>()
                         .AddTransient<GuildMemberLeftLoggerService>()
                         .AddTransient<GuildMemberBanEmbedFactory>()
-                        .AddTransient<GuildMemberBanLoggerService>()
-                        .AddTransient<IMessageLoggingChannelRepository, MessageLoggingChannelRepository>()
-                        .AddTransient<MessageLogChannelFinder>()
-                        .AddTransient<MessageDeletedEmbedFactory>()
-                        .AddTransient<MessageDeletedLoggerService>();
+                        .AddTransient<GuildMemberBanLoggerService>();
                 })
                 .Build();
 

@@ -52,6 +52,8 @@ class AddLogChannelCommand extends Command {
         }
 
         await database.textChannels.upsertLogChannel(channel, type);
+        if (type === 'message')
+            await client.master.registry.redisCommands.hashSet('message-log-channels', channel.guild.id, channel.id);
 
         await client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a ${type} log channel.`);
     }

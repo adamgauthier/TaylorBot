@@ -29,8 +29,10 @@ export class Registry {
     cooldowns: CooldownRegistry;
     onGoingCommands: OnGoingCommandRegistry;
     heists: HeistRegistry;
+    redisCommands: RedisDriver;
 
     constructor(database: DatabaseDriver, redisCommands: RedisDriver, redisHeists: RedisDriver) {
+        this.redisCommands = redisCommands;
         this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();

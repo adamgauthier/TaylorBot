@@ -1,5 +1,6 @@
 ﻿{
   "MessageDeleted": {
-    "MessageDeletedEmbedColorHex": "#E3D729"
+    "MessageDeletedEmbedColorHex": "#E3D729",
+    "UseRedisCache": true
   }
 }

@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
@@ -9,11 +8,11 @@ using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 
 namespace TaylorBot.Net.MessageLogging.Infrastructure
 {
-    public class MessageLoggingChannelRepository : IMessageLoggingChannelRepository
+    public class MessageLoggingChannelPostgresRepository : IMessageLoggingChannelRepository
     {
         private readonly PostgresConnectionFactory _postgresConnectionFactory;
 
-        public MessageLoggingChannelRepository(PostgresConnectionFactory postgresConnectionFactory)
+        public MessageLoggingChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
         }
@@ -23,7 +22,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
             public string channel_id { get; set; } = null!;
         }
 
-        public async ValueTask<IReadOnlyCollection<LogChannel>> GetMessageLogChannelsForGuildAsync(IGuild guild)
+        public async ValueTask<LogChannel?> GetMessageLogChannelForGuildAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -37,7 +36,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
 
             return logChannels.Select(
                 logChannel => new LogChannel(new SnowflakeId(logChannel.channel_id))
-            ).ToList();
+            ).FirstOrDefault();
         }
     }
 }

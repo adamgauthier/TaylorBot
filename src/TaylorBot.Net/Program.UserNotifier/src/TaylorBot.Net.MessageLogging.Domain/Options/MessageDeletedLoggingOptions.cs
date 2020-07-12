@@ -3,5 +3,6 @@
     public class MessageDeletedLoggingOptions
     {
         public string MessageDeletedEmbedColorHex { get; set; } = null!;
+        public bool UseRedisCache { get; set; }
     }
 }

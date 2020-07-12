@@ -45,6 +45,8 @@ class RemoveLogChannelCommand extends Command {
         }
         else {
             await database.textChannels.removeLog(channel, type);
+            if (type === 'message')
+                await client.master.registry.redisCommands.hashSet('message-log-channels', channel.guild.id, '');
         }
 
         return client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a ${type} log channel.`);
