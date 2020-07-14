@@ -8,6 +8,8 @@ using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
+using TaylorBot.Net.Commands.Discord.Program.ServerStats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure;
@@ -57,7 +59,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .ConfigureRequired<DailyPayoutOptions>(config, "DailyPayout")
                         .AddTransient<IDailyPayoutRepository, DailyPayoutPostgresRepository>()
                         .AddTransient<IMessageOfTheDayRepository, MessageOfTheDayPostgresRepository>()
-                        .AddTransient<ICryptoSecureRandom, CryptoSecureRandom>();
+                        .AddTransient<ICryptoSecureRandom, CryptoSecureRandom>()
+                        .AddTransient<IServerStatsRepository, ServerStatsRepositoryPostgresRepository>();
                 })
                 .Build();
 

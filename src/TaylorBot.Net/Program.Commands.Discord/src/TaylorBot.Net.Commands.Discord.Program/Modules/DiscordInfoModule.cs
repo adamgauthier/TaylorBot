@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Time;
@@ -44,7 +45,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 await user.GetTrackedUserAsync();
 
             var embed = new EmbedBuilder()
-                .WithUserAsAuthorAndColor(u)
+                .WithUserAsAuthor(u)
+                .WithColor(TaylorBotColors.SuccessColor)
                 .WithImageUrl(u.GetAvatarUrlOrDefault(size: 2048))
             .Build();
 
@@ -254,7 +256,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             var orderedRoles = guild.Roles.OrderByDescending(r => r.Position).ToList();
 
             var embed = new EmbedBuilder()
-                .WithAuthor(guild.Features.Contains("VIP_REGIONS") ? $"{guild.Name} ⭐" : guild.Name, guild.IconUrl)
+                .WithGuildAsAuthor(guild)
                 .WithColor(orderedRoles.First().Color)
                 .AddField("Id", $"`{guild.Id}`", inline: true)
                 .AddField("Owner", MentionUtils.MentionUser(guild.OwnerId), inline: true)
