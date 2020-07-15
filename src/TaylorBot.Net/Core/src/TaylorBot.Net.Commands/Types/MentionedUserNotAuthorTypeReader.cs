@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Types
@@ -23,7 +22,7 @@ namespace TaylorBot.Net.Commands.Types
             var result = await _mentionedUserTypeReader.ReadAsync(context, input, services);
             if (result.Values != null)
             {
-                var mentioned = (IUserArgument<T>)result.Values.Single().Value;
+                var mentioned = (IUserArgument<T>)result.BestMatch;
                 if (mentioned.UserId == context.User.Id)
                 {
                     return TypeReaderResult.FromError(CommandError.ParseFailed, $"You can't mention yourself.");

@@ -59,7 +59,7 @@ namespace TaylorBot.Net.Commands.Types
             var mentionned = await _mentionedUserTypeReader.ReadAsync(context, input, services);
             if (mentionned.Values != null)
             {
-                var result = (IUserArgument<T>)mentionned.Values.Single().Value;
+                var result = (IUserArgument<T>)mentionned.BestMatch;
                 results.Add(result.UserId, new UserVal<T>(result, 1.00f));
             }
 
@@ -91,9 +91,8 @@ namespace TaylorBot.Net.Commands.Types
                         AddResultIfTypeMatches(results, channelUser, channelUser.Username == username ? 0.45f : 0.40f);
 
 
-                    var guildUsernameMatches = await channelUsers.Where(x => x.DiscriminatorValue == discriminator)
-                        .ToLookupAsync(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase))
-                        .ConfigureAwait(false);
+                    var guildUsernameMatches = guildUsers.Where(x => x.DiscriminatorValue == discriminator)
+                        .ToLookup(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase));
 
                     foreach (var guildUser in guildUsernameMatches[true])
                         AddResultIfTypeMatches(results, guildUser, guildUser.Username == username ? 0.80f : 0.70f);
@@ -102,7 +101,7 @@ namespace TaylorBot.Net.Commands.Types
                 }
             }
 
-            // By Username (0.2-0.65)
+            // By Username (0.1-0.65)
             {
                 await channelUsers
                     .ForEachAsync(u =>
@@ -113,9 +112,13 @@ namespace TaylorBot.Net.Commands.Types
                             {
                                 AddResultIfTypeMatches(results, u, u.Username == input ? 0.65f : 0.55f);
                             }
-                            else
+                            else if (u.Username.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                             {
                                 AddResultIfTypeMatches(results, u, 0.25f);
+                            }
+                            else
+                            {
+                                AddResultIfTypeMatches(results, u, 0.20f);
                             }
                         }
                     });
@@ -129,15 +132,19 @@ namespace TaylorBot.Net.Commands.Types
                         {
                             AddResultIfTypeMatches(results, guildUser, guildUser.Username == input ? 0.60f : 0.50f);
                         }
+                        else if (guildUser.Username.StartsWith(input, StringComparison.OrdinalIgnoreCase))
+                        {
+                            AddResultIfTypeMatches(results, guildUser, 0.15f);
+                        }
                         else
                         {
-                            AddResultIfTypeMatches(results, guildUser, 0.20f);
+                            AddResultIfTypeMatches(results, guildUser, 0.10f);
                         }
                     }
                 }
             }
 
-            // By Nickname (0.2-0.65)
+            // By Nickname (0.1-0.65)
             {
                 await channelUsers
                     .OfType<IGuildUser>()
@@ -150,9 +157,13 @@ namespace TaylorBot.Net.Commands.Types
                             {
                                 AddResultIfTypeMatches(results, u, u.Nickname == input ? 0.65f : 0.55f);
                             }
-                            else
+                            else if (u.Nickname.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                             {
                                 AddResultIfTypeMatches(results, u, 0.25f);
+                            }
+                            else
+                            {
+                                AddResultIfTypeMatches(results, u, 0.20f);
                             }
                         }
                     });
@@ -165,9 +176,13 @@ namespace TaylorBot.Net.Commands.Types
                         {
                             AddResultIfTypeMatches(results, guildUser, guildUser.Nickname == input ? 0.60f : 0.50f);
                         }
+                        else if (guildUser.Nickname.StartsWith(input, StringComparison.OrdinalIgnoreCase))
+                        {
+                            AddResultIfTypeMatches(results, guildUser, 0.15f);
+                        }
                         else
                         {
-                            AddResultIfTypeMatches(results, guildUser, 0.20f);
+                            AddResultIfTypeMatches(results, guildUser, 0.10f);
                         }
                     }
                 }
