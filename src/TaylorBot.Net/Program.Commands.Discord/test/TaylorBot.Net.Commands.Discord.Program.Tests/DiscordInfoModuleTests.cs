@@ -106,7 +106,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = A.Fake<IRole>();
             A.CallTo(() => role.Id).Returns(AnId);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.RoleInfoAsync(role);
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.RoleInfoAsync(new RoleArgument<IRole>(role));
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }

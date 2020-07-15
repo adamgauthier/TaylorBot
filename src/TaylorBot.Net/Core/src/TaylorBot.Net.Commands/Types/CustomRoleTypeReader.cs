@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Types
 {
+    public class RoleArgument<T> where T : class, IRole
+    {
+        public T Role { get; }
+
+        public RoleArgument(T role) => Role = role;
+    }
+
     public class CustomRoleTypeReader<T> : TypeReader
         where T : class, IRole
     {
@@ -50,7 +57,7 @@ namespace TaylorBot.Net.Commands.Types
                 if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
                     AddResultIfTypeMatches(results, context.Guild.GetRole(id), 0.90f);
 
-                // By Name (0.6-0.8)
+                // By Name (0.5-0.8)
                 foreach (var role in roles)
                 {
                     if (role.Name.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
@@ -59,9 +66,13 @@ namespace TaylorBot.Net.Commands.Types
                         {
                             AddResultIfTypeMatches(results, role, role.Name == input ? 0.80f : 0.70f);
                         }
-                        else
+                        else if (role.Name.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                         {
                             AddResultIfTypeMatches(results, role, 0.60f);
+                        }
+                        else
+                        {
+                            AddResultIfTypeMatches(results, role, 0.50f);
                         }
                     }
                 }
@@ -69,7 +80,7 @@ namespace TaylorBot.Net.Commands.Types
                 if (results.Count > 0)
                 {
                     return Task.FromResult(TypeReaderResult.FromSuccess(
-                        results.Values.Select(r => new TypeReaderValue(r.Role, r.Score)).ToImmutableArray()
+                        results.Values.Select(r => new TypeReaderValue(new RoleArgument<T>(r.Role), r.Score)).ToImmutableArray()
                     ));
                 }
             }

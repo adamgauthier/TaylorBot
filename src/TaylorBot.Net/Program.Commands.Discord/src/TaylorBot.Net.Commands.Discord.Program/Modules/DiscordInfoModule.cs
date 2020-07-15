@@ -165,27 +165,36 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> RoleInfoAsync(
             [Summary("What role would you like to see the info of?")]
             [Remainder]
-            IRole? role = null
+            RoleArgument<IRole>? role = null
         )
         {
-            if (role == null)
+            IRole GetRole()
             {
-                var guildUser = (IGuildUser)Context.User;
-                role = guildUser.Guild.GetRole(guildUser.RoleIds.First());
+                if (role == null)
+                {
+                    var guildUser = (IGuildUser)Context.User;
+                    return guildUser.Guild.GetRole(guildUser.RoleIds.First());
+                }
+                else
+                {
+                    return role.Role;
+                }
             }
 
-            var members = (await role.Guild.GetUsersAsync(CacheMode.CacheOnly)).Where(m => m.RoleIds.Contains(role.Id)).ToList();
+            var r = GetRole();
+
+            var members = (await r.Guild.GetUsersAsync(CacheMode.CacheOnly)).Where(m => m.RoleIds.Contains(r.Id)).ToList();
 
             var embed = new EmbedBuilder()
-                .WithColor(role.Color)
-                .WithAuthor(role.Name)
-                .AddField("Id", $"`{role.Id}`", inline: true)
-                .AddField("Color", $"`{role.Color}`", inline: true)
-                .AddField("Server Id", $"`{role.Guild.Id}`", inline: true)
-                .AddField("Hoisted", role.IsHoisted ? "✅" : "❌", inline: true)
-                .AddField("Managed", role.IsManaged ? "✅" : "❌", inline: true)
-                .AddField("Mentionable", role.IsMentionable ? "✅" : "❌", inline: true)
-                .AddField("Created", role.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
+                .WithColor(r.Color)
+                .WithAuthor(r.Name)
+                .AddField("Id", $"`{r.Id}`", inline: true)
+                .AddField("Color", $"`{r.Color}`", inline: true)
+                .AddField("Server Id", $"`{r.Guild.Id}`", inline: true)
+                .AddField("Hoisted", r.IsHoisted ? "✅" : "❌", inline: true)
+                .AddField("Managed", r.IsManaged ? "✅" : "❌", inline: true)
+                .AddField("Mentionable", r.IsMentionable ? "✅" : "❌", inline: true)
+                .AddField("Created", r.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
                 .AddField("Members",
                     $"**({members.Count}{(members.Any() ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
                 );

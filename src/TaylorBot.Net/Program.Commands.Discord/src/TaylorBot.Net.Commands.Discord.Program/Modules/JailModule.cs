@@ -154,17 +154,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> SetAsync(
             [Summary("What role would you like to set to the jail role?")]
             [Remainder]
-            IRole role
+            RoleNotEveryoneArgument<IRole> role
         )
         {
-            await _jailRepository.SetJailRoleAsync(Context.Guild, role);
+            await _jailRepository.SetJailRoleAsync(Context.Guild, role.Role);
 
             return new TaylorBotEmbedResult(new EmbedBuilder()
                 .WithUserAsAuthor(Context.User)
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(string.Join('\n', new[] {
-                    $"Role {role.Mention} was successfully set as the jail role for this server.",
-                    $"You can now use `{Context.CommandPrefix}jail @user` and they will receive {role.Mention}."
+                    $"Role {role.Role.Mention} was successfully set as the jail role for this server.",
+                    $"You can now use `{Context.CommandPrefix}jail @user` and they will receive {role.Role.Mention}."
                 }))
             .Build());
         }

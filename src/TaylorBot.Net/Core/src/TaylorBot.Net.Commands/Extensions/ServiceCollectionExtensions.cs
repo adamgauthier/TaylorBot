@@ -30,6 +30,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<MentionedUserNotAuthorTypeReader<IGuildUser>>()
                 .AddTransient<MentionedUserNotAuthorTypeReader<IUser>>()
                 .AddTransient<CustomRoleTypeReader<IRole>>()
+                .AddTransient<RoleNotEveryoneTypeReader<IRole>>()
                 .AddTransient<CustomChannelTypeReader<IChannel>>()
                 .AddTransient<PositiveInt32.Factory>();
         }

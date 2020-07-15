@@ -116,7 +116,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => role.Id).Returns(AnId);
             A.CallTo(() => _jailRepository.SetJailRoleAsync(_guild, role)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _jailModule.SetAsync(role);
+            var result = (TaylorBotEmbedResult)await _jailModule.SetAsync(new RoleNotEveryoneArgument<IRole>(role));
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
