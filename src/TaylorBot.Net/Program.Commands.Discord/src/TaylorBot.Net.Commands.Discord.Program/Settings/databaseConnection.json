@@ -2,6 +2,7 @@
   "DatabaseConnection": {
     "Host": "taylorbot-postgres",
     "Port": 5432,
-    "Database": "taylorbot"
+    "Database": "taylorbot",
+    "ApplicationName": "commands-discord"
   }
 }

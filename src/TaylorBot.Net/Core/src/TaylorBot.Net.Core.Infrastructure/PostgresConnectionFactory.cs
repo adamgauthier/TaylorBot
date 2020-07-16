@@ -17,9 +17,14 @@ namespace TaylorBot.Net.Core.Infrastructure
         public IDbConnection CreateConnection()
         {
             var options = _optionsMonitor.CurrentValue;
-            return new NpgsqlConnection(
-                $"Server={options.Host};Port={options.Port};Username={options.Username};Password={options.Password};Database={options.Database}"
-            );
+            return new NpgsqlConnection(string.Join(';', new[] {
+                $"Server={options.Host}",
+                $"Port={options.Port}",
+                $"Username={options.Username}",
+                $"Password={options.Password}",
+                $"Database={options.Database}",
+                $"ApplicationName={options.ApplicationName}"
+            }));
         }
     }
 }
