@@ -38,6 +38,7 @@ namespace TaylorBot.Net.Commands
             commandService.AddTypeReader<IMentionedUser<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IGuildUser>>());
             commandService.AddTypeReader<IMentionedUserNotAuthor<IUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IUser>>());
             commandService.AddTypeReader<IMentionedUserNotAuthor<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
+            commandService.AddTypeReader<IMentionedUserNotAuthorOrClient<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorOrClientTypeReader<IGuildUser>>());
             commandService.AddTypeReader<RoleArgument<IRole>>(_serviceProvider.GetRequiredService<CustomRoleTypeReader<IRole>>());
             commandService.AddTypeReader<RoleNotEveryoneArgument<IRole>>(_serviceProvider.GetRequiredService<RoleNotEveryoneTypeReader<IRole>>());
             commandService.AddTypeReader<IChannel>(_serviceProvider.GetRequiredService<CustomChannelTypeReader<IChannel>>(), replaceDefault: true);

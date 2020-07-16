@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.Types
         ValueTask<T> GetTrackedUserAsync();
     }
 
-    public class UserArgument<T> : IUserArgument<T>, IMentionedUser<T>, IMentionedUserNotAuthor<T>
+    public class UserArgument<T> : IUserArgument<T>, IMentionedUser<T>, IMentionedUserNotAuthor<T>, IMentionedUserNotAuthorOrClient<T>
         where T : class, IUser
     {
         private readonly T _user;

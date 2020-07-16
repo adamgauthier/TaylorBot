@@ -33,7 +33,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> JailAsync(
             [Summary("What user would you like to be jailed?")]
             [Remainder]
-            IMentionedUserNotAuthor<IGuildUser> mentionedUser
+            IMentionedUserNotAuthorOrClient<IGuildUser> mentionedUser
         )
         {
             var embed = new EmbedBuilder()

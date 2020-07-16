@@ -34,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(null);
 
-            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict()));
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthorOrClient<IGuildUser>>(o => o.Strict()));
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -46,7 +46,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _jailRepository.GetJailRoleAsync(_guild)).Returns(new JailRole(new SnowflakeId(AnId)));
             A.CallTo(() => _guild.GetRole(AnId)).Returns(null!);
 
-            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict()));
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(A.Fake<IMentionedUserNotAuthorOrClient<IGuildUser>>(o => o.Strict()));
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -59,6 +59,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => jailRole.Id).Returns(AnId);
             A.CallTo(() => _guild.GetRole(AnId)).Returns(jailRole);
             return jailRole;
+        }
+
+        private IMentionedUserNotAuthorOrClient<IGuildUser> CreateMentionedUserNotClient(IGuildUser user)
+        {
+            var mentionedUser = A.Fake<IMentionedUserNotAuthorOrClient<IGuildUser>>(o => o.Strict());
+            A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);
+            return mentionedUser;
         }
 
         private IMentionedUserNotAuthor<IGuildUser> CreateMentionedUser(IGuildUser user)
@@ -74,9 +81,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var jailRole = SetupValidJailRole();
             var user = A.Fake<IGuildUser>(o => o.Strict());
             A.CallTo(() => user.Mention).Returns(string.Empty);
-            A.CallTo(() => user.AddRoleAsync(jailRole, null)).ThrowsAsync(new HttpException(System.Net.HttpStatusCode.Forbidden, A.Fake<IRequest>(), null, null));
+            A.CallTo(() => user.AddRoleAsync(jailRole, null)).ThrowsAsync(
+                new HttpException(System.Net.HttpStatusCode.Forbidden, A.Fake<IRequest>(), null, null)
+            );
 
-            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(CreateMentionedUser(user));
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(CreateMentionedUserNotClient(user));
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -89,7 +98,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => user.Mention).Returns(string.Empty);
             A.CallTo(() => user.AddRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
 
-            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(CreateMentionedUser(user));
+            var result = (TaylorBotEmbedResult)await _jailModule.JailAsync(CreateMentionedUserNotClient(user));
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
