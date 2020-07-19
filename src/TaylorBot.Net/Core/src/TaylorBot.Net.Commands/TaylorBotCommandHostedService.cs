@@ -43,6 +43,7 @@ namespace TaylorBot.Net.Commands
             commandService.AddTypeReader<RoleNotEveryoneArgument<IRole>>(_serviceProvider.GetRequiredService<RoleNotEveryoneTypeReader<IRole>>());
             commandService.AddTypeReader<IChannel>(_serviceProvider.GetRequiredService<CustomChannelTypeReader<IChannel>>(), replaceDefault: true);
             commandService.AddTypeReader<PositiveInt32>(new ConstrainedIntTypeReader<PositiveInt32.Factory>(PositiveInt32.Min));
+            commandService.AddTypeReader<Word>(_serviceProvider.GetRequiredService<WordTypeReader>());
 
             await commandService.AddModuleAsync<HelpModule>(_serviceProvider);
             await commandService.AddModulesAsync(

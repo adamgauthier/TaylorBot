@@ -15,10 +15,12 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _commandPrefixPostgresRepository = commandPrefixPostgresRepository;
         }
 
-        public async Task<string> GetOrInsertGuildPrefixAsync(IGuild guild)
+        private string GetPrefixKey(IGuild guild) => $"prefix:guild:{guild.Id}";
+
+        public async ValueTask<string> GetOrInsertGuildPrefixAsync(IGuild guild)
         {
             var redis = _connectionMultiplexer.GetDatabase();
-            var key = $"prefix:guild:{guild.Id}";
+            var key = GetPrefixKey(guild);
             var cachedPrefix = await redis.StringGetAsync(key);
 
             if (!cachedPrefix.HasValue)
@@ -29,6 +31,14 @@ namespace TaylorBot.Net.Commands.Infrastructure
             }
 
             return cachedPrefix;
+        }
+
+        public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)
+        {
+            await _commandPrefixPostgresRepository.ChangeGuildPrefixAsync(guild, prefix);
+
+            var redis = _connectionMultiplexer.GetDatabase();
+            await redis.StringSetAsync(GetPrefixKey(guild), prefix);
         }
     }
 }

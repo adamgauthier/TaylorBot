@@ -5,6 +5,7 @@ namespace TaylorBot.Net.Commands
 {
     public interface ICommandPrefixRepository
     {
-        Task<string> GetOrInsertGuildPrefixAsync(IGuild guild);
+        ValueTask<string> GetOrInsertGuildPrefixAsync(IGuild guild);
+        ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix);
     }
 }

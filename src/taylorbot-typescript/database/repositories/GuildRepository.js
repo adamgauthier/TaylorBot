@@ -56,24 +56,6 @@ class GuildRepository {
             throw e;
         }
     }
-
-    async setPrefix(guild, prefix) {
-        try {
-            return await this._db.oneOrNone(
-                `UPDATE guilds.guilds SET prefix = $[prefix]
-                WHERE guild_id = $[guild_id]
-                RETURNING *;`,
-                {
-                    'prefix': prefix,
-                    'guild_id': guild.id
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Setting guild prefix for ${Format.guild(guild)} to '${prefix}': ${e}`);
-            throw e;
-        }
-    }
 }
 
 module.exports = GuildRepository;
