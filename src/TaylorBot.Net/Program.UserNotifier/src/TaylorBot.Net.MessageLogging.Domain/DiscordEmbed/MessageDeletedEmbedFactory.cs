@@ -53,7 +53,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
 
                 if (message.Attachments.Any())
                 {
-                    builder.AddField("Attachements", string.Join(" | ", message.Attachments.Select(a => $"[{a.Filename}]({a.ProxyUrl})")));
+                    builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => $"[{a.Filename}]({a.ProxyUrl})")));
                 }
 
                 switch (message)
