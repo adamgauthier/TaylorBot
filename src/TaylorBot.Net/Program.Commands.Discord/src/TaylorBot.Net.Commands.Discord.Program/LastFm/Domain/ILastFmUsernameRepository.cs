@@ -19,5 +19,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
     {
         ValueTask<LastFmUsername?> GetLastFmUsernameAsync(IUser user);
         ValueTask SetLastFmUsernameAsync(IUser user, LastFmUsername lastFmUsername);
+        ValueTask ClearLastFmUsernameAsync(IUser user);
     }
 }

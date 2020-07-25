@@ -94,5 +94,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
+
+        [Fact]
+        public async Task ClearAsync_ThenReturnsSuccessEmbed()
+        {
+            A.CallTo(() => _lastFmUsernameRepository.ClearLastFmUsernameAsync(_commandUser)).Returns(default);
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.ClearAsync();
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
     }
 }

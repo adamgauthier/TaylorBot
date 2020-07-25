@@ -1,6 +1,6 @@
-'use strict';
-
-const Command = require('../Command.js');
+import Command = require('../Command.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+import { Attribute } from '../../attributes/Attribute';
 
 class ListAttributeCommand extends Command {
     constructor() {
@@ -22,13 +22,13 @@ class ListAttributeCommand extends Command {
         });
     }
 
-    async run(commandContext, { attribute }) {
+    async run(commandContext: CommandMessageContext, { attribute }: { attribute: Attribute }): Promise<void> {
         const { guild, channel } = commandContext.message;
 
-        const pageMessage = await attribute.listCommand(commandContext, guild);
+        const pageMessage = await attribute.listCommand(commandContext, guild!);
 
-        return pageMessage.send(channel);
+        await pageMessage.send(channel);
     }
 }
 
-module.exports = ListAttributeCommand;
+export = ListAttributeCommand;

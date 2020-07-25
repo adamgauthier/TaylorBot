@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
-using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -15,7 +14,6 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules
 {
-    [RequireInGuild]
     [Name("Last.fm 🎶")]
     [Group("lastfm")]
     [Alias("fm", "np")]
@@ -129,6 +127,22 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .WithDescription(string.Join('\n', new[] {
                     $"Your Last.fm username has been set to {lastFmUsername.Username.DiscordMdLink(lastFmUsername.LinkToProfile)}. ✅",
                     $"You can now use Last.fm commands, get started with `{Context.CommandPrefix}lastfm`."
+                }))
+            .Build());
+        }
+
+        [Command("clear")]
+        [Summary("Clears your registered Last.fm username.")]
+        public async Task<RuntimeResult> ClearAsync()
+        {
+            await _lastFmUsernameRepository.ClearLastFmUsernameAsync(Context.User);
+
+            return new TaylorBotEmbedResult(new EmbedBuilder()
+                .WithUserAsAuthor(Context.User)
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithDescription(string.Join('\n', new[] {
+                    $"Your Last.fm username has been cleared. Last.fm commands will no longer work. ✅",
+                    $"You can set it again with `{Context.CommandPrefix}lastfm set <username>`."
                 }))
             .Build());
         }

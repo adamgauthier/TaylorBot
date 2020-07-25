@@ -44,5 +44,18 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 }
             );
         }
+
+        public async ValueTask ClearLastFmUsernameAsync(IUser user)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"DELETE FROM attributes.text_attributes WHERE user_id = @UserId AND attribute_id = 'lastfm';",
+                new
+                {
+                    UserId = user.Id.ToString()
+                }
+            );
+        }
     }
 }
