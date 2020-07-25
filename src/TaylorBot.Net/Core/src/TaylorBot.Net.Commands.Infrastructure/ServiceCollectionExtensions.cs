@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Infrastructure.Options;
-using TaylorBot.Net.Commands.Modules;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.EntityTracker.Infrastructure;

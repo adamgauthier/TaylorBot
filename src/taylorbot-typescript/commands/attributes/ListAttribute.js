@@ -8,7 +8,7 @@ class ListAttributeCommand extends Command {
             name: 'list',
             group: 'attributes',
             description: 'Gets the list of an attribute of users in the current server.',
-            examples: ['lastfm'],
+            examples: ['birthday'],
             guildOnly: true,
 
             args: [

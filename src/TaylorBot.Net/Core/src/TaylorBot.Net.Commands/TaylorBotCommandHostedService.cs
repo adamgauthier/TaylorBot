@@ -12,6 +12,12 @@ using TaylorBot.Net.Core.Program;
 
 namespace TaylorBot.Net.Commands
 {
+    public interface ITaylorBotTypeReader
+    {
+        Type ArgumentType { get; }
+        Type TypeReaderType { get; }
+    }
+
     public class TaylorBotCommandHostedService : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
@@ -44,6 +50,11 @@ namespace TaylorBot.Net.Commands
             commandService.AddTypeReader<IChannel>(_serviceProvider.GetRequiredService<CustomChannelTypeReader<IChannel>>(), replaceDefault: true);
             commandService.AddTypeReader<PositiveInt32>(new ConstrainedIntTypeReader<PositiveInt32.Factory>(PositiveInt32.Min));
             commandService.AddTypeReader<Word>(_serviceProvider.GetRequiredService<WordTypeReader>());
+
+            foreach (var typeReader in _serviceProvider.GetServices<ITaylorBotTypeReader>())
+            {
+                commandService.AddTypeReader(typeReader.ArgumentType, (TypeReader)typeReader);
+            }
 
             await commandService.AddModuleAsync<HelpModule>(_serviceProvider);
             await commandService.AddModulesAsync(

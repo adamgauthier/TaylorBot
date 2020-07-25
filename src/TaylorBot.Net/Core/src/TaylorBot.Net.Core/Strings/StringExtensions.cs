@@ -6,5 +6,10 @@
         {
             return toEscape.Replace("\n", @"\n");
         }
+
+        public static string DiscordMdLink(this string text, string url)
+        {
+            return $"[{text}]({url.Replace(")", "%29")})";
+        }
     }
 }

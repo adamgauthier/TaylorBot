@@ -20,7 +20,7 @@ import RoleGroupRepository = require('./repositories/RoleGroupRepository.js');
 import SpecialRoleRepository = require('./repositories/SpecialRoleRepository.js');
 import ReminderRepository = require('./repositories/ReminderRepository.js');
 import TextChannelRepository = require('./repositories/TextChannelRepository.js');
-import AttributeRepository = require('./repositories/AttributeRepository.js');
+import { AttributeRepository } from './repositories/AttributeRepository';
 import TextAttributeRepository = require('./repositories/TextAttributeRepository.js');
 import IntegerAttributeRepository = require('./repositories/IntegerAttributeRepository.js');
 import LocationAttributeRepository = require('./repositories/LocationAttributeRepository.js');

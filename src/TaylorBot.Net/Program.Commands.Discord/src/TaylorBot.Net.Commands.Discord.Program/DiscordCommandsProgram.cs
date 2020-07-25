@@ -1,11 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using IF.Lastfm.Core.Api;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
+using TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
@@ -38,7 +43,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddRedisConnection(env)
                         .AddCommandClient(env)
                         .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile(path: "Settings/dailyPayout.json", optional: false, reloadOnChange: true);
+                        .AddJsonFile(path: "Settings/dailyPayout.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/lastFm.json", optional: false, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
@@ -60,7 +66,18 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTransient<IDailyPayoutRepository, DailyPayoutPostgresRepository>()
                         .AddTransient<IMessageOfTheDayRepository, MessageOfTheDayPostgresRepository>()
                         .AddTransient<ICryptoSecureRandom, CryptoSecureRandom>()
-                        .AddTransient<IServerStatsRepository, ServerStatsRepositoryPostgresRepository>();
+                        .AddTransient<IServerStatsRepository, ServerStatsRepositoryPostgresRepository>()
+                        .AddTransient<ILastFmUsernameRepository, LastFmUsernamePostgresRepository>()
+                        .ConfigureRequired<LastFmOptions>(config, "LastFm")
+                        .AddTransient(provider =>
+                        {
+                            var options = provider.GetRequiredService<IOptionsMonitor<LastFmOptions>>().CurrentValue;
+                            return new LastfmClient(
+                                apiKey: options.LastFmApiKey, apiSecret: options.LastFmApiSecret
+                            );
+                        })
+                        .AddTransient<ILastFmClient, InflatableLastFmClient>()
+                        .AddTransient<ITaylorBotTypeReader, LastFmUsernameTypeReader>();
                 })
                 .Build();
 

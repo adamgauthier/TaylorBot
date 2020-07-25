@@ -11,7 +11,7 @@ class UserAttributeArgumentType extends AttributeArgumentType {
     parse(val: string, commandContext: CommandMessageContext, arg: CommandArgumentInfo): UserAttribute {
         const attribute = super.parse(val, commandContext, arg);
 
-        if (!(attribute instanceof UserAttribute))
+        if (!(attribute instanceof UserAttribute) && attribute.id !== 'lastfm')
             throw new ArgumentParsingError(`Attribute '${val}' is not a User Attribute.`);
 
         return attribute;

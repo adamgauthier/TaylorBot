@@ -12,34 +12,27 @@ export class AttributeRegistry extends Map<string, string | MemberAttribute | Us
     }
 
     async loadAll(): Promise<void> {
-        const databaseAttributes: { attribute_id: string }[] = await this.#database.attributes.getAll();
+        const databaseAttributes = await this.#database.attributes.getAll();
 
         const attributes = [
             ...(await AttributeLoader.loadMemberAttributes()),
             ...(await AttributeLoader.loadUserAttributes())
         ];
 
-        const databaseAttributesNotInFiles = databaseAttributes.filter(
-            databaseAttribute => !attributes.some(a => a.id === databaseAttribute.attribute_id)
-        );
-
-        if (databaseAttributesNotInFiles.length > 0)
-            throw new Error(`Found database attributes not in files: ${databaseAttributesNotInFiles.map(da => da.attribute_id).join(',')}.`);
-
-        const fileAttributesNotInDatabase = attributes.filter(
-            attribute => !databaseAttributes.some(da => da.attribute_id === attribute.id)
-        );
+        const fileAttributesNotInDatabase = attributes.map(a => ({ id: a.id }))
+            .concat({ id: 'lastfm' })
+            .filter(
+                attribute => !databaseAttributes.some(da => da.attribute_id === attribute.id)
+            );
 
         if (fileAttributesNotInDatabase.length > 0) {
             Log.warn(`Found file attributes not in database: ${fileAttributesNotInDatabase.map(a => a.id).join(',')}.`);
 
-            const inserted = await this.#database.attributes.addAll(
+            await this.#database.attributes.addAll(
                 fileAttributesNotInDatabase.map(attribute => {
                     return { 'attribute_id': attribute.id };
                 })
             );
-
-            databaseAttributes.push(...inserted);
         }
 
         attributes.forEach(c => this.cacheAttribute(c));

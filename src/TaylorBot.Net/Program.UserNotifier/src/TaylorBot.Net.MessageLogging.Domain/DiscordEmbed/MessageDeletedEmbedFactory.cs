@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Linq;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.MessageLogging.Domain.Options;
 
@@ -53,7 +54,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
 
                 if (message.Attachments.Any())
                 {
-                    builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => $"[{a.Filename}]({a.ProxyUrl})")));
+                    builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => a.Filename.DiscordMdLink(a.ProxyUrl))));
                 }
 
                 switch (message)

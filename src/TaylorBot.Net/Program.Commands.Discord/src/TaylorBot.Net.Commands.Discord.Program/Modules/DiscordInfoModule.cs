@@ -11,6 +11,7 @@ using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.Core.User;
 
@@ -88,7 +89,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                             .WithTitle("Listening on Spotify")
                             .WithThumbnailUrl(spotifyGame.AlbumArtUrl)
                             .WithDescription(string.Join('\n', new[] {
-                                $"[{spotifyGame.TrackTitle}]({spotifyGame.TrackUrl})",
+                                spotifyGame.TrackTitle.DiscordMdLink(spotifyGame.TrackUrl),
                                 $"by {string.Join(", ", spotifyGame.Artists.Select(a => $"**{a}**"))}",
                                 $"on **{spotifyGame.AlbumTitle}**"
                             }));

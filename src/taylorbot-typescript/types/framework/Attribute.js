@@ -9,6 +9,10 @@ class AttributeArgumentType extends WordArgumentType {
     }
 
     parse(val, { client }, arg) {
+        if (val.toLowerCase() === 'fm' || val.toLowerCase() === 'lastfm') {
+            return { id: 'lastfm', canSet: true };
+        }
+
         const attribute = client.master.registry.attributes.resolve(val);
 
         if (!attribute)
