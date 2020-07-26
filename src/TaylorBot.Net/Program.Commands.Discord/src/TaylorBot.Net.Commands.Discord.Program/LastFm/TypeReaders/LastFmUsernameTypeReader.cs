@@ -9,7 +9,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
     public class LastFmUsernameTypeReader : TypeReader, ITaylorBotTypeReader
     {
         public Type ArgumentType => typeof(LastFmUsername);
-        public Type TypeReaderType => typeof(LastFmUsernameTypeReader);
 
         private static readonly Regex UsernameRegex = new Regex(@"^[a-z][a-z0-9_-]{1,14}$", RegexOptions.IgnoreCase);
         private static readonly Regex LinkRegex = new Regex(@"^\/user\/([a-z][a-z0-9_-]{1,14})(\/.*)?$", RegexOptions.IgnoreCase);

@@ -15,7 +15,6 @@ namespace TaylorBot.Net.Commands
     public interface ITaylorBotTypeReader
     {
         Type ArgumentType { get; }
-        Type TypeReaderType { get; }
     }
 
     public class TaylorBotCommandHostedService : IHostedService

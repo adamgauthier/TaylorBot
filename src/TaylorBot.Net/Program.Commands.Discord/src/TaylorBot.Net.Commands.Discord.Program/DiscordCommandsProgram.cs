@@ -77,7 +77,11 @@ namespace TaylorBot.Net.Commands.Discord.Program
                             );
                         })
                         .AddTransient<ILastFmClient, InflatableLastFmClient>()
-                        .AddTransient<ITaylorBotTypeReader, LastFmUsernameTypeReader>();
+                        .AddTransient<LastFmPeriodStringMapper>()
+                        .AddTransient<LastFmCollageSize.Factory>()
+                        .AddTransient<ITaylorBotTypeReader, LastFmCollageSizeTypeReader>()
+                        .AddTransient<ITaylorBotTypeReader, LastFmUsernameTypeReader>()
+                        .AddTransient<ITaylorBotTypeReader, LastFmPeriodTypeReader>();
                 })
                 .Build();
 

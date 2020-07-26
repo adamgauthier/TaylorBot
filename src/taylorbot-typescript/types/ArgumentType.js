@@ -12,7 +12,7 @@ class ArgumentType {
     }
 
     get id() {
-        throw new Error(`${this.constructor.name} must have an id.`);
+        return '';
     }
 
     canBeEmpty(messageContext, arg) { // eslint-disable-line no-unused-vars

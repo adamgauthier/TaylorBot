@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
+using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Core.Colors;
@@ -18,13 +19,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         private readonly IOptionsMonitor<LastFmOptions> _options = A.Fake<IOptionsMonitor<LastFmOptions>>(o => o.Strict());
         private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
         private readonly ILastFmClient _lastFmClient = A.Fake<ILastFmClient>(o => o.Strict());
+        private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new LastFmPeriodStringMapper();
         private readonly LastFmModule _lastFmModule;
 
         public LastFmModuleTests()
         {
             A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
-            _lastFmModule = new LastFmModule(_options, _lastFmUsernameRepository, _lastFmClient);
+            _lastFmModule = new LastFmModule(_options, _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
             _lastFmModule.SetContext(_commandContext);
         }
 
@@ -103,6 +105,28 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var result = (TaylorBotEmbedResult)await _lastFmModule.ClearAsync();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task CollageAsync_WhenUsernameNotSet_ThenReturnsErrorEmbed()
+        {
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.CollageAsync();
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task CollageAsync_ThenReturnsEmbedWithImage()
+        {
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.CollageAsync();
+
+            result.Embed.Image.Should().NotBeNull();
         }
     }
 }
