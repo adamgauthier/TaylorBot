@@ -2,18 +2,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
 {
-    public enum LastFmPeriod
-    {
-        SevenDay,
-        ThreeMonth,
-        SixMonth,
-        TwelveMonth,
-        Overall
-    }
-
     public class LastFmPeriodStringMapper
     {
         public string MapLastFmPeriodToUrlString(LastFmPeriod lastFmPeriod)
@@ -21,10 +13,25 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
             return lastFmPeriod switch
             {
                 LastFmPeriod.SevenDay => "7day",
+                LastFmPeriod.OneMonth => "1month",
                 LastFmPeriod.ThreeMonth => "3month",
                 LastFmPeriod.SixMonth => "6month",
                 LastFmPeriod.TwelveMonth => "12month",
                 LastFmPeriod.Overall => "overall",
+                _ => throw new ArgumentOutOfRangeException(nameof(lastFmPeriod)),
+            };
+        }
+
+        public string MapLastFmPeriodToReadableString(LastFmPeriod lastFmPeriod)
+        {
+            return lastFmPeriod switch
+            {
+                LastFmPeriod.SevenDay => "Last 7 days",
+                LastFmPeriod.OneMonth => "Last 30 days",
+                LastFmPeriod.ThreeMonth => "Last 90 days",
+                LastFmPeriod.SixMonth => "Last 180 days",
+                LastFmPeriod.TwelveMonth => "Last 365 days",
+                LastFmPeriod.Overall => "All time",
                 _ => throw new ArgumentOutOfRangeException(nameof(lastFmPeriod)),
             };
         }

@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 {
-    public interface IMostRecentScrobbleResult { }
-
-    public class LastFmErrorResult : IMostRecentScrobbleResult
+    public class LastFmErrorResult : IMostRecentScrobbleResult, ITopArtistsResultResult
     {
         public string Error { get; }
 
@@ -13,6 +13,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
             Error = error;
         }
     }
+
+    public interface IMostRecentScrobbleResult { }
 
     public class MostRecentScrobbleResult : IMostRecentScrobbleResult
     {
@@ -55,8 +57,45 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
         }
     }
 
+    public interface ITopArtistsResultResult { }
+
+    public class TopArtistsResult : ITopArtistsResultResult
+    {
+        public IReadOnlyList<TopArtist> TopArtists { get; }
+
+        public TopArtistsResult(IReadOnlyList<TopArtist> topArtists)
+        {
+            TopArtists = topArtists;
+        }
+    }
+
+    public class TopArtist
+    {
+        public string Name { get; }
+        public Uri ArtistUrl { get; }
+        public int PlayCount { get; }
+
+        public TopArtist(string name, Uri artistUrl, int playCount)
+        {
+            Name = name;
+            ArtistUrl = artistUrl;
+            PlayCount = playCount;
+        }
+    }
+
+    public enum LastFmPeriod
+    {
+        SevenDay,
+        OneMonth,
+        ThreeMonth,
+        SixMonth,
+        TwelveMonth,
+        Overall
+    }
+
     public interface ILastFmClient
     {
         ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername);
+        ValueTask<ITopArtistsResultResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period);
     }
 }

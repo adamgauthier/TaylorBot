@@ -2,6 +2,7 @@
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
@@ -105,6 +106,26 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var result = (TaylorBotEmbedResult)await _lastFmModule.ClearAsync();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task ArtistsAsync_ThenReturnsSuccessEmbedWithArtistInformation()
+        {
+            var period = LastFmPeriod.SixMonth;
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            var artist = new TopArtist(name: "Taylor Swift", artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift"), playCount: 15);
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(new[] {
+                artist
+            }));
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.ArtistsAsync(period);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Description
+                .Should().Contain(artist.Name)
+                .And.Contain(artist.PlayCount.ToString())
+                .And.Contain(artist.ArtistUrl.ToString());
         }
 
         [Fact]

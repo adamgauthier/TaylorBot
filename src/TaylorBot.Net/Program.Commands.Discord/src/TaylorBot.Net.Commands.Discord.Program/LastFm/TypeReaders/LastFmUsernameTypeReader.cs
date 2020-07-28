@@ -10,8 +10,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
     {
         public Type ArgumentType => typeof(LastFmUsername);
 
-        private static readonly Regex UsernameRegex = new Regex(@"^[a-z][a-z0-9_-]{1,14}$", RegexOptions.IgnoreCase);
-        private static readonly Regex LinkRegex = new Regex(@"^\/user\/([a-z][a-z0-9_-]{1,14})(\/.*)?$", RegexOptions.IgnoreCase);
+        private static readonly Regex UsernameRegex = new Regex(@"^[a-z0-9_-]{1,15}$", RegexOptions.IgnoreCase);
+        private static readonly Regex LinkRegex = new Regex(@"^\/user\/([a-z0-9_-]{1,15})(\/.*)?$", RegexOptions.IgnoreCase);
 
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {

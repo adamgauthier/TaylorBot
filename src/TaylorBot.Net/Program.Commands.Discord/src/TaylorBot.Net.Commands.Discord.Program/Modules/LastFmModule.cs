@@ -1,7 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
+using Humanizer;
 using Microsoft.Extensions.Options;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
@@ -10,6 +12,7 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
 
@@ -52,34 +55,20 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             var lastFmUsername = await _lastFmUsernameRepository.GetLastFmUsernameAsync(u);
 
             if (lastFmUsername == null)
-            {
                 return new TaylorBotEmbedResult(CreateLastFmNotSetEmbed(u));
-            }
 
             var result = await _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username);
-
-            var embed = new EmbedBuilder();
 
             switch (result)
             {
                 case LastFmErrorResult errorResult:
-                    return new TaylorBotEmbedResult(embed
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Last.fm returned an error. ({errorResult.Error}) 😢",
-                            "The site might be down. Try again later!"
-                        }))
-                    .Build());
+                    return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
 
                 case MostRecentScrobbleResult success:
-                    embed.WithAuthor(
-                        name: lastFmUsername.Username,
-                        iconUrl: u.GetAvatarUrlOrDefault(),
-                        url: lastFmUsername.LinkToProfile
-                    );
-
                     if (success.MostRecentTrack != null)
                     {
+                        var embed = CreateBaseLastFmEmbed(lastFmUsername, u);
+
                         var mostRecentTrack = success.MostRecentTrack;
 
                         if (mostRecentTrack.TrackImageUrl != null)
@@ -87,26 +76,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                             embed.WithThumbnailUrl(mostRecentTrack.TrackImageUrl);
                         }
 
-                        embed
+                        return new TaylorBotEmbedResult(embed
                             .WithColor(TaylorBotColors.SuccessColor)
                             .AddField("Artist", mostRecentTrack.Artist.Name.DiscordMdLink(mostRecentTrack.Artist.Url), inline: true)
                             .AddField("Track", mostRecentTrack.TrackName.DiscordMdLink(mostRecentTrack.TrackUrl), inline: true)
                             .WithFooter(text: string.Join(" | ", new[] {
                                 mostRecentTrack.IsNowPlaying ? "Now Playing" : "Most Recent Track",
                                 $"Total Scrobbles: {success.TotalScrobbles}"
-                            }), iconUrl: _options.CurrentValue.LastFmEmbedFooterIconUrl);
+                            }), iconUrl: _options.CurrentValue.LastFmEmbedFooterIconUrl)
+                            .Build()
+                        );
                     }
                     else
                     {
-                        embed
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                "This account does not have any scrobbles. 🔍",
-                                "Start listening to a song and scrobble it to Last.fm so it shows up here!"
-                            }));
+                        return new TaylorBotEmbedResult(
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                        );
                     }
-
-                    return new TaylorBotEmbedResult(embed.Build());
 
                 default: throw new NotImplementedException();
             }
@@ -147,9 +133,57 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             .Build());
         }
 
+        [Command("artists")]
+        [Summary("Gets the top artists listened to by a user over a period.")]
+        public async Task<RuntimeResult> ArtistsAsync(
+            [Summary("What period of time would you like the top artists for?")]
+            LastFmPeriod period = LastFmPeriod.SevenDay,
+            [Summary("What user would you like to see a the top artists for?")]
+            [Remainder]
+            IUserArgument<IUser>? user = null
+        )
+        {
+            var u = user == null ? Context.User : await user.GetTrackedUserAsync();
+
+            var lastFmUsername = await _lastFmUsernameRepository.GetLastFmUsernameAsync(u);
+
+            if (lastFmUsername == null)
+                return new TaylorBotEmbedResult(CreateLastFmNotSetEmbed(u));
+
+            var result = await _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period);
+
+            switch (result)
+            {
+                case LastFmErrorResult errorResult:
+                    return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
+
+                case TopArtistsResult success:
+                    if (success.TopArtists.Count > 0)
+                    {
+                        return new TaylorBotEmbedResult(
+                            CreateBaseLastFmEmbed(lastFmUsername, u)
+                                .WithColor(TaylorBotColors.SuccessColor)
+                                .WithTitle($"Top artists | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
+                                .WithDescription(string.Join('\n', success.TopArtists.Select((a, index) =>
+                                    $"{index + 1}. {a.Name.DiscordMdLink(a.ArtistUrl.ToString())} - {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
+                                )))
+                                .Build()
+                        );
+                    }
+                    else
+                    {
+                        return new TaylorBotEmbedResult(
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                        );
+                    }
+
+                default: throw new NotImplementedException();
+            }
+        }
+
         [Command("collage")]
         [Alias("c")]
-        [Summary("Generates a collage based on your Last.Fm listening habits. Collages are provided by a third-party and might have loading problems.")]
+        [Summary("Generates a collage based on a user's Last.Fm listening habits. Collages are provided by a third-party and might have loading problems.")]
         public async Task<RuntimeResult> CollageAsync(
             [Summary("What period of time would you like the collage for?")]
             LastFmPeriod period = LastFmPeriod.SevenDay,
@@ -168,15 +202,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             var lastFmUsername = await _lastFmUsernameRepository.GetLastFmUsernameAsync(u);
 
             if (lastFmUsername == null)
-            {
                 return new TaylorBotEmbedResult(CreateLastFmNotSetEmbed(u));
-            }
-
-            var urlPeriod = _lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period);
 
             var queryString = new[] {
                 $"user={lastFmUsername.Username}",
-                $"period={urlPeriod}",
+                $"period={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
                 $"rows={size.Parsed}",
                 $"cols={size.Parsed}",
                 "imageSize=400",
@@ -190,7 +220,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     iconUrl: u.GetAvatarUrlOrDefault(),
                     url: lastFmUsername.LinkToProfile
                 )
-                .WithTitle($"Last.fm {size.Parsed}x{size.Parsed} collage for period '{urlPeriod}'")
+                .WithTitle($"Collage {size.Parsed}x{size.Parsed} | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
                 .WithImageUrl($"https://lastfmtopalbums.dinduks.com/patchwork.php?{string.Join('&', queryString)}")
             .Build());
         }
@@ -206,6 +236,38 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     $"You can then set it up on TaylorBot with `{Context.CommandPrefix}lastfm set <username>`."
                 }))
             .Build();
+        }
+
+        private Embed CreateLastFmErrorEmbed(LastFmErrorResult error)
+        {
+            return new EmbedBuilder()
+                .WithUserAsAuthor(Context.User)
+                .WithColor(TaylorBotColors.ErrorColor)
+                .WithDescription(string.Join('\n', new[] {
+                    $"Last.fm returned an error. ({error.Error}) 😢",
+                    "The site might be down. Try again later!"
+                }))
+            .Build();
+        }
+
+        private static EmbedBuilder CreateBaseLastFmEmbed(LastFmUsername lastFmUsername, IUser user)
+        {
+            return new EmbedBuilder().WithAuthor(
+                name: lastFmUsername.Username,
+                iconUrl: user.GetAvatarUrlOrDefault(),
+                url: lastFmUsername.LinkToProfile
+            );
+        }
+
+        private static Embed CreateLastFmNoScrobbleErrorEmbed(LastFmUsername lastFmUsername, IUser user)
+        {
+            return CreateBaseLastFmEmbed(lastFmUsername, user)
+                .WithColor(TaylorBotColors.ErrorColor)
+                .WithDescription(string.Join('\n', new[] {
+                    "This account does not have any scrobbles. 🔍",
+                    "Start listening to a song and scrobble it to Last.fm so it shows up here!"
+                }))
+                .Build();
         }
     }
 }
