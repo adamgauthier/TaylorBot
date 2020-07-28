@@ -165,7 +165,55 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithTitle($"Top artists | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
                                 .WithDescription(string.Join('\n', success.TopArtists.Select((a, index) =>
-                                    $"{index + 1}. {a.Name.DiscordMdLink(a.ArtistUrl.ToString())} - {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
+                                    $"{index + 1}. {a.Name.DiscordMdLink(a.ArtistUrl.ToString())}: {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
+                                )))
+                                .Build()
+                        );
+                    }
+                    else
+                    {
+                        return new TaylorBotEmbedResult(
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                        );
+                    }
+
+                default: throw new NotImplementedException();
+            }
+        }
+
+        [Command("tracks")]
+        [Summary("Gets the top tracks listened to by a user over a period.")]
+        public async Task<RuntimeResult> TracksAsync(
+            [Summary("What period of time would you like the top tracks for?")]
+            LastFmPeriod period = LastFmPeriod.SevenDay,
+            [Summary("What user would you like to see a the top tracks for?")]
+            [Remainder]
+            IUserArgument<IUser>? user = null
+        )
+        {
+            var u = user == null ? Context.User : await user.GetTrackedUserAsync();
+
+            var lastFmUsername = await _lastFmUsernameRepository.GetLastFmUsernameAsync(u);
+
+            if (lastFmUsername == null)
+                return new TaylorBotEmbedResult(CreateLastFmNotSetEmbed(u));
+
+            var result = await _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period);
+
+            switch (result)
+            {
+                case LastFmErrorResult errorResult:
+                    return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
+
+                case TopTracksResult success:
+                    if (success.TopTracks.Count > 0)
+                    {
+                        return new TaylorBotEmbedResult(
+                            CreateBaseLastFmEmbed(lastFmUsername, u)
+                                .WithColor(TaylorBotColors.SuccessColor)
+                                .WithTitle($"Top tracks | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
+                                .WithDescription(string.Join('\n', success.TopTracks.Select((t, index) =>
+                                    $"{index + 1}. {t.ArtistName.DiscordMdLink(t.ArtistUrl.ToString())} - {t.Name.DiscordMdLink(t.TrackUrl.ToString())}: {"play".ToQuantity(t.PlayCount, TaylorBotFormats.BoldReadable)}"
                                 )))
                                 .Build()
                         );
@@ -244,7 +292,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .WithUserAsAuthor(Context.User)
                 .WithColor(TaylorBotColors.ErrorColor)
                 .WithDescription(string.Join('\n', new[] {
-                    $"Last.fm returned an error. ({error.Error}) 😢",
+                    $"Last.fm returned an error. {(error.Error != null ? $"({error.Error}) " : string.Empty)}😢",
                     "The site might be down. Try again later!"
                 }))
             .Build();

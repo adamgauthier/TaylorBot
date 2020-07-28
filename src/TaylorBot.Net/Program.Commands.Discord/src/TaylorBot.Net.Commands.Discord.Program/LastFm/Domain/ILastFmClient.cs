@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 {
-    public class LastFmErrorResult : IMostRecentScrobbleResult, ITopArtistsResultResult
+    public class LastFmErrorResult : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult
     {
-        public string Error { get; }
+        public string? Error { get; }
 
-        public LastFmErrorResult(string error)
+        public LastFmErrorResult(string? error)
         {
             Error = error;
         }
@@ -57,9 +57,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
         }
     }
 
-    public interface ITopArtistsResultResult { }
+    public interface ITopArtistsResult { }
 
-    public class TopArtistsResult : ITopArtistsResultResult
+    public class TopArtistsResult : ITopArtistsResult
     {
         public IReadOnlyList<TopArtist> TopArtists { get; }
 
@@ -93,9 +93,40 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
         Overall
     }
 
+    public interface ITopTracksResult { }
+
+    public class TopTracksResult : ITopTracksResult
+    {
+        public IReadOnlyList<TopTrack> TopTracks { get; }
+
+        public TopTracksResult(IReadOnlyList<TopTrack> topTracks)
+        {
+            TopTracks = topTracks;
+        }
+    }
+
+    public class TopTrack
+    {
+        public string Name { get; }
+        public Uri TrackUrl { get; }
+        public int PlayCount { get; }
+        public string ArtistName { get; }
+        public Uri ArtistUrl { get; }
+
+        public TopTrack(string name, Uri trackUrl, int playCount, string artistName, Uri artistUrl)
+        {
+            Name = name;
+            TrackUrl = trackUrl;
+            PlayCount = playCount;
+            ArtistName = artistName;
+            ArtistUrl = artistUrl;
+        }
+    }
+
     public interface ILastFmClient
     {
         ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername);
-        ValueTask<ITopArtistsResultResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period);
+        ValueTask<ITopArtistsResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period);
+        ValueTask<ITopTracksResult> GetTopTracksAsync(string lastFmUsername, LastFmPeriod period);
     }
 }

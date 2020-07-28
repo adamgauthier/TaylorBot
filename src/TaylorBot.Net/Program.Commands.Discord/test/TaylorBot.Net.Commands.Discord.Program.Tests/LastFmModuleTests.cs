@@ -115,9 +115,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var lastFmUsername = new LastFmUsername("taylorswift");
             var artist = new TopArtist(name: "Taylor Swift", artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift"), playCount: 15);
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-            A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(new[] {
-                artist
-            }));
+            A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(new[] { artist }));
 
             var result = (TaylorBotEmbedResult)await _lastFmModule.ArtistsAsync(period);
 
@@ -126,6 +124,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 .Should().Contain(artist.Name)
                 .And.Contain(artist.PlayCount.ToString())
                 .And.Contain(artist.ArtistUrl.ToString());
+        }
+
+        [Fact]
+        public async Task TracksAsync_ThenReturnsSuccessEmbedWithTrackInformation()
+        {
+            var period = LastFmPeriod.OneMonth;
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            var track = new TopTrack(
+                name: "All Too Well",
+                trackUrl: new Uri("https://www.last.fm/music/Taylor+Swift/_/All+Too+Well"),
+                playCount: 22,
+                artistName: "Taylor Swift",
+                artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
+            );
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(new[] { track }));
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.TracksAsync(period);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Description
+                .Should().Contain(track.Name)
+                .And.Contain(track.PlayCount.ToString())
+                .And.Contain(track.TrackUrl.ToString())
+                .And.Contain(track.ArtistName)
+                .And.Contain(track.ArtistUrl.ToString());
         }
 
         [Fact]

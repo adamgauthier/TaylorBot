@@ -1,19 +1,35 @@
 ﻿using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Api.Enums;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
+using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
+using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
 {
     public class InflatableLastFmClient : ILastFmClient
     {
-        private readonly LastfmClient _client;
+        private readonly HttpClient _httpClient = new HttpClient();
 
-        public InflatableLastFmClient(LastfmClient client)
+        private readonly ILogger<InflatableLastFmClient> _logger;
+        private readonly IOptionsMonitor<LastFmOptions> _options;
+        private readonly LastfmClient _client;
+        private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper;
+
+        public InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOptionsMonitor<LastFmOptions> options, LastfmClient client, LastFmPeriodStringMapper lastFmPeriodStringMapper)
         {
+            _logger = logger;
+            _options = options;
             _client = client;
+            _lastFmPeriodStringMapper = lastFmPeriodStringMapper;
         }
 
         public async ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername)
@@ -58,7 +74,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
             };
         }
 
-        public async ValueTask<ITopArtistsResultResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period)
+        public async ValueTask<ITopArtistsResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period)
         {
             var response = await _client.User.GetTopArtists(
                 username: lastFmUsername,
@@ -80,6 +96,50 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
             else
             {
                 return new LastFmErrorResult(response.Status.ToString());
+            }
+        }
+
+        public async ValueTask<ITopTracksResult> GetTopTracksAsync(string lastFmUsername, LastFmPeriod period)
+        {
+            var queryString = new[] {
+                "method=user.gettoptracks",
+                $"user={lastFmUsername}",
+                $"api_key={_options.CurrentValue.LastFmApiKey}",
+                $"period={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
+                "format=json",
+                "page=1",
+                "limit=10"
+            };
+
+
+            var response = await _httpClient.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}");
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+
+                var tracks = jsonDocument.RootElement.GetProperty("toptracks").GetProperty("track");
+
+                return new TopTracksResult(tracks.EnumerateArray().Select(t => new TopTrack(
+                    name: t.GetProperty("name").GetString(),
+                    trackUrl: new Uri(t.GetProperty("url").GetString()),
+                    playCount: int.Parse(t.GetProperty("playcount").GetString()),
+                    artistName: t.GetProperty("artist").GetProperty("name").GetString(),
+                    artistUrl: new Uri(t.GetProperty("artist").GetProperty("url").GetString())
+                )).ToList());
+            }
+            else
+            {
+                try
+                {
+                    var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                    var status = (LastResponseStatus)jsonDocument.RootElement.GetProperty("error").GetUInt16();
+                    return new LastFmErrorResult(status.ToString());
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, LogString.From($"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):"));
+                    return new LastFmErrorResult(null);
+                }
             }
         }
     }
