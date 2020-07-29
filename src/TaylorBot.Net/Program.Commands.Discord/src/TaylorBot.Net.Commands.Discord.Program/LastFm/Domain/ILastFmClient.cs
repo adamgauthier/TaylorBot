@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 {
-    public class LastFmErrorResult : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult
+    public class LastFmErrorResult : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult
     {
         public string? Error { get; }
 
@@ -123,10 +123,43 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
         }
     }
 
+    public interface ITopAlbumsResult { }
+
+    public class TopAlbumsResult : ITopAlbumsResult
+    {
+        public IReadOnlyList<TopAlbum> TopAlbums { get; }
+
+        public TopAlbumsResult(IReadOnlyList<TopAlbum> topAlbums)
+        {
+            TopAlbums = topAlbums;
+        }
+    }
+
+    public class TopAlbum
+    {
+        public string Name { get; }
+        public Uri AlbumUrl { get; }
+        public Uri? AlbumImageUrl { get; }
+        public int PlayCount { get; }
+        public string ArtistName { get; }
+        public Uri ArtistUrl { get; }
+
+        public TopAlbum(string name, Uri albumUrl, Uri? albumImageUrl, int playCount, string artistName, Uri artistUrl)
+        {
+            Name = name;
+            AlbumUrl = albumUrl;
+            AlbumImageUrl = albumImageUrl;
+            PlayCount = playCount;
+            ArtistName = artistName;
+            ArtistUrl = artistUrl;
+        }
+    }
+
     public interface ILastFmClient
     {
         ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername);
         ValueTask<ITopArtistsResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period);
         ValueTask<ITopTracksResult> GetTopTracksAsync(string lastFmUsername, LastFmPeriod period);
+        ValueTask<ITopAlbumsResult> GetTopAlbumsAsync(string lastFmUsername, LastFmPeriod period);
     }
 }

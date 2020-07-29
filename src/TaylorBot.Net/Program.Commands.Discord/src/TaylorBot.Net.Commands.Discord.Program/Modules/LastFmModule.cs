@@ -229,6 +229,57 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             }
         }
 
+        [Command("albums")]
+        [Summary("Gets the top albums listened to by a user over a period.")]
+        public async Task<RuntimeResult> AlbumsAsync(
+            [Summary("What period of time would you like the top albums for?")]
+            LastFmPeriod period = LastFmPeriod.SevenDay,
+            [Summary("What user would you like to see a the top albums for?")]
+            [Remainder]
+            IUserArgument<IUser>? user = null
+        )
+        {
+            var u = user == null ? Context.User : await user.GetTrackedUserAsync();
+
+            var lastFmUsername = await _lastFmUsernameRepository.GetLastFmUsernameAsync(u);
+
+            if (lastFmUsername == null)
+                return new TaylorBotEmbedResult(CreateLastFmNotSetEmbed(u));
+
+            var result = await _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period);
+
+            switch (result)
+            {
+                case LastFmErrorResult errorResult:
+                    return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
+
+                case TopAlbumsResult success:
+                    if (success.TopAlbums.Count > 0)
+                    {
+                        var embed = CreateBaseLastFmEmbed(lastFmUsername, u)
+                            .WithColor(TaylorBotColors.SuccessColor)
+                            .WithTitle($"Top albums | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
+                            .WithDescription(string.Join('\n', success.TopAlbums.Select((a, index) =>
+                                $"{index + 1}. {a.ArtistName.DiscordMdLink(a.ArtistUrl.ToString())} - {a.Name.DiscordMdLink(a.AlbumUrl.ToString())}: {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
+                            )));
+
+                        var firstImageUrl = success.TopAlbums.Select(a => a.AlbumImageUrl).FirstOrDefault(url => url != null);
+                        if (firstImageUrl != null)
+                            embed.WithThumbnailUrl(firstImageUrl.ToString());
+
+                        return new TaylorBotEmbedResult(embed.Build());
+                    }
+                    else
+                    {
+                        return new TaylorBotEmbedResult(
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                        );
+                    }
+
+                default: throw new NotImplementedException();
+            }
+        }
+
         [Command("collage")]
         [Alias("c")]
         [Summary("Generates a collage based on a user's Last.Fm listening habits. Collages are provided by a third-party and might have loading problems.")]

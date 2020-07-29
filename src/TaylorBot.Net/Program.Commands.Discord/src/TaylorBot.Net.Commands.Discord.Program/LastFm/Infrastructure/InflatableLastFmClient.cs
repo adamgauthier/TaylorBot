@@ -111,8 +111,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 "limit=10"
             };
 
-
             var response = await _httpClient.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}");
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
@@ -126,6 +126,58 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                     artistName: t.GetProperty("artist").GetProperty("name").GetString(),
                     artistUrl: new Uri(t.GetProperty("artist").GetProperty("url").GetString())
                 )).ToList());
+            }
+            else
+            {
+                try
+                {
+                    var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                    var status = (LastResponseStatus)jsonDocument.RootElement.GetProperty("error").GetUInt16();
+                    return new LastFmErrorResult(status.ToString());
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, LogString.From($"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):"));
+                    return new LastFmErrorResult(null);
+                }
+            }
+        }
+
+        public async ValueTask<ITopAlbumsResult> GetTopAlbumsAsync(string lastFmUsername, LastFmPeriod period)
+        {
+            var queryString = new[] {
+                "method=user.gettopalbums",
+                $"user={lastFmUsername}",
+                $"api_key={_options.CurrentValue.LastFmApiKey}",
+                $"period={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
+                "format=json",
+                "page=1",
+                "limit=10"
+            };
+
+            var response = await _httpClient.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}");
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+
+                var albums = jsonDocument.RootElement.GetProperty("topalbums").GetProperty("album");
+
+                return new TopAlbumsResult(albums.EnumerateArray().Select(a =>
+                {
+                    var images = a.GetProperty("image").EnumerateArray().ToList();
+
+                    return new TopAlbum(
+                        name: a.GetProperty("name").GetString(),
+                        albumUrl: new Uri(a.GetProperty("url").GetString()),
+                        albumImageUrl: images.Any(i => i.GetProperty("size").GetString() == "large" && !string.IsNullOrEmpty(i.GetProperty("#text").GetString())) ?
+                            new Uri(images.First(i => i.GetProperty("size").GetString() == "large").GetProperty("#text").GetString()) :
+                            null,
+                        playCount: int.Parse(a.GetProperty("playcount").GetString()),
+                        artistName: a.GetProperty("artist").GetProperty("name").GetString(),
+                        artistUrl: new Uri(a.GetProperty("artist").GetProperty("url").GetString())
+                    );
+                }).ToList());
             }
             else
             {

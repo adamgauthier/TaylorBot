@@ -153,6 +153,35 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         }
 
         [Fact]
+        public async Task AlbumsAsync_ThenReturnsSuccessEmbedWithAlbumInformation()
+        {
+            var period = LastFmPeriod.OneMonth;
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            var albumImageUrl = "https://lastfm.freetls.fastly.net/i/u/174s/8a89bf00eff0d1912f33164d3a15071f.png";
+            var album = new TopAlbum(
+                name: "Lover",
+                albumUrl: new Uri("https://www.last.fm/music/Taylor+Swift/Lover"),
+                albumImageUrl: new Uri(albumImageUrl),
+                playCount: 13,
+                artistName: "Taylor Swift",
+                artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
+            );
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(new[] { album }));
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.AlbumsAsync(period);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Thumbnail!.Value.Url.Should().Be(albumImageUrl);
+            result.Embed.Description
+                .Should().Contain(album.Name)
+                .And.Contain(album.AlbumUrl.ToString())
+                .And.Contain(album.PlayCount.ToString())
+                .And.Contain(album.ArtistName)
+                .And.Contain(album.ArtistUrl.ToString());
+        }
+
+        [Fact]
         public async Task CollageAsync_WhenUsernameNotSet_ThenReturnsErrorEmbed()
         {
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
