@@ -51,6 +51,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
                     return Task.FromResult(TypeReaderResult.FromSuccess(
                         LastFmPeriod.SevenDay
                     ));
+                case "1m":
+                case "1month":
+                case "1months":
+                case "30day":
+                case "30days":
+                    return Task.FromResult(TypeReaderResult.FromSuccess(
+                        LastFmPeriod.OneMonth
+                    ));
                 case "3m":
                 case "3month":
                 case "3months":
@@ -79,7 +87,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
                 default:
                     return Task.FromResult(TypeReaderResult.FromError(
                         CommandError.ParseFailed,
-                        $"Could not parse '{input}' into a valid Last.fm period. Use one of these: {string.Join(',', new[] { "7day", "3month", "6month", "12month", "overall" }.Select(p => $"`{p}`"))}."
+                        $"Could not parse '{input}' into a valid Last.fm period. Use one of these: {string.Join(',', new[] { "7day", "1month", "3month", "6month", "12month", "overall" }.Select(p => $"`{p}`"))}."
                     ));
             }
         }
