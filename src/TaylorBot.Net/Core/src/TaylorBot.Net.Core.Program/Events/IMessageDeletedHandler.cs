@@ -6,6 +6,6 @@ namespace TaylorBot.Net.Core.Program.Events
 {
     public interface IMessageDeletedHandler
     {
-        Task UserMessageDeletedAsync(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel);
+        ValueTask MessageDeletedAsync(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel);
     }
 }

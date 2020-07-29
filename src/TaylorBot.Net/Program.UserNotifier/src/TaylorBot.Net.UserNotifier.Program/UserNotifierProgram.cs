@@ -66,6 +66,7 @@ namespace TaylorBot.Net.UserNotifier.Program
                         .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
                         .AddTransient<IGuildUserUnbannedHandler, GuildUserBanHandler>()
                         .AddTransient<IMessageDeletedHandler, MessageDeletedHandler>()
+                        .AddTransient<IMessageBulkDeletedHandler, MessageBulkDeletedHandler>()
                         .AddTransient<SingletonTaskRunner>()
                         .AddTransient<IBirthdayRepository, BirthdayRepository>()
                         .AddTransient<BirthdayRewardNotifierDomainService>()

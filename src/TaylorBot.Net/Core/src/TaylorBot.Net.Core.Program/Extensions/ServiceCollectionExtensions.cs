@@ -24,7 +24,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
 
-                    var config = new DiscordSocketConfig { TotalShards = (int)options.ShardCount };
+                    var config = new DiscordSocketConfig { TotalShards = (int)options.ShardCount, ExclusiveBulkDelete = options.ExclusiveBulkDelete };
 
                     if (options.MessageCacheSize.HasValue)
                     {
