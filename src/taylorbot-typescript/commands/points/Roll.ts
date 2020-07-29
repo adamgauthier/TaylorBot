@@ -1,9 +1,8 @@
-'use strict';
-
-const Command = require('../Command.js');
-const DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-const StringUtil = require('../../modules/StringUtil.js');
-const RandomModule = require('../../modules/random/RandomModule.js');
+import Command = require('../Command.js');
+import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import StringUtil = require('../../modules/StringUtil.js');
+import RandomModule = require('../../modules/random/RandomModule.js');
+import { CommandMessageContext } from '../CommandMessageContext';
 
 class RollCommand extends Command {
     constructor() {
@@ -18,25 +17,26 @@ class RollCommand extends Command {
         });
     }
 
-    async run({ message, client }) {
+    async run({ message, client }: CommandMessageContext): Promise<void> {
         const { author, channel } = message;
         const { database } = client.master;
 
         const roll = await RandomModule.getRandIntInclusive(0, 1989);
 
-        const { color, reward } = await (async () => {
-            const rewards = { 13: 100, 15: 100, 22: 100, 420: 100, 1989: 5000 };
+        const { color, reward } = await (async (): Promise<{ color: string; reward: number }> => {
             switch (roll) {
+                case 1:
+                case 7:
                 case 13:
                 case 15:
                 case 22:
                 case 420: {
-                    const reward = rewards[roll];
+                    const reward = 100;
                     await database.rollStats.winRoll(author, reward);
                     return { color: '#43b581', reward };
                 }
                 case 1989: {
-                    const reward = rewards[roll];
+                    const reward = 5000;
                     await database.rollStats.winPerfectRoll(author, reward);
                     return { color: '#00c3ff', reward };
                 }
@@ -49,7 +49,7 @@ class RollCommand extends Command {
         const numberEmoji = ['0⃣', '1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣'];
         const paddedRoll = roll.toString().padStart(4, '0');
 
-        return client.sendEmbed(channel, DiscordEmbedFormatter
+        await client.sendEmbed(channel, DiscordEmbedFormatter
             .baseUserHeader(author)
             .setColor(color)
             .setTitle('Rolling the Taylor Machine 🎲')
@@ -61,4 +61,4 @@ class RollCommand extends Command {
     }
 }
 
-module.exports = RollCommand;
+export = RollCommand;
