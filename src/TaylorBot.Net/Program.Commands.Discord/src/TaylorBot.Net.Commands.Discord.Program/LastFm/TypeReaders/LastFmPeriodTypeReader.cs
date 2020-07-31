@@ -48,6 +48,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
                 case "7d":
                 case "7day":
                 case "7days":
+                case "1week":
+                case "week":
                     return Task.FromResult(TypeReaderResult.FromSuccess(
                         LastFmPeriod.SevenDay
                     ));
@@ -62,12 +64,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
                 case "3m":
                 case "3month":
                 case "3months":
+                case "90day":
+                case "90days":
                     return Task.FromResult(TypeReaderResult.FromSuccess(
                         LastFmPeriod.ThreeMonth
                     ));
                 case "6m":
                 case "6month":
                 case "6months":
+                case "180day":
+                case "180days":
                     return Task.FromResult(TypeReaderResult.FromSuccess(
                         LastFmPeriod.SixMonth
                     ));
@@ -76,11 +82,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders
                 case "12months":
                 case "1y":
                 case "1year":
+                case "365day":
+                case "365days":
                     return Task.FromResult(TypeReaderResult.FromSuccess(
                         LastFmPeriod.TwelveMonth
                     ));
                 case "overall":
                 case "all":
+                case "alltime":
                     return Task.FromResult(TypeReaderResult.FromSuccess(
                         LastFmPeriod.Overall
                     ));
