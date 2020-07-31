@@ -9,7 +9,7 @@ class RollCommand extends Command {
         super({
             name: 'roll',
             group: 'Points 💰',
-            description: 'Rolls a number between 0 and 1989. Rolling 13, 15, 22 or 1989 will yield a reward.',
+            description: 'Rolls a number between 0 and 1989. Rolling 1, 7, 13, 15, 22 or 1989 will yield a reward.',
             examples: [''],
             maxDailyUseCount: 1989,
 
