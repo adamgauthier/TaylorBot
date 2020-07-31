@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Modules
@@ -47,6 +48,7 @@ namespace TaylorBot.Net.Commands.Modules
                 return new TaylorBotEmptyResult();
 
             var builder = new EmbedBuilder()
+                .WithColor(TaylorBotColors.SuccessColor)
                 .WithUserAsAuthor(Context.User);
 
             if (module.Name != ModuleNames.Help)
