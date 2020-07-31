@@ -127,7 +127,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             var cachedEmbeds = deletedCached.Select(cachedMessage =>
                 CreateBaseMessageDeleted(cachedMessage, channel)
                     .WithColor(embedColor)
-                    .WithFooter($"1/{footerText}")
+                    .WithFooter($"Message deleted ({cachedMessage.Id}) - {footerText}")
                     .WithTimestamp(eventTime)
                     .Build()
             );
