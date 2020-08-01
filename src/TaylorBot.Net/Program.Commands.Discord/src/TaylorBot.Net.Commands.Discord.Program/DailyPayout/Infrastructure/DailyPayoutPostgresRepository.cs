@@ -64,6 +64,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
             var options = _options.CurrentValue;
 
             using var connection = _postgresConnectionFactory.CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
 
             var redeem = await connection.QuerySingleAsync<RedeemDto>(
                 @"INSERT INTO users.daily_payouts (user_id)
@@ -107,6 +109,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
                         UserId = user.Id.ToString()
                     }
                 );
+                transaction.Commit();
 
                 return new RedeemResult(
                     payoutAmount: options.DailyPayoutAmount,
@@ -118,6 +121,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
             }
             else
             {
+                transaction.Commit();
                 return null;
             }
         }
