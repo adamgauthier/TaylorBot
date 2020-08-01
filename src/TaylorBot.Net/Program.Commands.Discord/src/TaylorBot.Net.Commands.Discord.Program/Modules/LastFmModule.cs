@@ -90,7 +90,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     else
                     {
                         return new TaylorBotEmbedResult(
-                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u, LastFmPeriod.Overall)
                         );
                     }
 
@@ -173,7 +173,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     else
                     {
                         return new TaylorBotEmbedResult(
-                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u, period)
                         );
                     }
 
@@ -221,7 +221,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     else
                     {
                         return new TaylorBotEmbedResult(
-                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u, period)
                         );
                     }
 
@@ -272,7 +272,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     else
                     {
                         return new TaylorBotEmbedResult(
-                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u)
+                            CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u, period)
                         );
                     }
 
@@ -358,12 +358,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             );
         }
 
-        private static Embed CreateLastFmNoScrobbleErrorEmbed(LastFmUsername lastFmUsername, IUser user)
+        private Embed CreateLastFmNoScrobbleErrorEmbed(LastFmUsername lastFmUsername, IUser user, LastFmPeriod period)
         {
             return CreateBaseLastFmEmbed(lastFmUsername, user)
                 .WithColor(TaylorBotColors.ErrorColor)
                 .WithDescription(string.Join('\n', new[] {
-                    "This account does not have any scrobbles. 🔍",
+                    $"This account does not have any scrobbles for period '{_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}'. 🔍",
                     "Start listening to a song and scrobble it to Last.fm so it shows up here!"
                 }))
                 .Build();
