@@ -16,6 +16,8 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.ServerStats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Services;
+using TaylorBot.Net.Commands.Discord.Program.TaypointReward.Domain;
+using TaylorBot.Net.Commands.Discord.Program.TaypointReward.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Extensions;
@@ -81,7 +83,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTransient<LastFmCollageSize.Factory>()
                         .AddTransient<ITaylorBotTypeReader, LastFmCollageSizeTypeReader>()
                         .AddTransient<ITaylorBotTypeReader, LastFmUsernameTypeReader>()
-                        .AddTransient<ITaylorBotTypeReader, LastFmPeriodTypeReader>();
+                        .AddTransient<ITaylorBotTypeReader, LastFmPeriodTypeReader>()
+                        .AddTransient<ITaypointRewardRepository, TaypointRewardPostgresRepository>();
                 })
                 .Build();
 

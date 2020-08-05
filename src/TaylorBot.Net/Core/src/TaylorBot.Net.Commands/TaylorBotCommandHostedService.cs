@@ -3,6 +3,7 @@ using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,6 +43,7 @@ namespace TaylorBot.Net.Commands
             commandService.AddTypeReader<IMentionedUser<IUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IUser>>());
             commandService.AddTypeReader<IMentionedUser<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IGuildUser>>());
             commandService.AddTypeReader<IMentionedUserNotAuthor<IUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IUser>>());
+            commandService.AddTypeReader<IReadOnlyCollection<IMentionedUserNotAuthor<IUser>>>(_serviceProvider.GetRequiredService<MentionedUsersNotAuthorTypeReader<IUser>>());
             commandService.AddTypeReader<IMentionedUserNotAuthor<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
             commandService.AddTypeReader<IMentionedUserNotAuthorOrClient<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorOrClientTypeReader<IGuildUser>>());
             commandService.AddTypeReader<RoleArgument<IRole>>(_serviceProvider.GetRequiredService<CustomRoleTypeReader<IRole>>());

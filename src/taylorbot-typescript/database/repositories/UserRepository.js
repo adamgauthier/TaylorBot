@@ -94,16 +94,6 @@ class UserRepository {
         }
     }
 
-    async addTaypointCount(usersTo, count) {
-        try {
-            return await this._usersDAO.addTaypointCount(this._db, usersTo, count);
-        }
-        catch (e) {
-            Log.error(`Adding ${count} taypoint count to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
-            throw e;
-        }
-    }
-
     async insertOrGetUserIgnoreUntil(user) {
         const databaseUser = this.mapUserToDatabase(user);
         try {

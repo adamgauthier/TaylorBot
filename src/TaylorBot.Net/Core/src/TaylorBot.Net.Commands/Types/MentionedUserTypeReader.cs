@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Types
             }
             else
             {
-                return TypeReaderResult.FromError(CommandError.ParseFailed, $"You must mention the user directly with @.");
+                return TypeReaderResult.FromError(CommandError.ParseFailed, $"You must mention the user directly with @. ('{input}')");
             }
         }
     }
