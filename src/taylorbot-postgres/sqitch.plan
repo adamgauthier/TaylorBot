@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=taylorbot-postgres
+%uri=https://github.com/louistio/TaylorBot
+
+base_schema 2020-08-09T07:22:28Z Adam Gauthier <adamgauthier12@gmail.com> # Add base schema from TaylorBot 1.7.0.

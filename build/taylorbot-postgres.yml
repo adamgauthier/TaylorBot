@@ -1,0 +1,71 @@
+trigger:
+  - master
+  
+resources:
+- repo: self
+
+variables:
+  sqitchSourceFolderPath: '$(Build.SourcesDirectory)/src/taylorbot-postgres'
+  sqitchBundleOutputFolderName: taylorbot-sqitch-bundle
+  bundleArchiveFilePath: '$(Build.ArtifactStagingDirectory)/taylorbot-sqitch-bundle.tgz'
+
+stages:
+- stage: build
+  displayName: 'Bundle sqitch project'
+  jobs:  
+  - job: build
+    displayName: 'Bundle, test and archive sqitch project'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        # Necessary so files can be created in the mount
+        user=${USER-$(whoami)}
+        docker container run \
+          --user $(id -u ${user}):$(id -g ${user}) \
+          --rm \
+          --mount type=bind,source=$(sqitchSourceFolderPath),target=/repo \
+          sqitch/sqitch:latest \
+          bundle --dest-dir $(sqitchBundleOutputFolderName)
+      displayName: 'Bundle sqitch project'
+
+    - script: |
+        network_name=taylorbot-sqitch-test-network
+        container_name=taylorbot-sqitch-test-postgres
+        
+        docker network create ${network_name}
+        
+        docker container run \
+          --detach \
+          --name ${container_name} \
+          --network ${network_name} \
+          --env POSTGRES_PASSWORD=toor \
+          postgres:latest
+        
+        sleep 10s
+        
+        db_name=sqitch-test-database
+        role_name=taylorswift
+        role_password=welcometonewyork1989
+        
+        docker exec --interactive ${container_name} \
+          psql --username=postgres --command="CREATE ROLE ${role_name} WITH LOGIN PASSWORD '${role_password}';"
+        docker exec --interactive ${container_name} \
+          createdb --username=postgres --owner=${role_name} ${db_name}
+        docker exec --interactive ${container_name} \
+          psql --username=postgres --dbname=${db_name} --command="CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;"
+        
+        docker container run \
+          --rm \
+          --network ${network_name} \
+          --mount type=bind,source=$(sqitchSourceFolderPath)/$(sqitchBundleOutputFolderName),dst=/repo \
+          sqitch/sqitch:latest \
+          deploy db:pg://${role_name}:${role_password}@${container_name}/${db_name}
+      displayName: 'Test sqitch bundle on new database'
+
+    - script: tar -czf $(bundleArchiveFilePath) --directory $(sqitchSourceFolderPath)/$(sqitchBundleOutputFolderName) .
+      displayName: 'Create bundle archive'
+
+    - publish: $(bundleArchiveFilePath)
+      artifact: 'TaylorBot Sqitch Bundle'
+      displayName: 'Publish sqitch bundle archive'
