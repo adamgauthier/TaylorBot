@@ -3,6 +3,7 @@ using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
@@ -127,6 +128,28 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         }
 
         [Fact]
+        public async Task ArtistsAsync_WhenLongArtistNames_ThenReturnsSuccessEmbedWithArtistInformation()
+        {
+            var period = LastFmPeriod.SixMonth;
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            var artist = new TopArtist(
+                name: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
+                artistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22"),
+                playCount: 15
+            );
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(Enumerable.Repeat(artist, 10).ToList()));
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.ArtistsAsync(period);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Description
+                .Should().Contain(artist.Name)
+                .And.Contain(artist.PlayCount.ToString())
+                .And.Contain(artist.ArtistUrl.ToString());
+        }
+
+        [Fact]
         public async Task TracksAsync_ThenReturnsSuccessEmbedWithTrackInformation()
         {
             var period = LastFmPeriod.OneMonth;
@@ -140,6 +163,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(new[] { track }));
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.TracksAsync(period);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Description
+                .Should().Contain(track.Name)
+                .And.Contain(track.PlayCount.ToString())
+                .And.Contain(track.TrackUrl.ToString())
+                .And.Contain(track.ArtistName)
+                .And.Contain(track.ArtistUrl.ToString());
+        }
+
+        [Fact]
+        public async Task TracksAsync_WhenLongArtistNames_ThenReturnsSuccessEmbedWithTrackInformation()
+        {
+            var period = LastFmPeriod.OneMonth;
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            var track = new TopTrack(
+                name: "Ten Duel Commandments",
+                trackUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22/_/Ten+Duel+Commandments"),
+                playCount: 22,
+                artistName: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
+                artistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22")
+            );
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(Enumerable.Repeat(track, 10).ToList()));
 
             var result = (TaylorBotEmbedResult)await _lastFmModule.TracksAsync(period);
 
@@ -168,6 +217,35 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(new[] { album }));
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.AlbumsAsync(period);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Thumbnail!.Value.Url.Should().Be(albumImageUrl);
+            result.Embed.Description
+                .Should().Contain(album.Name)
+                .And.Contain(album.AlbumUrl.ToString())
+                .And.Contain(album.PlayCount.ToString())
+                .And.Contain(album.ArtistName)
+                .And.Contain(album.ArtistUrl.ToString());
+        }
+
+        [Fact]
+        public async Task AlbumsAsync_WhenLongAlbumNames_ThenReturnsSuccessEmbedWithAlbumInformation()
+        {
+            var period = LastFmPeriod.OneMonth;
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            var albumImageUrl = "https://lastfm.freetls.fastly.net/i/u/770x0/432041b069019cbebbf6328cd2703c3d.webp#432041b069019cbebbf6328cd2703c3d";
+            var album = new TopAlbum(
+                name: "Hamilton: An American Musical (Original Broadway Cast Recording)",
+                albumUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22/Hamilton:+An+American+Musical+(Original+Broadway+Cast+Recording%29"),
+                albumImageUrl: new Uri(albumImageUrl),
+                playCount: 13,
+                artistName: "Original Broadway Cast of \"Hamilton\"",
+                artistUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22")
+            );
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(Enumerable.Repeat(album, 10).ToList()));
 
             var result = (TaylorBotEmbedResult)await _lastFmModule.AlbumsAsync(period);
 

@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CC64CF1B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.InstagramNotifier.Domain.Tests", "Program.PostNotifier\test\TaylorBot.Net.InstagramNotifier.Domain.Tests\TaylorBot.Net.InstagramNotifier.Domain.Tests.csproj", "{EE4027B3-2510-4E12-A34B-1780EAEA94DE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.Core.Tests", "Core\test\TaylorBot.Net.Core.Tests\TaylorBot.Net.Core.Tests.csproj", "{E41A8A65-E198-4AAB-B961-D0D1AD72D2DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,12 +97,17 @@ Global
 		{EE4027B3-2510-4E12-A34B-1780EAEA94DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE4027B3-2510-4E12-A34B-1780EAEA94DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE4027B3-2510-4E12-A34B-1780EAEA94DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E41A8A65-E198-4AAB-B961-D0D1AD72D2DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E41A8A65-E198-4AAB-B961-D0D1AD72D2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E41A8A65-E198-4AAB-B961-D0D1AD72D2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E41A8A65-E198-4AAB-B961-D0D1AD72D2DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EE4027B3-2510-4E12-A34B-1780EAEA94DE} = {CC64CF1B-0B8A-4807-B9FC-E62728483889}
+		{E41A8A65-E198-4AAB-B961-D0D1AD72D2DA} = {CC64CF1B-0B8A-4807-B9FC-E62728483889}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8485ED94-528D-434A-A088-9B23D83EF050}

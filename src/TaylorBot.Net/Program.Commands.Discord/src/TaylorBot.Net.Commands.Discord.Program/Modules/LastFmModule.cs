@@ -160,13 +160,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 case TopArtistsResult success:
                     if (success.TopArtists.Count > 0)
                     {
+                        var formattedArtists = success.TopArtists.Select((a, index) =>
+                            $"{index + 1}. {a.Name.DiscordMdLink(a.ArtistUrl.ToString())}: {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
+                        );
+
                         return new TaylorBotEmbedResult(
                             CreateBaseLastFmEmbed(lastFmUsername, u)
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithTitle($"Top artists | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
-                                .WithDescription(string.Join('\n', success.TopArtists.Select((a, index) =>
-                                    $"{index + 1}. {a.Name.DiscordMdLink(a.ArtistUrl.ToString())}: {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
-                                )))
+                                .WithDescription(formattedArtists.CreateEmbedDescriptionWithMaxAmountOfLines())
                                 .Build()
                         );
                     }
@@ -208,13 +210,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 case TopTracksResult success:
                     if (success.TopTracks.Count > 0)
                     {
+                        var formattedTracks = success.TopTracks.Select((t, index) =>
+                            $"{index + 1}. {t.ArtistName.DiscordMdLink(t.ArtistUrl.ToString())} - {t.Name.DiscordMdLink(t.TrackUrl.ToString())}: {"play".ToQuantity(t.PlayCount, TaylorBotFormats.BoldReadable)}"
+                        );
+
                         return new TaylorBotEmbedResult(
                             CreateBaseLastFmEmbed(lastFmUsername, u)
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithTitle($"Top tracks | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
-                                .WithDescription(string.Join('\n', success.TopTracks.Select((t, index) =>
-                                    $"{index + 1}. {t.ArtistName.DiscordMdLink(t.ArtistUrl.ToString())} - {t.Name.DiscordMdLink(t.TrackUrl.ToString())}: {"play".ToQuantity(t.PlayCount, TaylorBotFormats.BoldReadable)}"
-                                )))
+                                .WithDescription(formattedTracks.CreateEmbedDescriptionWithMaxAmountOfLines())
                                 .Build()
                         );
                     }
@@ -256,12 +260,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 case TopAlbumsResult success:
                     if (success.TopAlbums.Count > 0)
                     {
+                        var formattedAlbums = success.TopAlbums.Select((a, index) =>
+                            $"{index + 1}. {a.ArtistName.DiscordMdLink(a.ArtistUrl.ToString())} - {a.Name.DiscordMdLink(a.AlbumUrl.ToString())}: {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
+                        );
+
                         var embed = CreateBaseLastFmEmbed(lastFmUsername, u)
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithTitle($"Top albums | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
-                            .WithDescription(string.Join('\n', success.TopAlbums.Select((a, index) =>
-                                $"{index + 1}. {a.ArtistName.DiscordMdLink(a.ArtistUrl.ToString())} - {a.Name.DiscordMdLink(a.AlbumUrl.ToString())}: {"play".ToQuantity(a.PlayCount, TaylorBotFormats.BoldReadable)}"
-                            )));
+                            .WithDescription(formattedAlbums.CreateEmbedDescriptionWithMaxAmountOfLines());
 
                         var firstImageUrl = success.TopAlbums.Select(a => a.AlbumImageUrl).FirstOrDefault(url => url != null);
                         if (firstImageUrl != null)
