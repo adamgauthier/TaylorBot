@@ -6,12 +6,12 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
 {
-    public class Will
+    public class WillOwner
     {
         public SnowflakeId OwnerUserId { get; }
         public DateTimeOffset OwnerLatestSpokeAt { get; }
 
-        public Will(SnowflakeId ownerUserId, DateTimeOffset ownerLatestSpokeAt)
+        public WillOwner(SnowflakeId ownerUserId, DateTimeOffset ownerLatestSpokeAt)
         {
             OwnerUserId = ownerUserId;
             OwnerLatestSpokeAt = ownerLatestSpokeAt;
@@ -60,11 +60,22 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
 
     public class WillNotRemovedResult : IWillRemoveResult { }
 
+    public class Will
+    {
+        public SnowflakeId BeneficiaryUserId { get; }
+
+        public Will(SnowflakeId beneficiaryUserId)
+        {
+            BeneficiaryUserId = beneficiaryUserId;
+        }
+    }
+
     public interface ITaypointWillRepository
     {
+        ValueTask<Will?> GetWillAsync(IUser owner);
         ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary);
         ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner);
-        ValueTask<IReadOnlyCollection<Will>> GetWillsWithBeneficiaryAsync(IUser beneficiary);
+        ValueTask<IReadOnlyCollection<WillOwner>> GetWillsWithBeneficiaryAsync(IUser beneficiary);
         ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser);
         ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary);
     }

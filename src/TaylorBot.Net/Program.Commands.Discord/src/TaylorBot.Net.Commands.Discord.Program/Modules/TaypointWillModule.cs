@@ -29,6 +29,47 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             _taypointWillRepository = taypointWillRepository;
         }
 
+        [Priority(-1)]
+        [Command]
+        [Summary("Displays a user's taypoint will.")]
+        public async Task<RuntimeResult> GetAsync(
+            [Summary("What user would you like to see the taypoint will of?")]
+            [Remainder]
+            IUserArgument<IUser>? user = null
+        )
+        {
+            var u = user == null ? Context.User : await user.GetTrackedUserAsync();
+
+            var will = await _taypointWillRepository.GetWillAsync(owner: u);
+
+            var embed = new EmbedBuilder()
+                .WithUserAsAuthor(u);
+
+            if (will != null)
+            {
+                var days = _options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
+                var beneficiary = MentionUtils.MentionUser(will.BeneficiaryUserId.Id);
+                embed
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithDescription(string.Join('\n', new[] {
+                        $"{u.Username}'s taypoint will has a beneficiary: {beneficiary}.",
+                        $"If they are inactive for {"day".ToQuantity(days)} in all servers I'm in, {beneficiary} can claim all their taypoints with `{Context.CommandPrefix}taypointwill claim`.",
+                        $"Use `{Context.CommandPrefix}taypointwill clear` to remove your beneficiary."
+                    }));
+            }
+            else
+            {
+                embed
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithDescription(string.Join('\n', new[] {
+                        $"{u.Username}'s taypoint will has no beneficiary. If they ever become inactive, their taypoints won't be used!",
+                        $"Add a beneficiary to your taypoint will with `{Context.CommandPrefix}taypointwill add`!"
+                    }));
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
+        }
+
         [Command("add")]
         [Summary("Adds a user as beneficiary to your taypoint will.")]
         public async Task<RuntimeResult> AddAsync(

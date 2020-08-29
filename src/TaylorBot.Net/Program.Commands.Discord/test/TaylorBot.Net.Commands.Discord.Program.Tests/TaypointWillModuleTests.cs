@@ -28,12 +28,43 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
             _taypointWillModule = new TaypointWillModule(_options, _taypointWillRepository);
             _taypointWillModule.SetContext(_commandContext);
+            A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
+        }
+
+        [Fact]
+        public async Task GetAsync_WhenWillDoesntExist_ThenReturnsEmbedWithNoBeneficiary()
+        {
+            var user = A.Fake<IUser>();
+            A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(null);
+            var userArgument = A.Fake<IUserArgument<IUser>>();
+            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
+
+            var result = (TaylorBotEmbedResult)await _taypointWillModule.GetAsync(userArgument);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Description.Should().Contain("no beneficiary");
+        }
+
+        [Fact]
+        public async Task GetAsync_WhenWillExists_ThenReturnsEmbedWithBeneficiaryMention()
+        {
+            const uint InactiveDaysForClaim = 20;
+            A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
+            var beneficiaryId = new SnowflakeId("1");
+            var user = A.Fake<IUser>();
+            A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(new Will(beneficiaryId));
+            var userArgument = A.Fake<IUserArgument<IUser>>();
+            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
+
+            var result = (TaylorBotEmbedResult)await _taypointWillModule.GetAsync(userArgument);
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+            result.Embed.Description.Should().Contain(MentionUtils.MentionUser(beneficiaryId.Id));
         }
 
         [Fact]
         public async Task AddAsync_WhenWillNotAdded_ThenReturnsErrorEmbed()
         {
-            A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
             var user = A.Fake<IUser>();
             A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillNotAddedResult(new SnowflakeId("1")));
             var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
@@ -47,7 +78,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [Fact]
         public async Task AddAsync_WhenWillAdded_ThenReturnsSuccessEmbed()
         {
-            A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
             A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = 10 });
             var user = A.Fake<IUser>();
             A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillAddedResult());
@@ -62,7 +92,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [Fact]
         public async Task ClearAsync_WhenWillNotRemoved_ThenReturnsErrorEmbed()
         {
-            A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
             A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillNotRemovedResult());
 
             var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
@@ -73,7 +102,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [Fact]
         public async Task ClearAsync_WhenWillRemoved_ThenReturnsSuccessEmbed()
         {
-            A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
             A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1)));
 
             var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
@@ -87,7 +115,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const uint InactiveDaysForClaim = 20;
             A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
             var oneDayAfterThreshold = DateTimeOffset.Now.AddDays((-InactiveDaysForClaim) + 1);
-            A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new Will(
+            A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
                 ownerUserId: new SnowflakeId("1"), ownerLatestSpokeAt: oneDayAfterThreshold
             )});
 
@@ -105,7 +133,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const uint InactiveDaysForClaim = 20;
             A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
             var oneDayBeforeThreshold = DateTimeOffset.Now.AddDays(-(InactiveDaysForClaim + 1));
-            A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new Will(
+            A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
                 ownerUserId: willOwnerId, ownerLatestSpokeAt: oneDayBeforeThreshold
             )});
             var ownerUserIds = new[] { willOwnerId };

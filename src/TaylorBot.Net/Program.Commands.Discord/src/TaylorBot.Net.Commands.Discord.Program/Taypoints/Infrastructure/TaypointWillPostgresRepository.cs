@@ -19,6 +19,26 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
+        private class WillGetDto
+        {
+            public string beneficiary_user_id { get; set; } = null!;
+        }
+
+        public async ValueTask<Will?> GetWillAsync(IUser owner)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var willDto = await connection.QuerySingleOrDefaultAsync<WillGetDto?>(
+                @"SELECT beneficiary_user_id FROM users.taypoint_wills WHERE owner_user_id = @UserId;",
+                new
+                {
+                    UserId = owner.Id.ToString()
+                }
+            );
+
+            return willDto == null ? null : new Will(new SnowflakeId(willDto.beneficiary_user_id));
+        }
+
         private class WillAddDto
         {
             public string beneficiary_user_id { get; set; } = null!;
@@ -79,17 +99,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             }
         }
 
-        private class WillDto
+        private class WillWithBeneficiaryDto
         {
             public string user_id { get; set; } = null!;
             public DateTimeOffset max_last_spoke_at { get; set; }
         }
 
-        public async ValueTask<IReadOnlyCollection<Will>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
+        public async ValueTask<IReadOnlyCollection<WillOwner>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var willDtos = await connection.QueryAsync<WillDto>(
+            var willDtos = await connection.QueryAsync<WillWithBeneficiaryDto>(
                 @"SELECT DISTINCT ON (user_id) user_id, last_spoke_at AS max_last_spoke_at
                 FROM guilds.guild_members
                 WHERE last_spoke_at IS NOT NULL AND user_id IN (
@@ -102,7 +122,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
                 }
             );
 
-            return willDtos.Select(w => new Will(
+            return willDtos.Select(w => new WillOwner(
                 ownerUserId: new SnowflakeId(w.user_id),
                 ownerLatestSpokeAt: w.max_last_spoke_at
             )).ToList();
