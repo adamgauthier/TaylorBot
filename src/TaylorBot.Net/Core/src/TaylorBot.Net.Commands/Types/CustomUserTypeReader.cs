@@ -1,11 +1,14 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Types
 {
@@ -67,21 +70,22 @@ namespace TaylorBot.Net.Commands.Types
             if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out var id))
             {
                 var user = context.Guild != null ?
-                    await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) :
-                    await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false);
+                    await services.GetRequiredService<ITaylorBotClient>().ResolveGuildUserAsync(context.Guild, new SnowflakeId(id)) :
+                    await context.Channel.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false);
 
-                AddResultIfTypeMatches(results, user, 0.90f);
+                if (user != null)
+                    AddResultIfTypeMatches(results, user, 0.90f);
             }
 
             // By Username + Discriminator (0.7-0.85)
             // By Discriminator (0.3-0.45)
-            int index = input.LastIndexOf('#');
+            var index = input.LastIndexOf('#');
             if (index >= 0)
             {
-                string username = input.Substring(0, index);
-                if (ushort.TryParse(input.Substring(index + 1), out ushort discriminator))
+                var username = input.Substring(0, index);
+                if (ushort.TryParse(input.Substring(index + 1), out var discriminator))
                 {
-                    var channelUsernameMatches = await channelUsers.Where(x => x.DiscriminatorValue == discriminator)
+                    var channelUsernameMatches = await channelUsers.Where(u => u.DiscriminatorValue == discriminator)
                         .ToLookupAsync(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase))
                         .ConfigureAwait(false);
 
@@ -91,7 +95,7 @@ namespace TaylorBot.Net.Commands.Types
                         AddResultIfTypeMatches(results, channelUser, channelUser.Username == username ? 0.45f : 0.40f);
 
 
-                    var guildUsernameMatches = guildUsers.Where(x => x.DiscriminatorValue == discriminator)
+                    var guildUsernameMatches = guildUsers.Where(u => u.DiscriminatorValue == discriminator)
                         .ToLookup(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase));
 
                     foreach (var guildUser in guildUsernameMatches[true])

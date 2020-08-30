@@ -1,7 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Types
 {
@@ -22,8 +25,11 @@ namespace TaylorBot.Net.Commands.Types
             if (MentionUtils.TryParseUser(input, out var id))
             {
                 var user = context.Guild != null ?
-                    (T)await context.Guild.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false) :
-                    (T)await context.Channel.GetUserAsync(id, CacheMode.AllowDownload).ConfigureAwait(false);
+                    (T?)await services.GetRequiredService<ITaylorBotClient>().ResolveGuildUserAsync(context.Guild, new SnowflakeId(id)) :
+                    (T?)await context.Channel.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false);
+
+                if (user == null)
+                    return TypeReaderResult.FromError(CommandError.ParseFailed, $"Could not find user '{input}'.");
 
                 return TypeReaderResult.FromSuccess(new UserArgument<T>(user, _userTracker));
             }

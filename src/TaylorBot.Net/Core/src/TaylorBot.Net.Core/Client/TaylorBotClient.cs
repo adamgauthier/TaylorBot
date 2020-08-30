@@ -25,6 +25,7 @@ namespace TaylorBot.Net.Core.Client
         SocketGuild ResolveRequiredGuild(SnowflakeId id);
 
         Task<IUser> ResolveRequiredUserAsync(SnowflakeId id);
+        ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId);
     }
 
     public class TaylorBotClient : ITaylorBotClient
@@ -119,6 +120,19 @@ namespace TaylorBot.Net.Core.Client
                 }
 
                 throw new ArgumentException($"Could not resolve User ID {id}.");
+            }
+
+            return user;
+        }
+
+        public async ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId)
+        {
+            var user = await guild.GetUserAsync(userId.Id).ConfigureAwait(false);
+
+            if (user == null)
+            {
+                var restUser = await DiscordRestClient.GetGuildUserAsync(guild.Id, userId.Id);
+                return restUser;
             }
 
             return user;
