@@ -38,12 +38,25 @@ namespace TaylorBot.Net.Commands.Types
 
         private void AddResultIfTypeMatches(Dictionary<ulong, UserVal<T>> results, IUser user, float score)
         {
-            if (user is T casted && !results.ContainsKey(user.Id))
+            if (user is T casted)
             {
-                results.Add(casted.Id, new UserVal<T>(
-                    new UserArgument<T>(casted, _userTracker),
-                    score
-                ));
+                if (results.TryGetValue(user.Id, out var currentVal))
+                {
+                    if (score > currentVal.Score)
+                    {
+                        results[casted.Id] = new UserVal<T>(
+                            new UserArgument<T>(casted, _userTracker),
+                            score
+                        );
+                    }
+                }
+                else
+                {
+                    results.Add(casted.Id, new UserVal<T>(
+                        new UserArgument<T>(casted, _userTracker),
+                        score
+                    ));
+                }
             }
         }
 

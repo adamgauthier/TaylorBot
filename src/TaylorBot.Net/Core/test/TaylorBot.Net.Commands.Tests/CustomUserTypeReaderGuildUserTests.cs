@@ -86,6 +86,22 @@ namespace TaylorBot.Net.Commands.Types.Tests
             user.Should().Be(anotherGuildUser);
         }
 
+        [Fact]
+        public async Task ReadAsync_WhenInputIsGuildUserNicknameAndInUsernameButStartOfAnotherUsername_ThenBestMatchIsGuildUser()
+        {
+            var guild = A.Fake<IGuild>(o => o.Strict());
+            A.CallTo(() => _commandContext.Guild).Returns(guild);
+            var guildUser = CreateFakeGuildUser(AnId, username: "ImATaylorFan89", nickname: "Tay");
+            var anotherGuildUser = CreateFakeGuildUser(AnotherId, username: "TaylorSwift13", nickname: "Emelie");
+            A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser, anotherGuildUser });
+            A.CallTo(() => _channel.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>());
+
+            var result = (UserArgument<IGuildUser>)(await _customUserTypeReader.ReadAsync(_commandContext, "tay", _serviceProvider)).BestMatch;
+            var user = await result.GetTrackedUserAsync();
+
+            user.Should().Be(guildUser);
+        }
+
         private IGuildUser CreateFakeGuildUser(ulong id, string username, string nickname)
         {
             var guildUser = A.Fake<IGuildUser>(o => o.Strict(StrictFakeOptions.AllowEquals | StrictFakeOptions.AllowToString));
