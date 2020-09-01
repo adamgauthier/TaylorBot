@@ -42,17 +42,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
             var will = await _taypointWillRepository.GetWillAsync(owner: u);
 
-            var embed = new EmbedBuilder()
-                .WithUserAsAuthor(u);
+            var embed = new EmbedBuilder().WithUserAsAuthor(u);
 
             if (will != null)
             {
                 var days = _options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
-                var beneficiary = MentionUtils.MentionUser(will.BeneficiaryUserId.Id);
+                var beneficiary = will.BeneficiaryUsername;
                 embed
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(string.Join('\n', new[] {
-                        $"{u.Username}'s taypoint will has a beneficiary: {beneficiary}.",
+                        $"{u.Username}'s taypoint will has a beneficiary: {beneficiary} ({MentionUtils.MentionUser(will.BeneficiaryUserId.Id)}).",
                         $"If they are inactive for {"day".ToQuantity(days)} in all servers I'm in, {beneficiary} can claim all their taypoints with `{Context.CommandPrefix}taypointwill claim`.",
                         $"Use `{Context.CommandPrefix}taypointwill clear` to remove your beneficiary."
                     }));
@@ -82,26 +81,27 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
             var result = await _taypointWillRepository.AddWillAsync(owner: Context.User, beneficiary: user);
 
-            var embed = new EmbedBuilder()
-                .WithUserAsAuthor(Context.User);
+            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
             switch (result)
             {
                 case WillAddedResult _:
                     var days = _options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
+                    var prefix = Context.CommandPrefix;
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithDescription(string.Join('\n', new[] {
-                            $"Successfully added {user.Mention} as beneficiary to your taypoint will.",
-                            $"If you become inactive for more than {"day".ToQuantity(days)} in all servers we share, {user.Mention} will be able to claim **all your taypoints** with `{Context.CommandPrefix}taypointwill claim`.",
-                            $"If you change your mind at any time, you can use `{Context.CommandPrefix}taypointwill clear` to remove them."
+                            $"Successfully added {user.Username} ({user.Mention}) as beneficiary to your taypoint will.",
+                            $"If you are inactive for {"day".ToQuantity(days)} in all servers I'm in, {user.Username} can claim **all your taypoints** with `{prefix}taypointwill claim`.",
+                            $"If you change your mind at any time, you can use `{prefix}taypointwill clear` to remove them."
                         }));
                     break;
                 case WillNotAddedResult willNotAdded:
+                    var formattedBeneficiary = $"{willNotAdded.CurrentBeneficiaryUsername} ({MentionUtils.MentionUser(willNotAdded.CurrentBeneficiaryId.Id)})";
                     embed
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(string.Join('\n', new[] {
-                            $"Can't add {user.Mention} as beneficiary to your taypoint will because it is set to {MentionUtils.MentionUser(willNotAdded.CurrentBeneficiaryId.Id)}.",
+                            $"Can't add {user.Username} ({user.Mention}) to your taypoint will because it is set to {formattedBeneficiary}.",
                             $"If you want to change your beneficiary, you first need to use `{Context.CommandPrefix}taypointwill clear`.",
                         }));
                     break;
@@ -116,16 +116,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         {
             var result = await _taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
 
-            var embed = new EmbedBuilder()
-                .WithUserAsAuthor(Context.User);
+            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
             switch (result)
             {
                 case WillRemovedResult willRemoved:
+                    var formattedBeneficiary = $"{willRemoved.RemovedBeneficiaryUsername} ({MentionUtils.MentionUser(willRemoved.RemovedBeneficiaryId.Id)})";
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithDescription(string.Join('\n', new[] {
-                            $"Your taypoint will with {MentionUtils.MentionUser(willRemoved.RemovedBeneficiaryId.Id)} has been cleared.",
+                            $"Your taypoint will with {formattedBeneficiary} has been cleared.",
                             $"You can add a beneficiary again with `{Context.CommandPrefix}taypointwill add`."
                         }));
                     break;
@@ -162,11 +162,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 var receiver = transfersTo[true].Single();
                 var gifters = transfersTo[false].ToList();
                 var gainedPoints = receiver.TaypointCount - receiver.OriginalTaypointCount;
+
+                string FormatTaypointQuantity(long taypointCount) => "taypoint".ToQuantity(gainedPoints, TaylorBotFormats.BoldReadable);
+
                 embed
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(string.Join("\n",
-                        new[] { $"Successfully claimed {"taypoint".ToQuantity(gainedPoints, TaylorBotFormats.BoldReadable)}, you now have {receiver.TaypointCount.ToString(TaylorBotFormats.Readable)}." }
-                        .Concat(gifters.Select(g => $"Claimed {"taypoint".ToQuantity(g.OriginalTaypointCount, TaylorBotFormats.BoldReadable)} from {MentionUtils.MentionUser(g.UserId.Id)}."))
+                        new[] { $"Successfully claimed {FormatTaypointQuantity(gainedPoints)}, you now have {receiver.TaypointCount.ToString(TaylorBotFormats.Readable)}." }
+                        .Concat(gifters.Select(g =>
+                            $"Claimed {FormatTaypointQuantity(g.OriginalTaypointCount)} from {g.Username} ({MentionUtils.MentionUser(g.UserId.Id)})."
+                        ))
                     ).Truncate(2048));
             }
             else
@@ -176,7 +181,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     .WithColor(TaylorBotColors.ErrorColor)
                     .WithDescription(string.Join("\n",
                         new[] { $"None of the {"taypoint will".ToQuantity(wills.Count)} you are beneficiary of is ready to claim." }
-                        .Concat(ongoingWills.Select(w => $"{MentionUtils.MentionUser(w.OwnerUserId.Id)} has been active on {w.OwnerLatestSpokeAt.FormatShortUserDate(TaylorBotCulture.Culture)}."))
+                        .Concat(ongoingWills.Select(w =>
+                            $"{w.OwnerUsername} ({MentionUtils.MentionUser(w.OwnerUserId.Id)}) was active on {w.OwnerLatestSpokeAt.FormatShortUserDate(TaylorBotCulture.Culture)}."
+                        ))
                     ).Truncate(2048));
             }
 

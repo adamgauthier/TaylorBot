@@ -9,11 +9,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
     public class WillOwner
     {
         public SnowflakeId OwnerUserId { get; }
+        public string OwnerUsername { get; }
         public DateTimeOffset OwnerLatestSpokeAt { get; }
 
-        public WillOwner(SnowflakeId ownerUserId, DateTimeOffset ownerLatestSpokeAt)
+        public WillOwner(SnowflakeId ownerUserId, string ownerUsername, DateTimeOffset ownerLatestSpokeAt)
         {
             OwnerUserId = ownerUserId;
+            OwnerUsername = ownerUsername;
             OwnerLatestSpokeAt = ownerLatestSpokeAt;
         }
     }
@@ -21,12 +23,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
     public class Transfer
     {
         public SnowflakeId UserId { get; }
+        public string Username { get; }
         public long TaypointCount { get; }
         public long OriginalTaypointCount { get; }
 
-        public Transfer(SnowflakeId userId, long taypointCount, long originalTaypointCount)
+        public Transfer(SnowflakeId userId, string username, long taypointCount, long originalTaypointCount)
         {
             UserId = userId;
+            Username = username;
             TaypointCount = taypointCount;
             OriginalTaypointCount = originalTaypointCount;
         }
@@ -39,10 +43,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
     public class WillNotAddedResult : IWillAddResult
     {
         public SnowflakeId CurrentBeneficiaryId { get; }
+        public string CurrentBeneficiaryUsername { get; }
 
-        public WillNotAddedResult(SnowflakeId currentBeneficiaryId)
+        public WillNotAddedResult(SnowflakeId currentBeneficiaryId, string currentBeneficiaryUsername)
         {
             CurrentBeneficiaryId = currentBeneficiaryId;
+            CurrentBeneficiaryUsername = currentBeneficiaryUsername;
         }
     }
 
@@ -51,10 +57,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
     public class WillRemovedResult : IWillRemoveResult
     {
         public SnowflakeId RemovedBeneficiaryId { get; }
+        public string RemovedBeneficiaryUsername { get; }
 
-        public WillRemovedResult(SnowflakeId removedBeneficiaryId)
+        public WillRemovedResult(SnowflakeId removedBeneficiaryId, string removedBeneficiaryUsername)
         {
             RemovedBeneficiaryId = removedBeneficiaryId;
+            RemovedBeneficiaryUsername = removedBeneficiaryUsername;
         }
     }
 
@@ -63,10 +71,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
     public class Will
     {
         public SnowflakeId BeneficiaryUserId { get; }
+        public string BeneficiaryUsername { get; }
 
-        public Will(SnowflakeId beneficiaryUserId)
+        public Will(SnowflakeId beneficiaryUserId, string beneficiaryUsername)
         {
             BeneficiaryUserId = beneficiaryUserId;
+            BeneficiaryUsername = beneficiaryUsername;
         }
     }
 

@@ -17,6 +17,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 {
     public class TaypointWillModuleTests
     {
+        private const string AUsername = "TaylorSwift13";
+
         private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IOptionsMonitor<TaypointWillOptions> _options = A.Fake<IOptionsMonitor<TaypointWillOptions>>(o => o.Strict());
@@ -52,7 +54,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
             var beneficiaryId = new SnowflakeId("1");
             var user = A.Fake<IUser>();
-            A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(new Will(beneficiaryId));
+            A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(new Will(beneficiaryId, AUsername));
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
@@ -66,7 +68,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public async Task AddAsync_WhenWillNotAdded_ThenReturnsErrorEmbed()
         {
             var user = A.Fake<IUser>();
-            A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillNotAddedResult(new SnowflakeId("1")));
+            A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillNotAddedResult(new SnowflakeId("1"), AUsername));
             var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
@@ -102,7 +104,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [Fact]
         public async Task ClearAsync_WhenWillRemoved_ThenReturnsSuccessEmbed()
         {
-            A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1)));
+            A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1), AUsername));
 
             var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
 
@@ -116,7 +118,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
             var oneDayAfterThreshold = DateTimeOffset.Now.AddDays((-InactiveDaysForClaim) + 1);
             A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
-                ownerUserId: new SnowflakeId("1"), ownerLatestSpokeAt: oneDayAfterThreshold
+                ownerUserId: new SnowflakeId("1"), ownerUsername: AUsername, ownerLatestSpokeAt: oneDayAfterThreshold
             )});
 
             var result = (TaylorBotEmbedResult)await _taypointWillModule.ClaimAsync();
@@ -134,12 +136,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
             var oneDayBeforeThreshold = DateTimeOffset.Now.AddDays(-(InactiveDaysForClaim + 1));
             A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
-                ownerUserId: willOwnerId, ownerLatestSpokeAt: oneDayBeforeThreshold
+                ownerUserId: willOwnerId, ownerUsername: AUsername, ownerLatestSpokeAt: oneDayBeforeThreshold
             )});
             var ownerUserIds = new[] { willOwnerId };
             A.CallTo(() => _taypointWillRepository.TransferAllPointsAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(new[] {
-                new Transfer(willOwnerId, 0, 100),
-                new Transfer(commandUserId, 100, 0)
+                new Transfer(willOwnerId, AUsername, taypointCount: 0, originalTaypointCount: 100),
+                new Transfer(commandUserId, AUsername, taypointCount: 100, originalTaypointCount: 0)
             });
             A.CallTo(() => _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
 
