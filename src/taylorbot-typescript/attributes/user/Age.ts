@@ -13,8 +13,8 @@ class AgeAttribute extends SettableUserAttribute {
             description: 'age',
             value: {
                 label: 'age',
-                type: 'age',
-                example: '22'
+                type: 'any-text',
+                example: 'dont-use'
             },
             presenter: AgePresenter,
             list: null
