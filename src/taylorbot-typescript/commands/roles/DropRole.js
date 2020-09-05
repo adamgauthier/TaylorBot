@@ -9,7 +9,7 @@ class DropRoleCommand extends Command {
         super({
             name: 'droprole',
             aliases: ['dr'],
-            group: 'roles',
+            group: 'Roles 🆔',
             description: 'Removes an accessible role from you.',
             examples: ['@tour', 'leaks'],
             guildOnly: true,

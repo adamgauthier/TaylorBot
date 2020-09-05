@@ -1,13 +1,12 @@
 import Command = require('../Command.js');
 import { CommandMessageContext } from '../CommandMessageContext';
 
-class LastFmCollageCommand extends Command {
+class GetRoleCommand extends Command {
     constructor() {
         super({
-            name: 'lastfmcollage',
-            aliases: ['fmcollage', 'fmc'],
-            group: 'fm',
-            description: 'This command is obsolete and will be removed in a future version. Please use `lastfm collage` instead.',
+            name: 'getrole',
+            group: 'Roles 🆔',
+            description: 'This command is obsolete and will be removed in a future version. Please use the `roles` command instead.',
             examples: [''],
 
             args: [
@@ -24,9 +23,9 @@ class LastFmCollageCommand extends Command {
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(
             message.channel,
-            `This command is obsolete and will be removed in a future version. Please use \`${messageContext.prefix}lastfm collage\` or \`${messageContext.prefix}fm c\` instead.`
+            `This command is obsolete and will be removed in a future version. Please use \`${messageContext.prefix}role ${args}\` or \`${messageContext.prefix}r ${args}\` instead.`
         );
     }
 }
 
-export = LastFmCollageCommand;
+export = GetRoleCommand;
