@@ -1,10 +1,11 @@
 import Command = require('../Command.js');
 import { CommandMessageContext } from '../CommandMessageContext';
 
-class GetRoleCommand extends Command {
+class DropRoleCommand extends Command {
     constructor() {
         super({
-            name: 'getrole',
+            name: 'droprole',
+            aliases: ['dr'],
             group: 'Roles 🆔',
             description: 'This command is obsolete and will be removed in a future version. Please use the `roles` command instead.',
             examples: [''],
@@ -23,9 +24,9 @@ class GetRoleCommand extends Command {
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command is obsolete and will be removed in a future version.`,
-            `Please use \`${messageContext.prefix}role ${args}\` instead.`
+            `Please use \`${messageContext.prefix}role drop ${args}\` instead.`
         ].join('\n'));
     }
 }
 
-export = GetRoleCommand;
+export = DropRoleCommand;

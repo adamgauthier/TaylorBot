@@ -52,7 +52,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(string.Join('\n', new[] {
                                 $"You now have {role.Role.Mention}. 😊",
-                                $"Use `{Context.CommandPrefix}dr {role.Role.Name}` to drop it!"
+                                $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
                             }));
                     }
                     else
@@ -71,7 +71,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(string.Join('\n', new[] {
                             $"You already have role {role.Role.Mention}.",
-                            $"Use `{Context.CommandPrefix}dr {role.Role.Name}` to drop it!"
+                            $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
                         }));
                 }
             }
@@ -100,6 +100,54 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     }));
                 }
 
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
+        }
+
+        [RequireTaylorBotPermission(GuildPermission.ManageRoles)]
+        [Command("drop")]
+        [Summary("Removes an accessible role you currently have.")]
+        public async Task<RuntimeResult> DropAsync(
+            [Summary("What role would you like to be removed?")]
+            [Remainder]
+            RoleNotEveryoneArgument<IRole> role
+        )
+        {
+            var member = (IGuildUser)Context.User;
+            var embed = new EmbedBuilder().WithUserAsAuthor(member);
+
+            if (member.RoleIds.Contains(role.Role.Id))
+            {
+                if (await _accessibleRoleRepository.IsRoleAccessibleAsync(role.Role))
+                {
+                    await member.RemoveRoleAsync(role.Role, new RequestOptions
+                    {
+                        AuditLogReason = $"Removed accessible role on user's request with message id {Context.Message.Id}."
+                    });
+
+                    embed
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"Removed {role.Role.Mention} from your roles. 😊",
+                            $"Use `{Context.CommandPrefix}role {role.Role.Name}` to get it back!"
+                        }));
+                }
+                else
+                {
+                    embed
+                        .WithColor(TaylorBotColors.ErrorColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"Sorry, {role.Role.Mention} is not accessible so you can't drop it.",
+                            $"Use `{Context.CommandPrefix}aar {role.Role.Name}` to make it accessible to everyone!"
+                        }));
+                }
+            }
+            else
+            {
+                embed
+                    .WithColor(TaylorBotColors.ErrorColor)
+                    .WithDescription($"You don't have the role {role.Role.Mention} so you can't drop it!");
             }
 
             return new TaylorBotEmbedResult(embed.Build());

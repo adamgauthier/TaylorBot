@@ -71,6 +71,45 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
 
+        [Fact]
+        public async Task DropAsync_WhenUserDoesntHaveRole_ThenReturnsErrorEmbed()
+        {
+            const ulong RoleId = 1989;
+            var role = CreateFakeRole(RoleId, ARoleName);
+            A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task DropAsync_WhenRoleIsNotAccessible_ThenReturnsErrorEmbed()
+        {
+            const ulong RoleId = 1989;
+            var role = CreateFakeRole(RoleId, ARoleName);
+            A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
+            A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(false);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task DropAsync_WhenRoleIsAccessible_ThenReturnsSuccessEmbed()
+        {
+            const ulong RoleId = 1989;
+            var role = CreateFakeRole(RoleId, ARoleName);
+            A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
+            A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(true);
+            A.CallTo(() => _commandUser.RemoveRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
         private IRole CreateFakeRole(ulong id, string name)
         {
             var role = A.Fake<IRole>(o => o.Strict());
