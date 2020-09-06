@@ -1,4 +1,4 @@
--- Verify taylorbot-postgres:base_schema on pg
+-- Verify taylorbot-postgres:0001_base_schema on pg
 
 BEGIN;
 

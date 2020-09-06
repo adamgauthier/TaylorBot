@@ -1,4 +1,4 @@
--- Deploy taylorbot-postgres:base_schema to pg
+-- Deploy taylorbot-postgres:0001_base_schema to pg
 
 BEGIN;
 

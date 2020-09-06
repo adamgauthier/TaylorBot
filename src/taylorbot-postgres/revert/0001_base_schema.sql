@@ -1,4 +1,4 @@
--- Revert taylorbot-postgres:base_schema from pg
+-- Revert taylorbot-postgres:0001_base_schema from pg
 
 BEGIN;
 
