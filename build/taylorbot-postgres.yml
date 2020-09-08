@@ -61,6 +61,13 @@ stages:
           --mount type=bind,source=$(sqitchSourceFolderPath)/$(sqitchBundleOutputFolderName),dst=/repo \
           sqitch/sqitch:latest \
           deploy db:pg://${role_name}:${role_password}@${container_name}/${db_name}
+        
+        docker container run \
+          --rm \
+          --network ${network_name} \
+          --mount type=bind,source=$(sqitchSourceFolderPath)/$(sqitchBundleOutputFolderName),dst=/repo \
+          sqitch/sqitch:latest \
+          revert -y db:pg://${role_name}:${role_password}@${container_name}/${db_name}
       displayName: 'Test sqitch bundle on new database'
 
     - script: tar -czf $(bundleArchiveFilePath) --directory $(sqitchSourceFolderPath)/$(sqitchBundleOutputFolderName) .
