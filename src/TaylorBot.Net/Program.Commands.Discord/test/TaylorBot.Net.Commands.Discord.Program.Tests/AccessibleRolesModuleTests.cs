@@ -13,6 +13,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 {
     public class AccessibleRolesModuleTests
     {
+        private const ulong ARoleId = 13;
         private const string ARoleName = "Regulars";
 
         private readonly IGuildUser _commandUser = A.Fake<IGuildUser>();
@@ -106,6 +107,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandUser.RemoveRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task AddAsync_ThenReturnsSuccessEmbed()
+        {
+            var role = CreateFakeRole(ARoleId, ARoleName);
+            A.CallTo(() => _accessibleRoleRepository.AddAccessibleRoleAsync(role)).Returns(default);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.AddAsync(new RoleNotEveryoneArgument<IRole>(role));
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }

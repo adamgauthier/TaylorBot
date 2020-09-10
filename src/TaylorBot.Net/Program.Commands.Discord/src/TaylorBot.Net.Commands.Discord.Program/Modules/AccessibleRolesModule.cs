@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Humanizer;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
@@ -61,7 +62,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                             .WithColor(TaylorBotColors.ErrorColor)
                             .WithDescription(string.Join('\n', new[] {
                                 $"Sorry, {role.Role.Mention} is not marked as accessible so I can't give it to you.",
-                                $"Use `{Context.CommandPrefix}aar {role.Role.Name}` to make it accessible to everyone!"
+                                $"Use `{Context.CommandPrefix}roles add {role.Role.Name}` to make it accessible to everyone!"
                             }));
                     }
                 }
@@ -96,7 +97,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     embed.WithDescription(string.Join('\n', new[] {
                         $"There is currently no accessible role in this server.",
                         $"Accessible roles are roles that everyone has access to using `{Context.CommandPrefix}role`.",
-                        $"Use `{Context.CommandPrefix}aar role-name` to add one!"
+                        $"Use `{Context.CommandPrefix}roles add role-name` to add one!"
                     }));
                 }
 
@@ -139,7 +140,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(string.Join('\n', new[] {
                             $"Sorry, {role.Role.Mention} is not accessible so you can't drop it.",
-                            $"Use `{Context.CommandPrefix}aar {role.Role.Name}` to make it accessible to everyone!"
+                            $"Use `{Context.CommandPrefix}roles add {role.Role.Name}` to make it accessible to everyone!"
                         }));
                 }
             }
@@ -151,6 +152,28 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             }
 
             return new TaylorBotEmbedResult(embed.Build());
+        }
+
+        [RequireUserPermissionOrOwner(GuildPermission.ManageRoles)]
+        [Command("add")]
+        [Summary("Adds a role as accessible to everyone in this server.")]
+        public async Task<RuntimeResult> AddAsync(
+            [Summary("What role would you like to make accessible?")]
+            [Remainder]
+            RoleNotEveryoneArgument<IRole> role
+        )
+        {
+            await _accessibleRoleRepository.AddAccessibleRoleAsync(role.Role);
+
+            return new TaylorBotEmbedResult(new EmbedBuilder()
+                .WithUserAsAuthor(Context.User)
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithDescription(string.Join('\n', new[] {
+                    $"Successfully made {role.Role.Mention} accessible to everyone in the server. 😊",
+                    $"Use `{Context.CommandPrefix}role {role.Role.Name}` to get it!",
+                    $"Use `{Context.CommandPrefix}rar {role.Role.Name}` to make it private again!"
+                }))
+            .Build());
         }
     }
 }

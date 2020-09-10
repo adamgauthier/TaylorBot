@@ -50,10 +50,6 @@ class SpecialRoleRepository {
         }
     }
 
-    setAccessible(role) {
-        return this._setAccessible(role, true);
-    }
-
     removeAccessible(role) {
         return this._setAccessible(role, false);
     }

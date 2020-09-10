@@ -57,5 +57,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure
                 new SnowflakeId(r.role_id))
             ).ToList();
         }
+
+        public async ValueTask AddAccessibleRoleAsync(IRole role)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"INSERT INTO guilds.guild_special_roles (guild_id, role_id, accessible)
+                VALUES (@GuildId, @RoleId, @IsAccessible)
+                ON CONFLICT (guild_id, role_id) DO UPDATE
+                    SET accessible = excluded.accessible;",
+                new
+                {
+                    GuildId = role.Guild.Id.ToString(),
+                    RoleId = role.Id.ToString(),
+                    IsAccessible = true
+                }
+            );
+        }
     }
 }
