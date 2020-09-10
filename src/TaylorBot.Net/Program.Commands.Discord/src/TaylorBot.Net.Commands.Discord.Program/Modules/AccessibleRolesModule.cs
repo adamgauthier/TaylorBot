@@ -171,7 +171,28 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .WithDescription(string.Join('\n', new[] {
                     $"Successfully made {role.Role.Mention} accessible to everyone in the server. 😊",
                     $"Use `{Context.CommandPrefix}role {role.Role.Name}` to get it!",
-                    $"Use `{Context.CommandPrefix}rar {role.Role.Name}` to make it private again!"
+                    $"Use `{Context.CommandPrefix}roles remove {role.Role.Name}` to make it inaccessible again!"
+                }))
+            .Build());
+        }
+
+        [RequireUserPermissionOrOwner(GuildPermission.ManageRoles)]
+        [Command("remove")]
+        [Summary("Removes a previously accessible role.")]
+        public async Task<RuntimeResult> RemoveAsync(
+            [Summary("What role would you like to make inaccessible?")]
+            [Remainder]
+            RoleNotEveryoneArgument<IRole> role
+        )
+        {
+            await _accessibleRoleRepository.RemoveAccessibleRoleAsync(role.Role);
+
+            return new TaylorBotEmbedResult(new EmbedBuilder()
+                .WithUserAsAuthor(Context.User)
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithDescription(string.Join('\n', new[] {
+                    $"Successfully made {role.Role.Mention} inaccessible to everyone in the server. 😊",
+                    $"Use `{Context.CommandPrefix}roles` to see remaining accessible roles!"
                 }))
             .Build());
         }

@@ -20,5 +20,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain
         ValueTask<bool> IsRoleAccessibleAsync(IRole role);
         ValueTask<IReadOnlyCollection<AccessibleRole>> GetAccessibleRolesAsync(IGuild guild);
         ValueTask AddAccessibleRoleAsync(IRole role);
+        ValueTask RemoveAccessibleRoleAsync(IRole role);
     }
 }

@@ -122,6 +122,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
 
+        [Fact]
+        public async Task RemoveAsync_ThenReturnsSuccessEmbed()
+        {
+            var role = CreateFakeRole(ARoleId, ARoleName);
+            A.CallTo(() => _accessibleRoleRepository.RemoveAccessibleRoleAsync(role)).Returns(default);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.RemoveAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
         private IRole CreateFakeRole(ulong id, string name)
         {
             var role = A.Fake<IRole>(o => o.Strict());

@@ -17,7 +17,6 @@ import GuildCommandRepository = require('./repositories/GuildCommandRepository.j
 import { CommandRepository } from './repositories/CommandRepository';
 import UserGroupRepository = require('./repositories/UserGroupRepository.js');
 import RoleGroupRepository = require('./repositories/RoleGroupRepository.js');
-import SpecialRoleRepository = require('./repositories/SpecialRoleRepository.js');
 import ReminderRepository = require('./repositories/ReminderRepository.js');
 import TextChannelRepository = require('./repositories/TextChannelRepository.js');
 import { AttributeRepository } from './repositories/AttributeRepository';
@@ -42,7 +41,6 @@ export class DatabaseDriver {
     readonly commands: CommandRepository;
     readonly userGroups: UserGroupRepository;
     readonly roleGroups: RoleGroupRepository;
-    readonly specialRoles: SpecialRoleRepository;
     readonly reminders: ReminderRepository;
     readonly textChannels: TextChannelRepository;
     readonly attributes: AttributeRepository;
@@ -72,7 +70,6 @@ export class DatabaseDriver {
         this.commands = new CommandRepository(db);
         this.userGroups = new UserGroupRepository(db, helpers);
         this.roleGroups = new RoleGroupRepository(db);
-        this.specialRoles = new SpecialRoleRepository(db);
         this.reminders = new ReminderRepository(db);
         this.textChannels = new TextChannelRepository(db);
         this.attributes = new AttributeRepository(db, helpers);

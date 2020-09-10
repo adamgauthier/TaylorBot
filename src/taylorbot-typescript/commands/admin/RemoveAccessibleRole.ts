@@ -1,14 +1,14 @@
 import Command = require('../Command.js');
 import { CommandMessageContext } from '../CommandMessageContext';
 
-class GetRoleCommand extends Command {
+class RemoveAccessibleRoleCommand extends Command {
     constructor() {
         super({
-            name: 'addaccessiblerole',
-            aliases: ['aar'],
+            name: 'removeaccessiblerole',
+            aliases: ['rar'],
             group: 'admin',
-            description: 'This command is obsolete and will be removed in a future version. Please use the `roles add` command instead.',
-            examples: [''],
+            description: 'This command is obsolete and will be removed in a future version. Please use the `roles remove` command instead.',
+            examples: ['', ''],
             guildOnly: true,
 
             args: [
@@ -25,9 +25,9 @@ class GetRoleCommand extends Command {
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command is obsolete and will be removed in a future version.`,
-            `Please use \`${messageContext.prefix}roles add ${args}\` instead.`
+            `Please use \`${messageContext.prefix}roles remove ${args}\` instead.`
         ].join('\n'));
     }
 }
 
-export = GetRoleCommand;
+export = RemoveAccessibleRoleCommand;

@@ -75,5 +75,21 @@ namespace TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure
                 }
             );
         }
+
+        public async ValueTask RemoveAccessibleRoleAsync(IRole role)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"UPDATE guilds.guild_special_roles
+                SET accessible = FALSE
+                WHERE guild_id = @GuildId AND role_id = @RoleId;",
+                new
+                {
+                    GuildId = role.Guild.Id.ToString(),
+                    RoleId = role.Id.ToString()
+                }
+            );
+        }
     }
 }
