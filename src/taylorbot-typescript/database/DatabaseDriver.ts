@@ -28,7 +28,7 @@ import RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
 import GambleStatsRepository = require('./repositories/GambleStatsRepository.js');
 import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
 import HeistStatsRepository = require('./repositories/HeistStatsRepository.js');
-import BirthdayAttributeRepository = require('./repositories/BirthdayAttributeRepository.js');
+import { BirthdayAttributeRepository } from './repositories/BirthdayAttributeRepository';
 import { ProRepository } from './repositories/ProRepository';
 
 export class DatabaseDriver {

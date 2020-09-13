@@ -48,8 +48,8 @@ class BirthdayUserAttribute extends SettableUserAttribute {
         return database.birthdays.set(user, value.format('YYYY-MM-DD'), isPrivate);
     }
 
-    clear(database: DatabaseDriver, user: User): Promise<void> {
-        return database.birthdays.clear(user);
+    async clear(database: DatabaseDriver, user: User): Promise<void> {
+        await database.birthdays.clear(user);
     }
 
     formatValue(attribute: Record<string, any>): string {

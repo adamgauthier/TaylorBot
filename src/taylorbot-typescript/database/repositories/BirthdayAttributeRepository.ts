@@ -1,16 +1,18 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import pgPromise = require('pg-promise');
+import { Guild, User } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class BirthdayAttributeRepository {
+    #db: pgPromise.IDatabase<unknown>;
 
-class BirthdayAttributeRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async get(user) {
+    async get(user: User): Promise<{ birthday: string; is_private: boolean } | null> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 `SELECT birthday::text, is_private FROM attributes.birthdays WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
@@ -23,9 +25,9 @@ class BirthdayAttributeRepository {
         }
     }
 
-    async getZodiac(user) {
+    async getZodiac(user: User): Promise<{ zodiac: string } | null> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 `SELECT zodiac(birthday) FROM attributes.birthdays WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
@@ -38,9 +40,9 @@ class BirthdayAttributeRepository {
         }
     }
 
-    async set(user, birthdayString, isPrivate) {
+    async set(user: User, birthdayString: string, isPrivate: boolean): Promise<{ user_id: string; birthday_string: string; is_private: boolean }> {
         try {
-            return await this._db.one(
+            return await this.#db.one(
                 `INSERT INTO attributes.birthdays (user_id, birthday, is_private)
                 VALUES ($[user_id], date $[birthday_string], $[is_private])
                 ON CONFLICT (user_id) DO UPDATE SET
@@ -60,10 +62,10 @@ class BirthdayAttributeRepository {
         }
     }
 
-    async clear(user) {
+    async clear(user: User): Promise<void> {
         try {
-            return await this._db.oneOrNone(
-                `DELETE FROM attributes.birthdays WHERE user_id = $[user_id] RETURNING user_id, birthday::text;`,
+            await this.#db.any(
+                `DELETE FROM attributes.birthdays WHERE user_id = $[user_id];`,
                 {
                     user_id: user.id
                 }
@@ -75,16 +77,13 @@ class BirthdayAttributeRepository {
         }
     }
 
-    async getUpcomingInGuild(guild, limit) {
+    async getUpcomingInGuild(guild: Guild, limit: number): Promise<{ user_id: string; next_birthday: string }[]> {
         try {
-            return await this._db.any(
+            return await this.#db.any(
                 `SELECT user_id,
                 CASE
-                    WHEN normalized_birthday < CURRENT_DATE THEN make_date(
-                        date_part('year', normalized_birthday)::int + 1,
-                        date_part('month', normalized_birthday)::int,
-                        date_part('day', normalized_birthday)::int
-                    )::text
+                    WHEN normalized_birthday < CURRENT_DATE
+                    THEN (normalized_birthday + INTERVAL '1 YEAR')::text
                     ELSE normalized_birthday::text
                 END 
                 AS next_birthday
@@ -113,5 +112,3 @@ class BirthdayAttributeRepository {
         }
     }
 }
-
-module.exports = BirthdayAttributeRepository;
