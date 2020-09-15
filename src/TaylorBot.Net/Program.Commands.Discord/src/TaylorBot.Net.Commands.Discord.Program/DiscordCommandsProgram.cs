@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.TypeReaders;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
@@ -87,7 +88,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTransient<ITaylorBotTypeReader, LastFmUsernameTypeReader>()
                         .AddTransient<ITaylorBotTypeReader, LastFmPeriodTypeReader>()
                         .AddTransient<ITaypointRewardRepository, TaypointRewardPostgresRepository>()
-                        .AddTransient<IAccessibleRoleRepository, AccessibleRolePostgresRepository>();
+                        .AddTransient<IAccessibleRoleRepository, AccessibleRolePostgresRepository>()
+                        .AddTransient<ITaylorBotTypeReader, AccessibleGroupNameTypeReader>();
                 })
                 .Build();
 

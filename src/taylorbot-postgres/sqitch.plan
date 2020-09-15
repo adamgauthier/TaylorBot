@@ -2,5 +2,6 @@
 %project=taylorbot-postgres
 %uri=https://github.com/louistio/TaylorBot
 
-0001_base_schema 2020-08-09T07:22:28Z Adam Gauthier <adamgauthier12@gmail.com> # Add base schema from TaylorBot 1.7.0.
+0001_base_schema 2020-08-09T07:22:28Z Adam Gauthier <adamgauthier12@gmail.com> # Add base schema from TaylorBot 1.7.0
 0002_messages_of_the_day 2020-09-06T02:01:37Z Adam Gauthier <adamgauthier12@gmail.com> # Add first wave of messages of the day
+0003_accessible_role_groups 2020-09-13T23:44:54Z Adam Gauthier <adamgauthier12@gmail.com> # Add group support to accessible roles

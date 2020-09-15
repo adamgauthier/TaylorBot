@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Snowflake;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests
@@ -51,7 +52,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const ulong RoleId = 1989;
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
-            A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(false);
+            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(null);
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
 
@@ -59,17 +60,34 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         }
 
         [Fact]
-        public async Task GetAsync_WhenRoleIsAccessible_ThenReturnsSuccessEmbed()
+        public async Task GetAsync_WhenRoleIsAccessibleWithNoGroup_ThenReturnsSuccessEmbed()
         {
             const ulong RoleId = 1989;
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
-            A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(true);
+            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(group: null));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task GetAsync_WhenRoleIsAccessibleInGroupThatUserAlreadyHas_ThenReturnsErrorEmbed()
+        {
+            const ulong RoleId = 1989;
+            const ulong AnotherRoleId = 1322;
+            var role = CreateFakeRole(RoleId, ARoleName);
+            A.CallTo(() => _commandUser.RoleIds).Returns(new[] { AnotherRoleId });
+            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(
+                group: new AccessibleRoleGroup(name: "regions", otherRolesInSameGroup: new[] { new SnowflakeId(AnotherRoleId) })
+            ));
+            A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
 
         [Fact]
@@ -129,6 +147,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _accessibleRoleRepository.RemoveAccessibleRoleAsync(role)).Returns(default);
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.RemoveAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task GroupAsync_ThenReturnsSuccessEmbed()
+        {
+            var groupName = new AccessibleGroupName("regions");
+            var role = CreateFakeRole(ARoleId, ARoleName);
+            A.CallTo(() => _accessibleRoleRepository.AddOrUpdateAccessibleRoleWithGroupAsync(role, groupName)).Returns(default);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GroupAsync(groupName, new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        }
+
+        [Fact]
+        public async Task GroupAsync_WhenClear_ThenReturnsSuccessEmbed()
+        {
+            var role = CreateFakeRole(ARoleId, ARoleName);
+            A.CallTo(() => _accessibleRoleRepository.ClearGroupFromAccessibleRoleAsync(role)).Returns(default);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GroupAsync(new AccessibleGroupName("clear"), new RoleNotEveryoneArgument<IRole>(role));
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }

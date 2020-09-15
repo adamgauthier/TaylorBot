@@ -42,19 +42,41 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             {
                 if (!member.RoleIds.Contains(role.Role.Id))
                 {
-                    if (await _accessibleRoleRepository.IsRoleAccessibleAsync(role.Role))
+                    var accessibleRole = await _accessibleRoleRepository.GetAccessibleRoleAsync(role.Role);
+                    if (accessibleRole != null)
                     {
-                        await member.AddRoleAsync(role.Role, new RequestOptions
-                        {
-                            AuditLogReason = $"Assigned accessible role on user's request with message id {Context.Message.Id}."
-                        });
+                        var groupInfo = accessibleRole.Group != null ?
+                            new
+                            {
+                                Group = accessibleRole.Group,
+                                MemberRolesInSameGroup = member.RoleIds.Intersect(accessibleRole.Group.OtherRoles.Select(r => r.Id)).ToList()
+                            } :
+                            null;
 
-                        embed
-                            .WithColor(TaylorBotColors.SuccessColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                $"You now have {role.Role.Mention}. 😊",
-                                $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
-                            }));
+                        if (groupInfo != null && groupInfo.MemberRolesInSameGroup.Any())
+                        {
+                            embed
+                                .WithColor(TaylorBotColors.ErrorColor)
+                                .WithDescription(string.Join('\n', new[] {
+                                    $"Sorry, {role.Role.Mention} is part of the '{groupInfo.Group.Name}' group.",
+                                    $"You already have {MentionUtils.MentionRole(groupInfo.MemberRolesInSameGroup.First())} which is part of the same group.",
+                                    $"Use `{Context.CommandPrefix}roles group` to configure accessible role groups!"
+                                }));
+                        }
+                        else
+                        {
+                            await member.AddRoleAsync(role.Role, new RequestOptions
+                            {
+                                AuditLogReason = $"Assigned accessible role on user's request with message id {Context.Message.Id}."
+                            });
+
+                            embed
+                                .WithColor(TaylorBotColors.SuccessColor)
+                                .WithDescription(string.Join('\n', new[] {
+                                    $"You now have {role.Role.Mention}. 😊",
+                                    $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
+                                }));
+                        }
                     }
                     else
                     {
@@ -86,11 +108,20 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
                 if (accessibleRoles.Any())
                 {
-                    embed
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Here are the accessible roles in this server, use `{Context.CommandPrefix}role role-name` to get one of them.",
-                            string.Join(", ", accessibleRoles.Select(r => MentionUtils.MentionRole(r.RoleId.Id)))
-                        }).Truncate(2048));
+                    var ungrouped = accessibleRoles.Where(ar => ar.GroupName == null).ToList();
+                    var grouped = accessibleRoles.Where(ar => ar.GroupName != null).GroupBy(ar => ar.GroupName);
+
+                    embed.WithDescription($"Here are the accessible roles in this server, use `{Context.CommandPrefix}role role-name` to get one of them.");
+
+                    if (ungrouped.Any())
+                    {
+                        embed.AddField("no group", string.Join(", ", ungrouped.Select(r => MentionUtils.MentionRole(r.RoleId.Id))).Truncate(EmbedFieldBuilder.MaxFieldValueLength), inline: false);
+                    }
+
+                    foreach (var group in grouped.Take(EmbedBuilder.MaxFieldCount - embed.Fields.Count))
+                    {
+                        embed.AddField(group.Key, string.Join(", ", group.Select(r => MentionUtils.MentionRole(r.RoleId.Id))).Truncate(EmbedFieldBuilder.MaxFieldValueLength), inline: true);
+                    }
                 }
                 else
                 {
@@ -192,9 +223,50 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(string.Join('\n', new[] {
                     $"Successfully made {role.Role.Mention} inaccessible to everyone in the server. 😊",
+                    $"This action did not remove the role from users who already had it.",
                     $"Use `{Context.CommandPrefix}roles` to see remaining accessible roles!"
                 }))
             .Build());
+        }
+
+        [RequireUserPermissionOrOwner(GuildPermission.ManageRoles)]
+        [Command("group")]
+        [Summary("Adds an accesible role to a group. Users can only get one accessible role of the same group.")]
+        public async Task<RuntimeResult> GroupAsync(
+            [Summary("What group would you like to add an accessible role to?")]
+            AccessibleGroupName group,
+            [Summary("What role would you like to make accessible in the group?")]
+            [Remainder]
+            RoleNotEveryoneArgument<IRole> role
+        )
+        {
+            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+
+            if (group.Name == "clear")
+            {
+                await _accessibleRoleRepository.ClearGroupFromAccessibleRoleAsync(role.Role);
+
+                embed
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithDescription(string.Join('\n', new[] {
+                        $"Successfully removed {role.Role.Mention} from its group.",
+                        $"Use `{Context.CommandPrefix}roles` to see all accessible roles."
+                    }));
+            }
+            else
+            {
+                await _accessibleRoleRepository.AddOrUpdateAccessibleRoleWithGroupAsync(role.Role, group);
+
+                embed
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithDescription(string.Join('\n', new[] {
+                        $"Successfully put {role.Role.Mention} in the '{group.Name}' group.",
+                        $"Users can only get one accessible role of the same group when using `{Context.CommandPrefix}role`.",
+                        $"Use `{Context.CommandPrefix}roles clear {role.Role.Name}` to remove it from the group."
+                    }));
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
         }
     }
 }
