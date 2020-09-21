@@ -60,7 +60,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                                 .WithDescription(string.Join('\n', new[] {
                                     $"Sorry, {role.Role.Mention} is part of the '{groupInfo.Group.Name}' group.",
                                     $"You already have {MentionUtils.MentionRole(groupInfo.MemberRolesInSameGroup.First())} which is part of the same group.",
-                                    $"Use `{Context.CommandPrefix}roles group` to configure accessible role groups!"
+                                    $"Use `{Context.CommandPrefix}role drop` to drop it!"
                                 }));
                         }
                         else
@@ -231,7 +231,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
         [RequireUserPermissionOrOwner(GuildPermission.ManageRoles)]
         [Command("group")]
-        [Summary("Adds an accesible role to a group. Users can only get one accessible role of the same group.")]
+        [Summary("Adds an accessible role to a group. Users can only get one accessible role of the same group. Use clear as group name to remove a role from its group.")]
         public async Task<RuntimeResult> GroupAsync(
             [Summary("What group would you like to add an accessible role to?")]
             AccessibleGroupName group,
@@ -262,7 +262,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     .WithDescription(string.Join('\n', new[] {
                         $"Successfully put {role.Role.Mention} in the '{group.Name}' group.",
                         $"Users can only get one accessible role of the same group when using `{Context.CommandPrefix}role`.",
-                        $"Use `{Context.CommandPrefix}roles clear {role.Role.Name}` to remove it from the group."
+                        $"Use `{Context.CommandPrefix}roles group clear {role.Role.Name}` to remove it from the group."
                     }));
             }
 
