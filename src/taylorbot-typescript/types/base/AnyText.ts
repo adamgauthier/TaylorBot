@@ -1,4 +1,4 @@
-import ArgumentType = require('../ArgumentType');
+import { ArgumentType } from '../ArgumentType';
 
 class AnyTextArgumentType extends ArgumentType {
     constructor() {

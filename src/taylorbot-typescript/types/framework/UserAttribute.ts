@@ -1,5 +1,5 @@
 import AttributeArgumentType = require('./Attribute.js');
-import ArgumentParsingError = require('../ArgumentParsingError.js');
+import { ArgumentParsingError } from '../ArgumentParsingError';
 import { UserAttribute } from '../../attributes/UserAttribute';
 import { CommandMessageContext, CommandArgumentInfo } from '../../commands/CommandMessageContext';
 
@@ -14,7 +14,7 @@ class UserAttributeArgumentType extends AttributeArgumentType {
         if (!(attribute instanceof UserAttribute) && attribute.id !== 'lastfm')
             throw new ArgumentParsingError(`Attribute '${val}' is not a User Attribute.`);
 
-        return attribute;
+        return attribute as UserAttribute;
     }
 }
 

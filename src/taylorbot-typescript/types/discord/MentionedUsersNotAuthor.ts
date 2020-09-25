@@ -1,7 +1,7 @@
-import ArgumentParsingError = require('../ArgumentParsingError.js');
+import { ArgumentParsingError } from '../ArgumentParsingError';
 import { CommandMessageContext, CommandArgumentInfo } from '../../commands/CommandMessageContext';
 import { User } from 'discord.js';
-import TextArgumentType = require('../base/Text.js');
+import TextArgumentType = require('../base/Text');
 import MentionedUserArgumentType = require('./MentionedUser.js');
 
 class MentionedUsersNotAuthorArgumentType extends TextArgumentType {

@@ -1,5 +1,5 @@
 import AttributeArgumentType = require('./Attribute.js');
-import ArgumentParsingError = require('../ArgumentParsingError.js');
+import { ArgumentParsingError } from '../ArgumentParsingError';
 import { MemberAttribute } from '../../attributes/MemberAttribute';
 import { CommandMessageContext, CommandArgumentInfo } from '../../commands/CommandMessageContext';
 

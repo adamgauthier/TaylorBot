@@ -10,7 +10,7 @@ export class EventLoader {
     static async loadAll(client: TaylorBotClient): Promise<void> {
         const files = await fs.readdir(eventsPath);
 
-        return files
+        files
             .map(file => path.join(eventsPath, file))
             .map(path.parse)
             .filter(file => file.ext === '.js')

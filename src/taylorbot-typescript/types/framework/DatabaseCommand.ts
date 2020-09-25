@@ -1,6 +1,6 @@
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
-import TextArgumentType = require('../base/Text.js');
-import ArgumentParsingError = require('../ArgumentParsingError.js');
+import TextArgumentType = require('../base/Text');
+import { ArgumentParsingError } from '../ArgumentParsingError';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class DatabaseCommandArgumentType extends TextArgumentType {

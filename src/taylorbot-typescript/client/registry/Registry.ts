@@ -1,5 +1,5 @@
 import Log = require('../../tools/Logger.js');
-import TypeRegistry = require('./TypeRegistry.js');
+import { TypeRegistry } from './TypeRegistry';
 import { MessageWatcherRegistry } from './MessageWatcherRegistry';
 import GroupRegistry = require('./GroupRegistry.js');
 import { GuildRegistry } from './GuildRegistry';

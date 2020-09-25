@@ -44,7 +44,7 @@ export class GuildRegistry extends Map {
         return `command-user:guild:${member.guild.id}:user:${member.id}`;
     }
 
-    async addOrUpdateMemberAsync(member: GuildMember, lastSpokeAt: Date): Promise<boolean> {
+    async addOrUpdateMemberAsync(member: GuildMember, lastSpokeAt: Date | null): Promise<boolean> {
         const key = this.memberKey(member);
         const cachedMember = await this.#redis.get(key);
 

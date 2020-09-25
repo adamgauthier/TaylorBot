@@ -3,7 +3,7 @@ import Log = require('../tools/Logger.js');
 import Format = require('../modules/DiscordFormatter.js');
 import { ArrayUtil } from '../modules/util/ArrayUtil';
 import CommandError = require('../commands/CommandError.js');
-import ArgumentParsingError = require('../types/ArgumentParsingError.js');
+import { ArgumentParsingError } from '../types/ArgumentParsingError';
 import { Message } from 'discord.js';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 import { CachedCommand } from '../client/registry/CachedCommand';
@@ -155,14 +155,15 @@ class CommandsWatcher extends MessageWatcher {
 
         const parsedArgs: Record<string, any> = {};
 
-        for (const [match, { info, type }] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
+        for (const [match, commandArg] of ArrayUtil.iterateArrays(matchedGroups, commandContext.args)) {
+            const { info, type } = commandArg;
             if (match === '') {
                 parsedArgs[info.key] = type.default(commandContext, info);
                 continue;
             }
 
             try {
-                const parsedArg = await type.parse(match, commandContext, info);
+                const parsedArg = await type.parse(match, commandContext, commandArg);
 
                 parsedArgs[info.key] = parsedArg;
             }

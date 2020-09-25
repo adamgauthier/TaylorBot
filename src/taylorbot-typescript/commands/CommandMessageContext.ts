@@ -1,11 +1,11 @@
 import UnsafeRandomModule = require('../modules/random/UnsafeRandomModule.js');
 import { CachedCommand } from '../client/registry/CachedCommand';
 import { TaylorBotClient } from '../client/TaylorBotClient';
-import ArgumentType = require('../types/ArgumentType.js');
+import { ArgumentType } from '../types/ArgumentType';
 import { Message, User } from 'discord.js';
 import { MessageContext } from '../structures/MessageContext';
 
-type ArgumentInfo = {
+export type ArgumentInfo = {
     key: string;
     label: string;
     type: string;

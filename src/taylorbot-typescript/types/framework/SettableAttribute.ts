@@ -1,4 +1,4 @@
-import ArgumentParsingError = require('../ArgumentParsingError.js');
+import { ArgumentParsingError } from '../ArgumentParsingError';
 import UserAttributeArgumentType = require('./UserAttribute');
 import { UserAttribute } from '../../attributes/UserAttribute';
 import { CommandMessageContext, CommandArgumentInfo } from '../../commands/CommandMessageContext';
