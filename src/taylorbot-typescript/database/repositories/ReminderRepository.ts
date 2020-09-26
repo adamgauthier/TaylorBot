@@ -1,17 +1,19 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { User } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class ReminderRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
 
-class ReminderRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async fromUser(user) {
+    async fromUser(user: User): Promise<any[]> {
         try {
-            return await this._db.any(
-                'SELECT * FROM users.reminders WHERE user_id = $[user_id];',
+            return await this.#db.any(
+                'SELECT reminder_id FROM users.reminders WHERE user_id = $[user_id];',
                 {
                     'user_id': user.id
                 }
@@ -23,9 +25,9 @@ class ReminderRepository {
         }
     }
 
-    async add(user, remindAt, reminderText) {
+    async add(user: User, remindAt: Date, reminderText: string): Promise<void> {
         try {
-            return await this._db.none(
+            await this.#db.none(
                 `INSERT INTO users.reminders (user_id, remind_at, reminder_text)
                 VALUES ($[user_id], $[remind_at], $[reminder_text]);`,
                 {
@@ -41,10 +43,10 @@ class ReminderRepository {
         }
     }
 
-    async removeFrom(user) {
+    async removeFrom(user: User): Promise<any[]> {
         try {
-            return await this._db.any(
-                'DELETE FROM users.reminders WHERE user_id = $[user_id] RETURNING *;',
+            return await this.#db.any(
+                'DELETE FROM users.reminders WHERE user_id = $[user_id] RETURNING reminder_id;',
                 { user_id: user.id }
             );
         }
@@ -54,5 +56,3 @@ class ReminderRepository {
         }
     }
 }
-
-module.exports = ReminderRepository;

@@ -1,20 +1,24 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import * as pgPromise from 'pg-promise';
+import { TaypointAmount } from '../../modules/points/TaypointAmount';
+import { UserDAO } from '../dao/UserDAO';
 
-const Log = require('../../tools/Logger.js');
+export class HeistStatsRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
+    readonly #usersDAO: UserDAO;
 
-class HeistStatsRepository {
-    constructor(db, usersDAO) {
-        this._db = db;
-        this._usersDAO = usersDAO;
+    constructor(db: pgPromise.IDatabase<unknown>, usersDAO: UserDAO) {
+        this.#db = db;
+        this.#usersDAO = usersDAO;
     }
 
-    async loseHeist(heisters) {
+    async loseHeist(heisters: { userId: string; amount: TaypointAmount }[]): Promise<{ user_id: string; gambled_count: string; final_count: string; lost_count: string }[]> {
         try {
-            return await this._db.tx(async t => {
+            return await this.#db.tx(async t => {
                 const results = [];
 
                 for (const { userId, amount } of heisters) {
-                    const result = await this._usersDAO.loseBet(t, userId, amount);
+                    const result = await this.#usersDAO.loseBet(t, userId, amount);
 
                     await t.none(
                         `INSERT INTO users.heist_stats (user_id, heist_lose_count, heist_lose_amount)
@@ -42,13 +46,13 @@ class HeistStatsRepository {
         }
     }
 
-    async winHeist(heisters, payoutMultiplier) {
+    async winHeist(heisters: { userId: string; amount: TaypointAmount }[], payoutMultiplier: string): Promise<{ user_id: string; gambled_count: string; final_count: string; payout_count: string }[]> {
         try {
-            return await this._db.tx(async t => {
+            return await this.#db.tx(async t => {
                 const results = [];
 
                 for (const { userId, amount } of heisters) {
-                    const result = await this._usersDAO.winBet(t, userId, amount, payoutMultiplier);
+                    const result = await this.#usersDAO.winBet(t, userId, amount, payoutMultiplier);
 
                     await t.none(
                         `INSERT INTO users.heist_stats (user_id, heist_win_count, heist_win_amount)
@@ -76,5 +80,3 @@ class HeistStatsRepository {
         }
     }
 }
-
-module.exports = HeistStatsRepository;

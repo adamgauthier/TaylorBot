@@ -6,28 +6,28 @@ const pgp = pgPromise({
 
 import PostgreSQLConfig = require('../config/postgresql.json');
 
-import UserDAO = require('./dao/UserDAO.js');
+import { UserDAO } from './dao/UserDAO';
 
-import GuildRepository = require('./repositories/GuildRepository.js');
-import UserRepository = require('./repositories/UserRepository.js');
-import GuildMemberRepository = require('./repositories/GuildMemberRepository.js');
+import { GuildRepository } from './repositories/GuildRepository';
+import { UserRepository } from './repositories/UserRepository';
+import { GuildMemberRepository } from './repositories/GuildMemberRepository';
 import { UsernameRepository } from './repositories/UsernameRepository';
 import { GuildNameRepository } from './repositories/GuildNameRepository';
-import GuildCommandRepository = require('./repositories/GuildCommandRepository.js');
+import { GuildCommandRepository } from './repositories/GuildCommandRepository';
 import { CommandRepository } from './repositories/CommandRepository';
-import UserGroupRepository = require('./repositories/UserGroupRepository.js');
-import RoleGroupRepository = require('./repositories/RoleGroupRepository.js');
-import ReminderRepository = require('./repositories/ReminderRepository.js');
-import TextChannelRepository = require('./repositories/TextChannelRepository.js');
+import { UserGroupRepository } from './repositories/UserGroupRepository';
+import { RoleGroupRepository } from './repositories/RoleGroupRepository';
+import { ReminderRepository } from './repositories/ReminderRepository';
+import { TextChannelRepository } from './repositories/TextChannelRepository';
 import { AttributeRepository } from './repositories/AttributeRepository';
-import TextAttributeRepository = require('./repositories/TextAttributeRepository.js');
-import IntegerAttributeRepository = require('./repositories/IntegerAttributeRepository.js');
-import LocationAttributeRepository = require('./repositories/LocationAttributeRepository.js');
-import RollStatsRepository = require('./repositories/RollStatsRepository.js');
-import RpsStatsRepository = require('./repositories/RpsStatsRepository.js');
-import GambleStatsRepository = require('./repositories/GambleStatsRepository.js');
+import { TextAttributeRepository } from './repositories/TextAttributeRepository';
+import { IntegerAttributeRepository } from './repositories/IntegerAttributeRepository';
+import { LocationAttributeRepository } from './repositories/LocationAttributeRepository';
+import { RollStatsRepository } from './repositories/RollStatsRepository';
+import { RpsStatsRepository } from './repositories/RpsStatsRepository';
+import { GambleStatsRepository } from './repositories/GambleStatsRepository';
 import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
-import HeistStatsRepository = require('./repositories/HeistStatsRepository.js');
+import { HeistStatsRepository } from './repositories/HeistStatsRepository';
 import { BirthdayAttributeRepository } from './repositories/BirthdayAttributeRepository';
 import { ProRepository } from './repositories/ProRepository';
 
@@ -62,7 +62,7 @@ export class DatabaseDriver {
         const usersDAO = new UserDAO();
 
         this.guilds = new GuildRepository(db);
-        this.users = new UserRepository(db, usersDAO);
+        this.users = new UserRepository(db);
         this.guildMembers = new GuildMemberRepository(db, helpers);
         this.usernames = new UsernameRepository(db);
         this.guildNames = new GuildNameRepository(db);

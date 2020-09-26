@@ -41,7 +41,7 @@ class AddLogChannelCommand extends Command {
             throw new CommandError(`Log channels are restricted to supporter servers, use \`support\` for more info.`);
         }
 
-        const logChannels: { channel_id: string }[] = await database.textChannels.getAllLogChannelsInGuild(message.guild, type);
+        const logChannels = await database.textChannels.getAllLogChannelsInGuild(message.guild!, type);
 
         if (logChannels.some(c => c.channel_id === channel.id)) {
             throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is already a ${type} log channel.`);

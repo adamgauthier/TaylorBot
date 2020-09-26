@@ -1,16 +1,18 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import { Guild } from 'discord.js';
+import * as pgPromise from 'pg-promise';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class GuildRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
 
-class GuildRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async getAll() {
+    async getAll(): Promise<{ guild_id: string }[]> {
         try {
-            return await this._db.any('SELECT * FROM guilds.guilds;');
+            return await this.#db.any('SELECT guild_id FROM guilds.guilds;');
         }
         catch (e) {
             Log.error(`Getting all guilds: ${e}`);
@@ -18,31 +20,17 @@ class GuildRepository {
         }
     }
 
-    mapGuildToDatabase(guild) {
+    mapGuildToDatabase(guild: Guild): { guild_id: string; guild_name: string } {
         return {
             guild_id: guild.id,
             guild_name: guild.name
         };
     }
 
-    async get(guild) {
+    async getPrefix(guild: Guild): Promise<{ prefix: string }> {
         const databaseGuild = this.mapGuildToDatabase(guild);
         try {
-            return await this._db.oneOrNone(
-                'SELECT * FROM guilds.guilds WHERE guild_id = $[guild_id];',
-                databaseGuild
-            );
-        }
-        catch (e) {
-            Log.error(`Getting guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async getPrefix(guild) {
-        const databaseGuild = this.mapGuildToDatabase(guild);
-        try {
-            return await this._db.oneOrNone(
+            return await this.#db.one(
                 `INSERT INTO guilds.guilds (guild_id, guild_name, previous_guild_name) VALUES ($[guild_id], $[guild_name], NULL)
                 ON CONFLICT (guild_id) DO UPDATE SET
                     previous_guild_name = guilds.guilds.guild_name,
@@ -57,5 +45,3 @@ class GuildRepository {
         }
     }
 }
-
-module.exports = GuildRepository;

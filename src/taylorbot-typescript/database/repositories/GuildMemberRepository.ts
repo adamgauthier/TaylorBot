@@ -1,24 +1,27 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { Guild, GuildMember } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class GuildMemberRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
+    readonly #helpers: pgPromise.IHelpers;
 
-class GuildMemberRepository {
-    constructor(db, helpers) {
-        this._db = db;
-        this._helpers = helpers;
+    constructor(db: pgPromise.IDatabase<unknown>, helpers: pgPromise.IHelpers) {
+        this.#db = db;
+        this.#helpers = helpers;
     }
 
-    mapMemberToDatabase(guildMember) {
+    mapMemberToDatabase(guildMember: GuildMember): { guild_id: string; user_id: string } {
         return {
             guild_id: guildMember.guild.id,
             user_id: guildMember.id
         };
     }
 
-    async getRankedFirstJoinedAt(guild, limit) {
+    async getRankedFirstJoinedAt(guild: Guild, limit: number): Promise<{ first_joined_at: Date; user_id: string; rank: string }[]> {
         try {
-            return await this._db.any(
+            return await this.#db.any(
                 `SELECT first_joined_at, user_id, rank
                 FROM (
                    SELECT
@@ -43,9 +46,9 @@ class GuildMemberRepository {
         }
     }
 
-    async getRankedFirstJoinedAtFor(guildMember) {
+    async getRankedFirstJoinedAtFor(guildMember: GuildMember): Promise<{ first_joined_at: Date; rank: string } | null> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 `SELECT ranked.first_joined_at, ranked.rank
                 FROM (
                    SELECT
@@ -68,9 +71,9 @@ class GuildMemberRepository {
         }
     }
 
-    async _getRankedUsers(guild, limit, column) {
+    async _getRankedUsers(guild: Guild, limit: number, column: string): Promise<any[]> {
         try {
-            return await this._db.any(
+            return await this.#db.any(
                 `SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
                 FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
                 WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
@@ -88,9 +91,9 @@ class GuildMemberRepository {
         }
     }
 
-    async _getRankedAliveFor(guildMember, column) {
+    async _getRankedAliveFor(guildMember: GuildMember, column: string): Promise<any> {
         try {
-            return await this._db.one(
+            return await this.#db.one(
                 `SELECT $[column~], rank FROM (
                     SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
                     FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
@@ -110,9 +113,9 @@ class GuildMemberRepository {
         }
     }
 
-    async _getRankedAliveForeign(guild, limit, tableName, column) {
+    async _getRankedAliveForeign(guild: Guild, limit: number, tableName: pgPromise.TableName, column: string): Promise<any[]> {
         try {
-            return await this._db.any(
+            return await this.#db.any(
                 `SELECT f.$[column~], gm.user_id, rank() OVER (ORDER BY f.$[column~] DESC) AS rank
                 FROM guilds.guild_members AS gm
                     JOIN users.users AS u ON u.user_id = gm.user_id
@@ -133,9 +136,9 @@ class GuildMemberRepository {
         }
     }
 
-    async _getRankedAliveForeignFor(guildMember, tableName, rankedColumn, columns) {
+    async _getRankedAliveForeignFor(guildMember: GuildMember, tableName: pgPromise.TableName, rankedColumn: string, columns: string[]): Promise<any> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 `SELECT $[columns~], rank FROM (
                     SELECT $[columns~], gm.user_id, rank() OVER (ORDER BY f.$[ranked_column~] DESC) AS rank
                     FROM guilds.guild_members AS gm
@@ -159,53 +162,52 @@ class GuildMemberRepository {
         }
     }
 
-    getRankedMessages(guild, limit) {
+    getRankedMessages(guild: Guild, limit: number): Promise<{ message_count: string; user_id: string; rank: string }[]> {
         return this._getRankedUsers(guild, limit, 'message_count');
     }
 
-    getRankedMessagesFor(guildMember) {
+    getRankedMessagesFor(guildMember: GuildMember): Promise<{ message_count: string; rank: string }> {
         return this._getRankedAliveFor(guildMember, 'message_count');
     }
 
-    getRankedWords(guild, limit) {
+    getRankedWords(guild: Guild, limit: number): Promise<{ word_count: string; user_id: string; rank: string }[]> {
         return this._getRankedUsers(guild, limit, 'word_count');
     }
 
-    getRankedWordsFor(guildMember) {
+    getRankedWordsFor(guildMember: GuildMember): Promise<{ word_count: string; rank: string }> {
         return this._getRankedAliveFor(guildMember, 'word_count');
     }
 
-    getRankedMinutes(guild, limit) {
+    getRankedMinutes(guild: Guild, limit: number): Promise<{ minute_count: string; user_id: string; rank: string }[]> {
         return this._getRankedUsers(guild, limit, 'minute_count');
     }
 
-    getRankedMinutesFor(guildMember) {
+    getRankedMinutesFor(guildMember: GuildMember): Promise<{ minute_count: string; rank: string }> {
         return this._getRankedAliveFor(guildMember, 'minute_count');
     }
 
-    getRankedTaypoints(guild, limit) {
+    getRankedTaypoints(guild: Guild, limit: number): Promise<{ taypoint_count: string; user_id: string; rank: string }[]> {
         return this._getRankedUsers(guild, limit, 'taypoint_count');
     }
 
-    getRankedTaypointsFor(guildMember) {
+    getRankedTaypointsFor(guildMember: GuildMember): Promise<{ taypoint_count: string; rank: string }> {
         return this._getRankedAliveFor(guildMember, 'taypoint_count');
     }
 
-    getRankedForeignStat(guild, limit, schema, table, column) {
-        return this._getRankedAliveForeign(guild, limit, new this._helpers.TableName(table, schema), column);
+    getRankedForeignStat(guild: Guild, limit: number, schema: string, table: string, column: string): Promise<any[]> {
+        return this._getRankedAliveForeign(guild, limit, new this.#helpers.TableName(table, schema), column);
     }
 
-    getRankedForeignStatFor(guildMember, schema, table, rankedColumn, additionalColumns = []) {
-        return this._getRankedAliveForeignFor(guildMember, new this._helpers.TableName(table, schema), rankedColumn, additionalColumns);
+    getRankedForeignStatFor(guildMember: GuildMember, schema: string, table: string, rankedColumn: string, additionalColumns: string[] = []): Promise<any> {
+        return this._getRankedAliveForeignFor(guildMember, new this.#helpers.TableName(table, schema), rankedColumn, additionalColumns);
     }
 
-    async fixInvalidJoinDate(guildMember) {
+    async fixInvalidJoinDate(guildMember: GuildMember): Promise<void> {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            return await this._db.oneOrNone(
+            await this.#db.none(
                 `UPDATE guilds.guild_members SET first_joined_at = $[first_joined_at]
-                WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at IS NULL
-                RETURNING *;`,
+                WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at IS NULL;`,
                 {
                     'first_joined_at': guildMember.joinedAt,
                     ...databaseMember
@@ -218,10 +220,10 @@ class GuildMemberRepository {
         }
     }
 
-    async addOrUpdateMemberAsync(guildMember, lastSpokeAt) {
+    async addOrUpdateMemberAsync(guildMember: GuildMember, lastSpokeAt: Date | null): Promise<boolean> {
         const databaseMember = this.mapMemberToDatabase(guildMember);
         try {
-            const { experience } = await this._db.one(
+            const { experience } = await this.#db.one(
                 `INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at, last_spoke_at) VALUES ($[guild_id], $[user_id], $[first_joined_at], $[last_spoke_at])
                 ON CONFLICT (guild_id, user_id) DO UPDATE SET
                     alive = TRUE,
@@ -253,9 +255,9 @@ class GuildMemberRepository {
     }
 
 
-    async setDead(memberIds) {
+    async setDead(memberIds: string[]): Promise<void> {
         try {
-            await this._db.none(
+            await this.#db.none(
                 `UPDATE guilds.guild_members SET alive = FALSE WHERE user_id IN ($[user_ids:csv]);`,
                 {
                     user_ids: memberIds,
@@ -268,5 +270,3 @@ class GuildMemberRepository {
         }
     }
 }
-
-module.exports = GuildMemberRepository;

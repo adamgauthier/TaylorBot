@@ -1,6 +1,6 @@
 import PositiveSafeIntegerArgumentType = require('../numbers/PositiveSafeInteger.js');
 import { ArgumentParsingError } from '../ArgumentParsingError';
-import TaypointAmount = require('../../modules/points/TaypointAmount.js');
+import { TaypointAmount } from '../../modules/points/TaypointAmount';
 import StringUtil = require('../../modules/StringUtil.js');
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
 import WordArgumentType = require('../base/Word');
@@ -25,9 +25,9 @@ class TaypointAmountArgumentType extends WordArgumentType {
         }
 
         const number = this.#positiveSafeIntegerArgumentType.parse(val, commandContext, arg);
-        const { client, message } = commandContext;
+        const { client, author } = commandContext;
 
-        const { taypoint_count, has_enough }: { taypoint_count: string; has_enough: boolean } = await client.master.database.users.hasEnoughTaypointCount(message.author, number);
+        const { taypoint_count, has_enough } = await client.master.database.users.hasEnoughTaypointCount(author, number);
 
         if (!has_enough)
             throw new ArgumentParsingError(

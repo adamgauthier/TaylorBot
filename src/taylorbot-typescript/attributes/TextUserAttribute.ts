@@ -23,8 +23,8 @@ export abstract class TextUserAttribute extends SettableUserAttribute {
         return database.textAttributes.set(this.id, user, value.toString());
     }
 
-    clear(database: DatabaseDriver, user: User): Promise<void> {
-        return database.textAttributes.clear(this.id, user);
+    async clear(database: DatabaseDriver, user: User): Promise<void> {
+        await database.textAttributes.clear(this.id, user);
     }
 
     formatValue(attribute: Record<string, any>): string {

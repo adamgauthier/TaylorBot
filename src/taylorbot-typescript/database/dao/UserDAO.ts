@@ -1,7 +1,9 @@
-'use strict';
+import { User } from "discord.js";
+import * as pgPromise from 'pg-promise';
+import { TaypointAmount } from '../../modules/points/TaypointAmount';
 
-class UserDAO {
-    addTaypointCount(queryable, usersTo, count) {
+export class UserDAO {
+    addTaypointCount(queryable: pgPromise.IBaseProtocol<unknown>, usersTo: User[], count: number): Promise<{ taypoint_count: string }[]> {
         return queryable.many(
             'UPDATE users.users SET taypoint_count = taypoint_count + $[points_to_add] WHERE user_id IN ($[user_ids:csv]) RETURNING taypoint_count;',
             {
@@ -11,7 +13,13 @@ class UserDAO {
         );
     }
 
-    loseBet(queryable, userId, betAmount) {
+    loseBet(queryable: pgPromise.IBaseProtocol<unknown>, userId: string, betAmount: TaypointAmount): Promise<{
+        user_id: string;
+        gambled_count: string;
+        original_count: string;
+        final_count: string;
+        lost_count: string;
+    }> {
         const toRemove = betAmount.isRelative ?
             { query: 'FLOOR(taypoint_count / $[points_divisor])::bigint', params: { points_divisor: betAmount.divisor } } :
             { query: 'LEAST(taypoint_count, $[gamble_points])', params: { gamble_points: betAmount.count } };
@@ -33,7 +41,13 @@ class UserDAO {
         );
     }
 
-    winBet(queryable, userId, betAmount, payoutMultiplier) {
+    winBet(queryable: pgPromise.IBaseProtocol<unknown>, userId: string, betAmount: TaypointAmount, payoutMultiplier: string): Promise<{
+        user_id: string;
+        gambled_count: string;
+        original_count: string;
+        final_count: string;
+        payout_count: string;
+    }> {
         const toAdd = betAmount.isRelative ?
             { query: 'FLOOR(taypoint_count / $[points_divisor])::bigint', params: { points_divisor: betAmount.divisor } } :
             { query: 'LEAST(taypoint_count, $[gamble_points])', params: { gamble_points: betAmount.count } };
@@ -56,5 +70,3 @@ class UserDAO {
         );
     }
 }
-
-module.exports = UserDAO;

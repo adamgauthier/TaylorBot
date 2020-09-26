@@ -1,16 +1,18 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { Guild, User } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class TextAttributeRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
 
-class TextAttributeRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async get(attributeId, user) {
+    async get(attributeId: string, user: User): Promise<{ attribute_id: string; user_id: string; attribute_value: string } | null> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 'SELECT * FROM attributes.text_attributes WHERE user_id = $[user_id] AND attribute_id = $[attribute_id];',
                 {
                     'user_id': user.id,
@@ -24,28 +26,9 @@ class TextAttributeRepository {
         }
     }
 
-    async getMultiple(attributeIds, user) {
+    async set(attributeId: string, user: User, value: string): Promise<{ attribute_id: string; user_id: string; attribute_value: string }> {
         try {
-            const attributeRows = await this._db.any(
-                `SELECT * FROM attributes.text_attributes
-                WHERE user_id = $[user_id] AND
-                attribute_id IN ($[attributes:csv])`,
-                {
-                    'user_id': user.id,
-                    'attributes': attributeIds
-                }
-            );
-            return attributeIds.map(id => attributeRows.find(a => a.attribute_id === id));
-        }
-        catch (e) {
-            Log.error(`Getting attributes '${attributeIds.join()}' for user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async set(attributeId, user, value) {
-        try {
-            return await this._db.one(
+            return await this.#db.one(
                 `INSERT INTO attributes.text_attributes (attribute_id, user_id, attribute_value)
                 VALUES ($[attribute_id], $[user_id], $[attribute_value])
                 ON CONFLICT (attribute_id, user_id) DO UPDATE
@@ -64,12 +47,11 @@ class TextAttributeRepository {
         }
     }
 
-    async clear(attributeId, user) {
+    async clear(attributeId: string, user: User): Promise<void> {
         try {
-            return await this._db.oneOrNone(
+            await this.#db.none(
                 `DELETE FROM attributes.text_attributes
-                WHERE attribute_id = $[attribute_id] AND user_id = $[user_id]
-                RETURNING *;`,
+                WHERE attribute_id = $[attribute_id] AND user_id = $[user_id];`,
                 {
                     'user_id': user.id,
                     'attribute_id': attributeId
@@ -82,31 +64,9 @@ class TextAttributeRepository {
         }
     }
 
-    async getInGuild(attributeId, guild) {
+    async listInGuild(attributeId: string, guild: Guild, count: number): Promise<{ attribute_id: string; user_id: string; attribute_value: string }[]> {
         try {
-            return await this._db.any(
-                `SELECT * FROM attributes.text_attributes
-                WHERE user_id IN (
-                   SELECT user_id
-                   FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id]
-                )
-                AND attribute_id = $[attribute_id];`,
-                {
-                    'guild_id': guild.id,
-                    'attribute_id': attributeId
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting attributes '${attributeId}' for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async listInGuild(attributeId, guild, count) {
-        try {
-            return await this._db.any(
+            return await this.#db.any(
                 `SELECT * FROM attributes.text_attributes
                 WHERE user_id IN (
                    SELECT user_id
@@ -128,5 +88,3 @@ class TextAttributeRepository {
         }
     }
 }
-
-module.exports = TextAttributeRepository;

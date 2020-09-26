@@ -5,7 +5,7 @@ import UserGroups = require('../../client/UserGroups.js');
 import DISCORD_CONFIG = require('../../config/config.json');
 import { Registry } from '../../client/registry/Registry';
 import { GuildRegistry } from '../../client/registry/GuildRegistry';
-import GroupRegistry = require('../../client/registry/GroupRegistry');
+import { GroupRegistry } from '../../client/registry/GroupRegistry';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { MessageContext } from '../../structures/MessageContext';
@@ -54,11 +54,11 @@ class GroupAccessInhibitor extends NoisyInhibitor {
     }
 
     static roleGroupHasAccess(minimumGroupLevel: number, member: GuildMember, guilds: GuildRegistry, groups: GroupRegistry): boolean {
-        const guildRoles = guilds.get(member.guild.id).roleGroups;
-        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => !!g);
+        const guildRoles = guilds.get(member.guild.id)!.roleGroups;
+        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => !!g) as string[];
 
         for (const group of ownedGroups) {
-            const { accessLevel } = groups.get(group);
+            const { accessLevel } = groups.get(group)!;
             if (accessLevel >= minimumGroupLevel)
                 return true;
         }

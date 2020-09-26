@@ -1,16 +1,20 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { UserDAO } from '../dao/UserDAO';
+import { User } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class RollStatsRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
+    readonly #usersDAO: UserDAO;
 
-class RollStatsRepository {
-    constructor(db, usersDAO) {
-        this._db = db;
-        this._usersDAO = usersDAO;
+    constructor(db: pgPromise.IDatabase<unknown>, usersDAO: UserDAO) {
+        this.#db = db;
+        this.#usersDAO = usersDAO;
     }
 
-    _addRollCount(queryable, user, rollCount) {
-        return queryable.none(
+    async _addRollCount(queryable: pgPromise.IBaseProtocol<unknown>, user: User, rollCount: number): Promise<void> {
+        await queryable.none(
             `INSERT INTO users.roll_stats (user_id, roll_count)
             VALUES ($[user_id], $[roll_count])
             ON CONFLICT (user_id) DO UPDATE SET
@@ -23,9 +27,9 @@ class RollStatsRepository {
         );
     }
 
-    async addRollCount(userTo, rollCount) {
+    async addRollCount(userTo: User, rollCount: number): Promise<void> {
         try {
-            return await this._addRollCount(this._db, userTo, rollCount);
+            await this._addRollCount(this.#db, userTo, rollCount);
         }
         catch (e) {
             Log.error(`Adding ${rollCount} roll count to ${Format.user(userTo)}: ${e}`);
@@ -33,12 +37,12 @@ class RollStatsRepository {
         }
     }
 
-    async winRoll(winnerUser, payoutCount) {
+    async winRoll(winnerUser: User, payoutCount: number): Promise<void> {
         try {
-            return await this._db.tx(async t => {
+            await this.#db.tx(async t => {
                 await this._addRollCount(t, winnerUser, 1);
 
-                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
+                const [result] = await this.#usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
 
                 return result;
             });
@@ -49,9 +53,9 @@ class RollStatsRepository {
         }
     }
 
-    async winPerfectRoll(winnerUser, payoutCount) {
+    async winPerfectRoll(winnerUser: User, payoutCount: number): Promise<void> {
         try {
-            return await this._db.tx(async t => {
+            await this.#db.tx(async t => {
                 await t.none(
                     `INSERT INTO users.roll_stats (user_id, roll_count, perfect_roll_count)
                     VALUES ($[user_id], $[win_count], $[win_count])
@@ -65,7 +69,7 @@ class RollStatsRepository {
                     }
                 );
 
-                const [result] = await this._usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
+                const [result] = await this.#usersDAO.addTaypointCount(t, [winnerUser], payoutCount);
 
                 return result;
             });
@@ -76,5 +80,3 @@ class RollStatsRepository {
         }
     }
 }
-
-module.exports = RollStatsRepository;

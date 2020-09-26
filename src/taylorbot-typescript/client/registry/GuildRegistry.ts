@@ -2,9 +2,9 @@ import { RedisDriver } from '../../caching/RedisDriver';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { GuildMember, Guild } from 'discord.js';
 
-export class GuildRegistry extends Map {
-    #database: DatabaseDriver;
-    #redis: RedisDriver;
+export class GuildRegistry extends Map<string, { roleGroups: Record<string, string | undefined> }> {
+    readonly #database: DatabaseDriver;
+    readonly #redis: RedisDriver;
 
     constructor(database: DatabaseDriver, redis: RedisDriver) {
         super();
@@ -13,7 +13,7 @@ export class GuildRegistry extends Map {
     }
 
     async load(): Promise<void> {
-        const guilds: { guild_id: string }[] = await this.#database.guilds.getAll();
+        const guilds = await this.#database.guilds.getAll();
         guilds.forEach(g => this.cacheGuild(g));
     }
 

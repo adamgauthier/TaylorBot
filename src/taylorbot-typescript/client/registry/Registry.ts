@@ -1,9 +1,9 @@
 import Log = require('../../tools/Logger.js');
 import { TypeRegistry } from './TypeRegistry';
 import { MessageWatcherRegistry } from './MessageWatcherRegistry';
-import GroupRegistry = require('./GroupRegistry.js');
+import { GroupRegistry } from './GroupRegistry';
 import { GuildRegistry } from './GuildRegistry';
-import GuildRoleGroupRegistry = require('./GuildRoleGroupRegistry.js');
+import { GuildRoleGroupRegistry } from './GuildRoleGroupRegistry';
 import { CommandRegistry } from './CommandRegistry';
 import { UserRegistry } from './UserRegistry';
 import { InhibitorRegistry } from './InhibitorRegistry';

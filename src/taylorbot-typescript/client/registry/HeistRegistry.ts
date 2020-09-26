@@ -1,4 +1,4 @@
-import TaypointAmount = require('../../modules/points/TaypointAmount.js');
+import { TaypointAmount } from '../../modules/points/TaypointAmount';
 import { RedisDriver } from '../../caching/RedisDriver.js';
 import { Guild, User } from 'discord.js';
 

@@ -1,18 +1,23 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { UserDAO } from '../dao/UserDAO';
+import { User } from 'discord.js';
+import { TaypointAmount } from '../../modules/points/TaypointAmount';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class GambleStatsRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
+    readonly #usersDAO: UserDAO;
 
-class GambleStatsRepository {
-    constructor(db, usersDAO) {
-        this._db = db;
-        this._usersDAO = usersDAO;
+    constructor(db: pgPromise.IDatabase<unknown>, usersDAO: UserDAO) {
+        this.#db = db;
+        this.#usersDAO = usersDAO;
     }
 
-    async loseGambledTaypointCount(userTo, amount) {
+    async loseGambledTaypointCount(userTo: User, amount: TaypointAmount): Promise<{ gambled_count: string; original_count: string; final_count: string }> {
         try {
-            return await this._db.tx(async t => {
-                const result = await this._usersDAO.loseBet(t, userTo.id, amount);
+            return await this.#db.tx(async t => {
+                const result = await this.#usersDAO.loseBet(t, userTo.id, amount);
 
                 await t.none(
                     `INSERT INTO users.gamble_stats (user_id, gamble_lose_count, gamble_lose_amount)
@@ -37,10 +42,10 @@ class GambleStatsRepository {
         }
     }
 
-    async winGambledTaypointCount(userTo, amount, payoutMultiplier) {
+    async winGambledTaypointCount(userTo: User, amount: TaypointAmount, payoutMultiplier: string): Promise<{ gambled_count: string; original_count: string; final_count: string }> {
         try {
-            return await this._db.tx(async t => {
-                const result = await this._usersDAO.winBet(t, userTo.id, amount, payoutMultiplier);
+            return await this.#db.tx(async t => {
+                const result = await this.#usersDAO.winBet(t, userTo.id, amount, payoutMultiplier);
 
                 await t.none(
                     `INSERT INTO users.gamble_stats (user_id, gamble_win_count, gamble_win_amount)
@@ -65,5 +70,3 @@ class GambleStatsRepository {
         }
     }
 }
-
-module.exports = GambleStatsRepository;

@@ -1,16 +1,18 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { User } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class LocationAttributeRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
 
-class LocationAttributeRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async get(user) {
+    async get(user: User): Promise<{ user_id: string; formatted_address: string; longitude: string; latitude: string; timezone_id: string } | null> {
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 `SELECT * FROM attributes.location_attributes
                 WHERE user_id = $[user_id];`,
                 {
@@ -24,9 +26,9 @@ class LocationAttributeRepository {
         }
     }
 
-    async set(user, formattedAddress, longitude, latitude, timezoneId) {
+    async set(user: User, formattedAddress: string, longitude: string, latitude: string, timezoneId: string): Promise<{ user_id: string; formatted_address: string; longitude: string; latitude: string; timezone_id: string }> {
         try {
-            return await this._db.one(
+            return await this.#db.one(
                 `INSERT INTO attributes.location_attributes (user_id, formatted_address, longitude, latitude, timezone_id)
                 VALUES ($[user_id], $[formatted_address], $[longitude], $[latitude], $[timezone_id])
                 ON CONFLICT (user_id) DO UPDATE SET
@@ -50,12 +52,11 @@ class LocationAttributeRepository {
         }
     }
 
-    async clear(user) {
+    async clear(user: User): Promise<void> {
         try {
-            return await this._db.oneOrNone(
+            await this.#db.none(
                 `DELETE FROM attributes.location_attributes
-                WHERE user_id = $[user_id]
-                RETURNING *;`,
+                WHERE user_id = $[user_id];`,
                 {
                     'user_id': user.id
                 }
@@ -67,5 +68,3 @@ class LocationAttributeRepository {
         }
     }
 }
-
-module.exports = LocationAttributeRepository;

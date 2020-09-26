@@ -40,8 +40,8 @@ class LocationAttribute extends SettableUserAttribute {
         }
     }
 
-    clear(database: DatabaseDriver, user: User): Promise<void> {
-        return database.locationAttributes.clear(user);
+    async clear(database: DatabaseDriver, user: User): Promise<void> {
+        await database.locationAttributes.clear(user);
     }
 
     formatValue(attribute: Record<string, any>): string {

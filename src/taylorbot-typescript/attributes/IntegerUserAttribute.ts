@@ -11,8 +11,8 @@ export abstract class IntegerUserAttribute extends SettableUserAttribute {
         return database.integerAttributes.set(this.id, user, value.toString());
     }
 
-    clear(database: DatabaseDriver, user: User): Promise<void> {
-        return database.integerAttributes.clear(this.id, user);
+    async clear(database: DatabaseDriver, user: User): Promise<void> {
+        await database.integerAttributes.clear(this.id, user);
     }
 
     formatValue(attribute: Record<string, any>): string {

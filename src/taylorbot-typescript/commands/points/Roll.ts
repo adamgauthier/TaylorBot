@@ -17,8 +17,8 @@ class RollCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext): Promise<void> {
-        const { author, channel } = message;
+    async run({ author, message, client }: CommandMessageContext): Promise<void> {
+        const { channel } = message;
         const { database } = client.master;
 
         const roll = await RandomModule.getRandIntInclusive(0, 1989);

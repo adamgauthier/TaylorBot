@@ -1,27 +1,19 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { Guild, TextChannel } from 'discord.js';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class TextChannelRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
 
-class TextChannelRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async getAll() {
+    async getAllLogChannelsInGuild(guild: Guild, type: 'member' | 'message'): Promise<{ channel_id: string }[]> {
         try {
-            return await this._db.any('SELECT channel_id, guild_id FROM guilds.text_channels;');
-        }
-        catch (e) {
-            Log.error(`Getting all text: ${e}`);
-            throw e;
-        }
-    }
-
-    async getAllLogChannelsInGuild(guild, type) {
-        try {
-            return await this._db.any(
-                `SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_${type}_log = TRUE;`,
+            return await this.#db.any(
+                `SELECT channel_id FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_${type}_log = TRUE;`,
                 {
                     guild_id: guild.id
                 }
@@ -33,17 +25,25 @@ class TextChannelRepository {
         }
     }
 
-    mapChannelToDatabase(guildChannel) {
+    mapChannelToDatabase(guildChannel: TextChannel): { guild_id: string; channel_id: string } {
         return {
             'guild_id': guildChannel.guild.id,
             'channel_id': guildChannel.id
         };
     }
 
-    async get(guildChannel) {
+    async get(guildChannel: TextChannel): Promise<{
+        guild_id: string;
+        channel_id: string;
+        message_count: string;
+        is_member_log: boolean;
+        registered_at: Date;
+        is_spam: boolean;
+        is_message_log: boolean;
+    } | null> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.oneOrNone(
+            return await this.#db.oneOrNone(
                 'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];',
                 databaseChannel
             );
@@ -54,13 +54,12 @@ class TextChannelRepository {
         }
     }
 
-    async removeLog(guildChannel, type) {
+    async removeLog(guildChannel: TextChannel, type: 'member' | 'message'): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.oneOrNone(
+            await this.#db.none(
                 `UPDATE guilds.text_channels SET is_${type}_log = $[is_log]
-                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
-                RETURNING *;`,
+                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];`,
                 {
                     is_log: false,
                     ...databaseChannel
@@ -73,9 +72,9 @@ class TextChannelRepository {
         }
     }
 
-    async removeAllLogsInGuild(guild) {
+    async removeAllLogsInGuild(guild: Guild): Promise<{ channel_id: string }[]> {
         try {
-            return await this._db.manyOrNone(
+            return await this.#db.manyOrNone(
                 `UPDATE guilds.text_channels SET is_message_log = FALSE, is_member_log = FALSE
                 WHERE guild_id = $[guild_id] AND (is_message_log = TRUE OR is_member_log = TRUE)
                 RETURNING channel_id;`,
@@ -85,19 +84,18 @@ class TextChannelRepository {
             );
         }
         catch (e) {
-            Log.error(`Removing all ${type} log channels from ${Format.guild(guild)}: ${e}`);
+            Log.error(`Removing all log channels from ${Format.guild(guild)}: ${e}`);
             throw e;
         }
     }
 
-    async _setSpam(guildChannel, isSpam) {
+    async _setSpam(guildChannel: TextChannel, isSpam: boolean): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.one(
+            await this.#db.none(
                 `UPDATE guilds.text_channels
                 SET is_spam = $[is_spam]
-                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id]
-                RETURNING *;`,
+                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];`,
                 {
                     ...databaseChannel,
                     'is_spam': isSpam
@@ -110,18 +108,18 @@ class TextChannelRepository {
         }
     }
 
-    setSpam(guildChannel) {
-        return this._setSpam(guildChannel, true);
+    async setSpam(guildChannel: TextChannel): Promise<void> {
+        await this._setSpam(guildChannel, true);
     }
 
-    removeSpam(guildChannel) {
-        return this._setSpam(guildChannel, false);
+    async removeSpam(guildChannel: TextChannel): Promise<void> {
+        await this._setSpam(guildChannel, false);
     }
 
-    async upsertSpamChannel(guildChannel, isSpam) {
+    async upsertSpamChannel(guildChannel: TextChannel, isSpam: boolean): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.none(
+            await this.#db.none(
                 `INSERT INTO guilds.text_channels (guild_id, channel_id, is_spam) VALUES ($[guild_id], $[channel_id], $[is_spam])
                 ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_spam = $[is_spam];`,
                 {
@@ -136,10 +134,10 @@ class TextChannelRepository {
         }
     }
 
-    async upsertLogChannel(guildChannel, type) {
+    async upsertLogChannel(guildChannel: TextChannel, type: 'member' | 'message'): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.none(
+            await this.#db.none(
                 `INSERT INTO guilds.text_channels (guild_id, channel_id, is_${type}_log) VALUES ($[guild_id], $[channel_id], TRUE)
                 ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_${type}_log = TRUE;`,
                 databaseChannel
@@ -151,10 +149,10 @@ class TextChannelRepository {
         }
     }
 
-    async insertChannel(guildChannel) {
+    async insertChannel(guildChannel: TextChannel): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            return await this._db.none(
+            await this.#db.none(
                 `INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES ($[guild_id], $[channel_id])
                 ON CONFLICT (guild_id, channel_id) DO NOTHING;`,
                 databaseChannel
@@ -166,5 +164,3 @@ class TextChannelRepository {
         }
     }
 }
-
-module.exports = TextChannelRepository;

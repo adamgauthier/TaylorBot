@@ -1,31 +1,24 @@
-'use strict';
+import Log = require('../../tools/Logger.js');
+import Format = require('../../modules/DiscordFormatter.js');
+import * as pgPromise from 'pg-promise';
+import { Guild } from 'discord.js';
+import { CachedCommand } from '../../client/registry/CachedCommand';
 
-const Log = require('../../tools/Logger.js');
-const Format = require('../../modules/DiscordFormatter.js');
+export class GuildCommandRepository {
+    readonly #db: pgPromise.IDatabase<unknown>;
 
-class GuildCommandRepository {
-    constructor(db) {
-        this._db = db;
+    constructor(db: pgPromise.IDatabase<unknown>) {
+        this.#db = db;
     }
 
-    async getAll() {
+    async setDisabled(guild: Guild, commandName: string, disabled: boolean): Promise<{ disabled: boolean }> {
         try {
-            return await this._db.any('SELECT * FROM guilds.guild_commands;');
-        }
-        catch (e) {
-            Log.error(`Getting all guild commands: ${e}`);
-            throw e;
-        }
-    }
-
-    async setDisabled(guild, commandName, disabled) {
-        try {
-            return await this._db.one(
+            return await this.#db.one(
                 `INSERT INTO guilds.guild_commands (guild_id, command_name, disabled)
                 VALUES ($[guild_id], $[command_name], $[disabled])
                 ON CONFLICT (guild_id, command_name) DO UPDATE
                   SET disabled = excluded.disabled
-                RETURNING *;`,
+                RETURNING disabled;`,
                 {
                     'guild_id': guild.id,
                     'command_name': commandName,
@@ -39,9 +32,9 @@ class GuildCommandRepository {
         }
     }
 
-    async getIsGuildCommandDisabled(guild, command) {
+    async getIsGuildCommandDisabled(guild: Guild, command: CachedCommand): Promise<{ exists: boolean }> {
         try {
-            return await this._db.one(
+            return await this.#db.one(
                 `SELECT EXISTS(
                     SELECT 1 FROM guilds.guild_commands
                     WHERE guild_id = $[guild_id] AND command_name = $[command_name] AND disabled = TRUE
@@ -58,5 +51,3 @@ class GuildCommandRepository {
         }
     }
 }
-
-module.exports = GuildCommandRepository;
