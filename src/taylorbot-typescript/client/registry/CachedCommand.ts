@@ -1,4 +1,4 @@
-import Command = require('../../commands/Command.js');
+import { Command } from '../../commands/Command';
 
 export class CachedCommand {
     constructor(public name: string, public command: Command) { }

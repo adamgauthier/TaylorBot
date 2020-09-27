@@ -14,7 +14,7 @@ export class Poll extends events.EventEmitter {
     #closeTimeout: NodeJS.Timeout | null = null;
     endsAt: number | null = null;
 
-    constructor(private client: TaylorBotClient, private channel: TextChannel, private owner: User, options: string[]) {
+    constructor(private client: TaylorBotClient, private channel: TextChannel, public owner: User, options: string[]) {
         super();
         this.#options = options.reduce(
             (map, name, index) => map.set(index + 1, new Option(name)),

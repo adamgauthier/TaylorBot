@@ -22,4 +22,4 @@ class GooglePlaceArgumentType extends TextArgumentType {
     }
 }
 
-module.exports = GooglePlaceArgumentType;
+export = GooglePlaceArgumentType;

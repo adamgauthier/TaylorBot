@@ -1,6 +1,6 @@
 import CommandsWatcher = require('../../watchers/Commands');
 import { CommandMessageContext } from '../CommandMessageContext';
-import Command = require('../Command.js');
+import { Command } from '../Command';
 import { UserAttribute } from '../../attributes/UserAttribute';
 
 class SetAttributeCommand extends Command {

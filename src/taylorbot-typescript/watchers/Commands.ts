@@ -2,7 +2,7 @@ import { MessageWatcher } from '../structures/MessageWatcher';
 import Log = require('../tools/Logger.js');
 import Format = require('../modules/DiscordFormatter.js');
 import { ArrayUtil } from '../modules/util/ArrayUtil';
-import CommandError = require('../commands/CommandError.js');
+import { CommandError } from '../commands/CommandError';
 import { ArgumentParsingError } from '../types/ArgumentParsingError';
 import { Message } from 'discord.js';
 import { TaylorBotClient } from '../client/TaylorBotClient';

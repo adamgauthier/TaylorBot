@@ -1,4 +1,4 @@
-import CommandError = require('../../commands/CommandError.js');
+import { CommandError } from '../../commands/CommandError';
 import { AgePresenter } from '../user-presenters/AgePresenter.js';
 import { SettableUserAttribute } from '../SettableUserAttribute.js';
 import { DatabaseDriver } from '../../database/DatabaseDriver.js';

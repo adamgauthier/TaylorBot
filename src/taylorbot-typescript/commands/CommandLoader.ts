@@ -2,12 +2,12 @@ import fsWithCallbacks = require('fs');
 const fs = fsWithCallbacks.promises;
 import path = require('path');
 
-import BaseCommand = require('./Command.js');
+import { Command } from './Command';
 
 const commandsPath = __dirname;
 
 export class CommandLoader {
-    static async loadAll(): Promise<BaseCommand[]> {
+    static async loadAll(): Promise<Command[]> {
         const dirEntries = await fs.readdir(commandsPath, { withFileTypes: true });
         const subDirectories = dirEntries.filter(de => de.isDirectory());
 
@@ -27,10 +27,10 @@ export class CommandLoader {
             .filter(file => file.ext === '.js')
             .map(path.format)
             .map(require)
-            .map(Command => {
-                if (!(Command.prototype instanceof BaseCommand))
-                    throw new Error(`Loading all commands: command ${Command.name} doesn't extend base command class.`);
-                return new Command();
+            .map(CommandType => {
+                if (!(CommandType.prototype instanceof Command))
+                    throw new Error(`Loading all commands: command ${CommandType.name} doesn't extend base command class.`);
+                return new CommandType();
             });
     }
 }

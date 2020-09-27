@@ -1,4 +1,4 @@
-import Command = require('../Command.js');
+import { Command } from '../Command';
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
 import StringUtil = require('../../modules/StringUtil.js');
 import RandomModule = require('../../modules/random/RandomModule.js');

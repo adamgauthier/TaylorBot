@@ -1,5 +1,5 @@
-import Command = require('../Command.js');
-import CommandError = require('../CommandError.js');
+import { Command } from '../Command';
+import { CommandError } from '../CommandError';
 import UserGroups = require('../../client/UserGroups.js');
 import { CommandMessageContext } from '../CommandMessageContext';
 import { TextChannel } from 'discord.js';

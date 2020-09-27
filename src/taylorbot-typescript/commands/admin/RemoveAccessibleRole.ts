@@ -1,4 +1,4 @@
-import Command = require('../Command.js');
+import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class RemoveAccessibleRoleCommand extends Command {

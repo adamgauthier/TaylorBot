@@ -1,5 +1,5 @@
-import Command = require('../../commands/Command');
-import { Message, User } from 'discord.js';
+import { Command } from '../../commands/Command';
+import { User } from 'discord.js';
 import { UserAttribute } from '../UserAttribute';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
@@ -26,9 +26,9 @@ export class GetUserAttributeCommand extends Command {
         this.#attribute = attribute;
     }
 
-    async run(commandContext: CommandMessageContext, { user }: { user: User }): Promise<Message> {
+    async run(commandContext: CommandMessageContext, { user }: { user: User }): Promise<void> {
         const { client, message } = commandContext;
-        return client.sendEmbed(
+        await client.sendEmbed(
             message.channel,
             await this.#attribute.getCommand(commandContext, user)
         );

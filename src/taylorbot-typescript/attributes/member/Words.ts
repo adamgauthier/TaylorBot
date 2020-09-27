@@ -24,4 +24,4 @@ class WordsAttribute extends SimpleStatMemberAttribute {
     }
 }
 
-module.exports = WordsAttribute;
+export = WordsAttribute;

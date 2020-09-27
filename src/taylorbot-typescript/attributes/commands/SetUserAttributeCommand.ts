@@ -1,6 +1,5 @@
-import Command = require('../../commands/Command');
+import { Command } from '../../commands/Command';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
-import { Message } from 'discord.js';
 import { SettableUserAttribute } from '../SettableUserAttribute';
 
 export class SetUserAttributeCommand extends Command {
@@ -13,7 +12,7 @@ export class SetUserAttributeCommand extends Command {
             group: 'attributes',
             description: `Sets your ${attribute.description}.`,
             examples: [attribute.value.example],
-            maxDailyUseCount: attribute.value.maxDailySetCount === undefined ? null : attribute.value.maxDailySetCount,
+            maxDailyUseCount: attribute.value.maxDailySetCount === undefined ? undefined : attribute.value.maxDailySetCount,
 
             args: [
                 {
@@ -27,9 +26,9 @@ export class SetUserAttributeCommand extends Command {
         this.#attribute = attribute;
     }
 
-    async run(commandContext: CommandMessageContext, { value }: { value: any }): Promise<Message> {
+    async run(commandContext: CommandMessageContext, { value }: { value: any }): Promise<void> {
         const { client, message } = commandContext;
-        return client.sendEmbed(
+        await client.sendEmbed(
             message.channel,
             await this.#attribute.setCommand(commandContext, value)
         );

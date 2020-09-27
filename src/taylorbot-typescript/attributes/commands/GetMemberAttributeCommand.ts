@@ -1,5 +1,5 @@
-import Command = require('../../commands/Command.js');
-import { GuildMember, Message } from 'discord.js';
+import { Command } from '../../commands/Command';
+import { GuildMember } from 'discord.js';
 import { MemberAttribute } from '../MemberAttribute.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
@@ -27,9 +27,9 @@ export class GetMemberAttributeCommand extends Command {
         this.#attribute = attribute;
     }
 
-    async run(commandContext: CommandMessageContext, { member }: { member: GuildMember }): Promise<Message> {
+    async run(commandContext: CommandMessageContext, { member }: { member: GuildMember }): Promise<void> {
         const { client, message } = commandContext;
-        return client.sendEmbed(
+        await client.sendEmbed(
             message.channel,
             await this.#attribute.getCommand(commandContext, member)
         );

@@ -1,4 +1,4 @@
-import Command = require('../../commands/Command');
+import { Command } from '../../commands/Command';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { MemberAttribute } from '../MemberAttribute';
 

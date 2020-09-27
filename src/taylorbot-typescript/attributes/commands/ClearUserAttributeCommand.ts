@@ -1,5 +1,4 @@
-import Command = require('../../commands/Command.js');
-import { Message } from 'discord.js';
+import { Command } from '../../commands/Command';
 import { SettableUserAttribute } from '../SettableUserAttribute';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
@@ -19,9 +18,9 @@ export class ClearUserAttributeCommand extends Command {
         this.#attribute = attribute;
     }
 
-    async run(commandContext: CommandMessageContext): Promise<Message> {
+    async run(commandContext: CommandMessageContext): Promise<void> {
         const { client, message } = commandContext;
-        return client.sendEmbed(
+        await client.sendEmbed(
             message.channel,
             await this.#attribute.clearCommand(commandContext)
         );

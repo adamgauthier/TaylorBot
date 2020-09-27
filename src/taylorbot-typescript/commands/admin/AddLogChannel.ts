@@ -1,7 +1,7 @@
 import UserGroups = require('../../client/UserGroups.js');
 import Format = require('../../modules/DiscordFormatter.js');
-import Command = require('../Command.js');
-import CommandError = require('../../commands/CommandError.js');
+import { Command } from '../Command';
+import { CommandError } from '../../commands/CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { TextChannel } from 'discord.js';
 

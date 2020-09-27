@@ -1,5 +1,5 @@
 import GoogleTimezoneModule = require('../../modules/google/GoogleTimezoneModule.js');
-import CommandError = require('../../commands/CommandError.js');
+import { CommandError } from '../../commands/CommandError';
 import { SettableUserAttribute } from '../SettableUserAttribute';
 import { LocationPresenter } from '../user-presenters/LocationPresenter';
 import { DatabaseDriver } from '../../database/DatabaseDriver';

@@ -1,4 +1,4 @@
-import Command = require('../Command');
+import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class ClearLastFmCommand extends Command {

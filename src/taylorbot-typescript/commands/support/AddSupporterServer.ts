@@ -1,5 +1,5 @@
-import Command = require('../Command.js');
-import CommandError = require('../CommandError.js');
+import { Command } from '../Command';
+import { CommandError } from '../CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class AddSupporterServerCommand extends Command {

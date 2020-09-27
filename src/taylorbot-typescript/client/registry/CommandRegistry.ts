@@ -3,13 +3,13 @@ import { CommandLoader } from '../../commands/CommandLoader';
 import { AttributeLoader } from '../../attributes/AttributeLoader';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { RedisDriver } from '../../caching/RedisDriver';
-import Command = require('../../commands/Command.js');
+import { Command } from '../../commands/Command';
 import { Guild } from 'discord.js';
 
 export class CommandRegistry {
     database: DatabaseDriver;
     redis: RedisDriver;
-    #commandsCache = new Map<string, CachedCommand>();
+    #commandsCache = new Map<string, CachedCommand | string>();
     useCountCache = new Map<string, { count: number; errorCount: number }>();
 
     constructor(database: DatabaseDriver, redis: RedisDriver) {

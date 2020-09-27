@@ -1,5 +1,5 @@
 import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import Command = require('../Command.js');
+import { Command } from '../Command';
 import TimeUtil = require('../../modules/TimeUtil.js');
 import { ArrayUtil } from '../../modules/util/ArrayUtil';
 import PageMessage = require('../../modules/paging/PageMessage.js');

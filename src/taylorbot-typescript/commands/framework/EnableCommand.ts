@@ -1,8 +1,8 @@
 import UserGroups = require('../../client/UserGroups.js');
-import Command = require('../Command.js');
+import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
-import CommandError = require('../CommandError.js');
+import { CommandError } from '../CommandError';
 
 class EnableCommandCommand extends Command {
     constructor() {

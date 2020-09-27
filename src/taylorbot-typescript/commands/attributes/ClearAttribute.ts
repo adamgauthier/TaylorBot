@@ -1,4 +1,4 @@
-import Command = require('../Command.js');
+import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { SettableUserAttribute } from '../../attributes/SettableUserAttribute';
 
@@ -40,4 +40,4 @@ class ClearAttributeCommand extends Command {
     }
 }
 
-module.exports = ClearAttributeCommand;
+export = ClearAttributeCommand;

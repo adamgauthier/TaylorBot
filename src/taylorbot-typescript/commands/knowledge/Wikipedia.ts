@@ -1,0 +1,41 @@
+import { Command } from '../Command';
+import { CommandError } from '../CommandError';
+import Wikipedia = require('../../modules/wiki/WikipediaModule.js');
+import { CommandMessageContext } from '../CommandMessageContext';
+
+class WikipediaCommand extends Command {
+    constructor() {
+        super({
+            name: 'wikipedia',
+            aliases: ['wiki'],
+            group: 'Knowledge ❓',
+            description: 'Search on Wikipedia!',
+            examples: ['taylor swift', 'canada'],
+            maxDailyUseCount: 100,
+
+            args: [
+                {
+                    key: 'title',
+                    label: 'title',
+                    type: 'text',
+                    prompt: 'What Wikipedia article would you like to see?'
+                }
+            ]
+        });
+    }
+
+    async run({ message, client }: CommandMessageContext, { title }: { title: string }): Promise<void> {
+        const { author, channel } = message;
+
+        const page = await Wikipedia.getPage(title);
+        if (page.invalid)
+            throw new CommandError(`Article title '${title}' is invalid.`);
+
+        if (page.missing)
+            throw new CommandError(`Could not find Wikipedia article for '${title}'.`);
+
+        await client.sendEmbed(channel, Wikipedia.getPageEmbed(author, page));
+    }
+}
+
+export = WikipediaCommand;
