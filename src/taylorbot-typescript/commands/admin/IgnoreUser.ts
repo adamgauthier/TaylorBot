@@ -1,6 +1,6 @@
-import UserGroups = require('../../client/UserGroups.js');
+import UserGroups = require('../../client/UserGroups');
 import { Command } from '../Command';
-import TimeUtil = require('../../modules/TimeUtil.js');
+import { TimeUtil } from '../../modules/util/TimeUtil';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { User } from 'discord.js';
 import { SherlockResult } from 'sherlockjs';

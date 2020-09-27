@@ -1,9 +1,9 @@
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
-import TimeUtil = require('../../modules/TimeUtil.js');
+import { TimeUtil } from '../../modules/util/TimeUtil';
 import { ArrayUtil } from '../../modules/util/ArrayUtil';
-import PageMessage = require('../../modules/paging/PageMessage.js');
-import EmbedDescriptionPageEditor = require('../../modules/paging/editors/EmbedDescriptionPageEditor.js');
+import { PageMessage } from '../../modules/paging/PageMessage';
+import { EmbedDescriptionPageEditor } from '../../modules/paging/editors/EmbedDescriptionPageEditor';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { User } from 'discord.js';
 
@@ -27,15 +27,15 @@ class UsernamesCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { user }: { user: User }): Promise<void> {
-        const { channel, author } = message;
+    async run({ message, client, author }: CommandMessageContext, { user }: { user: User }): Promise<void> {
+        const { channel } = message;
         const usernames = await client.master.database.usernames.getHistory(user, 75);
         const embed = DiscordEmbedFormatter.baseUserEmbed(user);
 
         const lines = usernames.map(u => `${TimeUtil.formatSmall(u.changed_at.getTime())} : ${u.username}`);
         const chunks = ArrayUtil.chunk(lines, 15);
 
-        return new PageMessage(
+        await new PageMessage(
             client,
             author,
             chunks.map(chunk => chunk.join('\n')),

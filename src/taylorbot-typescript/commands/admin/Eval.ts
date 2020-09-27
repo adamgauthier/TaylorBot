@@ -1,8 +1,8 @@
-import EmbedUtil = require('../../modules/EmbedUtil.js');
+import { EmbedUtil } from '../../modules/discord/EmbedUtil';
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import UserGroups = require('../../client/UserGroups.js');
-import Log = require('../../tools/Logger.js');
+import UserGroups = require('../../client/UserGroups');
+import { Log } from '../../tools/Logger';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class EvalCommand extends Command {

@@ -1,4 +1,4 @@
-import UserGroups = require('../client/UserGroups.js');
+import UserGroups = require('../client/UserGroups');
 import { CommandMessageContext } from './CommandMessageContext';
 
 export abstract class Command {

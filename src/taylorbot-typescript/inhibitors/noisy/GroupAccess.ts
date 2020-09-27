@@ -1,7 +1,7 @@
 import { Permissions, Message, GuildMember, User } from 'discord.js';
 
 import { NoisyInhibitor } from '../NoisyInhibitor';
-import UserGroups = require('../../client/UserGroups.js');
+import UserGroups = require('../../client/UserGroups');
 import DISCORD_CONFIG = require('../../config/config.json');
 import { Registry } from '../../client/registry/Registry';
 import { GuildRegistry } from '../../client/registry/GuildRegistry';

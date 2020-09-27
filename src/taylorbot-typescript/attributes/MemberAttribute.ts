@@ -1,7 +1,7 @@
 import { Attribute, AttributeParameters } from './Attribute';
-import DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
-import PageMessage = require('../modules/paging/PageMessage.js');
-import MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
+import { DiscordEmbedFormatter } from '../modules/discord/DiscordEmbedFormatter';
+import { PageMessage } from '../modules/paging/PageMessage';
+import { MemberEmbedDescriptionPageMessage } from '../modules/paging/editors/MemberEmbedDescriptionPageMessage';
 import { ArrayUtil } from '../modules/util/ArrayUtil';
 import { DatabaseDriver } from '../database/DatabaseDriver';
 import { GuildMember, Guild, MessageEmbed } from 'discord.js';
@@ -38,7 +38,7 @@ export abstract class MemberAttribute extends Attribute {
 
     abstract rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]>;
 
-    async rankCommand({ message, client }: CommandMessageContext, guild: Guild): Promise<PageMessage> {
+    async rankCommand({ client, author }: CommandMessageContext, guild: Guild): Promise<PageMessage<any>> {
         const members = await this.rank(client.master.database, guild, 100);
 
         const embed = DiscordEmbedFormatter
@@ -47,7 +47,7 @@ export abstract class MemberAttribute extends Attribute {
 
         return new PageMessage(
             client,
-            message.author,
+            author,
             ArrayUtil.chunk(members, 10),
             new MemberEmbedDescriptionPageMessage(
                 embed,
@@ -58,7 +58,7 @@ export abstract class MemberAttribute extends Attribute {
         );
     }
 
-    listCommand(commandContext: CommandMessageContext, guild: Guild): Promise<PageMessage> {
+    listCommand(commandContext: CommandMessageContext, guild: Guild): Promise<PageMessage<any>> {
         throw new Error(`Method not implemented.`);
     }
 }

@@ -1,8 +1,8 @@
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import StringUtil = require('../../modules/StringUtil.js');
-import DiscordFormatter = require('../../modules/DiscordFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { StringUtil } from '../../modules/util/StringUtil';
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
 import { MemberAttribute } from '../MemberAttribute';
 import { MathUtil } from '../../modules/util/MathUtil';
@@ -28,6 +28,6 @@ export class DailyStreakPresenter implements MemberAttributePresenter {
     presentRankEntry(member: GuildMember, attribute: Record<string, any> & { rank: string }): string {
         const stat = attribute[this.#attribute.columnName];
         const { rank } = attribute;
-        return `${rank}: ${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${StringUtil.plural(stat, 'day', '`', true)}`;
+        return `${rank}: ${Format.escapeDiscordMarkdown(member.user.username)} - ${StringUtil.plural(stat, 'day', '`', true)}`;
     }
 }

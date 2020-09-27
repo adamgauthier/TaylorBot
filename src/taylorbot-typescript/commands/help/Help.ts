@@ -1,5 +1,5 @@
 import { Command } from '../Command';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class HelpCommand extends Command {
@@ -23,7 +23,7 @@ class HelpCommand extends Command {
     }
 
     async run(commandContext: CommandMessageContext, { commandName }: { commandName: string }): Promise<void> {
-        const { message: { channel, author }, client, messageContext } = commandContext;
+        const { message: { channel }, client, messageContext, author } = commandContext;
 
         const command = client.master.registry.commands.resolve(commandName);
 

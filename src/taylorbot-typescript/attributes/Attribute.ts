@@ -1,6 +1,6 @@
 import { DatabaseDriver } from '../database/DatabaseDriver';
 import { Guild } from 'discord.js';
-import PageMessage = require('../modules/paging/PageMessage');
+import { PageMessage } from '../modules/paging/PageMessage';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
 
 export type AttributeParameters = { id: string; aliases: string[]; description: string; list: ((database: DatabaseDriver, guild: Guild, entries: number) => Promise<any>) | null };
@@ -18,5 +18,5 @@ export abstract class Attribute {
         this.list = list;
     }
 
-    abstract listCommand(commandContext: CommandMessageContext, guild: Guild): Promise<PageMessage>;
+    abstract listCommand(commandContext: CommandMessageContext, guild: Guild): Promise<PageMessage<any>>;
 }

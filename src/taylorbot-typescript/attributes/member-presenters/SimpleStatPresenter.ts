@@ -1,6 +1,6 @@
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import StringUtil = require('../../modules/StringUtil.js');
-import DiscordFormatter = require('../../modules/DiscordFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { StringUtil } from '../../modules/util/StringUtil';
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
 import { GuildMember, MessageEmbed } from 'discord.js';
 import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute';
@@ -27,6 +27,6 @@ export class SimpleStatPresenter implements MemberAttributePresenter {
     }
 
     presentRankEntry(member: GuildMember, { [this.attribute.columnName]: stat, rank }: Record<string, any> & { rank: string }): string {
-        return `${rank}: ${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${StringUtil.plural(stat, this.attribute.singularName, '`')}`;
+        return `${rank}: ${Format.escapeDiscordMarkdown(member.user.username)} - ${StringUtil.plural(stat, this.attribute.singularName, '`')}`;
     }
 }

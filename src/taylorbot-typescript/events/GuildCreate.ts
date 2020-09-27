@@ -1,6 +1,6 @@
 import { EventHandler } from '../structures/EventHandler';
-import Log = require('../tools/Logger.js');
-import Format = require('../modules/DiscordFormatter.js');
+import { Log } from '../tools/Logger';
+import { Format } from '../modules/discord/DiscordFormatter';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 import { Guild } from 'discord.js';
 

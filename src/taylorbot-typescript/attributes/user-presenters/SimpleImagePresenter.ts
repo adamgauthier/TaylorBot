@@ -1,4 +1,4 @@
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { UserAttributePresenter } from '../UserAttributePresenter.js';
 import { User, MessageEmbed } from 'discord.js';
 import { UserAttribute } from '../UserAttribute.js';

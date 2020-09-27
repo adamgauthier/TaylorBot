@@ -1,6 +1,6 @@
 import { Role } from 'discord.js';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
-import Format = require('../../modules/DiscordFormatter.js');
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { GuildRegistry } from './GuildRegistry';
 
 export class GuildRoleGroupRegistry {

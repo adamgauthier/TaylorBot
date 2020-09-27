@@ -1,8 +1,8 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import Reddit = require('../../modules/reddit/RedditModule.js');
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import StringUtil = require('../../modules/StringUtil.js');
+import { RedditModule } from '../../modules/reddit/RedditModule';
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { StringUtil } from '../../modules/util/StringUtil';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class SubRedditCommand extends Command {
@@ -26,10 +26,10 @@ class SubRedditCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { subreddit }: { subreddit: string }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { subreddit }: { subreddit: string }): Promise<void> {
+        const { channel } = message;
 
-        const response = await Reddit.getSubredditAbout(subreddit);
+        const response = await RedditModule.getSubredditAbout(subreddit);
 
         if (response.error) {
             if (response.reason === 'quarantined') {

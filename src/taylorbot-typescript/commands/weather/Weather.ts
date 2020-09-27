@@ -1,7 +1,7 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import DarkSkyModule = require('../../modules/darksky/DarkSkyModule.js');
-import DarkSkyEmbedModule = require('../../modules/darksky/DarkSkyEmbedModule.js');
+import { DarkSkyModule } from '../../modules/darksky/DarkSkyModule';
+import { DarkSkyEmbedModule } from '../../modules/darksky/DarkSkyEmbedModule';
 import { User } from 'discord.js';
 import { CommandMessageContext } from '../CommandMessageContext';
 

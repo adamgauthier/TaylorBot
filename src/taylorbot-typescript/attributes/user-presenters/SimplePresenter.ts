@@ -1,5 +1,5 @@
 import { UserAttribute } from '../UserAttribute';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { UserAttributePresenter } from '../UserAttributePresenter';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { User, MessageEmbed } from 'discord.js';

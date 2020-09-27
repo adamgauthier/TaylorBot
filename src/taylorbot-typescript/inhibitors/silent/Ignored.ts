@@ -1,6 +1,6 @@
 import moment = require('moment');
 
-import TimeUtil = require('../../modules/TimeUtil.js');
+import { TimeUtil } from '../../modules/util/TimeUtil';
 import { SilentInhibitor } from '../SilentInhibitor';
 import { MessageContext } from '../../structures/MessageContext';
 

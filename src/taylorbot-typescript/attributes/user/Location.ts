@@ -1,4 +1,4 @@
-import GoogleTimezoneModule = require('../../modules/google/GoogleTimezoneModule.js');
+import { GoogleTimezoneModule } from '../../modules/google/GoogleTimezoneModule';
 import { CommandError } from '../../commands/CommandError';
 import { SettableUserAttribute } from '../SettableUserAttribute';
 import { LocationPresenter } from '../user-presenters/LocationPresenter';

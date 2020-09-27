@@ -1,7 +1,7 @@
 import { User } from 'discord.js';
 import moment = require('moment-timezone');
 
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 

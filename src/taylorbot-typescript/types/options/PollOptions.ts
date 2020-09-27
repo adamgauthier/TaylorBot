@@ -1,6 +1,6 @@
 import TextArgumentType = require('../base/Text');
 import { ArgumentParsingError } from '../ArgumentParsingError';
-import StringUtil = require('../../modules/StringUtil.js');
+import { StringUtil } from '../../modules/util/StringUtil';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
 
 const MIN_OPTIONS = 2;

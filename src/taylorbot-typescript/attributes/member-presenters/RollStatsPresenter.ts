@@ -1,5 +1,5 @@
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import StringUtil = require('../../modules/StringUtil.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { StringUtil } from '../../modules/util/StringUtil';
 import { SimpleStatPresenter } from './SimpleStatPresenter.js';
 import { MessageEmbed, GuildMember } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';

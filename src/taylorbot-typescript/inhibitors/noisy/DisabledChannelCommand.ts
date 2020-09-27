@@ -1,7 +1,7 @@
 import { NoisyInhibitor } from '../NoisyInhibitor';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 import { MessageContext } from '../../structures/MessageContext';
-import UserGroups = require('../../client/UserGroups.js');
+import UserGroups = require('../../client/UserGroups');
 import { TextChannel } from 'discord.js';
 
 class DisabledChannelCommandInhibitor extends NoisyInhibitor {

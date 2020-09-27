@@ -1,7 +1,7 @@
 import moment = require('moment');
 
-import Log = require('../../tools/Logger.js');
-import Format = require('../../modules/DiscordFormatter.js');
+import { Log } from '../../tools/Logger';
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { RedisDriver } from '../../caching/RedisDriver';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { User } from 'discord.js';

@@ -1,6 +1,6 @@
 import { Command } from '../Command';
-import DarkSkyModule = require('../../modules/darksky/DarkSkyModule.js');
-import DarkSkyEmbedModule = require('../../modules/darksky/DarkSkyEmbedModule.js');
+import { DarkSkyModule } from '../../modules/darksky/DarkSkyModule';
+import { DarkSkyEmbedModule } from '../../modules/darksky/DarkSkyEmbedModule';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class WeatherCommand extends Command {
@@ -23,7 +23,7 @@ class WeatherCommand extends Command {
         });
     }
 
-    async run({ message: { channel, author }, client }: CommandMessageContext, { place }: { place: any }): Promise<void> {
+    async run({ message: { channel }, client, author }: CommandMessageContext, { place }: { place: any }): Promise<void> {
         const { geometry: { location: { lat, lng } }, formatted_address } = place;
         const { currently } = await DarkSkyModule.getCurrentForecast(lat, lng);
 

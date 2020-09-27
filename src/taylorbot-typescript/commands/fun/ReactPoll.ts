@@ -1,7 +1,7 @@
 import { CommandMessageContext } from '../CommandMessageContext';
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { TextChannel } from 'discord.js';
 
 const OPTIONS_SYMBOLS = ['1⃣', '2⃣', '3⃣', '4⃣'];

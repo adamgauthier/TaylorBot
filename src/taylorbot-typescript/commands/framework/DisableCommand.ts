@@ -1,4 +1,4 @@
-import UserGroups = require('../../client/UserGroups.js');
+import UserGroups = require('../../client/UserGroups');
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';

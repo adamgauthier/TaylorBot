@@ -1,8 +1,8 @@
 import events = require('events');
 
-import DiscordEmbedFormatter = require('../DiscordEmbedFormatter.js');
-import StringUtil = require('../StringUtil.js');
-import Option = require('./Option.js');
+import { DiscordEmbedFormatter } from '../discord/DiscordEmbedFormatter';
+import { StringUtil } from '../util/StringUtil';
+import { Option } from './Option';
 import DISCORD_CONFIG = require('../../config/config.json');
 import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { User, TextChannel } from 'discord.js';

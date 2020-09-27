@@ -1,13 +1,13 @@
 import { Command } from '../Command';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import Log = require('../../tools/Logger.js');
-import StringUtil = require('../../modules/StringUtil.js');
-import TimeUtil = require('../../modules/TimeUtil.js');
-import RandomModule = require('../../modules/random/RandomModule.js');
-import UnsafeRandomModule = require('../../modules/random/UnsafeRandomModule.js');
-import Format = require('../../modules/DiscordFormatter.js');
-import BankRepository = require('../../modules/heist/BankRepository.js');
-import FailureReasonRepository = require('../../modules/heist/FailureReasonRepository.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { Log } from '../../tools/Logger';
+import { StringUtil } from '../../modules/util/StringUtil';
+import { TimeUtil } from '../../modules/util/TimeUtil';
+import { RandomModule } from '../../modules/random/RandomModule';
+import { UnsafeRandomModule } from '../../modules/random/UnsafeRandomModule';
+import { Format } from '../../modules/discord/DiscordFormatter';
+import { BankRepository } from '../../modules/heist/BankRepository';
+import { FailureReasonRepository } from '../../modules/heist/FailureReasonRepository';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { TaypointAmount } from '../../modules/points/TaypointAmount';
 
@@ -62,7 +62,7 @@ class HeistCommand extends Command {
                         client.master.database.heistStats.loseHeist(heisters)
                     );
 
-                    const randomHeister = UnsafeRandomModule.randomInArray(results);
+                    const randomHeister = UnsafeRandomModule.randomInArray((results as Record<string, any>[]));
 
                     await client.sendEmbed(channel, DiscordEmbedFormatter
                         .baseUserHeader(author)

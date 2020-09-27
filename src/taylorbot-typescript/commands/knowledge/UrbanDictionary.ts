@@ -1,9 +1,9 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import Urban = require('../../modules/urban/UrbanDictionaryModule.js');
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import PageMessage = require('../../modules/paging/PageMessage.js');
-import UrbanResultsPageEditor = require('../../modules/paging/editors/UrbanResultsPageEditor.js');
+import { UrbanDictionaryModule } from '../../modules/urban/UrbanDictionaryModule';
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { PageMessage } from '../../modules/paging/PageMessage';
+import { UrbanResultsPageEditor } from '../../modules/paging/editors/UrbanResultsPageEditor';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class UrbanDictionaryCommand extends Command {
@@ -27,10 +27,10 @@ class UrbanDictionaryCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { term }: { term: string }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { term }: { term: string }): Promise<void> {
+        const { channel } = message;
 
-        const results = await Urban.search(term);
+        const results = await UrbanDictionaryModule.search(term);
         if (results.length === 0)
             throw new CommandError(`Could not find results on UrbanDictionary for '${term}'.`);
 

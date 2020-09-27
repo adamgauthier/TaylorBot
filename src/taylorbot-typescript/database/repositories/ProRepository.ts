@@ -1,6 +1,6 @@
-import Log = require('../../tools/Logger.js');
+import { Log } from '../../tools/Logger';
 import * as pgPromise from 'pg-promise';
-import Format = require('../../modules/DiscordFormatter.js');
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { User, Guild } from 'discord.js';
 
 export class ProRepository {

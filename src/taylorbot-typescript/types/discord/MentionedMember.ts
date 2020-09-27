@@ -1,7 +1,7 @@
 import TextArgumentType = require('../base/Text');
 import { ArgumentParsingError } from '../ArgumentParsingError';
-import Log = require('../../tools/Logger.js');
-import Format = require('../../modules/DiscordFormatter.js');
+import { Log } from '../../tools/Logger';
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember } from 'discord.js';
 

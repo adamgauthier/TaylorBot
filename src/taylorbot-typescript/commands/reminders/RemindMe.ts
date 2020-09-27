@@ -2,7 +2,7 @@ import moment = require('moment');
 
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import TimeUtil = require('../../modules/TimeUtil.js');
+import { TimeUtil } from '../../modules/util/TimeUtil';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { SherlockResult } from 'sherlockjs';
 

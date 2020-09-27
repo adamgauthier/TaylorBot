@@ -1,7 +1,7 @@
 import PositiveSafeIntegerArgumentType = require('../numbers/PositiveSafeInteger.js');
 import { ArgumentParsingError } from '../ArgumentParsingError';
 import { TaypointAmount } from '../../modules/points/TaypointAmount';
-import StringUtil = require('../../modules/StringUtil.js');
+import { StringUtil } from '../../modules/util/StringUtil';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
 import WordArgumentType = require('../base/Word');
 

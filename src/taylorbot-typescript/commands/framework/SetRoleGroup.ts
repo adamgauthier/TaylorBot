@@ -1,6 +1,6 @@
 import { Role } from 'discord.js';
-import UserGroups = require('../../client/UserGroups.js');
-import Format = require('../../modules/DiscordFormatter.js');
+import UserGroups = require('../../client/UserGroups');
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';

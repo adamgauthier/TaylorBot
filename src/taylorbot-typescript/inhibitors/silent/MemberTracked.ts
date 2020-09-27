@@ -1,5 +1,5 @@
-import Format = require('../../modules/DiscordFormatter.js');
-import Log = require('../../tools/Logger.js');
+import { Format } from '../../modules/discord/DiscordFormatter';
+import { Log } from '../../tools/Logger';
 import { SilentInhibitor } from '../SilentInhibitor.js';
 import { MessageContext } from '../../structures/MessageContext.js';
 

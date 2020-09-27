@@ -2,7 +2,7 @@ import moment = require('moment');
 
 import { Command } from '../../commands/Command';
 import { CommandError } from '../../commands/CommandError';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { CommandMessageContext } from '../CommandMessageContext';
 import BirthdayUserAttribute = require('../../attributes/user/Birthday');
 
@@ -42,7 +42,7 @@ class SetPrivateBirthdayCommand extends Command {
         await client.sendEmbed(
             message.channel,
             DiscordEmbedFormatter
-                .baseUserEmbed(message.author)
+                .baseUserEmbed(author)
                 .setDescription([
                     `Your birthday has been privately set to ${parsed.format('MMMM Do')}.`,
                     `You will still receive birthday points and can still use the \`horoscope\` and \`age\` commands.`

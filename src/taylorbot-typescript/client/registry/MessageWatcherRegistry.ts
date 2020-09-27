@@ -2,7 +2,7 @@ import fsWithCallbacks = require('fs');
 const fs = fsWithCallbacks.promises;
 import path = require('path');
 
-import Log = require('../../tools/Logger.js');
+import { Log } from '../../tools/Logger';
 import { MessageWatcher } from '../../structures/MessageWatcher';
 import { TaylorBotClient } from '../TaylorBotClient';
 import { Message } from 'discord.js';

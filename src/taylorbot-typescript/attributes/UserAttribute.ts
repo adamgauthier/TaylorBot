@@ -1,9 +1,9 @@
 import { Attribute, AttributeParameters } from './Attribute';
-import DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../modules/discord/DiscordEmbedFormatter';
 import { DatabaseDriver } from '../database/DatabaseDriver';
 import { User, MessageEmbed, Guild } from 'discord.js';
 import { UserAttributePresenter } from './UserAttributePresenter';
-import PageMessage = require('../modules/paging/PageMessage');
+import { PageMessage } from '../modules/paging/PageMessage';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
 
 export type UserAttributeParameters = AttributeParameters & { presenter: new (a: UserAttribute) => UserAttributePresenter; canSet: boolean };
@@ -47,7 +47,7 @@ export abstract class UserAttribute extends Attribute {
         }
     }
 
-    listCommand(commandContext: CommandMessageContext, guild: Guild): Promise<PageMessage> {
+    listCommand(commandContext: CommandMessageContext, guild: Guild): Promise<PageMessage<any>> {
         throw new Error(`Method not implemented.`);
     }
 }

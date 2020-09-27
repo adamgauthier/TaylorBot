@@ -1,4 +1,4 @@
-import DiscordFormatter = require('../modules/DiscordFormatter.js');
+import { Format } from '../modules/discord/DiscordFormatter';
 import { SettableUserAttribute, SettableUserAttributeParameters } from './SettableUserAttribute.js';
 import { DatabaseDriver } from '../database/DatabaseDriver.js';
 import { User } from 'discord.js';
@@ -28,6 +28,6 @@ export abstract class TextUserAttribute extends SettableUserAttribute {
     }
 
     formatValue(attribute: Record<string, any>): string {
-        return DiscordFormatter.escapeDiscordMarkdown(attribute.attribute_value);
+        return Format.escapeDiscordMarkdown(attribute.attribute_value);
     }
 }

@@ -1,7 +1,7 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import WolframAlpha = require('../../modules/wolfram/WolframAlphaModule.js');
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { WolframAlphaModule } from '../../modules/wolfram/WolframAlphaModule';
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class WolframCommand extends Command {
@@ -25,10 +25,10 @@ class WolframCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { input }: { input: string }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { input }: { input: string }): Promise<void> {
+        const { channel } = message;
 
-        const result = await WolframAlpha.query(input);
+        const result = await WolframAlphaModule.query(input);
         if (!result.success || result.error)
             throw new CommandError(`Wolfram|Alpha did not understand '${input}'.`);
 

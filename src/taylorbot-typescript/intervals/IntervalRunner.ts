@@ -1,4 +1,4 @@
-import Log = require('../tools/Logger.js');
+import { Log } from '../tools/Logger';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 import { Interval } from './Interval';
 import { IntervalLoader } from './IntervalLoader';

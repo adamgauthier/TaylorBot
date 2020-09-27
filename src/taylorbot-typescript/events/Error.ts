@@ -1,5 +1,5 @@
 import { EventHandler } from '../structures/EventHandler.js';
-import Log = require('../tools/Logger.js');
+import { Log } from '../tools/Logger';
 import { TaylorBotClient } from '../client/TaylorBotClient.js';
 
 class ErrorHandler extends EventHandler {

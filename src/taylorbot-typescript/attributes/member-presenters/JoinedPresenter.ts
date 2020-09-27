@@ -1,6 +1,6 @@
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import TimeUtil = require('../../modules/TimeUtil.js');
-import DiscordFormatter = require('../../modules/DiscordFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { TimeUtil } from '../../modules/util/TimeUtil';
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
 import { MessageEmbed, GuildMember } from 'discord.js';
 import { MemberAttribute } from '../MemberAttribute';
@@ -21,6 +21,6 @@ export class JoinedPresenter implements MemberAttributePresenter {
     }
 
     presentRankEntry(member: GuildMember, { [this.attribute.columnName]: firstJoinedAt, rank }: Record<string, any> & { rank: string }): string {
-        return `${rank}: ${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${TimeUtil.formatMini(firstJoinedAt.getTime())}`;
+        return `${rank}: ${Format.escapeDiscordMarkdown(member.user.username)} - ${TimeUtil.formatMini(firstJoinedAt.getTime())}`;
     }
 }

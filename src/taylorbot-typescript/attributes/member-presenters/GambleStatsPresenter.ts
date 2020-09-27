@@ -1,8 +1,8 @@
 import { SimpleStatPresenter } from './SimpleStatPresenter';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import StringUtil = require('../../modules/StringUtil.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { StringUtil } from '../../modules/util/StringUtil';
 import { MathUtil } from '../../modules/util/MathUtil';
 
 export class GambleStatsPresenter extends SimpleStatPresenter {

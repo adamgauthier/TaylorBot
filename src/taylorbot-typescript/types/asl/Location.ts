@@ -1,6 +1,6 @@
 import TextArgumentType = require('../base/Text');
 import { ArgumentParsingError } from '../ArgumentParsingError';
-import GooglePlacesModule = require('../../modules/google/GooglePlacesModule.js');
+import { GooglePlacesModule, PlaceCandidate } from '../../modules/google/GooglePlacesModule';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
 
 class GooglePlaceArgumentType extends TextArgumentType {
@@ -8,7 +8,7 @@ class GooglePlaceArgumentType extends TextArgumentType {
         return 'google-place';
     }
 
-    async parse(val: string, commandContext: CommandMessageContext, arg: CommandArgumentInfo): Promise<any> {
+    async parse(val: string, commandContext: CommandMessageContext, arg: CommandArgumentInfo): Promise<PlaceCandidate> {
         const response = await GooglePlacesModule.findPlaceFromText(val);
 
         switch (response.status) {

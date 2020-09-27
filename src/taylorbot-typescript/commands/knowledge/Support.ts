@@ -1,7 +1,7 @@
 import patreonConfig = require('../../config/patreon.json');
 
 import { Command } from '../Command';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class SupportCommand extends Command {
@@ -21,7 +21,7 @@ class SupportCommand extends Command {
         const { channel } = message;
 
         await client.sendEmbed(channel, DiscordEmbedFormatter
-            .baseUserHeader(client.user)
+            .baseUserHeader(client.user!)
             .setColor(patreonConfig.COLOR)
             .setTitle(patreonConfig.TITLE)
             .setDescription(patreonConfig.DESCRIPTION)

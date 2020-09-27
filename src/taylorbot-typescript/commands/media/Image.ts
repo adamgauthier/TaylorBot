@@ -1,9 +1,9 @@
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
-import GoogleImagesModule = require('../../modules/google/GoogleImagesModule.js');
+import { GoogleImagesModule } from '../../modules/google/GoogleImagesModule';
 import { CommandError } from '../CommandError';
-import PageMessage = require('../../modules/paging/PageMessage.js');
-import ImageResultsPageEditor = require('../../modules/paging/editors/ImageResultsPageEditor.js');
+import { PageMessage } from '../../modules/paging/PageMessage';
+import { ImageResultsPageEditor } from '../../modules/paging/editors/ImageResultsPageEditor';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class ImageCommand extends Command {
@@ -29,8 +29,8 @@ class ImageCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { search }: { search: string }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { search }: { search: string }): Promise<void> {
+        const { channel } = message;
 
         const {
             error, items, searchInformation

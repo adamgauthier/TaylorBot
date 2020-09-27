@@ -1,6 +1,6 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import Wikipedia = require('../../modules/wiki/WikipediaModule.js');
+import { WikipediaModule } from '../../modules/wiki/WikipediaModule';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class WikipediaCommand extends Command {
@@ -24,17 +24,17 @@ class WikipediaCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { title }: { title: string }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { title }: { title: string }): Promise<void> {
+        const { channel } = message;
 
-        const page = await Wikipedia.getPage(title);
+        const page = await WikipediaModule.getPage(title);
         if (page.invalid)
             throw new CommandError(`Article title '${title}' is invalid.`);
 
         if (page.missing)
             throw new CommandError(`Could not find Wikipedia article for '${title}'.`);
 
-        await client.sendEmbed(channel, Wikipedia.getPageEmbed(author, page));
+        await client.sendEmbed(channel, WikipediaModule.getPageEmbed(author, page));
     }
 }
 

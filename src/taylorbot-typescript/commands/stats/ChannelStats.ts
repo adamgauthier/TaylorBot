@@ -1,5 +1,5 @@
 import { TextChannel } from 'discord.js';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 

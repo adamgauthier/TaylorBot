@@ -1,6 +1,6 @@
 import TextArgumentType = require('../base/Text');
-import RpsMove = require('../../modules/points/RpsMove.js');
-import UnsafeRandomModule = require('../../modules/random/UnsafeRandomModule.js');
+import RpsMove = require('../../modules/points/RpsMove');
+import { UnsafeRandomModule } from '../../modules/random/UnsafeRandomModule';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
 
 class RpsMoveArgumentType extends TextArgumentType {

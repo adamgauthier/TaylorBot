@@ -1,4 +1,4 @@
-import UnsafeRandomModule = require('../modules/random/UnsafeRandomModule.js');
+import { UnsafeRandomModule } from '../modules/random/UnsafeRandomModule';
 import { CachedCommand } from '../client/registry/CachedCommand';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 import { ArgumentType } from '../types/ArgumentType';

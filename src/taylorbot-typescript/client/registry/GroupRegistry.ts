@@ -1,6 +1,6 @@
 import { DatabaseDriver } from '../../database/DatabaseDriver';
-import Log = require('../../tools/Logger.js');
-import UserGroups = require('../UserGroups.js');
+import { Log } from '../../tools/Logger';
+import UserGroups = require('../UserGroups');
 
 export class GroupRegistry extends Map<string, { name: string; accessLevel: number }> {
     readonly #database: DatabaseDriver;

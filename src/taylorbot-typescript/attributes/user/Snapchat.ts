@@ -1,4 +1,4 @@
-import DiscordFormatter = require('../../modules/DiscordFormatter.js');
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { TextUserAttribute } from '../TextUserAttribute.js';
 import { SimplePresenter } from '../user-presenters/SimplePresenter.js';
 
@@ -20,7 +20,7 @@ class SnapchatAttribute extends TextUserAttribute {
 
     formatValue(attribute: Record<string, any>): string {
         const value = attribute.attribute_value;
-        return `[${DiscordFormatter.escapeDiscordMarkdown(value)}](https://www.snapchat.com/add/${value})`;
+        return `[${Format.escapeDiscordMarkdown(value)}](https://www.snapchat.com/add/${value})`;
     }
 }
 

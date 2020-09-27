@@ -1,8 +1,8 @@
 import { Command } from '../Command';
-import YoutubeModule = require('../../modules/google/YoutubeModule.js');
+import { YoutubeModule } from '../../modules/google/YoutubeModule';
 import { CommandError } from '../CommandError';
-import PageMessage = require('../../modules/paging/PageMessage.js');
-import TextPageEditor = require('../../modules/paging/editors/TextPageEditor.js');
+import { PageMessage } from '../../modules/paging/PageMessage';
+import { TextPageEditor } from '../../modules/paging/editors/TextPageEditor';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class YoutubeCommand extends Command {
@@ -26,10 +26,10 @@ class YoutubeCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { search }: { search: string }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { search }: { search: string }): Promise<void> {
+        const { channel } = message;
 
-        const results: any[] = await YoutubeModule.searchVideo(search);
+        const results = await YoutubeModule.searchVideo(search);
 
         if (results.length === 0)
             throw new CommandError(`No YouTube videos found for search '${search}'.`);

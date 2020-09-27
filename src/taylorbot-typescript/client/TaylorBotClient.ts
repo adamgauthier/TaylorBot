@@ -1,10 +1,10 @@
 import Discord = require('discord.js');
 
-import { EventLoader } from '../modules/EventLoader';
+import { EventLoader } from '../modules/discord/EventLoader';
 import DISCORD_CONFIG = require('../config/discord.json');
-import Log = require('../tools/Logger.js');
+import { Log } from '../tools/Logger';
 import { IntervalRunner } from '../intervals/IntervalRunner';
-import EmbedUtil = require('../modules/EmbedUtil.js');
+import { EmbedUtil } from '../modules/discord/EmbedUtil';
 import { TaylorBotMasterClient } from './TaylorBotMasterClient';
 
 export class TaylorBotClient extends Discord.Client {
@@ -34,7 +34,7 @@ export class TaylorBotClient extends Discord.Client {
         await this.login(DISCORD_CONFIG.loginToken);
     }
 
-    sendMessage(recipient: Discord.PartialTextBasedChannelFields, text: string, options: Discord.MessageOptions | Discord.MessageAdditions): Promise<Discord.Message> {
+    sendMessage(recipient: Discord.PartialTextBasedChannelFields, text: string, options: Discord.MessageOptions | Discord.MessageAdditions | undefined): Promise<Discord.Message> {
         return recipient.send(
             text.replace(/(@)(everyone|here)/g, (m, p1, p2) => `${p1}\u200B${p2}`),
             options

@@ -1,4 +1,4 @@
-import Log = require('../../tools/Logger.js');
+import { Log } from '../../tools/Logger';
 import { TypeRegistry } from './TypeRegistry';
 import { MessageWatcherRegistry } from './MessageWatcherRegistry';
 import { GroupRegistry } from './GroupRegistry';

@@ -1,5 +1,5 @@
-import Log = require('../../tools/Logger.js');
-import Format = require('../../modules/DiscordFormatter.js');
+import { Log } from '../../tools/Logger';
+import { Format } from '../../modules/discord/DiscordFormatter';
 import { Guild } from 'discord.js';
 import * as pgPromise from 'pg-promise';
 

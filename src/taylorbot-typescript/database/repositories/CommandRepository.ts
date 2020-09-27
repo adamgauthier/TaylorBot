@@ -1,4 +1,4 @@
-import Log = require('../../tools/Logger.js');
+import { Log } from '../../tools/Logger';
 import * as pgPromise from 'pg-promise';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 

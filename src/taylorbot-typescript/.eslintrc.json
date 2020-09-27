@@ -6,9 +6,6 @@
     "parser": "@typescript-eslint/parser",
     "extends": [
         "eslint:recommended",
-        "plugin:import/errors",
-        "plugin:import/warnings",
-        "plugin:import/typescript",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended"
     ],
@@ -17,7 +14,6 @@
         "sourceType": "module"
     },
     "plugins": [
-        "import",
         "@typescript-eslint"
     ],
     "rules": {
@@ -50,47 +46,6 @@
             "error"
         ],
         "no-trailing-spaces": "error",
-        "no-console": "off",
-        "import/no-unresolved": [
-            "error",
-            {
-                "commonjs": true
-            }
-        ],
-        "import/extensions": [
-            "error",
-            {
-                "js": "always",
-                "json": "always"
-            }
-        ]
-    },
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [
-                    ".js",
-                    ".json"
-                ]
-            }
-        }
-    },
-    "overrides": [
-        {
-            "files": [
-                "*.js"
-            ],
-            "rules": {
-                "@typescript-eslint/no-var-requires": "off"
-            }
-        },
-        {
-            "files": [
-                "*.ts"
-            ],
-            "rules": {
-                "import/no-unresolved": "off"
-            }
-        }
-    ]
+        "no-console": "off"
+    }
 }

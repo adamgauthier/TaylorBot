@@ -1,6 +1,6 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import UserGroups = require('../../client/UserGroups.js');
+import UserGroups = require('../../client/UserGroups');
 import { CommandMessageContext } from '../CommandMessageContext';
 import { TextChannel } from 'discord.js';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';

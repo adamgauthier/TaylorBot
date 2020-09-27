@@ -1,5 +1,5 @@
 import { EventHandler } from '../structures/EventHandler';
-import Log = require('../tools/Logger.js');
+import { Log } from '../tools/Logger';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 
 class ShardDisconnected extends EventHandler {

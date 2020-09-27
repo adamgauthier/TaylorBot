@@ -2,8 +2,8 @@ import moment = require('moment');
 
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import HoroscopeModule = require('../../modules/horoscope/HoroscopeModule.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { HoroscopeModule } from '../../modules/horoscope/HoroscopeModule';
 import { CommandMessageContext } from '../CommandMessageContext';
 import { User } from 'discord.js';
 

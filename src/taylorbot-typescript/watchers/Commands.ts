@@ -1,6 +1,6 @@
 import { MessageWatcher } from '../structures/MessageWatcher';
-import Log = require('../tools/Logger.js');
-import Format = require('../modules/DiscordFormatter.js');
+import { Log } from '../tools/Logger';
+import { Format } from '../modules/discord/DiscordFormatter';
 import { ArrayUtil } from '../modules/util/ArrayUtil';
 import { CommandError } from '../commands/CommandError';
 import { ArgumentParsingError } from '../types/ArgumentParsingError';

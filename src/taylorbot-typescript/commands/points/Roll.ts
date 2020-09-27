@@ -1,7 +1,7 @@
 import { Command } from '../Command';
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
-import StringUtil = require('../../modules/StringUtil.js');
-import RandomModule = require('../../modules/random/RandomModule.js');
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
+import { StringUtil } from '../../modules/util/StringUtil';
+import { RandomModule } from '../../modules/random/RandomModule';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class RollCommand extends Command {

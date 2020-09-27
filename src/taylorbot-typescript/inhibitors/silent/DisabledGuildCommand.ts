@@ -1,7 +1,7 @@
 import { SilentInhibitor } from '../SilentInhibitor';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 import { MessageContext } from '../../structures/MessageContext';
-import UserGroups = require('../../client/UserGroups.js');
+import UserGroups = require('../../client/UserGroups');
 
 class DisabledGuildCommandInhibitor extends SilentInhibitor {
     async shouldBeBlocked({ message, client }: MessageContext, command: CachedCommand): Promise<string | null> {

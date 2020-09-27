@@ -1,7 +1,7 @@
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
-import Imgur = require('../../modules/imgur/ImgurModule.js');
-import DiscordEmbedFormatter = require('../../modules/DiscordEmbedFormatter.js');
+import { ImgurModule } from '../../modules/imgur/ImgurModule';
+import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class ImgurCommand extends Command {
@@ -24,10 +24,10 @@ class ImgurCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { url }: { url: URL }): Promise<void> {
-        const { author, channel } = message;
+    async run({ message, client, author }: CommandMessageContext, { url }: { url: URL }): Promise<void> {
+        const { channel } = message;
 
-        const response = await Imgur.upload(url);
+        const response = await ImgurModule.upload(url);
 
         if (!response.success)
             throw new CommandError(`Something went wrong when uploading to Imgur. 😕`);

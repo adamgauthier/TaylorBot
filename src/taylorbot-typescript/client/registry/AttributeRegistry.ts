@@ -1,5 +1,5 @@
 import { AttributeLoader } from '../../attributes/AttributeLoader.js';
-import Log = require('../../tools/Logger.js');
+import { Log } from '../../tools/Logger';
 import { DatabaseDriver } from '../../database/DatabaseDriver.js';
 import { MemberAttribute } from '../../attributes/MemberAttribute.js';
 import { UserAttribute } from '../../attributes/UserAttribute.js';

@@ -1,7 +1,7 @@
-import DiscordFormatter = require('../modules/DiscordFormatter.js');
-import DiscordEmbedFormatter = require('../modules/DiscordEmbedFormatter.js');
-import PageMessage = require('../modules/paging/PageMessage.js');
-import MemberEmbedDescriptionPageMessage = require('../modules/paging/editors/MemberEmbedDescriptionPageMessage.js');
+import { Format } from '../modules/discord/DiscordFormatter';
+import { DiscordEmbedFormatter } from '../modules/discord/DiscordEmbedFormatter';
+import { PageMessage } from '../modules/paging/PageMessage';
+import { MemberEmbedDescriptionPageMessage } from '../modules/paging/editors/MemberEmbedDescriptionPageMessage';
 import { ArrayUtil } from '../modules/util/ArrayUtil';
 import { UserAttribute, UserAttributeParameters } from './UserAttribute.js';
 import { Guild, GuildMember, User, MessageEmbed } from 'discord.js';
@@ -38,7 +38,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
             .setDescription(`Your ${this.description} has been cleared. ✅`);
     }
 
-    async listCommand({ client, message }: CommandMessageContext, guild: Guild): Promise<PageMessage> {
+    async listCommand({ client, author }: CommandMessageContext, guild: Guild): Promise<PageMessage<any>> {
         if (this.list === null)
             throw new Error(`Can't list this attribute.`);
 
@@ -50,13 +50,13 @@ export abstract class SettableUserAttribute extends UserAttribute {
 
         return new PageMessage(
             client,
-            message.author,
+            author,
             ArrayUtil.chunk(attributes, 20),
             new MemberEmbedDescriptionPageMessage(
                 embed,
                 client.master.database,
                 guild,
-                (member: GuildMember, attribute: any) => `${DiscordFormatter.escapeDiscordMarkdown(member.user.username)} - ${this.formatValue(attribute)}`
+                (member: GuildMember, attribute: any) => `${Format.escapeDiscordMarkdown(member.user.username)} - ${this.formatValue(attribute)}`
             )
         );
     }
