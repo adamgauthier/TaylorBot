@@ -22,7 +22,7 @@ class ClientReady extends EventHandler {
     syncRegistry(client: TaylorBotClient): void {
         const { registry } = client.master;
 
-        for (const guild of client.guilds.values()) {
+        for (const guild of client.guilds.cache.values()) {
             if (!registry.guilds.has(guild.id)) {
                 Log.info(`Adding new guild ${Format.guild(guild)}.`);
                 registry.guilds.cacheGuild({ guild_id: guild.id });

@@ -8,11 +8,24 @@ import { EmbedUtil } from '../modules/discord/EmbedUtil';
 import { TaylorBotMasterClient } from './TaylorBotMasterClient';
 
 export class TaylorBotClient extends Discord.Client {
-    master: TaylorBotMasterClient;
-    intervalRunner: IntervalRunner;
+    readonly master: TaylorBotMasterClient;
+    readonly intervalRunner: IntervalRunner;
+
     constructor(master: TaylorBotMasterClient) {
         super({
-            'disabledEvents': ['TYPING_START']
+            shards: 'auto',
+            messageCacheMaxSize: 0,
+            disableMentions: 'all',
+            ws: {
+                intents: [
+                    'GUILDS',
+                    'GUILD_MEMBERS',
+                    'GUILD_MESSAGES',
+                    'GUILD_MESSAGE_REACTIONS',
+                    'DIRECT_MESSAGES',
+                    'DIRECT_MESSAGE_REACTIONS'
+                ]
+            }
         });
 
         this.master = master;

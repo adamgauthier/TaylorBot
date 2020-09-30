@@ -28,7 +28,8 @@ export class DiscordEmbedFormatter {
 
     static getAvatarURL(user: User, size: 128 | 16 | 32 | 64 | 256 | 512 | 1024 | 2048 = 128): string {
         return user.displayAvatarURL({
-            format: user.avatar ? user.avatar.startsWith('a_') ? 'gif' : 'jpg' : undefined,
+            format: 'png',
+            dynamic: true,
             size
         });
     }

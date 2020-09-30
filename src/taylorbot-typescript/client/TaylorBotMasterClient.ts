@@ -5,21 +5,19 @@ import { DatabaseDriver } from '../database/DatabaseDriver';
 import { TaylorBotClient } from './TaylorBotClient';
 import { Registry } from './registry/Registry';
 import { Log } from '../tools/Logger';
-import { RedisDriver} from '../caching/RedisDriver';
+import { RedisDriver } from '../caching/RedisDriver';
 
 export class TaylorBotMasterClient {
-    #clients: TaylorBotClient[];
+    readonly #client: TaylorBotClient;
 
-    database = new DatabaseDriver();
-    registry: Registry;
+    readonly database = new DatabaseDriver();
+    readonly registry: Registry;
 
     constructor() {
         const redisCommands = new RedisDriver(redisCommandsConfig.HOST, redisCommandsConfig.PORT, redisCommandsConfig.PASSWORD);
         const redisHeists = new RedisDriver(redisHeistsConfig.HOST, redisHeistsConfig.PORT, redisHeistsConfig.PASSWORD);
 
-        this.#clients = [
-            new TaylorBotClient(this)
-        ];
+        this.#client = new TaylorBotClient(this);
 
         this.registry = new Registry(
             this.database,
@@ -28,25 +26,21 @@ export class TaylorBotMasterClient {
         );
     }
 
-    async load(): Promise<void[]> {
+    async load(): Promise<void> {
         Log.info('Loading registry...');
         await this.registry.load();
         Log.info('Registry loaded!');
 
-        return Promise.all(
-            this.#clients.map(c => c.load())
-        );
+        await this.#client.load();
     }
 
     unload(): void {
-        Log.info('Unloading all clients...');
-        this.#clients.forEach(c => c.destroy());
-        Log.info('Clients unloaded!');
+        Log.info('Unloading client...');
+        this.#client.destroy();
+        Log.info('Client unloaded!');
     }
 
-    start(): Promise<void[]> {
-        return Promise.all(
-            this.#clients.map(c => c.start())
-        );
+    async start(): Promise<void> {
+        await this.#client.start();
     }
 }

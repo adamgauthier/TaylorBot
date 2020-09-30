@@ -9,7 +9,7 @@
     "@types/redis": "^2.8.22",
     "@types/ws": "^7.2.3",
     "chalk": "^2.4.2",
-    "discord.js": "git+https://github.com/discordjs/discord.js.git#f79f0243438a89c4d8a910461800b1adff2fe6e5",
+    "discord.js": "^12.3.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
     "node-fetch": "^3.0.0-beta.9",
@@ -46,9 +46,5 @@
   "bugs": {
     "url": "https://github.com/louistio/TaylorBot/issues"
   },
-  "homepage": "https://github.com/louistio/TaylorBot#readme",
-  "optionalDependencies": {
-    "@discordjs/uws": "^11.149.1",
-    "erlpack": "github:discordapp/erlpack"
-  }
+  "homepage": "https://github.com/louistio/TaylorBot#readme"
 }

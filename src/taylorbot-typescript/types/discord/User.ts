@@ -28,17 +28,17 @@ class UserArgumentType extends TextArgumentType {
         }
         else {
             const matches = val.trim().match(/^(?:<@!?)?([0-9]+)>?$/);
-            const sharedGuilds = client.guilds.filter(g => g.members.has(message.author!.id));
+            const sharedGuilds = client.guilds.cache.filter(g => g.members.cache.has(message.author!.id));
 
             for (const guild of sharedGuilds.values()) {
                 if (matches) {
-                    const member = guild.members.get(matches[1]);
+                    const member = guild.members.cache.get(matches[1]);
                     if (member)
                         return member;
                 }
 
                 const search = val.toLowerCase();
-                const inexactMembers = guild.members.filter(MemberArgumentType.memberFilterInexact(search));
+                const inexactMembers = guild.members.cache.filter(MemberArgumentType.memberFilterInexact(search));
 
                 if (inexactMembers.size === 1) {
                     return inexactMembers.first()!;

@@ -28,7 +28,7 @@ class ChannelArgumentType extends TextArgumentType {
             }
 
             const search = val.toLowerCase();
-            const channels = guild.channels.filter(this.channelFilterInexact(search));
+            const channels = guild.channels.cache.filter(this.channelFilterInexact(search));
             if (channels.size === 0) {
                 throw new ArgumentParsingError(`Could not find channel '${val}'.`);
             }

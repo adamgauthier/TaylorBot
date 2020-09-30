@@ -22,11 +22,11 @@ class BotInfoCommand extends Command {
         const embed = DiscordEmbedFormatter
             .baseUserEmbed(user!)
             .addField('Version', `\`${version}\``, true)
-            .addField('Uptime', `\`${client.uptime}\` ms`, true)
-            .addField('Guild Store', client.guilds.size, true)
-            .addField('User Store', client.users.size, true)
-            .addField('Channel Store', client.channels.size, true)
             .addField('Author', `<@${MASTER_ID}>`, true)
+            .addField('Uptime', `\`${client.uptime}\` ms`, true)
+            .addField('Guild Cache', client.guilds.cache.size, true)
+            .addField('User Cache', client.users.cache.size, true)
+            .addField('Channel Cache', client.channels.cache.size, true)
             .addField('Language', 'typescript + C#', true)
             .addField('Library', 'discord.js + Discord.Net', true);
 

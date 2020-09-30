@@ -22,7 +22,7 @@ class GuildArgumentType extends TextArgumentType {
         }
 
         const search = val.toLowerCase();
-        const guilds = client.guilds.filter(GuildArgumentType.guildFilterInexact(search));
+        const guilds = client.guilds.cache.filter(GuildArgumentType.guildFilterInexact(search));
         if (guilds.size === 0) {
             throw new ArgumentParsingError(`Could not find server '${val}'.`);
         }
@@ -63,7 +63,7 @@ class GuildArgumentType extends TextArgumentType {
     }
 
     static async isInGuild(user: User, guild: Guild): Promise<boolean> {
-        if (guild.members.has(user.id)) {
+        if (guild.members.cache.has(user.id)) {
             return true;
         }
         else {

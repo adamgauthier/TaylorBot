@@ -14,14 +14,14 @@ class RoleArgumentType extends TextArgumentType {
         if (guild) {
             const matches = val.trim().match(/^(?:<@&)?([0-9]+)>?$/);
             if (matches) {
-                const role = guild.roles.get(matches[1]);
+                const role = guild.roles.cache.get(matches[1]);
                 if (role) {
                     return role;
                 }
             }
 
             const search = val.toLowerCase();
-            const inexactRoles = guild.roles.filter(RoleArgumentType.roleFilterInexact(search));
+            const inexactRoles = guild.roles.cache.filter(RoleArgumentType.roleFilterInexact(search));
             if (inexactRoles.size === 0) {
                 throw new ArgumentParsingError(`Could not find role '${val}'.`);
             }

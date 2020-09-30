@@ -55,7 +55,7 @@ class GroupAccessInhibitor extends NoisyInhibitor {
 
     static roleGroupHasAccess(minimumGroupLevel: number, member: GuildMember, guilds: GuildRegistry, groups: GroupRegistry): boolean {
         const guildRoles = guilds.get(member.guild.id)!.roleGroups;
-        const ownedGroups = member.roles.map(role => guildRoles[role.id]).filter(g => !!g) as string[];
+        const ownedGroups = member.roles.cache.map(role => guildRoles[role.id]).filter(g => !!g) as string[];
 
         for (const group of ownedGroups) {
             const { accessLevel } = groups.get(group)!;

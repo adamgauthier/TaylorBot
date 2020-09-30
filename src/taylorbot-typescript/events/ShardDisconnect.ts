@@ -2,9 +2,9 @@ import { EventHandler } from '../structures/EventHandler';
 import { Log } from '../tools/Logger';
 import { TaylorBotClient } from '../client/TaylorBotClient';
 
-class ShardDisconnected extends EventHandler {
+class ShardDisconnect extends EventHandler {
     constructor() {
-        super('shardDisconnected');
+        super('shardDisconnect');
     }
 
     handler(taylorbot: TaylorBotClient, closeEvent: CloseEvent, id: number): void {
@@ -15,4 +15,4 @@ class ShardDisconnected extends EventHandler {
     }
 }
 
-export = ShardDisconnected;
+export = ShardDisconnect;

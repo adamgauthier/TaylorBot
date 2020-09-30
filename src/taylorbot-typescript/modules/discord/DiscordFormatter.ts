@@ -16,7 +16,6 @@ export class Format {
     static member(guildMember: GuildMember, formatString = '#name (#id), #gName (#gId)'): string {
         return formatString
             .replace('#username', guildMember.user.username)
-            .replace('#nickname', guildMember.nickname)
             .replace('#name', guildMember.displayName)
             .replace('#id', guildMember.id)
             .replace('#gName', guildMember.guild.name)

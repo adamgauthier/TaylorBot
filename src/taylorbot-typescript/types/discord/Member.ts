@@ -33,7 +33,7 @@ class MemberArgumentType extends TextArgumentType {
             }
 
             const search = val.toLowerCase();
-            const inexactMembers = guild.members.filter(MemberArgumentType.memberFilterInexact(search));
+            const inexactMembers = guild.members.cache.filter(MemberArgumentType.memberFilterInexact(search));
             if (inexactMembers.size === 0) {
                 throw new ArgumentParsingError(`Could not find member '${val}'.`);
             }
