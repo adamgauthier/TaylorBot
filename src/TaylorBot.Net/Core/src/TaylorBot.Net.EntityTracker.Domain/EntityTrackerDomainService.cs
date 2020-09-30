@@ -97,7 +97,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
 
         public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
         {
-            foreach (var guild in shardClient.Guilds)
+            foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
             {
                 await OnGuildJoinedAsync(guild, downloadAllUsers: false);
                 await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
