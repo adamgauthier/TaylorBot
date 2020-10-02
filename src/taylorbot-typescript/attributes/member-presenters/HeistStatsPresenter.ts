@@ -21,7 +21,7 @@ export class HeistStatsPresenter extends SimpleStatPresenter {
         };
 
         return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
+            .baseUserSuccessEmbed(member.user)
             .setDescription([
                 `${member.displayName} has won a total of ${StringUtil.plural(winCount, 'heist', '**')} (**${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in the server).`,
                 `They have also failed ${StringUtil.plural(loseCount, 'heist', '**')}, meaning they have a success rate of **${successRate()}%**.`,

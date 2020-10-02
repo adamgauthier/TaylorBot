@@ -48,7 +48,7 @@ class ImageCommand extends Command {
         }
 
         const embed = DiscordEmbedFormatter
-            .baseUserEmbed(author)
+            .baseUserSuccessEmbed(author)
             .setFooter(`${searchInformation.formattedTotalResults} results found in ${searchInformation.formattedSearchTime} seconds`);
 
         await new PageMessage(

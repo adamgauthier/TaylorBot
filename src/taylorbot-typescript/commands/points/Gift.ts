@@ -38,7 +38,7 @@ class GiftCommand extends Command {
         } = await client.master.database.users.transferTaypointCount(author, users, amount);
 
         await client.sendEmbed(channel, DiscordEmbedFormatter
-            .baseUserEmbed(author)
+            .baseUserSuccessEmbed(author)
             .setDescription([
                 `Successfully gifted ${StringUtil.plural(gifted_count, 'taypoint', '**')} out of ${StringUtil.formatNumberString(original_count)}:`,
                 ...usersToGift.map(({ user, giftedCount }) => `${StringUtil.plural(giftedCount, 'taypoint', '**')} to ${user}`)

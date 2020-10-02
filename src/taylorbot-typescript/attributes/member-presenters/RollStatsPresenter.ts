@@ -24,7 +24,7 @@ export class RollStatsPresenter extends SimpleStatPresenter {
         };
 
         return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
+            .baseUserSuccessEmbed(member.user)
             .setDescription([
                 `${member.displayName} has rolled a total of ${StringUtil.plural(rollCount, 'time', '**')} (**${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in the server).`,
                 `They have ${StringUtil.plural(perfect_roll_count, 'perfect roll', '**')} of 1989.`,

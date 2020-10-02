@@ -36,7 +36,7 @@ export class WikipediaModule {
 
     static getPageEmbed(user: User, page: WikipediaPage): MessageEmbed {
         const embed = DiscordEmbedFormatter
-            .baseUserEmbed(user)
+            .baseUserSuccessEmbed(user)
             .setTitle(page.title)
             .setURL(page.fullurl)
             .setDescription(StringUtil.shrinkString(page.extract, 250, ' (...)'))

@@ -19,7 +19,7 @@ export class SimpleStatPresenter implements MemberAttributePresenter {
 
     present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: stat, rank }: Record<string, any> & { rank: string }): MessageEmbed {
         return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
+            .baseUserSuccessEmbed(member.user)
             .setDescription([
                 `${member.displayName} has ${StringUtil.plural(stat, this.attribute.singularName, '**')}.`,
                 `They are the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user of the server (excluding users who left).`

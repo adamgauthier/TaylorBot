@@ -18,7 +18,7 @@ export class DailyStreakPresenter implements MemberAttributePresenter {
         const streak = attribute[this.#attribute.columnName];
         const { rank } = attribute;
         return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
+            .baseUserSuccessEmbed(member.user)
             .setDescription([
                 `${member.displayName} is currently on a **${StringUtil.formatNumberString(streak)}** day payout streak.`,
                 `They are the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user of the server (excluding users who left).`

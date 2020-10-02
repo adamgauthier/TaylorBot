@@ -39,7 +39,7 @@ class ReactPollCommand extends Command {
         );
 
         const pollMessage = await client.sendEmbed(channel, DiscordEmbedFormatter
-            .baseUserEmbed(author)
+            .baseUserSuccessEmbed(author)
             .setTitle(`React Poll '${channel.name}' started!`)
             .setDescription(Array.from(
                 pollOptions.entries(),

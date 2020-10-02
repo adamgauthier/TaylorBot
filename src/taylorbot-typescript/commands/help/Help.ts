@@ -35,7 +35,7 @@ class HelpCommand extends Command {
 
         await client.sendEmbed(channel,
             DiscordEmbedFormatter
-                .baseUserEmbed(author)
+                .baseUserSuccessEmbed(author)
                 .setTitle(`Command '${command.name}'`)
                 .setDescription(command.command.description)
                 .addField('Usage', [

@@ -13,7 +13,7 @@ export class SimpleImagePresenter implements UserAttributePresenter {
     present(commandContext: CommandMessageContext, user: User, attribute: Record<string, any> & { rank: string }): Promise<MessageEmbed> {
         return Promise.resolve(
             DiscordEmbedFormatter
-                .baseUserEmbed(user)
+                .baseUserSuccessEmbed(user)
                 .setTitle(`${user.username}'s ${this.#attribute.description}`)
                 .setImage(this.#attribute.formatValue(attribute))
         );

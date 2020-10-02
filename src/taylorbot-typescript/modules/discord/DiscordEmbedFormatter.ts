@@ -6,24 +6,9 @@ export class DiscordEmbedFormatter {
             .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL);
     }
 
-    static baseUserEmbed(user: User, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)): MessageEmbed {
+    static baseUserSuccessEmbed(user: User, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)): MessageEmbed {
         return DiscordEmbedFormatter.baseUserHeader(user, avatarURL)
-            .setColor(DiscordEmbedFormatter.getStatusColor(user.presence.status));
-    }
-
-    static getStatusColor(status: string): string {
-        switch (status) {
-            case 'online':
-                return '#43b581';
-            case 'idle':
-                return '#faa61a';
-            case 'dnd':
-                return '#f04747';
-            case 'offline':
-                return '#747f8d';
-            default:
-                return 'RANDOM';
-        }
+            .setColor('#43b581');
     }
 
     static getAvatarURL(user: User, size: 128 | 16 | 32 | 64 | 256 | 512 | 1024 | 2048 = 128): string {

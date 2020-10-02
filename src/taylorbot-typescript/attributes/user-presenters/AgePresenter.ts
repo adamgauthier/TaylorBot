@@ -10,7 +10,7 @@ export class AgePresenter implements UserAttributePresenter {
     constructor(_: UserAttribute) { }
 
     present(commandContext: CommandMessageContext, user: User, { age, birthday }: Record<string, any> & { rank: string }): Promise<MessageEmbed> {
-        const embed = DiscordEmbedFormatter.baseUserEmbed(user);
+        const embed = DiscordEmbedFormatter.baseUserSuccessEmbed(user);
 
         if (!birthday) {
             const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);

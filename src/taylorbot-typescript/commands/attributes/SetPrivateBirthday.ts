@@ -42,7 +42,7 @@ class SetPrivateBirthdayCommand extends Command {
         await client.sendEmbed(
             message.channel,
             DiscordEmbedFormatter
-                .baseUserEmbed(author)
+                .baseUserSuccessEmbed(author)
                 .setDescription([
                     `Your birthday has been privately set to ${parsed.format('MMMM Do')}.`,
                     `You will still receive birthday points and can still use the \`horoscope\` and \`age\` commands.`

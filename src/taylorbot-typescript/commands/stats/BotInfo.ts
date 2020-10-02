@@ -20,7 +20,7 @@ class BotInfoCommand extends Command {
     async run({ message, client }: CommandMessageContext): Promise<void> {
         const { user } = client;
         const embed = DiscordEmbedFormatter
-            .baseUserEmbed(user!)
+            .baseUserSuccessEmbed(user!)
             .addField('Version', `\`${version}\``, true)
             .addField('Author', `<@${MASTER_ID}>`, true)
             .addField('Uptime', `\`${client.uptime}\` ms`, true)

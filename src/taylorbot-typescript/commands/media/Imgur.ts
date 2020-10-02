@@ -35,7 +35,7 @@ class ImgurCommand extends Command {
         const { link } = response.data;
 
         await client.sendEmbed(channel, DiscordEmbedFormatter
-            .baseUserEmbed(author)
+            .baseUserSuccessEmbed(author)
             .setDescription(`Successfully uploaded your image to Imgur, it can be found here: ${link} 😊.`)
             .setImage(link)
         );

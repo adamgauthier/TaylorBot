@@ -35,7 +35,7 @@ export class Poll extends events.EventEmitter {
 
     async send(): Promise<void> {
         await this.client.sendEmbed(this.channel, DiscordEmbedFormatter
-            .baseUserEmbed(this.owner)
+            .baseUserSuccessEmbed(this.owner)
             .setTitle(`Poll '${this.channel.name}' started!`)
             .setDescription(Array.from(
                 this.#options.entries(),
@@ -51,7 +51,7 @@ export class Poll extends events.EventEmitter {
 
         clearTimeout(this.#closeTimeout);
         await this.client.sendEmbed(this.channel, DiscordEmbedFormatter
-            .baseUserEmbed(this.owner)
+            .baseUserSuccessEmbed(this.owner)
             .setTitle(`Poll '${this.channel.name}' closed! Results:`)
             .setDescription(Array.from(
                 this.#options.values(),
@@ -62,7 +62,7 @@ export class Poll extends events.EventEmitter {
 
     async show(): Promise<void> {
         await this.client.sendEmbed(this.channel, DiscordEmbedFormatter
-            .baseUserEmbed(this.owner)
+            .baseUserSuccessEmbed(this.owner)
             .setTitle(`Poll '${this.channel.name}' current results:`)
             .setDescription(Array.from(
                 this.#options.entries(),

@@ -36,7 +36,7 @@ class HoroscopeCommand extends Command {
         const { date, horoscope, sunsign } = await HoroscopeModule.getDailyHoroscope(birthdayAttribute.zodiac);
 
         await client.sendEmbed(message.channel, DiscordEmbedFormatter
-            .baseUserEmbed(user)
+            .baseUserSuccessEmbed(user)
             .setTitle(`${sunsign} - ${moment.utc(date, 'YYYY-MM-DD').format('dddd, MMMM Do YYYY')}`)
             .setDescription(horoscope)
         );

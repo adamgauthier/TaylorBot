@@ -8,7 +8,7 @@ export class DarkSkyEmbedModule {
         const fahrenheit = DarkSkyEmbedModule.celsiusToFahrenheit(celsius).toFixed(2);
 
         return DiscordEmbedFormatter
-            .baseUserEmbed(user)
+            .baseUserSuccessEmbed(user)
             .setTitle(dataPoint.summary)
             .setDescription([
                 `${celsius}°C/${fahrenheit}°F`,

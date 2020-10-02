@@ -12,7 +12,7 @@ export class LocationPresenter implements UserAttributePresenter {
     present(commandContext: CommandMessageContext, user: User, location: Record<string, any> & { rank: string }): Promise<MessageEmbed> {
         return Promise.resolve(
             DiscordEmbedFormatter
-                .baseUserEmbed(user)
+                .baseUserSuccessEmbed(user)
                 .setDescription([
                     `${user.username}'s location is **${location.formatted_address}**.`,
                     `It is currently **${moment.utc().tz(location.timezone_id).format('LT')}** there.`

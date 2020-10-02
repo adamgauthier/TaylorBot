@@ -37,7 +37,7 @@ class ProfileCommand extends Command {
 
         await client.sendEmbed(message.channel,
             DiscordEmbedFormatter
-                .baseUserEmbed(user)
+                .baseUserSuccessEmbed(user)
                 .addField('Age',
                     parsedBirthday !== null && parsedBirthday.year() !== 1804 ?
                         moment.utc().diff(parsedBirthday, 'years') :

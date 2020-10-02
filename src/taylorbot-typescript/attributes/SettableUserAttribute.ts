@@ -34,7 +34,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
         await this.clear(client.master.database, author);
 
         return DiscordEmbedFormatter
-            .baseUserEmbed(author)
+            .baseUserSuccessEmbed(author)
             .setDescription(`Your ${this.description} has been cleared. ✅`);
     }
 

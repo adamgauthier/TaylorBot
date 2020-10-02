@@ -40,7 +40,7 @@ class HeistCommand extends Command {
 
         const { created, updated } = await heists.enterHeist(author, guild!, amount, HEIST_DELAY_MINUTES);
 
-        const embed = DiscordEmbedFormatter.baseUserEmbed(author);
+        const embed = DiscordEmbedFormatter.baseUserSuccessEmbed(author);
 
         if (created) {
             embed.setDescription([

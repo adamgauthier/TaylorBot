@@ -11,7 +11,7 @@ export class MinutesPresenter extends SimpleStatPresenter {
         const duration = moment.duration(minuteCount, 'minutes');
 
         return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
+            .baseUserSuccessEmbed(member.user)
             .setDescription([
                 `${member.displayName} has been active for ${StringUtil.plural(minuteCount, 'minute', '**')} in this server.`,
                 `This is roughly equivalent to **${duration.humanize()}** of activity.`,

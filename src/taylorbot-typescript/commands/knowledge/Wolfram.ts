@@ -40,7 +40,7 @@ class WolframCommand extends Command {
 
         await client.sendEmbed(channel,
             DiscordEmbedFormatter
-                .baseUserEmbed(author)
+                .baseUserSuccessEmbed(author)
                 .setTitle(inputPod.plaintext)
                 .setImage(resultPod.img.src)
                 .setFooter(`Wolfram|Alpha - Query took ${result.timing} seconds`, 'https://i.imgur.com/aHl1jlS.png')

@@ -13,7 +13,7 @@ export class JoinedPresenter implements MemberAttributePresenter {
 
     present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: firstJoinedAt, rank }: Record<string, any> & { rank: string }): MessageEmbed {
         return DiscordEmbedFormatter
-            .baseUserEmbed(member.user)
+            .baseUserSuccessEmbed(member.user)
             .setDescription(firstJoinedAt ? [
                 `${member.displayName} first joined the server on **${TimeUtil.formatFull(firstJoinedAt.getTime())}**.`,
                 `They were the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user to join.`
