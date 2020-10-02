@@ -21,8 +21,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(user, pool);
-            await redis.StringIncrementAsync(key);
-            await redis.KeyExpireAsync(key, TimeSpan.FromSeconds(10));
+            await redis.StringSetAsync(key, "1", expiry: TimeSpan.FromSeconds(10));
         }
 
         public async Task<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
@@ -38,7 +37,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(user, pool);
-            await redis.StringDecrementAsync(key);
+            await redis.StringSetAsync(key, "0");
         }
     }
 }
