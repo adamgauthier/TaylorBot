@@ -7,3 +7,4 @@
 0003_accessible_role_groups 2020-09-13T23:44:54Z Adam Gauthier <adamgauthier12@gmail.com> # Add group support to accessible roles
 0004_1.8.0_message_of_the_day 2020-09-17T04:31:53Z Adam Gauthier <adamgauthier12@gmail.com> # Add message of the day for TaylorBot 1.8.0
 0005_update_1.8.0_message_of_the_day 2020-09-21T04:21:17Z Adam Gauthier <adamgauthier12@gmail.com> # Update 1.8.0 message of the day to a normal message about roles
+0006_rename_setprefix_command 2020-10-04T05:26:42Z Adam Gauthier <adamgauthier12@gmail.com> # Rename setprefix command to prefix

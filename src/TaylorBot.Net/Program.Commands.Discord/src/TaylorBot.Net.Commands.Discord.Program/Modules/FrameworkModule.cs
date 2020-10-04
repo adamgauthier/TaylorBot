@@ -20,25 +20,38 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
         [RequireInGuild]
         [RequireUserPermissionOrOwner(GuildPermission.ManageGuild)]
-        [Command("setprefix")]
-        [Alias("prefix")]
-        [Summary("Changes the bot's prefix for this server.")]
+        [Command("prefix")]
+        [Alias("setprefix")]
+        [Summary("Gets or changes the command prefix for this server.")]
         public async Task<RuntimeResult> PrefixAsync(
             [Remainder]
             [Summary("What would you like to set the prefix to?")]
-            Word prefix
+            Word? prefix = null
         )
         {
-            await _commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
-
-            return new TaylorBotEmbedResult(new EmbedBuilder()
+            var embed = new EmbedBuilder()
                 .WithUserAsAuthor(Context.User)
-                .WithColor(TaylorBotColors.SuccessColor)
-                .WithDescription(string.Join('\n', new[] {
-                    $"The command prefix for this server has been set to `{prefix.Value}`.",
-                    $"TaylorBot will now recognize commands that start with that prefix in this server, for example `{prefix.Value}help`."
-                }))
-            .Build());
+                .WithColor(TaylorBotColors.SuccessColor);
+
+            if (prefix != null)
+            {
+                await _commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
+                embed
+                    .WithDescription(string.Join('\n', new[] {
+                        $"The command prefix for this server has been set to `{prefix.Value}`.",
+                        $"TaylorBot will now recognize commands starting with that prefix in this server, for example `{prefix.Value}help`."
+                    }));
+            }
+            else
+            {
+                embed
+                    .WithDescription(string.Join('\n', new[] {
+                        $"The command prefix for this server is `{Context.CommandPrefix}`.",
+                        $"TaylorBot recognizes commands starting with that prefix in this server, for example `{Context.CommandPrefix}help`."
+                    }));
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
         }
     }
 }
