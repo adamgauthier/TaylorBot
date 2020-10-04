@@ -12,7 +12,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
         {
             Snippet = playlistItemSnippet;
 
-            if (DateTimeOffset.TryParse(playlistItemSnippet.PublishedAtRaw, out var parsed))
+            if (DateTimeOffset.TryParse(playlistItemSnippet.PublishedAt, out var parsed))
             {
                 PublishedAt = parsed;
             }
