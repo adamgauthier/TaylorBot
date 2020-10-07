@@ -20,7 +20,7 @@ class ClosePollCommand extends Command {
         });
     }
 
-    async run({ message, client, author, messageContext }: CommandMessageContext): Promise<void> {
+    async run({ message, client, messageContext }: CommandMessageContext): Promise<void> {
         const channel = message.channel as TextChannel;
         const { watchers } = client.master.registry;
 
@@ -32,10 +32,11 @@ class ClosePollCommand extends Command {
 
         const poll = pollsWatcher.getPoll(channel)!;
 
-        if (!poll.canClose(author)) {
-            throw new CommandError(
-                `This poll can only be closed by ${poll.owner}. Otherwise, it will be closed ${moment.utc(poll.endsAt!).fromNow()}.`
-            );
+        if (!poll.canClose(message.member!)) {
+            throw new CommandError([
+                `This poll can only be closed by ${poll.owner} or members with the permission "Manage Messages".`,
+                `Otherwise, it will be automatically closed ${moment.utc(poll.endsAt!).fromNow()}.`
+            ].join('\n'));
         }
 
         await pollsWatcher.stopPoll(channel);

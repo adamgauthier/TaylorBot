@@ -5,7 +5,7 @@ import { StringUtil } from '../util/StringUtil';
 import { Option } from './Option';
 import DISCORD_CONFIG = require('../../config/config.json');
 import { TaylorBotClient } from '../../client/TaylorBotClient';
-import { User, TextChannel } from 'discord.js';
+import { User, TextChannel, GuildMember } from 'discord.js';
 
 export class Poll extends events.EventEmitter {
     readonly #options: Map<number, Option>;
@@ -72,8 +72,8 @@ export class Poll extends events.EventEmitter {
         );
     }
 
-    canClose(user: User): boolean {
-        return this.owner.id === user.id || DISCORD_CONFIG.MASTER_ID === user.id;
+    canClose(member: GuildMember): boolean {
+        return this.owner.id === member.id || DISCORD_CONFIG.MASTER_ID === member.id || member.permissionsIn(this.channel).has('MANAGE_MESSAGES');
     }
 
     vote(user: User, number: number): void {
