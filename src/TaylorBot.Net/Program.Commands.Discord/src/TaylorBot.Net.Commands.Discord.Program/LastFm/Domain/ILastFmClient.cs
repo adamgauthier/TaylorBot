@@ -4,15 +4,17 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 {
-    public class LastFmErrorResult : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult
+    public class LastFmGenericErrorResult : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult
     {
         public string? Error { get; }
 
-        public LastFmErrorResult(string? error)
+        public LastFmGenericErrorResult(string? error)
         {
             Error = error;
         }
     }
+
+    public class LastFmLogInRequiredErrorResult : IMostRecentScrobbleResult { }
 
     public interface IMostRecentScrobbleResult { }
 

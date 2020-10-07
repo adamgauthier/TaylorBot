@@ -43,11 +43,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         }
 
         [Fact]
+        public async Task NowPlayingAsync_WhenLastFmLogInRequiredError_ThenReturnsErrorEmbed()
+        {
+            var lastFmUsername = new LastFmUsername("taylorswift");
+            A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+            A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmLogInRequiredErrorResult());
+
+            var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
         public async Task NowPlayingAsync_WhenLastFmError_ThenReturnsErrorEmbed()
         {
             var lastFmUsername = new LastFmUsername("taylorswift");
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-            A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmErrorResult("Unknown"));
+            A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmGenericErrorResult("Unknown"));
 
             var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
 

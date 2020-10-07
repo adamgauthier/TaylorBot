@@ -54,9 +54,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                     )
                 );
             }
+            else if (response.Status == (LastResponseStatus)17)
+            {
+                return new LastFmLogInRequiredErrorResult();
+            }
             else
             {
-                return new LastFmErrorResult(response.Status.ToString());
+                return new LastFmGenericErrorResult(response.Status.ToString());
             }
         }
 
@@ -95,7 +99,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
             }
             else
             {
-                return new LastFmErrorResult(response.Status.ToString());
+                return new LastFmGenericErrorResult(response.Status.ToString());
             }
         }
 
@@ -133,12 +137,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 {
                     var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                     var status = (LastResponseStatus)jsonDocument.RootElement.GetProperty("error").GetUInt16();
-                    return new LastFmErrorResult(status.ToString());
+                    return new LastFmGenericErrorResult(status.ToString());
                 }
                 catch (Exception e)
                 {
                     _logger.LogWarning(e, LogString.From($"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):"));
-                    return new LastFmErrorResult(null);
+                    return new LastFmGenericErrorResult(null);
                 }
             }
         }
@@ -185,12 +189,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 {
                     var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                     var status = (LastResponseStatus)jsonDocument.RootElement.GetProperty("error").GetUInt16();
-                    return new LastFmErrorResult(status.ToString());
+                    return new LastFmGenericErrorResult(status.ToString());
                 }
                 catch (Exception e)
                 {
                     _logger.LogWarning(e, LogString.From($"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):"));
-                    return new LastFmErrorResult(null);
+                    return new LastFmGenericErrorResult(null);
                 }
             }
         }

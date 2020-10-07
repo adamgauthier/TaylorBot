@@ -61,9 +61,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
             switch (result)
             {
-                case LastFmErrorResult errorResult:
-                    return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
-
                 case MostRecentScrobbleResult success:
                     if (success.MostRecentTrack != null)
                     {
@@ -93,6 +90,19 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                             CreateLastFmNoScrobbleErrorEmbed(lastFmUsername, u, LastFmPeriod.Overall)
                         );
                     }
+
+                case LastFmLogInRequiredErrorResult _:
+                    return new TaylorBotEmbedResult(new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User)
+                        .WithColor(TaylorBotColors.ErrorColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            "Last.fm says your recent tracks are not public. 😢",
+                            $"Make sure 'Hide recent listening information' is off in your {"Last.fm privacy settings".DiscordMdLink("https://www.last.fm/settings/privacy")}!"
+                        }))
+                    .Build());
+
+                case LastFmGenericErrorResult errorResult:
+                    return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
 
                 default: throw new NotImplementedException();
             }
@@ -154,7 +164,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
             switch (result)
             {
-                case LastFmErrorResult errorResult:
+                case LastFmGenericErrorResult errorResult:
                     return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
 
                 case TopArtistsResult success:
@@ -204,7 +214,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
             switch (result)
             {
-                case LastFmErrorResult errorResult:
+                case LastFmGenericErrorResult errorResult:
                     return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
 
                 case TopTracksResult success:
@@ -254,7 +264,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
 
             switch (result)
             {
-                case LastFmErrorResult errorResult:
+                case LastFmGenericErrorResult errorResult:
                     return new TaylorBotEmbedResult(CreateLastFmErrorEmbed(errorResult));
 
                 case TopAlbumsResult success:
@@ -343,7 +353,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             .Build();
         }
 
-        private Embed CreateLastFmErrorEmbed(LastFmErrorResult error)
+        private Embed CreateLastFmErrorEmbed(LastFmGenericErrorResult error)
         {
             return new EmbedBuilder()
                 .WithUserAsAuthor(Context.User)
