@@ -1,9 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -21,12 +24,19 @@ namespace TaylorBot.Net.Commands.Modules
         private readonly CommandService _commands;
         private readonly IDisabledCommandRepository _disabledCommandRepository;
         private readonly ICommandRepository _commandRepository;
+        private readonly IOptionsMonitor<CommandApplicationOptions> _commandApplicationOptions;
 
-        public HelpModule(CommandService commands, IDisabledCommandRepository disabledCommandRepository, ICommandRepository commandRepository)
+        public HelpModule(
+            CommandService commands,
+            IDisabledCommandRepository disabledCommandRepository,
+            ICommandRepository commandRepository,
+            IOptionsMonitor<CommandApplicationOptions> commandApplicationOptions
+        )
         {
             _commands = commands;
             _disabledCommandRepository = disabledCommandRepository;
             _commandRepository = commandRepository;
+            _commandApplicationOptions = commandApplicationOptions;
         }
 
         [Command("help")]
@@ -117,6 +127,37 @@ namespace TaylorBot.Net.Commands.Modules
             }
 
             return new TaylorBotEmbedResult(builder.Build());
+        }
+
+        [RequireTaylorBotOwner]
+        [Command("diagnostic")]
+        [Summary("Gets diagnostic information a TaylorBot component.")]
+        public async Task<RuntimeResult> DiagnosticAsync(
+            [Summary("The component to show diagnostic information for")]
+            [Remainder]
+            string? component = null
+        )
+        {
+            if (component != _commandApplicationOptions.CurrentValue.ApplicationName)
+                return new TaylorBotEmptyResult();
+
+            var embed = new EmbedBuilder()
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(Context.Client.CurrentUser)
+                .AddField("Guild Cache", (await Context.Client.GetGuildsAsync(CacheMode.CacheOnly)).Count, inline: true)
+                .AddField("DM Channels Cache", (await Context.Client.GetDMChannelsAsync(CacheMode.CacheOnly)).Count, inline: true);
+
+            if (Context.Client is DiscordShardedClient shardedClient)
+            {
+                embed.AddField("Shard Count", shardedClient.Shards.Count, inline: true);
+            }
+
+            if (Context.Client is BaseSocketClient socketClient)
+            {
+                embed.AddField("Latency", $"{socketClient.Latency} ms", inline: true);
+            }
+
+            return new TaylorBotEmbedResult(embed.Build());
         }
     }
 }

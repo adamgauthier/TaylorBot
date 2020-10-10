@@ -89,7 +89,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTransient<ITaylorBotTypeReader, LastFmPeriodTypeReader>()
                         .AddTransient<ITaypointRewardRepository, TaypointRewardPostgresRepository>()
                         .AddTransient<IAccessibleRoleRepository, AccessibleRolePostgresRepository>()
-                        .AddTransient<ITaylorBotTypeReader, AccessibleGroupNameTypeReader>();
+                        .AddTransient<ITaylorBotTypeReader, AccessibleGroupNameTypeReader>()
+                        .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>();
                 })
                 .Build();
 

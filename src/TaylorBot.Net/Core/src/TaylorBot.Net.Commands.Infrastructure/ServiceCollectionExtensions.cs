@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Infrastructure.Options;
+using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.EntityTracker.Infrastructure;
@@ -26,6 +27,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
         {
             return services
                 .AddEntityTrackerInfrastructure(configuration)
+                .ConfigureRequired<CommandApplicationOptions>(configuration, "CommandApplication")
                 .ConfigureRequired<CommandClientOptions>(configuration, "CommandClient")
                 .AddTransient<CommandPrefixPostgresRepository>()
                 .AddTransient<CommandPrefixRedisCacheRepository>()

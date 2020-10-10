@@ -13,10 +13,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
     public class StatsModule : TaylorBotModule
     {
         private readonly IServerStatsRepository _serverStatsRepository;
+        private readonly IBotInfoRepository _botInfoRepository;
 
-        public StatsModule(IServerStatsRepository serverStatsRepository)
+        public StatsModule(IServerStatsRepository serverStatsRepository, IBotInfoRepository botInfoRepository)
         {
             _serverStatsRepository = serverStatsRepository;
+            _botInfoRepository = botInfoRepository;
         }
 
         [RequireInGuild]
@@ -42,6 +44,24 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     $"Female: {genderStats.FemaleCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.FemaleCount)})" : string.Empty)}",
                     $"Other: {genderStats.OtherCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.OtherCount)})" : string.Empty)}"
                 }), inline: true)
+            .Build());
+        }
+
+        [Command("botinfo")]
+        [Alias("version", "invite")]
+        [Summary("Gets general information about TaylorBot.")]
+        public async Task<RuntimeResult> BotInfoAsync()
+        {
+            var productVersion = await _botInfoRepository.GetProductVersionAsync();
+            var applicationInfo = await Context.Client.GetApplicationInfoAsync();
+
+            return new TaylorBotEmbedResult(new EmbedBuilder()
+                .WithUserAsAuthor(Context.Client.CurrentUser)
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithDescription(applicationInfo.Description)
+                .AddField("Version", productVersion, inline: true)
+                .AddField("Author", applicationInfo.Owner.Mention, inline: true)
+                .AddField("Invite Link", "https://taylorbot.app/", inline: true)
             .Build());
         }
     }

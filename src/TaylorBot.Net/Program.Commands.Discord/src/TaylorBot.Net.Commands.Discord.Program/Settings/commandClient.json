@@ -1,5 +1,8 @@
 ﻿{
   "CommandClient": {
     "UseRedisCache": true
+  },
+  "CommandApplication": {
+    "ApplicationName": "commands-discord"
   }
 }
