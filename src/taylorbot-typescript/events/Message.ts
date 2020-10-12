@@ -8,7 +8,8 @@ class Message extends EventHandler {
     }
 
     handler(client: TaylorBotClient, message: DiscordMessage): void {
-        client.master.registry.watchers.feedAll(client, message);
+        if (!message.partial)
+            client.master.registry.watchers.feedAll(client, message);
     }
 }
 

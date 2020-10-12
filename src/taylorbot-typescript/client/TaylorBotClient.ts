@@ -16,6 +16,7 @@ export class TaylorBotClient extends Discord.Client {
             shards: 'auto',
             messageCacheMaxSize: 0,
             disableMentions: 'all',
+            partials: ['REACTION', 'MESSAGE'],
             ws: {
                 intents: [
                     'GUILDS',
