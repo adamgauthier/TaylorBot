@@ -43,11 +43,11 @@ namespace TaylorBot.Net.Commands.Types
                 (IReadOnlyCollection<IChannel>)new[] { context.Channel };
 
             // By Mention (1.0)
-            if (MentionUtils.TryParseChannel(input, out var id))
+            if (MentionUtils.TryParseChannel(input, out var id) && channels.Any(c => c.Id == id))
                 AddResultIfTypeMatches(results, channels.Single(c => c.Id == id), 1.00f);
 
             // By Id (0.9)
-            if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id) && channels.Any(c => c.Id == id))
                 AddResultIfTypeMatches(results, channels.Single(c => c.Id == id), 0.90f);
 
             // By Name (0.6-0.8)

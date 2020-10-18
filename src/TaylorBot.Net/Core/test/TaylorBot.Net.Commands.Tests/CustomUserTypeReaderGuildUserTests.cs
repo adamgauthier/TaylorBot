@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests
+namespace TaylorBot.Net.Commands.Tests
 {
     public class CustomUserTypeReaderGuildUserTests
     {
