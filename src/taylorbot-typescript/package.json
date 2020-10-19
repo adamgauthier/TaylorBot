@@ -1,7 +1,7 @@
 {
   "name": "taylorbot",
   "version": "2.0.0",
-  "description": "Discord bot created for the r/TaylorSwift Discord server",
+  "description": "TaylorBot typescript component that handles some of its commands",
   "main": "taylorbot.js",
   "dependencies": {
     "@types/moment-timezone": "^0.5.13",
@@ -16,13 +16,12 @@
     "pg-promise": "^8.6.5",
     "redis": "^2.8.0",
     "sherlockjs": "^1.4.0",
-    "typescript": "^3.8.3"
+    "typescript": "^4.0.3"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.24.0",
-    "@typescript-eslint/parser": "^2.24.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-import": "^2.17.1"
+    "@typescript-eslint/eslint-plugin": "^4.4.1",
+    "@typescript-eslint/parser": "^4.4.1",
+    "eslint": "^5.16.0"
   },
   "engines": {
     "node": ">=11.10.1"
