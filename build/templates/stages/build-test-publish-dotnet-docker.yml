@@ -1,0 +1,71 @@
+parameters:
+  - name: componentName
+    default: ''
+  - name: dockerfilePath
+    default: ''
+  - name: dockerBuildContext
+    default: ''
+
+stages:
+  - stage: build
+    displayName: 'Build container image'
+    variables:
+      containerImageTag: 'taylorbot/${{ parameters.componentName }}:$(Build.SourceVersion)'
+      containerImageFilePath: '$(Build.ArtifactStagingDirectory)/${{ parameters.componentName }}.tar'
+      testImageTag: 'taylorbot/${{ parameters.componentName }}-tests'
+      testResultsPath: '$(Build.ArtifactStagingDirectory)/TestResults'
+      buildTestTaskDisplayName: 'Build test container image'
+    jobs:  
+    - job: build
+      displayName: 'Run tests and build container image'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - task: Docker@2
+        displayName: $(buildTestTaskDisplayName)
+        inputs:
+          command: build
+          dockerfile: ${{ parameters.dockerfilePath }}
+          buildContext: ${{ parameters.dockerBuildContext }}
+          arguments: '--target test --tag $(testImageTag)'
+  
+      - task: BuildQualityChecks@7
+        displayName: 'Check warnings in build'
+        continueOnError: true
+        inputs:
+          checkWarnings: true
+          warningFailOption: fixed
+          warningTaskFilters: '/^$(buildTestTaskDisplayName)$/'
+          warningFilters: '/(\d+)\sWarning\(s\)/i'
+  
+      - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag)
+        displayName: 'Run tests'
+  
+      - task: Docker@2
+        displayName: 'Build final container image'
+        inputs:
+          command: build
+          dockerfile: ${{ parameters.dockerfilePath }}
+          buildContext: ${{ parameters.dockerBuildContext }}
+          arguments: '--tag $(containerImageTag)'
+  
+      - task: PublishTestResults@2
+        displayName: 'Publish tests results'
+        inputs:
+          testResultsFormat: 'VSTest'
+          testResultsFiles: '*.trx'
+          searchFolder: $(testResultsPath)
+  
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish code coverage report'
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: '$(testResultsPath)/**/coverage.cobertura.xml'
+          pathToSources: ${{ parameters.dockerBuildContext }}
+  
+      - script: docker save --output $(containerImageFilePath) $(containerImageTag)
+        displayName: 'Save container image to file'
+  
+      - publish: $(containerImageFilePath)
+        artifact: 'Docker Image'
+        displayName: 'Publish built container image'
