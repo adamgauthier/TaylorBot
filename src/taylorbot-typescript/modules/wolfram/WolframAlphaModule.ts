@@ -1,7 +1,9 @@
 import fetch = require('node-fetch');
 import querystring = require('querystring');
 
-import { wolframAppId } from '../../config/wolfram.json';
+import { EnvUtil } from '../util/EnvUtil';
+
+const wolframAppId = EnvUtil.getRequiredEnvVariable('TaylorBot_Wolfram__AppId');
 
 type WolframQueryResult = {
     success: boolean;

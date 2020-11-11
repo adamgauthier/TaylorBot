@@ -3,9 +3,11 @@ import events = require('events');
 import { DiscordEmbedFormatter } from '../discord/DiscordEmbedFormatter';
 import { StringUtil } from '../util/StringUtil';
 import { Option } from './Option';
-import DISCORD_CONFIG = require('../../config/config.json');
 import { TaylorBotClient } from '../../client/TaylorBotClient';
 import { User, TextChannel, GuildMember } from 'discord.js';
+import { EnvUtil } from '../util/EnvUtil';
+
+const botOwnerUserId = EnvUtil.getRequiredEnvVariable('TaylorBot_BotOwner__UserId');
 
 export class Poll extends events.EventEmitter {
     readonly #options: Map<number, Option>;
@@ -73,7 +75,7 @@ export class Poll extends events.EventEmitter {
     }
 
     canClose(member: GuildMember): boolean {
-        return this.owner.id === member.id || DISCORD_CONFIG.MASTER_ID === member.id || member.permissionsIn(this.channel).has('MANAGE_MESSAGES');
+        return this.owner.id === member.id || botOwnerUserId === member.id || member.permissionsIn(this.channel).has('MANAGE_MESSAGES');
     }
 
     vote(user: User, number: number): void {

@@ -11,7 +11,7 @@ export class TextPageEditor extends PageEditor<string> {
     }
 
     sendMessage(client: TaylorBotClient, channel: Discord.PartialTextBasedChannelFields): Promise<Discord.Message> {
-        return client.sendMessage(channel, this.#text!, undefined);
+        return channel.send(this.#text!);
     }
 
     update(pages: string[], currentPage: number): Promise<void> {
@@ -20,6 +20,6 @@ export class TextPageEditor extends PageEditor<string> {
     }
 
     edit(message: Discord.Message): Promise<Discord.Message> {
-        return message.edit(this.#text);
+        return message.edit(this.#text!);
     }
 }

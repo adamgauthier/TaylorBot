@@ -1,4 +1,6 @@
-import banks = require('./banks.json');
+import { EnvUtil } from '../util/EnvUtil';
+
+const banks: { maximumUserCount: number | null; bankName: string; minimumRollForSuccess: number; payoutMultiplier: string }[] = JSON.parse(EnvUtil.getRequiredEnvVariable('TaylorBot_Heist__Banks'));
 
 export class BankRepository {
     static retrieveBank(userCount: number): {

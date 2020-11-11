@@ -1,7 +1,8 @@
 import fetch = require('node-fetch');
 import { URLSearchParams } from 'url';
+import { EnvUtil } from '../util/EnvUtil';
 
-import { imgurClientID } from '../../config/imgur.json';
+const imgurClientID = EnvUtil.getRequiredEnvVariable('TaylorBot_Imgur__ClientId');
 
 type ImgurUploadResponse = { success: boolean; data: { link: string } };
 

@@ -1,0 +1,5 @@
+{
+    "host": "taylorbot-postgres",
+    "port": 5432,
+    "database": "taylorbot"
+}

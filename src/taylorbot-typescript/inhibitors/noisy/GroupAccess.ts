@@ -2,13 +2,15 @@ import { Permissions, Message, GuildMember, User } from 'discord.js';
 
 import { NoisyInhibitor } from '../NoisyInhibitor';
 import UserGroups = require('../../client/UserGroups');
-import DISCORD_CONFIG = require('../../config/config.json');
 import { Registry } from '../../client/registry/Registry';
 import { GuildRegistry } from '../../client/registry/GuildRegistry';
 import { GroupRegistry } from '../../client/registry/GroupRegistry';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { MessageContext } from '../../structures/MessageContext';
+import { EnvUtil } from '../../modules/util/EnvUtil';
+
+const botOwnerUserId = EnvUtil.getRequiredEnvVariable('TaylorBot_BotOwner__UserId');
 
 class GroupAccessInhibitor extends NoisyInhibitor {
     getBlockedMessage(messageContext: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
@@ -32,7 +34,7 @@ class GroupAccessInhibitor extends NoisyInhibitor {
     }
 
     static groupHasAccess(minimumGroupLevel: number, author: User, message: Message, registry: Registry): boolean {
-        const { accessLevel } = author.id === DISCORD_CONFIG.MASTER_ID ? UserGroups.Master : UserGroups.Everyone;
+        const { accessLevel } = author.id === botOwnerUserId ? UserGroups.Master : UserGroups.Everyone;
 
         if (accessLevel >= minimumGroupLevel)
             return true;

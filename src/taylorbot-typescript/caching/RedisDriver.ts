@@ -3,7 +3,7 @@ import redis = require('redis');
 
 export class RedisDriver {
     readonly #redisClient: redis.RedisClient;
-    readonly get: (key: string) => Promise<string>;
+    readonly get: (key: string) => Promise<string | null>;
     readonly set: (key: string, value: string) => Promise<unknown>;
     readonly setExpire: (key: string, seconds: number, value: string) => Promise<string>;
     readonly eval: (script: string, ...args: any[]) => Promise<any>;
@@ -38,7 +38,8 @@ export class RedisDriver {
         this.setIsMember = promisify(this.#redisClient.sismember).bind(this.#redisClient);
 
         this.hashGet = promisify(this.#redisClient.hget).bind(this.#redisClient);
-        this.hashSet = promisify(this.#redisClient.hset).bind(this.#redisClient);
+        // TypeScript doesn't infer the correct override
+        this.hashSet = promisify(this.#redisClient.hset).bind(this.#redisClient) as unknown as (key: string, field: string, value: string) => Promise<number>;
 
         this.expire = promisify(this.#redisClient.expire).bind(this.#redisClient);
         this.increment = promisify(this.#redisClient.incr).bind(this.#redisClient);

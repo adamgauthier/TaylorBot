@@ -1,11 +1,13 @@
 import Discord = require('discord.js');
 
 import { EventLoader } from '../modules/discord/EventLoader';
-import DISCORD_CONFIG = require('../config/discord.json');
 import { Log } from '../tools/Logger';
 import { IntervalRunner } from '../intervals/IntervalRunner';
 import { EmbedUtil } from '../modules/discord/EmbedUtil';
 import { TaylorBotMasterClient } from './TaylorBotMasterClient';
+import { EnvUtil } from '../modules/util/EnvUtil';
+
+const discordToken = EnvUtil.getRequiredEnvVariable('TaylorBot_Discord__Token');
 
 export class TaylorBotClient extends Discord.Client {
     readonly master: TaylorBotMasterClient;
@@ -45,20 +47,11 @@ export class TaylorBotClient extends Discord.Client {
     }
 
     async start(): Promise<void> {
-        await this.login(DISCORD_CONFIG.loginToken);
-    }
-
-    sendMessage(recipient: Discord.PartialTextBasedChannelFields, text: string, options: Discord.MessageOptions | Discord.MessageAdditions | undefined): Promise<Discord.Message> {
-        return recipient.send(
-            text.replace(/(@)(everyone|here)/g, (m, p1, p2) => `${p1}\u200B${p2}`),
-            options
-        );
+        await this.login(discordToken);
     }
 
     sendEmbed(recipient: Discord.PartialTextBasedChannelFields, embed: Discord.MessageEmbed): Promise<Discord.Message> {
-        const options = { embed };
-
-        return this.sendMessage(recipient, '', options);
+        return recipient.send(embed);
     }
 
     sendEmbedError(recipient: Discord.PartialTextBasedChannelFields, errorMessage: string): Promise<Discord.Message> {

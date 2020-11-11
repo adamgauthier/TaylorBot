@@ -1,7 +1,9 @@
 import fetch = require('node-fetch');
 import querystring = require('querystring');
 
-import { API_KEY } from '../../config/darksky.json';
+import { EnvUtil } from '../util/EnvUtil';
+
+const darkSkyApiKey = EnvUtil.getRequiredEnvVariable('TaylorBot_DarkSky__ApiKey');
 
 type DarkSkyResponse = {
     currently: DarkSkyCurrently;
@@ -30,7 +32,7 @@ export type DarkSkyCurrently = {
 
 export class DarkSkyModule {
     static async getCurrentForecast(lat: string, long: string): Promise<DarkSkyResponse> {
-        const response = (await fetch(`https://api.darksky.net/forecast/${API_KEY}/${lat},${long}?${querystring.stringify({
+        const response = (await fetch(`https://api.darksky.net/forecast/${darkSkyApiKey}/${lat},${long}?${querystring.stringify({
             exclude: 'minutely,hourly,daily,alerts,flags',
             units: 'si'
         })}`).then(res => res.json())) as DarkSkyResponse;

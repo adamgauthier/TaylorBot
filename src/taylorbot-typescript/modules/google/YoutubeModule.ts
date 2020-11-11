@@ -1,7 +1,9 @@
 import fetch = require('node-fetch');
 import querystring = require('querystring');
 
-import { googleAPIKey } from '../../config/google.json';
+import { EnvUtil } from '../util/EnvUtil';
+
+const googleAPIKey = EnvUtil.getRequiredEnvVariable('TaylorBot_Google__ApiKey');
 
 type YoutubeSearchItem = {
     id: {

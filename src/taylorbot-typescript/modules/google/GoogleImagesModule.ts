@@ -1,7 +1,10 @@
 import fetch = require('node-fetch');
 import querystring = require('querystring');
 
-import { googleAPIKey, customsearchID } from '../../config/google.json';
+import { EnvUtil } from '../util/EnvUtil';
+
+const googleAPIKey = EnvUtil.getRequiredEnvVariable('TaylorBot_Google__ApiKey');
+const customSearchId = EnvUtil.getRequiredEnvVariable('TaylorBot_Google__CustomSearchId');
 
 export type CustomSearchItem = {
     title: string;
@@ -23,7 +26,7 @@ export class GoogleImagesModule {
     static async search(searchText: string, numberOfResults: number): Promise<CustomSearchResponse> {
         return (await fetch(`https://www.googleapis.com/customsearch/v1?${querystring.stringify({
             'key': googleAPIKey,
-            'cx': customsearchID,
+            'cx': customSearchId,
             'safe': 'high',
             'num': numberOfResults,
             'searchType': 'image',

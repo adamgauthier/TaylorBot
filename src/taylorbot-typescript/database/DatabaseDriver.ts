@@ -30,6 +30,10 @@ import { ChannelCommandRepository } from './repositories/ChannelCommandRepositor
 import { HeistStatsRepository } from './repositories/HeistStatsRepository';
 import { BirthdayAttributeRepository } from './repositories/BirthdayAttributeRepository';
 import { ProRepository } from './repositories/ProRepository';
+import { EnvUtil } from '../modules/util/EnvUtil';
+
+const postgresUsername = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Username');
+const postgresPassword = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Password');
 
 export class DatabaseDriver {
     readonly guilds: GuildRepository;
@@ -56,7 +60,13 @@ export class DatabaseDriver {
     readonly pros: ProRepository;
 
     constructor() {
-        const db = pgp(PostgreSQLConfig);
+        const db = pgp({
+            host: PostgreSQLConfig.host,
+            database: PostgreSQLConfig.database,
+            port: PostgreSQLConfig.port,
+            user: postgresUsername,
+            password: postgresPassword
+        });
         const helpers = pgp.helpers;
 
         const usersDAO = new UserDAO();
