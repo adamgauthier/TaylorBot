@@ -1,3 +1,4 @@
+import { URL } from 'url';
 import WordArgumentType = require('../base/Word');
 import { ArgumentParsingError } from '../ArgumentParsingError';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';

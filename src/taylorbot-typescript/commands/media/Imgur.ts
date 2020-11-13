@@ -1,3 +1,4 @@
+import { URL } from 'url';
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
 import { ImgurModule } from '../../modules/imgur/ImgurModule';

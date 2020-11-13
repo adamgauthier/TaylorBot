@@ -195,11 +195,11 @@ export class GuildMemberRepository {
     }
 
     getRankedForeignStat(guild: Guild, limit: number, schema: string, table: string, column: string): Promise<any[]> {
-        return this._getRankedAliveForeign(guild, limit, new this.#helpers.TableName(table, schema), column);
+        return this._getRankedAliveForeign(guild, limit, new this.#helpers.TableName({ schema: schema, table: table }), column);
     }
 
     getRankedForeignStatFor(guildMember: GuildMember, schema: string, table: string, rankedColumn: string, additionalColumns: string[] = []): Promise<any> {
-        return this._getRankedAliveForeignFor(guildMember, new this.#helpers.TableName(table, schema), rankedColumn, additionalColumns);
+        return this._getRankedAliveForeignFor(guildMember, new this.#helpers.TableName({ schema: schema, table: table }), rankedColumn, additionalColumns);
     }
 
     async fixInvalidJoinDate(guildMember: GuildMember): Promise<void> {

@@ -10,7 +10,7 @@ export class UserGroupRepository {
         this.#db = db;
         this.#helpers = helpers;
         this.#columnSet = new this.#helpers.ColumnSet(['name', 'access_level'], {
-            table: new this.#helpers.TableName('commands', 'user_groups')
+            table: new this.#helpers.TableName({ schema: 'commands', table: 'user_groups' })
         });
     }
 

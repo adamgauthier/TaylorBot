@@ -1,4 +1,5 @@
 import fetch = require('node-fetch');
+import { URL } from 'url';
 import { URLSearchParams } from 'url';
 import { EnvUtil } from '../util/EnvUtil';
 

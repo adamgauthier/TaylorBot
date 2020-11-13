@@ -1,6 +1,7 @@
 import { EventHandler } from '../structures/EventHandler';
 import { Log } from '../tools/Logger';
 import { TaylorBotClient } from '../client/TaylorBotClient';
+import { CloseEvent } from 'discord.js';
 
 class ShardDisconnect extends EventHandler {
     constructor() {

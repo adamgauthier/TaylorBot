@@ -13,4 +13,4 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 container_name=$(cat "${__dir}/taylorbot-postgres.name")
 
 docker exec --interactive ${container_name} \
-    psql --username=postgres --dbname=taylorbot --file=/home/pg-backups/$1
+    psql --variable=ON_ERROR_STOP=1 --username=postgres --dbname=taylorbot --file=/home/pg-backups/$1

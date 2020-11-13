@@ -10,7 +10,7 @@ export class AttributeRepository {
         this._db = db;
         this._helpers = helpers;
         this._columnSet = new this._helpers.ColumnSet(['attribute_id'], {
-            table: new this._helpers.TableName('attributes', 'attributes')
+            table: new this._helpers.TableName({ schema: 'attributes', table: 'attributes' })
         });
     }
 

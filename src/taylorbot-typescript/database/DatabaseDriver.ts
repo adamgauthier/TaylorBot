@@ -62,8 +62,8 @@ export class DatabaseDriver {
     constructor() {
         const db = pgp({
             host: PostgreSQLConfig.host,
-            database: PostgreSQLConfig.database,
             port: PostgreSQLConfig.port,
+            database: PostgreSQLConfig.database,
             user: postgresUsername,
             password: postgresPassword
         });

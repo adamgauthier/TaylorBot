@@ -1,3 +1,4 @@
+import { URL } from 'url';
 import UrlArgumentType = require('./Url');
 import { ArgumentParsingError } from '../ArgumentParsingError';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';

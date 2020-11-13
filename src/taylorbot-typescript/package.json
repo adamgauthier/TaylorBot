@@ -9,7 +9,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
     "node-fetch": "^3.0.0-beta.9",
-    "pg-promise": "^8.6.5",
+    "pg-promise": "^10.7.3",
     "redis": "^2.8.0",
     "sherlockjs": "^1.4.0"
   },

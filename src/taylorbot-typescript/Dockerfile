@@ -1,4 +1,4 @@
-FROM node:12.19.0-slim AS install-ready
+FROM node:14.15.0-slim AS install-ready
 
 RUN npm install --global npm@6.14.8
 
@@ -37,7 +37,7 @@ ENV FORCE_COLOR 1
 
 COPY --from=build /opt/node_app/app/dist ./
 
-# using npm start requires running with `docker run --init in production`
+# using npm start requires running with `docker run --init` in production
 # and doesn't support graceful shutdown as easily
 # https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md#cmd
 ENTRYPOINT [ "node", "./taylorbot.js" ]
