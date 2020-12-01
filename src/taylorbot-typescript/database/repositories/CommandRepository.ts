@@ -2,28 +2,12 @@ import { Log } from '../../tools/Logger';
 import * as pgPromise from 'pg-promise';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 
-export type DatabaseCommand = { name: string; module_name: string; enabled: boolean };
+export type DatabaseCommand = { name: string; module_name: string; disabled_message: string };
 
 export class CommandRepository {
     #db: pgPromise.IDatabase<unknown>;
     constructor(db: pgPromise.IDatabase<unknown>) {
         this.#db = db;
-    }
-
-    async setEnabled(commandName: string, enabled: boolean): Promise<{ enabled: boolean }> {
-        try {
-            return await this.#db.one(
-                'UPDATE commands.commands SET enabled = $[enabled] WHERE name = $[name] RETURNING *;',
-                {
-                    enabled: enabled,
-                    name: commandName
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Setting command '${commandName}' enabled to '${enabled}': ${e}`);
-            throw e;
-        }
     }
 
     async addUseCount(commandNames: string[], useCount: number, errorCount: number): Promise<void> {
@@ -46,14 +30,14 @@ export class CommandRepository {
         }
     }
 
-    async insertOrGetIsCommandDisabled(command: CachedCommand): Promise<{ enabled: boolean }> {
+    async insertOrGetCommandDisabledMessage(command: CachedCommand): Promise<{ disabled_message: string }> {
         try {
             return await this.#db.one(
                 `INSERT INTO commands.commands (name, aliases, module_name) VALUES ($[command_name], $[aliases], $[module_name])
                 ON CONFLICT (name) DO UPDATE SET
                     aliases = excluded.aliases,
                     module_name = excluded.module_name
-                RETURNING enabled;`,
+                RETURNING disabled_message;`,
                 {
                     command_name: command.name,
                     aliases: command.command.aliases,
@@ -70,7 +54,7 @@ export class CommandRepository {
     async getCommand(nameOrAlias: string): Promise<DatabaseCommand | null> {
         try {
             return await this.#db.oneOrNone(
-                `SELECT name, enabled, module_name FROM commands.commands WHERE name = $[name_or_alias] OR $[name_or_alias] = ANY(aliases);`,
+                `SELECT name, disabled_message, module_name FROM commands.commands WHERE name = $[name_or_alias] OR $[name_or_alias] = ANY(aliases);`,
                 {
                     name_or_alias: nameOrAlias
                 }
@@ -85,7 +69,7 @@ export class CommandRepository {
     async getCommandsFromModuleName(moduleName: string): Promise<DatabaseCommand[]> {
         try {
             return await this.#db.manyOrNone(
-                `SELECT name, enabled, module_name FROM commands.commands WHERE LOWER(module_name) = $[module_name];`,
+                `SELECT name, disabled_message, module_name FROM commands.commands WHERE LOWER(module_name) = $[module_name];`,
                 {
                     module_name: moduleName
                 }

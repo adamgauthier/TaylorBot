@@ -18,5 +18,6 @@ namespace TaylorBot.Net.Commands
         }
 
         ValueTask<IReadOnlyCollection<Command>> GetAllCommandsAsync();
+        ValueTask<Command?> FindCommandByAliasAsync(string alias);
     }
 }

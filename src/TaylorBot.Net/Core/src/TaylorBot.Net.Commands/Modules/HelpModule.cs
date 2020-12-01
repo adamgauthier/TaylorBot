@@ -40,7 +40,6 @@ namespace TaylorBot.Net.Commands.Modules
         }
 
         [Command("help")]
-        [Alias("command")]
         [Summary("Lists help and information for a module's commands.")]
         public async Task<RuntimeResult> HelpAsync(
             [Summary("The module or command to list help for")]
@@ -85,7 +84,7 @@ namespace TaylorBot.Net.Commands.Modules
 
                 foreach (var command in module.Commands)
                 {
-                    await _disabledCommandRepository.InsertOrGetIsCommandDisabledAsync(command);
+                    await _disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(command);
 
                     var alias = command.Aliases.First();
                     if (alias.Contains(' '))

@@ -51,6 +51,7 @@ namespace TaylorBot.Net.Commands
             commandService.AddTypeReader<IChannel>(_serviceProvider.GetRequiredService<CustomChannelTypeReader<IChannel>>(), replaceDefault: true);
             commandService.AddTypeReader<PositiveInt32>(new ConstrainedIntTypeReader<PositiveInt32.Factory>(PositiveInt32.Min));
             commandService.AddTypeReader<Word>(_serviceProvider.GetRequiredService<WordTypeReader>());
+            commandService.AddTypeReader<ICommandRepository.Command>(_serviceProvider.GetRequiredService<CommandTypeReader>());
 
             foreach (var typeReader in _serviceProvider.GetServices<ITaylorBotTypeReader>())
             {

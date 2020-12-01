@@ -4,10 +4,13 @@ import { MessageContext } from '../../structures/MessageContext';
 
 class DisabledCommandInhibitor extends NoisyInhibitor {
     async getBlockedMessage(messageContext: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
-        const isDisabled = await messageContext.client.master.registry.commands.insertOrGetIsCommandDisabled(command);
-        if (isDisabled) {
+        const disabledMessage = await messageContext.client.master.registry.commands.insertOrGetCommandDisabledMessage(command);
+        if (disabledMessage !== '') {
             return {
-                ui: `You can't use \`${command.name}\` because it is globally disabled right now. Please check back later.`,
+                ui: [
+                    `You can't use \`${command.name}\` because it is globally disabled right now.`,
+                    disabledMessage
+                ].join('\n'),
                 log: 'The command is disabled globally.'
             };
         }

@@ -34,7 +34,7 @@ class DisableServerCommandCommand extends Command {
     }
 
     async run({ message, client }: CommandMessageContext, { databaseCommand, guild }: { databaseCommand: DatabaseCommand; guild: Guild }): Promise<void> {
-        if (databaseCommand.module_name.toLowerCase() === 'framework') {
+        if (databaseCommand.module_name.toLowerCase() === 'framework' || databaseCommand.module_name.toLowerCase() === 'command') {
             throw new CommandError(`Can't disable \`${databaseCommand.name}\` because it's a framework command.`);
         }
 

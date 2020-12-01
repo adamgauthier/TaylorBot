@@ -8,7 +8,9 @@ namespace TaylorBot.Net.Commands.Preconditions
 {
     public interface IDisabledCommandRepository
     {
-        Task<bool> InsertOrGetIsCommandDisabledAsync(CommandInfo command);
+        ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandInfo command);
+        ValueTask EnableGloballyAsync(string commandName);
+        ValueTask<string> DisableGloballyAsync(string commandName, string disabledMessage);
     }
 
     public class RequireNotDisabledAttribute : PreconditionAttribute
@@ -17,12 +19,15 @@ namespace TaylorBot.Net.Commands.Preconditions
         {
             var commandDisabledRepository = services.GetRequiredService<IDisabledCommandRepository>();
 
-            var isDisabled = await commandDisabledRepository.InsertOrGetIsCommandDisabledAsync(command);
+            var disabledMessage = await commandDisabledRepository.InsertOrGetCommandDisabledMessageAsync(command);
 
-            return isDisabled ?
+            return disabledMessage != string.Empty ?
                 TaylorBotPreconditionResult.FromUserError(
                     privateReason: $"{command.Aliases.First()} is globally disabled",
-                    userReason: $"You can't use `{command.Aliases.First()}` because it is globally disabled right now. Please check back later."
+                    userReason: string.Join('\n', new[] {
+                        $"You can't use `{command.Aliases.First()}` because it is globally disabled right now.",
+                        disabledMessage
+                    })
                 ) :
                 PreconditionResult.FromSuccess();
         }

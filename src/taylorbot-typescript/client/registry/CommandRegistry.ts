@@ -92,26 +92,20 @@ export class CommandRegistry {
         }
     }
 
-    get enabledRedisKey(): string {
-        return 'enabled-commands';
+    get disabledMessagesRedisKey(): string {
+        return 'disabled-command-messages';
     }
 
-    async insertOrGetIsCommandDisabled(command: CachedCommand): Promise<boolean> {
-        const isEnabled = await this.redis.hashGet(this.enabledRedisKey, command.name);
+    async insertOrGetCommandDisabledMessage(command: CachedCommand): Promise<string> {
+        const message = await this.redis.hashGet(this.disabledMessagesRedisKey, command.name);
 
-        if (isEnabled === null) {
-            const { enabled } = await this.database.commands.insertOrGetIsCommandDisabled(command);
-            await this.redis.hashSet(this.enabledRedisKey, command.name, enabled ? '1' : '0');
-            return !enabled;
+        if (message === null) {
+            const { disabled_message } = await this.database.commands.insertOrGetCommandDisabledMessage(command);
+            await this.redis.hashSet(this.disabledMessagesRedisKey, command.name, disabled_message);
+            return disabled_message;
         }
 
-        return isEnabled === '0';
-    }
-
-    async setGlobalEnabled(commandName: string, setEnabled: boolean): Promise<boolean> {
-        const { enabled } = await this.database.commands.setEnabled(commandName, setEnabled);
-        await this.redis.hashSet(this.enabledRedisKey, commandName, enabled ? '1' : '0');
-        return enabled;
+        return message;
     }
 
     enabledGuildRedisKey(guild: Guild): string {

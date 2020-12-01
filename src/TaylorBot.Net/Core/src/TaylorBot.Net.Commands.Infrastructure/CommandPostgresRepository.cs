@@ -25,12 +25,27 @@ namespace TaylorBot.Net.Commands.Infrastructure
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var commandUsageDtos = await connection.QueryAsync<CommandDto>("SELECT name, module_name FROM commands.commands;");
+            var commandDtos = await connection.QueryAsync<CommandDto>("SELECT name, module_name FROM commands.commands;");
 
-            return commandUsageDtos.Select(dto => new ICommandRepository.Command(
+            return commandDtos.Select(dto => new ICommandRepository.Command(
                 name: dto.name,
                 moduleName: dto.module_name
             )).ToList();
+        }
+
+        public async ValueTask<ICommandRepository.Command?> FindCommandByAliasAsync(string alias)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var command = await connection.QuerySingleOrDefaultAsync<CommandDto>(
+                "SELECT name, module_name FROM commands.commands WHERE name = @NameOrAlias OR @NameOrAlias = ANY(aliases);",
+                new
+                {
+                    NameOrAlias = alias
+                }
+            );
+
+            return command != null ? new ICommandRepository.Command(command.name, command.module_name) : null;
         }
     }
 }
