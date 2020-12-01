@@ -66,7 +66,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 Context.User :
                 await user.GetTrackedUserAsync();
 
-            var embed = new EmbedBuilder().WithUserAsAuthorAndColor(u);
+            var embed = new EmbedBuilder()
+                .WithUserAsAuthor(u)
+                .WithColor(GetColorFromStatus(u.Status));
 
             if (u.Activity == null)
             {
@@ -110,6 +112,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             return new TaylorBotEmbedResult(embed.Build());
         }
 
+        private static Color GetColorFromStatus(UserStatus userStatus)
+        {
+            switch (userStatus)
+            {
+                case UserStatus.Offline:
+                case UserStatus.Invisible:
+                    return new Color(116, 127, 141);
+
+                case UserStatus.Online:
+                    return new Color(67, 181, 129);
+
+                case UserStatus.Idle:
+                case UserStatus.AFK:
+                    return new Color(250, 166, 26);
+
+                case UserStatus.DoNotDisturb:
+                    return new Color(240, 71, 71);
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(userStatus));
+            }
+        }
+
         [RequireInGuild]
         [Command("userinfo")]
         [Alias("uinfo")]
@@ -125,7 +150,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 await member.GetTrackedUserAsync();
 
             var embed = new EmbedBuilder()
-                .WithUserAsAuthorAndColor(guildUser)
+                .WithColor(TaylorBotColors.SuccessColor)
                 .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
                 .AddField("Id", $"`{guildUser.Id}`", inline: true);
 
