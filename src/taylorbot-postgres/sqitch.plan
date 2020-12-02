@@ -11,3 +11,4 @@
 0007_add_application_info 2020-10-10T03:18:09Z Adam Gauthier <adamgauthier12@gmail.com> # Add configuration.application_info with product version
 0008_bump_version_1.8.1 2020-10-11T05:40:51Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.8.1
 0009_command_disabled_message 2020-11-28T19:06:22Z Adam Gauthier <adamgauthier12@gmail.com> # Change disabled command from boolean to text for disabled message
+0010_bump_version_1.8.2 2020-12-02T01:23:16Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.8.2
