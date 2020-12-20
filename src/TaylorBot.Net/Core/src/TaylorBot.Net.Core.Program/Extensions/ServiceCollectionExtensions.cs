@@ -1,4 +1,5 @@
-﻿using Discord.Rest;
+﻿using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,16 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
 
-                    var config = new DiscordSocketConfig { TotalShards = (int)options.ShardCount, ExclusiveBulkDelete = options.ExclusiveBulkDelete };
+                    var config = new DiscordSocketConfig
+                    {
+                        TotalShards = (int)options.ShardCount,
+                        ExclusiveBulkDelete = options.ExclusiveBulkDelete,
+                        GatewayIntents =
+                            GatewayIntents.Guilds |
+                            GatewayIntents.GuildMembers |
+                            GatewayIntents.GuildMessages |
+                            GatewayIntents.DirectMessages
+                    };
 
                     if (options.MessageCacheSize.HasValue)
                     {
