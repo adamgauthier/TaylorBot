@@ -67,7 +67,7 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
 
                     if (newestPost.ShortUrl != tumblrChecker.LastPostShortUrl)
                     {
-                        _logger.LogTrace(LogString.From($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}."));
+                        _logger.LogDebug(LogString.From($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}."));
                         await channel.SendMessageAsync(embed: _tumblrPostToEmbedMapper.ToEmbed(newestPost, blog));
                         await _tumblrCheckerRepository.UpdateLastPostAsync(tumblrChecker, newestPost);
                     }

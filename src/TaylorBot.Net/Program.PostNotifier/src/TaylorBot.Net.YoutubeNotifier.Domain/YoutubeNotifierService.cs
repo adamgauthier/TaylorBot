@@ -65,13 +65,15 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
                     var response = await request.ExecuteAsync();
                     var newestPost = new ParsedPlaylistItemSnippet(response.Items.First().Snippet);
 
+                    _logger.LogTrace(LogString.From($"Checking if Youtube post '{newestPost.Snippet.ResourceId.VideoId}' for {youtubeChecker} is new."));
+
                     if (youtubeChecker.LastVideoId == null || (
                         newestPost.Snippet.ResourceId.VideoId != youtubeChecker.LastVideoId &&
                         (newestPost.PublishedAt == null || !youtubeChecker.LastPublishedAt.HasValue ||
                         newestPost.PublishedAt > youtubeChecker.LastPublishedAt.Value)
                     ))
                     {
-                        _logger.LogTrace(LogString.From($"Found new Youtube post for {youtubeChecker}: {newestPost.Snippet.ResourceId.VideoId}."));
+                        _logger.LogDebug(LogString.From($"Found new Youtube post for {youtubeChecker}: '{newestPost.Snippet.ResourceId.VideoId}'."));
                         await channel.SendMessageAsync(embed: _youtubePostToEmbedMapper.ToEmbed(newestPost));
                         await _youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
                     }

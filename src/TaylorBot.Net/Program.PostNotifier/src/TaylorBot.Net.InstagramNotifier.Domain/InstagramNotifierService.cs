@@ -63,7 +63,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
 
                     if (newestPost.ShortCode != instagramChecker.LastPostCode && newestPost.TakenAt > instagramChecker.LastPostTakenAt)
                     {
-                        _logger.LogTrace(LogString.From($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}."));
+                        _logger.LogDebug(LogString.From($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}."));
                         await channel.SendMessageAsync(embed: _instagramPostToEmbedMapper.ToEmbed(newestPost));
                         await _instagramCheckerRepository.UpdateLastPostAsync(instagramChecker, newestPost);
                     }

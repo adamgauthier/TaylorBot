@@ -65,7 +65,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain
                     if (redditChecker.LastPostId == null || !redditChecker.LastPostCreatedAt.HasValue ||
                         (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt.Value))
                     {
-                        _logger.LogTrace(LogString.From($"Found new Reddit post for {redditChecker}: {newestPost.Id}."));
+                        _logger.LogDebug(LogString.From($"Found new Reddit post for {redditChecker}: {newestPost.Id}."));
                         await channel.SendMessageAsync(embed: _redditPostToEmbedMapper.ToEmbed(newestPost));
                         await _redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
                     }
