@@ -32,6 +32,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
                         GatewayIntents =
                             GatewayIntents.Guilds |
                             GatewayIntents.GuildMembers |
+                            GatewayIntents.GuildBans |
                             GatewayIntents.GuildMessages |
                             GatewayIntents.DirectMessages
                     };
