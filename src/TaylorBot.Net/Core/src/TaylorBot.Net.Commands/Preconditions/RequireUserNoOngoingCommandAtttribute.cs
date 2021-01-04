@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands.Preconditions
             var ongoingCommandRepository = services.GetRequiredService<IOngoingCommandRepository>();
 
             var pool = command.Module.Name == ModuleNames.Help ?
-                $"help.{Assembly.GetEntryAssembly().GetName().Name.ToLowerInvariant()}" :
+                $"help.{Assembly.GetEntryAssembly()!.GetName().Name!.ToLowerInvariant()}" :
                 string.Empty;
 
             var hasAnyOngoingCommand = await ongoingCommandRepository.HasAnyOngoingCommandAsync(context.User, pool);
