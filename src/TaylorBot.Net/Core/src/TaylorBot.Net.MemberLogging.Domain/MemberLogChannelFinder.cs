@@ -14,7 +14,7 @@ namespace TaylorBot.Net.MemberLogging.Domain
             this.loggingTextChannelRepository = loggingTextChannelRepository;
         }
 
-        public async Task<ITextChannel> FindLogChannelAsync(IGuild guild)
+        public async ValueTask<ITextChannel?> FindLogChannelAsync(IGuild guild)
         {
             var logChannels = await loggingTextChannelRepository.GetLogChannelsForGuildAsync(guild);
             var textChannels = await guild.GetTextChannelsAsync();
