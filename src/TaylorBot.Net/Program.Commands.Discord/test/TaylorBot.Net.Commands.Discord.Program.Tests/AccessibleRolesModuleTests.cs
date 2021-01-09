@@ -1,7 +1,9 @@
 ﻿using Discord;
+using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
@@ -84,6 +86,20 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 group: new AccessibleRoleGroup(name: "regions", otherRolesInSameGroup: new[] { new SnowflakeId(AnotherRoleId) })
             ));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
+
+            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+
+            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+        }
+
+        [Fact]
+        public async Task GetAsync_WhenRoleIsAccessibleButDiscordForbidsAddingRole_ThenReturnsErrorEmbed()
+        {
+            const ulong RoleId = 1989;
+            var role = CreateFakeRole(RoleId, ARoleName);
+            A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
+            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(group: null));
+            A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Throws(new HttpException(HttpStatusCode.Forbidden, A.Fake<IRequest>()));
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
 

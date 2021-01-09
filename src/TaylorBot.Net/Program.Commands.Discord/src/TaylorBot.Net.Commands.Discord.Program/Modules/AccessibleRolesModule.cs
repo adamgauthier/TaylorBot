@@ -1,8 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Net;
 using Humanizer;
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Preconditions;
@@ -65,17 +67,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                         }
                         else
                         {
-                            await member.AddRoleAsync(role.Role, new RequestOptions
+                            try
                             {
-                                AuditLogReason = $"Assigned accessible role on user's request with message id {Context.Message.Id}."
-                            });
+                                await member.AddRoleAsync(role.Role, new RequestOptions
+                                {
+                                    AuditLogReason = $"Assigned accessible role on user's request with message id {Context.Message.Id}."
+                                });
 
-                            embed
-                                .WithColor(TaylorBotColors.SuccessColor)
-                                .WithDescription(string.Join('\n', new[] {
-                                    $"You now have {role.Role.Mention}. 😊",
-                                    $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
-                                }));
+                                embed
+                                    .WithColor(TaylorBotColors.SuccessColor)
+                                    .WithDescription(string.Join('\n', new[] {
+                                        $"You now have {role.Role.Mention}. 😊",
+                                        $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
+                                    }));
+                            }
+                            catch (HttpException exception) when (exception.HttpCode == HttpStatusCode.Forbidden)
+                            {
+                                embed
+                                    .WithColor(TaylorBotColors.ErrorColor)
+                                    .WithDescription(string.Join('\n', new[] {
+                                        $"Sorry, Discord does not allow me to give you {role.Role.Mention}.",
+                                        $"Make sure my bot role is before {role.Role.Mention} in the roles order under server settings!"
+                                    }));
+                            }
                         }
                     }
                     else
