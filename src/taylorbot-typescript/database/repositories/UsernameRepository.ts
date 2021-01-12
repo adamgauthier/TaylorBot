@@ -9,26 +9,6 @@ export class UsernameRepository {
         this.#db = db;
     }
 
-    async getHistory(user: User, limit: number): Promise<{ username: string; changed_at: Date }[]> {
-        try {
-            return await this.#db.any(
-                `SELECT username, changed_at
-                FROM users.usernames
-                WHERE user_id = $[user_id]
-                ORDER BY changed_at DESC
-                LIMIT $[max_rows];`,
-                {
-                    user_id: user.id,
-                    max_rows: limit
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting username history for ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
     async addNewUsernameAsync(user: User): Promise<void> {
         try {
             await this.#db.none(

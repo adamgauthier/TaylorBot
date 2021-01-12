@@ -34,7 +34,9 @@ namespace TaylorBot.Net.Core.Program.Extensions
                             GatewayIntents.GuildMembers |
                             GatewayIntents.GuildBans |
                             GatewayIntents.GuildMessages |
-                            GatewayIntents.DirectMessages
+                            GatewayIntents.DirectMessages |
+                            GatewayIntents.DirectMessageReactions |
+                            GatewayIntents.GuildMessageReactions
                     };
 
                     if (options.MessageCacheSize.HasValue)

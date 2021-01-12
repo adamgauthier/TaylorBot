@@ -2,6 +2,8 @@
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TaylorBot.Net.Commands.Events;
+using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -20,6 +22,9 @@ namespace TaylorBot.Net.Commands.Extensions
                     DefaultRunMode = RunMode.Async
                 }))
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
+                .AddSingleton<PageMessageReactionsHandler>()
+                .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
+                .AddTransient<IReactionRemovedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
                 .AddTransient<CommandExecutedHandler>()
                 .AddTransient<CommandServiceLogger>()
                 .AddTransient<IUserTracker, UserTracker>()

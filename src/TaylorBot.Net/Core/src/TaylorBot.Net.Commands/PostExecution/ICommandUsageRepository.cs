@@ -1,6 +1,6 @@
 ﻿using Discord.Commands;
 
-namespace TaylorBot.Net.Commands
+namespace TaylorBot.Net.Commands.PostExecution
 {
     public interface ICommandUsageRepository
     {

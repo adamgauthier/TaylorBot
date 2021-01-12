@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
+using TaylorBot.Net.Commands.PostExecution;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests

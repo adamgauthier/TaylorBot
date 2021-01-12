@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
 
-namespace TaylorBot.Net.Commands
+namespace TaylorBot.Net.Commands.Events
 {
     public class CommandHandler : IUserMessageReceivedHandler
     {

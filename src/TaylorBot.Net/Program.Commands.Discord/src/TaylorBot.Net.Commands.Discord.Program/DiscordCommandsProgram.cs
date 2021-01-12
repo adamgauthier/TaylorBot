@@ -23,6 +23,8 @@ using TaylorBot.Net.Commands.Discord.Program.TaypointReward.Domain;
 using TaylorBot.Net.Commands.Discord.Program.TaypointReward.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.UsernameHistory.Domain;
+using TaylorBot.Net.Commands.Discord.Program.UsernameHistory.Infrastructure;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Core.Configuration;
@@ -90,7 +92,8 @@ namespace TaylorBot.Net.Commands.Discord.Program
                         .AddTransient<ITaypointRewardRepository, TaypointRewardPostgresRepository>()
                         .AddTransient<IAccessibleRoleRepository, AccessibleRolePostgresRepository>()
                         .AddTransient<ITaylorBotTypeReader, AccessibleGroupNameTypeReader>()
-                        .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>();
+                        .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>()
+                        .AddTransient<IUsernameHistoryRepository, UsernameHistoryRepository>();
                 })
                 .Build();
 

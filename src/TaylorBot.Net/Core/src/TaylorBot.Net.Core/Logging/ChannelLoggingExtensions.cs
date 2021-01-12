@@ -6,15 +6,12 @@ namespace TaylorBot.Net.Core.Logging
     {
         public static string FormatLog(this IMessageChannel messageChannel)
         {
-            switch (messageChannel)
+            return messageChannel switch
             {
-                case ITextChannel textChannel:
-                    return textChannel.FormatLog();
-                case IDMChannel dmChannel:
-                    return dmChannel.FormatLog();
-                default:
-                    return $"{messageChannel.Name} ({messageChannel.Id})";
-            }
+                ITextChannel textChannel => textChannel.FormatLog(),
+                IDMChannel dmChannel => dmChannel.FormatLog(),
+                _ => $"{messageChannel.Name} ({messageChannel.Id})",
+            };
         }
 
         public static string FormatLog(this IDMChannel dmChannel)

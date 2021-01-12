@@ -3,23 +3,31 @@ using Discord.Commands;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Logging;
 
-namespace TaylorBot.Net.Commands
+namespace TaylorBot.Net.Commands.PostExecution
 {
     public class CommandExecutedHandler
     {
         private readonly ILogger<CommandExecutedHandler> _logger;
         private readonly IOngoingCommandRepository _ongoingCommandRepository;
         private readonly ICommandUsageRepository _commandUsageRepository;
+        private readonly PageMessageReactionsHandler _pageMessageReactionsHandler;
 
-        public CommandExecutedHandler(ILogger<CommandExecutedHandler> logger, IOngoingCommandRepository ongoingCommandRepository, ICommandUsageRepository commandUsageRepository)
+        public CommandExecutedHandler(
+            ILogger<CommandExecutedHandler> logger,
+            IOngoingCommandRepository ongoingCommandRepository,
+            ICommandUsageRepository commandUsageRepository,
+            PageMessageReactionsHandler pageMessageReactionsHandler
+        )
         {
             _logger = logger;
             _ongoingCommandRepository = ongoingCommandRepository;
             _commandUsageRepository = commandUsageRepository;
+            _pageMessageReactionsHandler = pageMessageReactionsHandler;
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
@@ -40,7 +48,12 @@ namespace TaylorBot.Net.Commands
                             await context.Channel.SendMessageAsync(embed: embedResult.Embed);
                             break;
 
-                        case TaylorBotEmptyResult emptyResult:
+                        case TaylorBotPageMessageResult pageResult:
+                            var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Channel);
+                            await sentPageMessage.SendReactionsAsync(_pageMessageReactionsHandler, _logger);
+                            break;
+
+                        case TaylorBotEmptyResult _:
                             break;
 
                         default:

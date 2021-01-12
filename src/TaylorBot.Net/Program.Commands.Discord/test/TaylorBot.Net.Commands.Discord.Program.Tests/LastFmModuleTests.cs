@@ -9,6 +9,7 @@ using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using Xunit;
 

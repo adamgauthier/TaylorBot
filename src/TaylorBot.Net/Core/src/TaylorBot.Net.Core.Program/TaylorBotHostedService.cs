@@ -14,164 +14,197 @@ namespace TaylorBot.Net.Core.Program
 {
     public class TaylorBotHostedService : IHostedService
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly ILogger<TaylorBotHostedService> logger;
-        private readonly TaskExceptionLogger taskExceptionLogger;
-        private ITaylorBotClient? client;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<TaylorBotHostedService> _logger;
+        private readonly TaskExceptionLogger _taskExceptionLogger;
+        private ITaylorBotClient? _client;
 
         public TaylorBotHostedService(IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-            this.logger = serviceProvider.GetRequiredService<ILogger<TaylorBotHostedService>>();
-            this.taskExceptionLogger = serviceProvider.GetRequiredService<TaskExceptionLogger>();
+            _serviceProvider = serviceProvider;
+            _logger = serviceProvider.GetRequiredService<ILogger<TaylorBotHostedService>>();
+            _taskExceptionLogger = serviceProvider.GetRequiredService<TaskExceptionLogger>();
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            client = serviceProvider.GetRequiredService<ITaylorBotClient>();
+            _client = _serviceProvider.GetRequiredService<ITaylorBotClient>();
 
-            var shardReadyHandler = serviceProvider.GetService<IShardReadyHandler>();
+            var shardReadyHandler = _serviceProvider.GetService<IShardReadyHandler>();
             if (shardReadyHandler != null)
             {
-                client.DiscordShardedClient.ShardReady += async (socketClient) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await shardReadyHandler.ShardReadyAsync(socketClient), nameof(IShardReadyHandler)
+                _client.DiscordShardedClient.ShardReady += async (socketClient) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await shardReadyHandler.ShardReadyAsync(socketClient),
+                        nameof(IShardReadyHandler)
                     );
             }
 
-            var allReadyHandler = serviceProvider.GetService<IAllReadyHandler>();
+            var allReadyHandler = _serviceProvider.GetService<IAllReadyHandler>();
             if (allReadyHandler != null)
             {
-                client.AllShardsReady += async () =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await allReadyHandler.AllShardsReadyAsync(), nameof(IAllReadyHandler)
+                _client.AllShardsReady += async () =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await allReadyHandler.AllShardsReadyAsync(),
+                        nameof(IAllReadyHandler)
                     );
             }
 
-            var userMessageReceivedHandler = serviceProvider.GetService<IUserMessageReceivedHandler>();
+            var userMessageReceivedHandler = _serviceProvider.GetService<IUserMessageReceivedHandler>();
             if (userMessageReceivedHandler != null)
             {
-                client.DiscordShardedClient.MessageReceived += async (message) =>
+                _client.DiscordShardedClient.MessageReceived += async (message) =>
                 {
                     if (message is SocketUserMessage userMessage)
                     {
-                        await taskExceptionLogger.LogOnError(async () =>
-                            await userMessageReceivedHandler.UserMessageReceivedAsync(userMessage), nameof(IUserMessageReceivedHandler)
+                        await _taskExceptionLogger.LogOnError(async () =>
+                            await userMessageReceivedHandler.UserMessageReceivedAsync(userMessage),
+                            nameof(IUserMessageReceivedHandler)
                         );
                     }
                 };
             }
 
-            var messageDeletedHandler = serviceProvider.GetService<IMessageDeletedHandler>();
+            var messageDeletedHandler = _serviceProvider.GetService<IMessageDeletedHandler>();
             if (messageDeletedHandler != null)
             {
-                client.DiscordShardedClient.MessageDeleted += async (message, channel) =>
+                _client.DiscordShardedClient.MessageDeleted += async (message, channel) =>
                 {
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await messageDeletedHandler.MessageDeletedAsync(message, channel), nameof(IMessageDeletedHandler)
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await messageDeletedHandler.MessageDeletedAsync(message, channel),
+                        nameof(IMessageDeletedHandler)
                     );
                 };
             }
 
-            var messageBulkDeletedHandler = serviceProvider.GetService<IMessageBulkDeletedHandler>();
+            var messageBulkDeletedHandler = _serviceProvider.GetService<IMessageBulkDeletedHandler>();
             if (messageBulkDeletedHandler != null)
             {
-                client.DiscordShardedClient.MessagesBulkDeleted += async (messages, channel) =>
+                _client.DiscordShardedClient.MessagesBulkDeleted += async (messages, channel) =>
                 {
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await messageBulkDeletedHandler.MessageBulkDeletedAsync(messages, channel), nameof(IMessageBulkDeletedHandler)
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await messageBulkDeletedHandler.MessageBulkDeletedAsync(messages, channel),
+                        nameof(IMessageBulkDeletedHandler)
                     );
                 };
             }
 
-            var userUpdatedHandler = serviceProvider.GetService<IUserUpdatedHandler>();
+            var userUpdatedHandler = _serviceProvider.GetService<IUserUpdatedHandler>();
             if (userUpdatedHandler != null)
             {
-                client.DiscordShardedClient.UserUpdated += async (oldUser, newUser) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await userUpdatedHandler.UserUpdatedAsync(oldUser, newUser), nameof(IUserUpdatedHandler)
+                _client.DiscordShardedClient.UserUpdated += async (oldUser, newUser) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await userUpdatedHandler.UserUpdatedAsync(oldUser, newUser),
+                        nameof(IUserUpdatedHandler)
                     );
             }
 
-            foreach (var joinedGuildHandler in serviceProvider.GetServices<IJoinedGuildHandler>())
+            foreach (var joinedGuildHandler in _serviceProvider.GetServices<IJoinedGuildHandler>())
             {
-                client.DiscordShardedClient.JoinedGuild += async (guild) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await joinedGuildHandler.JoinedGuildAsync(guild), nameof(IJoinedGuildHandler)
+                _client.DiscordShardedClient.JoinedGuild += async (guild) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await joinedGuildHandler.JoinedGuildAsync(guild),
+                        nameof(IJoinedGuildHandler)
                     );
             }
 
-            var guildUpdatedHandler = serviceProvider.GetService<IGuildUpdatedHandler>();
+            var guildUpdatedHandler = _serviceProvider.GetService<IGuildUpdatedHandler>();
             if (guildUpdatedHandler != null)
             {
-                client.DiscordShardedClient.GuildUpdated += async (oldGuild, newGuild) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await guildUpdatedHandler.GuildUpdatedAsync(oldGuild, newGuild), nameof(IGuildUpdatedHandler)
+                _client.DiscordShardedClient.GuildUpdated += async (oldGuild, newGuild) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await guildUpdatedHandler.GuildUpdatedAsync(oldGuild, newGuild),
+                        nameof(IGuildUpdatedHandler)
                     );
             }
 
-            var guildUserJoinedHandler = serviceProvider.GetService<IGuildUserJoinedHandler>();
+            var guildUserJoinedHandler = _serviceProvider.GetService<IGuildUserJoinedHandler>();
             if (guildUserJoinedHandler != null)
             {
-                client.DiscordShardedClient.UserJoined += async (guildUser) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await guildUserJoinedHandler.GuildUserJoinedAsync(guildUser), nameof(IGuildUserJoinedHandler)
+                _client.DiscordShardedClient.UserJoined += async (guildUser) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await guildUserJoinedHandler.GuildUserJoinedAsync(guildUser),
+                        nameof(IGuildUserJoinedHandler)
                     );
             }
 
-            var guildUserLeftHandler = serviceProvider.GetService<IGuildUserLeftHandler>();
+            var guildUserLeftHandler = _serviceProvider.GetService<IGuildUserLeftHandler>();
             if (guildUserLeftHandler != null)
             {
-                client.DiscordShardedClient.UserLeft += async (guildUser) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await guildUserLeftHandler.GuildUserLeftAsync(guildUser), nameof(IGuildUserLeftHandler)
+                _client.DiscordShardedClient.UserLeft += async (guildUser) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await guildUserLeftHandler.GuildUserLeftAsync(guildUser),
+                        nameof(IGuildUserLeftHandler)
                     );
             }
 
-            var guildUserBannedHandler = serviceProvider.GetService<IGuildUserBannedHandler>();
+            var guildUserBannedHandler = _serviceProvider.GetService<IGuildUserBannedHandler>();
             if (guildUserBannedHandler != null)
             {
-                client.DiscordShardedClient.UserBanned += async (user, guild) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await guildUserBannedHandler.GuildUserBannedAsync(user, guild), nameof(IGuildUserBannedHandler)
+                _client.DiscordShardedClient.UserBanned += async (user, guild) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await guildUserBannedHandler.GuildUserBannedAsync(user, guild),
+                        nameof(IGuildUserBannedHandler)
                     );
             }
 
-            var guildUserUnbannedHandler = serviceProvider.GetService<IGuildUserUnbannedHandler>();
+            var guildUserUnbannedHandler = _serviceProvider.GetService<IGuildUserUnbannedHandler>();
             if (guildUserUnbannedHandler != null)
             {
-                client.DiscordShardedClient.UserUnbanned += async (user, guild) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await guildUserUnbannedHandler.GuildUserUnbannedAsync(user, guild), nameof(IGuildUserUnbannedHandler)
+                _client.DiscordShardedClient.UserUnbanned += async (user, guild) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await guildUserUnbannedHandler.GuildUserUnbannedAsync(user, guild),
+                        nameof(IGuildUserUnbannedHandler)
                     );
             }
 
-            var textChannelCreatedHandler = serviceProvider.GetService<ITextChannelCreatedHandler>();
+            var textChannelCreatedHandler = _serviceProvider.GetService<ITextChannelCreatedHandler>();
             if (textChannelCreatedHandler != null)
             {
-                client.DiscordShardedClient.ChannelCreated += async (socketChannel) =>
+                _client.DiscordShardedClient.ChannelCreated += async (socketChannel) =>
                 {
                     if (socketChannel is SocketTextChannel textChannel)
                     {
-                        await taskExceptionLogger.LogOnError(async () =>
-                            await textChannelCreatedHandler.TextChannelCreatedAsync(textChannel), nameof(ITextChannelCreatedHandler)
+                        await _taskExceptionLogger.LogOnError(async () =>
+                            await textChannelCreatedHandler.TextChannelCreatedAsync(textChannel),
+                            nameof(ITextChannelCreatedHandler)
                         );
                     }
                 };
             }
 
-            // Wait to login in case of a boot loop
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            var reactionAddedHandler = _serviceProvider.GetService<IReactionAddedHandler>();
+            if (reactionAddedHandler != null)
+            {
+                _client.DiscordShardedClient.ReactionAdded += async (message, channel, reaction) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await reactionAddedHandler.ReactionAddedAsync(message, channel, reaction),
+                        nameof(IReactionAddedHandler)
+                    );
+            }
 
-            await client.StartAsync();
+            var reactionRemovedHandler = _serviceProvider.GetService<IReactionRemovedHandler>();
+            if (reactionRemovedHandler != null)
+            {
+                _client.DiscordShardedClient.ReactionRemoved += async (message, channel, reaction) =>
+                    await _taskExceptionLogger.LogOnError(async () =>
+                        await reactionRemovedHandler.ReactionRemovedAsync(message, channel, reaction),
+                        nameof(IReactionRemovedHandler)
+                    );
+            }
+
+            // Wait to login in case of a boot loop
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+
+            await _client.StartAsync();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            if (client != null)
+            if (_client != null)
             {
-                await client.StopAsync();
-                logger.LogInformation(LogString.From("Clients unloaded!"));
+                await _client.StopAsync();
+                _logger.LogInformation(LogString.From("Clients unloaded!"));
             }
         }
     }
