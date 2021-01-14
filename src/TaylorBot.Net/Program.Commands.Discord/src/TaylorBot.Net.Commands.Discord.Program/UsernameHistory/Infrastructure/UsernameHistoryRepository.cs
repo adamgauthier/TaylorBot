@@ -45,5 +45,50 @@ namespace TaylorBot.Net.Commands.Discord.Program.UsernameHistory.Infrastructure
                 ChangedAt: name.changed_at
             )).ToList();
         }
+
+        public async ValueTask<bool> IsUsernameHistoryHiddenFor(IUser user)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            return await connection.QuerySingleOrDefaultAsync<bool>(
+                @"SELECT is_hidden
+                FROM users.username_history_configuration
+                WHERE user_id = @UserId;",
+                new
+                {
+                    UserId = user.Id.ToString()
+                }
+            );
+        }
+
+        public async ValueTask HideUsernameHistoryFor(IUser user)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"INSERT INTO users.username_history_configuration (user_id, is_hidden) VALUES (@UserId, @IsHidden)
+                ON CONFLICT (user_id) DO UPDATE SET is_hidden = @IsHidden;",
+                new
+                {
+                    UserId = user.Id.ToString(),
+                    IsHidden = true
+                }
+            );
+        }
+
+        public async ValueTask UnhideUsernameHistoryFor(IUser user)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"UPDATE users.username_history_configuration
+                SET is_hidden = FALSE
+                WHERE user_id = @UserId;",
+                new
+                {
+                    UserId = user.Id.ToString()
+                }
+            );
+        }
     }
 }

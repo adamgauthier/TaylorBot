@@ -40,18 +40,62 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
             EmbedBuilder BuildBaseEmbed() =>
                 new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(u);
 
-            var usernames = await _usernameHistoryRepository.GetUsernameHistoryFor(u, 75);
+            if (await _usernameHistoryRepository.IsUsernameHistoryHiddenFor(u))
+            {
+                return new TaylorBotEmbedResult(BuildBaseEmbed()
+                    .WithDescription(string.Join('\n', new[] {
+                        $"{u.Username}'s username history is private and can't be viewed.",
+                        $"Use `{Context.CommandPrefix}usernames public` or `{Context.CommandPrefix}usernames private` to change your username history privacy setting."
+                    }))
+                .Build());
+            }
+            else
+            {
+                var usernames = await _usernameHistoryRepository.GetUsernameHistoryFor(u, 75);
 
-            var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt:MMMM dd, yyyy}: {u.Username}");
+                var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt:MMMM dd, yyyy}: {u.Username}");
 
-            var pages =
-                SeqModule.ChunkBySize(15, usernamesAsLines)
-                .Select(lines => string.Join('\n', lines))
-                .ToList();
+                var pages =
+                    SeqModule.ChunkBySize(15, usernamesAsLines)
+                    .Select(lines => string.Join('\n', lines))
+                    .ToList();
 
-            return new TaylorBotPageMessageResult(new PageMessage(
-                new EmbedDescriptionPageMessageRenderer(pages, BuildBaseEmbed)
-            ));
+                return new TaylorBotPageMessageResult(new PageMessage(
+                    new EmbedDescriptionPageMessageRenderer(pages, BuildBaseEmbed)
+                ));
+            }
+        }
+
+        [Command("private")]
+        [Summary("Hides your username history from other users.")]
+        public async Task<RuntimeResult> PrivateAsync()
+        {
+            await _usernameHistoryRepository.HideUsernameHistoryFor(Context.User);
+
+            return new TaylorBotEmbedResult(new EmbedBuilder()
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(Context.User)
+                .WithDescription(string.Join('\n', new[] {
+                    $"Your username history is now private, it **can't** be viewed with `{Context.CommandPrefix}usernames`.",
+                    $"Use `{Context.CommandPrefix}usernames public` to make it public."
+                }))
+            .Build());
+        }
+
+        [Command("public")]
+        [Summary("Makes your username history public for other users to see.")]
+        public async Task<RuntimeResult> PublicAsync()
+        {
+            await _usernameHistoryRepository.UnhideUsernameHistoryFor(Context.User);
+
+            return new TaylorBotEmbedResult(new EmbedBuilder()
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(Context.User)
+                .WithDescription(string.Join('\n', new[] {
+                    $"Your username history is now public, it **can** be viewed with `{Context.CommandPrefix}usernames`.",
+                    $"Use `{Context.CommandPrefix}usernames private` to make it private."
+                }))
+            .Build());
         }
     }
 }
