@@ -13,7 +13,7 @@ class YoutubeCommand extends Command {
             group: 'Media 📷',
             description: 'Searches YouTube for videos.',
             examples: ['taylor swift begin again', 'brockhampton gold'],
-            maxDailyUseCount: 100,
+            maxDailyUseCount: 10,
 
             args: [
                 {
