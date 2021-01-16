@@ -17,10 +17,9 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<bool> IsGuildChannelCommandDisabledAsync(ITextChannel textChannel, CommandInfo command)
+        public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(ITextChannel textChannel, CommandInfo command)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
-            connection.Open();
 
             var disabled = await connection.QuerySingleOrDefaultAsync<bool>(
                 @"SELECT EXISTS(

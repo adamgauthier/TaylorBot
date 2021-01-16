@@ -4,40 +4,19 @@ using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
-using TaylorBot.Net.MessagesTracker.Infrastructure.Models;
 
 namespace TaylorBot.Net.MessagesTracker.Infrastructure
 {
-    public class MessagesRepository : IMessageRepository
+    public class MessagesPostgresRepository : IMessageRepository
     {
         private readonly PostgresConnectionFactory _postgresConnectionFactory;
 
-        public MessagesRepository(PostgresConnectionFactory postgresConnectionFactory)
+        public MessagesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<ChannelMessageCountChanged> AddChannelMessageCountAsync(ITextChannel textChannel, long messageCountToAdd)
-        {
-            using var connection = _postgresConnectionFactory.CreateConnection();
-
-            var textChannelMessageCountAddedDto = await connection.QuerySingleAsync<ChannelMessageCountChangedDto>(
-                @"UPDATE guilds.text_channels
-                SET message_count = message_count + @MessageCountToAdd
-                WHERE guild_id = @GuildId AND channel_id = @ChannelId
-                RETURNING is_spam;",
-                new
-                {
-                    MessageCountToAdd = messageCountToAdd,
-                    GuildId = textChannel.GuildId.ToString(),
-                    ChannelId = textChannel.Id.ToString()
-                }
-            );
-
-            return new ChannelMessageCountChanged(textChannelMessageCountAddedDto.is_spam);
-        }
-
-        public async Task AddMessagesWordsAndLastSpokeAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd, DateTime lastSpokeAt)
+        public async ValueTask AddMessagesWordsAndLastSpokeAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd, DateTime lastSpokeAt)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -58,7 +37,7 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
             );
         }
 
-        public async Task UpdateLastSpokeAsync(IGuildUser guildUser, DateTime lastSpokeAt)
+        public async ValueTask UpdateLastSpokeAsync(IGuildUser guildUser, DateTime lastSpokeAt)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 

@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Core.Infrastructure.Configuration
         public static IServiceCollection AddRedisConnection(this IServiceCollection services, IConfiguration configuration)
         {
             return services
-                .ConfigureRequired<RedisConnectionOptions>(configuration, "RedisCommandsConnection")
+                .ConfigureRequired<RedisConnectionOptions>(configuration, "RedisConnection")
                 .AddSingleton(provider =>
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<RedisConnectionOptions>>().CurrentValue;

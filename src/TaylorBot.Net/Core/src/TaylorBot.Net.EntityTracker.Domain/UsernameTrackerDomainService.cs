@@ -18,7 +18,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
             _usernameRepository = usernameRepository;
         }
 
-        public async Task AddUsernameAfterUserAddedAsync(IUser user, IUserAddedResult userAddedResult)
+        public async ValueTask AddUsernameAfterUserAddedAsync(IUser user, IUserAddedResult userAddedResult)
         {
             if (userAddedResult.WasAdded)
             {

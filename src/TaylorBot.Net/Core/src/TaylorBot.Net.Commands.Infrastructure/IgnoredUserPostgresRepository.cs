@@ -16,7 +16,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
+        public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 

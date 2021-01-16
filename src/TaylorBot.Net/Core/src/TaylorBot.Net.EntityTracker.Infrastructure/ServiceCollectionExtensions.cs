@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Guild;
@@ -20,10 +22,11 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure
 {
     public static class ConfigurationBuilderExtensions
     {
-        public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder)
+        public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder, IHostEnvironment environment)
         {
             return builder
-                .AddJsonFile(path: $"Settings/entityTracker.json", optional: false, reloadOnChange: true);
+                .AddJsonFile(path: "Settings/entityTracker.json", optional: false, reloadOnChange: true)
+                .AddJsonFile(path: $"Settings/entityTracker.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }
     }
 
@@ -37,7 +40,15 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure
                 .AddTransient<IUsernameRepository, UsernameRepository>()
                 .AddTransient<EntityTrackerDomainService>()
                 .AddTransient<IUserRepository, UserRepository>()
-                .AddTransient<ITextChannelRepository, TextChannelRepository>()
+                .AddTransient<SpamChannelPostgresRepository>()
+                .AddTransient<SpamChannelRedisCacheRepository>()
+                .AddTransient(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptionsMonitor<EntityTrackerOptions>>().CurrentValue;
+                    return options.UseRedisCache ?
+                        provider.GetRequiredService<SpamChannelRedisCacheRepository>() :
+                        (ISpamChannelRepository)provider.GetRequiredService<SpamChannelPostgresRepository>();
+                })
                 .AddTransient<IGuildRepository, GuildRepository>()
                 .AddTransient<IGuildNameRepository, GuildNameRepository>()
                 .AddTransient<IMemberRepository, MemberRepository>();

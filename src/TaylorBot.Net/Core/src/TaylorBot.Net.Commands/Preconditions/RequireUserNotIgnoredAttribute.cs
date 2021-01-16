@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 
     public interface IIgnoredUserRepository
     {
-        Task<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user);
+        ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user);
     }
 
     public class RequireUserNotIgnoredAttribute : PreconditionAttribute

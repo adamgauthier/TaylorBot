@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _disabledGuildCommandPostgresRepository = disabledGuildCommandPostgresRepository;
         }
 
-        public async Task<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandInfo command)
+        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandInfo command)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = $"enabled-commands:guild:{guild.Id}";

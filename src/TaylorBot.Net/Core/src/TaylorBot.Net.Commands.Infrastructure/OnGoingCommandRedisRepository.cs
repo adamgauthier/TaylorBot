@@ -17,14 +17,14 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         private string GetKey(IUser user, string pool) => $"ongoing-commands:user:{user.Id}{pool}";
 
-        public async Task AddOngoingCommandAsync(IUser user, string pool)
+        public async ValueTask AddOngoingCommandAsync(IUser user, string pool)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(user, pool);
             await redis.StringSetAsync(key, "1", expiry: TimeSpan.FromSeconds(10));
         }
 
-        public async Task<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
+        public async ValueTask<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(user, pool);
@@ -33,7 +33,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             return ongoingCommands.HasValue && (long)ongoingCommands > 0;
         }
 
-        public async Task RemoveOngoingCommandAsync(IUser user, string pool)
+        public async ValueTask RemoveOngoingCommandAsync(IUser user, string pool)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(user, pool);

@@ -1,37 +1,37 @@
-﻿using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
-using TaylorBot.Net.MinutesTracker.Domain.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.MinutesTracker.Domain.Options;
 
 namespace TaylorBot.Net.MinutesTracker.Domain
 {
     public class MinutesTrackerDomainService
     {
-        private readonly ILogger<MinutesTrackerDomainService> logger;
-        private readonly IOptionsMonitor<MinutesTrackerOptions> optionsMonitor;
-        private readonly IMinuteRepository minuteRepository;
+        private readonly ILogger<MinutesTrackerDomainService> _logger;
+        private readonly IOptionsMonitor<MinutesTrackerOptions> _optionsMonitor;
+        private readonly IMinuteRepository _minuteRepository;
 
         public MinutesTrackerDomainService(
             ILogger<MinutesTrackerDomainService> logger,
             IOptionsMonitor<MinutesTrackerOptions> optionsMonitor,
             IMinuteRepository minuteRepository)
         {
-            this.logger = logger;
-            this.optionsMonitor = optionsMonitor;
-            this.minuteRepository = minuteRepository;
+            _logger = logger;
+            _optionsMonitor = optionsMonitor;
+            _minuteRepository = minuteRepository;
         }
 
         public async Task StartMinutesAdderAsync()
         {
             while (true)
             {
-                var options = optionsMonitor.CurrentValue;
+                var options = _optionsMonitor.CurrentValue;
 
                 try
                 {
-                    await minuteRepository.AddMinutesToActiveMembersAsync(
+                    await _minuteRepository.AddMinutesToActiveMembersAsync(
                         minutesToAdd: options.MinutesToAdd,
                         minimumTimeSpanSinceLastSpoke: options.MinimumTimeSpanSinceLastSpoke,
                         minutesRequiredForReward: options.MinutesRequiredForReward,
@@ -40,7 +40,7 @@ namespace TaylorBot.Net.MinutesTracker.Domain
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, LogString.From("Exception occurred when attempting to add minutes to active members."));
+                    _logger.LogError(exception, LogString.From("Exception occurred when attempting to add minutes to active members."));
                 }
 
                 await Task.Delay(options.TimeSpanBetweenMinutesAdding);

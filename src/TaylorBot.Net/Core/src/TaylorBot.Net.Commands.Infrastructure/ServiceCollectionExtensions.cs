@@ -16,7 +16,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
         public static IConfigurationBuilder AddCommandClient(this IConfigurationBuilder builder, IHostEnvironment environment)
         {
             return builder
-                .AddEntityTracker()
+                .AddEntityTracker(environment)
                 .AddJsonFile(path: "Settings/commandClient.json", optional: false, reloadOnChange: true)
                 .AddJsonFile(path: $"Settings/commandClient.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }

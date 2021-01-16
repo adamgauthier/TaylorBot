@@ -10,12 +10,12 @@ namespace TaylorBot.Net.Commands.Preconditions
 {
     public interface IOngoingCommandRepository
     {
-        Task<bool> HasAnyOngoingCommandAsync(IUser user, string pool);
-        Task AddOngoingCommandAsync(IUser user, string pool);
-        Task RemoveOngoingCommandAsync(IUser user, string pool);
+        ValueTask<bool> HasAnyOngoingCommandAsync(IUser user, string pool);
+        ValueTask AddOngoingCommandAsync(IUser user, string pool);
+        ValueTask RemoveOngoingCommandAsync(IUser user, string pool);
     }
 
-    public class RequireUserNoOngoingCommandAtttribute : PreconditionAttribute
+    public class RequireUserNoOngoingCommandAttribute : PreconditionAttribute
     {
         public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {

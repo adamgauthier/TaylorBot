@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.MessagesTracker.Domain;
 using TaylorBot.Net.MinutesTracker.Domain;
 
 namespace TaylorBot.Net.StatsTracker.Program.Events
@@ -14,17 +15,24 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
         private readonly ITaylorBotClient _taylorBotClient;
         private readonly SingletonTaskRunner _minuteSingletonTaskRunner;
         private readonly MinutesTrackerDomainService _minutesTrackerDomainService;
+        private readonly SingletonTaskRunner _channelMessageCountSingletonTaskRunner;
+        private readonly MessagesTrackerDomainService _messagesTrackerDomainService;
 
         public ReadyHandler(
             ILogger<ReadyHandler> logger,
             ITaylorBotClient taylorBotClient,
             SingletonTaskRunner minuteSingletonTaskRunner,
-            MinutesTrackerDomainService minutesTrackerDomainService)
+            MinutesTrackerDomainService minutesTrackerDomainService,
+            SingletonTaskRunner channelMessageCountSingletonTaskRunner,
+            MessagesTrackerDomainService messagesTrackerDomainService
+        )
         {
             _logger = logger;
             _taylorBotClient = taylorBotClient;
             _minuteSingletonTaskRunner = minuteSingletonTaskRunner;
             _minutesTrackerDomainService = minutesTrackerDomainService;
+            _channelMessageCountSingletonTaskRunner = channelMessageCountSingletonTaskRunner;
+            _messagesTrackerDomainService = messagesTrackerDomainService;
         }
 
         public Task ShardReadyAsync(DiscordSocketClient shardClient)
@@ -32,6 +40,11 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
             _ = _minuteSingletonTaskRunner.StartTaskIfNotStarted(
                 _minutesTrackerDomainService.StartMinutesAdderAsync,
                 nameof(MinutesTrackerDomainService)
+            );
+
+            _ = _channelMessageCountSingletonTaskRunner.StartTaskIfNotStarted(
+                _messagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync,
+                nameof(MessagesTrackerDomainService)
             );
 
             return Task.CompletedTask;

@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _ignoredUserPostgresRepository = ignoredUserPostgresRepository;
         }
 
-        public async Task<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
+        public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = $"ignore-until:user:{user.Id}";

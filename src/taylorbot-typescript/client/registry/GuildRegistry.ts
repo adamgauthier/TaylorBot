@@ -1,6 +1,6 @@
 import { RedisDriver } from '../../caching/RedisDriver';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
-import { GuildMember, Guild } from 'discord.js';
+import { GuildMember, Guild, TextChannel } from 'discord.js';
 
 export class GuildRegistry extends Map<string, { roleGroups: Record<string, string | undefined> }> {
     readonly #database: DatabaseDriver;
@@ -59,5 +59,48 @@ export class GuildRegistry extends Map<string, { roleGroups: Record<string, stri
         }
 
         return false;
+    }
+
+    spamChannelKey(channel: TextChannel): string {
+        return `spam-channel:guild:${channel.guild.id}:channel:${channel.id}`;
+    }
+
+    async insertOrGetIsSpamChannelAsync(guildChannel: TextChannel): Promise<boolean> {
+        const key = this.spamChannelKey(guildChannel);
+        const cachedSpamChannel = await this.#redis.get(key);
+
+        if (cachedSpamChannel == null) {
+            const isSpam = await this.#database.textChannels.insertOrGetIsSpamChannelAsync(guildChannel);
+            await this.#redis.setExpire(
+                key,
+                1 * 60 * 60,
+                isSpam ? '1' : '0'
+            );
+            return isSpam;
+        }
+
+        return Number.parseInt(cachedSpamChannel) !== 0;
+    }
+
+    async setSpamChannelAsync(guildChannel: TextChannel): Promise<void> {
+        const key = this.spamChannelKey(guildChannel);
+
+        await this.#database.textChannels.upsertSpamChannel(guildChannel, true);
+        await this.#redis.setExpire(
+            key,
+            1 * 60 * 60,
+            '1'
+        );
+    }
+
+    async removeSpamChannelAsync(guildChannel: TextChannel): Promise<void> {
+        const key = this.spamChannelKey(guildChannel);
+
+        await this.#database.textChannels.upsertSpamChannel(guildChannel, false);
+        await this.#redis.setExpire(
+            key,
+            1 * 60 * 60,
+            '0'
+        );
     }
 }

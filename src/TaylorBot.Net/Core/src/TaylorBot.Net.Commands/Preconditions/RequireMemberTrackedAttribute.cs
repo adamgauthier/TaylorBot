@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Preconditions
     {
         public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
-            if (!(context.User is IGuildUser guildUser))
+            if (context.User is not IGuildUser guildUser)
                 return PreconditionResult.FromSuccess();
 
             var memberRepository = services.GetRequiredService<IMemberRepository>();

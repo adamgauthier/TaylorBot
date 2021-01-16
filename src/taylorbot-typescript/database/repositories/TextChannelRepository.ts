@@ -89,31 +89,21 @@ export class TextChannelRepository {
         }
     }
 
-    async _setSpam(guildChannel: TextChannel, isSpam: boolean): Promise<void> {
+    async insertOrGetIsSpamChannelAsync(guildChannel: TextChannel): Promise<boolean> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
-            await this.#db.none(
-                `UPDATE guilds.text_channels
-                SET is_spam = $[is_spam]
-                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];`,
-                {
-                    ...databaseChannel,
-                    'is_spam': isSpam
-                }
+            return await this.#db.one(
+                `INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES ($[guild_id], $[channel_id])
+                ON CONFLICT (guild_id, channel_id) DO UPDATE SET
+                    registered_at = guilds.text_channels.registered_at
+                RETURNING is_spam;`,
+                databaseChannel
             );
         }
         catch (e) {
-            Log.error(`Setting ${Format.guildChannel(guildChannel)} as spam channel: ${e}`);
+            Log.error(`Insert or get is spam channel ${Format.guildChannel(guildChannel)}: ${e}`);
             throw e;
         }
-    }
-
-    async setSpam(guildChannel: TextChannel): Promise<void> {
-        await this._setSpam(guildChannel, true);
-    }
-
-    async removeSpam(guildChannel: TextChannel): Promise<void> {
-        await this._setSpam(guildChannel, false);
     }
 
     async upsertSpamChannel(guildChannel: TextChannel, isSpam: boolean): Promise<void> {

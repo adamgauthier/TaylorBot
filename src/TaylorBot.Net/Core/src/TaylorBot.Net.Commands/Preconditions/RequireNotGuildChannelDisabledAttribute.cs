@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 {
     public interface IDisabledGuildChannelCommandRepository
     {
-        Task<bool> IsGuildChannelCommandDisabledAsync(ITextChannel textChannel, CommandInfo command);
+        ValueTask<bool> IsGuildChannelCommandDisabledAsync(ITextChannel textChannel, CommandInfo command);
     }
 
     public class RequireNotGuildChannelDisabledAttribute : PreconditionAttribute

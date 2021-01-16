@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj" />
+    <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.EntityTracker.Domain\TaylorBot.Net.EntityTracker.Domain.csproj" />
   </ItemGroup>
 
 </Project>

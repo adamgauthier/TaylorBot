@@ -1,5 +1,6 @@
 ﻿{
   "EntityTracker": {
-    "TimeSpanBetweenGuildProcessedInReady": "0.00:00:03"
+    "TimeSpanBetweenGuildProcessedInReady": "0.00:00:03",
+    "UseRedisCache": true
   }
 }

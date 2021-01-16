@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandInfo command)
+        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandInfo command)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 

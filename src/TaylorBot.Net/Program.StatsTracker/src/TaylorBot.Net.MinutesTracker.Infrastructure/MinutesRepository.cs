@@ -15,7 +15,7 @@ namespace TaylorBot.Net.MinutesTracker.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async Task AddMinutesToActiveMembersAsync(long minutesToAdd, TimeSpan minimumTimeSpanSinceLastSpoke, long minutesRequiredForReward, long pointsReward)
+        public async ValueTask AddMinutesToActiveMembersAsync(long minutesToAdd, TimeSpan minimumTimeSpanSinceLastSpoke, long minutesRequiredForReward, long pointsReward)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
             connection.Open();

@@ -5,6 +5,6 @@ namespace TaylorBot.Net.MinutesTracker.Domain
 {
     public interface IMinuteRepository
     {
-        Task AddMinutesToActiveMembersAsync(long minutesToAdd, TimeSpan minimumTimeSpanSinceLastSpoke, long minutesRequiredForReward, long pointsReward);
+        ValueTask AddMinutesToActiveMembersAsync(long minutesToAdd, TimeSpan minimumTimeSpanSinceLastSpoke, long minutesRequiredForReward, long pointsReward);
     }
 }

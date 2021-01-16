@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         private string GetKey(IUser user, string pool) => $"{user.Id}{pool}";
 
-        public Task AddOngoingCommandAsync(IUser user, string pool)
+        public ValueTask AddOngoingCommandAsync(IUser user, string pool)
         {
             var key = GetKey(user, pool);
             if (ongoingCommands.TryGetValue(key, out var count))
@@ -25,17 +25,17 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 ongoingCommands.Add(key, 1);
             }
 
-            return Task.CompletedTask;
+            return default;
         }
 
-        public Task<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
+        public ValueTask<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
         {
-            return Task.FromResult(
+            return new ValueTask<bool>(
                 ongoingCommands.TryGetValue(GetKey(user, pool), out var count) && count > 0
             );
         }
 
-        public Task RemoveOngoingCommandAsync(IUser user, string pool)
+        public ValueTask RemoveOngoingCommandAsync(IUser user, string pool)
         {
             var key = GetKey(user, pool);
             if (ongoingCommands.TryGetValue(key, out var count))
@@ -44,7 +44,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 ongoingCommands.Add(key, count - 1);
             }
 
-            return Task.CompletedTask;
+            return default;
         }
     }
 }
