@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
+using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Extensions
 {
@@ -21,7 +22,9 @@ namespace TaylorBot.Net.Commands.Extensions
                 {
                     DefaultRunMode = RunMode.Async
                 }))
+                .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
+                .AddTransient<IAllReadyHandler, CommandHandler>()
                 .AddSingleton<PageMessageReactionsHandler>()
                 .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
                 .AddTransient<IReactionRemovedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())

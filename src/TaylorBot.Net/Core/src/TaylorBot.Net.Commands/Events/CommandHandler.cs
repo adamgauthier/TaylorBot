@@ -1,30 +1,43 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Program.Events;
+using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Events
 {
-    public class CommandHandler : IUserMessageReceivedHandler
+    public class CommandHandler : IUserMessageReceivedHandler, IAllReadyHandler
     {
+        private readonly ILogger<CommandHandler> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly ITaylorBotClient _taylorBotClient;
         private readonly CommandService _commandService;
         private readonly ICommandPrefixRepository _commandPrefixRepository;
+        private readonly SingletonTaskRunner _commandUsageSingletonTaskRunner;
+        private readonly ICommandUsageRepository _commandUsageRepository;
 
         public CommandHandler(
+            ILogger<CommandHandler> logger,
             IServiceProvider serviceProvider,
             ITaylorBotClient taylorBotClient,
             CommandService commandService,
-            ICommandPrefixRepository commandPrefixRepository
+            ICommandPrefixRepository commandPrefixRepository,
+            SingletonTaskRunner commandUsageSingletonTaskRunner,
+            ICommandUsageRepository commandUsageRepository
         )
         {
+            _logger = logger;
             _serviceProvider = serviceProvider;
             _taylorBotClient = taylorBotClient;
             _commandService = commandService;
             _commandPrefixRepository = commandPrefixRepository;
+            _commandUsageSingletonTaskRunner = commandUsageSingletonTaskRunner;
+            _commandUsageRepository = commandUsageRepository;
         }
 
         public async Task UserMessageReceivedAsync(SocketUserMessage userMessage)
@@ -52,6 +65,32 @@ namespace TaylorBot.Net.Commands.Events
                 services: _serviceProvider,
                 multiMatchHandling: MultiMatchHandling.Best
             );
+        }
+
+        public Task AllShardsReadyAsync()
+        {
+            _ = _commandUsageSingletonTaskRunner.StartTaskIfNotStarted(
+                StartPersistingCommandUsageAsync,
+                nameof(StartPersistingCommandUsageAsync)
+            );
+            return Task.CompletedTask;
+        }
+
+        private async Task StartPersistingCommandUsageAsync()
+        {
+            while (true)
+            {
+                try
+                {
+                    await _commandUsageRepository.PersistQueuedUsageCountIncrementsAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(_commandUsageRepository.PersistQueuedUsageCountIncrementsAsync)}."));
+                }
+
+                await Task.Delay(TimeSpan.FromMinutes(5));
+            }
         }
     }
 }

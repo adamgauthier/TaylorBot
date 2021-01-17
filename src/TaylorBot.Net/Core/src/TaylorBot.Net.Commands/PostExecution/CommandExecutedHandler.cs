@@ -59,7 +59,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                         default:
                             throw new InvalidOperationException($"Unexpected command success result: {result.GetType()}");
                     }
-                    _commandUsageRepository.AddSuccessfulUseCount(optCommandInfo.Value);
+                    _commandUsageRepository.QueueIncrementSuccessfulUseCount(optCommandInfo.Value);
                 }
                 else
                 {
@@ -77,7 +77,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                                     break;
                             }
                             await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
-                            _commandUsageRepository.AddUnhandledErrorCount(optCommandInfo.Value);
+                            _commandUsageRepository.QueueIncrementUnhandledErrorCount(optCommandInfo.Value);
                             break;
 
                         case ParseResult parseResult:
