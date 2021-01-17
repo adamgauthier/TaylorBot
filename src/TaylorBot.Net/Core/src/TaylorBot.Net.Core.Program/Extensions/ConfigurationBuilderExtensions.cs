@@ -23,7 +23,8 @@ namespace TaylorBot.Net.Core.Program.Extensions
         public static IConfigurationBuilder AddRedisConnection(this IConfigurationBuilder builder, IHostEnvironment environment)
         {
             return builder
-                .AddJsonFile(path: "Settings/redisCommandsConnection.json", optional: false, reloadOnChange: true);
+                .AddJsonFile(path: "Settings/redisCommandsConnection.json", optional: false, reloadOnChange: true)
+                .AddJsonFile(path: $"Settings/redisCommandsConnection.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }
     }
 }
