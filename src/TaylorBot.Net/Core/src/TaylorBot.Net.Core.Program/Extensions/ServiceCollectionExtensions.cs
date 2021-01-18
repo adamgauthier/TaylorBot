@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.Rest;
+﻿using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +20,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 .AddTransient<ILogSeverityToLogLevelMapper, LogSeverityToLogLevelMapper>()
                 .AddTransient<DiscordRestClient>()
                 .AddTransient(provider => new TaylorBotToken(provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.Token))
-                .AddTransient(provider =>
+                .AddSingleton(provider =>
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
 
@@ -29,14 +28,6 @@ namespace TaylorBot.Net.Core.Program.Extensions
                     {
                         TotalShards = (int)options.ShardCount,
                         ExclusiveBulkDelete = options.ExclusiveBulkDelete,
-                        GatewayIntents =
-                            GatewayIntents.Guilds |
-                            GatewayIntents.GuildMembers |
-                            GatewayIntents.GuildBans |
-                            GatewayIntents.GuildMessages |
-                            GatewayIntents.DirectMessages |
-                            GatewayIntents.DirectMessageReactions |
-                            GatewayIntents.GuildMessageReactions
                     };
 
                     if (options.MessageCacheSize.HasValue)

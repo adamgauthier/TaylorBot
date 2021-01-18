@@ -19,20 +19,20 @@ namespace TaylorBot.Net.Core.Client
         DiscordShardedClient DiscordShardedClient { get; }
         DiscordRestClient DiscordRestClient { get; }
 
-        Task StartAsync();
-        Task StopAsync();
+        ValueTask StartAsync();
+        ValueTask StopAsync();
 
         SocketGuild ResolveRequiredGuild(SnowflakeId id);
 
-        Task<IUser> ResolveRequiredUserAsync(SnowflakeId id);
+        ValueTask<IUser> ResolveRequiredUserAsync(SnowflakeId id);
         ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId);
     }
 
     public class TaylorBotClient : ITaylorBotClient
     {
-        private readonly ILogger<TaylorBotClient> logger;
-        private readonly ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper;
-        private readonly TaylorBotToken taylorBotToken;
+        private readonly ILogger<TaylorBotClient> _logger;
+        private readonly ILogSeverityToLogLevelMapper _logSeverityToLogLevelMapper;
+        private readonly TaylorBotToken _taylorBotToken;
 
         private int shardReadyCount = 0;
 
@@ -46,11 +46,17 @@ namespace TaylorBot.Net.Core.Client
         public DiscordShardedClient DiscordShardedClient { get; }
         public DiscordRestClient DiscordRestClient { get; }
 
-        public TaylorBotClient(ILogger<TaylorBotClient> logger, ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper, TaylorBotToken taylorBotToken, DiscordShardedClient discordShardedClient, DiscordRestClient discordRestClient)
+        public TaylorBotClient(
+            ILogger<TaylorBotClient> logger,
+            ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper,
+            TaylorBotToken taylorBotToken,
+            DiscordShardedClient discordShardedClient,
+            DiscordRestClient discordRestClient
+        )
         {
-            this.logger = logger;
-            this.logSeverityToLogLevelMapper = logSeverityToLogLevelMapper;
-            this.taylorBotToken = taylorBotToken;
+            _logger = logger;
+            _logSeverityToLogLevelMapper = logSeverityToLogLevelMapper;
+            _taylorBotToken = taylorBotToken;
             DiscordShardedClient = discordShardedClient;
             DiscordRestClient = discordRestClient;
 
@@ -58,16 +64,16 @@ namespace TaylorBot.Net.Core.Client
             DiscordShardedClient.ShardReady += ShardReadyAsync;
         }
 
-        public async Task StartAsync()
+        public async ValueTask StartAsync()
         {
-            await DiscordRestClient.LoginAsync(TokenType.Bot, taylorBotToken.Token);
-            await Task.Delay(new TimeSpan(0, 0, 10));
+            await DiscordRestClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
+            await Task.Delay(TimeSpan.FromSeconds(10));
 
-            await DiscordShardedClient.LoginAsync(TokenType.Bot, taylorBotToken.Token);
+            await DiscordShardedClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
             await DiscordShardedClient.StartAsync();
         }
 
-        public async Task StopAsync()
+        public async ValueTask StopAsync()
         {
             await DiscordShardedClient.StopAsync();
             DiscordRestClient.Dispose();
@@ -75,20 +81,20 @@ namespace TaylorBot.Net.Core.Client
 
         private Task LogAsync(LogMessage log)
         {
-            logger.Log(logSeverityToLogLevelMapper.MapFrom(log.Severity), LogString.From(log.ToString(prependTimestamp: false)));
+            _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), LogString.From(log.ToString(prependTimestamp: false)));
             return Task.CompletedTask;
         }
 
         private Task ShardReadyAsync(DiscordSocketClient shardClient)
         {
-            logger.LogInformation(LogString.From(
+            _logger.LogInformation(LogString.From(
                 $"Shard Number {shardClient.ShardId} is ready! Serving {"guild".ToQuantity(shardClient.Guilds.Count)} out of {DiscordShardedClient.Guilds.Count}."
             ));
 
             Interlocked.Increment(ref shardReadyCount);
             if (shardReadyCount >= DiscordShardedClient.Shards.Count)
             {
-                logger.LogInformation(LogString.From(
+                _logger.LogInformation(LogString.From(
                     $"All {"shard".ToQuantity(DiscordShardedClient.Shards.Count)} ready!"
                 ));
                 return allShardsReadyEvent.InvokeAsync();
@@ -108,7 +114,7 @@ namespace TaylorBot.Net.Core.Client
             return guild;
         }
 
-        public async Task<IUser> ResolveRequiredUserAsync(SnowflakeId id)
+        public async ValueTask<IUser> ResolveRequiredUserAsync(SnowflakeId id)
         {
             var user = await ((IDiscordClient)DiscordShardedClient).GetUserAsync(id.Id);
             if (user == null)
