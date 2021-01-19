@@ -13,3 +13,4 @@
 0009_command_disabled_message 2020-11-28T19:06:22Z Adam Gauthier <adamgauthier12@gmail.com> # Change disabled command from boolean to text for disabled message
 0010_bump_version_1.8.2 2020-12-02T01:23:16Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.8.2
 0011_username_history_configuration 2021-01-13T04:17:51Z Adam Gauthier <adamgauthier12@gmail.com> # Add users.username_history_configuration for hide username history feature
+0012_bump_version_1.9.0 2021-01-18T04:50:52Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.9.0
