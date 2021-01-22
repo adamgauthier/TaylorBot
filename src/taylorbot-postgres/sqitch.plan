@@ -15,3 +15,4 @@
 0011_username_history_configuration 2021-01-13T04:17:51Z Adam Gauthier <adamgauthier12@gmail.com> # Add users.username_history_configuration for hide username history feature
 0012_bump_version_1.9.0 2021-01-18T04:50:52Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.9.0
 0013_priority_constraint_messages 2021-01-19T23:37:01Z Adam Gauthier <adamgauthier12@gmail.com> # Add priority date constraint on messages of the day
+0014_update_1.9.0_message 2021-01-22T02:21:51Z Adam Gauthier <adamgauthier12@gmail.com> # Update 1.9.0 message of the day to usernames and minutes messages
