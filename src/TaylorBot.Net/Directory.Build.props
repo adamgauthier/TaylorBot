@@ -2,6 +2,5 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <Features>strict</Features>
-    <RestoreAdditionalProjectSources>https://www.myget.org/F/discord-net/api/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
 </Project>
