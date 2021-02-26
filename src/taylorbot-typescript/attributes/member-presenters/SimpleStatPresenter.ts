@@ -22,7 +22,7 @@ export class SimpleStatPresenter implements MemberAttributePresenter {
             .baseUserSuccessEmbed(member.user)
             .setDescription([
                 `${member.displayName} has ${StringUtil.plural(stat, this.attribute.singularName, '**')}.`,
-                `They are the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user of the server (excluding users who left).`
+                `They are ranked **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in this server (excluding users who left).`
             ].join('\n'));
     }
 

@@ -15,7 +15,7 @@ export class MinutesPresenter extends SimpleStatPresenter {
             .setDescription([
                 `${member.displayName} has been active for ${StringUtil.plural(minuteCount, 'minute', '**')} in this server.`,
                 `This is roughly equivalent to **${duration.humanize()}** of activity.`,
-                `They are the **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** user of the server (excluding users who left).`
+                `They are ranked **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in this server (excluding users who left).`
             ].join('\n'));
     }
 }
