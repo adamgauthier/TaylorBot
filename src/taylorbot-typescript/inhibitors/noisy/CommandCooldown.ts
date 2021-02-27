@@ -14,14 +14,14 @@ class CommandCooldown extends NoisyInhibitor {
 
             if (dailyCount >= maxDailyUseCount) {
                 let uiSecondMessage;
-                if (dailyCount < maxDailyUseCount + 5) {
+                if (dailyCount < maxDailyUseCount + 7) {
                     await registry.cooldowns.addDailyUseCount(author, command);
-                    uiSecondMessage = 'Continuing to use it will lead to you being ignored.';
+                    uiSecondMessage = '**Stop using the command or I will ignore you.**';
                 }
                 else {
                     const duration = moment.duration(5, 'days');
                     await registry.users.ignoreUser(author, moment().add(duration).toDate());
-                    uiSecondMessage = `You're abusing me, I will ignore you for **${duration.humanize()}**.`;
+                    uiSecondMessage = `**You're abusing me, I will ignore you for ${duration.humanize()}**.`;
                 }
 
                 return {
