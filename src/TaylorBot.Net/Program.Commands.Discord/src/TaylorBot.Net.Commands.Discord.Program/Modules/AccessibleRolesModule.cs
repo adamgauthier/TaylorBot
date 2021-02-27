@@ -228,7 +228,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> RemoveAsync(
             [Summary("What role would you like to make inaccessible?")]
             [Remainder]
-            RoleNotEveryoneArgument<IRole> role
+            RoleArgument<IRole> role
         )
         {
             await _accessibleRoleRepository.RemoveAccessibleRoleAsync(role.Role);
