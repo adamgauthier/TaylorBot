@@ -38,7 +38,7 @@ stages:
           warningTaskFilters: '/^$(buildTestTaskDisplayName)$/'
           warningFilters: '/(\d+)\sWarning\(s\)/i'
 
-      - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag)
+      - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag) --verbosity normal
         displayName: 'Run tests'
 
       - task: Docker@2
