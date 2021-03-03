@@ -349,7 +349,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                 .WithDescription(string.Join('\n', new[] {
                     $"{user.Mention}'s Last.fm username is not set. 🚫",
                     $"Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.",
-                    $"You can then set it up on TaylorBot with `{Context.CommandPrefix}lastfm set <username>`."
+                    $"You can then link it to TaylorBot with `{Context.CommandPrefix}lastfm set <username>`."
                 }))
             .Build();
         }
