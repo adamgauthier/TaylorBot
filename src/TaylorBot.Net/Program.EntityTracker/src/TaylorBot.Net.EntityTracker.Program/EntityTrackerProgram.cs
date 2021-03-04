@@ -20,8 +20,6 @@ using TaylorBot.Net.QuickStart.Domain.Options;
 var host = Host.CreateDefaultBuilder()
     .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
     {
-        appConfig.Sources.Clear();
-
         var env = hostBuilderContext.HostingEnvironment;
 
         appConfig

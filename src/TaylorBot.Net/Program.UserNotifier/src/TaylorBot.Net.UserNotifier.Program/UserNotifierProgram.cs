@@ -33,8 +33,6 @@ namespace TaylorBot.Net.UserNotifier.Program
             var host = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
                 {
-                    appConfig.Sources.Clear();
-
                     var env = hostBuilderContext.HostingEnvironment;
 
                     appConfig

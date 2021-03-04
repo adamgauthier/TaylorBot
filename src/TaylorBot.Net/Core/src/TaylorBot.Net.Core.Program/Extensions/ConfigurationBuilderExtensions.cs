@@ -8,7 +8,6 @@ namespace TaylorBot.Net.Core.Program.Extensions
         public static IConfigurationBuilder AddTaylorBotApplication(this IConfigurationBuilder builder, IHostEnvironment environment)
         {
             return builder
-                .AddJsonFile(path: "Settings/logging.json", optional: false, reloadOnChange: true)
                 .AddJsonFile(path: "Settings/discord.json", optional: false, reloadOnChange: true)
                 .AddJsonFile(path: $"Settings/discord.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }

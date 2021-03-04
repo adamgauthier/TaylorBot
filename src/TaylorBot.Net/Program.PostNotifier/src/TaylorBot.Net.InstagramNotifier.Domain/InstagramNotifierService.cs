@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.InstagramNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.InstagramNotifier.Domain.Options;
 
@@ -45,7 +44,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(CheckAllInstagramsAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(CheckAllInstagramsAsync)}.");
                 }
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
             }
@@ -63,14 +62,14 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
 
                     if (newestPost.ShortCode != instagramChecker.LastPostCode && newestPost.TakenAt > instagramChecker.LastPostTakenAt)
                     {
-                        _logger.LogDebug(LogString.From($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}."));
+                        _logger.LogDebug($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}.");
                         await channel.SendMessageAsync(embed: _instagramPostToEmbedMapper.ToEmbed(newestPost));
                         await _instagramCheckerRepository.UpdateLastPostAsync(instagramChecker, newestPost);
                     }
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From($"Exception occurred when checking {instagramChecker}."));
+                    _logger.LogError(exception, $"Exception occurred when checking {instagramChecker}.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

@@ -36,9 +36,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             if (result.Error != CommandError.UnknownCommand)
             {
-                _logger.LogInformation(LogString.From(
-                    $"{context.User.FormatLog()} used '{context.Message.Content.Replace("\n", "\\n")}' in {context.Channel.FormatLog()}"
-                ));
+                _logger.LogInformation($"{context.User.FormatLog()} used '{context.Message.Content.Replace("\n", "\\n")}' in {context.Channel.FormatLog()}");
 
                 if (result.IsSuccess)
                 {
@@ -69,11 +67,11 @@ namespace TaylorBot.Net.Commands.PostExecution
                             switch (result.Error)
                             {
                                 case CommandError.Exception:
-                                    _logger.LogError(executeResult.Exception, LogString.From("Unhandled exception in command:"));
+                                    _logger.LogError(executeResult.Exception, "Unhandled exception in command:");
                                     break;
 
                                 default:
-                                    _logger.LogError(executeResult.Exception, LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}:"));
+                                    _logger.LogError(executeResult.Exception, $"Unhandled error in command - {result.Error}, {result.ErrorReason}:");
                                     break;
                             }
                             await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
@@ -94,9 +92,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                             break;
 
                         case TaylorBotPreconditionResult preconditionResult:
-                            _logger.LogInformation(LogString.From(
-                                $"{commandContext.User.FormatLog()} precondition failure: {preconditionResult.ErrorReason}."
-                            ));
+                            _logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {preconditionResult.ErrorReason}.");
                             if (preconditionResult.UserReason != null)
                             {
                                 await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
@@ -107,7 +103,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                             break;
 
                         default:
-                            _logger.LogError(LogString.From($"Unhandled error in command - {result.Error}, {result.ErrorReason}"));
+                            _logger.LogError($"Unhandled error in command - {result.Error}, {result.ErrorReason}");
                             await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
                             break;
                     }

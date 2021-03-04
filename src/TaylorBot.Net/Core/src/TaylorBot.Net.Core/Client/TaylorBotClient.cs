@@ -81,22 +81,18 @@ namespace TaylorBot.Net.Core.Client
 
         private Task LogAsync(LogMessage log)
         {
-            _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), LogString.From(log.ToString(prependTimestamp: false)));
+            _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), log.ToString(prependTimestamp: false));
             return Task.CompletedTask;
         }
 
         private Task ShardReadyAsync(DiscordSocketClient shardClient)
         {
-            _logger.LogInformation(LogString.From(
-                $"Shard Number {shardClient.ShardId} is ready! Serving {"guild".ToQuantity(shardClient.Guilds.Count)} out of {DiscordShardedClient.Guilds.Count}."
-            ));
+            _logger.LogInformation($"Shard Number {shardClient.ShardId} is ready! Serving {"guild".ToQuantity(shardClient.Guilds.Count)} out of {DiscordShardedClient.Guilds.Count}.");
 
             Interlocked.Increment(ref shardReadyCount);
             if (shardReadyCount >= DiscordShardedClient.Shards.Count)
             {
-                _logger.LogInformation(LogString.From(
-                    $"All {"shard".ToQuantity(DiscordShardedClient.Shards.Count)} ready!"
-                ));
+                _logger.LogInformation($"All {"shard".ToQuantity(DiscordShardedClient.Shards.Count)} ready!");
                 return allShardsReadyEvent.InvokeAsync();
             }
 

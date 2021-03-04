@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.YoutubeNotifier.Domain.Options;
 
@@ -46,7 +45,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(CheckAllYoutubesAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(CheckAllYoutubesAsync)}.");
                 }
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
             }
@@ -65,7 +64,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
                     var response = await request.ExecuteAsync();
                     var newestPost = new ParsedPlaylistItemSnippet(response.Items.First().Snippet);
 
-                    _logger.LogTrace(LogString.From($"Checking if Youtube post '{newestPost.Snippet.ResourceId.VideoId}' for {youtubeChecker} is new."));
+                    _logger.LogTrace($"Checking if Youtube post '{newestPost.Snippet.ResourceId.VideoId}' for {youtubeChecker} is new.");
 
                     if (youtubeChecker.LastVideoId == null || (
                         newestPost.Snippet.ResourceId.VideoId != youtubeChecker.LastVideoId &&
@@ -73,14 +72,14 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
                         newestPost.PublishedAt > youtubeChecker.LastPublishedAt.Value)
                     ))
                     {
-                        _logger.LogDebug(LogString.From($"Found new Youtube post for {youtubeChecker}: '{newestPost.Snippet.ResourceId.VideoId}'."));
+                        _logger.LogDebug($"Found new Youtube post for {youtubeChecker}: '{newestPost.Snippet.ResourceId.VideoId}'.");
                         await channel.SendMessageAsync(embed: _youtubePostToEmbedMapper.ToEmbed(newestPost));
                         await _youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
                     }
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From($"Exception occurred when checking {youtubeChecker}."));
+                    _logger.LogError(exception, $"Exception occurred when checking {youtubeChecker}.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

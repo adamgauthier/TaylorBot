@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
 
@@ -74,7 +73,7 @@ namespace TaylorBot.Net.MessagesTracker.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(_textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(_textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync)}.");
                 }
 
                 await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);

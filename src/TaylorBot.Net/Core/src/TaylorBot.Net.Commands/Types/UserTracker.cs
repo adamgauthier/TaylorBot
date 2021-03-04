@@ -38,7 +38,7 @@ namespace TaylorBot.Net.Commands.Types
 
                 if (memberAdded)
                 {
-                    _logger.LogInformation(LogString.From($"Added new member {guildUser.FormatLog()}."));
+                    _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
                 }
             }
         }

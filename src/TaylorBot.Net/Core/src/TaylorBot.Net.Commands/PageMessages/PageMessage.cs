@@ -67,7 +67,7 @@ namespace TaylorBot.Net.Commands.PageMessages
                 }
                 catch
                 {
-                    logger.LogWarning(LogString.From($"Could not add reactions for page message {_message.FormatLog()} by {_commandUser.FormatLog()}."));
+                    logger.LogWarning($"Could not add reactions for page message {_message.FormatLog()} by {_commandUser.FormatLog()}.");
                 }
                 finally
                 {

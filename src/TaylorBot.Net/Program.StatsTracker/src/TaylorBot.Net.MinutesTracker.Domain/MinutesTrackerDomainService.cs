@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
 
 namespace TaylorBot.Net.MinutesTracker.Domain
@@ -40,7 +39,7 @@ namespace TaylorBot.Net.MinutesTracker.Domain
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From("Exception occurred when attempting to add minutes to active members."));
+                    _logger.LogError(exception, "Exception occurred when attempting to add minutes to active members.");
                 }
 
                 await Task.Delay(options.TimeSpanBetweenMinutesAdding);

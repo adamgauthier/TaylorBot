@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
 using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.BirthdayReward.Domain
 {
@@ -43,7 +42,7 @@ namespace TaylorBot.Net.BirthdayReward.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(RewardBirthdaysAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(RewardBirthdaysAsync)}.");
                     await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
                     continue;
                 }
@@ -54,19 +53,19 @@ namespace TaylorBot.Net.BirthdayReward.Domain
         public async ValueTask RewardBirthdaysAsync()
         {
             var rewardAmount = _optionsMonitor.CurrentValue.RewardAmount;
-            _logger.LogTrace(LogString.From($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}."));
+            _logger.LogTrace($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}.");
 
             foreach (var rewardedUser in await _birthdayRepository.RewardEligibleUsersAsync(rewardAmount))
             {
                 try
                 {
-                    _logger.LogTrace(LogString.From($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}."));
+                    _logger.LogTrace($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}.");
                     var user = await _taylorBotClient.ResolveRequiredUserAsync(rewardedUser.UserId);
                     await user.SendMessageAsync(embed: _birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From($"Exception occurred when attempting to notify {rewardedUser} about their birthday reward."));
+                    _logger.LogError(exception, $"Exception occurred when attempting to notify {rewardedUser} about their birthday reward.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);

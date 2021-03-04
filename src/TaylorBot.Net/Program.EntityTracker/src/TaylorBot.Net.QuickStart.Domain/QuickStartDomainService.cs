@@ -51,12 +51,12 @@ namespace TaylorBot.Net.QuickStart.Domain
             if (quickStartChannel != null)
             {
                 await quickStartChannel.SendMessageAsync(embed: quickStartEmbed);
-                _logger.LogInformation(LogString.From($"Sent Quick Start embed in {quickStartChannel.FormatLog()}."));
+                _logger.LogInformation($"Sent Quick Start embed in {quickStartChannel.FormatLog()}.");
             }
             else
             {
                 await guild.Owner.SendMessageAsync(embed: quickStartEmbed);
-                _logger.LogInformation(LogString.From($"Sent Quick Start embed to {guild.Owner.FormatLog()}."));
+                _logger.LogInformation($"Sent Quick Start embed to {guild.Owner.FormatLog()}.");
             }
         }
     }

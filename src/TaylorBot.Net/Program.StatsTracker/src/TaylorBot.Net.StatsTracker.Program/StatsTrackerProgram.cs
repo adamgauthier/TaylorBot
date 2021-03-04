@@ -19,8 +19,6 @@ using TaylorBot.Net.StatsTracker.Program.Events;
 var host = Host.CreateDefaultBuilder()
     .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
     {
-        appConfig.Sources.Clear();
-
         var env = hostBuilderContext.HostingEnvironment;
 
         appConfig

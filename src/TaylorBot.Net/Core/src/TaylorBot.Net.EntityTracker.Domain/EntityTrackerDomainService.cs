@@ -67,7 +67,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
 
             if (guildAddedResult.WasAdded)
             {
-                _logger.LogInformation(LogString.From($"Added new guild {guild.FormatLog()}."));
+                _logger.LogInformation($"Added new guild {guild.FormatLog()}.");
                 await _guildNameRepository.AddNewGuildNameAsync(guild);
             }
             else if (guildAddedResult.WasGuildNameChanged)
@@ -91,7 +91,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
 
         public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
         {
-            _logger.LogInformation(LogString.From($"Starting startup entity tracking sequence for shard {shardClient.ShardId}."));
+            _logger.LogInformation($"Starting startup entity tracking sequence for shard {shardClient.ShardId}.");
 
             foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
             {
@@ -99,7 +99,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
             }
 
-            _logger.LogInformation(LogString.From($"Completed startup entity tracking sequence for shard {shardClient.ShardId}."));
+            _logger.LogInformation($"Completed startup entity tracking sequence for shard {shardClient.ShardId}.");
         }
 
         public async Task OnUserUpdatedAsync(SocketUser oldUser, SocketUser newUser)
@@ -120,7 +120,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
 
                 if (guildAddedResult.WasAdded)
                 {
-                    _logger.LogInformation(LogString.From($"Added new guild {newGuild.FormatLog()}."));
+                    _logger.LogInformation($"Added new guild {newGuild.FormatLog()}.");
                     await _guildNameRepository.AddNewGuildNameAsync(newGuild);
                 }
                 else if (guildAddedResult.WasGuildNameChanged)
@@ -133,9 +133,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
         private async Task UpdateGuildNameAsync(IGuild guild, string? previousGuildName)
         {
             await _guildNameRepository.AddNewGuildNameAsync(guild);
-            _logger.LogInformation(LogString.From(
-                $"Added new guild name for {guild.FormatLog()}{(previousGuildName != null ? $", previously was '{previousGuildName}'" : "")}."
-            ));
+            _logger.LogInformation($"Added new guild name for {guild.FormatLog()}{(previousGuildName != null ? $", previously was '{previousGuildName}'" : "")}.");
         }
 
         public async Task OnGuildUserJoinedAsync(SocketGuildUser guildUser)
@@ -148,7 +146,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
                 var memberAdded = await _memberRepository.AddNewMemberAsync(guildUser);
                 if (memberAdded)
                 {
-                    _logger.LogInformation(LogString.From($"Added new member {guildUser.FormatLog()}."));
+                    _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
                     await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
                 }
             }
@@ -175,7 +173,7 @@ namespace TaylorBot.Net.EntityTracker.Domain
         public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
         {
             await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
-            _logger.LogInformation(LogString.From($"Added new text channel {textChannel.FormatLog()}."));
+            _logger.LogInformation($"Added new text channel {textChannel.FormatLog()}.");
         }
     }
 }

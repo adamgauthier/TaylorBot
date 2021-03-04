@@ -22,13 +22,13 @@ namespace TaylorBot.Net.EntityTracker.Domain
         {
             if (userAddedResult.WasAdded)
             {
-                _logger.LogInformation(LogString.From($"Added new user {user.FormatLog()}."));
+                _logger.LogInformation($"Added new user {user.FormatLog()}.");
                 await _usernameRepository.AddNewUsernameAsync(user);
             }
             else if (userAddedResult.WasUsernameChanged)
             {
                 await _usernameRepository.AddNewUsernameAsync(user);
-                _logger.LogInformation(LogString.From($"Added new username for {user.FormatLog()}, previously was '{userAddedResult.PreviousUsername}'."));
+                _logger.LogInformation($"Added new username for {user.FormatLog()}, previously was '{userAddedResult.PreviousUsername}'.");
             }
         }
     }

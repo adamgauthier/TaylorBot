@@ -26,9 +26,9 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             if (memberAdded)
             {
-                services.GetRequiredService<ILogger<RequireMemberTrackedAttribute>>().LogInformation(LogString.From(
+                services.GetRequiredService<ILogger<RequireMemberTrackedAttribute>>().LogInformation(
                     $"Added new member {guildUser.FormatLog()}."
-                ));
+                );
             }
 
             return PreconditionResult.FromSuccess();

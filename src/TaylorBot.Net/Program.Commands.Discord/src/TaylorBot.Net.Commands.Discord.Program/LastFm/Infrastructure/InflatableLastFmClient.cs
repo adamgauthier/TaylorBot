@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
 using TaylorBot.Net.Commands.Discord.Program.Options;
-using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
 {
@@ -141,7 +140,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, LogString.From($"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):"));
+                    _logger.LogWarning(e, $"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):");
                     return new LastFmGenericErrorResult(null);
                 }
             }
@@ -193,7 +192,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, LogString.From($"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):"));
+                    _logger.LogWarning(e, $"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):");
                     return new LastFmGenericErrorResult(null);
                 }
             }

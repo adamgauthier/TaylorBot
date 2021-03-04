@@ -35,8 +35,6 @@ using TaylorBot.Net.Core.Program.Extensions;
 var host = Host.CreateDefaultBuilder()
     .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
     {
-        appConfig.Sources.Clear();
-
         var env = hostBuilderContext.HostingEnvironment;
 
         appConfig

@@ -42,7 +42,7 @@ namespace TaylorBot.Net.Reminder.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(RemindUsersAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(RemindUsersAsync)}.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks);
@@ -55,19 +55,19 @@ namespace TaylorBot.Net.Reminder.Domain
             {
                 try
                 {
-                    _logger.LogTrace(LogString.From($"Reminding {reminder}."));
+                    _logger.LogTrace($"Reminding {reminder}.");
                     var user = await _taylorBotClient.ResolveRequiredUserAsync(reminder.UserId);
                     try
                     {
                         await user.SendMessageAsync(embed: _reminderEmbedFactory.Create(reminder));
-                        _logger.LogTrace(LogString.From($"Reminded {user.FormatLog()} with {reminder}."));
+                        _logger.LogTrace($"Reminded {user.FormatLog()} with {reminder}.");
                         await _reminderRepository.RemoveReminderAsync(reminder);
                     }
                     catch (Discord.Net.HttpException httpException)
                     {
                         if (httpException.DiscordCode == 50007)
                         {
-                            _logger.LogWarning(LogString.From($"Could not remind {user.FormatLog()} with {reminder} because they can't receive DMs."));
+                            _logger.LogWarning($"Could not remind {user.FormatLog()} with {reminder} because they can't receive DMs.");
                             await _reminderRepository.RemoveReminderAsync(reminder);
                         }
                         else
@@ -78,7 +78,7 @@ namespace TaylorBot.Net.Reminder.Domain
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From($"Exception occurred when attempting to notify {reminder}."));
+                    _logger.LogError(exception, $"Exception occurred when attempting to notify {reminder}.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);

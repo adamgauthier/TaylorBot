@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Core.Tasks
 {
@@ -33,13 +32,13 @@ namespace TaylorBot.Net.Core.Tasks
                     }
                     else
                     {
-                        _logger.LogWarning(LogString.From("Attempted to start task but it was already started."));
+                        _logger.LogWarning("Attempted to start task but it was already started.");
                     }
                 }
             }
             else
             {
-                _logger.LogWarning(LogString.From("Attempted to start task but it was already started."));
+                _logger.LogWarning("Attempted to start task but it was already started.");
             }
 
             return _runningTask;

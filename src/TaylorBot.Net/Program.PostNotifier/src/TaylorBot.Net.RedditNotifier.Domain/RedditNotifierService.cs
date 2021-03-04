@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
 
@@ -46,7 +45,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(CheckAllRedditsAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(CheckAllRedditsAsync)}.");
                 }
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
             }
@@ -65,14 +64,14 @@ namespace TaylorBot.Net.RedditNotifier.Domain
                     if (redditChecker.LastPostId == null || !redditChecker.LastPostCreatedAt.HasValue ||
                         (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt.Value))
                     {
-                        _logger.LogDebug(LogString.From($"Found new Reddit post for {redditChecker}: {newestPost.Id}."));
+                        _logger.LogDebug($"Found new Reddit post for {redditChecker}: {newestPost.Id}.");
                         await channel.SendMessageAsync(embed: _redditPostToEmbedMapper.ToEmbed(newestPost));
                         await _redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
                     }
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From($"Exception occurred when checking {redditChecker}."));
+                    _logger.LogError(exception, $"Exception occurred when checking {redditChecker}.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

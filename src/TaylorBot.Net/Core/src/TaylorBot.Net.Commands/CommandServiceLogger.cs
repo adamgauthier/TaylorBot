@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands
 
         public Task OnCommandServiceLogAsync(LogMessage logMessage)
         {
-            _logger.Log(_logSeverityToLogLevelMapper.MapFrom(logMessage.Severity), LogString.From(logMessage.ToString(prependTimestamp: false)));
+            _logger.Log(_logSeverityToLogLevelMapper.MapFrom(logMessage.Severity), logMessage.ToString(prependTimestamp: false));
             return Task.CompletedTask;
         }
     }

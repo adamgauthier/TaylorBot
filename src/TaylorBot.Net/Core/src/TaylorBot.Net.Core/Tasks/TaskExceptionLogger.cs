@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Core.Tasks
 {
@@ -22,7 +21,7 @@ namespace TaylorBot.Net.Core.Tasks
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, LogString.From($"Unhandled exception in {taskName}{(shouldRethrow ? "" : ", not rethrowing")}."));
+                logger.LogError(exception, $"Unhandled exception in {taskName}{(shouldRethrow ? "" : ", not rethrowing")}.");
                 if (shouldRethrow)
                     throw;
             }

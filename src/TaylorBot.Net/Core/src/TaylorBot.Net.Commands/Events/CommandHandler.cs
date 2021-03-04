@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 
@@ -86,7 +85,7 @@ namespace TaylorBot.Net.Commands.Events
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(_commandUsageRepository.PersistQueuedUsageCountIncrementsAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(_commandUsageRepository.PersistQueuedUsageCountIncrementsAsync)}.");
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(5));

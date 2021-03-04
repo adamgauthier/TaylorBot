@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.TumblrNotifier.Domain.Options;
 
@@ -47,7 +46,7 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, LogString.From($"Unhandled exception in {nameof(CheckAllTumblrsAsync)}."));
+                    _logger.LogError(e, $"Unhandled exception in {nameof(CheckAllTumblrsAsync)}.");
                 }
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
             }
@@ -67,14 +66,14 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
 
                     if (newestPost.ShortUrl != tumblrChecker.LastPostShortUrl)
                     {
-                        _logger.LogDebug(LogString.From($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}."));
+                        _logger.LogDebug($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}.");
                         await channel.SendMessageAsync(embed: _tumblrPostToEmbedMapper.ToEmbed(newestPost, blog));
                         await _tumblrCheckerRepository.UpdateLastPostAsync(tumblrChecker, newestPost);
                     }
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, LogString.From($"Exception occurred when checking {tumblrChecker}."));
+                    _logger.LogError(exception, $"Exception occurred when checking {tumblrChecker}.");
                 }
 
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
