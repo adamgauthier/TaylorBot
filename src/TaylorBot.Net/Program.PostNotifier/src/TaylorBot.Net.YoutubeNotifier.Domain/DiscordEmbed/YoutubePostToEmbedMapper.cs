@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Google.Apis.YouTube.v3.Data;
 using Humanizer;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Colors;
@@ -15,10 +16,9 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed
             _optionsMonitor = optionsMonitor;
         }
 
-        public Embed ToEmbed(ParsedPlaylistItemSnippet parsedSnippet)
+        public Embed ToEmbed(PlaylistItemSnippet post)
         {
             var options = _optionsMonitor.CurrentValue;
-            var post = parsedSnippet.Snippet;
 
             var builder = new EmbedBuilder()
                 .WithTitle(post.Title.Truncate(65))
@@ -29,8 +29,8 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed
                 .WithFooter(text: "YouTube", iconUrl: options.YoutubePostEmbedIconUrl)
                 .WithColor(DiscordColor.FromHexString(options.YoutubePostEmbedColor));
 
-            if (parsedSnippet.PublishedAt.HasValue)
-                builder.WithTimestamp(parsedSnippet.PublishedAt.Value);
+            if (post.PublishedAt.HasValue)
+                builder.WithTimestamp(post.PublishedAt.Value);
 
             return builder.Build();
         }

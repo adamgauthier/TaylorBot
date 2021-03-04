@@ -62,17 +62,17 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
                     var request = _youtubeService.PlaylistItems.List(part: "snippet");
                     request.PlaylistId = youtubeChecker.PlaylistId;
                     var response = await request.ExecuteAsync();
-                    var newestPost = new ParsedPlaylistItemSnippet(response.Items.First().Snippet);
+                    var newestPost = response.Items.First().Snippet;
 
-                    _logger.LogTrace($"Checking if Youtube post '{newestPost.Snippet.ResourceId.VideoId}' for {youtubeChecker} is new.");
+                    _logger.LogTrace($"Checking if Youtube post '{newestPost.ResourceId.VideoId}' for {youtubeChecker} is new.");
 
                     if (youtubeChecker.LastVideoId == null || (
-                        newestPost.Snippet.ResourceId.VideoId != youtubeChecker.LastVideoId &&
-                        (newestPost.PublishedAt == null || !youtubeChecker.LastPublishedAt.HasValue ||
-                        newestPost.PublishedAt > youtubeChecker.LastPublishedAt.Value)
+                        newestPost.ResourceId.VideoId != youtubeChecker.LastVideoId &&
+                        (!newestPost.PublishedAt.HasValue || !youtubeChecker.LastPublishedAt.HasValue ||
+                        newestPost.PublishedAt.Value > youtubeChecker.LastPublishedAt.Value)
                     ))
                     {
-                        _logger.LogDebug($"Found new Youtube post for {youtubeChecker}: '{newestPost.Snippet.ResourceId.VideoId}'.");
+                        _logger.LogDebug($"Found new Youtube post for {youtubeChecker}: '{newestPost.ResourceId.VideoId}'.");
                         await channel.SendMessageAsync(embed: _youtubePostToEmbedMapper.ToEmbed(newestPost));
                         await _youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
                     }

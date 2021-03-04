@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Google.Apis.YouTube.v3.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
             )).ToList();
         }
 
-        public async ValueTask UpdateLastPostAsync(YoutubeChecker youtubeChecker, ParsedPlaylistItemSnippet youtubePost)
+        public async ValueTask UpdateLastPostAsync(YoutubeChecker youtubeChecker, PlaylistItemSnippet youtubePost)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -62,7 +63,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
                     PlaylistId = youtubeChecker.PlaylistId,
                     GuildId = youtubeChecker.GuildId.ToString(),
                     ChannelId = youtubeChecker.ChannelId.ToString(),
-                    LastVideoId = youtubePost.Snippet.ResourceId.VideoId,
+                    LastVideoId = youtubePost.ResourceId.VideoId,
                     LastPublishedAt = youtubePost.PublishedAt
                 }
             );
