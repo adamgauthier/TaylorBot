@@ -15,6 +15,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
         private readonly ITaylorBotClient _taylorBotClient;
         private readonly SingletonTaskRunner _minuteSingletonTaskRunner;
         private readonly MinutesTrackerDomainService _minutesTrackerDomainService;
+        private readonly SingletonTaskRunner _lastSpokeSingletonTaskRunner;
         private readonly SingletonTaskRunner _channelMessageCountSingletonTaskRunner;
         private readonly MessagesTrackerDomainService _messagesTrackerDomainService;
 
@@ -23,6 +24,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
             ITaylorBotClient taylorBotClient,
             SingletonTaskRunner minuteSingletonTaskRunner,
             MinutesTrackerDomainService minutesTrackerDomainService,
+            SingletonTaskRunner lastSpokeSingletonTaskRunner,
             SingletonTaskRunner channelMessageCountSingletonTaskRunner,
             MessagesTrackerDomainService messagesTrackerDomainService
         )
@@ -31,6 +33,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
             _taylorBotClient = taylorBotClient;
             _minuteSingletonTaskRunner = minuteSingletonTaskRunner;
             _minutesTrackerDomainService = minutesTrackerDomainService;
+            _lastSpokeSingletonTaskRunner = lastSpokeSingletonTaskRunner;
             _channelMessageCountSingletonTaskRunner = channelMessageCountSingletonTaskRunner;
             _messagesTrackerDomainService = messagesTrackerDomainService;
         }
@@ -42,9 +45,14 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
                 nameof(MinutesTrackerDomainService)
             );
 
+            _ = _lastSpokeSingletonTaskRunner.StartTaskIfNotStarted(
+                _messagesTrackerDomainService.StartPersistingLastSpokeAsync,
+                nameof(MessagesTrackerDomainService.StartPersistingLastSpokeAsync)
+            );
+
             _ = _channelMessageCountSingletonTaskRunner.StartTaskIfNotStarted(
                 _messagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync,
-                nameof(MessagesTrackerDomainService)
+                nameof(MessagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync)
             );
 
             return Task.CompletedTask;

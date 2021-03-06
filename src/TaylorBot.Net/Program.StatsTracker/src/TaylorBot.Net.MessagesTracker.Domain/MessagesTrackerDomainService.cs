@@ -15,10 +15,15 @@ namespace TaylorBot.Net.MessagesTracker.Domain
         ValueTask PersistQueuedMessageCountIncrementsAsync();
     }
 
+    public interface IGuildUserLastSpokeRepository
+    {
+        ValueTask QueueUpdateLastSpokeAsync(IGuildUser guildUser, DateTimeOffset lastSpokeAt);
+        ValueTask PersistQueuedLastSpokeUpdatesAsync();
+    }
+
     public interface IMessageRepository
     {
-        ValueTask AddMessagesWordsAndLastSpokeAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd, DateTime lastSpokeAt);
-        ValueTask UpdateLastSpokeAsync(IGuildUser guildUser, DateTime lastSpokeAt);
+        ValueTask AddMessagesAndWordsAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd);
     }
 
     public class MessagesTrackerDomainService
@@ -27,6 +32,7 @@ namespace TaylorBot.Net.MessagesTracker.Domain
         private readonly IOptionsMonitor<MessagesTrackerOptions> _messagesTrackerOptions;
         private readonly ISpamChannelRepository _spamChannelRepository;
         private readonly ITextChannelMessageCountRepository _textChannelMessageCountRepository;
+        private readonly IGuildUserLastSpokeRepository _guildUserLastSpokeRepository;
         private readonly IMessageRepository _messageRepository;
         private readonly WordCounter _wordCounter;
 
@@ -35,6 +41,7 @@ namespace TaylorBot.Net.MessagesTracker.Domain
             IOptionsMonitor<MessagesTrackerOptions> messagesTrackerOptions,
             ISpamChannelRepository spamChannelRepository,
             ITextChannelMessageCountRepository textChannelMessageCountRepository,
+            IGuildUserLastSpokeRepository guildUserLastSpokeRepository,
             IMessageRepository messageRepository,
             WordCounter wordCounter
         )
@@ -43,6 +50,7 @@ namespace TaylorBot.Net.MessagesTracker.Domain
             _messagesTrackerOptions = messagesTrackerOptions;
             _spamChannelRepository = spamChannelRepository;
             _textChannelMessageCountRepository = textChannelMessageCountRepository;
+            _guildUserLastSpokeRepository = guildUserLastSpokeRepository;
             _messageRepository = messageRepository;
             _wordCounter = wordCounter;
         }
@@ -53,13 +61,10 @@ namespace TaylorBot.Net.MessagesTracker.Domain
 
             if (!isSpam)
             {
-                await _messageRepository.AddMessagesWordsAndLastSpokeAsync(guildUser, 1, _wordCounter.CountWords(message.Content), message.Timestamp.DateTime);
-            }
-            else
-            {
-                await _messageRepository.UpdateLastSpokeAsync(guildUser, message.Timestamp.DateTime);
+                await _messageRepository.AddMessagesAndWordsAsync(guildUser, 1, _wordCounter.CountWords(message.Content));
             }
 
+            await _guildUserLastSpokeRepository.QueueUpdateLastSpokeAsync(guildUser, message.Timestamp);
             await _textChannelMessageCountRepository.QueueIncrementMessageCountAsync(textChannel);
         }
 
@@ -77,6 +82,23 @@ namespace TaylorBot.Net.MessagesTracker.Domain
                 }
 
                 await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);
+            }
+        }
+
+        public async Task StartPersistingLastSpokeAsync()
+        {
+            while (true)
+            {
+                try
+                {
+                    await _guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Unhandled exception in {nameof(_guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync)}.");
+                }
+
+                await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingLastSpoke);
             }
         }
     }

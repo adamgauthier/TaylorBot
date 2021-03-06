@@ -1,5 +1,6 @@
 ﻿{
   "MessagesTracker": {
-    "TimeSpanBetweenPersistingTextChannelMessages": "0.00:10:00"
+    "TimeSpanBetweenPersistingTextChannelMessages": "0.00:10:00",
+    "TimeSpanBetweenPersistingLastSpoke": "0.00:00:30"
   }
 }

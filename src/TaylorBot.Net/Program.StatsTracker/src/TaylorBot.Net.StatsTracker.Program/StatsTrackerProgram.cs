@@ -49,6 +49,7 @@ var host = Host.CreateDefaultBuilder()
             .ConfigureRequired<MessagesTrackerOptions>(config, "MessagesTracker")
             .AddTransient<IMessageRepository, MessagesPostgresRepository>()
             .AddTransient<ITextChannelMessageCountRepository, TextChannelMessageCountPostgresRepository>()
+            .AddTransient<IGuildUserLastSpokeRepository, GuildUserLastSpokePostgresRepository>()
             .AddTransient<WordCounter>()
             .AddTransient<MessagesTrackerDomainService>();
     })

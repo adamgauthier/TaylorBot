@@ -2,38 +2,41 @@
 using Discord;
 using StackExchange.Redis;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
 
 namespace TaylorBot.Net.MessagesTracker.Infrastructure
 {
-    public class TextChannelMessageCountPostgresRepository : ITextChannelMessageCountRepository
+    public class GuildUserLastSpokePostgresRepository : IGuildUserLastSpokeRepository
     {
-        private const string MessageCountIncrementsHashKey = "channel-message-count-increments";
+        private const string LastSpokeUpdatesHashKey = "guild-user-last-spoke-updates";
 
         private readonly PostgresConnectionFactory _postgresConnectionFactory;
         private readonly ConnectionMultiplexer _connectionMultiplexer;
 
-        public TextChannelMessageCountPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ConnectionMultiplexer connectionMultiplexer)
+        public GuildUserLastSpokePostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ConnectionMultiplexer connectionMultiplexer)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
             _connectionMultiplexer = connectionMultiplexer;
         }
 
-        public async ValueTask QueueIncrementMessageCountAsync(ITextChannel channel)
+        public async ValueTask QueueUpdateLastSpokeAsync(IGuildUser guildUser, DateTimeOffset lastSpokeAt)
         {
             var redis = _connectionMultiplexer.GetDatabase();
 
-            await redis.HashIncrementAsync(MessageCountIncrementsHashKey, $"guild:{channel.GuildId}:channel:{channel.Id}");
+            HashEntry entry = new($"guild:{guildUser.GuildId}:channel:{guildUser.Id}", lastSpokeAt.ToString("o"));
+
+            await redis.HashSetAsync(LastSpokeUpdatesHashKey, new[] { entry });
         }
 
-        public async ValueTask PersistQueuedMessageCountIncrementsAsync()
+        public async ValueTask PersistQueuedLastSpokeUpdatesAsync()
         {
             var redis = _connectionMultiplexer.GetDatabase();
 
-            var tempKey = $"{MessageCountIncrementsHashKey}:{Guid.NewGuid():N}";
-            var renameSucceeded = await TryRenameKeyAsync(redis, MessageCountIncrementsHashKey, tempKey);
+            var tempKey = $"{LastSpokeUpdatesHashKey}:{Guid.NewGuid():N}";
+            var renameSucceeded = await TryRenameKeyAsync(redis, LastSpokeUpdatesHashKey, tempKey);
 
             if (renameSucceeded)
             {
@@ -43,20 +46,19 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
                 {
                     var nameParts = entry.Name.ToString().Split(':');
                     var guildId = nameParts[1];
-                    var channelId = nameParts[3];
-                    var increment = (long)entry.Value;
+                    var userId = nameParts[3];
+                    var lastSpokeAt = DateTimeOffset.ParseExact(entry.Value, "o", CultureInfo.InvariantCulture);
 
                     using var connection = _postgresConnectionFactory.CreateConnection();
 
                     await connection.ExecuteAsync(
-                        @"UPDATE guilds.text_channels
-                        SET message_count = message_count + @MessageCountToAdd
-                        WHERE guild_id = @GuildId AND channel_id = @ChannelId;",
+                        @"UPDATE guilds.guild_members SET last_spoke_at = @LastSpokeAt
+                        WHERE guild_id = @GuildId AND user_id = @UserId;",
                         new
                         {
-                            MessageCountToAdd = increment,
+                            LastSpokeAt = lastSpokeAt,
                             GuildId = guildId,
-                            ChannelId = channelId
+                            UserId = userId
                         }
                     );
                 }
