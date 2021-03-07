@@ -14,10 +14,10 @@ namespace TaylorBot.Net.Commands.Types
     {
         private class ChannelVal<U> where U : class, IChannel
         {
-            public U Channel { get; }
+            public IChannelArgument<U> Channel { get; }
             public float Score { get; }
 
-            public ChannelVal(U channel, float score)
+            public ChannelVal(IChannelArgument<U> channel, float score)
             {
                 Channel = channel;
                 Score = score;
@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Types
             if (channel is T casted && !results.ContainsKey(channel.Id))
             {
                 results.Add(casted.Id, new ChannelVal<T>(
-                    casted,
+                    new ChannelArgument<T>(casted),
                     score
                 ));
             }

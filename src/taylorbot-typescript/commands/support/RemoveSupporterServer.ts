@@ -1,5 +1,4 @@
 import { Command } from '../Command';
-import { CommandError } from '../CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class RemoveSupporterServerCommand extends Command {
@@ -8,38 +7,26 @@ class RemoveSupporterServerCommand extends Command {
             name: 'removesupporterserver',
             aliases: ['rss'],
             group: 'support',
-            description: 'Removes the current server from your supporter servers.',
+            description: 'This command is obsolete and will be removed in a future version. Please use the `plus add` command instead.',
             examples: [''],
             guildOnly: true,
 
-            args: []
+            args: [
+                {
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
+                }
+            ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext): Promise<void> {
-        const { author, guild } = message;
-        if (author == null || guild == null)
-            throw new Error('This command must be ran with an author and a guild.');
-
-        const { database } = client.master;
-
-        const proUser = await database.pros.getUser(author);
-
-        if (proUser === null || (proUser.expires_at !== null && proUser.expires_at < new Date())) {
-            throw new CommandError('Only supporters can remove their supporter servers! Learn more about supporting with the `support` command.');
-        }
-
-        await database.pros.removeUserProGuild(author, guild);
-
-        const { guild_exists } = await database.pros.proGuildExists(guild);
-
-        let removedChannels: { channel_id: string }[] | null = null;
-
-        if (!guild_exists) {
-            removedChannels = await database.textChannels.removeAllLogsInGuild(guild);
-        }
-
-        await client.sendEmbedSuccess(message.channel, `Successfully removed '${guild.name}' from your supporter servers.${removedChannels != null ? ` Removed \`${removedChannels.length}\` log channels.` : ''}`);
+    async run({ message, client, messageContext }: CommandMessageContext): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command is obsolete and will be removed in a future version.`,
+            `Please use \`${messageContext.prefix}plus remove\` instead.`
+        ].join('\n'));
     }
 }
 

@@ -1,11 +1,13 @@
 ﻿using Discord;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.MemberLogging.Domain.TextChannel
 {
+    public record LogChannel(SnowflakeId ChannelId);
+
     public interface IMemberLoggingChannelRepository
     {
-        ValueTask<IReadOnlyCollection<LogChannel>> GetLogChannelsForGuildAsync(IGuild guild);
+        ValueTask<LogChannel?> GetLogChannelForGuildAsync(IGuild guild);
     }
 }

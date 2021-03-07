@@ -15,6 +15,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         private readonly ILogger<CommandExecutedHandler> _logger = A.Fake<ILogger<CommandExecutedHandler>>(o => o.Strict());
         private readonly IOngoingCommandRepository _ongoingCommandRepository = A.Fake<IOngoingCommandRepository>(o => o.Strict());
         private readonly ICommandUsageRepository _commandUsageRepository = A.Fake<ICommandUsageRepository>(o => o.Strict());
+        private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
         private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new PageMessageReactionsHandler();
 
         private readonly CommandExecutedHandler _commandExecutedHandler;
@@ -22,7 +23,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         public CommandExecutedHandlerTests()
         {
             _commandExecutedHandler = new CommandExecutedHandler(
-                _logger, _ongoingCommandRepository, _commandUsageRepository, _pageMessageReactionsHandler
+                _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler
             );
         }
 

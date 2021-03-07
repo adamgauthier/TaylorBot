@@ -29,7 +29,6 @@ import { GambleStatsRepository } from './repositories/GambleStatsRepository';
 import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
 import { HeistStatsRepository } from './repositories/HeistStatsRepository';
 import { BirthdayAttributeRepository } from './repositories/BirthdayAttributeRepository';
-import { ProRepository } from './repositories/ProRepository';
 import { EnvUtil } from '../modules/util/EnvUtil';
 
 const postgresUsername = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Username');
@@ -57,7 +56,6 @@ export class DatabaseDriver {
     readonly channelCommands: ChannelCommandRepository;
     readonly heistStats: HeistStatsRepository;
     readonly birthdays: BirthdayAttributeRepository;
-    readonly pros: ProRepository;
 
     constructor() {
         const db = pgp({
@@ -92,6 +90,5 @@ export class DatabaseDriver {
         this.channelCommands = new ChannelCommandRepository(db);
         this.heistStats = new HeistStatsRepository(db, usersDAO);
         this.birthdays = new BirthdayAttributeRepository(db);
-        this.pros = new ProRepository(db);
     }
 }

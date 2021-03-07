@@ -10,13 +10,12 @@ export abstract class Command {
     readonly examples: string[];
     readonly maxDailyUseCount: number | null;
     readonly guildOnly: boolean;
-    readonly proOnly: boolean;
     readonly args: { key: string; label: string; type: string; prompt: string; mustBeQuoted: boolean; includesSpaces: boolean; includesNewLines: boolean }[];
 
     constructor({
         name, aliases = undefined, group, description, minimumGroup = undefined,
         examples, maxDailyUseCount = undefined, guildOnly = undefined,
-        proOnly = undefined, args
+        args
     }: {
         name: string;
         aliases?: string[];
@@ -30,7 +29,6 @@ export abstract class Command {
         examples: string[];
         maxDailyUseCount?: number;
         guildOnly?: boolean;
-        proOnly?: boolean;
         args: { key: string; label: string; type: string; prompt: string; mustBeQuoted?: boolean; includesSpaces?: boolean; includeNewLines?: boolean }[];
     }) {
         if (new.target === Command) {
@@ -53,7 +51,6 @@ export abstract class Command {
         this.examples = examples;
         this.maxDailyUseCount = maxDailyUseCount === undefined ? null : maxDailyUseCount;
         this.guildOnly = guildOnly === undefined ? false : guildOnly;
-        this.proOnly = proOnly === undefined ? false : proOnly;
 
         this.args = args.map(({ key, label, type, prompt, mustBeQuoted, includesSpaces, includeNewLines }) => {
             if (!key) {

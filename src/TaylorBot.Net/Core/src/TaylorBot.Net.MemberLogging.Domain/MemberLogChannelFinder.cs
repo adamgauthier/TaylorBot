@@ -7,21 +7,20 @@ namespace TaylorBot.Net.MemberLogging.Domain
 {
     public class MemberLogChannelFinder
     {
-        private readonly IMemberLoggingChannelRepository loggingTextChannelRepository;
+        private readonly IMemberLoggingChannelRepository _memberLoggingChannelRepository;
 
-        public MemberLogChannelFinder(IMemberLoggingChannelRepository loggingTextChannelRepository)
+        public MemberLogChannelFinder(IMemberLoggingChannelRepository memberLoggingChannelRepository)
         {
-            this.loggingTextChannelRepository = loggingTextChannelRepository;
+            _memberLoggingChannelRepository = memberLoggingChannelRepository;
         }
 
         public async ValueTask<ITextChannel?> FindLogChannelAsync(IGuild guild)
         {
-            var logChannels = await loggingTextChannelRepository.GetLogChannelsForGuildAsync(guild);
-            var textChannels = await guild.GetTextChannelsAsync();
+            var logChannel = await _memberLoggingChannelRepository.GetLogChannelForGuildAsync(guild);
 
-            return textChannels.FirstOrDefault(channel =>
-                logChannels.Any(logChannel => logChannel.ChannelId.Id == channel.Id)
-            );
+            return logChannel != null ?
+                (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id) :
+                null;
         }
     }
 }

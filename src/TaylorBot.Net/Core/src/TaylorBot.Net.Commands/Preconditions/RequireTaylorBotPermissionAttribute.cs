@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 {
     public class RequireTaylorBotPermissionAttribute : PreconditionAttribute
     {
-        private readonly PermissionStringMapper _permissionStringMapper = new PermissionStringMapper();
+        private readonly PermissionStringMapper _permissionStringMapper = new();
         private readonly RequireBotPermissionAttribute _requireBotPermission;
 
         public GuildPermission GuildPermission { get; }

@@ -1,11 +1,14 @@
 ﻿using Discord;
 using Discord.Commands;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.PostExecution
@@ -15,18 +18,21 @@ namespace TaylorBot.Net.Commands.PostExecution
         private readonly ILogger<CommandExecutedHandler> _logger;
         private readonly IOngoingCommandRepository _ongoingCommandRepository;
         private readonly ICommandUsageRepository _commandUsageRepository;
+        private readonly IIgnoredUserRepository _ignoredUserRepository;
         private readonly PageMessageReactionsHandler _pageMessageReactionsHandler;
 
         public CommandExecutedHandler(
             ILogger<CommandExecutedHandler> logger,
             IOngoingCommandRepository ongoingCommandRepository,
             ICommandUsageRepository commandUsageRepository,
+            IIgnoredUserRepository ignoredUserRepository,
             PageMessageReactionsHandler pageMessageReactionsHandler
         )
         {
             _logger = logger;
             _ongoingCommandRepository = ongoingCommandRepository;
             _commandUsageRepository = commandUsageRepository;
+            _ignoredUserRepository = ignoredUserRepository;
             _pageMessageReactionsHandler = pageMessageReactionsHandler;
         }
 
@@ -49,6 +55,38 @@ namespace TaylorBot.Net.Commands.PostExecution
                         case TaylorBotPageMessageResult pageResult:
                             var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Channel);
                             await sentPageMessage.SendReactionsAsync(_pageMessageReactionsHandler, _logger);
+                            break;
+
+                        case TaylorBotRateLimitedResult rateLimited:
+                            var baseDescriptionLines = new[] {
+                                $"You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕",
+                                $"This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
+                            };
+
+                            if (rateLimited.Uses < rateLimited.Limit + 6)
+                            {
+                                baseDescriptionLines = baseDescriptionLines
+                                    .Append("**Stop trying to perform this action or you will be ignored.**")
+                                    .ToArray();
+                            }
+                            else
+                            {
+                                var ignoreTime = TimeSpan.FromDays(5);
+
+                                baseDescriptionLines = baseDescriptionLines
+                                    .Append($"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**")
+                                    .ToArray();
+
+                                await _ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
+                            }
+
+                            await context.Channel.SendMessageAsync(
+                                messageReference: new MessageReference(context.Message.Id),
+                                embed: new EmbedBuilder()
+                                    .WithColor(TaylorBotColors.ErrorColor)
+                                    .WithDescription(string.Join('\n', baseDescriptionLines))
+                                .Build()
+                            );
                             break;
 
                         case TaylorBotEmptyResult _:
@@ -74,7 +112,11 @@ namespace TaylorBot.Net.Commands.PostExecution
                                     _logger.LogError(executeResult.Exception, $"Unhandled error in command - {result.Error}, {result.ErrorReason}:");
                                     break;
                             }
-                            await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
+                            await context.Channel.SendMessageAsync(
+                                messageReference: new MessageReference(context.Message.Id),
+                                allowedMentions: new AllowedMentions { MentionRepliedUser = false },
+                                embed: CreateUnknownErrorEmbed()
+                            );
                             _commandUsageRepository.QueueIncrementUnhandledErrorCount(optCommandInfo.Value);
                             break;
 
@@ -104,7 +146,11 @@ namespace TaylorBot.Net.Commands.PostExecution
 
                         default:
                             _logger.LogError($"Unhandled error in command - {result.Error}, {result.ErrorReason}");
-                            await context.Channel.SendMessageAsync(embed: CreateUnknownErrorEmbed(context.User));
+                            await context.Channel.SendMessageAsync(
+                                messageReference: new MessageReference(context.Message.Id),
+                                allowedMentions: new AllowedMentions { MentionRepliedUser = false },
+                                embed: CreateUnknownErrorEmbed()
+                            );
                             break;
                     }
                 }
@@ -116,11 +162,11 @@ namespace TaylorBot.Net.Commands.PostExecution
             }
         }
 
-        private Embed CreateUnknownErrorEmbed(IUser user)
+        private static Embed CreateUnknownErrorEmbed()
         {
             return new EmbedBuilder()
                 .WithColor(TaylorBotColors.ErrorColor)
-                .WithDescription($"{user.Mention} Oops, an unknown command error occurred. Sorry about that. 😕")
+                .WithDescription($"Oops, an unknown command error occurred. Sorry about that. 😕")
             .Build();
         }
     }

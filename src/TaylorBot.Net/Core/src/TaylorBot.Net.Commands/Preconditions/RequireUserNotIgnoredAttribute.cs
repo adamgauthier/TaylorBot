@@ -30,6 +30,7 @@ namespace TaylorBot.Net.Commands.Preconditions
     public interface IIgnoredUserRepository
     {
         ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user);
+        ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until);
     }
 
     public class RequireUserNotIgnoredAttribute : PreconditionAttribute

@@ -60,9 +60,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
                     .Select(lines => string.Join('\n', lines))
                     .ToList();
 
-                return new TaylorBotPageMessageResult(new PageMessage(
-                    new EmbedDescriptionPageMessageRenderer(pages, BuildBaseEmbed)
-                ));
+                return new TaylorBotPageMessageResult(new PageMessage(new(
+                    new EmbedPageMessageRenderer(new DescriptionPageEditor(pages), BuildBaseEmbed)
+                )));
             }
         }
 

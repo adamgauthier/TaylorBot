@@ -1,5 +1,4 @@
 import { Command } from '../Command';
-import { CommandError } from '../CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class AddSupporterServerCommand extends Command {
@@ -8,35 +7,26 @@ class AddSupporterServerCommand extends Command {
             name: 'addsupporterserver',
             aliases: ['ass'],
             group: 'support',
-            description: 'Adds the current server in your supporter servers.',
+            description: 'This command is obsolete and will be removed in a future version. Please use the `plus add` command instead.',
             examples: [''],
             guildOnly: true,
 
-            args: []
+            args: [
+                {
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
+                }
+            ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext): Promise<void> {
-        const { author, guild } = message;
-        if (author == null || guild == null)
-            throw new Error('This command must be ran with an author and a guild.');
-        const { database } = client.master;
-
-        const proUser = await database.pros.getUser(author);
-
-        if (proUser === null || (proUser.expires_at !== null && proUser.expires_at < new Date())) {
-            throw new CommandError('Only supporters can add their supporter servers! Learn more about supporting with `support` command.');
-        }
-
-        const { count } = await database.pros.countUserProGuilds(author);
-
-        if (Number.parseInt(count) + 1 > proUser.subscription_count) {
-            throw new CommandError(`You already have set ${count} supporter servers! If you want to change them, you can use the \`removesupporterserver\` command to first remove your supporter servers.`);
-        }
-
-        await database.pros.addUserProGuild(author, guild);
-
-        await client.sendEmbedSuccess(message.channel, `Successfully added '${guild.name}' to your supporter servers.`);
+    async run({ message, client, messageContext }: CommandMessageContext): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command is obsolete and will be removed in a future version.`,
+            `Please use \`${messageContext.prefix}plus add\` instead.`
+        ].join('\n'));
     }
 }
 

@@ -14,6 +14,8 @@
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MessageLogging.Domain\TaylorBot.Net.MessageLogging.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MessageLogging.Infrastructure\TaylorBot.Net.MessageLogging.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.PatreonSync.Domain\TaylorBot.Net.PatreonSync.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.PatreonSync.Infrastructure\TaylorBot.Net.PatreonSync.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj" />
   </ItemGroup>
@@ -25,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

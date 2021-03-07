@@ -1,0 +1,7 @@
+﻿{
+  "PatreonSync": {
+    "Enabled": true,
+    "TimeSpanBetweenSyncs": "0.02:00:00",
+    "TimeSpanBetweenMessages": "0.00:00:01"
+  }
+}

@@ -55,12 +55,12 @@ namespace TaylorBot.Net.Reminder.Domain
             {
                 try
                 {
-                    _logger.LogTrace($"Reminding {reminder}.");
+                    _logger.LogDebug($"Reminding {reminder}.");
                     var user = await _taylorBotClient.ResolveRequiredUserAsync(reminder.UserId);
                     try
                     {
                         await user.SendMessageAsync(embed: _reminderEmbedFactory.Create(reminder));
-                        _logger.LogTrace($"Reminded {user.FormatLog()} with {reminder}.");
+                        _logger.LogDebug($"Reminded {user.FormatLog()} with {reminder}.");
                         await _reminderRepository.RemoveReminderAsync(reminder);
                     }
                     catch (Discord.Net.HttpException httpException)

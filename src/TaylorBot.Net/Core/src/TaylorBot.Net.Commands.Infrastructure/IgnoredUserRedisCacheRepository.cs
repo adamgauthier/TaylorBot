@@ -17,20 +17,27 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _ignoredUserPostgresRepository = ignoredUserPostgresRepository;
         }
 
+        private static string GetKey(IUser user) => $"ignore-until:user:{user.Id}";
+
+        private static async ValueTask CacheAsync(IDatabase redis, string key, DateTimeOffset ignoreUntil)
+        {
+            await redis.StringSetAsync(
+                key,
+                ignoreUntil.ToUnixTimeMilliseconds(),
+                TimeSpan.FromHours(1)
+            );
+        }
+
         public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
         {
             var redis = _connectionMultiplexer.GetDatabase();
-            var key = $"ignore-until:user:{user.Id}";
+            var key = GetKey(user);
             var cachedIgnoreUntil = await redis.StringGetAsync(key);
 
             if (!cachedIgnoreUntil.HasValue)
             {
                 var getUserIgnoreUntilResult = await _ignoredUserPostgresRepository.InsertOrGetUserIgnoreUntilAsync(user);
-                await redis.StringSetAsync(
-                    key,
-                    getUserIgnoreUntilResult.IgnoreUntil.ToUnixTimeMilliseconds(),
-                    TimeSpan.FromHours(1)
-                );
+                await CacheAsync(redis, key, getUserIgnoreUntilResult.IgnoreUntil);
                 return getUserIgnoreUntilResult;
             }
 
@@ -40,6 +47,15 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 wasUsernameChanged: false,
                 previousUsername: null
             );
+        }
+
+        public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
+        {
+            await _ignoredUserPostgresRepository.IgnoreUntilAsync(user, until);
+
+            var redis = _connectionMultiplexer.GetDatabase();
+            var key = GetKey(user);
+            await CacheAsync(redis, key, until);
         }
     }
 }

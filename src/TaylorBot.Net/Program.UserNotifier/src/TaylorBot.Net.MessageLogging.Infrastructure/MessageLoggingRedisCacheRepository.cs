@@ -1,5 +1,6 @@
 ﻿using Discord;
 using StackExchange.Redis;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain.TextChannel;
@@ -17,16 +18,16 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
             _messageLoggingChannelPostgresRepository = messageLoggingChannelPostgresRepository;
         }
 
-        public async ValueTask<LogChannel?> GetMessageLogChannelForGuildAsync(IGuild guild)
+        public async ValueTask<LogChannel?> GetDeletedLogsChannelForGuildAsync(IGuild guild)
         {
             var redis = _connectionMultiplexer.GetDatabase();
-            var key = "message-log-channels";
-            var logChannelId = await redis.HashGetAsync(key, guild.Id.ToString());
+            var key = $"deleted-logs:guild:{guild.Id}";
+            var logChannelId = await redis.StringGetAsync(key);
 
             if (logChannelId.IsNull)
             {
-                var logChannel = await _messageLoggingChannelPostgresRepository.GetMessageLogChannelForGuildAsync(guild);
-                await redis.HashSetAsync(key, guild.Id.ToString(), logChannel == null ? string.Empty : logChannel.ChannelId.ToString());
+                var logChannel = await _messageLoggingChannelPostgresRepository.GetDeletedLogsChannelForGuildAsync(guild);
+                await redis.StringSetAsync(key, logChannel == null ? string.Empty : logChannel.ChannelId.ToString(), TimeSpan.FromMinutes(5));
                 return logChannel;
             }
 

@@ -30,6 +30,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<IReactionRemovedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
                 .AddTransient<CommandExecutedHandler>()
                 .AddTransient<CommandServiceLogger>()
+                .AddTransient<IRateLimiter, RateLimiter>()
                 .AddTransient<IUserTracker, UserTracker>()
                 .AddTransient<MentionedUserTypeReader<IUser>>()
                 .AddTransient<CustomUserTypeReader<IUser>>()
@@ -42,6 +43,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<CustomRoleTypeReader<IRole>>()
                 .AddTransient<RoleNotEveryoneTypeReader<IRole>>()
                 .AddTransient<CustomChannelTypeReader<IChannel>>()
+                .AddTransient<CustomChannelTypeReader<ITextChannel>>()
                 .AddTransient<PositiveInt32.Factory>()
                 .AddTransient<WordTypeReader>()
                 .AddTransient<CommandTypeReader>();

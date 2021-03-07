@@ -46,6 +46,7 @@ namespace TaylorBot.Net.BirthdayReward.Domain
                     await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
                     continue;
                 }
+
                 await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRewards);
             }
         }
@@ -53,13 +54,13 @@ namespace TaylorBot.Net.BirthdayReward.Domain
         public async ValueTask RewardBirthdaysAsync()
         {
             var rewardAmount = _optionsMonitor.CurrentValue.RewardAmount;
-            _logger.LogTrace($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}.");
+            _logger.LogDebug($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}.");
 
             foreach (var rewardedUser in await _birthdayRepository.RewardEligibleUsersAsync(rewardAmount))
             {
                 try
                 {
-                    _logger.LogTrace($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}.");
+                    _logger.LogDebug($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}.");
                     var user = await _taylorBotClient.ResolveRequiredUserAsync(rewardedUser.UserId);
                     await user.SendMessageAsync(embed: _birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
                 }

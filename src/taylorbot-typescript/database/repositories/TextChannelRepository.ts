@@ -36,10 +36,8 @@ export class TextChannelRepository {
         guild_id: string;
         channel_id: string;
         message_count: string;
-        is_member_log: boolean;
         registered_at: Date;
         is_spam: boolean;
-        is_message_log: boolean;
     } | null> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
@@ -50,41 +48,6 @@ export class TextChannelRepository {
         }
         catch (e) {
             Log.error(`Getting text channel ${Format.guildChannel(guildChannel)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async removeLog(guildChannel: TextChannel, type: 'member' | 'message'): Promise<void> {
-        const databaseChannel = this.mapChannelToDatabase(guildChannel);
-        try {
-            await this.#db.none(
-                `UPDATE guilds.text_channels SET is_${type}_log = $[is_log]
-                WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];`,
-                {
-                    is_log: false,
-                    ...databaseChannel
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Removing ${Format.guildChannel(guildChannel)} as a ${type} log channel: ${e}`);
-            throw e;
-        }
-    }
-
-    async removeAllLogsInGuild(guild: Guild): Promise<{ channel_id: string }[]> {
-        try {
-            return await this.#db.manyOrNone(
-                `UPDATE guilds.text_channels SET is_message_log = FALSE, is_member_log = FALSE
-                WHERE guild_id = $[guild_id] AND (is_message_log = TRUE OR is_member_log = TRUE)
-                RETURNING channel_id;`,
-                {
-                    guild_id: guild.id
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Removing all log channels from ${Format.guild(guild)}: ${e}`);
             throw e;
         }
     }
@@ -120,21 +83,6 @@ export class TextChannelRepository {
         }
         catch (e) {
             Log.error(`Upserting ${Format.guildChannel(guildChannel)} as spam channel: ${e}`);
-            throw e;
-        }
-    }
-
-    async upsertLogChannel(guildChannel: TextChannel, type: 'member' | 'message'): Promise<void> {
-        const databaseChannel = this.mapChannelToDatabase(guildChannel);
-        try {
-            await this.#db.none(
-                `INSERT INTO guilds.text_channels (guild_id, channel_id, is_${type}_log) VALUES ($[guild_id], $[channel_id], TRUE)
-                ON CONFLICT (guild_id, channel_id) DO UPDATE SET is_${type}_log = TRUE;`,
-                databaseChannel
-            );
-        }
-        catch (e) {
-            Log.error(`Upserting ${Format.guildChannel(guildChannel)} as a ${type} log channel: ${e}`);
             throw e;
         }
     }

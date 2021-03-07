@@ -16,7 +16,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
 
         public async Task<ITextChannel?> FindLogChannelAsync(IGuild guild)
         {
-            var logChannel = await _messageLoggingChannelRepository.GetMessageLogChannelForGuildAsync(guild);
+            var logChannel = await _messageLoggingChannelRepository.GetDeletedLogsChannelForGuildAsync(guild);
 
             return logChannel != null ?
                 (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id) :

@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 using TaylorBot.Net.Commands.Events;
@@ -9,44 +10,47 @@ using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.PageMessages
 {
+    public record PageMessageOptions(EmbedPageMessageRenderer Renderer, bool Cancellable = false);
+
     public class PageMessage
     {
-        private readonly EmbedDescriptionPageMessageRenderer _pageMessageRenderer;
+        private readonly PageMessageOptions _options;
 
-        public PageMessage(EmbedDescriptionPageMessageRenderer pageMessageRenderer)
+        public PageMessage(PageMessageOptions options)
         {
-            _pageMessageRenderer = pageMessageRenderer;
+            _options = options;
         }
 
         public async ValueTask<SentPageMessage> SendAsync(IUser commandUser, IMessageChannel channel)
         {
-            var message = await channel.SendMessageAsync(embed: _pageMessageRenderer.Render());
-            return new SentPageMessage(commandUser, message, _pageMessageRenderer);
+            var message = await channel.SendMessageAsync(embed: _options.Renderer.Render());
+            return new SentPageMessage(commandUser, message, _options);
         }
     }
 
     public class SentPageMessage
     {
-        private static readonly Emoji PreviousEmoji = new Emoji("◀");
-        private static readonly Emoji NextEmoji = new Emoji("▶");
+        private static readonly Emoji PreviousEmoji = new("◀");
+        private static readonly Emoji NextEmoji = new("▶");
+        private static readonly Emoji CancelEmoji = new("❌");
 
         private readonly IUser _commandUser;
         private readonly IUserMessage _message;
-        private readonly EmbedDescriptionPageMessageRenderer _pageMessageRenderer;
+        private readonly PageMessageOptions _options;
 
         private DateTimeOffset? _lastInteractionAt = null;
         private Timer? _unsubscribeTimer = null;
 
-        public SentPageMessage(IUser commandUser, IUserMessage message, EmbedDescriptionPageMessageRenderer pageMessageRenderer)
+        public SentPageMessage(IUser commandUser, IUserMessage message, PageMessageOptions options)
         {
             _commandUser = commandUser;
             _message = message;
-            _pageMessageRenderer = pageMessageRenderer;
+            _options = options;
         }
 
         public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
         {
-            if (_pageMessageRenderer.PageCount > 1)
+            if (_options.Renderer.HasMultiplePages)
             {
                 pageMessageReactionsHandler.OnReact += OnReactAsync;
 
@@ -61,9 +65,14 @@ namespace TaylorBot.Net.Commands.PageMessages
                     }
                 };
 
+                var emotes = new List<Emoji> { PreviousEmoji, NextEmoji };
+
+                if (_options.Cancellable)
+                    emotes.Add(CancelEmoji);
+
                 try
                 {
-                    await _message.AddReactionsAsync(new[] { PreviousEmoji, NextEmoji });
+                    await _message.AddReactionsAsync(emotes.ToArray());
                 }
                 catch
                 {
@@ -84,15 +93,19 @@ namespace TaylorBot.Net.Commands.PageMessages
                 {
                     _lastInteractionAt = DateTimeOffset.Now;
                     await _message.ModifyAsync(m =>
-                        m.Embed = _pageMessageRenderer.RenderNext()
+                        m.Embed = _options.Renderer.RenderNext()
                     );
                 }
                 else if (reaction.Emote.Equals(NextEmoji))
                 {
                     _lastInteractionAt = DateTimeOffset.Now;
                     await _message.ModifyAsync(m =>
-                        m.Embed = _pageMessageRenderer.RenderPrevious()
+                        m.Embed = _options.Renderer.RenderPrevious()
                     );
+                }
+                else if (reaction.Emote.Equals(CancelEmoji) && _options.Cancellable)
+                {
+                    await _message.DeleteAsync();
                 }
             }
         }

@@ -78,7 +78,7 @@ namespace TaylorBot.Net.Commands.Modules
                         descriptionLines = descriptionLines.Append($"Prefix: `{module.Aliases.First()}`");
 
                     if (module.Submodules.Any())
-                        descriptionLines = descriptionLines.Append($"Submodules: {module.Submodules.Select(m => m.Name)}");
+                        descriptionLines = descriptionLines.Append($"Submodules:\n{string.Join("\n", module.Submodules.Select(m => $"- '{m.Name}' (`{m.Group}`)"))}");
 
                     return string.Join("\n", descriptionLines);
                 }

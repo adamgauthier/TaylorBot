@@ -236,19 +236,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
         public async Task<RuntimeResult> ChannelInfoAsync(
             [Summary("What channel would you like to see the info of?")]
             [Remainder]
-            IChannel? channel = null
+            IChannelArgument<IChannel>? channel = null
         )
         {
-            if (channel == null)
-            {
-                channel = Context.Channel;
-            }
+            var c = channel == null ? Context.Channel : channel.Channel;
 
             var embed = new EmbedBuilder()
-                .WithAuthor(channel is ITextChannel t && t.IsNsfw ? $"{channel.Name} 🔞" : channel.Name)
-                .AddField("Id", $"`{channel.Id}`", inline: true)
-                .AddField("Type", _channelTypeStringMapper.MapChannelToTypeString(channel), inline: true)
-                .AddField("Created", channel.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
+                .WithAuthor(channel is ITextChannel t && t.IsNsfw ? $"{c.Name} 🔞" : c.Name)
+                .AddField("Id", $"`{c.Id}`", inline: true)
+                .AddField("Type", _channelTypeStringMapper.MapChannelToTypeString(c), inline: true)
+                .AddField("Created", c.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
             if (channel is INestedChannel nested && nested.CategoryId.HasValue)
             {

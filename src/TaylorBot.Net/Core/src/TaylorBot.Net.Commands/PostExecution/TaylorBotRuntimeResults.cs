@@ -28,4 +28,18 @@ namespace TaylorBot.Net.Commands.PostExecution
             PageMessage = pageMessage;
         }
     }
+
+    public class TaylorBotRateLimitedResult : RuntimeResult
+    {
+        public string FriendlyLimitName { get; }
+        public long Uses { get; }
+        public uint Limit { get; }
+
+        public TaylorBotRateLimitedResult(string friendlyLimitName, long uses, uint limit) : base(error: null, reason: null)
+        {
+            FriendlyLimitName = friendlyLimitName;
+            Uses = uses;
+            Limit = limit;
+        }
+    }
 }

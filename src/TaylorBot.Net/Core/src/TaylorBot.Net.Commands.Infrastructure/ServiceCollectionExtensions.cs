@@ -85,7 +85,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                         (IMemberRepository)provider.GetRequiredService<MemberPostgresRepository>();
                 })
                 .AddSingleton<OnGoingCommandInMemoryRepository>()
-                .AddSingleton<OnGoingCommandRedisRepository>()
+                .AddTransient<OnGoingCommandRedisRepository>()
                 .AddTransient(provider =>
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
@@ -93,8 +93,18 @@ namespace TaylorBot.Net.Commands.Infrastructure
                         provider.GetRequiredService<OnGoingCommandRedisRepository>() :
                         (IOngoingCommandRepository)provider.GetRequiredService<OnGoingCommandInMemoryRepository>();
                 })
+                .AddSingleton<RateLimitInMemoryRepository>()
+                .AddTransient<RateLimitRedisCacheRepository>()
+                .AddTransient(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
+                    return options.UseRedisCache ?
+                        provider.GetRequiredService<RateLimitRedisCacheRepository>() :
+                        (IRateLimitRepository)provider.GetRequiredService<RateLimitInMemoryRepository>();
+                })
+                .AddTransient<IPlusRepository, PlusPostgresRepository>()
                 .AddSingleton<ICommandUsageRepository, CommandUsagePostgresRepository>()
-                .AddSingleton<ICommandRepository, CommandPostgresRepository>();
+                .AddTransient<ICommandRepository, CommandPostgresRepository>();
         }
     }
 }

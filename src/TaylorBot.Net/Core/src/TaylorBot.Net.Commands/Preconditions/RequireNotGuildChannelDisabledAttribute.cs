@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Preconditions
     {
         public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
-            if (!(context.Channel is ITextChannel textChannel))
+            if (context.Channel is not ITextChannel textChannel)
                 return PreconditionResult.FromSuccess();
 
             var commandContext = (TaylorBotShardedCommandContext)context;

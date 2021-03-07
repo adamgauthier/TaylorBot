@@ -1,7 +1,7 @@
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 
-class GetRoleCommand extends Command {
+class AddAccessibleRoleCommand extends Command {
     constructor() {
         super({
             name: 'addaccessiblerole',
@@ -9,7 +9,6 @@ class GetRoleCommand extends Command {
             group: 'admin',
             description: 'This command is obsolete and will be removed in a future version. Please use the `roles add` command instead.',
             examples: [''],
-            guildOnly: true,
 
             args: [
                 {
@@ -30,4 +29,4 @@ class GetRoleCommand extends Command {
     }
 }
 
-export = GetRoleCommand;
+export = AddAccessibleRoleCommand;

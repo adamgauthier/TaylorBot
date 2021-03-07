@@ -9,11 +9,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.UsernameHistory.Infrastructure
 {
-    public class UsernameHistoryRepository : IUsernameHistoryRepository
+    public class UsernameHistoryPostgresRepository : IUsernameHistoryRepository
     {
         private readonly PostgresConnectionFactory _postgresConnectionFactory;
 
-        public UsernameHistoryRepository(PostgresConnectionFactory postgresConnectionFactory)
+        public UsernameHistoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
         }

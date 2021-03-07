@@ -51,5 +51,19 @@ namespace TaylorBot.Net.Commands.Infrastructure
             public bool username_changed { get; set; }
             public string? previous_username { get; set; }
         }
+
+        public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"UPDATE users.users SET ignore_until = @IgnoreUntil WHERE user_id = @UserId;",
+                new
+                {
+                    UserId = user.Id.ToString(),
+                    IgnoreUntil = until
+                }
+            );
+        }
     }
 }

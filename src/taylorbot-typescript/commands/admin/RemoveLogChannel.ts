@@ -1,8 +1,4 @@
-import { TextChannel } from 'discord.js';
-import UserGroups = require('../../client/UserGroups');
-import { Format } from '../../modules/discord/DiscordFormatter';
 import { Command } from '../Command';
-import { CommandError } from '../CommandError';
 import { CommandMessageContext } from '../CommandMessageContext';
 
 class RemoveLogChannelCommand extends Command {
@@ -11,45 +7,25 @@ class RemoveLogChannelCommand extends Command {
             name: 'removelogchannel',
             aliases: ['rlc'],
             group: 'admin',
-            description: 'Stop the bot from logging a type of logs in a channel.',
-            minimumGroup: UserGroups.GuildManagers,
-            examples: ['member #joinlogs', 'message #message-log'],
-            guildOnly: true,
+            description: 'This command is obsolete and will be removed in a future version. Please use the `log member stop` or `log deleted stop` commands instead.',
+            examples: [''],
 
             args: [
                 {
-                    key: 'type',
-                    label: 'log-type',
-                    prompt: 'What type of log channel do you want to remove?',
-                    type: 'channel-log-type'
-                },
-                {
-                    key: 'channel',
-                    label: 'channel',
-                    prompt: 'What channel would you like the bot to stop logging in?',
-                    type: 'guild-text-channel-or-current'
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { type, channel }: { type: 'member' | 'message'; channel: TextChannel }): Promise<void> {
-        const { database } = client.master;
-        const textChannel: Record<string, any> | null = await database.textChannels.get(channel);
-
-        if (!textChannel) {
-            await database.textChannels.insertChannel(channel);
-        }
-        else if (!textChannel[`is_${type}_log`]) {
-            throw new CommandError(`Channel ${Format.guildChannel(channel, '#name (`#id`)')} is not a ${type} log channel.`);
-        }
-        else {
-            await database.textChannels.removeLog(channel, type);
-            if (type === 'message')
-                await client.master.registry.redisCommands.hashSet('message-log-channels', channel.guild.id, '');
-        }
-
-        await client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a ${type} log channel.`);
+    async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command is obsolete and will be removed in a future version.`,
+            `Please use \`${messageContext.prefix}log member stop\` and \`${messageContext.prefix}log deleted stop\` instead.`
+        ].join('\n'));
     }
 }
 

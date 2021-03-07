@@ -119,7 +119,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var channel = A.Fake<ITextChannel>();
             A.CallTo(() => channel.Id).Returns(AnId);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.ChannelInfoAsync(channel);
+            var result = (TaylorBotEmbedResult)await _discordInfoModule.ChannelInfoAsync(new ChannelArgument<IChannel>(channel));
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }

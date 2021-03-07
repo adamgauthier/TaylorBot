@@ -1,4 +1,6 @@
-﻿using IF.Lastfm.Core.Api;
+﻿using Google.Apis.CustomSearchAPI.v1;
+using Google.Apis.Services;
+using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,13 +11,19 @@ using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.TypeReaders;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Image.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Image.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
+using TaylorBot.Net.Commands.Discord.Program.Logs.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Logs.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.Discord.Program.Plus.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Plus.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.ServerStats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Services;
@@ -86,7 +94,18 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IAccessibleRoleRepository, AccessibleRolePostgresRepository>()
             .AddTransient<ITaylorBotTypeReader, AccessibleGroupNameTypeReader>()
             .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>()
-            .AddTransient<IUsernameHistoryRepository, UsernameHistoryRepository>();
+            .AddTransient<IUsernameHistoryRepository, UsernameHistoryPostgresRepository>()
+            .AddTransient<IPlusUserRepository, PlusUserPostgresRepository>()
+            .ConfigureRequired<ImageOptions>(config, "Image")
+            .AddSingleton(provider =>
+            {
+                var auth = provider.GetRequiredService<IOptionsMonitor<ImageOptions>>().CurrentValue;
+                return new BaseClientService.Initializer { ApiKey = auth.GoogleApiKey };
+            })
+            .AddTransient<CustomSearchAPIService>()
+            .AddTransient<IImageSearchClient, GoogleCustomSearchClient>()
+            .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
+            .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>();
     })
     .Build();
 

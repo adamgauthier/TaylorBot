@@ -23,7 +23,7 @@ namespace TaylorBot.Net.Commands
 
         public string GetUsage(CommandInfo command)
         {
-            return $"{CommandPrefix}{command.Aliases.First()} {string.Join(" ", command.Parameters.Select(p => $"<{p.Name}{(p.IsOptional ? "?" : "")}>"))}".TrimEnd();
+            return $"{CommandPrefix}{command.Aliases[0]} {string.Join(" ", command.Parameters.Select(p => $"<{p.Name}{(p.IsOptional ? "?" : "")}>"))}".TrimEnd();
         }
     }
 }

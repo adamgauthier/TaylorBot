@@ -30,8 +30,6 @@ class ChannelStatsCommand extends Command {
             .baseGuildHeader(channel.guild)
             .setTitle(channel.name)
             .addField('Messages', `~${textChannel.message_count}`, true)
-            .addField('Member Log', textChannel.is_member_log ? '✅' : '🚫', true)
-            .addField('Message Log', textChannel.is_message_log ? '✅' : '🚫', true)
             .addField('Spam', textChannel.is_spam ? '✅' : '🚫', true);
 
         await client.sendEmbed(message.channel, embed);

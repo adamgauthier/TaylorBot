@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
@@ -18,6 +20,9 @@ using TaylorBot.Net.MemberLogging.Domain.Options;
 using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Infrastructure;
 using TaylorBot.Net.MessageLogging.Infrastructure;
+using TaylorBot.Net.PatreonSync.Domain;
+using TaylorBot.Net.PatreonSync.Domain.Options;
+using TaylorBot.Net.PatreonSync.Infrastructure;
 using TaylorBot.Net.Reminder.Domain;
 using TaylorBot.Net.Reminder.Domain.DiscordEmbed;
 using TaylorBot.Net.Reminder.Domain.Options;
@@ -42,7 +47,9 @@ namespace TaylorBot.Net.UserNotifier.Program
                         .AddMessageLogging(env)
                         .AddJsonFile(path: "Settings/birthdayRewardNotifier.json", optional: false, reloadOnChange: true)
                         .AddJsonFile(path: "Settings/reminderNotifier.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile(path: "Settings/memberLog.json", optional: false, reloadOnChange: true);
+                        .AddJsonFile(path: "Settings/memberLog.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: "Settings/patreonSync.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(path: $"Settings/patreonSync.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
                     appConfig.AddEnvironmentVariables("TaylorBot_");
                 })
@@ -59,6 +66,7 @@ namespace TaylorBot.Net.UserNotifier.Program
                         .ConfigureRequired<ReminderNotifierOptions>(config, "ReminderNotifier")
                         .ConfigureRequired<MemberLeftLoggingOptions>(config, "MemberLeft")
                         .ConfigureRequired<MemberBanLoggingOptions>(config, "MemberBan")
+                        .ConfigureRequired<PatreonSyncOptions>(config, "PatreonSync")
                         .AddTransient<IAllReadyHandler, ReadyHandler>()
                         .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
                         .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
@@ -77,7 +85,14 @@ namespace TaylorBot.Net.UserNotifier.Program
                         .AddTransient<GuildMemberLeftEmbedFactory>()
                         .AddTransient<GuildMemberLeftLoggerService>()
                         .AddTransient<GuildMemberBanEmbedFactory>()
-                        .AddTransient<GuildMemberBanLoggerService>();
+                        .AddTransient<GuildMemberBanLoggerService>()
+                        .AddTransient<IPlusRepository, PlusPostgresRepository>()
+                        .AddTransient<PatreonSyncDomainService>()
+                        .AddHttpClient<IPatreonClient, PatreonHttpClient>((provider, client) =>
+                        {
+                            var options = provider.GetRequiredService<IOptionsMonitor<PatreonSyncOptions>>().CurrentValue;
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.ApiKey);
+                        });
                 })
                 .Build();
 

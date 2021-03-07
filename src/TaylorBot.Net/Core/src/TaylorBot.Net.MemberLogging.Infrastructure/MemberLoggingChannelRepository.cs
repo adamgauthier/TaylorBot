@@ -1,7 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
@@ -20,24 +18,24 @@ namespace TaylorBot.Net.MemberLogging.Infrastructure
 
         private class LogChannelDto
         {
-            public string channel_id { get; set; } = null!;
+            public string member_log_channel_id { get; set; } = null!;
         }
 
-        public async ValueTask<IReadOnlyCollection<LogChannel>> GetLogChannelsForGuildAsync(IGuild guild)
+        public async ValueTask<LogChannel?> GetLogChannelForGuildAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var logChannels = await connection.QueryAsync<LogChannelDto>(
-                "SELECT channel_id FROM guilds.text_channels WHERE guild_id = @GuildId AND is_member_log = TRUE;",
+            var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
+                @"SELECT member_log_channel_id FROM plus.member_log_channels
+                INNER JOIN plus.plus_guilds ON plus.member_log_channels.guild_id = plus.plus_guilds.guild_id
+                WHERE plus.member_log_channels.guild_id = @GuildId AND state = 'enabled';",
                 new
                 {
                     GuildId = guild.Id.ToString()
                 }
             );
 
-            return logChannels.Select(
-                logChannel => new LogChannel(new SnowflakeId(logChannel.channel_id))
-            ).ToList();
+            return logChannel != null ? new LogChannel(new SnowflakeId(logChannel.member_log_channel_id)) : null;
         }
     }
 }

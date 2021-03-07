@@ -3,6 +3,9 @@
     "UseRedisCache": true
   },
   "CommandApplication": {
-    "ApplicationName": "commands-discord"
+    "ApplicationName": "commands-discord",
+    "DailyLimits": {
+      "custom-search": 10
+    }
   }
 }
