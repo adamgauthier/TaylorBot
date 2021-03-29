@@ -44,7 +44,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed
                         .WithDescription($"🔺 {"point".ToQuantity(post.Score, TaylorBotFormats.CodedReadable)}, {"comment".ToQuantity(post.Listing.NumComments, TaylorBotFormats.CodedReadable)} 💬")
                         .WithThumbnailUrl(post.Listing.Spoiler ? options.RedditPostEmbedLinkPostSpoilerThumbnailUrl :
                             DOMAINS_TO_USE_URL_AS_THUMBNAIL.Any(domain => domain == linkPost.Listing.Domain) ? linkPost.URL :
-                                linkPost.Thumbnail != "default" ? linkPost.Thumbnail : options.RedditPostEmbedLinkPostNoThumbnailUrl
+                                linkPost.Thumbnail is "default" or "nsfw" ? options.RedditPostEmbedLinkPostNoThumbnailUrl : linkPost.Thumbnail
                         );
                     break;
             }
