@@ -106,7 +106,7 @@ namespace TaylorBot.Net.PatreonSync.Infrastructure
                     }
                 );
 
-                if (rewardedForChargeAtUpdate != null && existingPlusUser.source != "manual_dont_reward")
+                if (rewardedForChargeAtUpdate != null)
                 {
                     var rewardAmount = patron.CurrentlyEntitledAmountCents * 10;
                     _logger.LogDebug($"{logPrefix} Rewarding {rewardAmount} points because {nameof(existingPlusUser.rewarded_for_charge_at)}={existingPlusUser.rewarded_for_charge_at}.");
@@ -189,7 +189,7 @@ namespace TaylorBot.Net.PatreonSync.Infrastructure
 
                 await connection.ExecuteAsync(
                     @"INSERT INTO plus.plus_users (user_id, active, max_plus_guilds, source, rewarded_for_charge_at, metadata)
-                    VALUES (@UserId, @Active, @MaxPlusGuilds, 'manual_dont_reward', NULL, @Metadata);",
+                    VALUES (@UserId, @Active, @MaxPlusGuilds, 'patreon', NULL, @Metadata);",
                     new
                     {
                         UserId = userId,
