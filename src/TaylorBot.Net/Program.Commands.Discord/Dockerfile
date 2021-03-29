@@ -14,7 +14,7 @@ RUN dotnet restore ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
 COPY ./Program.Commands.Discord/src ./Program.Commands.Discord/src
-RUN dotnet build --configuration Release --no-restore ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
+RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true --no-restore ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
 # test stage -- exposes optional entrypoint
 # target entrypoint with: docker build --target test
@@ -27,7 +27,7 @@ RUN dotnet sln ./Tests.sln add ./Core/test/**/*.csproj
 COPY ./Program.Commands.Discord/test ./Program.Commands.Discord/test
 RUN dotnet sln ./Tests.sln add ./Program.Commands.Discord/test/**/*.csproj
 
-RUN dotnet build --configuration Release ./Tests.sln
+RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true ./Tests.sln
 
 ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
 

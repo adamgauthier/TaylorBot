@@ -14,7 +14,7 @@ RUN dotnet restore ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Progr
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
 COPY ./Program.EntityTracker/src ./Program.EntityTracker/src
-RUN dotnet build --configuration Release --no-restore ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
+RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true --no-restore ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
 
 # test stage -- exposes optional entrypoint
 # target entrypoint with: docker build --target test
@@ -27,7 +27,7 @@ RUN dotnet sln ./Tests.sln add ./Core/test/**/*.csproj
 COPY ./Program.EntityTracker/test ./Program.EntityTracker/test
 RUN dotnet sln ./Tests.sln add ./Program.EntityTracker/test/**/*.csproj
 
-RUN dotnet build --configuration Release ./Tests.sln
+RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true ./Tests.sln
 
 ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
 
