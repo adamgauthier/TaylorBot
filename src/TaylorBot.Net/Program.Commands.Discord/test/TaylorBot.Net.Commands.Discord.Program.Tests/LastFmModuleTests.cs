@@ -86,13 +86,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new MostRecentScrobbleResult(
-                totalScrobbles: 100,
+                TotalScrobbles: 100,
                 new MostRecentScrobble(
-                    trackName: "All Too Well",
-                    trackUrl: "https://www.last.fm/music/Taylor+Swift/_/All+Too+Well",
-                    trackImageUrl: "https://lastfm.freetls.fastly.net/i/u/174s/e12f82141c2227dd6dce2f7c7a18c101.png",
-                    artist: new ScrobbleArtist("Taylor Swift", "https://www.last.fm/music/Taylor+Swift"),
-                    isNowPlaying: true
+                    TrackName: "All Too Well",
+                    TrackUrl: "https://www.last.fm/music/Taylor+Swift/_/All+Too+Well",
+                    TrackImageUrl: "https://lastfm.freetls.fastly.net/i/u/174s/e12f82141c2227dd6dce2f7c7a18c101.png",
+                    Artist: new ScrobbleArtist("Taylor Swift", "https://www.last.fm/music/Taylor+Swift"),
+                    IsNowPlaying: true
                 )
             ));
 
@@ -127,7 +127,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             var period = LastFmPeriod.SixMonth;
             var lastFmUsername = new LastFmUsername("taylorswift");
-            var artist = new TopArtist(name: "Taylor Swift", artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift"), playCount: 15);
+            var artist = new TopArtist(Name: "Taylor Swift", ArtistUrl: new Uri("https://www.last.fm/music/Taylor+Swift"), PlayCount: 15);
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(new[] { artist }));
 
@@ -146,9 +146,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var period = LastFmPeriod.SixMonth;
             var lastFmUsername = new LastFmUsername("taylorswift");
             var artist = new TopArtist(
-                name: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
-                artistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22"),
-                playCount: 15
+                Name: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
+                ArtistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22"),
+                PlayCount: 15
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(Enumerable.Repeat(artist, 10).ToList()));
@@ -168,11 +168,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var period = LastFmPeriod.OneMonth;
             var lastFmUsername = new LastFmUsername("taylorswift");
             var track = new TopTrack(
-                name: "All Too Well",
-                trackUrl: new Uri("https://www.last.fm/music/Taylor+Swift/_/All+Too+Well"),
-                playCount: 22,
-                artistName: "Taylor Swift",
-                artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
+                Name: "All Too Well",
+                TrackUrl: new Uri("https://www.last.fm/music/Taylor+Swift/_/All+Too+Well"),
+                PlayCount: 22,
+                ArtistName: "Taylor Swift",
+                ArtistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(new[] { track }));
@@ -194,11 +194,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var period = LastFmPeriod.OneMonth;
             var lastFmUsername = new LastFmUsername("taylorswift");
             var track = new TopTrack(
-                name: "Ten Duel Commandments",
-                trackUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22/_/Ten+Duel+Commandments"),
-                playCount: 22,
-                artistName: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
-                artistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22")
+                Name: "Ten Duel Commandments",
+                TrackUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22/_/Ten+Duel+Commandments"),
+                PlayCount: 22,
+                ArtistName: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
+                ArtistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22")
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(Enumerable.Repeat(track, 10).ToList()));
@@ -221,12 +221,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var lastFmUsername = new LastFmUsername("taylorswift");
             var albumImageUrl = "https://lastfm.freetls.fastly.net/i/u/174s/8a89bf00eff0d1912f33164d3a15071f.png";
             var album = new TopAlbum(
-                name: "Lover",
-                albumUrl: new Uri("https://www.last.fm/music/Taylor+Swift/Lover"),
-                albumImageUrl: new Uri(albumImageUrl),
-                playCount: 13,
-                artistName: "Taylor Swift",
-                artistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
+                Name: "Lover",
+                AlbumUrl: new Uri("https://www.last.fm/music/Taylor+Swift/Lover"),
+                AlbumImageUrl: new Uri(albumImageUrl),
+                PlayCount: 13,
+                ArtistName: "Taylor Swift",
+                ArtistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(new[] { album }));
@@ -250,12 +250,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var lastFmUsername = new LastFmUsername("taylorswift");
             var albumImageUrl = "https://lastfm.freetls.fastly.net/i/u/770x0/432041b069019cbebbf6328cd2703c3d.webp#432041b069019cbebbf6328cd2703c3d";
             var album = new TopAlbum(
-                name: "Hamilton: An American Musical (Original Broadway Cast Recording)",
-                albumUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22/Hamilton:+An+American+Musical+(Original+Broadway+Cast+Recording%29"),
-                albumImageUrl: new Uri(albumImageUrl),
-                playCount: 13,
-                artistName: "Original Broadway Cast of \"Hamilton\"",
-                artistUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22")
+                Name: "Hamilton: An American Musical (Original Broadway Cast Recording)",
+                AlbumUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22/Hamilton:+An+American+Musical+(Original+Broadway+Cast+Recording%29"),
+                AlbumImageUrl: new Uri(albumImageUrl),
+                PlayCount: 13,
+                ArtistName: "Original Broadway Cast of \"Hamilton\"",
+                ArtistUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22")
             );
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(Enumerable.Repeat(album, 10).ToList()));

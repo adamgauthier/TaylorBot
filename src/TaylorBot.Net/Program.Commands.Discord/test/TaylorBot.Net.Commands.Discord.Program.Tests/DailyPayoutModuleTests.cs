@@ -34,11 +34,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _messageOfTheDayRepository.GetAllMessagesAsync()).Returns(new[] { new MessageOfTheDay("Hello", null) });
             A.CallTo(() => _dailyPayoutRepository.CanUserRedeemAsync(_commandUser)).Returns(new UserCanRedeem());
             A.CallTo(() => _dailyPayoutRepository.RedeemDailyPayoutAsync(_commandUser)).Returns(new RedeemResult(
-                payoutAmount: 0,
-                bonusAmount: 0,
-                totalTaypointCount: 0,
-                currentDailyStreak: currentStreak,
-                daysForBonus: daysForBonus
+                PayoutAmount: 0,
+                BonusAmount: 0,
+                TotalTaypointCount: 0,
+                CurrentDailyStreak: currentStreak,
+                DaysForBonus: daysForBonus
             ));
 
             var result = (TaylorBotEmbedResult)await _dailyPayoutModule.DailyAsync();

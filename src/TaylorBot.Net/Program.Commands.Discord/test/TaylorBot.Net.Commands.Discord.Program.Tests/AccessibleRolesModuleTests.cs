@@ -68,7 +68,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const ulong RoleId = 1989;
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
-            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(group: null));
+            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(Group: null));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
@@ -84,7 +84,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(new[] { AnotherRoleId });
             A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(
-                group: new AccessibleRoleGroup(name: "regions", otherRolesInSameGroup: new[] { new SnowflakeId(AnotherRoleId) })
+                Group: new AccessibleRoleGroup(Name: "regions", OtherRoles: new[] { new SnowflakeId(AnotherRoleId) })
             ));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
@@ -99,7 +99,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const ulong RoleId = 1989;
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
-            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(group: null));
+            A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(Group: null));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Throws(new HttpException(HttpStatusCode.Forbidden, A.Fake<IRequest>()));
 
             var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));

@@ -3,16 +3,9 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 {
-    public class LastFmUsername
+    public record LastFmUsername(string Username)
     {
-        public string Username { get; }
-
         public string LinkToProfile => $"https://www.last.fm/user/{Username}/";
-
-        public LastFmUsername(string username)
-        {
-            Username = username;
-        }
     }
 
     public interface ILastFmUsernameRepository

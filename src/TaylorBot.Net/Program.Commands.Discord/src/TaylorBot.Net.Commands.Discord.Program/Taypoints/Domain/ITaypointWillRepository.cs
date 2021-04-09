@@ -6,79 +6,23 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain
 {
-    public class WillOwner
-    {
-        public SnowflakeId OwnerUserId { get; }
-        public string OwnerUsername { get; }
-        public DateTimeOffset OwnerLatestSpokeAt { get; }
+    public record WillOwner(SnowflakeId OwnerUserId, string OwnerUsername, DateTimeOffset OwnerLatestSpokeAt);
 
-        public WillOwner(SnowflakeId ownerUserId, string ownerUsername, DateTimeOffset ownerLatestSpokeAt)
-        {
-            OwnerUserId = ownerUserId;
-            OwnerUsername = ownerUsername;
-            OwnerLatestSpokeAt = ownerLatestSpokeAt;
-        }
-    }
-
-    public class Transfer
-    {
-        public SnowflakeId UserId { get; }
-        public string Username { get; }
-        public long TaypointCount { get; }
-        public long OriginalTaypointCount { get; }
-
-        public Transfer(SnowflakeId userId, string username, long taypointCount, long originalTaypointCount)
-        {
-            UserId = userId;
-            Username = username;
-            TaypointCount = taypointCount;
-            OriginalTaypointCount = originalTaypointCount;
-        }
-    }
+    public record Transfer(SnowflakeId UserId, string Username, long TaypointCount, long OriginalTaypointCount);
 
     public interface IWillAddResult { }
 
-    public class WillAddedResult : IWillAddResult { }
+    public record WillAddedResult : IWillAddResult;
 
-    public class WillNotAddedResult : IWillAddResult
-    {
-        public SnowflakeId CurrentBeneficiaryId { get; }
-        public string CurrentBeneficiaryUsername { get; }
-
-        public WillNotAddedResult(SnowflakeId currentBeneficiaryId, string currentBeneficiaryUsername)
-        {
-            CurrentBeneficiaryId = currentBeneficiaryId;
-            CurrentBeneficiaryUsername = currentBeneficiaryUsername;
-        }
-    }
+    public record WillNotAddedResult(SnowflakeId CurrentBeneficiaryId, string CurrentBeneficiaryUsername) : IWillAddResult;
 
     public interface IWillRemoveResult { }
 
-    public class WillRemovedResult : IWillRemoveResult
-    {
-        public SnowflakeId RemovedBeneficiaryId { get; }
-        public string RemovedBeneficiaryUsername { get; }
+    public record WillRemovedResult(SnowflakeId RemovedBeneficiaryId, string RemovedBeneficiaryUsername) : IWillRemoveResult;
 
-        public WillRemovedResult(SnowflakeId removedBeneficiaryId, string removedBeneficiaryUsername)
-        {
-            RemovedBeneficiaryId = removedBeneficiaryId;
-            RemovedBeneficiaryUsername = removedBeneficiaryUsername;
-        }
-    }
+    public record WillNotRemovedResult : IWillRemoveResult;
 
-    public class WillNotRemovedResult : IWillRemoveResult { }
-
-    public class Will
-    {
-        public SnowflakeId BeneficiaryUserId { get; }
-        public string BeneficiaryUsername { get; }
-
-        public Will(SnowflakeId beneficiaryUserId, string beneficiaryUsername)
-        {
-            BeneficiaryUserId = beneficiaryUserId;
-            BeneficiaryUsername = beneficiaryUsername;
-        }
-    }
+    public record Will(SnowflakeId BeneficiaryUserId, string BeneficiaryUsername);
 
     public interface ITaypointWillRepository
     {

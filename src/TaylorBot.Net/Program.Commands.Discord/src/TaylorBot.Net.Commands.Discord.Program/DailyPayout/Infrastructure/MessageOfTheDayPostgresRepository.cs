@@ -33,8 +33,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
             );
 
             return messages.Select(m => new MessageOfTheDay(
-                message: m.message,
-                messagePriority: m.priority_from.HasValue && m.priority_to.HasValue ?
+                Message: m.message,
+                MessagePriority: m.priority_from.HasValue && m.priority_to.HasValue ?
                     new MessagePriority(m.priority_from.Value, m.priority_to.Value) :
                     null
             )).ToList();

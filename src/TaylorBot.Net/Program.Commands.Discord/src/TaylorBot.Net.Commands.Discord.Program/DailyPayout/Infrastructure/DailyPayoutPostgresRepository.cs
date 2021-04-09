@@ -43,7 +43,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
             );
 
             return canRedeem == null || canRedeem.can_redeem ?
-                (ICanUserRedeemResult)new UserCanRedeem() :
+                new UserCanRedeem() :
                 new UserCantRedeem(canRedeem.can_redeem_at);
         }
 
@@ -112,11 +112,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
                 transaction.Commit();
 
                 return new RedeemResult(
-                    payoutAmount: options.DailyPayoutAmount,
-                    bonusAmount: redeem.bonus_reward,
-                    totalTaypointCount: taypointAdd.taypoint_count,
-                    currentDailyStreak: redeem.streak_count,
-                    daysForBonus: options.DaysForBonus
+                    PayoutAmount: options.DailyPayoutAmount,
+                    BonusAmount: redeem.bonus_reward,
+                    TotalTaypointCount: taypointAdd.taypoint_count,
+                    CurrentDailyStreak: redeem.streak_count,
+                    DaysForBonus: options.DaysForBonus
                 );
             }
             else

@@ -41,8 +41,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.TaypointReward.Infrastructure
             );
 
             return results.Select(u => new RewardedUserResult(
-                userId: new SnowflakeId(u.user_id),
-                newTaypointCount: u.taypoint_count
+                UserId: new SnowflakeId(u.user_id),
+                NewTaypointCount: u.taypoint_count
             )).ToList();
         }
     }

@@ -5,17 +5,7 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.TaypointReward.Domain
 {
-    public class RewardedUserResult
-    {
-        public SnowflakeId UserId { get; }
-        public long NewTaypointCount { get; }
-
-        public RewardedUserResult(SnowflakeId userId, long newTaypointCount)
-        {
-            UserId = userId;
-            NewTaypointCount = newTaypointCount;
-        }
-    }
+    public record RewardedUserResult(SnowflakeId UserId, long NewTaypointCount);
 
     public interface ITaypointRewardRepository
     {

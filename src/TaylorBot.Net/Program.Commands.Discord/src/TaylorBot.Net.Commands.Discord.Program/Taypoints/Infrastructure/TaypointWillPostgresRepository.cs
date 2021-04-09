@@ -40,8 +40,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             );
 
             return willDto != null ? new Will(
-                beneficiaryUserId: new SnowflakeId(willDto.beneficiary_user_id),
-                beneficiaryUsername: willDto.username
+                BeneficiaryUserId: new SnowflakeId(willDto.beneficiary_user_id),
+                BeneficiaryUsername: willDto.username
             ) : null;
         }
 
@@ -79,8 +79,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             else
             {
                 return new WillNotAddedResult(
-                    currentBeneficiaryId: new SnowflakeId(willAddDto.beneficiary_user_id),
-                    currentBeneficiaryUsername: willAddDto.username
+                    CurrentBeneficiaryId: new SnowflakeId(willAddDto.beneficiary_user_id),
+                    CurrentBeneficiaryUsername: willAddDto.username
                 );
             }
         }
@@ -117,8 +117,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             else
             {
                 return new WillRemovedResult(
-                    removedBeneficiaryId: new SnowflakeId(willRemoveDto.beneficiary_user_id),
-                    removedBeneficiaryUsername: willRemoveDto.username
+                    RemovedBeneficiaryId: new SnowflakeId(willRemoveDto.beneficiary_user_id),
+                    RemovedBeneficiaryUsername: willRemoveDto.username
                 );
             }
         }
@@ -150,9 +150,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             );
 
             return willDtos.Select(w => new WillOwner(
-                ownerUserId: new SnowflakeId(w.user_id),
-                ownerUsername: w.owner_username,
-                ownerLatestSpokeAt: w.max_last_spoke_at
+                OwnerUserId: new SnowflakeId(w.user_id),
+                OwnerUsername: w.owner_username,
+                OwnerLatestSpokeAt: w.max_last_spoke_at
             )).ToList();
         }
 
@@ -195,10 +195,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure
             );
 
             return transferDtos.Select(t => new Transfer(
-                userId: new SnowflakeId(t.user_id),
-                username: t.username,
-                taypointCount: t.taypoint_count,
-                originalTaypointCount: t.original_taypoint_count
+                UserId: new SnowflakeId(t.user_id),
+                Username: t.username,
+                TaypointCount: t.taypoint_count,
+                OriginalTaypointCount: t.original_taypoint_count
             )).ToList();
         }
 

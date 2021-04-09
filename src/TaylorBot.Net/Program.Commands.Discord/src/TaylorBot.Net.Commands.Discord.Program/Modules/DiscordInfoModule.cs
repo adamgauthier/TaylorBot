@@ -21,7 +21,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules
     [Name("DiscordInfo 💬")]
     public class DiscordInfoModule : TaylorBotModule
     {
-        public static readonly Random _random = new Random();
+        public static readonly Random _random = new();
         public readonly UserStatusStringMapper _userStatusStringMapper;
         public readonly ChannelTypeStringMapper _channelTypeStringMapper;
         public readonly IUserTracker _userTracker;

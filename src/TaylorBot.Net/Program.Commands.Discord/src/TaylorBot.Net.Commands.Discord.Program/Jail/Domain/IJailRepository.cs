@@ -4,15 +4,7 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Jail.Domain
 {
-    public class JailRole
-    {
-        public SnowflakeId RoleId { get; }
-
-        public JailRole(SnowflakeId roleId)
-        {
-            RoleId = roleId;
-        }
-    }
+    public record JailRole(SnowflakeId RoleId);
 
     public interface IJailRepository
     {

@@ -43,13 +43,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 var content = response.Content.FirstOrDefault();
 
                 return new MostRecentScrobbleResult(
-                    totalScrobbles: response.TotalItems,
-                    mostRecentTrack: content == null ? null : new MostRecentScrobble(
-                        trackName: content.Name,
-                        trackUrl: content.Url.ToString(),
-                        trackImageUrl: content.Images.Large?.ToString(),
-                        artist: new ScrobbleArtist(name: content.ArtistName, url: content.ArtistUrl.ToString()),
-                        isNowPlaying: content.IsNowPlaying == true
+                    TotalScrobbles: response.TotalItems,
+                    MostRecentTrack: content == null ? null : new MostRecentScrobble(
+                        TrackName: content.Name,
+                        TrackUrl: content.Url.ToString(),
+                        TrackImageUrl: content.Images.Large?.ToString(),
+                        Artist: new ScrobbleArtist(Name: content.ArtistName, Url: content.ArtistUrl.ToString()),
+                        IsNowPlaying: content.IsNowPlaying == true
                     )
                 );
             }
@@ -91,9 +91,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 var content = response.Content;
 
                 return new TopArtistsResult(response.Content.Select(a => new TopArtist(
-                    name: a.Name,
-                    artistUrl: a.Url,
-                    playCount: a.PlayCount ?? 0
+                    Name: a.Name,
+                    ArtistUrl: a.Url,
+                    PlayCount: a.PlayCount ?? 0
                 )).ToList());
             }
             else
@@ -123,11 +123,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                 var tracks = jsonDocument.RootElement.GetProperty("toptracks").GetProperty("track");
 
                 return new TopTracksResult(tracks.EnumerateArray().Select(t => new TopTrack(
-                    name: t.GetProperty("name").GetString()!,
-                    trackUrl: new Uri(t.GetProperty("url").GetString()!),
-                    playCount: int.Parse(t.GetProperty("playcount").GetString()!),
-                    artistName: t.GetProperty("artist").GetProperty("name").GetString()!,
-                    artistUrl: new Uri(t.GetProperty("artist").GetProperty("url").GetString()!)
+                    Name: t.GetProperty("name").GetString()!,
+                    TrackUrl: new Uri(t.GetProperty("url").GetString()!),
+                    PlayCount: int.Parse(t.GetProperty("playcount").GetString()!),
+                    ArtistName: t.GetProperty("artist").GetProperty("name").GetString()!,
+                    ArtistUrl: new Uri(t.GetProperty("artist").GetProperty("url").GetString()!)
                 )).ToList());
             }
             else
@@ -171,14 +171,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure
                     var images = a.GetProperty("image").EnumerateArray().ToList();
 
                     return new TopAlbum(
-                        name: a.GetProperty("name").GetString()!,
-                        albumUrl: new Uri(a.GetProperty("url").GetString()!),
-                        albumImageUrl: images.Any(i => i.GetProperty("size").GetString() == "large" && !string.IsNullOrEmpty(i.GetProperty("#text").GetString())) ?
+                        Name: a.GetProperty("name").GetString()!,
+                        AlbumUrl: new Uri(a.GetProperty("url").GetString()!),
+                        AlbumImageUrl: images.Any(i => i.GetProperty("size").GetString() == "large" && !string.IsNullOrEmpty(i.GetProperty("#text").GetString())) ?
                             new Uri(images.First(i => i.GetProperty("size").GetString() == "large").GetProperty("#text").GetString()!) :
                             null,
-                        playCount: int.Parse(a.GetProperty("playcount").GetString()!),
-                        artistName: a.GetProperty("artist").GetProperty("name").GetString()!,
-                        artistUrl: new Uri(a.GetProperty("artist").GetProperty("url").GetString()!)
+                        PlayCount: int.Parse(a.GetProperty("playcount").GetString()!),
+                        ArtistName: a.GetProperty("artist").GetProperty("name").GetString()!,
+                        ArtistUrl: new Uri(a.GetProperty("artist").GetProperty("url").GetString()!)
                     );
                 }).ToList());
             }

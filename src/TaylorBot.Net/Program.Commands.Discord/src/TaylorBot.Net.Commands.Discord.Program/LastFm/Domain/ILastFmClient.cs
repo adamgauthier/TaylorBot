@@ -4,86 +4,23 @@ using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 {
-    public class LastFmGenericErrorResult : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult
-    {
-        public string? Error { get; }
+    public record LastFmGenericErrorResult(string? Error) : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult;
 
-        public LastFmGenericErrorResult(string? error)
-        {
-            Error = error;
-        }
-    }
-
-    public class LastFmLogInRequiredErrorResult : IMostRecentScrobbleResult { }
+    public record LastFmLogInRequiredErrorResult : IMostRecentScrobbleResult;
 
     public interface IMostRecentScrobbleResult { }
 
-    public class MostRecentScrobbleResult : IMostRecentScrobbleResult
-    {
-        public int TotalScrobbles { get; }
-        public MostRecentScrobble? MostRecentTrack { get; }
+    public record MostRecentScrobbleResult(int TotalScrobbles, MostRecentScrobble? MostRecentTrack) : IMostRecentScrobbleResult;
 
-        public MostRecentScrobbleResult(int totalScrobbles, MostRecentScrobble? mostRecentTrack)
-        {
-            TotalScrobbles = totalScrobbles;
-            MostRecentTrack = mostRecentTrack;
-        }
-    }
-    public class ScrobbleArtist
-    {
-        public string Name { get; }
-        public string Url { get; }
+    public record ScrobbleArtist(string Name, string Url);
 
-        public ScrobbleArtist(string name, string url)
-        {
-            Name = name;
-            Url = url;
-        }
-    }
-
-    public class MostRecentScrobble
-    {
-        public string TrackName { get; }
-        public string TrackUrl { get; }
-        public string? TrackImageUrl { get; }
-        public ScrobbleArtist Artist { get; }
-        public bool IsNowPlaying { get; }
-
-        public MostRecentScrobble(string trackName, string trackUrl, string? trackImageUrl, ScrobbleArtist artist, bool isNowPlaying)
-        {
-            TrackName = trackName;
-            TrackUrl = trackUrl;
-            TrackImageUrl = trackImageUrl;
-            Artist = artist;
-            IsNowPlaying = isNowPlaying;
-        }
-    }
+    public record MostRecentScrobble(string TrackName, string TrackUrl, string? TrackImageUrl, ScrobbleArtist Artist, bool IsNowPlaying);
 
     public interface ITopArtistsResult { }
 
-    public class TopArtistsResult : ITopArtistsResult
-    {
-        public IReadOnlyList<TopArtist> TopArtists { get; }
+    public record TopArtistsResult(IReadOnlyList<TopArtist> TopArtists) : ITopArtistsResult;
 
-        public TopArtistsResult(IReadOnlyList<TopArtist> topArtists)
-        {
-            TopArtists = topArtists;
-        }
-    }
-
-    public class TopArtist
-    {
-        public string Name { get; }
-        public Uri ArtistUrl { get; }
-        public int PlayCount { get; }
-
-        public TopArtist(string name, Uri artistUrl, int playCount)
-        {
-            Name = name;
-            ArtistUrl = artistUrl;
-            PlayCount = playCount;
-        }
-    }
+    public record TopArtist(string Name, Uri ArtistUrl, int PlayCount);
 
     public enum LastFmPeriod
     {
@@ -97,65 +34,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.LastFm.Domain
 
     public interface ITopTracksResult { }
 
-    public class TopTracksResult : ITopTracksResult
-    {
-        public IReadOnlyList<TopTrack> TopTracks { get; }
+    public record TopTracksResult(IReadOnlyList<TopTrack> TopTracks) : ITopTracksResult;
 
-        public TopTracksResult(IReadOnlyList<TopTrack> topTracks)
-        {
-            TopTracks = topTracks;
-        }
-    }
-
-    public class TopTrack
-    {
-        public string Name { get; }
-        public Uri TrackUrl { get; }
-        public int PlayCount { get; }
-        public string ArtistName { get; }
-        public Uri ArtistUrl { get; }
-
-        public TopTrack(string name, Uri trackUrl, int playCount, string artistName, Uri artistUrl)
-        {
-            Name = name;
-            TrackUrl = trackUrl;
-            PlayCount = playCount;
-            ArtistName = artistName;
-            ArtistUrl = artistUrl;
-        }
-    }
+    public record TopTrack(string Name, Uri TrackUrl, int PlayCount, string ArtistName, Uri ArtistUrl);
 
     public interface ITopAlbumsResult { }
 
-    public class TopAlbumsResult : ITopAlbumsResult
-    {
-        public IReadOnlyList<TopAlbum> TopAlbums { get; }
+    public record TopAlbumsResult(IReadOnlyList<TopAlbum> TopAlbums) : ITopAlbumsResult;
 
-        public TopAlbumsResult(IReadOnlyList<TopAlbum> topAlbums)
-        {
-            TopAlbums = topAlbums;
-        }
-    }
-
-    public class TopAlbum
-    {
-        public string Name { get; }
-        public Uri AlbumUrl { get; }
-        public Uri? AlbumImageUrl { get; }
-        public int PlayCount { get; }
-        public string ArtistName { get; }
-        public Uri ArtistUrl { get; }
-
-        public TopAlbum(string name, Uri albumUrl, Uri? albumImageUrl, int playCount, string artistName, Uri artistUrl)
-        {
-            Name = name;
-            AlbumUrl = albumUrl;
-            AlbumImageUrl = albumImageUrl;
-            PlayCount = playCount;
-            ArtistName = artistName;
-            ArtistUrl = artistUrl;
-        }
-    }
+    public record TopAlbum(string Name, Uri AlbumUrl, Uri? AlbumImageUrl, int PlayCount, string ArtistName, Uri ArtistUrl);
 
     public interface ILastFmClient
     {

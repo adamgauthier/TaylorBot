@@ -30,8 +30,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         [Fact]
         public async Task ServerStatsAsync_WhenNoData_ThenReturnsEmbedWithNoDataAndNoPercent()
         {
-            A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(ageAverage: null, ageMedian: null));
-            A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_commandGuild)).Returns(new GenderStats(totalCount: 0, maleCount: 0, femaleCount: 0, otherCount: 0));
+            A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(AgeAverage: null, AgeMedian: null));
+            A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_commandGuild)).Returns(new GenderStats(TotalCount: 0, MaleCount: 0, FemaleCount: 0, OtherCount: 0));
 
             var result = (TaylorBotEmbedResult)await _statsModule.ServerStatsAsync();
 
@@ -49,9 +49,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const long OtherCount = 2;
             const long TotalCount = 10;
 
-            A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(ageAverage: AgeAverage, ageMedian: AgeMedian));
+            A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(AgeAverage, AgeMedian));
             A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_commandGuild)).Returns(new GenderStats(
-                totalCount: TotalCount, maleCount: MaleCount, femaleCount: FemaleCount, otherCount: OtherCount
+                TotalCount, MaleCount, FemaleCount, OtherCount
             ));
 
             var result = (TaylorBotEmbedResult)await _statsModule.ServerStatsAsync();

@@ -5,49 +5,13 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain
 {
-    public class AccessibleRoleGroup
-    {
-        public string Name { get; }
-        public IReadOnlyCollection<SnowflakeId> OtherRoles { get; }
+    public record AccessibleRoleGroup(string Name, IReadOnlyCollection<SnowflakeId> OtherRoles);
 
-        public AccessibleRoleGroup(string name, IReadOnlyCollection<SnowflakeId> otherRolesInSameGroup)
-        {
-            Name = name;
-            OtherRoles = otherRolesInSameGroup;
-        }
-    }
+    public record AccessibleRoleWithGroup(AccessibleRoleGroup? Group);
 
-    public class AccessibleRoleWithGroup
-    {
-        public AccessibleRoleGroup? Group { get; }
+    public record AccessibleRole(SnowflakeId RoleId, string? GroupName);
 
-        public AccessibleRoleWithGroup(AccessibleRoleGroup? group)
-        {
-            Group = group;
-        }
-    }
-
-    public class AccessibleRole
-    {
-        public SnowflakeId RoleId { get; }
-        public string? GroupName { get; }
-
-        public AccessibleRole(SnowflakeId roleId, string? groupName)
-        {
-            RoleId = roleId;
-            GroupName = groupName;
-        }
-    }
-
-    public class AccessibleGroupName
-    {
-        public string Name { get; }
-
-        public AccessibleGroupName(string name)
-        {
-            Name = name;
-        }
-    }
+    public record AccessibleGroupName(string Name);
 
     public interface IAccessibleRoleRepository
     {

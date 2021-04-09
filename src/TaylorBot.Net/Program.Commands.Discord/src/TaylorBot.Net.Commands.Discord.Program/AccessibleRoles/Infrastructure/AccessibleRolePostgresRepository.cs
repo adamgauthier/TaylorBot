@@ -74,13 +74,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure
                         }
                     );
                     return new AccessibleRoleWithGroup(
-                        group: new AccessibleRoleGroup(accessibleRole.group_name, otherRoles.Select(r => new SnowflakeId(r.role_id)).ToList())
+                        Group: new AccessibleRoleGroup(accessibleRole.group_name, otherRoles.Select(r => new SnowflakeId(r.role_id)).ToList())
                     );
                 }
                 else
                 {
                     return new AccessibleRoleWithGroup(
-                        group: null
+                        Group: null
                     );
                 }
             }
@@ -110,8 +110,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure
             );
 
             return roles.Select(r => new AccessibleRole(
-                roleId: new SnowflakeId(r.role_id),
-                groupName: r.group_name
+                RoleId: new SnowflakeId(r.role_id),
+                GroupName: r.group_name
             )).ToList();
         }
 
