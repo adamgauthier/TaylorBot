@@ -1,6 +1,4 @@
-﻿using Discord.Commands;
-using StackExchange.Redis;
-using System.Linq;
+﻿using StackExchange.Redis;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 
@@ -19,15 +17,15 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _disabledCommandPostgresRepository = disabledCommandPostgresRepository;
         }
 
-        public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandInfo command)
+        public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandMetadata command)
         {
             var redis = _connectionMultiplexer.GetDatabase();
-            var message = await redis.HashGetAsync(Key, command.Aliases.First());
+            var message = await redis.HashGetAsync(Key, command.Name);
 
             if (!message.HasValue)
             {
                 var disabledMessage = await _disabledCommandPostgresRepository.InsertOrGetCommandDisabledMessageAsync(command);
-                await redis.HashSetAsync(Key, command.Aliases.First(), disabledMessage);
+                await redis.HashSetAsync(Key, command.Name, disabledMessage);
                 return disabledMessage;
             }
 

@@ -111,6 +111,19 @@ namespace TaylorBot.Net.Core.Program
                         );
                 });
             }
+
+            var interactionHandler = _services.GetService<IInteractionCreatedHandler>();
+            if (interactionHandler != null)
+            {
+                yield return new EventHandlerRegistrar((client) =>
+                {
+                    client.InteractionCreated += async (interaction) =>
+                        await _taskExceptionLogger.LogOnError(async () =>
+                            await interactionHandler.InteractionCreatedAsync(interaction),
+                            nameof(IInteractionCreatedHandler)
+                        );
+                });
+            }
         }
 
         private IEnumerable<EventHandlerRegistrar> GetMessageRegistrars()

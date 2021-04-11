@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;

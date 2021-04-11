@@ -1,12 +1,11 @@
-﻿using Discord.Commands;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.PostExecution
 {
     public interface ICommandUsageRepository
     {
-        void QueueIncrementSuccessfulUseCount(CommandInfo command);
-        void QueueIncrementUnhandledErrorCount(CommandInfo command);
+        void QueueIncrementSuccessfulUseCount(string commandName);
+        void QueueIncrementUnhandledErrorCount(string commandName);
         ValueTask PersistQueuedUsageCountIncrementsAsync();
     }
 }

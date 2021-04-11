@@ -37,10 +37,10 @@ namespace TaylorBot.Net.Commands.Infrastructure
             );
 
             return new GetUserIgnoreUntilResult(
-                ignoreUntil: userAddedOrUpdatedDto.ignore_until,
-                wasAdded: userAddedOrUpdatedDto.was_inserted,
-                wasUsernameChanged: userAddedOrUpdatedDto.username_changed,
-                previousUsername: userAddedOrUpdatedDto.previous_username
+                IgnoreUntil: userAddedOrUpdatedDto.ignore_until,
+                WasAdded: userAddedOrUpdatedDto.was_inserted,
+                WasUsernameChanged: userAddedOrUpdatedDto.username_changed,
+                PreviousUsername: userAddedOrUpdatedDto.previous_username
             );
         }
 

@@ -1,8 +1,6 @@
 ﻿using Discord;
-using Discord.Commands;
 using StackExchange.Redis;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 
@@ -19,16 +17,16 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _disabledGuildCommandPostgresRepository = disabledGuildCommandPostgresRepository;
         }
 
-        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandInfo command)
+        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = $"enabled-commands:guild:{guild.Id}";
-            var isEnabled = await redis.HashGetAsync(key, command.Aliases.First());
+            var isEnabled = await redis.HashGetAsync(key, command.Name);
 
             if (!isEnabled.HasValue)
             {
                 var isDisabled = await _disabledGuildCommandPostgresRepository.IsGuildCommandDisabledAsync(guild, command);
-                await redis.HashSetAsync(key, command.Aliases.First(), !isDisabled);
+                await redis.HashSetAsync(key, command.Name, !isDisabled);
                 await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
                 return isDisabled;
             }

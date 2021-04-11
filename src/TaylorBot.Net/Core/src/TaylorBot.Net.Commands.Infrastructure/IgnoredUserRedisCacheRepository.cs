@@ -42,10 +42,10 @@ namespace TaylorBot.Net.Commands.Infrastructure
             }
 
             return new GetUserIgnoreUntilResult(
-                ignoreUntil: DateTimeOffset.FromUnixTimeMilliseconds((long)cachedIgnoreUntil),
-                wasAdded: false,
-                wasUsernameChanged: false,
-                previousUsername: null
+                IgnoreUntil: DateTimeOffset.FromUnixTimeMilliseconds((long)cachedIgnoreUntil),
+                WasAdded: false,
+                WasUsernameChanged: false,
+                PreviousUsername: null
             );
         }
 

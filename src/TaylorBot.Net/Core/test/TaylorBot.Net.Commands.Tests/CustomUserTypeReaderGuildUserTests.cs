@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;

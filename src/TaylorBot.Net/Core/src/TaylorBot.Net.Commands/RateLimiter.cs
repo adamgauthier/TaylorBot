@@ -4,7 +4,6 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Options;
-using TaylorBot.Net.Commands.PostExecution;
 
 namespace TaylorBot.Net.Commands
 {
@@ -15,7 +14,7 @@ namespace TaylorBot.Net.Commands
 
     public interface IRateLimiter
     {
-        ValueTask<TaylorBotRateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action, string friendlyName);
+        ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action, string friendlyName);
     }
 
     public class RateLimiter : IRateLimiter
@@ -29,7 +28,7 @@ namespace TaylorBot.Net.Commands
             _rateLimitRepository = rateLimitRepository;
         }
 
-        public async ValueTask<TaylorBotRateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action, string friendlyName)
+        public async ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action, string friendlyName)
         {
             var date = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
             var key = $"user:{user.Id}:action:{action}:date:{date}";
@@ -44,7 +43,7 @@ namespace TaylorBot.Net.Commands
             }
             else
             {
-                return new TaylorBotRateLimitedResult(friendlyName, dailyUseCount, limit);
+                return new RateLimitedResult(friendlyName, dailyUseCount, limit);
             }
         }
     }

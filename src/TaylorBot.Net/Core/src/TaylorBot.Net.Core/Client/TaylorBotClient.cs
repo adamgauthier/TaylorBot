@@ -4,6 +4,8 @@ using Discord.WebSocket;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Events;
@@ -15,6 +17,7 @@ namespace TaylorBot.Net.Core.Client
     public interface ITaylorBotClient
     {
         event Func<Task> AllShardsReady;
+        event Func<Interaction, Task> InteractionCreated;
 
         DiscordShardedClient DiscordShardedClient { get; }
         DiscordRestClient DiscordRestClient { get; }
@@ -33,14 +36,22 @@ namespace TaylorBot.Net.Core.Client
         private readonly ILogger<TaylorBotClient> _logger;
         private readonly ILogSeverityToLogLevelMapper _logSeverityToLogLevelMapper;
         private readonly TaylorBotToken _taylorBotToken;
+        private readonly RawEventsHandler _rawEventsHandler;
 
         private int shardReadyCount = 0;
 
-        private readonly AsyncEvent<Func<Task>> allShardsReadyEvent = new AsyncEvent<Func<Task>>();
+        private readonly AsyncEvent<Func<Task>> _allShardsReadyEvent = new();
         public event Func<Task> AllShardsReady
         {
-            add { allShardsReadyEvent.Add(value); }
-            remove { allShardsReadyEvent.Remove(value); }
+            add { _allShardsReadyEvent.Add(value); }
+            remove { _allShardsReadyEvent.Remove(value); }
+        }
+
+        private readonly AsyncEvent<Func<Interaction, Task>> _interactionCreatedEvent = new();
+        public event Func<Interaction, Task> InteractionCreated
+        {
+            add { _interactionCreatedEvent.Add(value); }
+            remove { _interactionCreatedEvent.Remove(value); }
         }
 
         public DiscordShardedClient DiscordShardedClient { get; }
@@ -50,6 +61,7 @@ namespace TaylorBot.Net.Core.Client
             ILogger<TaylorBotClient> logger,
             ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper,
             TaylorBotToken taylorBotToken,
+            RawEventsHandler rawEventsHandler,
             DiscordShardedClient discordShardedClient,
             DiscordRestClient discordRestClient
         )
@@ -57,11 +69,22 @@ namespace TaylorBot.Net.Core.Client
             _logger = logger;
             _logSeverityToLogLevelMapper = logSeverityToLogLevelMapper;
             _taylorBotToken = taylorBotToken;
+            _rawEventsHandler = rawEventsHandler;
             DiscordShardedClient = discordShardedClient;
             DiscordRestClient = discordRestClient;
 
             DiscordShardedClient.Log += LogAsync;
             DiscordShardedClient.ShardReady += ShardReadyAsync;
+
+            foreach (var shard in DiscordShardedClient.Shards)
+            {
+                _rawEventsHandler.HandleRawEvent(shard, "INTERACTION_CREATE", async (payload) =>
+                {
+                    var interaction = JsonSerializer.Deserialize<Interaction>(payload)!;
+
+                    await _interactionCreatedEvent.InvokeAsync(interaction);
+                });
+            }
         }
 
         public async ValueTask StartAsync()
@@ -81,6 +104,9 @@ namespace TaylorBot.Net.Core.Client
 
         private Task LogAsync(LogMessage log)
         {
+            if (_rawEventsHandler.Callbacks.Keys.Any(rawEvent => log.Message == $"Unknown Dispatch ({rawEvent})"))
+                return Task.CompletedTask;
+
             _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), log.ToString(prependTimestamp: false));
             return Task.CompletedTask;
         }
@@ -93,7 +119,7 @@ namespace TaylorBot.Net.Core.Client
             if (shardReadyCount >= DiscordShardedClient.Shards.Count)
             {
                 _logger.LogInformation($"All {"shard".ToQuantity(DiscordShardedClient.Shards.Count)} ready!");
-                return allShardsReadyEvent.InvokeAsync();
+                return _allShardsReadyEvent.InvokeAsync();
             }
 
             return Task.CompletedTask;

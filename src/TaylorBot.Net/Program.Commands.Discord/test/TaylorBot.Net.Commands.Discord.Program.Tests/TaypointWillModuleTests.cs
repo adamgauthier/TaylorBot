@@ -5,10 +5,11 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
-using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Snowflake;
@@ -20,7 +21,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
     {
         private const string AUsername = "TaylorSwift13";
 
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IOptionsMonitor<TaypointWillOptions> _options = A.Fake<IOptionsMonitor<TaypointWillOptions>>(o => o.Strict());
         private readonly ITaypointWillRepository _taypointWillRepository = A.Fake<ITaypointWillRepository>(o => o.Strict());
@@ -29,7 +30,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public TaypointWillModuleTests()
         {
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
-            _taypointWillModule = new TaypointWillModule(_options, _taypointWillRepository);
+            _taypointWillModule = new TaypointWillModule(new SimpleCommandRunner(), _options, _taypointWillRepository);
             _taypointWillModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
         }
@@ -42,7 +43,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.GetAsync(userArgument);
+            var result = (await _taypointWillModule.GetAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Description.Should().Contain("no beneficiary");
@@ -59,7 +60,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.GetAsync(userArgument);
+            var result = (await _taypointWillModule.GetAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Description.Should().Contain(MentionUtils.MentionUser(beneficiaryId.Id));
@@ -73,7 +74,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.AddAsync(userArgument);
+            var result = (await _taypointWillModule.AddAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -87,7 +88,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.AddAsync(userArgument);
+            var result = (await _taypointWillModule.AddAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -97,7 +98,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillNotRemovedResult());
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
+            var result = (await _taypointWillModule.ClearAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -107,7 +108,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1), AUsername));
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.ClearAsync();
+            var result = (await _taypointWillModule.ClearAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -122,7 +123,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 OwnerUserId: new("1"), OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayAfterThreshold
             )});
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.ClaimAsync();
+            var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -146,7 +147,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             });
             A.CallTo(() => _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _taypointWillModule.ClaimAsync();
+            var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }

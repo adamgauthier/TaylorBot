@@ -2,8 +2,9 @@
 using FakeItEasy;
 using FluentAssertions;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using Xunit;
@@ -13,13 +14,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
     public class CommandModuleTests
     {
         private readonly IUser _commandUser = A.Fake<IUser>();
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
         private readonly IDisabledCommandRepository _disabledCommandRepository = A.Fake<IDisabledCommandRepository>(o => o.Strict());
         private readonly CommandModule _commandModule;
 
         public CommandModuleTests()
         {
-            _commandModule = new CommandModule(_disabledCommandRepository);
+            _commandModule = new CommandModule(new SimpleCommandRunner(), _disabledCommandRepository);
             _commandModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
         }
@@ -31,7 +32,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _disabledCommandRepository.EnableGloballyAsync(CommandName)).Returns(default);
             var command = new ICommandRepository.Command(name: CommandName, moduleName: string.Empty);
 
-            var result = (TaylorBotEmbedResult)await _commandModule.EnableGlobalAsync(command);
+            var result = (await _commandModule.EnableGlobalAsync(command)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -44,7 +45,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _disabledCommandRepository.DisableGloballyAsync(CommandName, DisabledMesssage)).Returns(DisabledMesssage);
             var command = new ICommandRepository.Command(name: CommandName, moduleName: "Framework");
 
-            var result = (TaylorBotEmbedResult)await _commandModule.DisableGlobalAsync(command, DisabledMesssage);
+            var result = (await _commandModule.DisableGlobalAsync(command, DisabledMesssage)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -57,7 +58,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _disabledCommandRepository.DisableGloballyAsync(CommandName, DisabledMesssage)).Returns(DisabledMesssage);
             var command = new ICommandRepository.Command(name: CommandName, moduleName: string.Empty);
 
-            var result = (TaylorBotEmbedResult)await _commandModule.DisableGlobalAsync(command, DisabledMesssage);
+            var result = (await _commandModule.DisableGlobalAsync(command, DisabledMesssage)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }

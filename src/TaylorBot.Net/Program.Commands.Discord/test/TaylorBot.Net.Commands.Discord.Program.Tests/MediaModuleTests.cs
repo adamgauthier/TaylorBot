@@ -2,9 +2,11 @@
 using FakeItEasy;
 using FluentAssertions;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Image.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
+using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using Xunit;
 
@@ -14,14 +16,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
     {
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IMessageChannel _channel = A.Fake<IMessageChannel>();
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+        private readonly IPlusRepository _plusRepository = A.Fake<IPlusRepository>(o => o.Strict());
         private readonly IRateLimiter _rateLimiter = A.Fake<IRateLimiter>(o => o.Strict());
         private readonly IImageSearchClient _imageSearchClient = A.Fake<IImageSearchClient>(o => o.Strict());
         private readonly MediaModule _mediaModule;
 
         public MediaModuleTests()
         {
-            _mediaModule = new MediaModule(_rateLimiter, _imageSearchClient);
+            _mediaModule = new MediaModule(new SimpleCommandRunner(), _plusRepository, _rateLimiter, _imageSearchClient);
             _mediaModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
             A.CallTo(() => _commandContext.Channel).Returns(_channel);
@@ -34,7 +37,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _rateLimiter.VerifyDailyLimitAsync(_commandUser, A<string>.Ignored, A<string>.Ignored)).Returns(null);
             A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new DailyLimitExceeded());
 
-            var result = (TaylorBotEmbedResult)await _mediaModule.ImageAsync(Text);
+            var result = (await _mediaModule.ImageAsync(Text)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -56,7 +59,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 SearchTimeSeconds: "5"
             ));
 
-            var result = (TaylorBotPageMessageResult)await _mediaModule.ImageAsync(Text);
+            var result = (await _mediaModule.ImageAsync(Text)).GetResult<PageMessageResult>();
             await result.PageMessage.SendAsync(_commandUser, _channel);
 
             A.CallTo(() => _channel.SendMessageAsync(

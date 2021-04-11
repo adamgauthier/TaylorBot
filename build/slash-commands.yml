@@ -1,0 +1,58 @@
+trigger:
+  - master
+
+resources:
+- repo: self
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  artifactName: slash-commands
+
+stages:
+- stage: publish
+  displayName: 'Publish slash commands'
+  jobs:
+  - job: publish
+    displayName: 'Publish slash commands'
+    steps:
+    - publish: '$(Build.SourcesDirectory)/src/slash-commands'
+      artifact: $(artifactName)
+      displayName: 'Publish slash command definitions'
+
+- stage: deploy_beta
+  displayName: 'TaylorBot Beta'
+  dependsOn: publish
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+  jobs:
+    - deployment: deploy_discord
+      displayName: 'Deploy to Discord API'
+      environment: taylorbot-beta
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - template: templates/steps/deploy-slash-commands.yml
+              parameters:
+                slashCommandsDir: $(Pipeline.Workspace)/$(artifactName)
+                applicationId: $(taylorbot_beta_application_id)
+                botToken: $(taylorbot_beta_token_secret)
+
+- stage: deploy
+  displayName: 'TaylorBot'
+  dependsOn: publish
+  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  jobs:
+    - deployment: deploy_discord
+      displayName: 'Deploy to Discord API'
+      environment: taylorbot
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - template: templates/steps/deploy-slash-commands.yml
+              parameters:
+                slashCommandsDir: $(Pipeline.Workspace)/$(artifactName)
+                applicationId: $(taylorbot_application_id)
+                botToken: $(taylorbot_token_secret)

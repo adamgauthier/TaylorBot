@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Discord.Commands;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.PostExecution;
@@ -17,19 +16,19 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public void QueueIncrementSuccessfulUseCount(CommandInfo command)
+        public void QueueIncrementSuccessfulUseCount(string commandName)
         {
             _usageCache.AddOrUpdate(
-                command.Aliases[0],
+                commandName,
                 new CommandUsage(SuccessfulUseCount: 1, UnhandledErrorCount: 0),
                 (name, usage) => usage with { SuccessfulUseCount = usage.SuccessfulUseCount + 1 }
             );
         }
 
-        public void QueueIncrementUnhandledErrorCount(CommandInfo command)
+        public void QueueIncrementUnhandledErrorCount(string commandName)
         {
             _usageCache.AddOrUpdate(
-                command.Aliases[0],
+                commandName,
                 new CommandUsage(SuccessfulUseCount: 0, UnhandledErrorCount: 1),
                 (name, usage) => usage with { SuccessfulUseCount = usage.UnhandledErrorCount + 1 }
             );

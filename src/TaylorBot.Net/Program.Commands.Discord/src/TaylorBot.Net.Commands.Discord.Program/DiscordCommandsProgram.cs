@@ -6,33 +6,36 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands;
-using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
-using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.TypeReaders;
-using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Image.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Image.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Jail.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Jail.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
-using TaylorBot.Net.Commands.Discord.Program.LastFm.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
-using TaylorBot.Net.Commands.Discord.Program.Logs.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Logs.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
+using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
-using TaylorBot.Net.Commands.Discord.Program.Plus.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Plus.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
-using TaylorBot.Net.Commands.Discord.Program.ServerStats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Services;
-using TaylorBot.Net.Commands.Discord.Program.TaypointReward.Domain;
-using TaylorBot.Net.Commands.Discord.Program.TaypointReward.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Taypoints.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Taypoints.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.UsernameHistory.Domain;
-using TaylorBot.Net.Commands.Discord.Program.UsernameHistory.Infrastructure;
+using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Core.Configuration;
@@ -105,7 +108,8 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<CustomSearchAPIService>()
             .AddTransient<IImageSearchClient, GoogleCustomSearchClient>()
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
-            .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>();
+            .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
+            .AddTransient<ISlashCommand, AvatarSlashCommand>();
     })
     .Build();
 

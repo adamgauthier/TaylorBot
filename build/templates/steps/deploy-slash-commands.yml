@@ -1,0 +1,36 @@
+parameters:
+  - name: slashCommandsDir
+    default: ''
+  - name: applicationId
+    default: ''
+  - name: botToken
+    default: ''
+
+steps:
+- pwsh: |
+    $ProgressPreference = 'SilentlyContinue'
+
+    $files = Get-ChildItem ${{ parameters.slashCommandsDir }}
+    Write-Output "Processing $($files.Count) slash command file(s)"
+
+    foreach ($file in $files) {
+      $command = Get-Content $file.FullName | ConvertFrom-Json
+      $body = $command.body | ConvertTo-Json
+      $baseUrl = "https://discord.com/api/v8/applications/${{ parameters.applicationId }}/"
+      $suffix = if ($command.guild -eq $null) { 'commands' } else { "guilds/$($command.guild)/commands" }
+      $url = $baseUrl + $suffix
+
+      $response = Invoke-WebRequest -Uri $url `
+        -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.1.0)' `
+        -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
+        -Method 'POST' `
+        -ContentType 'application/json' `
+        -Body $body
+
+      Write-Output "$($file.Name) - $url ($($response.StatusCode))"
+
+      Start-Sleep -Seconds 2
+    }
+  displayName: 'Push all slash commands'
+  env:
+    BOT_TOKEN: ${{ parameters.botToken }}

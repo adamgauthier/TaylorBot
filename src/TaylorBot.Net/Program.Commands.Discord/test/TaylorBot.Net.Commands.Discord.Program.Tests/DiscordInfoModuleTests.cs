@@ -3,9 +3,10 @@ using FakeItEasy;
 using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
+using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Services;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using Xunit;
 
@@ -13,17 +14,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 {
     public class DiscordInfoModuleTests
     {
-        private readonly PresenceFactory _presenceFactory = new PresenceFactory();
+        private readonly PresenceFactory _presenceFactory = new();
 
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
-        private readonly ChannelTypeStringMapper _channelTypeStringMapper = new ChannelTypeStringMapper();
-        private readonly UserStatusStringMapper _userStatusStringMapper = new UserStatusStringMapper();
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+        private readonly ChannelTypeStringMapper _channelTypeStringMapper = new();
+        private readonly UserStatusStringMapper _userStatusStringMapper = new();
         private readonly IUserTracker _userTracker = A.Fake<IUserTracker>(o => o.Strict());
         private readonly DiscordInfoModule _discordInfoModule;
 
         public DiscordInfoModuleTests()
         {
-            _discordInfoModule = new DiscordInfoModule(_userStatusStringMapper, _channelTypeStringMapper, _userTracker);
+            _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _userStatusStringMapper, _channelTypeStringMapper, _userTracker);
             _discordInfoModule.SetContext(_commandContext);
         }
 
@@ -36,7 +37,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.AvatarAsync(userArgument);
+            var result = (await _discordInfoModule.AvatarAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Image!.Value.Url.Should().Be(AnAvatarURL);
         }
@@ -51,7 +52,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(userArgument);
+            var result = (await _discordInfoModule.StatusAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Description.Should().Be(_userStatusStringMapper.MapStatusToString(AUserStatus));
         }
@@ -65,7 +66,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.StatusAsync(userArgument);
+            var result = (await _discordInfoModule.StatusAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Description.Should().Contain(ACustomStatus);
         }
@@ -79,7 +80,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var userArgument = A.Fake<IUserArgument<IGuildUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(guildUser);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.UserInfoAsync(userArgument);
+            var result = (await _discordInfoModule.UserInfoAsync(userArgument)).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
@@ -95,7 +96,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandContext.Guild).Returns(guild);
             A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(guildUser)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.RandomUserInfoAsync();
+            var result = (await _discordInfoModule.RandomUserInfoAsync()).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
@@ -107,7 +108,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = A.Fake<IRole>();
             A.CallTo(() => role.Id).Returns(AnId);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.RoleInfoAsync(new RoleArgument<IRole>(role));
+            var result = (await _discordInfoModule.RoleInfoAsync(new RoleArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
@@ -119,7 +120,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var channel = A.Fake<ITextChannel>();
             A.CallTo(() => channel.Id).Returns(AnId);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.ChannelInfoAsync(new ChannelArgument<IChannel>(channel));
+            var result = (await _discordInfoModule.ChannelInfoAsync(new ChannelArgument<IChannel>(channel))).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }
@@ -136,7 +137,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => guild.Roles).Returns(new[] { role });
             A.CallTo(() => _commandContext.Guild).Returns(guild);
 
-            var result = (TaylorBotEmbedResult)await _discordInfoModule.ServerInfoAsync();
+            var result = (await _discordInfoModule.ServerInfoAsync()).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
         }

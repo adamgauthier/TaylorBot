@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.LastFm.Domain;
-using TaylorBot.Net.Commands.Discord.Program.LastFm.TypeReaders;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
+using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Colors;
 using Xunit;
 
@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 {
     public class LastFmModuleTests
     {
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IOptionsMonitor<LastFmOptions> _options = A.Fake<IOptionsMonitor<LastFmOptions>>(o => o.Strict());
         private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _commandContext.CommandPrefix).Returns(string.Empty);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
-            _lastFmModule = new LastFmModule(_options, _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+            _lastFmModule = new LastFmModule(new SimpleCommandRunner(), _options, _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
             _lastFmModule.SetContext(_commandContext);
         }
 
@@ -38,7 +38,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
+            var result = (await _lastFmModule.NowPlayingAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -50,7 +50,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmLogInRequiredErrorResult());
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
+            var result = (await _lastFmModule.NowPlayingAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -62,7 +62,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmGenericErrorResult("Unknown"));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
+            var result = (await _lastFmModule.NowPlayingAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -74,7 +74,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new MostRecentScrobbleResult(0, null));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
+            var result = (await _lastFmModule.NowPlayingAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -96,7 +96,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 )
             ));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.NowPlayingAsync();
+            var result = (await _lastFmModule.NowPlayingAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -107,7 +107,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var lastFmUsername = new LastFmUsername("taylorswift");
             A.CallTo(() => _lastFmUsernameRepository.SetLastFmUsernameAsync(_commandUser, lastFmUsername)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.SetAsync(lastFmUsername);
+            var result = (await _lastFmModule.SetAsync(lastFmUsername)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -117,7 +117,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _lastFmUsernameRepository.ClearLastFmUsernameAsync(_commandUser)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.ClearAsync();
+            var result = (await _lastFmModule.ClearAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -131,7 +131,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(new[] { artist }));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.ArtistsAsync(period);
+            var result = (await _lastFmModule.ArtistsAsync(period)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Description
@@ -153,7 +153,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(Enumerable.Repeat(artist, 10).ToList()));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.ArtistsAsync(period);
+            var result = (await _lastFmModule.ArtistsAsync(period)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Description
@@ -177,7 +177,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(new[] { track }));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.TracksAsync(period);
+            var result = (await _lastFmModule.TracksAsync(period)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Description
@@ -203,7 +203,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(Enumerable.Repeat(track, 10).ToList()));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.TracksAsync(period);
+            var result = (await _lastFmModule.TracksAsync(period)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Description
@@ -231,7 +231,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(new[] { album }));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.AlbumsAsync(period);
+            var result = (await _lastFmModule.AlbumsAsync(period)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Thumbnail!.Value.Url.Should().Be(albumImageUrl);
@@ -260,7 +260,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
             A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(Enumerable.Repeat(album, 10).ToList()));
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.AlbumsAsync(period);
+            var result = (await _lastFmModule.AlbumsAsync(period)).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
             result.Embed.Thumbnail!.Value.Url.Should().Be(albumImageUrl);
@@ -277,7 +277,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.CollageAsync();
+            var result = (await _lastFmModule.CollageAsync()).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -289,7 +289,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
 
-            var result = (TaylorBotEmbedResult)await _lastFmModule.CollageAsync();
+            var result = (await _lastFmModule.CollageAsync()).GetResult<EmbedResult>();
 
             result.Embed.Image.Should().NotBeNull();
         }

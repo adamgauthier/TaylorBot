@@ -3,9 +3,10 @@ using FakeItEasy;
 using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
-using TaylorBot.Net.Commands.Discord.Program.ServerStats.Domain;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests
@@ -14,14 +15,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
     {
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IGuild _commandGuild = A.Fake<IGuild>();
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
         private readonly IServerStatsRepository _serverStatsRepository = A.Fake<IServerStatsRepository>(o => o.Strict());
         private readonly IBotInfoRepository _botInfoRepository = A.Fake<IBotInfoRepository>(o => o.Strict());
         private readonly StatsModule _statsModule;
 
         public StatsModuleTests()
         {
-            _statsModule = new StatsModule(_serverStatsRepository, _botInfoRepository);
+            _statsModule = new StatsModule(new SimpleCommandRunner(), _serverStatsRepository, _botInfoRepository);
             _statsModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
             A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
@@ -33,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(AgeAverage: null, AgeMedian: null));
             A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_commandGuild)).Returns(new GenderStats(TotalCount: 0, MaleCount: 0, FemaleCount: 0, OtherCount: 0));
 
-            var result = (TaylorBotEmbedResult)await _statsModule.ServerStatsAsync();
+            var result = (await _statsModule.ServerStatsAsync()).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Age").Value.Should().Contain("No Data");
             result.Embed.Fields.Single(f => f.Name == "Gender").Value.Should().NotContain("%");
@@ -54,7 +55,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 TotalCount, MaleCount, FemaleCount, OtherCount
             ));
 
-            var result = (TaylorBotEmbedResult)await _statsModule.ServerStatsAsync();
+            var result = (await _statsModule.ServerStatsAsync()).GetResult<EmbedResult>();
 
             result.Embed.Fields.Single(f => f.Name == "Age").Value.Should().Contain(AgeAverage.ToString()).And.Contain(AgeMedian.ToString());
             result.Embed.Fields.Single(f => f.Name == "Gender").Value.Should().Contain($"{FemaleCount} ({FemaleCount}0.00%)");
@@ -78,7 +79,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => application.Owner).Returns(owner);
             A.CallTo(() => owner.Mention).Returns("<@1>");
 
-            var result = (TaylorBotEmbedResult)await _statsModule.BotInfoAsync();
+            var result = (await _statsModule.BotInfoAsync()).GetResult<EmbedResult>();
 
             result.Embed.Description.Should().Be(Description);
             result.Embed.Fields.Single(f => f.Name == "Version").Value.Should().Be(ProductVersion);

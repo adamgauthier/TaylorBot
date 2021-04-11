@@ -1,6 +1,5 @@
 ﻿using Dapper;
-using Discord.Commands;
-using System.Linq;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
@@ -16,7 +15,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandInfo command)
+        public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandMetadata command)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -28,9 +27,9 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 RETURNING disabled_message;",
                 new
                 {
-                    CommandName = command.Aliases.First(),
-                    Aliases = command.Aliases,
-                    ModuleName = command.Module.Name
+                    CommandName = command.Name,
+                    Aliases = command.Aliases ?? Array.Empty<string>(),
+                    ModuleName = command.ModuleName ?? string.Empty
                 }
             );
         }

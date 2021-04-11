@@ -4,6 +4,7 @@ using FluentAssertions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.DiscordNet;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Types.Tests

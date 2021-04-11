@@ -5,9 +5,10 @@ using FluentAssertions;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.AccessibleRoles.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Snowflake;
@@ -23,13 +24,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         private readonly IGuildUser _commandUser = A.Fake<IGuildUser>();
         private readonly IUserMessage _message = A.Fake<IUserMessage>();
         private readonly IGuild _guild = A.Fake<IGuild>(o => o.Strict());
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
         private readonly IAccessibleRoleRepository _accessibleRoleRepository = A.Fake<IAccessibleRoleRepository>(o => o.Strict());
         private readonly AccessibleRolesModule _accessibleRolesModule;
 
         public AccessibleRolesModuleTests()
         {
-            _accessibleRolesModule = new AccessibleRolesModule(_accessibleRoleRepository);
+            _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository);
             _accessibleRolesModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.Guild).Returns(_guild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
@@ -44,7 +45,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -57,7 +58,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
             A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(null);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -71,7 +72,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(Group: null));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -88,7 +89,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             ));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -102,7 +103,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(Group: null));
             A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Throws(new HttpException(HttpStatusCode.Forbidden, A.Fake<IRequest>()));
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -114,7 +115,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(RoleId, ARoleName);
             A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -127,7 +128,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
             A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(false);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -141,7 +142,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(true);
             A.CallTo(() => _commandUser.RemoveRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -152,7 +153,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(ARoleId, ARoleName);
             A.CallTo(() => _accessibleRoleRepository.AddAccessibleRoleAsync(role)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.AddAsync(new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.AddAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -163,7 +164,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(ARoleId, ARoleName);
             A.CallTo(() => _accessibleRoleRepository.RemoveAccessibleRoleAsync(role)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.RemoveAsync(new RoleArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.RemoveAsync(new RoleArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -175,7 +176,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(ARoleId, ARoleName);
             A.CallTo(() => _accessibleRoleRepository.AddOrUpdateAccessibleRoleWithGroupAsync(role, groupName)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GroupAsync(groupName, new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GroupAsync(groupName, new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }
@@ -186,7 +187,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var role = CreateFakeRole(ARoleId, ARoleName);
             A.CallTo(() => _accessibleRoleRepository.ClearGroupFromAccessibleRoleAsync(role)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _accessibleRolesModule.GroupAsync(new AccessibleGroupName("clear"), new RoleNotEveryoneArgument<IRole>(role));
+            var result = (await _accessibleRolesModule.GroupAsync(new AccessibleGroupName("clear"), new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
             result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         }

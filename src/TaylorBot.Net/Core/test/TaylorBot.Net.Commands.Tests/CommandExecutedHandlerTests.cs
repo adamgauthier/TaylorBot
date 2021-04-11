@@ -3,6 +3,7 @@ using Discord.Commands;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;

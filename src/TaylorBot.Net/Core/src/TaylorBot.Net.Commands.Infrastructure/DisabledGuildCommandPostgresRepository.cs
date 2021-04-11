@@ -1,7 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using Discord.Commands;
-using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
@@ -17,7 +15,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandInfo command)
+        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -29,7 +27,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 new
                 {
                     GuildId = guild.Id.ToString(),
-                    CommandName = command.Aliases.First()
+                    CommandName = command.Name
                 }
             );
 

@@ -2,8 +2,9 @@
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -25,6 +26,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
                 .AddTransient<IAllReadyHandler, CommandHandler>()
+                .AddTransient<IInteractionCreatedHandler, SlashCommandHandler>()
                 .AddSingleton<PageMessageReactionsHandler>()
                 .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
                 .AddTransient<IReactionRemovedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
@@ -46,7 +48,15 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<CustomChannelTypeReader<ITextChannel>>()
                 .AddTransient<PositiveInt32.Factory>()
                 .AddTransient<WordTypeReader>()
-                .AddTransient<CommandTypeReader>();
+                .AddTransient<CommandTypeReader>()
+                .AddTransient<NotDisabledPrecondition>()
+                .AddTransient<NotGuildDisabledPrecondition>()
+                .AddTransient<NotGuildChannelDisabledPrecondition>()
+                .AddTransient<UserNotIgnoredPrecondition>()
+                .AddTransient<MemberTrackedPrecondition>()
+                .AddTransient<TextChannelTrackedPrecondition>()
+                .AddTransient<UserNoOngoingCommandPrecondition>()
+                .AddTransient<ICommandRunner, CommandRunner>();
         }
     }
 }

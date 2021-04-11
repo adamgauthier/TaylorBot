@@ -2,8 +2,9 @@
 using FakeItEasy;
 using FluentAssertions;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Framework.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using Xunit;
 
@@ -13,13 +14,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
     {
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IGuild _commandGuild = A.Fake<IGuild>(o => o.Strict());
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
         private readonly ICommandPrefixRepository _commandPrefixRepository = A.Fake<ICommandPrefixRepository>(o => o.Strict());
         private readonly FrameworkModule _frameworkModule;
 
         public FrameworkModuleTests()
         {
-            _frameworkModule = new FrameworkModule(_commandPrefixRepository);
+            _frameworkModule = new FrameworkModule(new SimpleCommandRunner(), _commandPrefixRepository);
             _frameworkModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
@@ -31,7 +32,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var newPrefix = ".";
             A.CallTo(() => _commandPrefixRepository.ChangeGuildPrefixAsync(_commandGuild, newPrefix)).Returns(default);
 
-            var result = (TaylorBotEmbedResult)await _frameworkModule.PrefixAsync(new Word(newPrefix));
+            var result = (await _frameworkModule.PrefixAsync(new Word(newPrefix))).GetResult<EmbedResult>();
 
             result.Embed.Description.Should().Contain(newPrefix);
         }

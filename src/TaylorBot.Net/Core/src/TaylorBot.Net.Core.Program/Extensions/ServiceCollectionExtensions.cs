@@ -18,6 +18,7 @@ namespace TaylorBot.Net.Core.Program.Extensions
             return services
                 .ConfigureRequired<DiscordOptions>(configuration, "Discord")
                 .AddTransient<ILogSeverityToLogLevelMapper, LogSeverityToLogLevelMapper>()
+                .AddTransient<RawEventsHandler>()
                 .AddTransient<DiscordRestClient>()
                 .AddTransient(provider => new TaylorBotToken(provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.Token))
                 .AddSingleton(provider =>
