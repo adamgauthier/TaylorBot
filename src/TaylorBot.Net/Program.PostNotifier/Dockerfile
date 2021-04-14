@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0.200 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0.202 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -34,7 +34,7 @@ ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Releas
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.PostNotifier/src/TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/runtime:5.0.3 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime:5.0.5 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.PostNotifier.Program.dll"]
