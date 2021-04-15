@@ -28,6 +28,7 @@ namespace TaylorBot.Net.Core.Client
         SocketGuild ResolveRequiredGuild(SnowflakeId id);
 
         ValueTask<IUser> ResolveRequiredUserAsync(SnowflakeId id);
+        ValueTask<IChannel> ResolveRequiredChannelAsync(SnowflakeId id);
         ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId);
     }
 
@@ -147,10 +148,28 @@ namespace TaylorBot.Net.Core.Client
                     return restUser;
                 }
 
-                throw new ArgumentException($"Could not resolve User ID {id}.");
+                throw new ArgumentException($"Could not resolve user with id '{id}'.");
             }
 
             return user;
+        }
+
+        public async ValueTask<IChannel> ResolveRequiredChannelAsync(SnowflakeId id)
+        {
+            var channel = await ((IDiscordClient)DiscordShardedClient).GetChannelAsync(id.Id);
+
+            if (channel == null)
+            {
+                var restChannel = await DiscordRestClient.GetChannelAsync(id.Id);
+                if (restChannel != null)
+                {
+                    return restChannel;
+                }
+
+                throw new ArgumentException($"Could not resolve channel with id '{id}'.");
+            }
+
+            return channel;
         }
 
         public async ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId)

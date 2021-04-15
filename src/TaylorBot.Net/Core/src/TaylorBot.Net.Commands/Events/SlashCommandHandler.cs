@@ -93,7 +93,7 @@ namespace TaylorBot.Net.Commands.Events
                 await _taylorBotClient.ResolveRequiredUserAsync(new(interaction.user!.id)) :
                 (await _taylorBotClient.ResolveGuildUserAsync(_taylorBotClient.DiscordShardedClient.GetGuild(new SnowflakeId(interaction.guild_id!).Id), new(interaction.member!.user.id)))!;
 
-            var channel = (IMessageChannel)_taylorBotClient.DiscordShardedClient.GetChannel(new SnowflakeId(interaction.channel_id!).Id);
+            var channel = (IMessageChannel)await _taylorBotClient.ResolveRequiredChannelAsync(new(interaction.channel_id!));
 
             var oldPrefix = channel is ITextChannel textChannel ?
                 await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(textChannel.Guild) :

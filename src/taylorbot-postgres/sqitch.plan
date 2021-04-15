@@ -18,3 +18,4 @@
 0014_update_1.9.0_message 2021-01-22T02:21:51Z Adam Gauthier <adamgauthier12@gmail.com> # Update 1.9.0 message of the day to usernames and minutes messages
 0015_plus_schema 2021-03-06T21:48:21Z Adam Gauthier <adamgauthier12@gmail.com> # Restructure pro tables into plus
 0016_bump_version_1.10.0 2021-03-29T01:32:05Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.10.0
+0017_bump_version_1.10.1 2021-04-15T00:54:20Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.10.1
