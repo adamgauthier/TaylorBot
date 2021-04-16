@@ -92,11 +92,11 @@ namespace TaylorBot.Net.Commands.DiscordNet
 
                         case PreconditionFailed failed:
                             _logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
-                            if (failed.UserReason != null)
+                            if (!failed.UserReason.HideInPrefixCommands)
                             {
                                 await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
                                     .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription($"{context.User.Mention} {failed.UserReason}")
+                                    .WithDescription($"{context.User.Mention} {failed.UserReason.Reason}")
                                 .Build());
                             }
                             break;

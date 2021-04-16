@@ -38,10 +38,10 @@ namespace TaylorBot.Net.Commands.Preconditions
                     new PreconditionPassed() :
                     new PreconditionFailed(
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users",
-                        UserReason: string.Join('\n', new[] {
+                        UserReason: new(string.Join('\n', new[] {
                             $"You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** members.",
                             plusInfo
-                        })
+                        }))
                     ),
 
                 PlusRequirement.PlusGuild =>
@@ -49,10 +49,10 @@ namespace TaylorBot.Net.Commands.Preconditions
                         new PreconditionPassed() :
                         new PreconditionFailed(
                             PrivateReason: $"{command.Metadata.Name} is restricted to plus guilds",
-                            UserReason: string.Join('\n', new[] {
+                            UserReason: new(string.Join('\n', new[] {
                                 $"You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** servers.",
                                 plusInfo
-                            })
+                            }))
                         ),
 
                 PlusRequirement.PlusUserOrGuild =>
@@ -60,10 +60,10 @@ namespace TaylorBot.Net.Commands.Preconditions
                         new PreconditionPassed() :
                         new PreconditionFailed(
                             PrivateReason: $"{command.Metadata.Name} is restricted to plus users or guilds",
-                            UserReason: string.Join('\n', new[] {
+                            UserReason: new(string.Join('\n', new[] {
                                 $"You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** members or servers.",
                                 plusInfo
-                            })
+                            }))
                         ),
 
                 _ => throw new NotImplementedException(),

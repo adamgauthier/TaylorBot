@@ -1,6 +1,8 @@
 ﻿using Discord;
+using Humanizer;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.User;
 
@@ -32,7 +34,13 @@ namespace TaylorBot.Net.Commands.Preconditions
             await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
 
             return DateTimeOffset.Now < getUserIgnoreUntilResult.IgnoreUntil ?
-                new PreconditionFailed(PrivateReason: $"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}") :
+                new PreconditionFailed(
+                    PrivateReason: $"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}",
+                    UserReason: new(
+                        $"You can't use `{command.Metadata.Name}` because you are ignored until {getUserIgnoreUntilResult.IgnoreUntil.Humanize(culture: TaylorBotCulture.Culture)}.",
+                        HideInPrefixCommands: true
+                    )
+                ) :
                 new PreconditionPassed();
         }
     }

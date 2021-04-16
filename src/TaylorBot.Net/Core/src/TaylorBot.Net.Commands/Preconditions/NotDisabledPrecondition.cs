@@ -25,10 +25,10 @@ namespace TaylorBot.Net.Commands.Preconditions
             return disabledMessage != string.Empty ?
                 new PreconditionFailed(
                     PrivateReason: $"{command.Metadata.Name} is globally disabled",
-                    UserReason: string.Join('\n', new[] {
+                    UserReason: new(string.Join('\n', new[] {
                         $"You can't use `{command.Metadata.Name}` because it is globally disabled right now.",
                         disabledMessage
-                    })
+                    }))
                 ) :
                 new PreconditionPassed();
         }

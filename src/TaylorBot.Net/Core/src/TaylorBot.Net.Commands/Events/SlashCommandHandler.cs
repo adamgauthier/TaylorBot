@@ -132,18 +132,15 @@ namespace TaylorBot.Net.Commands.Events
 
                     case PreconditionFailed failed:
                         _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
-                        if (failed.UserReason != null)
-                        {
-                            await SendResponseAsync(interaction, new InteractionResponse(
-                                ChannelMessageWithSourceInteractionResponseType,
-                                new(new[] {
-                                    ToInteractionEmbed(new EmbedBuilder()
-                                        .WithColor(TaylorBotColors.ErrorColor)
-                                        .WithDescription($"{context.User.Mention} {failed.UserReason}")
-                                    .Build())
-                                })
-                            ));
-                        }
+                        await SendResponseAsync(interaction, new InteractionResponse(
+                            ChannelMessageWithSourceInteractionResponseType,
+                            new(new[] {
+                                ToInteractionEmbed(new EmbedBuilder()
+                                    .WithColor(TaylorBotColors.ErrorColor)
+                                    .WithDescription(failed.UserReason.Reason)
+                                .Build())
+                            })
+                        ));
                         break;
 
                     case EmptyResult _:

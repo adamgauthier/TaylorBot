@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Preconditions
                 var commandName = command.Metadata.Name;
                 return new PreconditionFailed(
                     PrivateReason: $"{commandName} can only be used by owner",
-                    UserReason: $"You can't use `{commandName}` because it can only be used by the bot owner."
+                    UserReason: new($"You can't use `{commandName}` because it can only be used by the bot owner.")
                 );
             }
         }

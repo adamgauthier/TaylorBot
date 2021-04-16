@@ -8,5 +8,6 @@ namespace TaylorBot.Net.Commands
     }
 
     public record PreconditionPassed() : ICommandResult;
-    public record PreconditionFailed(string PrivateReason, string? UserReason = null) : ICommandResult;
+    public record PreconditionFailed(string PrivateReason, UserReason UserReason) : ICommandResult;
+    public record UserReason(string Reason, bool HideInPrefixCommands = false);
 }

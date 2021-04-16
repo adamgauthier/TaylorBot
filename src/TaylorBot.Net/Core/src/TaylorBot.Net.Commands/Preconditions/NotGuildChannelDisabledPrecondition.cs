@@ -28,10 +28,10 @@ namespace TaylorBot.Net.Commands.Preconditions
             return isDisabled ?
                 new PreconditionFailed(
                     PrivateReason: $"{command.Metadata.Name} is disabled in {textChannel.FormatLog()}",
-                    UserReason: string.Join('\n', new[] {
+                    UserReason: new(string.Join('\n', new[] {
                         $"You can't use `{command.Metadata.Name}` because it is disabled in {textChannel.Mention}.",
                         $"You can re-enable it by typing `{context.CommandPrefix}ecc {command.Metadata.Name}`."
-                    })
+                    }))
                 ) :
                 new PreconditionPassed();
         }

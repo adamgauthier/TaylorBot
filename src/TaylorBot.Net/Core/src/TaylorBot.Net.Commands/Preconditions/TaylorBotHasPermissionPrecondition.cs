@@ -29,10 +29,10 @@ namespace TaylorBot.Net.Commands.Preconditions
 
                 return new PreconditionFailed(
                     PrivateReason: $"{command.Metadata.Name} requires the bot to have permission {permissionName}",
-                    UserReason: string.Join('\n', new[] {
+                    UserReason: new(string.Join('\n', new[] {
                         $"TaylorBot can't use `{command.Metadata.Name}` because I don't have the '{permissionUIName}' permission in this server.",
                         $"Add the '{permissionUIName}' permission to my role in the server settings."
-                    })
+                    }))
                 );
             }
         }

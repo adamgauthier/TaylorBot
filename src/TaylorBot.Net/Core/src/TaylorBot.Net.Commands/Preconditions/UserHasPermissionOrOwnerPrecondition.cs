@@ -36,10 +36,10 @@ namespace TaylorBot.Net.Commands.Preconditions
 
                     return new PreconditionFailed(
                         PrivateReason: $"{command.Metadata.Name} can only be used with permission {permissionName}",
-                        UserReason: string.Join('\n', new[] {
+                        UserReason: new(string.Join('\n', new[] {
                             $"You can't use `{command.Metadata.Name}` because you don't have the '{permissionUIName}' permission in this server.",
                             "Ask someone with more permissions than you to use the command or to give you this permission in the server settings."
-                        })
+                        }))
                     );
                 }
             }

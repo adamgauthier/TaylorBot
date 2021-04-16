@@ -31,7 +31,10 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             if (hasAnyOngoingCommand)
             {
-                return new PreconditionFailed(PrivateReason: "user has an ongoing command");
+                return new PreconditionFailed(
+                    PrivateReason: "user has an ongoing command",
+                    UserReason: new($"You can't use `{command.Metadata.Name}` because you have an ongoing command.", HideInPrefixCommands: true)
+                );
             }
             else
             {

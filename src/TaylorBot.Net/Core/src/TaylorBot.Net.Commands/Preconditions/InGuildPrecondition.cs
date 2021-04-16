@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Preconditions
             {
                 return new(new PreconditionFailed(
                     PrivateReason: $"{command.Metadata.Name} can only be used in a guild",
-                    UserReason: $"You can't use `{command.Metadata.Name}` because it can only be used in a server."
+                    UserReason: new($"You can't use `{command.Metadata.Name}` because it can only be used in a server.")
                 ));
             }
 
