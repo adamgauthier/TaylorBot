@@ -14,13 +14,20 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
 
-        public Command Avatar(IUser user) => new(
+        public Command Avatar(IUser user, string? footer = null) => new(
             Metadata,
-            () => new(new EmbedResult(new EmbedBuilder()
-                .WithUserAsAuthor(user)
-                .WithColor(TaylorBotColors.SuccessColor)
-                .WithImageUrl(user.GetAvatarUrlOrDefault(size: 2048))
-            .Build()))
+            () =>
+            {
+                var embed = new EmbedBuilder()
+                    .WithUserAsAuthor(user)
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithImageUrl(user.GetAvatarUrlOrDefault(size: 2048));
+
+                if (footer != null)
+                    embed.WithFooter(footer);
+
+                return new(new EmbedResult(embed.Build()));
+            }
         );
     }
 

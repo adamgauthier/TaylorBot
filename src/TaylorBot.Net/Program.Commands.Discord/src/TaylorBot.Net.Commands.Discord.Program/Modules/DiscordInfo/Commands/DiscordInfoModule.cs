@@ -50,7 +50,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                 await user.GetTrackedUserAsync();
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(new AvatarCommand().Avatar(u), context);
+            var result = await _commandRunner.RunAsync(
+                new AvatarCommand().Avatar(u, "Type /avatar for a shiny new command experience! ⭐"),
+                context
+            );
 
             return new TaylorBotResult(result, context);
         }

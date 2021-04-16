@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 
 namespace TaylorBot.Net.Commands.DiscordNet
 {
@@ -12,16 +11,6 @@ namespace TaylorBot.Net.Commands.DiscordNet
         {
             Result = result;
             Context = context;
-        }
-    }
-
-    public class TaylorBotEmbedResult : RuntimeResult
-    {
-        public Embed Embed { get; }
-
-        public TaylorBotEmbedResult(Embed embed) : base(error: null, reason: null)
-        {
-            Embed = embed;
         }
     }
 }
