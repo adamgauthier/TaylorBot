@@ -21,13 +21,15 @@ namespace TaylorBot.Net.Commands.DiscordNet
         private readonly ICommandUsageRepository _commandUsageRepository;
         private readonly IIgnoredUserRepository _ignoredUserRepository;
         private readonly PageMessageReactionsHandler _pageMessageReactionsHandler;
+        private readonly ICommandRunner _commandRunner;
 
         public CommandExecutedHandler(
             ILogger<CommandExecutedHandler> logger,
             IOngoingCommandRepository ongoingCommandRepository,
             ICommandUsageRepository commandUsageRepository,
             IIgnoredUserRepository ignoredUserRepository,
-            PageMessageReactionsHandler pageMessageReactionsHandler
+            PageMessageReactionsHandler pageMessageReactionsHandler,
+            ICommandRunner commandRunner
         )
         {
             _logger = logger;
@@ -35,6 +37,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
             _commandUsageRepository = commandUsageRepository;
             _ignoredUserRepository = ignoredUserRepository;
             _pageMessageReactionsHandler = pageMessageReactionsHandler;
+            _commandRunner = commandRunner;
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
@@ -135,16 +138,28 @@ namespace TaylorBot.Net.Commands.DiscordNet
                             break;
 
                         case ParseResult parseResult:
-                            var cmd = optCommandInfo.Value;
-                            await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
-                                .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription(string.Join('\n',
-                                    $"{context.User.Mention} Format: `{commandContext.GetUsage(cmd)}`",
-                                    parseResult.ErrorParameter != null ?
-                                        $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}" :
-                                        parseResult.ErrorReason
-                                ))
-                            .Build());
+                            // Preconditions have not been executed, we must make sure none of them are failing with no message.
+                            var runResult = await _commandRunner.RunAsync(
+                                new Command(DiscordNetContextMapper.MapToCommandMetadata(commandContext), () => new()),
+                                DiscordNetContextMapper.MapToRunContext(commandContext)
+                            );
+
+                            if (runResult is not PreconditionFailed failed || !failed.UserReason.HideInPrefixCommands)
+                            {
+                                await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
+                                    .WithColor(TaylorBotColors.ErrorColor)
+                                    .WithDescription(string.Join('\n',
+                                        $"{context.User.Mention} Format: `{commandContext.GetUsage(optCommandInfo.Value)}`",
+                                        parseResult.ErrorParameter != null ?
+                                            $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}" :
+                                            parseResult.ErrorReason
+                                    ))
+                                .Build());
+                            }
+                            else
+                            {
+                                _logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
+                            }
                             break;
 
                         default:

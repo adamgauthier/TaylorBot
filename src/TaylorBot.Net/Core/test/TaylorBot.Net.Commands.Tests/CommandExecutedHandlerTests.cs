@@ -17,14 +17,15 @@ namespace TaylorBot.Net.Commands.Types.Tests
         private readonly IOngoingCommandRepository _ongoingCommandRepository = A.Fake<IOngoingCommandRepository>(o => o.Strict());
         private readonly ICommandUsageRepository _commandUsageRepository = A.Fake<ICommandUsageRepository>(o => o.Strict());
         private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
-        private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new PageMessageReactionsHandler();
+        private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
+        private readonly ICommandRunner _commandRunner = A.Fake<ICommandRunner>(o => o.Strict());
 
         private readonly CommandExecutedHandler _commandExecutedHandler;
 
         public CommandExecutedHandlerTests()
         {
-            _commandExecutedHandler = new CommandExecutedHandler(
-                _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler
+            _commandExecutedHandler = new(
+                _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _commandRunner
             );
         }
 
