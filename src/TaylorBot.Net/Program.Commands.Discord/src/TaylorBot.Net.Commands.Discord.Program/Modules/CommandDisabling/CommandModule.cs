@@ -34,19 +34,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling
             ICommandRepository.Command command
         )
         {
-            var enableCommand = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                await _disabledCommandRepository.EnableGloballyAsync(command.Name);
+            var enableCommand = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
+                {
+                    await _disabledCommandRepository.EnableGloballyAsync(command.Name);
 
-                return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription($"Command `{command.Name}` has been enabled globally.")
-                .Build());
-            });
+                    return new EmbedResult(new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User)
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription($"Command `{command.Name}` has been enabled globally.")
+                    .Build());
+                },
+                Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(enableCommand, context, new[] { new TaylorBotOwnerPrecondition() });
+            var result = await _commandRunner.RunAsync(enableCommand, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -61,28 +65,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling
             string message
         )
         {
-            var disableCommand = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
-
-                if (GuardedModuleNames.Contains(command.ModuleName.ToLowerInvariant()))
+            var disableCommand = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
+                    var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+
+                    if (GuardedModuleNames.Contains(command.ModuleName.ToLowerInvariant()))
+                    {
+                        return new EmbedResult(embed
+                            .WithColor(TaylorBotColors.ErrorColor)
+                            .WithDescription($"Command `{command.Name}` can't be disabled because it's a framework command.")
+                        .Build());
+                    }
+
+                    var disabledMessage = await _disabledCommandRepository.DisableGloballyAsync(command.Name, message);
+
                     return new EmbedResult(embed
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription($"Command `{command.Name}` can't be disabled because it's a framework command.")
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription($"Command `{command.Name}` has been disabled globally with message '{disabledMessage}'.")
                     .Build());
-                }
-
-                var disabledMessage = await _disabledCommandRepository.DisableGloballyAsync(command.Name, message);
-
-                return new EmbedResult(embed
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription($"Command `{command.Name}` has been disabled globally with message '{disabledMessage}'.")
-                .Build());
-            });
+                },
+                Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(disableCommand, context, new[] { new TaylorBotOwnerPrecondition() });
+            var result = await _commandRunner.RunAsync(disableCommand, context);
 
             return new TaylorBotResult(result, context);
         }

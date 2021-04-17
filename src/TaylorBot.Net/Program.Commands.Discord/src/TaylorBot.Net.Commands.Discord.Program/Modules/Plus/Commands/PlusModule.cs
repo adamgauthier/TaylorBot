@@ -111,42 +111,46 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands
         [Summary("Adds this server to your TaylorBot Plus servers, giving it access to exclusive features.")]
         public async Task<RuntimeResult> AddAsync()
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var plusUser = (await _plusUserRepository.GetPlusUserAsync(Context.User))!;
-
-                var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
-
-                if (plusUser.ActivePlusGuilds.Count + 1 > plusUser.MaxPlusGuilds)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    embed
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            "Unfortunately you can't add more **TaylorBot Plus** servers with your current membership. 😕",
-                            $"Use `{Context.CommandPrefix}plus` to see your plus servers and maybe remove some with `{Context.CommandPrefix}plus remove`."
-                        }));
-                }
-                else
-                {
-                    await _plusUserRepository.AddPlusGuildAsync(Context.User, Context.Guild);
+                    var plusUser = (await _plusUserRepository.GetPlusUserAsync(Context.User))!;
 
-                    embed
-                        .WithColor(TaylorBotColors.DiamondBlueColor)
-                        .WithThumbnailUrl(Context.Guild.IconUrl)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Successfully added {Context.Guild.Name} to your plus servers. 😊",
-                            $"It should now have access to **TaylorBot Plus** features. 💎"
-                        }));
-                }
+                    var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
-                return new EmbedResult(embed.Build());
-            });
+                    if (plusUser.ActivePlusGuilds.Count + 1 > plusUser.MaxPlusGuilds)
+                    {
+                        embed
+                            .WithColor(TaylorBotColors.ErrorColor)
+                            .WithDescription(string.Join('\n', new[] {
+                                "Unfortunately you can't add more **TaylorBot Plus** servers with your current membership. 😕",
+                                $"Use `{Context.CommandPrefix}plus` to see your plus servers and maybe remove some with `{Context.CommandPrefix}plus remove`."
+                            }));
+                    }
+                    else
+                    {
+                        await _plusUserRepository.AddPlusGuildAsync(Context.User, Context.Guild);
+
+                        embed
+                            .WithColor(TaylorBotColors.DiamondBlueColor)
+                            .WithThumbnailUrl(Context.Guild.IconUrl)
+                            .WithDescription(string.Join('\n', new[] {
+                                $"Successfully added {Context.Guild.Name} to your plus servers. 😊",
+                                $"It should now have access to **TaylorBot Plus** features. 💎"
+                            }));
+                    }
+
+                    return new EmbedResult(embed.Build());
+                },
+                Preconditions: new ICommandPrecondition[] {
+                    new InGuildPrecondition(),
+                    new PlusPrecondition(_plusRepository, PlusRequirement.PlusUser)
+                }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusUser)
-            });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -155,26 +159,30 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands
         [Summary("Removes this server from your TaylorBot Plus servers, losing access to exclusive features.")]
         public async Task<RuntimeResult> RemoveAsync()
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                await _plusUserRepository.DisablePlusGuildAsync(Context.User, Context.Guild);
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
+                {
+                    await _plusUserRepository.DisablePlusGuildAsync(Context.User, Context.Guild);
 
-                return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Successfully removed {Context.Guild.Name} from your plus servers. 😊",
-                        $"This server will lose access to **TaylorBot Plus** features, use `{Context.CommandPrefix}plus add` if you change your mind."
-                    }))
-                    .Build()
-                );
-            });
+                    return new EmbedResult(new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User)
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"Successfully removed {Context.Guild.Name} from your plus servers. 😊",
+                            $"This server will lose access to **TaylorBot Plus** features, use `{Context.CommandPrefix}plus add` if you change your mind."
+                        }))
+                        .Build()
+                    );
+                },
+                Preconditions: new ICommandPrecondition[] {
+                    new InGuildPrecondition(),
+                    new PlusPrecondition(_plusRepository, PlusRequirement.PlusUser)
+                }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusUser)
-            });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

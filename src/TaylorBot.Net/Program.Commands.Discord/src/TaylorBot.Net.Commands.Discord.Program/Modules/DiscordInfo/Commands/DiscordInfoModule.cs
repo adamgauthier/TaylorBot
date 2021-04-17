@@ -145,39 +145,43 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
             IUserArgument<IGuildUser>? member = null
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var guildUser = member == null ?
-                    (IGuildUser)Context.User :
-                    await member.GetTrackedUserAsync();
-
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(guildUser)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
-                    .AddField("Id", $"`{guildUser.Id}`", inline: true);
-
-                if (guildUser.Activity != null && !string.IsNullOrWhiteSpace(guildUser.Activity.Name))
-                    embed.AddField("Activity", guildUser.Activity.Name, inline: true);
-
-                if (guildUser.JoinedAt.HasValue)
-                    embed.AddField("Server Joined", guildUser.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));
-
-                embed.AddField("Account Created", guildUser.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
-
-                if (guildUser.RoleIds.Any())
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    embed.AddField(
-                        "Role".ToQuantity(guildUser.RoleIds.Count),
-                        string.Join(", ", guildUser.RoleIds.Take(4).Select(id => MentionUtils.MentionRole(id))) + (guildUser.RoleIds.Count > 4 ? ", ..." : string.Empty)
-                    );
-                }
+                    var guildUser = member == null ?
+                        (IGuildUser)Context.User :
+                        await member.GetTrackedUserAsync();
 
-                return new EmbedResult(embed.Build());
-            });
+                    var embed = new EmbedBuilder()
+                        .WithUserAsAuthor(guildUser)
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
+                        .AddField("Id", $"`{guildUser.Id}`", inline: true);
+
+                    if (guildUser.Activity != null && !string.IsNullOrWhiteSpace(guildUser.Activity.Name))
+                        embed.AddField("Activity", guildUser.Activity.Name, inline: true);
+
+                    if (guildUser.JoinedAt.HasValue)
+                        embed.AddField("Server Joined", guildUser.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));
+
+                    embed.AddField("Account Created", guildUser.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
+
+                    if (guildUser.RoleIds.Any())
+                    {
+                        embed.AddField(
+                            "Role".ToQuantity(guildUser.RoleIds.Count),
+                            string.Join(", ", guildUser.RoleIds.Take(4).Select(id => MentionUtils.MentionRole(id))) + (guildUser.RoleIds.Count > 4 ? ", ..." : string.Empty)
+                        );
+                    }
+
+                    return new EmbedResult(embed.Build());
+                },
+                Preconditions: new[] { new InGuildPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new[] { new InGuildPrecondition() });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -201,44 +205,48 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
             RoleArgument<IRole>? role = null
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                IRole GetRole()
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    if (role == null)
+                    IRole GetRole()
                     {
-                        var guildUser = (IGuildUser)Context.User;
-                        return guildUser.Guild.GetRole(guildUser.RoleIds.First());
+                        if (role == null)
+                        {
+                            var guildUser = (IGuildUser)Context.User;
+                            return guildUser.Guild.GetRole(guildUser.RoleIds.First());
+                        }
+                        else
+                        {
+                            return role.Role;
+                        }
                     }
-                    else
-                    {
-                        return role.Role;
-                    }
-                }
 
-                var r = GetRole();
+                    var r = GetRole();
 
-                var members = (await r.Guild.GetUsersAsync(CacheMode.CacheOnly)).Where(m => m.RoleIds.Contains(r.Id)).ToList();
+                    var members = (await r.Guild.GetUsersAsync(CacheMode.CacheOnly)).Where(m => m.RoleIds.Contains(r.Id)).ToList();
 
-                var embed = new EmbedBuilder()
-                    .WithColor(r.Color)
-                    .WithAuthor(r.Name)
-                    .AddField("Id", $"`{r.Id}`", inline: true)
-                    .AddField("Color", $"`{r.Color}`", inline: true)
-                    .AddField("Server Id", $"`{r.Guild.Id}`", inline: true)
-                    .AddField("Hoisted", r.IsHoisted ? "✅" : "❌", inline: true)
-                    .AddField("Managed", r.IsManaged ? "✅" : "❌", inline: true)
-                    .AddField("Mentionable", r.IsMentionable ? "✅" : "❌", inline: true)
-                    .AddField("Created", r.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
-                    .AddField("Members",
-                        $"**({members.Count}{(members.Any() ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
-                    );
+                    var embed = new EmbedBuilder()
+                        .WithColor(r.Color)
+                        .WithAuthor(r.Name)
+                        .AddField("Id", $"`{r.Id}`", inline: true)
+                        .AddField("Color", $"`{r.Color}`", inline: true)
+                        .AddField("Server Id", $"`{r.Guild.Id}`", inline: true)
+                        .AddField("Hoisted", r.IsHoisted ? "✅" : "❌", inline: true)
+                        .AddField("Managed", r.IsManaged ? "✅" : "❌", inline: true)
+                        .AddField("Mentionable", r.IsMentionable ? "✅" : "❌", inline: true)
+                        .AddField("Created", r.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
+                        .AddField("Members",
+                            $"**({members.Count}{(members.Any() ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
+                        );
 
-                return new EmbedResult(embed.Build());
-            });
+                    return new EmbedResult(embed.Build());
+                },
+                Preconditions: new[] { new InGuildPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new[] { new InGuildPrecondition() });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -305,48 +313,52 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
         [Summary("Gets discord information about the current server.")]
         public async Task<RuntimeResult> ServerInfoAsync()
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var guild = Context.Guild;
-                var channels = await guild.GetChannelsAsync();
-                var orderedRoles = guild.Roles.OrderByDescending(r => r.Position).ToList();
-
-                var embed = new EmbedBuilder()
-                    .WithGuildAsAuthor(guild)
-                    .WithColor(orderedRoles.First().Color)
-                    .AddField("Id", $"`{guild.Id}`", inline: true)
-                    .AddField("Owner", MentionUtils.MentionUser(guild.OwnerId), inline: true)
-                    .AddField("Members", guild is SocketGuild socketGuild ? $"{socketGuild.MemberCount}" : "?", inline: true)
-                    .AddField("Voice Region", guild.VoiceRegionId, inline: true)
-                    .AddField("Boosts", guild.PremiumSubscriptionCount, inline: true)
-                    .AddField("Custom Emotes", guild.Emotes.Count, inline: true)
-                    .AddField("Created", guild.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
-
-                if (!string.IsNullOrWhiteSpace(guild.Description))
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    embed.AddField("Description", guild.Description);
-                }
+                    var guild = Context.Guild;
+                    var channels = await guild.GetChannelsAsync();
+                    var orderedRoles = guild.Roles.OrderByDescending(r => r.Position).ToList();
 
-                embed
-                    .AddField(
-                        "Channel".ToQuantity(channels.Count),
-                        $"{channels.OfType<ICategoryChannel>().Count()} Category, {channels.OfType<ITextChannel>().Count()} Text, {channels.OfType<IVoiceChannel>().Count()} Voice"
-                    )
-                    .AddField(
-                        "Role".ToQuantity(orderedRoles.Count),
-                        string.Join(", ", orderedRoles.Take(4).Select(r => r.Mention)) + (orderedRoles.Count > 4 ? ", ..." : string.Empty)
-                    );
+                    var embed = new EmbedBuilder()
+                        .WithGuildAsAuthor(guild)
+                        .WithColor(orderedRoles.First().Color)
+                        .AddField("Id", $"`{guild.Id}`", inline: true)
+                        .AddField("Owner", MentionUtils.MentionUser(guild.OwnerId), inline: true)
+                        .AddField("Members", guild is SocketGuild socketGuild ? $"{socketGuild.MemberCount}" : "?", inline: true)
+                        .AddField("Voice Region", guild.VoiceRegionId, inline: true)
+                        .AddField("Boosts", guild.PremiumSubscriptionCount, inline: true)
+                        .AddField("Custom Emotes", guild.Emotes.Count, inline: true)
+                        .AddField("Created", guild.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
-                if (guild.IconUrl != null)
-                {
-                    embed.WithThumbnailUrl(guild.IconUrl);
-                }
+                    if (!string.IsNullOrWhiteSpace(guild.Description))
+                    {
+                        embed.AddField("Description", guild.Description);
+                    }
 
-                return new EmbedResult(embed.Build());
-            });
+                    embed
+                        .AddField(
+                            "Channel".ToQuantity(channels.Count),
+                            $"{channels.OfType<ICategoryChannel>().Count()} Category, {channels.OfType<ITextChannel>().Count()} Text, {channels.OfType<IVoiceChannel>().Count()} Voice"
+                        )
+                        .AddField(
+                            "Role".ToQuantity(orderedRoles.Count),
+                            string.Join(", ", orderedRoles.Take(4).Select(r => r.Mention)) + (orderedRoles.Count > 4 ? ", ..." : string.Empty)
+                        );
+
+                    if (guild.IconUrl != null)
+                    {
+                        embed.WithThumbnailUrl(guild.IconUrl);
+                    }
+
+                    return new EmbedResult(embed.Build());
+                },
+                Preconditions: new[] { new InGuildPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new[] { new InGuildPrecondition() });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

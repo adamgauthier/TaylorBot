@@ -21,7 +21,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
         private readonly ICommandUsageRepository _commandUsageRepository;
         private readonly IIgnoredUserRepository _ignoredUserRepository;
         private readonly PageMessageReactionsHandler _pageMessageReactionsHandler;
-        private readonly ICommandRunner _commandRunner;
+        private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition;
 
         public CommandExecutedHandler(
             ILogger<CommandExecutedHandler> logger,
@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
             ICommandUsageRepository commandUsageRepository,
             IIgnoredUserRepository ignoredUserRepository,
             PageMessageReactionsHandler pageMessageReactionsHandler,
-            ICommandRunner commandRunner
+            UserNotIgnoredPrecondition userNotIgnoredPrecondition
         )
         {
             _logger = logger;
@@ -37,7 +37,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
             _commandUsageRepository = commandUsageRepository;
             _ignoredUserRepository = ignoredUserRepository;
             _pageMessageReactionsHandler = pageMessageReactionsHandler;
-            _commandRunner = commandRunner;
+            _userNotIgnoredPrecondition = userNotIgnoredPrecondition;
         }
 
         public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
@@ -138,8 +138,8 @@ namespace TaylorBot.Net.Commands.DiscordNet
                             break;
 
                         case ParseResult parseResult:
-                            // Preconditions have not been executed, we must make sure none of them are failing with no message.
-                            var runResult = await _commandRunner.RunAsync(
+                            // Preconditions have not been executed, we must make sure the user is not ignored.
+                            var runResult = await _userNotIgnoredPrecondition.CanRunAsync(
                                 new Command(DiscordNetContextMapper.MapToCommandMetadata(commandContext), () => new()),
                                 DiscordNetContextMapper.MapToRunContext(commandContext)
                             );
@@ -174,9 +174,9 @@ namespace TaylorBot.Net.Commands.DiscordNet
                 }
             }
 
-            if (result is TaylorBotResult taylorBot && taylorBot.Context.OnGoingState.OnGoingCommandAddedToPool != null)
+            if (commandContext.RunContext?.OnGoingState.OnGoingCommandAddedToPool != null)
             {
-                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, taylorBot.Context.OnGoingState.OnGoingCommandAddedToPool);
+                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoingState.OnGoingCommandAddedToPool);
             }
         }
 

@@ -148,32 +148,36 @@ namespace TaylorBot.Net.Commands.DiscordNet
             string? component = null
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                if (component != _commandApplicationOptions.CurrentValue.ApplicationName)
-                    return new EmptyResult();
-
-                var embed = new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithUserAsAuthor(Context.Client.CurrentUser)
-                    .AddField("Guild Cache", (await Context.Client.GetGuildsAsync(CacheMode.CacheOnly)).Count, inline: true)
-                    .AddField("DM Channels Cache", (await Context.Client.GetDMChannelsAsync(CacheMode.CacheOnly)).Count, inline: true);
-
-                if (Context.Client is DiscordShardedClient shardedClient)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    embed.AddField("Shard Count", shardedClient.Shards.Count, inline: true);
-                }
+                    if (component != _commandApplicationOptions.CurrentValue.ApplicationName)
+                        return new EmptyResult();
 
-                if (Context.Client is BaseSocketClient socketClient)
-                {
-                    embed.AddField("Latency", $"{socketClient.Latency} ms", inline: true);
-                }
+                    var embed = new EmbedBuilder()
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithUserAsAuthor(Context.Client.CurrentUser)
+                        .AddField("Guild Cache", (await Context.Client.GetGuildsAsync(CacheMode.CacheOnly)).Count, inline: true)
+                        .AddField("DM Channels Cache", (await Context.Client.GetDMChannelsAsync(CacheMode.CacheOnly)).Count, inline: true);
 
-                return new EmbedResult(embed.Build());
-            });
+                    if (Context.Client is DiscordShardedClient shardedClient)
+                    {
+                        embed.AddField("Shard Count", shardedClient.Shards.Count, inline: true);
+                    }
+
+                    if (Context.Client is BaseSocketClient socketClient)
+                    {
+                        embed.AddField("Latency", $"{socketClient.Latency} ms", inline: true);
+                    }
+
+                    return new EmbedResult(embed.Build());
+                },
+                Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new[] { new TaylorBotOwnerPrecondition() });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

@@ -30,38 +30,42 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Framework.Commands
             Word? prefix = null
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor);
-
-                if (prefix != null)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    await _commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
-                    embed
-                        .WithDescription(string.Join('\n', new[] {
-                            $"The command prefix for this server has been set to `{prefix.Value}`.",
-                            $"TaylorBot will now recognize commands starting with that prefix in this server, for example `{prefix.Value}help`."
-                        }));
-                }
-                else
-                {
-                    embed
-                        .WithDescription(string.Join('\n', new[] {
-                            $"The command prefix for this server is `{Context.CommandPrefix}`.",
-                            $"TaylorBot recognizes commands starting with that prefix in this server, for example `{Context.CommandPrefix}help`."
-                        }));
-                }
+                    var embed = new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User)
+                        .WithColor(TaylorBotColors.SuccessColor);
 
-                return new EmbedResult(embed.Build());
-            });
+                    if (prefix != null)
+                    {
+                        await _commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
+                        embed
+                            .WithDescription(string.Join('\n', new[] {
+                                $"The command prefix for this server has been set to `{prefix.Value}`.",
+                                $"TaylorBot will now recognize commands starting with that prefix in this server, for example `{prefix.Value}help`."
+                            }));
+                    }
+                    else
+                    {
+                        embed
+                            .WithDescription(string.Join('\n', new[] {
+                                $"The command prefix for this server is `{Context.CommandPrefix}`.",
+                                $"TaylorBot recognizes commands starting with that prefix in this server, for example `{Context.CommandPrefix}help`."
+                            }));
+                    }
+
+                    return new EmbedResult(embed.Build());
+                },
+                Preconditions: new ICommandPrecondition[] {
+                    new InGuildPrecondition(),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

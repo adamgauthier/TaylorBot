@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
     {
         string CommandPrefix { get; }
         IList<CommandInfo> CommandInfos { get; set; }
-        string? OnGoingCommandAddedToPool { get; set; }
+        RunContext? RunContext { get; set; }
         string GetUsage(CommandInfo commandInfo);
     }
 
@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
     {
         public string CommandPrefix { get; }
         public IList<CommandInfo> CommandInfos { get; set; } = new List<CommandInfo>();
-        public string? OnGoingCommandAddedToPool { get; set; }
+        public RunContext? RunContext { get; set; }
 
         public TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : base(client, msg)
         {

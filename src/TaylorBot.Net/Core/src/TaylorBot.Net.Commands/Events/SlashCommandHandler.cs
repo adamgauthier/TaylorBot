@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
@@ -15,14 +17,22 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Program.Events;
-using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Events
 {
     public interface ISlashCommand
     {
+        Type OptionType { get; }
         string Name { get; }
-        ValueTask<Command> GetCommandAsync(RunContext context, Interaction.ApplicationCommandInteractionData data);
+        ValueTask<Command> GetCommandAsync(RunContext context, object options);
+    }
+
+    public interface ISlashCommand<T> : ISlashCommand
+    {
+        Type ISlashCommand.OptionType => typeof(T);
+        async ValueTask<Command> ISlashCommand.GetCommandAsync(RunContext context, object options) => await GetCommandAsync(context, (T)options);
+
+        ValueTask<Command> GetCommandAsync(RunContext context, T options);
     }
 
     public class SlashCommandHandler : IInteractionCreatedHandler
@@ -33,8 +43,9 @@ namespace TaylorBot.Net.Commands.Events
         private readonly IOngoingCommandRepository _ongoingCommandRepository;
         private readonly ICommandUsageRepository _commandUsageRepository;
         private readonly IIgnoredUserRepository _ignoredUserRepository;
-        private readonly IReadOnlyDictionary<string, ISlashCommand> _slashCommands;
         private readonly ICommandPrefixRepository _commandPrefixRepository;
+        private readonly IReadOnlyDictionary<string, ISlashCommand> _slashCommands;
+        private readonly IReadOnlyDictionary<Type, IOptionParser> _optionParsers;
         private readonly HttpClient _httpClient = new();
 
         public SlashCommandHandler(
@@ -56,14 +67,20 @@ namespace TaylorBot.Net.Commands.Events
             _ignoredUserRepository = ignoredUserRepository;
             _commandPrefixRepository = commandPrefixRepository;
             _slashCommands = services.GetServices<ISlashCommand>().ToDictionary(c => c.Name);
+            _optionParsers = services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType);
         }
 
         private const byte ApplicationCommandInteractionType = 2;
+        private const byte SubCommandOptionType = 1;
+        private const byte SubCommandGroupOptionType = 2;
+
+
         private const byte ChannelMessageWithSourceInteractionResponseType = 4;
+        private const byte EphemeralInteractionResponseFlags = 64;
 
         private record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData data)
         {
-            public record InteractionApplicationCommandCallbackData(IReadOnlyList<Embed> embeds);
+            public record InteractionApplicationCommandCallbackData(string? content = null, IReadOnlyList<Embed>? embeds = null, byte? flags = null);
 
             public record Embed(string? description, EmbedAuthor? author, EmbedImage? image, uint? color);
 
@@ -72,13 +89,32 @@ namespace TaylorBot.Net.Commands.Events
             public record EmbedImage(string? url);
         }
 
+        private record ApplicationCommand(
+            string Id,
+            string Token,
+            Interaction.ApplicationCommandInteractionData Data,
+            ApplicationCommand.GuildData? Guild,
+            Interaction.User? UserData,
+            string ChannelId
+        )
+        {
+            public record GuildData(string Id, Interaction.GuildMember Member);
+        }
+
         public async Task InteractionCreatedAsync(Interaction interaction)
         {
             if (interaction.type == ApplicationCommandInteractionType)
             {
                 try
                 {
-                    await HandleApplicationCommand(interaction);
+                    await HandleApplicationCommand(new(
+                        interaction.id,
+                        interaction.token,
+                        interaction.data!,
+                        interaction.member != null ? new(interaction.guild_id!, interaction.member) : null,
+                        interaction.user,
+                        interaction.channel_id!
+                    ));
                 }
                 catch (Exception e)
                 {
@@ -87,13 +123,16 @@ namespace TaylorBot.Net.Commands.Events
             }
         }
 
-        private async ValueTask HandleApplicationCommand(Interaction interaction)
+        private async ValueTask HandleApplicationCommand(ApplicationCommand interaction)
         {
-            var author = interaction.user?.id != null ?
-                await _taylorBotClient.ResolveRequiredUserAsync(new(interaction.user!.id)) :
-                (await _taylorBotClient.ResolveGuildUserAsync(_taylorBotClient.DiscordShardedClient.GetGuild(new SnowflakeId(interaction.guild_id!).Id), new(interaction.member!.user.id)))!;
+            var channel = (IMessageChannel)await _taylorBotClient.ResolveRequiredChannelAsync(new(interaction.ChannelId));
 
-            var channel = (IMessageChannel)await _taylorBotClient.ResolveRequiredChannelAsync(new(interaction.channel_id!));
+            var author = channel is ITextChannel text ?
+                (await _taylorBotClient.ResolveGuildUserAsync(
+                    text.Guild,
+                    new(interaction.Guild!.Member.user.id)
+                ))! :
+                await _taylorBotClient.ResolveRequiredUserAsync(new(interaction.UserData!.id));
 
             var oldPrefix = channel is ITextChannel textChannel ?
                 await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(textChannel.Guild) :
@@ -109,11 +148,13 @@ namespace TaylorBot.Net.Commands.Events
                 new()
             );
 
-            if (_slashCommands.TryGetValue(interaction.data!.name, out var slashCommand))
-            {
-                _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Name}' ({interaction.data!.id}) in {context.Channel.FormatLog()}");
+            var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
 
-                var result = await RunCommandAsync(slashCommand, context, interaction);
+            if (_slashCommands.TryGetValue(commandName, out var slashCommand))
+            {
+                _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Name}' ({interaction.Data.id}) in {context.Channel.FormatLog()}");
+
+                var result = await RunCommandAsync(slashCommand, context, options);
 
                 switch (result)
                 {
@@ -122,7 +163,7 @@ namespace TaylorBot.Net.Commands.Events
 
                         var response = new InteractionResponse(
                             ChannelMessageWithSourceInteractionResponseType,
-                            new(new[] {
+                            new(string.Empty, new[] {
                                 ToInteractionEmbed(embed)
                             })
                         );
@@ -130,14 +171,21 @@ namespace TaylorBot.Net.Commands.Events
                         await SendResponseAsync(interaction, response);
                         break;
 
-                    case PreconditionFailed failed:
-                        _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
+                    case ParsingFailed parsingFailed:
                         await SendResponseAsync(interaction, new InteractionResponse(
                             ChannelMessageWithSourceInteractionResponseType,
-                            new(new[] {
+                            new(parsingFailed.Message, flags: EphemeralInteractionResponseFlags)
+                        ));
+                        break;
+
+                    case PreconditionFailed preconditionFailed:
+                        _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {preconditionFailed.PrivateReason}.");
+                        await SendResponseAsync(interaction, new InteractionResponse(
+                            ChannelMessageWithSourceInteractionResponseType,
+                            new(string.Empty, new[] {
                                 ToInteractionEmbed(new EmbedBuilder()
                                     .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(failed.UserReason.Reason)
+                                    .WithDescription(preconditionFailed.UserReason.Reason)
                                 .Build())
                             })
                         ));
@@ -171,7 +219,7 @@ namespace TaylorBot.Net.Commands.Events
 
                         await SendResponseAsync(interaction, new InteractionResponse(
                             ChannelMessageWithSourceInteractionResponseType,
-                            new(new[] {
+                            new(string.Empty, new[] {
                                 ToInteractionEmbed(new EmbedBuilder()
                                     .WithColor(TaylorBotColors.ErrorColor)
                                     .WithDescription(string.Join('\n', baseDescriptionLines))
@@ -191,13 +239,42 @@ namespace TaylorBot.Net.Commands.Events
             }
         }
 
-        private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, Interaction interaction)
+        private static (string, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options) GetFullCommandNameAndOptions(Interaction.ApplicationCommandInteractionData data)
+        {
+            if (data.options != null && data.options.Count == 1 && data.options[0].type == SubCommandGroupOptionType)
+            {
+                if (data.options[0].type == SubCommandOptionType)
+                {
+                    return ($"{data.name} {data.options[0].name}", data.options[0].options);
+                }
+                else if (data.options[0].type == SubCommandGroupOptionType)
+                {
+                    var subOptions = data.options[0].options;
+                    if (subOptions != null && subOptions.Count == 1 && subOptions[0].type == SubCommandOptionType)
+                    {
+                        return ($"{data.name} {data.options[0].name} {subOptions[0].name}", subOptions[0].options);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Expected sub command group's only option to be a sub command.");
+                    }
+                }
+            }
+
+            return (data.name, data.options);
+        }
+
+        private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options)
         {
             try
             {
-                var command = await slashCommand.GetCommandAsync(context, interaction.data!);
+                var parsedOptions = await ParseOptionsAsync(slashCommand, context, options);
+                var command = await slashCommand.GetCommandAsync(context, parsedOptions);
+
                 var result = await _commandRunner.RunAsync(command, context);
+
                 _commandUsageRepository.QueueIncrementSuccessfulUseCount(slashCommand.Name);
+
                 return result;
             }
             catch (Exception e)
@@ -211,6 +288,28 @@ namespace TaylorBot.Net.Commands.Events
             }
         }
 
+        private async ValueTask<object> ParseOptionsAsync(ISlashCommand command, RunContext context, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options)
+        {
+            if (command.OptionType == typeof(NoOptions))
+                return new NoOptions();
+
+            List<object?> args = new();
+
+            foreach (var constructorParameter in command.OptionType.GetConstructors().Single().GetParameters())
+            {
+                var parser = _optionParsers[constructorParameter.ParameterType];
+
+                var parseResult = await parser.ParseAsync(context, (JsonElement?)options?.Single(option => option.name == constructorParameter.Name)?.value);
+
+                if (parseResult is ParsingFailed failed)
+                    return new ParsingFailed($"⚠ `{constructorParameter.Name}`: {failed.Message}");
+
+                args.Add(parseResult);
+            }
+
+            return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
+        }
+
         private InteractionResponse.Embed ToInteractionEmbed(Embed embed)
         {
             return new InteractionResponse.Embed(
@@ -221,12 +320,14 @@ namespace TaylorBot.Net.Commands.Events
             );
         }
 
-        private async ValueTask SendResponseAsync(Interaction interaction, InteractionResponse response)
+        private async ValueTask SendResponseAsync(ApplicationCommand interaction, InteractionResponse interactionResponse)
         {
-            await _httpClient.PostAsync(
-                $"https://discord.com/api/v8/interactions/{interaction.id}/{interaction.token}/callback",
-                JsonContent.Create(response)
+            var response = await _httpClient.PostAsync(
+                $"https://discord.com/api/v8/interactions/{interaction.Id}/{interaction.Token}/callback",
+                JsonContent.Create(interactionResponse)
             );
+
+            response.EnsureSuccessStatusCode();
         }
     }
 }

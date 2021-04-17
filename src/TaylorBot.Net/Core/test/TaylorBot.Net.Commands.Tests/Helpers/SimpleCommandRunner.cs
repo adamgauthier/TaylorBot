@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Tests.Helpers
 {
     public class SimpleCommandRunner : ICommandRunner
     {
-        public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context, IList<ICommandPrecondition>? additionalPreconditions = null)
+        public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)
         {
             return await command.RunAsync();
         }

@@ -22,6 +22,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
@@ -35,9 +37,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.Services;
-using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
+using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -109,7 +111,11 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IImageSearchClient, GoogleCustomSearchClient>()
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
-            .AddTransient<ISlashCommand, AvatarSlashCommand>();
+            .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
+            .AddSlashCommand<ModLogSetSlashCommand, ModLogSetSlashCommand.Options>()
+            .AddSlashCommand<ModLogStopSlashCommand, NoOptions>()
+            .AddSlashCommand<ModLogViewSlashCommand, NoOptions>()
+            .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>();
     })
     .Build();
 

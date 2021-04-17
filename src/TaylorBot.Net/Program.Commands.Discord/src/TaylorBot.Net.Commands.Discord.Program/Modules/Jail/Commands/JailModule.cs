@@ -1,16 +1,19 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
 {
@@ -18,13 +21,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
     [Group("jail")]
     public class JailModule : TaylorBotModule
     {
+        private readonly ILogger<JailModule> _logger;
         private readonly ICommandRunner _commandRunner;
         private readonly IJailRepository _jailRepository;
+        private readonly IModLogChannelRepository _modLogChannelRepository;
 
-        public JailModule(ICommandRunner commandRunner, IJailRepository jailRepository)
+        public JailModule(ILogger<JailModule> logger, ICommandRunner commandRunner, IJailRepository jailRepository, IModLogChannelRepository modLogChannelRepository)
         {
+            _logger = logger;
             _commandRunner = commandRunner;
             _jailRepository = jailRepository;
+            _modLogChannelRepository = modLogChannelRepository;
         }
 
         [Priority(-1)]
@@ -36,61 +43,70 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             IMentionedUserNotAuthorOrClient<IGuildUser> mentionedUser
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User);
-
-                var guildJailRoleResult = await GetGuildJailRoleAsync();
-
-                switch (guildJailRoleResult)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    case GuildJailRoleErrorResult errorResult:
-                        return new EmbedResult(embed
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(errorResult.ErrorMessage)
-                        .Build());
+                    var embed = new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User);
 
-                    case GuildJailRoleResult guildJailRole:
-                        var user = await mentionedUser.GetTrackedUserAsync();
+                    var guildJailRoleResult = await GetGuildJailRoleAsync();
 
-                        try
-                        {
-                            await user.AddRoleAsync(guildJailRole.Role);
-                        }
-                        catch (HttpException e)
-                        {
-                            if (e.HttpCode == HttpStatusCode.Forbidden)
+                    switch (guildJailRoleResult)
+                    {
+                        case GuildJailRoleErrorResult errorResult:
+                            return new EmbedResult(embed
+                                .WithColor(TaylorBotColors.ErrorColor)
+                                .WithDescription(errorResult.ErrorMessage)
+                            .Build());
+
+                        case GuildJailRoleResult guildJailRole:
+                            var user = await mentionedUser.GetTrackedUserAsync();
+
+                            try
                             {
-                                return new EmbedResult(embed
-                                    .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(string.Join('\n', new[] {
-                                        $"Could not give jail role {guildJailRole.Role.Mention} to {user.Mention} due to missing permissions.",
-                                        $"In server settings, make sure TaylorBot's role is higher in the list than {guildJailRole.Role.Mention}."
-                                    }))
-                                .Build());
+                                await user.AddRoleAsync(guildJailRole.Role, new() { AuditLogReason = $"{Context.User.FormatLog()} jailed user" });
                             }
-                            else
+                            catch (HttpException e)
                             {
-                                throw;
+                                if (e.HttpCode == HttpStatusCode.Forbidden)
+                                {
+                                    return new EmbedResult(embed
+                                        .WithColor(TaylorBotColors.ErrorColor)
+                                        .WithDescription(string.Join('\n', new[] {
+                                            $"Could not give jail role {guildJailRole.Role.Mention} to {user.Mention} due to missing permissions.",
+                                            $"In server settings, make sure TaylorBot's role is higher in the list than {guildJailRole.Role.Mention}."
+                                        }))
+                                    .Build());
+                                }
+                                else
+                                {
+                                    throw;
+                                }
                             }
-                        }
 
-                        return new EmbedResult(embed
-                            .WithColor(TaylorBotColors.SuccessColor)
-                            .WithDescription($"{user.Mention} was successfully jailed.")
-                        .Build());
+                            await TrySendModLogAsync(Context.User, user, new EmbedBuilder()
+                                .WithColor(new(95, 107, 120))
+                                .WithFooter("User jailed")
+                            );
 
-                    default: throw new NotImplementedException();
+                            return new EmbedResult(embed
+                                .WithColor(TaylorBotColors.SuccessColor)
+                                .WithDescription($"{user.Mention} was successfully jailed.")
+                            .Build());
+
+                        default: throw new NotImplementedException();
+                    }
+                },
+                Preconditions: new ICommandPrecondition[] {
+                    new InGuildPrecondition(),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
+                    new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
                 }
-            });
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -103,69 +119,78 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             IMentionedUserNotAuthor<IGuildUser> mentionedUser
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User);
-
-                var guildJailRoleResult = await GetGuildJailRoleAsync();
-
-                switch (guildJailRoleResult)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    case GuildJailRoleErrorResult errorResult:
-                        return new EmbedResult(embed
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(errorResult.ErrorMessage)
-                        .Build());
+                    var embed = new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User);
 
-                    case GuildJailRoleResult guildJailRole:
-                        var user = await mentionedUser.GetTrackedUserAsync();
+                    var guildJailRoleResult = await GetGuildJailRoleAsync();
 
-                        if (!user.RoleIds.Contains(guildJailRole.Role.Id))
-                        {
+                    switch (guildJailRoleResult)
+                    {
+                        case GuildJailRoleErrorResult errorResult:
                             return new EmbedResult(embed
                                 .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription($"{user.Mention} does not have the jail role {guildJailRole.Role.Mention}.")
+                                .WithDescription(errorResult.ErrorMessage)
                             .Build());
-                        }
 
-                        try
-                        {
-                            await user.RemoveRoleAsync(guildJailRole.Role);
-                        }
-                        catch (HttpException e)
-                        {
-                            if (e.HttpCode == HttpStatusCode.Forbidden)
+                        case GuildJailRoleResult guildJailRole:
+                            var user = await mentionedUser.GetTrackedUserAsync();
+
+                            if (!user.RoleIds.Contains(guildJailRole.Role.Id))
                             {
                                 return new EmbedResult(embed
                                     .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(string.Join('\n', new[] {
-                                        $"Could not give jail role {guildJailRole.Role.Mention} to {user.Mention} due to missing permissions.",
-                                        $"In server settings, make sure TaylorBot's role is higher in the list than {guildJailRole.Role.Mention}."
-                                    }))
+                                    .WithDescription($"{user.Mention} does not have the jail role {guildJailRole.Role.Mention}.")
                                 .Build());
                             }
-                            else
+
+                            try
                             {
-                                throw;
+                                await user.RemoveRoleAsync(guildJailRole.Role, new() { AuditLogReason = $"{Context.User.FormatLog()} freed user" });
                             }
-                        }
+                            catch (HttpException e)
+                            {
+                                if (e.HttpCode == HttpStatusCode.Forbidden)
+                                {
+                                    return new EmbedResult(embed
+                                        .WithColor(TaylorBotColors.ErrorColor)
+                                        .WithDescription(string.Join('\n', new[] {
+                                            $"Could not give jail role {guildJailRole.Role.Mention} to {user.Mention} due to missing permissions.",
+                                            $"In server settings, make sure TaylorBot's role is higher in the list than {guildJailRole.Role.Mention}."
+                                        }))
+                                    .Build());
+                                }
+                                else
+                                {
+                                    throw;
+                                }
+                            }
 
-                        return new EmbedResult(embed
-                            .WithColor(TaylorBotColors.SuccessColor)
-                            .WithDescription($"{user.Mention} was successfully freed.")
-                        .Build());
+                            await TrySendModLogAsync(Context.User, user, new EmbedBuilder()
+                                .WithColor(new(119, 136, 153))
+                                .WithFooter("User freed")
+                            );
 
-                    default: throw new NotImplementedException();
+                            return new EmbedResult(embed
+                                .WithColor(TaylorBotColors.SuccessColor)
+                                .WithDescription($"{user.Mention} was successfully freed.")
+                            .Build());
+
+                        default: throw new NotImplementedException();
+                    }
+                },
+                Preconditions: new ICommandPrecondition[] {
+                    new InGuildPrecondition(),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
+                    new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
                 }
-            });
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -178,25 +203,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             RoleNotEveryoneArgument<IRole> role
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                await _jailRepository.SetJailRoleAsync(Context.Guild, role.Role);
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
+                {
+                    await _jailRepository.SetJailRoleAsync(Context.Guild, role.Role);
 
-                return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Role {role.Role.Mention} was successfully set as the jail role for this server.",
-                        $"You can now use `{Context.CommandPrefix}jail @user` and they will receive {role.Role.Mention}."
-                    }))
-                .Build());
-            });
+                    return new EmbedResult(new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User)
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"Role {role.Role.Mention} was successfully set as the jail role for this server.",
+                            $"You can now use `{Context.CommandPrefix}jail @user` and they will receive {role.Role.Mention}."
+                        }))
+                    .Build());
+                },
+                Preconditions: new ICommandPrecondition[] {
+                    new InGuildPrecondition(),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -231,6 +260,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             }
 
             return new GuildJailRoleResult(guildJailRole);
+        }
+
+        private async Task TrySendModLogAsync(IUser moderator, IUser user, EmbedBuilder embed)
+        {
+            embed
+                .WithUserAsAuthor(user)
+                .AddField("User", $"{user.Username}#{user.Discriminator} ({user.Mention})", inline: true)
+                .AddField("Moderator", $"{moderator.Username}#{moderator.Discriminator} ({moderator.Mention})", inline: true)
+                .WithCurrentTimestamp();
+
+            var modLog = await _modLogChannelRepository.GetModLogForGuildAsync(Context.Guild);
+            if (modLog != null)
+            {
+                var channel = (ITextChannel?)await Context.Guild.GetChannelAsync(modLog.ChannelId.Id);
+                if (channel != null)
+                {
+                    try
+                    {
+                        await channel.SendMessageAsync(embed: embed.Build());
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
+                    }
+                }
+            }
         }
     }
 }

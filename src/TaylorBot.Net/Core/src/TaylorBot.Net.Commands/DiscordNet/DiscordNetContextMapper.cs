@@ -4,8 +4,13 @@ namespace TaylorBot.Net.Commands.DiscordNet
 {
     public static class DiscordNetContextMapper
     {
-        public static RunContext MapToRunContext(ITaylorBotCommandContext context) =>
-            new(context.Message.Timestamp, context.User, context.Channel, context.Guild, context.Client, context.CommandPrefix, new());
+        public static RunContext MapToRunContext(ITaylorBotCommandContext context)
+        {
+            RunContext runContext = new(context.Message.Timestamp, context.User, context.Channel, context.Guild, context.Client, context.CommandPrefix, new());
+            context.RunContext = runContext;
+            return runContext;
+        }
+
         public static CommandMetadata MapToCommandMetadata(ITaylorBotCommandContext context)
         {
             var commandInfo = context.CommandInfos.OrderByDescending(c => c.Priority).FirstOrDefault();

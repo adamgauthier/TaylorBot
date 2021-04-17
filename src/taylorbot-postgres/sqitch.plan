@@ -19,3 +19,4 @@
 0015_plus_schema 2021-03-06T21:48:21Z Adam Gauthier <adamgauthier12@gmail.com> # Restructure pro tables into plus
 0016_bump_version_1.10.0 2021-03-29T01:32:05Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.10.0
 0017_bump_version_1.10.1 2021-04-15T00:54:20Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.10.1
+0018_mod_log_channels 2021-04-20T00:45:10Z Adam Gauthier <adamgauthier12@gmail.com> # Add moderation log channels

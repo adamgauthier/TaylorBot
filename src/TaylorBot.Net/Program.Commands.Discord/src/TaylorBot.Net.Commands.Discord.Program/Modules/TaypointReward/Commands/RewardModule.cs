@@ -36,29 +36,33 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Commands
             IReadOnlyCollection<IMentionedUserNotAuthor<IUser>> users
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var trackedUsers = new List<IUser>();
-                foreach (var user in users)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    trackedUsers.Add(await user.GetTrackedUserAsync());
-                }
+                    var trackedUsers = new List<IUser>();
+                    foreach (var user in users)
+                    {
+                        trackedUsers.Add(await user.GetTrackedUserAsync());
+                    }
 
-                var rewardedUsers = await _taypointRepository.RewardUsersAsync(trackedUsers, taypoints.Parsed);
+                    var rewardedUsers = await _taypointRepository.RewardUsersAsync(trackedUsers, taypoints.Parsed);
 
-                return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Successfully rewarded {"taypoint".ToQuantity(taypoints.Parsed, TaylorBotFormats.BoldReadable)} to:"
-                    }.Concat(rewardedUsers.Select(
-                        u => $"{MentionUtils.MentionUser(u.UserId.Id)} - now has {u.NewTaypointCount.ToString(TaylorBotFormats.BoldReadable)}"
-                    ))).Truncate(2048))
-                .Build());
-            });
+                    return new EmbedResult(new EmbedBuilder()
+                        .WithUserAsAuthor(Context.User)
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithDescription(string.Join('\n', new[] {
+                            $"Successfully rewarded {"taypoint".ToQuantity(taypoints.Parsed, TaylorBotFormats.BoldReadable)} to:"
+                        }.Concat(rewardedUsers.Select(
+                            u => $"{MentionUtils.MentionUser(u.UserId.Id)} - now has {u.NewTaypointCount.ToString(TaylorBotFormats.BoldReadable)}"
+                        ))).Truncate(2048))
+                    .Build());
+                },
+                Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new[] { new TaylorBotOwnerPrecondition() });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

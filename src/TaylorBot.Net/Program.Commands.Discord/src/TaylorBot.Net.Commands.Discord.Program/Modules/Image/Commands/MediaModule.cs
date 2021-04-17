@@ -35,54 +35,58 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
             string text
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var result = await _rateLimiter.VerifyDailyLimitAsync(Context.User, "custom-search", "Searching Images");
-                if (result != null)
-                    return result;
-
-                var searchResult = await _imageSearchClient.SearchImagesAsync(text);
-
-                switch (searchResult)
+            var command = new Command(
+                DiscordNetContextMapper.MapToCommandMetadata(Context),
+                async () =>
                 {
-                    case SuccessfulSearch search:
-                        EmbedBuilder BuildBaseEmbed() =>
-                            new EmbedBuilder()
-                            .WithUserAsAuthor(Context.User)
-                            .WithColor(TaylorBotColors.SuccessColor)
-                            .WithFooter($"{search.ResultCount} results found in {search.SearchTimeSeconds} seconds");
+                    var result = await _rateLimiter.VerifyDailyLimitAsync(Context.User, "custom-search", "Searching Images");
+                    if (result != null)
+                        return result;
 
-                        return new PageMessageResult(new PageMessage(new(
-                            new EmbedPageMessageRenderer(new CustomSearchImagePageEditor(search.Images), BuildBaseEmbed),
-                            Cancellable: true
-                        )));
+                    var searchResult = await _imageSearchClient.SearchImagesAsync(text);
 
-                    case DailyLimitExceeded _:
-                        return new EmbedResult(new EmbedBuilder()
-                            .WithUserAsAuthor(Context.User)
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                            "TaylorBot has reached its daily query limit for the underlying image search service. 😢",
-                            "You'll have to wait for the limit to reset. Try again tomorrow!"
-                            }))
-                        .Build());
+                    switch (searchResult)
+                    {
+                        case SuccessfulSearch search:
+                            EmbedBuilder BuildBaseEmbed() =>
+                                new EmbedBuilder()
+                                .WithUserAsAuthor(Context.User)
+                                .WithColor(TaylorBotColors.SuccessColor)
+                                .WithFooter($"{search.ResultCount} results found in {search.SearchTimeSeconds} seconds");
 
-                    case GenericError error:
-                        return new EmbedResult(new EmbedBuilder()
-                            .WithUserAsAuthor(Context.User)
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                            "The underlying image search service returned an unexpected error. 😢",
-                            "The site might be down. Try again later!"
-                            }))
-                        .Build());
+                            return new PageMessageResult(new PageMessage(new(
+                                new EmbedPageMessageRenderer(new CustomSearchImagePageEditor(search.Images), BuildBaseEmbed),
+                                Cancellable: true
+                            )));
 
-                    default: throw new InvalidOperationException(searchResult.GetType().Name);
-                }
-            });
+                        case DailyLimitExceeded _:
+                            return new EmbedResult(new EmbedBuilder()
+                                .WithUserAsAuthor(Context.User)
+                                .WithColor(TaylorBotColors.ErrorColor)
+                                .WithDescription(string.Join('\n', new[] {
+                                "TaylorBot has reached its daily query limit for the underlying image search service. 😢",
+                                "You'll have to wait for the limit to reset. Try again tomorrow!"
+                                }))
+                            .Build());
+
+                        case GenericError error:
+                            return new EmbedResult(new EmbedBuilder()
+                                .WithUserAsAuthor(Context.User)
+                                .WithColor(TaylorBotColors.ErrorColor)
+                                .WithDescription(string.Join('\n', new[] {
+                                "The underlying image search service returned an unexpected error. 😢",
+                                "The site might be down. Try again later!"
+                                }))
+                            .Build());
+
+                        default: throw new InvalidOperationException(searchResult.GetType().Name);
+                    }
+                },
+                Preconditions: new[] { new PlusPrecondition(_plusRepository, PlusRequirement.PlusUserOrGuild) }
+            );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context, new[] { new PlusPrecondition(_plusRepository, PlusRequirement.PlusUserOrGuild) });
+            var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

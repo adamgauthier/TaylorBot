@@ -2,9 +2,11 @@
 using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
@@ -19,12 +21,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IGuild _guild = A.Fake<IGuild>(o => o.Strict());
         private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+        private readonly ILogger<JailModule> _logger = A.Fake<ILogger<JailModule>>();
         private readonly IJailRepository _jailRepository = A.Fake<IJailRepository>(o => o.Strict());
+        private readonly IModLogChannelRepository _modLogChannelRepository = A.Fake<IModLogChannelRepository>(o => o.Strict());
         private readonly JailModule _jailModule;
 
         public JailModuleTests()
         {
-            _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository);
+            _jailModule = new JailModule(_logger, new SimpleCommandRunner(), _jailRepository, _modLogChannelRepository);
             _jailModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.Guild).Returns(_guild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
@@ -83,7 +87,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var jailRole = SetupValidJailRole();
             var user = A.Fake<IGuildUser>(o => o.Strict());
             A.CallTo(() => user.Mention).Returns(string.Empty);
-            A.CallTo(() => user.AddRoleAsync(jailRole, null)).ThrowsAsync(
+            A.CallTo(() => user.AddRoleAsync(jailRole, A<RequestOptions>.Ignored)).ThrowsAsync(
                 new HttpException(System.Net.HttpStatusCode.Forbidden, A.Fake<IRequest>(), null, null)
             );
 
@@ -96,9 +100,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public async Task JailAsync_WhenJailRoleSetAndCanBeAdded_ThenReturnsSuccessEmbed()
         {
             var jailRole = SetupValidJailRole();
-            var user = A.Fake<IGuildUser>(o => o.Strict());
+            var user = A.Fake<IGuildUser>();
             A.CallTo(() => user.Mention).Returns(string.Empty);
             A.CallTo(() => user.AddRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
+            A.CallTo(() => _modLogChannelRepository.GetModLogForGuildAsync(_guild)).Returns(null);
 
             var result = (await _jailModule.JailAsync(CreateMentionedUserNotClient(user))).GetResult<EmbedResult>();
 
@@ -109,10 +114,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public async Task Free_WhenJailRoleSetAndCanBeRemoved_ThenReturnsSuccessEmbed()
         {
             var jailRole = SetupValidJailRole();
-            var user = A.Fake<IGuildUser>(o => o.Strict());
+            var user = A.Fake<IGuildUser>();
             A.CallTo(() => user.Mention).Returns(string.Empty);
             A.CallTo(() => user.RoleIds).Returns(new[] { jailRole.Id });
             A.CallTo(() => user.RemoveRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
+            A.CallTo(() => _modLogChannelRepository.GetModLogForGuildAsync(_guild)).Returns(null);
 
             var result = (await _jailModule.FreeAsync(CreateMentionedUser(user))).GetResult<EmbedResult>();
 

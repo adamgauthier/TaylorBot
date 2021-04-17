@@ -38,28 +38,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                 IChannelArgument<ITextChannel>? channel = null
             )
             {
-                var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-                {
-                    var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
+                var command = new Command(
+                    DiscordNetContextMapper.MapToCommandMetadata(Context),
+                    async () =>
+                    {
+                        var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
 
-                    await _deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(textChannel);
+                        await _deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(textChannel);
 
-                    return new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.SuccessColor)
-                        .WithUserAsAuthor(Context.User)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Ok, I will now log deleted messages in {textChannel.Mention}. Please wait up to 5 minutes for changes to take effect. ⌚",
-                            $"Use `{Context.CommandPrefix}log deleted stop` to undo this action."
-                        }))
-                    .Build());
-                });
+                        return new EmbedResult(new EmbedBuilder()
+                            .WithColor(TaylorBotColors.SuccessColor)
+                            .WithUserAsAuthor(Context.User)
+                            .WithDescription(string.Join('\n', new[] {
+                                $"Ok, I will now log deleted messages in {textChannel.Mention}. Please wait up to 5 minutes for changes to take effect. ⌚",
+                                $"Use `{Context.CommandPrefix}log deleted stop` to undo this action."
+                            }))
+                        .Build());
+                    },
+                    Preconditions: new ICommandPrecondition[] {
+                        new InGuildPrecondition(),
+                        new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
+                        new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                    }
+                );
 
                 var context = DiscordNetContextMapper.MapToRunContext(Context);
-                var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                    new InGuildPrecondition(),
-                    new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-                });
+                var result = await _commandRunner.RunAsync(command, context);
 
                 return new TaylorBotResult(result, context);
             }
@@ -68,25 +72,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
             [Summary("Directs TaylorBot to stop logging deleted messages in this server.")]
             public async Task<RuntimeResult> RemoveAsync()
             {
-                var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-                {
-                    await _deletedLogChannelRepository.RemoveDeletedLogAsync(Context.Guild);
+                var command = new Command(
+                    DiscordNetContextMapper.MapToCommandMetadata(Context),
+                    async () =>
+                    {
+                        await _deletedLogChannelRepository.RemoveDeletedLogAsync(Context.Guild);
 
-                    return new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.SuccessColor)
-                        .WithUserAsAuthor(Context.User)
-                        .WithDescription(string.Join('\n', new[] {
-                            "Ok, I will stop logging deleted messages in this server. Please wait up to 5 minutes for changes to take effect. ⌚",
-                            $"Use `{Context.CommandPrefix}log deleted` to log deleted messages in a specific channel."
-                        }))
-                    .Build());
-                });
+                        return new EmbedResult(new EmbedBuilder()
+                            .WithColor(TaylorBotColors.SuccessColor)
+                            .WithUserAsAuthor(Context.User)
+                            .WithDescription(string.Join('\n', new[] {
+                                "Ok, I will stop logging deleted messages in this server. Please wait up to 5 minutes for changes to take effect. ⌚",
+                                $"Use `{Context.CommandPrefix}log deleted` to log deleted messages in a specific channel."
+                            }))
+                        .Build());
+                    },
+                    Preconditions: new ICommandPrecondition[] {
+                        new InGuildPrecondition(),
+                        new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                    }
+                );
 
                 var context = DiscordNetContextMapper.MapToRunContext(Context);
-                var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                    new InGuildPrecondition(),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-                });
+                var result = await _commandRunner.RunAsync(command, context);
 
                 return new TaylorBotResult(result, context);
             }
@@ -116,28 +124,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                 IChannelArgument<ITextChannel>? channel = null
             )
             {
-                var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-                {
-                    var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
+                var command = new Command(
+                    DiscordNetContextMapper.MapToCommandMetadata(Context),
+                    async () =>
+                    {
+                        var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
 
-                    await _memberLogChannelRepository.AddOrUpdateMemberLogAsync(textChannel);
+                        await _memberLogChannelRepository.AddOrUpdateMemberLogAsync(textChannel);
 
-                    return new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.SuccessColor)
-                        .WithUserAsAuthor(Context.User)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Ok, I will now log member joins, leaves and bans in {textChannel.Mention}. 😊",
-                            $"Use `{Context.CommandPrefix}log member stop` to undo this action."
-                        }))
-                    .Build());
-                });
+                        return new EmbedResult(new EmbedBuilder()
+                            .WithColor(TaylorBotColors.SuccessColor)
+                            .WithUserAsAuthor(Context.User)
+                            .WithDescription(string.Join('\n', new[] {
+                                $"Ok, I will now log member joins, leaves and bans in {textChannel.Mention}. 😊",
+                                $"Use `{Context.CommandPrefix}log member stop` to undo this action."
+                            }))
+                        .Build());
+                    },
+                    Preconditions: new ICommandPrecondition[] {
+                        new InGuildPrecondition(),
+                        new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
+                        new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                    }
+                );
 
                 var context = DiscordNetContextMapper.MapToRunContext(Context);
-                var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                    new InGuildPrecondition(),
-                    new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-                });
+                var result = await _commandRunner.RunAsync(command, context);
 
                 return new TaylorBotResult(result, context);
             }
@@ -146,25 +158,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
             [Summary("Directs TaylorBot to stop logging member events in this server.")]
             public async Task<RuntimeResult> RemoveAsync()
             {
-                var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-                {
-                    await _memberLogChannelRepository.RemoveMemberLogAsync(Context.Guild);
+                var command = new Command(
+                    DiscordNetContextMapper.MapToCommandMetadata(Context),
+                    async () =>
+                    {
+                        await _memberLogChannelRepository.RemoveMemberLogAsync(Context.Guild);
 
-                    return new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.SuccessColor)
-                        .WithUserAsAuthor(Context.User)
-                        .WithDescription(string.Join('\n', new[] {
-                            "Ok, I will stop logging member events in this server. 😊",
-                            $"Use `{Context.CommandPrefix}log member` to log member events in a specific channel."
-                        }))
-                    .Build());
-                });
+                        return new EmbedResult(new EmbedBuilder()
+                            .WithColor(TaylorBotColors.SuccessColor)
+                            .WithUserAsAuthor(Context.User)
+                            .WithDescription(string.Join('\n', new[] {
+                                "Ok, I will stop logging member events in this server. 😊",
+                                $"Use `{Context.CommandPrefix}log member` to log member events in a specific channel."
+                            }))
+                        .Build());
+                    },
+                    Preconditions: new ICommandPrecondition[] {
+                        new InGuildPrecondition(),
+                        new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                    }
+                );
 
                 var context = DiscordNetContextMapper.MapToRunContext(Context);
-                var result = await _commandRunner.RunAsync(command, context, new ICommandPrecondition[] {
-                    new InGuildPrecondition(),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-                });
+                var result = await _commandRunner.RunAsync(command, context);
 
                 return new TaylorBotResult(result, context);
             }

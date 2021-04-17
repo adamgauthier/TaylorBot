@@ -7,6 +7,8 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.EntityTracker.Domain;
+using TaylorBot.Net.EntityTracker.Domain.Username;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Types.Tests
@@ -18,14 +20,17 @@ namespace TaylorBot.Net.Commands.Types.Tests
         private readonly ICommandUsageRepository _commandUsageRepository = A.Fake<ICommandUsageRepository>(o => o.Strict());
         private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
         private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
-        private readonly ICommandRunner _commandRunner = A.Fake<ICommandRunner>(o => o.Strict());
+        private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition = new(
+            A.Fake<IIgnoredUserRepository>(o => o.Strict()),
+            new UsernameTrackerDomainService(A.Fake<ILogger<UsernameTrackerDomainService>>(o => o.Strict()), A.Fake<IUsernameRepository>(o => o.Strict()))
+        );
 
         private readonly CommandExecutedHandler _commandExecutedHandler;
 
         public CommandExecutedHandlerTests()
         {
             _commandExecutedHandler = new(
-                _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _commandRunner
+                _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition
             );
         }
 
@@ -33,7 +38,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         public async Task OnCommandExecutedAsync_WhenUnknownCommand_ThenNoLog()
         {
             var commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
-            A.CallTo(() => commandContext.OnGoingCommandAddedToPool).Returns(null);
+            A.CallTo(() => commandContext.RunContext).Returns(null);
             var result = A.Fake<IResult>(o => o.Strict());
             A.CallTo(() => result.Error).Returns(CommandError.UnknownCommand);
 

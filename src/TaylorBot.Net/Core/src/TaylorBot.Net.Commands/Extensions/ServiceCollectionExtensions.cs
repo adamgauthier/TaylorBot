@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
+using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program.Events;
@@ -56,7 +57,22 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<MemberTrackedPrecondition>()
                 .AddTransient<TextChannelTrackedPrecondition>()
                 .AddTransient<UserNoOngoingCommandPrecondition>()
-                .AddTransient<ICommandRunner, CommandRunner>();
+                .AddTransient<ICommandRunner, CommandRunner>()
+                .AddOptionParser<ParsedUserOrAuthor, UserOrAuthorParser>()
+                .AddOptionParser<ParsedTextChannelOrCurrent, TextChannelOrCurrentParser>();
+        }
+
+        public static IServiceCollection AddOptionParser<U, T>(this IServiceCollection services)
+            where T : class, IOptionParser<U>
+            where U : IParseResult
+        {
+            return services.AddTransient<IOptionParser, T>();
+        }
+
+        public static IServiceCollection AddSlashCommand<T, U>(this IServiceCollection services)
+            where T : class, ISlashCommand<U>
+        {
+            return services.AddTransient<ISlashCommand, T>();
         }
     }
 }

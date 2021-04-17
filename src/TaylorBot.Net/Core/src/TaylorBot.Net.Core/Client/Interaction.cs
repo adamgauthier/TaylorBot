@@ -15,7 +15,7 @@ namespace TaylorBot.Net.Core.Client
     {
         public record ApplicationCommandInteractionData(string id, string name, IReadOnlyList<ApplicationCommandInteractionDataOption>? options);
 
-        public record ApplicationCommandInteractionDataOption(string name, object? value);
+        public record ApplicationCommandInteractionDataOption(string name, byte type, object? value, IReadOnlyList<ApplicationCommandInteractionDataOption>? options);
 
         public record GuildMember(User user);
 
