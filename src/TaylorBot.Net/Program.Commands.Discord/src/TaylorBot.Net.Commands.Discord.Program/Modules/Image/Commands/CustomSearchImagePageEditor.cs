@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System;
 using System.Collections.Generic;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.PageMessages;
@@ -20,9 +21,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
         {
             var page = _pages[currentPage - 1];
 
+            if (Uri.IsWellFormedUriString(page.PageUrl, UriKind.Absolute))
+                embed
+                .WithUrl(page.PageUrl);
+
             return embed
                 .WithTitle(page.Title)
-                .WithUrl(page.PageUrl)
                 .WithImageUrl(page.ImageUrl);
         }
     }
