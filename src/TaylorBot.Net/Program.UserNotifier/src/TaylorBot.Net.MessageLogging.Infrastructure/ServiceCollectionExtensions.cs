@@ -37,6 +37,15 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
                 })
                 .AddTransient<MessageLogChannelFinder>()
                 .AddTransient<MessageDeletedEmbedFactory>()
+                .AddSingleton<CachedMessageInMemoryRepository>()
+                .AddTransient<CachedMessageRedisRepository>()
+                .AddTransient(provider =>
+                {
+                    var options = provider.GetRequiredService<IOptionsMonitor<MessageDeletedLoggingOptions>>().CurrentValue;
+                    return options.UseRedisCache ?
+                        provider.GetRequiredService<CachedMessageRedisRepository>() :
+                        (ICachedMessageRepository)provider.GetRequiredService<CachedMessageInMemoryRepository>();
+                })
                 .AddTransient<MessageDeletedLoggerService>();
         }
     }

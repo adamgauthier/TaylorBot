@@ -7,6 +7,7 @@ using System.Linq;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Time;
+using TaylorBot.Net.Core.User;
 using TaylorBot.Net.MessageLogging.Domain.Options;
 
 namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
@@ -20,65 +21,83 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             _optionsMonitor = optionsMonitor;
         }
 
-        private EmbedBuilder CreateBaseMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ITextChannel channel)
+        private EmbedBuilder CreateBaseMessageDeleted(CachedMessage cachedMessage, ITextChannel channel)
         {
             var builder = new EmbedBuilder()
                 .AddField("Channel", channel.Mention, inline: true);
 
-            var message = cachedMessage.Value;
-
-            if (message != null)
+            if (cachedMessage.Data != null)
             {
-                var avatarUrl = message.Author.GetAvatarUrl() ?? message.Author.GetDefaultAvatarUrl();
-
-                builder
-                    .WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl)
-                    .AddField("Sent At", message.Timestamp.FormatShortUserLogDate(), inline: true);
-
-                if (message.EditedTimestamp.HasValue)
+                switch (cachedMessage.Data)
                 {
-                    builder.AddField("Edited At", message.EditedTimestamp.Value.FormatShortUserLogDate(), inline: true);
-                }
+                    case DiscordNetCachedMessageData discordNet:
+                        var message = discordNet.Message;
 
-                if (message.Activity != null)
-                {
-                    builder.AddField("Activity", message.Activity.Type.ToString(), inline: true);
-                }
+                        var avatarUrl = message.Author.GetAvatarUrlOrDefault();
 
-                if (message.Embeds.Any())
-                {
-                    builder.AddField("Embed Count", message.Embeds.Count, inline: true);
-                }
-
-                if (message.Attachments.Any())
-                {
-                    builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => a.Filename.DiscordMdLink(a.ProxyUrl))));
-                }
-
-                switch (message)
-                {
-                    case ISystemMessage systemMessage:
                         builder
-                            .WithTitle("System Message Type")
-                            .WithDescription(GetSystemMessageTypeString(systemMessage.Type));
-                        break;
-                    case IUserMessage userMessage:
-                        if (!string.IsNullOrEmpty(userMessage.Content))
+                            .WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl)
+                            .AddField("Sent At", message.Timestamp.FormatShortUserLogDate(), inline: true);
+
+                        if (message.EditedTimestamp.HasValue)
                         {
-                            builder.WithTitle("Message Content").WithDescription(userMessage.Content);
+                            builder.AddField("Edited At", message.EditedTimestamp.Value.FormatShortUserLogDate(), inline: true);
+                        }
+
+                        if (message.Activity != null)
+                        {
+                            builder.AddField("Activity", message.Activity.Type.ToString(), inline: true);
+                        }
+
+                        if (message.Embeds.Any())
+                        {
+                            builder.AddField("Embed Count", message.Embeds.Count, inline: true);
+                        }
+
+                        if (message.Attachments.Any())
+                        {
+                            builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => a.Filename.DiscordMdLink(a.ProxyUrl))));
+                        }
+
+                        switch (message)
+                        {
+                            case ISystemMessage systemMessage:
+                                builder
+                                    .WithTitle("System Message Type")
+                                    .WithDescription(GetSystemMessageTypeString(systemMessage.Type));
+                                break;
+
+                            case IUserMessage userMessage:
+                                if (!string.IsNullOrEmpty(userMessage.Content))
+                                {
+                                    builder.WithTitle("Message Content").WithDescription(userMessage.Content);
+                                }
+                                break;
+                        }
+                        break;
+
+                    case TaylorBotCachedMessageData taylorBot:
+                        builder
+                            .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
+                            .AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+
+                        if (taylorBot.Content != string.Empty)
+                        {
+                            builder
+                                .WithTitle("Message Content").WithDescription(taylorBot.Content);
                         }
                         break;
                 }
             }
             else
             {
-                builder.AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatShortUserLogDate(), inline: true);
+                builder.AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
             }
 
             return builder;
         }
 
-        public Embed CreateMessageDeleted(Cacheable<IMessage, ulong> cachedMessage, ITextChannel channel)
+        public Embed CreateMessageDeleted(CachedMessage cachedMessage, ITextChannel channel)
         {
             var options = _optionsMonitor.CurrentValue;
 
@@ -99,7 +118,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             };
         }
 
-        public IReadOnlyCollection<Embed> CreateMessageBulkDeleted(IReadOnlyCollection<Cacheable<IMessage, ulong>> cachedMessages, ITextChannel channel)
+        public IReadOnlyCollection<Embed> CreateMessageBulkDeleted(IReadOnlyCollection<CachedMessage> cachedMessages, ITextChannel channel)
         {
             var options = _optionsMonitor.CurrentValue;
             var embedColor = DiscordColor.FromHexString(options.MessageBulkDeletedEmbedColorHex);
@@ -108,7 +127,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             var bulkId = Guid.NewGuid();
             var footerText = $"{"message".ToQuantity(cachedMessages.Count)} deleted in bulk ({bulkId:N})";
 
-            var areCached = cachedMessages.ToLookup(c => c.HasValue);
+            var areCached = cachedMessages.ToLookup(c => c.Data != null);
             var deletedCached = areCached[true].ToList();
             var deletedNotCached = areCached[false].ToList();
 
@@ -118,7 +137,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 .AddField("Channel", channel.Mention, inline: true)
                 .WithTitle($"{"uncached message".ToQuantity(chunk.Count)} deleted (Id - Sent At)")
                 .WithDescription(string.Join('\n', chunk.Select(uncached =>
-                    $"`{uncached.Id}` - `{SnowflakeUtils.FromSnowflake(uncached.Id).FormatShortUserLogDate()}`"
+                    $"`{uncached.Id}` - `{SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatShortUserLogDate()}`"
                 )))
                 .WithFooter($"{chunk.Count}/{footerText}")
                 .Build()
