@@ -156,6 +156,11 @@ namespace TaylorBot.Net.Commands.Events
 
                 var result = await RunCommandAsync(slashCommand, context, options);
 
+                if (context.OnGoingState.OnGoingCommandAddedToPool != null)
+                {
+                    await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, context.OnGoingState.OnGoingCommandAddedToPool);
+                }
+
                 switch (result)
                 {
                     case EmbedResult embedResult:
@@ -231,11 +236,6 @@ namespace TaylorBot.Net.Commands.Events
                     default:
                         throw new InvalidOperationException($"Unexpected command result: {result.GetType()}");
                 }
-
-                if (context.OnGoingState.OnGoingCommandAddedToPool != null)
-                {
-                    await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, context.OnGoingState.OnGoingCommandAddedToPool);
-                }
             }
         }
 
@@ -269,6 +269,9 @@ namespace TaylorBot.Net.Commands.Events
             try
             {
                 var parsedOptions = await ParseOptionsAsync(slashCommand, context, options);
+                if (parsedOptions is ParsingFailed failed)
+                    return failed;
+
                 var command = await slashCommand.GetCommandAsync(context, parsedOptions);
 
                 var result = await _commandRunner.RunAsync(command, context);
@@ -293,13 +296,23 @@ namespace TaylorBot.Net.Commands.Events
             if (command.OptionType == typeof(NoOptions))
                 return new NoOptions();
 
+            if (options == null)
+                options = Array.Empty<Interaction.ApplicationCommandInteractionDataOption>();
+
+            var constructorParameters = command.OptionType.GetConstructors().Single().GetParameters();
+
+            var optionWithoutMatch = options.FirstOrDefault(o => !constructorParameters.Any(p => p.Name != o.name));
+
+            if (optionWithoutMatch != null)
+                throw new InvalidOperationException($"Found no parameter mapping in '{command.OptionType}' for option '{optionWithoutMatch.name}'.");
+
             List<object?> args = new();
 
-            foreach (var constructorParameter in command.OptionType.GetConstructors().Single().GetParameters())
+            foreach (var constructorParameter in constructorParameters)
             {
                 var parser = _optionParsers[constructorParameter.ParameterType];
 
-                var parseResult = await parser.ParseAsync(context, (JsonElement?)options?.Single(option => option.name == constructorParameter.Name)?.value);
+                var parseResult = await parser.ParseAsync(context, (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value);
 
                 if (parseResult is ParsingFailed failed)
                     return new ParsingFailed($"⚠ `{constructorParameter.Name}`: {failed.Message}");

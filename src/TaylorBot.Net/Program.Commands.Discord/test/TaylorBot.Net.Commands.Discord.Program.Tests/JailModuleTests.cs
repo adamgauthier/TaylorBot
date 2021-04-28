@@ -2,7 +2,6 @@
 using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
@@ -21,14 +20,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IGuild _guild = A.Fake<IGuild>(o => o.Strict());
         private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
-        private readonly ILogger<JailModule> _logger = A.Fake<ILogger<JailModule>>();
         private readonly IJailRepository _jailRepository = A.Fake<IJailRepository>(o => o.Strict());
-        private readonly IModLogChannelRepository _modLogChannelRepository = A.Fake<IModLogChannelRepository>(o => o.Strict());
+        private readonly IModChannelLogger _modLogChannelLogger = A.Fake<IModChannelLogger>();
         private readonly JailModule _jailModule;
 
         public JailModuleTests()
         {
-            _jailModule = new JailModule(_logger, new SimpleCommandRunner(), _jailRepository, _modLogChannelRepository);
+            _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository, _modLogChannelLogger);
             _jailModule.SetContext(_commandContext);
             A.CallTo(() => _commandContext.Guild).Returns(_guild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
@@ -103,7 +101,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             var user = A.Fake<IGuildUser>();
             A.CallTo(() => user.Mention).Returns(string.Empty);
             A.CallTo(() => user.AddRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
-            A.CallTo(() => _modLogChannelRepository.GetModLogForGuildAsync(_guild)).Returns(null);
 
             var result = (await _jailModule.JailAsync(CreateMentionedUserNotClient(user))).GetResult<EmbedResult>();
 
@@ -118,7 +115,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => user.Mention).Returns(string.Empty);
             A.CallTo(() => user.RoleIds).Returns(new[] { jailRole.Id });
             A.CallTo(() => user.RemoveRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
-            A.CallTo(() => _modLogChannelRepository.GetModLogForGuildAsync(_guild)).Returns(null);
 
             var result = (await _jailModule.FreeAsync(CreateMentionedUser(user))).GetResult<EmbedResult>();
 

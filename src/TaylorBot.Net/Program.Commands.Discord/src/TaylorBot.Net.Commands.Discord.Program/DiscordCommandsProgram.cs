@@ -112,10 +112,12 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
+            .AddTransient<IModChannelLogger, ModChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand, ModLogSetSlashCommand.Options>()
             .AddSlashCommand<ModLogStopSlashCommand, NoOptions>()
             .AddSlashCommand<ModLogViewSlashCommand, NoOptions>()
-            .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>();
+            .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>()
+            .AddSlashCommand<KickSlashCommand, KickSlashCommand.Options>();
     })
     .Build();
 

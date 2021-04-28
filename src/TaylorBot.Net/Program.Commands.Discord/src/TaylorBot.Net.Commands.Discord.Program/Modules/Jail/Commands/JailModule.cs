@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net;
@@ -21,17 +20,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
     [Group("jail")]
     public class JailModule : TaylorBotModule
     {
-        private readonly ILogger<JailModule> _logger;
         private readonly ICommandRunner _commandRunner;
         private readonly IJailRepository _jailRepository;
-        private readonly IModLogChannelRepository _modLogChannelRepository;
+        private readonly IModChannelLogger _modChannelLogger;
 
-        public JailModule(ILogger<JailModule> logger, ICommandRunner commandRunner, IJailRepository jailRepository, IModLogChannelRepository modLogChannelRepository)
+        public JailModule(ICommandRunner commandRunner, IJailRepository jailRepository, IModChannelLogger modChannelLogger)
         {
-            _logger = logger;
             _commandRunner = commandRunner;
             _jailRepository = jailRepository;
-            _modLogChannelRepository = modLogChannelRepository;
+            _modChannelLogger = modChannelLogger;
         }
 
         [Priority(-1)]
@@ -65,7 +62,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
 
                             try
                             {
-                                await user.AddRoleAsync(guildJailRole.Role, new() { AuditLogReason = $"{Context.User.FormatLog()} jailed user" });
+                                await user.AddRoleAsync(guildJailRole.Role, new() { AuditLogReason = $"{Context.User.FormatLog()} used jail" });
                             }
                             catch (HttpException e)
                             {
@@ -85,7 +82,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                                 }
                             }
 
-                            await TrySendModLogAsync(Context.User, user, new EmbedBuilder()
+                            await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
                                 .WithColor(new(95, 107, 120))
                                 .WithFooter("User jailed")
                             );
@@ -149,7 +146,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
 
                             try
                             {
-                                await user.RemoveRoleAsync(guildJailRole.Role, new() { AuditLogReason = $"{Context.User.FormatLog()} freed user" });
+                                await user.RemoveRoleAsync(guildJailRole.Role, new() { AuditLogReason = $"{Context.User.FormatLog()} used jail free" });
                             }
                             catch (HttpException e)
                             {
@@ -169,7 +166,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                                 }
                             }
 
-                            await TrySendModLogAsync(Context.User, user, new EmbedBuilder()
+                            await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
                                 .WithColor(new(119, 136, 153))
                                 .WithFooter("User freed")
                             );
@@ -260,32 +257,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             }
 
             return new GuildJailRoleResult(guildJailRole);
-        }
-
-        private async Task TrySendModLogAsync(IUser moderator, IUser user, EmbedBuilder embed)
-        {
-            embed
-                .WithUserAsAuthor(user)
-                .AddField("User", $"{user.Username}#{user.Discriminator} ({user.Mention})", inline: true)
-                .AddField("Moderator", $"{moderator.Username}#{moderator.Discriminator} ({moderator.Mention})", inline: true)
-                .WithCurrentTimestamp();
-
-            var modLog = await _modLogChannelRepository.GetModLogForGuildAsync(Context.Guild);
-            if (modLog != null)
-            {
-                var channel = (ITextChannel?)await Context.Guild.GetChannelAsync(modLog.ChannelId.Id);
-                if (channel != null)
-                {
-                    try
-                    {
-                        await channel.SendMessageAsync(embed: embed.Build());
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
-                    }
-                }
-            }
         }
     }
 }
