@@ -115,7 +115,7 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand, ModLogSetSlashCommand.Options>()
             .AddSlashCommand<ModLogStopSlashCommand, NoOptions>()
-            .AddSlashCommand<ModLogViewSlashCommand, NoOptions>()
+            .AddSlashCommand<ModLogShowSlashCommand, NoOptions>()
             .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>()
             .AddSlashCommand<KickSlashCommand, KickSlashCommand.Options>();
     })

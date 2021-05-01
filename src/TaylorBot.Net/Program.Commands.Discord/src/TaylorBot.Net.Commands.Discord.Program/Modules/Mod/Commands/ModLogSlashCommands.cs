@@ -80,13 +80,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
         }
     }
 
-    public class ModLogViewSlashCommand : ISlashCommand<NoOptions>
+    public class ModLogShowSlashCommand : ISlashCommand<NoOptions>
     {
         public string Name => "mod log show";
 
         private readonly IModLogChannelRepository _modLogChannelRepository;
 
-        public ModLogViewSlashCommand(IModLogChannelRepository modLogChannelRepository)
+        public ModLogShowSlashCommand(IModLogChannelRepository modLogChannelRepository)
         {
             _modLogChannelRepository = modLogChannelRepository;
         }

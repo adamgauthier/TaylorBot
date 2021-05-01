@@ -301,7 +301,7 @@ namespace TaylorBot.Net.Commands.Events
 
             var constructorParameters = command.OptionType.GetConstructors().Single().GetParameters();
 
-            var optionWithoutMatch = options.FirstOrDefault(o => !constructorParameters.Any(p => p.Name != o.name));
+            var optionWithoutMatch = options.FirstOrDefault(o => !constructorParameters.Any(p => p.Name == o.name));
 
             if (optionWithoutMatch != null)
                 throw new InvalidOperationException($"Found no parameter mapping in '{command.OptionType}' for option '{optionWithoutMatch.name}'.");
