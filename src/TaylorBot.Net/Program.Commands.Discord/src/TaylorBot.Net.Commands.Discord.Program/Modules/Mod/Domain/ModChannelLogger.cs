@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain
 {
@@ -35,8 +36,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain
                     {
                         var baseEmbed = new EmbedBuilder()
                             .WithUserAsAuthor(user)
-                            .AddField("Moderator", $"{moderator.Username}#{moderator.Discriminator} ({moderator.Mention})", inline: true)
-                            .AddField("User", $"{user.Username}#{user.Discriminator} ({user.Mention})", inline: true)
+                            .AddField("Moderator", moderator.FormatTagAndMention(), inline: true)
+                            .AddField("User", user.FormatTagAndMention(), inline: true)
                             .WithCurrentTimestamp();
 
                         await channel.SendMessageAsync(embed: buildEmbed(baseEmbed).Build());

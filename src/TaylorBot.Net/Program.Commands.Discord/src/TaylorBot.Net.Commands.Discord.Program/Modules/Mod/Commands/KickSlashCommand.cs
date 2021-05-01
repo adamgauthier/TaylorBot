@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 {
@@ -47,7 +48,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
                     return new EmbedResult(new EmbedBuilder()
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithDescription($"👢 Kicked {member.Username}#{member.Discriminator}.")
+                        .WithDescription($"👢 Kicked {member.FormatTagAndMention()}")
                     .Build());
                 },
                 Preconditions: new ICommandPrecondition[] {
