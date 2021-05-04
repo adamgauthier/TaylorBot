@@ -23,7 +23,9 @@ namespace TaylorBot.Net.Core.Infrastructure
                 $"Username={options.Username}",
                 $"Password={options.Password}",
                 $"Database={options.Database}",
-                $"ApplicationName={options.ApplicationName}"
+                $"ApplicationName={options.ApplicationName}",
+                "SSL Mode=Prefer",
+                "Trust Server Certificate=true",
             }));
         }
     }
