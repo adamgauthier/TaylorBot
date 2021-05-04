@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             var redis = _connectionMultiplexer.GetDatabase();
             var message = await redis.HashGetAsync(Key, command.Name);
 
-            if (!message.HasValue)
+            if (message.IsNull)
             {
                 var disabledMessage = await _disabledCommandPostgresRepository.InsertOrGetCommandDisabledMessageAsync(command);
                 await redis.HashSetAsync(Key, command.Name, disabledMessage);
