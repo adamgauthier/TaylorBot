@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
         public string Name => "kick";
 
-        public record Options(ParsedMember member, ParsedOptionalString reason);
+        public record Options(ParsedMemberNotAuthor member, ParsedOptionalString reason);
 
         private readonly IModChannelLogger _modChannelLogger;
 

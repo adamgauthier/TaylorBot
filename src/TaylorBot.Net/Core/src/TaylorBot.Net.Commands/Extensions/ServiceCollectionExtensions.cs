@@ -61,6 +61,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<ParsedOptionalString, OptionalStringParser>()
                 .AddOptionParser<ParsedUserOrAuthor, UserOrAuthorParser>()
                 .AddOptionParser<ParsedMember, MemberParser>()
+                .AddOptionParser<ParsedMemberNotAuthor, MemberNotAuthorParser>()
                 .AddOptionParser<ParsedTextChannelOrCurrent, TextChannelOrCurrentParser>();
         }
 
@@ -68,7 +69,9 @@ namespace TaylorBot.Net.Commands.Extensions
             where T : class, IOptionParser<U>
             where U : IParseResult
         {
-            return services.AddTransient<IOptionParser, T>();
+            return services
+                .AddTransient<T>()
+                .AddTransient<IOptionParser, T>();
         }
 
         public static IServiceCollection AddSlashCommand<T, U>(this IServiceCollection services)
