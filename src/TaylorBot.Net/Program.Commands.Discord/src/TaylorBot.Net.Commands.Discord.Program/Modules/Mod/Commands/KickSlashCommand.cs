@@ -1,6 +1,8 @@
 ﻿using Discord;
+using Discord.Net;
 using Humanizer;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Events;
@@ -46,7 +48,20 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     }
                     else if (author.Guild.OwnerId == author.Id || GetHighestRole(member).Position < GetHighestRole(author).Position)
                     {
-                        await member.KickAsync($"{context.User.FormatLog()} used /kick{(!string.IsNullOrEmpty(options.reason.Value) ? $": {options.reason.Value}" : " (No reason specified)")}".Truncate(MaxAuditLogReasonSize));
+                        try
+                        {
+                            await member.KickAsync($"{context.User.FormatLog()} used /kick{(!string.IsNullOrEmpty(options.reason.Value) ? $": {options.reason.Value}" : " (No reason specified)")}".Truncate(MaxAuditLogReasonSize));
+                        }
+                        catch (HttpException e) when (e.HttpCode == HttpStatusCode.Forbidden)
+                        {
+                            return new EmbedResult(embed
+                                .WithColor(TaylorBotColors.ErrorColor)
+                                .WithDescription(string.Join('\n', new[] {
+                                    $"Could not kick {member.FormatTagAndMention()} due to missing permissions.",
+                                    "In server settings, make sure TaylorBot's role is **higher in the list** than this member's roles."
+                                }))
+                            .Build());
+                        }
 
                         await _modChannelLogger.TrySendModLogAsync(context.Guild!, context.User, member, logEmbed =>
                         {
