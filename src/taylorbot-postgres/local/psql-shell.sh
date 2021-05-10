@@ -7,6 +7,5 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 container_name=$(cat "${__dir}/taylorbot-postgres.name")
 
-docker exec --interactive ${container_name} \
-    pg_dump --username postgres --dbname taylorbot \
-    --data-only --file /home/pg-backups/`date +%Y.%m.%d-%H.%M.%S`_dump_data.sql
+docker exec --interactive --tty ${container_name} \
+    psql --username=postgres --dbname=taylorbot

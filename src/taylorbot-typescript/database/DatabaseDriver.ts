@@ -31,6 +31,8 @@ import { HeistStatsRepository } from './repositories/HeistStatsRepository';
 import { BirthdayAttributeRepository } from './repositories/BirthdayAttributeRepository';
 import { EnvUtil } from '../modules/util/EnvUtil';
 
+const postgresHost = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Host');
+const postgresPort = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Port');
 const postgresUsername = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Username');
 const postgresPassword = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Password');
 
@@ -59,8 +61,8 @@ export class DatabaseDriver {
 
     constructor() {
         const db = pgp({
-            host: PostgreSQLConfig.host,
-            port: PostgreSQLConfig.port,
+            host: postgresHost,
+            port: Number.parseInt(postgresPort),
             database: PostgreSQLConfig.database,
             user: postgresUsername,
             password: postgresPassword

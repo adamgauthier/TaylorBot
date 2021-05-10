@@ -5,7 +5,7 @@ set -o nounset
 
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-network_name=$(cat "${__dir}/../docker-network.name")
+network_name=$(cat "${__dir}/../../../deploy/docker-network.name")
 container_name=$(cat "${__dir}/taylorbot-postgres.name")
 
 curr_date=`date +%Y.%m.%d-%H.%M.%S`
@@ -24,7 +24,8 @@ docker container run \
     --env-file ${__dir}/taylorbot-postgres.env \
     --mount type=bind,source=${data_path},destination=/var/lib/postgresql/data \
     --mount type=bind,source=${backups_path},destination=/home/pg-backups \
-    postgres:latest
+    --publish 127.0.0.1:14487:5432/tcp \
+    postgres:12
 
 sleep 10s
 

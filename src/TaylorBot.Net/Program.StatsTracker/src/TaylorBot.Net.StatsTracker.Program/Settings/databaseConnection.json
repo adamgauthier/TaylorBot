@@ -1,7 +1,5 @@
 ﻿{
   "DatabaseConnection": {
-    "Host": "taylorbot-postgres",
-    "Port": 5432,
     "Database": "taylorbot",
     "ApplicationName": "stats-tracker"
   }

@@ -1,13 +1,12 @@
 trigger:
   - master
-  
+
 resources:
 - repo: self
 
 variables:
-  sqitchSourceFolderPath: '$(Build.SourcesDirectory)/src/taylorbot-postgres'
-  sqitchBundleOutputFolderName: taylorbot-sqitch-bundle
-  bundleArchiveFilePath: '$(Build.ArtifactStagingDirectory)/taylorbot-sqitch-bundle.tgz'
+  artifactName: taylorbot-sqitch
+  archiveName: taylorbot-sqitch-bundle.tgz
 
 stages:
 - stage: build
@@ -17,6 +16,10 @@ stages:
     displayName: 'Bundle, test and archive sqitch project'
     pool:
       vmImage: 'ubuntu-latest'
+    variables:
+      sqitchSourceFolderPath: '$(Build.SourcesDirectory)/src/taylorbot-postgres/sqitch'
+      sqitchBundleOutputFolderName: taylorbot-sqitch-bundle
+      bundleArchiveFilePath: '$(Build.ArtifactStagingDirectory)/$(archiveName)'
     steps:
     - script: |
         # Necessary so files can be created in the mount
@@ -36,15 +39,15 @@ stages:
 
         network_name=taylorbot-sqitch-test-network
         container_name=taylorbot-sqitch-test-postgres
-        
+
         docker network create ${network_name}
-        
+
         docker container run \
           --detach \
           --name ${container_name} \
           --network ${network_name} \
           --env POSTGRES_PASSWORD=toor \
-          postgres:latest
+          postgres:12
 
         sleep 10s
 
@@ -78,5 +81,40 @@ stages:
       displayName: 'Create bundle archive'
 
     - publish: $(bundleArchiveFilePath)
-      artifact: 'TaylorBot Sqitch Bundle'
+      artifact: $(artifactName)
       displayName: 'Publish sqitch bundle archive'
+
+
+- stage: deploy
+  displayName: 'TaylorBot'
+  dependsOn: build
+  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  jobs:
+    - deployment: deploy_database
+      displayName: 'Deploy to remote database'
+      environment: taylorbot
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            # This assumes we have set up a remote postgres cluster with a "taylorbot" user who owns a "taylorbot" database, with the extension public.pgcrypto
+            - script: |
+                set -o errexit
+                set -o pipefail
+                set -o nounset
+
+                sqitch_bundle_path=$(Pipeline.Workspace)/taylorbot-sqitch-bundle
+                mkdir ${sqitch_bundle_path}
+
+                tar -xvf $(Pipeline.Workspace)/$(artifactName)/$(archiveName) --directory ${sqitch_bundle_path} --strip-components=1
+
+                docker container run \
+                  --rm \
+                  --mount type=bind,source=${sqitch_bundle_path},dst=/repo \
+                  sqitch/sqitch:latest \
+                  deploy db:pg://taylorbot:${ROLE_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/taylorbot
+              displayName: 'Deploy sqitch bundle to remote database'
+              env:
+                POSTGRES_HOST: $(taylorbot_postgres_host)
+                POSTGRES_PORT: $(taylorbot_postgres_port)
+                ROLE_PASSWORD: $(taylorbot_postgres_password)
