@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Humanizer;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
@@ -73,22 +72,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
             string options
         )
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), () =>
-            {
-                var parsedOptions = options.Split(',').Select(o => o.Trim()).Where(o => !string.IsNullOrWhiteSpace(o)).ToList();
-
-                var randomOption = _cryptoSecureRandom.GetRandomElement(parsedOptions);
-
-                return new(new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithTitle("I choose:")
-                    .WithDescription(randomOption)
-                .Build()));
-            });
-
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context);
+            var result = await _commandRunner.RunAsync(
+                new ChooseCommand(_cryptoSecureRandom).Choose(options, "Type /choose for a shiny new command experience! ⭐", Context.User),
+                context
+            );
 
             return new TaylorBotResult(result, context);
         }

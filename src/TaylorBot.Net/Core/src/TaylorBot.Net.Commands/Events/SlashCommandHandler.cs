@@ -82,7 +82,7 @@ namespace TaylorBot.Net.Commands.Events
         {
             public record InteractionApplicationCommandCallbackData(string? content = null, IReadOnlyList<Embed>? embeds = null, byte? flags = null);
 
-            public record Embed(string? description, EmbedAuthor? author, EmbedImage? image, uint? color);
+            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color);
 
             public record EmbedAuthor(string? name, string? url, string? icon_url);
 
@@ -326,6 +326,7 @@ namespace TaylorBot.Net.Commands.Events
         private InteractionResponse.Embed ToInteractionEmbed(Embed embed)
         {
             return new InteractionResponse.Embed(
+                title: embed.Title,
                 description: embed.Description,
                 author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
                 image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,

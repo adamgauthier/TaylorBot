@@ -58,6 +58,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<TextChannelTrackedPrecondition>()
                 .AddTransient<UserNoOngoingCommandPrecondition>()
                 .AddTransient<ICommandRunner, CommandRunner>()
+                .AddOptionParser<ParsedString, StringParser>()
                 .AddOptionParser<ParsedOptionalString, OptionalStringParser>()
                 .AddOptionParser<ParsedUserOrAuthor, UserOrAuthorParser>()
                 .AddOptionParser<ParsedMember, MemberParser>()

@@ -117,7 +117,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ModLogStopSlashCommand, NoOptions>()
             .AddSlashCommand<ModLogShowSlashCommand, NoOptions>()
             .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>()
-            .AddSlashCommand<KickSlashCommand, KickSlashCommand.Options>();
+            .AddSlashCommand<KickSlashCommand, KickSlashCommand.Options>()
+            .AddSlashCommand<ChooseSlashCommand, ChooseSlashCommand.Options>();
     })
     .Build();
 
