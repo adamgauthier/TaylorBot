@@ -1,6 +1,6 @@
-﻿using System;
-using Discord;
+﻿using Discord;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace TaylorBot.Net.Core.Logging
 {

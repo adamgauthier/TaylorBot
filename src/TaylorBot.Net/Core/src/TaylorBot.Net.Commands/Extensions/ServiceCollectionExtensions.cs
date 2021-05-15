@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Parsers;
+using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Program.Events;
@@ -17,6 +18,8 @@ namespace TaylorBot.Net.Commands.Extensions
     {
         public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHttpClient<SlashCommandClient>();
+
             return services
                 .AddTaylorBotApplicationServices(configuration)
                 .AddSingleton(services)

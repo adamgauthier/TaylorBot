@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Parsers;
@@ -35,6 +33,18 @@ namespace TaylorBot.Net.Commands.Events
         ValueTask<Command> GetCommandAsync(RunContext context, T options);
     }
 
+    public record ApplicationCommand(
+        string Id,
+        string Token,
+        Interaction.ApplicationCommandInteractionData Data,
+        ApplicationCommand.GuildData? Guild,
+        Interaction.User? UserData,
+        string ChannelId
+    )
+    {
+        public record GuildData(string Id, Interaction.GuildMember Member);
+    }
+
     public class SlashCommandHandler : IInteractionCreatedHandler
     {
         private readonly ILogger<SlashCommandHandler> _logger;
@@ -46,7 +56,7 @@ namespace TaylorBot.Net.Commands.Events
         private readonly ICommandPrefixRepository _commandPrefixRepository;
         private readonly IReadOnlyDictionary<string, ISlashCommand> _slashCommands;
         private readonly IReadOnlyDictionary<Type, IOptionParser> _optionParsers;
-        private readonly HttpClient _httpClient = new();
+        private readonly SlashCommandClient _slashCommandClient;
 
         public SlashCommandHandler(
             ILogger<SlashCommandHandler> logger,
@@ -56,6 +66,7 @@ namespace TaylorBot.Net.Commands.Events
             ICommandUsageRepository commandUsageRepository,
             IIgnoredUserRepository ignoredUserRepository,
             ICommandPrefixRepository commandPrefixRepository,
+            SlashCommandClient slashCommandClient,
             IServiceProvider services
         )
         {
@@ -66,40 +77,12 @@ namespace TaylorBot.Net.Commands.Events
             _commandUsageRepository = commandUsageRepository;
             _ignoredUserRepository = ignoredUserRepository;
             _commandPrefixRepository = commandPrefixRepository;
+            _slashCommandClient = slashCommandClient;
             _slashCommands = services.GetServices<ISlashCommand>().ToDictionary(c => c.Name);
             _optionParsers = services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType);
         }
 
         private const byte ApplicationCommandInteractionType = 2;
-        private const byte SubCommandOptionType = 1;
-        private const byte SubCommandGroupOptionType = 2;
-
-
-        private const byte ChannelMessageWithSourceInteractionResponseType = 4;
-        private const byte EphemeralInteractionResponseFlags = 64;
-
-        private record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData data)
-        {
-            public record InteractionApplicationCommandCallbackData(string? content = null, IReadOnlyList<Embed>? embeds = null, byte? flags = null);
-
-            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color);
-
-            public record EmbedAuthor(string? name, string? url, string? icon_url);
-
-            public record EmbedImage(string? url);
-        }
-
-        private record ApplicationCommand(
-            string Id,
-            string Token,
-            Interaction.ApplicationCommandInteractionData Data,
-            ApplicationCommand.GuildData? Guild,
-            Interaction.User? UserData,
-            string ChannelId
-        )
-        {
-            public record GuildData(string Id, Interaction.GuildMember Member);
-        }
 
         public async Task InteractionCreatedAsync(Interaction interaction)
         {
@@ -125,6 +108,8 @@ namespace TaylorBot.Net.Commands.Events
 
         private async ValueTask HandleApplicationCommand(ApplicationCommand interaction)
         {
+            await _slashCommandClient.SendAcknowledgementResponseAsync(interaction);
+
             var channel = (IMessageChannel)await _taylorBotClient.ResolveRequiredChannelAsync(new(interaction.ChannelId));
 
             var author = channel is ITextChannel text ?
@@ -164,36 +149,19 @@ namespace TaylorBot.Net.Commands.Events
                 switch (result)
                 {
                     case EmbedResult embedResult:
-                        var embed = embedResult.Embed;
-
-                        var response = new InteractionResponse(
-                            ChannelMessageWithSourceInteractionResponseType,
-                            new(string.Empty, new[] {
-                                ToInteractionEmbed(embed)
-                            })
-                        );
-
-                        await SendResponseAsync(interaction, response);
+                        await _slashCommandClient.SendFollowupResponseAsync(interaction, embedResult.Embed);
                         break;
 
                     case ParsingFailed parsingFailed:
-                        await SendResponseAsync(interaction, new InteractionResponse(
-                            ChannelMessageWithSourceInteractionResponseType,
-                            new(parsingFailed.Message, flags: EphemeralInteractionResponseFlags)
-                        ));
+                        await _slashCommandClient.SendEphemeralFollowupResponseAsync(interaction, parsingFailed.Message);
                         break;
 
                     case PreconditionFailed preconditionFailed:
                         _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {preconditionFailed.PrivateReason}.");
-                        await SendResponseAsync(interaction, new InteractionResponse(
-                            ChannelMessageWithSourceInteractionResponseType,
-                            new(string.Empty, new[] {
-                                ToInteractionEmbed(new EmbedBuilder()
-                                    .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(preconditionFailed.UserReason.Reason)
-                                .Build())
-                            })
-                        ));
+                        await _slashCommandClient.SendFollowupResponseAsync(interaction, new EmbedBuilder()
+                            .WithColor(TaylorBotColors.ErrorColor)
+                            .WithDescription(preconditionFailed.UserReason.Reason)
+                        .Build());
                         break;
 
                     case EmptyResult _:
@@ -222,15 +190,10 @@ namespace TaylorBot.Net.Commands.Events
                             await _ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
                         }
 
-                        await SendResponseAsync(interaction, new InteractionResponse(
-                            ChannelMessageWithSourceInteractionResponseType,
-                            new(string.Empty, new[] {
-                                ToInteractionEmbed(new EmbedBuilder()
-                                    .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(string.Join('\n', baseDescriptionLines))
-                                .Build())
-                            })
-                        ));
+                        await _slashCommandClient.SendFollowupResponseAsync(interaction, new EmbedBuilder()
+                            .WithColor(TaylorBotColors.ErrorColor)
+                            .WithDescription(string.Join('\n', baseDescriptionLines))
+                        .Build());
                         break;
 
                     default:
@@ -238,6 +201,9 @@ namespace TaylorBot.Net.Commands.Events
                 }
             }
         }
+
+        private const byte SubCommandOptionType = 1;
+        private const byte SubCommandGroupOptionType = 2;
 
         private static (string, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options) GetFullCommandNameAndOptions(Interaction.ApplicationCommandInteractionData data)
         {
@@ -321,27 +287,6 @@ namespace TaylorBot.Net.Commands.Events
             }
 
             return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
-        }
-
-        private InteractionResponse.Embed ToInteractionEmbed(Embed embed)
-        {
-            return new InteractionResponse.Embed(
-                title: embed.Title,
-                description: embed.Description,
-                author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
-                image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
-                color: embed.Color.HasValue ? embed.Color.Value.RawValue : null
-            );
-        }
-
-        private async ValueTask SendResponseAsync(ApplicationCommand interaction, InteractionResponse interactionResponse)
-        {
-            var response = await _httpClient.PostAsync(
-                $"https://discord.com/api/v8/interactions/{interaction.Id}/{interaction.Token}/callback",
-                JsonContent.Create(interactionResponse)
-            );
-
-            response.EnsureSuccessStatusCode();
         }
     }
 }
