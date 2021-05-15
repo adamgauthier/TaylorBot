@@ -27,8 +27,10 @@ namespace TaylorBot.Net.MemberLogging.Infrastructure
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
                 @"SELECT member_log_channel_id FROM plus.member_log_channels
-                INNER JOIN plus.plus_guilds ON plus.member_log_channels.guild_id = plus.plus_guilds.guild_id
-                WHERE plus.member_log_channels.guild_id = @GuildId AND state = 'enabled';",
+                WHERE guild_id = @GuildId AND EXISTS (
+                    SELECT FROM plus.plus_guilds
+                    WHERE state = 'enabled' AND plus.member_log_channels.guild_id = plus.plus_guilds.guild_id
+                );",
                 new
                 {
                     GuildId = guild.Id.ToString()
