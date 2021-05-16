@@ -22,3 +22,4 @@
 0018_mod_log_channels 2021-04-20T00:45:10Z Adam Gauthier <adamgauthier12@gmail.com> # Add moderation log channels
 0019_bump_version_1.11.0 2021-05-01T18:02:23Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.11.0
 0020_remove_cleverbot_sessions 2021-05-12T02:49:37Z Adam Gauthier <adamgauthier12@gmail.com> # Remove cleverbot_sessions table
+0021_bump_version_1.11.1 2021-05-16T02:20:11Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.11.1
