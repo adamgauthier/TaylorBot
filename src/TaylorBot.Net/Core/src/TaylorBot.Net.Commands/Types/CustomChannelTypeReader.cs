@@ -38,8 +38,21 @@ namespace TaylorBot.Net.Commands.Types
         public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
             var results = new Dictionary<ulong, ChannelVal<T>>();
+            var raw = (await context.Guild.GetChannelsAsync(CacheMode.CacheOnly)).ToList();
+
             var channels = context.Guild != null && context.User is IGuildUser user ?
-                (await context.Guild.GetChannelsAsync(CacheMode.CacheOnly)).Where(c => user.GetPermissions(c).Has(ChannelPermission.ViewChannel)).ToList() :
+                (await context.Guild.GetChannelsAsync(CacheMode.CacheOnly)).Where(c =>
+                {
+                    try
+                    {
+                        return user.GetPermissions(c).Has(ChannelPermission.ViewChannel);
+                    }
+                    // Stage channels are not yet supported in Discord.Net
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                }).ToList() :
                 (IReadOnlyCollection<IChannel>)new[] { context.Channel };
 
             // By Mention (1.0)
