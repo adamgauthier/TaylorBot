@@ -1,11 +1,13 @@
 ﻿using Discord;
+using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers
 {
-    public record ParsedTextChannelOrCurrent(ITextChannel Channel) : IParseResult;
+    public record ParsedTextChannelOrCurrent(ITextChannel Channel);
 
     public class TextChannelOrCurrentParser : IOptionParser<ParsedTextChannelOrCurrent>
     {
@@ -16,14 +18,14 @@ namespace TaylorBot.Net.Commands.Parsers
             _taylorBotClient = taylorBotClient;
         }
 
-        public async ValueTask<IParseResult> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
         {
             if (optionValue.HasValue)
             {
                 var channel = await _taylorBotClient.ResolveRequiredChannelAsync(new(optionValue.Value.GetString()!));
                 if (channel is not ITextChannel text)
                 {
-                    return new ParsingFailed($"Channel '{channel.Name}' is not a text channel.");
+                    return Error(new ParsingFailed($"Channel '{channel.Name}' is not a text channel."));
                 }
                 return new ParsedTextChannelOrCurrent(text);
             }
@@ -32,7 +34,7 @@ namespace TaylorBot.Net.Commands.Parsers
                 var channel = context.Channel;
                 if (channel is not ITextChannel text)
                 {
-                    return new ParsingFailed($"The current channel {channel.Name} is not part of a server.");
+                    return Error(new ParsingFailed($"The current channel {channel.Name} is not part of a server."));
                 }
                 return new ParsedTextChannelOrCurrent(text);
             }

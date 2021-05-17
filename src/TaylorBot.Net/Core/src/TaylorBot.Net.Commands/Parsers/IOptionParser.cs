@@ -1,21 +1,32 @@
-﻿using System;
+﻿using OperationResult;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers
 {
-    public interface IParseResult : ICommandResult { }
-    public record ParsingFailed(string Message) : IParseResult;
+    public record ParsingFailed(string Message) : ICommandResult;
 
     public interface IOptionParser
     {
         Type OptionType { get; }
-        ValueTask<IParseResult> ParseAsync(RunContext context, JsonElement? optionValue);
+        ValueTask<Result<object?, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue);
     }
 
-    public interface IOptionParser<T> : IOptionParser where T : IParseResult
+    public interface IOptionParser<T> : IOptionParser
     {
         Type IOptionParser.OptionType => typeof(T);
+        async ValueTask<Result<object?, ParsingFailed>> IOptionParser.ParseAsync(RunContext context, JsonElement? optionValue)
+        {
+            var result = await ParseAsync(context, optionValue);
+            if (result)
+                return result.Value;
+            else
+                return Error(result.Error);
+        }
+
+        new ValueTask<Result<T, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue);
     }
 
     public record NoOptions();

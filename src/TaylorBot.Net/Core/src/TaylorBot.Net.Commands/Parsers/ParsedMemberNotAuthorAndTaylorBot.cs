@@ -1,10 +1,12 @@
 ﻿using Discord;
+using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers
 {
-    public record ParsedMemberNotAuthorAndTaylorBot(IGuildUser Member) : IParseResult;
+    public record ParsedMemberNotAuthorAndTaylorBot(IGuildUser Member);
 
     public class ParsedMemberNotAuthorAndTaylorBotParser : IOptionParser<ParsedMemberNotAuthorAndTaylorBot>
     {
@@ -15,13 +17,19 @@ namespace TaylorBot.Net.Commands.Parsers
             _memberNotAuthorParser = memberNotAuthorParser;
         }
 
-        public async ValueTask<IParseResult> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedMemberNotAuthorAndTaylorBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
         {
-            var parsedMember = (ParsedMemberNotAuthor)await _memberNotAuthorParser.ParseAsync(context, optionValue);
-
-            return parsedMember.Member.Id != context.Client.CurrentUser.Id ?
-                new ParsedMemberNotAuthorAndTaylorBot(parsedMember.Member) :
-                new ParsingFailed("Member can't be TaylorBot.");
+            var parsedMember = await _memberNotAuthorParser.ParseAsync(context, optionValue);
+            if (parsedMember)
+            {
+                return parsedMember.Value.Member.Id != context.Client.CurrentUser.Id ?
+                    new ParsedMemberNotAuthorAndTaylorBot(parsedMember.Value.Member) :
+                    Error(new ParsingFailed("Member can't be TaylorBot."));
+            }
+            else
+            {
+                return Error(parsedMember.Error);
+            }
         }
     }
 }

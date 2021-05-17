@@ -1,10 +1,12 @@
 ﻿using Discord;
+using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers
 {
-    public record ParsedMemberNotAuthor(IGuildUser Member) : IParseResult;
+    public record ParsedMemberNotAuthor(IGuildUser Member);
 
     public class MemberNotAuthorParser : IOptionParser<ParsedMemberNotAuthor>
     {
@@ -15,13 +17,19 @@ namespace TaylorBot.Net.Commands.Parsers
             _memberParser = memberParser;
         }
 
-        public async ValueTask<IParseResult> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedMemberNotAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
         {
-            var parsedMember = (ParsedMember)await _memberParser.ParseAsync(context, optionValue);
-
-            return parsedMember.Member.Id != context.User.Id ?
-                new ParsedMemberNotAuthor(parsedMember.Member) :
-                new ParsingFailed("Member can't be yourself.");
+            var parsedMember = await _memberParser.ParseAsync(context, optionValue);
+            if (parsedMember)
+            {
+                return parsedMember.Value.Member.Id != context.User.Id ?
+                    new ParsedMemberNotAuthor(parsedMember.Value.Member) :
+                    Error(new ParsingFailed("Member can't be yourself."));
+            }
+            else
+            {
+                return Error(parsedMember.Error);
+            }
         }
     }
 }

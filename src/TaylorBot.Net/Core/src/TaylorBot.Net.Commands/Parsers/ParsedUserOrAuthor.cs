@@ -1,11 +1,12 @@
 ﻿using Discord;
+using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Commands.Parsers
 {
-    public record ParsedUserOrAuthor(IUser User) : IParseResult;
+    public record ParsedUserOrAuthor(IUser User);
 
     public class UserOrAuthorParser : IOptionParser<ParsedUserOrAuthor>
     {
@@ -16,7 +17,7 @@ namespace TaylorBot.Net.Commands.Parsers
             _taylorBotClient = taylorBotClient;
         }
 
-        public async ValueTask<IParseResult> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedUserOrAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
         {
             if (optionValue.HasValue)
             {

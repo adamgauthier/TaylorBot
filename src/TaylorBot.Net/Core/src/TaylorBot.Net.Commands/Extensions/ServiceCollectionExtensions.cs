@@ -61,18 +61,17 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<TextChannelTrackedPrecondition>()
                 .AddTransient<UserNoOngoingCommandPrecondition>()
                 .AddTransient<ICommandRunner, CommandRunner>()
-                .AddOptionParser<ParsedString, StringParser>()
-                .AddOptionParser<ParsedOptionalString, OptionalStringParser>()
-                .AddOptionParser<ParsedUserOrAuthor, UserOrAuthorParser>()
-                .AddOptionParser<ParsedMember, MemberParser>()
-                .AddOptionParser<ParsedMemberNotAuthor, MemberNotAuthorParser>()
-                .AddOptionParser<ParsedMemberNotAuthorAndTaylorBot, ParsedMemberNotAuthorAndTaylorBotParser>()
-                .AddOptionParser<ParsedTextChannelOrCurrent, TextChannelOrCurrentParser>();
+                .AddOptionParser<StringParser>()
+                .AddOptionParser<OptionalStringParser>()
+                .AddOptionParser<UserOrAuthorParser>()
+                .AddOptionParser<MemberParser>()
+                .AddOptionParser<MemberNotAuthorParser>()
+                .AddOptionParser<ParsedMemberNotAuthorAndTaylorBotParser>()
+                .AddOptionParser<TextChannelOrCurrentParser>();
         }
 
-        public static IServiceCollection AddOptionParser<U, T>(this IServiceCollection services)
-            where T : class, IOptionParser<U>
-            where U : IParseResult
+        public static IServiceCollection AddOptionParser<T>(this IServiceCollection services)
+            where T : class, IOptionParser
         {
             return services
                 .AddTransient<T>()

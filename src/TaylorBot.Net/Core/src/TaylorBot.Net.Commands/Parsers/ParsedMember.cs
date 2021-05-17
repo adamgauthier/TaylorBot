@@ -1,11 +1,13 @@
 ﻿using Discord;
+using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers
 {
-    public record ParsedMember(IGuildUser Member) : IParseResult;
+    public record ParsedMember(IGuildUser Member);
 
     public class MemberParser : IOptionParser<ParsedMember>
     {
@@ -16,22 +18,22 @@ namespace TaylorBot.Net.Commands.Parsers
             _taylorBotClient = taylorBotClient;
         }
 
-        public async ValueTask<IParseResult> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedMember, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
         {
             if (!optionValue.HasValue)
             {
-                return new ParsingFailed("Member option is required.");
+                return Error(new ParsingFailed("Member option is required."));
             }
             if (context.Guild == null)
             {
-                return new ParsingFailed("Member option can only be used in a server.");
+                return Error(new ParsingFailed("Member option can only be used in a server."));
             }
 
             var member = await _taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!));
 
             if (member == null)
             {
-                return new ParsingFailed($"Did not find member in the current server ({context.Guild.Name}).");
+                return Error(new ParsingFailed($"Did not find member in the current server ({context.Guild.Name})."));
             }
 
             return new ParsedMember(member);

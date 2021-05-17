@@ -2,6 +2,7 @@
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OperationResult;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Program.Events;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Events
 {
@@ -235,10 +237,10 @@ namespace TaylorBot.Net.Commands.Events
             try
             {
                 var parsedOptions = await ParseOptionsAsync(slashCommand, context, options);
-                if (parsedOptions is ParsingFailed failed)
-                    return failed;
+                if (parsedOptions.Error != null)
+                    return parsedOptions.Error;
 
-                var command = await slashCommand.GetCommandAsync(context, parsedOptions);
+                var command = await slashCommand.GetCommandAsync(context, parsedOptions.Value);
 
                 var result = await _commandRunner.RunAsync(command, context);
 
@@ -257,7 +259,7 @@ namespace TaylorBot.Net.Commands.Events
             }
         }
 
-        private async ValueTask<object> ParseOptionsAsync(ISlashCommand command, RunContext context, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options)
+        private async ValueTask<Result<object, ParsingFailed>> ParseOptionsAsync(ISlashCommand command, RunContext context, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options)
         {
             if (command.OptionType == typeof(NoOptions))
                 return new NoOptions();
@@ -280,10 +282,10 @@ namespace TaylorBot.Net.Commands.Events
 
                 var parseResult = await parser.ParseAsync(context, (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value);
 
-                if (parseResult is ParsingFailed failed)
-                    return new ParsingFailed($"⚠ `{constructorParameter.Name}`: {failed.Message}");
+                if (parseResult.Error != null)
+                    return Error(new ParsingFailed($"⚠ `{constructorParameter.Name}`: {parseResult.Error.Message}"));
 
-                args.Add(parseResult);
+                args.Add(parseResult.Value);
             }
 
             return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
