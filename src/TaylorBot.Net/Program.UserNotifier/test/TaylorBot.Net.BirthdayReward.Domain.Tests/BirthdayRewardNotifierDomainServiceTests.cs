@@ -23,7 +23,7 @@ namespace TaylorBot.Net.BirthdayReward.Domain.Tests
         public BirthdayRewardNotifierDomainServiceTests()
         {
             _birthdayRewardNotifierDomainService = new BirthdayRewardNotifierDomainService(
-                _logger, _options, _birthdayRepository, new BirthdayRewardEmbedFactory(), _taylorBotClient
+                _logger, _options, _birthdayRepository, new BirthdayRewardEmbedFactory(), new(_taylorBotClient)
             );
         }
 

@@ -47,14 +47,14 @@ namespace TaylorBot.Net.PatreonSync.Domain
         private readonly IOptionsMonitor<PatreonSyncOptions> _optionsMonitor;
         private readonly IPatreonClient _patreonClient;
         private readonly IPlusRepository _plusRepository;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public PatreonSyncDomainService(
             ILogger<PatreonSyncDomainService> logger,
             IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
             IPatreonClient patreonClient,
             IPlusRepository plusRepository,
-            ITaylorBotClient taylorBotClient
+            Lazy<ITaylorBotClient> taylorBotClient
         )
         {
             _logger = logger;
@@ -96,7 +96,7 @@ namespace TaylorBot.Net.PatreonSync.Domain
 
                     if (embed != null)
                     {
-                        var user = await _taylorBotClient.ResolveRequiredUserAsync(patron.DiscordUserId);
+                        var user = await _taylorBotClient.Value.ResolveRequiredUserAsync(patron.DiscordUserId);
                         await user.SendMessageAsync(embed: embed);
                         await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
                     }

@@ -17,7 +17,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
         private readonly IYoutubeCheckerRepository _youtubeCheckerRepository;
         private readonly YouTubeService _youtubeService;
         private readonly YoutubePostToEmbedMapper _youtubePostToEmbedMapper;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public YoutubeNotifierService(
             ILogger<YoutubeNotifierService> logger,
@@ -25,7 +25,8 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
             IYoutubeCheckerRepository youtubeCheckerRepository,
             YouTubeService youtubeService,
             YoutubePostToEmbedMapper youtubePostToEmbedMapper,
-            ITaylorBotClient taylorBotClient)
+            Lazy<ITaylorBotClient> taylorBotClient
+        )
         {
             _logger = logger;
             _optionsMonitor = optionsMonitor;
@@ -57,7 +58,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Domain
             {
                 try
                 {
-                    var channel = _taylorBotClient.ResolveRequiredGuild(youtubeChecker.GuildId).GetRequiredTextChannel(youtubeChecker.ChannelId);
+                    var channel = _taylorBotClient.Value.ResolveRequiredGuild(youtubeChecker.GuildId).GetRequiredTextChannel(youtubeChecker.ChannelId);
 
                     var request = _youtubeService.PlaylistItems.List(part: "snippet");
                     request.PlaylistId = youtubeChecker.PlaylistId;

@@ -17,7 +17,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain
         private readonly IRedditCheckerRepository _redditCheckerRepository;
         private readonly RedditClient _redditClient;
         private readonly RedditPostToEmbedMapper _redditPostToEmbedMapper;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public RedditNotifierService(
             ILogger<RedditNotifierService> logger,
@@ -25,7 +25,8 @@ namespace TaylorBot.Net.RedditNotifier.Domain
             IRedditCheckerRepository redditCheckerRepository,
             RedditClient redditClient,
             RedditPostToEmbedMapper redditPostToEmbedMapper,
-            ITaylorBotClient taylorBotClient)
+            Lazy<ITaylorBotClient> taylorBotClient
+        )
         {
             _logger = logger;
             _optionsMonitor = optionsMonitor;
@@ -57,7 +58,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain
             {
                 try
                 {
-                    var channel = _taylorBotClient.ResolveRequiredGuild(redditChecker.GuildId).GetRequiredTextChannel(redditChecker.ChannelId);
+                    var channel = _taylorBotClient.Value.ResolveRequiredGuild(redditChecker.GuildId).GetRequiredTextChannel(redditChecker.ChannelId);
 
                     var newestPost = _redditClient.Subreddit(name: redditChecker.SubredditName).Posts.GetNew(limit: 1).Single();
 

@@ -50,19 +50,19 @@ namespace TaylorBot.Net.Commands.Events
     public class SlashCommandHandler : IInteractionCreatedHandler
     {
         private readonly ILogger<SlashCommandHandler> _logger;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
         private readonly ICommandRunner _commandRunner;
         private readonly IOngoingCommandRepository _ongoingCommandRepository;
         private readonly ICommandUsageRepository _commandUsageRepository;
         private readonly IIgnoredUserRepository _ignoredUserRepository;
         private readonly ICommandPrefixRepository _commandPrefixRepository;
-        private readonly IReadOnlyDictionary<string, ISlashCommand> _slashCommands;
-        private readonly IReadOnlyDictionary<Type, IOptionParser> _optionParsers;
+        private readonly Lazy<IReadOnlyDictionary<string, ISlashCommand>> _slashCommands;
+        private readonly Lazy<IReadOnlyDictionary<Type, IOptionParser>> _optionParsers;
         private readonly SlashCommandClient _slashCommandClient;
 
         public SlashCommandHandler(
             ILogger<SlashCommandHandler> logger,
-            ITaylorBotClient taylorBotClient,
+            Lazy<ITaylorBotClient> taylorBotClient,
             ICommandRunner commandRunner,
             IOngoingCommandRepository ongoingCommandRepository,
             ICommandUsageRepository commandUsageRepository,
@@ -80,8 +80,8 @@ namespace TaylorBot.Net.Commands.Events
             _ignoredUserRepository = ignoredUserRepository;
             _commandPrefixRepository = commandPrefixRepository;
             _slashCommandClient = slashCommandClient;
-            _slashCommands = services.GetServices<ISlashCommand>().ToDictionary(c => c.Name);
-            _optionParsers = services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType);
+            _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Name));
+            _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
         }
 
         private const byte ApplicationCommandInteractionType = 2;
@@ -112,14 +112,14 @@ namespace TaylorBot.Net.Commands.Events
         {
             await _slashCommandClient.SendAcknowledgementResponseAsync(interaction);
 
-            var channel = (IMessageChannel)await _taylorBotClient.ResolveRequiredChannelAsync(new(interaction.ChannelId));
+            var channel = (IMessageChannel)await _taylorBotClient.Value.ResolveRequiredChannelAsync(new(interaction.ChannelId));
 
             var author = channel is ITextChannel text ?
-                (await _taylorBotClient.ResolveGuildUserAsync(
+                (await _taylorBotClient.Value.ResolveGuildUserAsync(
                     text.Guild,
                     new(interaction.Guild!.Member.user.id)
                 ))! :
-                await _taylorBotClient.ResolveRequiredUserAsync(new(interaction.UserData!.id));
+                await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
 
             var oldPrefix = channel is ITextChannel textChannel ?
                 await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(textChannel.Guild) :
@@ -130,14 +130,14 @@ namespace TaylorBot.Net.Commands.Events
                 author,
                 channel,
                 author is IGuildUser guildUser ? guildUser.Guild : null,
-                _taylorBotClient.DiscordShardedClient,
+                _taylorBotClient.Value.DiscordShardedClient,
                 oldPrefix,
                 new()
             );
 
             var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
 
-            if (_slashCommands.TryGetValue(commandName, out var slashCommand))
+            if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
             {
                 _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Name}' ({interaction.Data.id}) in {context.Channel.FormatLog()}");
 
@@ -278,7 +278,7 @@ namespace TaylorBot.Net.Commands.Events
 
             foreach (var constructorParameter in constructorParameters)
             {
-                var parser = _optionParsers[constructorParameter.ParameterType];
+                var parser = _optionParsers.Value[constructorParameter.ParameterType];
 
                 var parseResult = await parser.ParseAsync(context, (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value);
 

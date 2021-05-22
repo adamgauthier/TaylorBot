@@ -15,7 +15,7 @@ namespace TaylorBot.Net.Commands.Events
     {
         private readonly ILogger<CommandHandler> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
         private readonly CommandService _commandService;
         private readonly ICommandPrefixRepository _commandPrefixRepository;
         private readonly SingletonTaskRunner _commandUsageSingletonTaskRunner;
@@ -24,7 +24,7 @@ namespace TaylorBot.Net.Commands.Events
         public CommandHandler(
             ILogger<CommandHandler> logger,
             IServiceProvider serviceProvider,
-            ITaylorBotClient taylorBotClient,
+            Lazy<ITaylorBotClient> taylorBotClient,
             CommandService commandService,
             ICommandPrefixRepository commandPrefixRepository,
             SingletonTaskRunner commandUsageSingletonTaskRunner,
@@ -53,13 +53,13 @@ namespace TaylorBot.Net.Commands.Events
                 string.Empty;
 
             if (!(userMessage.HasStringPrefix(prefix, ref argPos) ||
-                userMessage.HasMentionPrefix(_taylorBotClient.DiscordShardedClient.CurrentUser, ref argPos)))
+                userMessage.HasMentionPrefix(_taylorBotClient.Value.DiscordShardedClient.CurrentUser, ref argPos)))
                 return;
 
             // Execute the command with the service provider for precondition checks.
             await _commandService.ExecuteAsync(
                 context: new TaylorBotShardedCommandContext(
-                    _taylorBotClient.DiscordShardedClient, userMessage, prefix
+                    _taylorBotClient.Value.DiscordShardedClient, userMessage, prefix
                 ),
                 argPos: argPos,
                 services: _serviceProvider,

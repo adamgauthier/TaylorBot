@@ -16,14 +16,15 @@ namespace TaylorBot.Net.Reminder.Domain
         private readonly IOptionsMonitor<ReminderNotifierOptions> _optionsMonitor;
         private readonly IReminderRepository _reminderRepository;
         private readonly ReminderEmbedFactory _reminderEmbedFactory;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public ReminderNotifierDomainService(
             ILogger<ReminderNotifierDomainService> logger,
             IOptionsMonitor<ReminderNotifierOptions> optionsMonitor,
             IReminderRepository reminderRepository,
             ReminderEmbedFactory reminderEmbedFactory,
-            ITaylorBotClient taylorBotClient)
+            Lazy<ITaylorBotClient> taylorBotClient
+        )
         {
             _logger = logger;
             _optionsMonitor = optionsMonitor;
@@ -56,7 +57,7 @@ namespace TaylorBot.Net.Reminder.Domain
                 try
                 {
                     _logger.LogDebug($"Reminding {reminder}.");
-                    var user = await _taylorBotClient.ResolveRequiredUserAsync(reminder.UserId);
+                    var user = await _taylorBotClient.Value.ResolveRequiredUserAsync(reminder.UserId);
                     try
                     {
                         await user.SendMessageAsync(embed: _reminderEmbedFactory.Create(reminder));

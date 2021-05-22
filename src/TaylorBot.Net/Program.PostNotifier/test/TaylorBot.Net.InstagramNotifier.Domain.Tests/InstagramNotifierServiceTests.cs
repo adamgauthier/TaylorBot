@@ -24,7 +24,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain.Tests
         public InstagramNotifierServiceTests()
         {
             _instagramNotifierService = new InstagramNotifierService(
-                _logger, _options, _instagramCheckerRepository, _instagramClient, new InstagramPostToEmbedMapper(_options), _taylorBotClient
+                _logger, _options, _instagramCheckerRepository, _instagramClient, new InstagramPostToEmbedMapper(_options), new(_taylorBotClient)
             );
         }
 

@@ -76,6 +76,14 @@ namespace TaylorBot.Net.Core.Client
 
             DiscordShardedClient.Log += LogAsync;
             DiscordShardedClient.ShardReady += ShardReadyAsync;
+        }
+
+        public async ValueTask StartAsync()
+        {
+            await DiscordRestClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            await DiscordShardedClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
 
             foreach (var shard in DiscordShardedClient.Shards)
             {
@@ -86,14 +94,7 @@ namespace TaylorBot.Net.Core.Client
                     await _interactionCreatedEvent.InvokeAsync(interaction);
                 });
             }
-        }
 
-        public async ValueTask StartAsync()
-        {
-            await DiscordRestClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
-            await Task.Delay(TimeSpan.FromSeconds(10));
-
-            await DiscordShardedClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
             await DiscordShardedClient.StartAsync();
         }
 

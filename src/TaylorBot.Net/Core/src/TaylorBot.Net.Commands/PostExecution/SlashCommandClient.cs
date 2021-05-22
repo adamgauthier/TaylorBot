@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -24,10 +25,10 @@ namespace TaylorBot.Net.Commands.PostExecution
             public record EmbedImage(string? url);
         }
 
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
         private readonly HttpClient _httpClient;
 
-        public SlashCommandClient(ITaylorBotClient taylorBotClient, HttpClient httpClient)
+        public SlashCommandClient(Lazy<ITaylorBotClient> taylorBotClient, HttpClient httpClient)
         {
             _taylorBotClient = taylorBotClient;
             _httpClient = httpClient;
@@ -56,7 +57,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
         public async ValueTask SendFollowupResponseAsync(ApplicationCommand interaction, Embed embed)
         {
-            var applicationInfo = await _taylorBotClient.DiscordShardedClient.GetApplicationInfoAsync();
+            var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PostAsync(
                 $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{interaction.Token}",
@@ -68,7 +69,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
         public async ValueTask SendEphemeralFollowupResponseAsync(ApplicationCommand interaction, string content)
         {
-            var applicationInfo = await _taylorBotClient.DiscordShardedClient.GetApplicationInfoAsync();
+            var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PostAsync(
                 $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{interaction.Token}",

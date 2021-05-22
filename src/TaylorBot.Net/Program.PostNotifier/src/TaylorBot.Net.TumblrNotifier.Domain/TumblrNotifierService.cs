@@ -18,7 +18,7 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
         private readonly ITumblrCheckerRepository _tumblrCheckerRepository;
         private readonly TumblrClient _tumblrClient;
         private readonly TumblrPostToEmbedMapper _tumblrPostToEmbedMapper;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public TumblrNotifierService(
             ILogger<TumblrNotifierService> logger,
@@ -26,7 +26,8 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
             ITumblrCheckerRepository tumblrCheckerRepository,
             TumblrClient tumblrClient,
             TumblrPostToEmbedMapper tumblrPostToEmbedMapper,
-            ITaylorBotClient taylorBotClient)
+            Lazy<ITaylorBotClient> taylorBotClient
+        )
         {
             _logger = logger;
             _optionsMonitor = optionsMonitor;
@@ -58,7 +59,7 @@ namespace TaylorBot.Net.TumblrNotifier.Domain
             {
                 try
                 {
-                    var channel = _taylorBotClient.ResolveRequiredGuild(tumblrChecker.GuildId).GetRequiredTextChannel(tumblrChecker.ChannelId);
+                    var channel = _taylorBotClient.Value.ResolveRequiredGuild(tumblrChecker.GuildId).GetRequiredTextChannel(tumblrChecker.ChannelId);
 
                     var response = await _tumblrClient.GetPostsAsync(blogName: tumblrChecker.BlogName, filter: PostFilter.Text, count: 1);
                     var blog = response.Blog;

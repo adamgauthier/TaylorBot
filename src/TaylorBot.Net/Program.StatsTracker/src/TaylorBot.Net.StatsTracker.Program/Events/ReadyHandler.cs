@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
@@ -12,7 +13,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
     public class ReadyHandler : IShardReadyHandler
     {
         private readonly ILogger<ReadyHandler> _logger;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
         private readonly SingletonTaskRunner _minuteSingletonTaskRunner;
         private readonly MinutesTrackerDomainService _minutesTrackerDomainService;
         private readonly SingletonTaskRunner _lastSpokeSingletonTaskRunner;
@@ -21,7 +22,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
 
         public ReadyHandler(
             ILogger<ReadyHandler> logger,
-            ITaylorBotClient taylorBotClient,
+            Lazy<ITaylorBotClient> taylorBotClient,
             SingletonTaskRunner minuteSingletonTaskRunner,
             MinutesTrackerDomainService minutesTrackerDomainService,
             SingletonTaskRunner lastSpokeSingletonTaskRunner,

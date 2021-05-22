@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;
@@ -27,9 +28,13 @@ namespace TaylorBot.Net.Core.Program.Extensions
 
                     var config = new DiscordSocketConfig
                     {
-                        TotalShards = (int)options.ShardCount,
                         ExclusiveBulkDelete = options.ExclusiveBulkDelete,
                     };
+
+                    if (options.ShardCount.HasValue)
+                    {
+                        config.TotalShards = (int)options.ShardCount.Value;
+                    }
 
                     if (options.MessageCacheSize.HasValue)
                     {
@@ -38,9 +43,18 @@ namespace TaylorBot.Net.Core.Program.Extensions
 
                     return config;
                 })
-                .AddTransient(provider => new DiscordShardedClient(provider.GetRequiredService<DiscordSocketConfig>()))
+                .AddTransient(provider =>
+                {
+                    var config = provider.GetRequiredService<DiscordSocketConfig>();
+
+                    if (config.GatewayIntents == null)
+                        throw new InvalidOperationException($"Creating client without {nameof(config.GatewayIntents)}.");
+
+                    return new DiscordShardedClient(config);
+                })
                 .AddTransient<TaskExceptionLogger>()
-                .AddSingleton<ITaylorBotClient, TaylorBotClient>();
+                .AddSingleton<ITaylorBotClient, TaylorBotClient>()
+                .AddTransient<Lazy<ITaylorBotClient>>(provider => new(() => provider.GetRequiredService<ITaylorBotClient>()));
         }
     }
 }

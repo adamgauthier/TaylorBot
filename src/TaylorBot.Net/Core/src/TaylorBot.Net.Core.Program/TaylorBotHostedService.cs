@@ -122,7 +122,7 @@ namespace TaylorBot.Net.Core.Program
                             await interactionHandler.InteractionCreatedAsync(interaction),
                             nameof(IInteractionCreatedHandler)
                         );
-                });
+                }, new[] { GatewayIntents.Guilds });
             }
         }
 

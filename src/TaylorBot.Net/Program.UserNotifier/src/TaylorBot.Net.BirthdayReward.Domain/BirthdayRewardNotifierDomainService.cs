@@ -16,14 +16,15 @@ namespace TaylorBot.Net.BirthdayReward.Domain
         private readonly IOptionsMonitor<BirthdayRewardNotifierOptions> _optionsMonitor;
         private readonly IBirthdayRepository _birthdayRepository;
         private readonly BirthdayRewardEmbedFactory _birthdayRewardEmbedFactory;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public BirthdayRewardNotifierDomainService(
             ILogger<BirthdayRewardNotifierDomainService> logger,
             IOptionsMonitor<BirthdayRewardNotifierOptions> optionsMonitor,
             IBirthdayRepository birthdayRepository,
             BirthdayRewardEmbedFactory birthdayRewardEmbedFactory,
-            ITaylorBotClient taylorBotClient)
+            Lazy<ITaylorBotClient> taylorBotClient
+        )
         {
             _logger = logger;
             _optionsMonitor = optionsMonitor;
@@ -61,7 +62,7 @@ namespace TaylorBot.Net.BirthdayReward.Domain
                 try
                 {
                     _logger.LogDebug($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}.");
-                    var user = await _taylorBotClient.ResolveRequiredUserAsync(rewardedUser.UserId);
+                    var user = await _taylorBotClient.Value.ResolveRequiredUserAsync(rewardedUser.UserId);
                     await user.SendMessageAsync(embed: _birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
                 }
                 catch (Exception exception)

@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
@@ -15,13 +16,13 @@ namespace TaylorBot.Net.QuickStart.Domain
     {
         private readonly ILogger<QuickStartDomainService> _logger;
         private readonly IOptionsMonitor<QuickStartEmbedOptions> _optionsMonitor;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
         private readonly QuickStartChannelFinder _quickStartChannelFinder;
 
         public QuickStartDomainService(
             ILogger<QuickStartDomainService> logger,
             IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor,
-            ITaylorBotClient taylorBotClient,
+            Lazy<ITaylorBotClient> taylorBotClient,
             QuickStartChannelFinder quickStartChannelFinder
         )
         {
@@ -43,7 +44,7 @@ namespace TaylorBot.Net.QuickStart.Domain
                     .WithValue(field.Value)
                 ))
                 .WithColor(DiscordColor.FromHexString(options.Color))
-                .WithThumbnailUrl(_taylorBotClient.DiscordShardedClient.CurrentUser.GetAvatarUrl())
+                .WithThumbnailUrl(_taylorBotClient.Value.DiscordShardedClient.CurrentUser.GetAvatarUrl())
                 .Build();
 
             var quickStartChannel = await _quickStartChannelFinder.FindQuickStartChannelAsync<SocketGuild, SocketTextChannel>(guild);

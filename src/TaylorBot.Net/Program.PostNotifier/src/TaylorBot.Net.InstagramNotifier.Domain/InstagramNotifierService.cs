@@ -15,7 +15,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
         private readonly IInstagramCheckerRepository _instagramCheckerRepository;
         private readonly IInstagramClient _instagramClient;
         private readonly InstagramPostToEmbedMapper _instagramPostToEmbedMapper;
-        private readonly ITaylorBotClient _taylorBotClient;
+        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
         public InstagramNotifierService(
             ILogger<InstagramNotifierService> logger,
@@ -23,7 +23,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
             IInstagramCheckerRepository instagramCheckerRepository,
             IInstagramClient instagramClient,
             InstagramPostToEmbedMapper instagramPostToEmbedMapper,
-            ITaylorBotClient taylorBotClient
+            Lazy<ITaylorBotClient> taylorBotClient
         )
         {
             _logger = logger;
@@ -56,7 +56,7 @@ namespace TaylorBot.Net.InstagramNotifier.Domain
             {
                 try
                 {
-                    var channel = _taylorBotClient.ResolveRequiredGuild(instagramChecker.GuildId).GetRequiredTextChannel(instagramChecker.ChannelId);
+                    var channel = _taylorBotClient.Value.ResolveRequiredGuild(instagramChecker.GuildId).GetRequiredTextChannel(instagramChecker.ChannelId);
 
                     var newestPost = await _instagramClient.GetLatestPostAsync(instagramChecker.InstagramUsername);
 
