@@ -155,7 +155,10 @@ namespace TaylorBot.Net.Commands.Events
                         break;
 
                     case ParsingFailed parsingFailed:
-                        await _slashCommandClient.SendEphemeralFollowupResponseAsync(interaction, parsingFailed.Message);
+                        await _slashCommandClient.SendFollowupResponseAsync(interaction, new EmbedBuilder()
+                            .WithColor(TaylorBotColors.ErrorColor)
+                            .WithDescription(parsingFailed.Message)
+                        .Build());
                         break;
 
                     case PreconditionFailed preconditionFailed:

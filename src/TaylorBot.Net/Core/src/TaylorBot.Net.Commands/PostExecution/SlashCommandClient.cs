@@ -12,7 +12,6 @@ namespace TaylorBot.Net.Commands.PostExecution
     public class SlashCommandClient
     {
         private const byte DeferredChannelMessageWithSourceInteractionResponseType = 5;
-        private const byte EphemeralInteractionResponseFlags = 64;
 
         private record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData? data)
         {
@@ -62,18 +61,6 @@ namespace TaylorBot.Net.Commands.PostExecution
             var response = await _httpClient.PostAsync(
                 $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{interaction.Token}",
                 JsonContent.Create(new InteractionResponse.InteractionApplicationCommandCallbackData(content: string.Empty, embeds: new[] { ToInteractionEmbed(embed) }))
-            );
-
-            response.EnsureSuccessStatusCode();
-        }
-
-        public async ValueTask SendEphemeralFollowupResponseAsync(ApplicationCommand interaction, string content)
-        {
-            var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
-
-            var response = await _httpClient.PostAsync(
-                $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{interaction.Token}",
-                JsonContent.Create(new InteractionResponse.InteractionApplicationCommandCallbackData(content, flags: EphemeralInteractionResponseFlags))
             );
 
             response.EnsureSuccessStatusCode();
