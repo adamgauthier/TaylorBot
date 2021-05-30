@@ -9,8 +9,7 @@ namespace TaylorBot.Net.Commands.Events
 {
     public class PageMessageReactionsHandler : IReactionAddedHandler, IReactionRemovedHandler
     {
-        private readonly AsyncEvent<Func<Cacheable<IUserMessage, ulong>, ISocketMessageChannel, SocketReaction, Task>> _onReactEvent =
-            new AsyncEvent<Func<Cacheable<IUserMessage, ulong>, ISocketMessageChannel, SocketReaction, Task>>();
+        private readonly AsyncEvent<Func<Cacheable<IUserMessage, ulong>, ISocketMessageChannel, SocketReaction, Task>> _onReactEvent = new();
 
         public event Func<Cacheable<IUserMessage, ulong>, ISocketMessageChannel, SocketReaction, Task> OnReact
         {

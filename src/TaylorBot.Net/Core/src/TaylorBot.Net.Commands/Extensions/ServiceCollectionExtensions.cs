@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Extensions
     {
         public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddHttpClient<SlashCommandClient>();
+            services.AddHttpClient<InteractionResponseClient>();
 
             return services
                 .AddTaylorBotApplicationServices(configuration)
@@ -30,7 +30,9 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<SingletonTaskRunner>()
                 .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
                 .AddTransient<IAllReadyHandler, CommandHandler>()
-                .AddTransient<IInteractionCreatedHandler, SlashCommandHandler>()
+                .AddTransient<SlashCommandHandler>()
+                .AddSingleton<MessageComponentHandler>()
+                .AddTransient<IInteractionCreatedHandler, InteractionCreatedHandler>()
                 .AddSingleton<PageMessageReactionsHandler>()
                 .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
                 .AddTransient<IReactionRemovedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())

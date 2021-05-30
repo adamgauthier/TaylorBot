@@ -9,16 +9,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Parsers;
-using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
-using TaylorBot.Net.Core.Program.Events;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Events
+namespace TaylorBot.Net.Commands.PostExecution
 {
     public interface ISlashCommand
     {
@@ -47,7 +45,7 @@ namespace TaylorBot.Net.Commands.Events
         public record GuildData(string Id, Interaction.GuildMember Member);
     }
 
-    public class SlashCommandHandler : IInteractionCreatedHandler
+    public class SlashCommandHandler
     {
         private readonly ILogger<SlashCommandHandler> _logger;
         private readonly Lazy<ITaylorBotClient> _taylorBotClient;
@@ -58,7 +56,8 @@ namespace TaylorBot.Net.Commands.Events
         private readonly ICommandPrefixRepository _commandPrefixRepository;
         private readonly Lazy<IReadOnlyDictionary<string, ISlashCommand>> _slashCommands;
         private readonly Lazy<IReadOnlyDictionary<Type, IOptionParser>> _optionParsers;
-        private readonly SlashCommandClient _slashCommandClient;
+        private readonly InteractionResponseClient _interactionResponseClient;
+        private readonly MessageComponentHandler _messageComponentHandler;
 
         public SlashCommandHandler(
             ILogger<SlashCommandHandler> logger,
@@ -68,7 +67,8 @@ namespace TaylorBot.Net.Commands.Events
             ICommandUsageRepository commandUsageRepository,
             IIgnoredUserRepository ignoredUserRepository,
             ICommandPrefixRepository commandPrefixRepository,
-            SlashCommandClient slashCommandClient,
+            InteractionResponseClient interactionResponseClient,
+            MessageComponentHandler messageComponentHandler,
             IServiceProvider services
         )
         {
@@ -79,66 +79,55 @@ namespace TaylorBot.Net.Commands.Events
             _commandUsageRepository = commandUsageRepository;
             _ignoredUserRepository = ignoredUserRepository;
             _commandPrefixRepository = commandPrefixRepository;
-            _slashCommandClient = slashCommandClient;
+            _interactionResponseClient = interactionResponseClient;
+            _messageComponentHandler = messageComponentHandler;
             _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Name));
             _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
         }
 
-        private const byte ApplicationCommandInteractionType = 2;
-
-        public async Task InteractionCreatedAsync(Interaction interaction)
+        public async ValueTask HandleAsync(Interaction interaction)
         {
-            if (interaction.type == ApplicationCommandInteractionType)
-            {
-                try
-                {
-                    await HandleApplicationCommand(new(
-                        interaction.id,
-                        interaction.token,
-                        interaction.data!,
-                        interaction.member != null ? new(interaction.guild_id!, interaction.member) : null,
-                        interaction.user,
-                        interaction.channel_id!
-                    ));
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Unhandled exception in ApplicationCommand:");
-                }
-            }
+            await HandleApplicationCommand(new(
+                interaction.id,
+                interaction.token,
+                interaction.data!,
+                interaction.member != null ? new(interaction.guild_id!, interaction.member) : null,
+                interaction.user,
+                interaction.channel_id!
+            ));
         }
 
         private async ValueTask HandleApplicationCommand(ApplicationCommand interaction)
         {
-            await _slashCommandClient.SendAcknowledgementResponseAsync(interaction);
-
-            var channel = (IMessageChannel)await _taylorBotClient.Value.ResolveRequiredChannelAsync(new(interaction.ChannelId));
-
-            var author = channel is ITextChannel text ?
-                (await _taylorBotClient.Value.ResolveGuildUserAsync(
-                    text.Guild,
-                    new(interaction.Guild!.Member.user.id)
-                ))! :
-                await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
-
-            var oldPrefix = channel is ITextChannel textChannel ?
-                await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(textChannel.Guild) :
-                string.Empty;
-
-            var context = new RunContext(
-                DateTimeOffset.Now,
-                author,
-                channel,
-                author is IGuildUser guildUser ? guildUser.Guild : null,
-                _taylorBotClient.Value.DiscordShardedClient,
-                oldPrefix,
-                new()
-            );
-
             var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
 
             if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
             {
+                await _interactionResponseClient.SendAcknowledgementResponseAsync(interaction);
+
+                var channel = (IMessageChannel)await _taylorBotClient.Value.ResolveRequiredChannelAsync(new(interaction.ChannelId));
+
+                var author = channel is ITextChannel text ?
+                    (await _taylorBotClient.Value.ResolveGuildUserAsync(
+                        text.Guild,
+                        new(interaction.Guild!.Member.user.id)
+                    ))! :
+                    await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
+
+                var oldPrefix = channel is ITextChannel textChannel ?
+                    await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(textChannel.Guild) :
+                    string.Empty;
+
+                var context = new RunContext(
+                    DateTimeOffset.Now,
+                    author,
+                    channel,
+                    author is IGuildUser guildUser ? guildUser.Guild : null,
+                    _taylorBotClient.Value.DiscordShardedClient,
+                    oldPrefix,
+                    new()
+                );
+
                 _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Name}' ({interaction.Data.id}) in {context.Channel.FormatLog()}");
 
                 var result = await RunCommandAsync(slashCommand, context, options);
@@ -151,22 +140,52 @@ namespace TaylorBot.Net.Commands.Events
                 switch (result)
                 {
                     case EmbedResult embedResult:
-                        await _slashCommandClient.SendFollowupResponseAsync(interaction, embedResult.Embed);
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, embedResult.Embed);
+                        break;
+
+                    case PromptEmbedResult promptEmbedResult:
+                        var confirmId = $"{Guid.NewGuid():N}-confirm";
+                        var cancelId = $"{Guid.NewGuid():N}-cancel";
+
+                        _messageComponentHandler.AddCallback(confirmId, async button =>
+                        {
+                            if (button.UserId == author.Id.ToString())
+                            {
+                                _messageComponentHandler.RemoveCallback(confirmId);
+
+                                var embed = await promptEmbedResult.Confirm();
+                                await _interactionResponseClient.EditOriginalResponseAsync(button, embed, Array.Empty<Button>());
+                            }
+                        });
+                        _messageComponentHandler.AddCallback(cancelId, async button =>
+                        {
+                            if (button.UserId == author.Id.ToString())
+                            {
+                                _messageComponentHandler.RemoveCallback(cancelId);
+
+                                var cancel = promptEmbedResult.Cancel ?? (() => new(EmbedFactory.CreateError("👍 Operation canceled")));
+
+                                var embed = await cancel();
+                                await _interactionResponseClient.EditOriginalResponseAsync(button, embed, Array.Empty<Button>());
+                            }
+                        });
+
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, promptEmbedResult.Prompt, buttons: new[] {
+                            new Button(confirmId, ButtonStyle.Success, "Confirm"), new Button(cancelId, ButtonStyle.Danger, "Cancel")
+                        });
+
+                        await Task.Delay(TimeSpan.FromMinutes(1));
+                        _messageComponentHandler.RemoveCallback(confirmId);
+                        _messageComponentHandler.RemoveCallback(cancelId);
                         break;
 
                     case ParsingFailed parsingFailed:
-                        await _slashCommandClient.SendFollowupResponseAsync(interaction, new EmbedBuilder()
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(parsingFailed.Message)
-                        .Build());
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, EmbedFactory.CreateError(parsingFailed.Message));
                         break;
 
                     case PreconditionFailed preconditionFailed:
                         _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {preconditionFailed.PrivateReason}.");
-                        await _slashCommandClient.SendFollowupResponseAsync(interaction, new EmbedBuilder()
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(preconditionFailed.UserReason.Reason)
-                        .Build());
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, EmbedFactory.CreateError(preconditionFailed.UserReason.Reason));
                         break;
 
                     case EmptyResult _:
@@ -195,10 +214,7 @@ namespace TaylorBot.Net.Commands.Events
                             await _ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
                         }
 
-                        await _slashCommandClient.SendFollowupResponseAsync(interaction, new EmbedBuilder()
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', baseDescriptionLines))
-                        .Build());
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines)));
                         break;
 
                     default:
@@ -255,10 +271,7 @@ namespace TaylorBot.Net.Commands.Events
             {
                 _logger.LogError(e, $"Unhandled exception in slash command '{slashCommand.Name}':");
                 _commandUsageRepository.QueueIncrementUnhandledErrorCount(slashCommand.Name);
-                return new EmbedResult(new EmbedBuilder()
-                    .WithColor(TaylorBotColors.ErrorColor)
-                    .WithDescription($"Oops, an unknown command error occurred. Sorry about that. 😕")
-                .Build());
+                return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕"));
             }
         }
 

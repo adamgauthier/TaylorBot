@@ -1,14 +1,16 @@
 ﻿using Discord;
 using Discord.Net;
 using Humanizer;
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
-using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Parsers;
+using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
-using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
 
@@ -38,56 +40,64 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     var author = (IGuildUser)context.User;
                     var member = options.member.Member;
 
-                    var embed = new EmbedBuilder();
-
                     if (member.Guild.OwnerId == member.Id)
                     {
-                        embed
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription($"You can't kick {member.FormatTagAndMention()} because they're the server owner!");
+                        return new EmbedResult(EmbedFactory.CreateError(
+                            $"You can't kick {member.FormatTagAndMention()} because they're the server owner!"
+                        ));
                     }
                     else if (author.Guild.OwnerId == author.Id || GetHighestRole(member).Position < GetHighestRole(author).Position)
                     {
-                        try
+                        if (member.JoinedAt.HasValue && (DateTimeOffset.Now - member.JoinedAt.Value) > TimeSpan.FromDays(30))
                         {
-                            await member.KickAsync($"{context.User.FormatLog()} used /kick{(!string.IsNullOrEmpty(options.reason.Value) ? $": {options.reason.Value}" : " (No reason specified)")}".Truncate(MaxAuditLogReasonSize));
+                            return new PromptEmbedResult(EmbedFactory.CreateWarning(
+                                string.Join('\n', new[] {
+                                    $"{member.FormatTagAndMention()} joined the server **{member.JoinedAt.Value.Humanize(culture: TaylorBotCulture.Culture)}**.",
+                                    "Are you sure you want to kick?"
+                                })),
+                                Confirm: KickAsync
+                            );
                         }
-                        catch (HttpException e) when (e.HttpCode == HttpStatusCode.Forbidden)
+                        else
                         {
-                            return new EmbedResult(embed
-                                .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription(string.Join('\n', new[] {
+                            var embed = await KickAsync();
+                            return new EmbedResult(embed);
+                        }
+
+                        async ValueTask<Embed> KickAsync()
+                        {
+                            try
+                            {
+                                await member.KickAsync($"{context.User.FormatLog()} used /kick{(!string.IsNullOrEmpty(options.reason.Value) ? $": {options.reason.Value}" : " (No reason specified)")}".Truncate(MaxAuditLogReasonSize));
+                            }
+                            catch (HttpException e) when (e.HttpCode == HttpStatusCode.Forbidden)
+                            {
+                                return EmbedFactory.CreateError(string.Join('\n', new[] {
                                     $"Could not kick {member.FormatTagAndMention()} due to missing permissions.",
                                     "In server settings, make sure TaylorBot's role is **higher in the list** than this member's roles."
-                                }))
-                            .Build());
+                                }));
+                            }
+
+                            await _modChannelLogger.TrySendModLogAsync(context.Guild!, context.User, member, logEmbed =>
+                            {
+                                if (!string.IsNullOrEmpty(options.reason.Value))
+                                    logEmbed.AddField("Reason", options.reason.Value);
+
+                                return logEmbed
+                                    .WithColor(new(222, 184, 135))
+                                    .WithFooter("User kicked");
+                            });
+
+                            return EmbedFactory.CreateSuccess($"👢 Kicked {member.FormatTagAndMention()}");
                         }
-
-                        await _modChannelLogger.TrySendModLogAsync(context.Guild!, context.User, member, logEmbed =>
-                        {
-                            if (!string.IsNullOrEmpty(options.reason.Value))
-                                logEmbed.AddField("Reason", options.reason.Value);
-
-                            return logEmbed
-                                .WithColor(new(222, 184, 135))
-                                .WithFooter("User kicked");
-                        });
-
-                        embed
-                            .WithColor(TaylorBotColors.SuccessColor)
-                            .WithDescription($"👢 Kicked {member.FormatTagAndMention()}");
                     }
                     else
                     {
-                        embed
-                            .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                $"You can't kick {member.FormatTagAndMention()} because their highest role is equal to or higher than yours in the roles list.",
-                                $"The order of roles in server settings is important, you can only kick someone whose role is lower than yours."
-                            }));
+                        return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
+                            $"You can't kick {member.FormatTagAndMention()} because their highest role is equal to or higher than yours in the roles list.",
+                            $"The order of roles in server settings is important, you can only kick someone whose role is lower than yours."
+                        })));
                     }
-
-                    return new EmbedResult(embed.Build());
                 },
                 Preconditions: new ICommandPrecondition[] {
                     new InGuildPrecondition(),
