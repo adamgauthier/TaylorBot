@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 {
     public class ModLogSetSlashCommand : ISlashCommand<ModLogSetSlashCommand.Options>
     {
-        public string Name => "mod log set";
+        public SlashCommandInfo Info => new("mod log set");
 
         public record Options(ParsedTextChannelOrCurrent channel);
 
@@ -24,7 +24,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
         public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
         {
             return new(new Command(
-                new(Name),
+                new(Info.Name),
                 async () =>
                 {
                     await _modLogChannelRepository.AddOrUpdateModLogAsync(options.channel.Channel);
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
     public class ModLogStopSlashCommand : ISlashCommand<NoOptions>
     {
-        public string Name => "mod log stop";
+        public SlashCommandInfo Info => new("mod log stop");
 
         private readonly IModLogChannelRepository _modLogChannelRepository;
 
@@ -59,7 +59,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
         public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
         {
             return new(new Command(
-                new(Name),
+                new(Info.Name),
                 async () =>
                 {
                     await _modLogChannelRepository.RemoveModLogAsync(context.Guild!);
@@ -82,7 +82,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
     public class ModLogShowSlashCommand : ISlashCommand<NoOptions>
     {
-        public string Name => "mod log show";
+        public SlashCommandInfo Info => new("mod log show");
 
         private readonly IModLogChannelRepository _modLogChannelRepository;
 
@@ -94,7 +94,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
         public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
         {
             return new(new Command(
-                new(Name),
+                new(Info.Name),
                 async () =>
                 {
                     var guild = context.Guild!;

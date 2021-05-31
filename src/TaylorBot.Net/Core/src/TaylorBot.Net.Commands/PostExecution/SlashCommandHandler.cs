@@ -18,11 +18,14 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.PostExecution
 {
+    public record SlashCommandInfo(string Name, bool IsPrivateResponse = false);
+
     public interface ISlashCommand
     {
         Type OptionType { get; }
-        string Name { get; }
         ValueTask<Command> GetCommandAsync(RunContext context, object options);
+
+        SlashCommandInfo Info { get; }
     }
 
     public interface ISlashCommand<T> : ISlashCommand
@@ -81,7 +84,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             _commandPrefixRepository = commandPrefixRepository;
             _interactionResponseClient = interactionResponseClient;
             _messageComponentHandler = messageComponentHandler;
-            _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Name));
+            _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name));
             _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
         }
 
@@ -103,7 +106,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
             {
-                await _interactionResponseClient.SendAcknowledgementResponseAsync(interaction);
+                await _interactionResponseClient.SendAcknowledgementResponseAsync(interaction, IsEphemeral: slashCommand.Info.IsPrivateResponse);
 
                 var channel = (IMessageChannel)await _taylorBotClient.Value.ResolveRequiredChannelAsync(new(interaction.ChannelId));
 
@@ -128,7 +131,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                     new()
                 );
 
-                _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Name}' ({interaction.Data.id}) in {context.Channel.FormatLog()}");
+                _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Info.Name}' ({interaction.Data.id}) in {context.Channel.FormatLog()}");
 
                 var result = await RunCommandAsync(slashCommand, context, options);
 
@@ -163,7 +166,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                             {
                                 _messageComponentHandler.RemoveCallback(cancelId);
 
-                                var cancel = promptEmbedResult.Cancel ?? (() => new(EmbedFactory.CreateError("👍 Operation canceled")));
+                                var cancel = promptEmbedResult.Cancel ?? (() => new(EmbedFactory.CreateError("👍 Operation cancelled")));
 
                                 var embed = await cancel();
                                 await _interactionResponseClient.EditOriginalResponseAsync(button, embed, Array.Empty<Button>());
@@ -263,14 +266,14 @@ namespace TaylorBot.Net.Commands.PostExecution
 
                 var result = await _commandRunner.RunAsync(command, context);
 
-                _commandUsageRepository.QueueIncrementSuccessfulUseCount(slashCommand.Name);
+                _commandUsageRepository.QueueIncrementSuccessfulUseCount(slashCommand.Info.Name);
 
                 return result;
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in slash command '{slashCommand.Name}':");
-                _commandUsageRepository.QueueIncrementUnhandledErrorCount(slashCommand.Name);
+                _logger.LogError(e, $"Unhandled exception in slash command '{slashCommand.Info.Name}':");
+                _commandUsageRepository.QueueIncrementUnhandledErrorCount(slashCommand.Info.Name);
                 return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕"));
             }
         }

@@ -42,11 +42,11 @@ namespace TaylorBot.Net.Commands.PostExecution
             _httpClient = httpClient;
         }
 
-        public async ValueTask SendAcknowledgementResponseAsync(ApplicationCommand interaction)
+        public async ValueTask SendAcknowledgementResponseAsync(ApplicationCommand interaction, bool IsEphemeral = false)
         {
             var response = await _httpClient.PostAsync(
                 $"https://discord.com/api/v8/interactions/{interaction.Id}/{interaction.Token}/callback",
-                JsonContent.Create(new InteractionResponse(DeferredChannelMessageWithSourceInteractionResponseType, null))
+                JsonContent.Create(new InteractionResponse(DeferredChannelMessageWithSourceInteractionResponseType, IsEphemeral ? new(flags: 64) : null))
             );
 
             response.EnsureSuccessStatusCode();

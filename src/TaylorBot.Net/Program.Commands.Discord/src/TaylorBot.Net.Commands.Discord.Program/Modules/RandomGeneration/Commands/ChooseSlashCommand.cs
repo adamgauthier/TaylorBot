@@ -45,7 +45,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
 
     public class ChooseSlashCommand : ISlashCommand<ChooseSlashCommand.Options>
     {
-        public string Name => ChooseCommand.Metadata.Name;
+        public SlashCommandInfo Info => new(ChooseCommand.Metadata.Name);
 
         public record Options(ParsedString options);
 

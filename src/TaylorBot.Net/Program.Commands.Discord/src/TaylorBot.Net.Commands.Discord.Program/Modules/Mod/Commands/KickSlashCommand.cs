@@ -20,7 +20,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         private const int MaxAuditLogReasonSize = 512;
 
-        public string Name => "kick";
+        public SlashCommandInfo Info => new("kick", IsPrivateResponse: true);
 
         public record Options(ParsedMemberNotAuthorAndTaylorBot member, ParsedOptionalString reason);
 
@@ -34,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
         public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
         {
             return new(new Command(
-                new(Name),
+                new(Info.Name),
                 async () =>
                 {
                     var author = (IGuildUser)context.User;
