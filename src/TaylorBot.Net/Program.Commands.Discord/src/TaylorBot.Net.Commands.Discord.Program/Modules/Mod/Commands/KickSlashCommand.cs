@@ -50,12 +50,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     {
                         if (member.JoinedAt.HasValue && (DateTimeOffset.Now - member.JoinedAt.Value) > TimeSpan.FromDays(30))
                         {
-                            return new PromptEmbedResult(EmbedFactory.CreateWarning(
-                                string.Join('\n', new[] {
+                            return new PromptEmbedResult(
+                                new(EmbedFactory.CreateWarning(string.Join('\n', new[] {
                                     $"{member.FormatTagAndMention()} joined the server **{member.JoinedAt.Value.Humanize(culture: TaylorBotCulture.Culture)}**.",
                                     "Are you sure you want to kick?"
-                                })),
-                                Confirm: KickAsync
+                                }))),
+                                Confirm: async () => new(await KickAsync())
                             );
                         }
                         else
@@ -68,7 +68,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         {
                             try
                             {
-                                await member.KickAsync($"{context.User.FormatLog()} used /kick{(!string.IsNullOrEmpty(options.reason.Value) ? $": {options.reason.Value}" : " (No reason specified)")}".Truncate(MaxAuditLogReasonSize));
+                                await member.KickAsync($"{author.FormatLog()} used /kick{(!string.IsNullOrEmpty(options.reason.Value) ? $": {options.reason.Value}" : " (No reason specified)")}".Truncate(MaxAuditLogReasonSize));
                             }
                             catch (HttpException e) when (e.HttpCode == HttpStatusCode.Forbidden)
                             {
@@ -78,7 +78,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                                 }));
                             }
 
-                            await _modChannelLogger.TrySendModLogAsync(context.Guild!, context.User, member, logEmbed =>
+                            await _modChannelLogger.TrySendModLogAsync(member.Guild, author, member, logEmbed =>
                             {
                                 if (!string.IsNullOrEmpty(options.reason.Value))
                                     logEmbed.AddField("Reason", options.reason.Value);

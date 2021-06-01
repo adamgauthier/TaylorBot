@@ -24,11 +24,13 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             public record Component(byte type, byte? style = null, string? label = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
 
-            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color);
+            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer);
 
             public record EmbedAuthor(string? name, string? url, string? icon_url);
 
             public record EmbedImage(string? url);
+
+            public record EmbedFooter(string text, string? icon_url, string? proxy_icon_url);
         }
 
         private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
@@ -69,7 +71,21 @@ namespace TaylorBot.Net.Commands.PostExecution
                 description: embed.Description,
                 author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
                 image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
-                color: embed.Color.HasValue ? embed.Color.Value.RawValue : null
+                color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,
+                footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null
+            );
+        }
+
+        private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageResponse message, IReadOnlyList<Button>? buttons)
+        {
+            return new InteractionResponse.InteractionApplicationCommandCallbackData(
+                content: message.Content,
+                embeds: message.Embeds.Select(ToInteractionEmbed).ToList(),
+                components: buttons == null ? null : buttons.Count < 1 ? Array.Empty<InteractionResponse.Component>() : new[] {
+                    new InteractionResponse.Component(ActionRowType, components: buttons.Select(b =>
+                        new InteractionResponse.Component(ButtonType, label: b.Label, style: (byte)ToInteractionStyle(b.Style), custom_id: b.Id)
+                    ).ToList()
+                ) }
             );
         }
 
@@ -88,41 +104,25 @@ namespace TaylorBot.Net.Commands.PostExecution
         private const byte ActionRowType = 1;
         private const byte ButtonType = 2;
 
-        public async ValueTask SendFollowupResponseAsync(ApplicationCommand interaction, Embed embed, IReadOnlyList<Button>? buttons = null)
+        public async ValueTask SendFollowupResponseAsync(ApplicationCommand interaction, MessageResponse message, IReadOnlyList<Button>? buttons = null)
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PostAsync(
                 $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{interaction.Token}",
-                JsonContent.Create(new InteractionResponse.InteractionApplicationCommandCallbackData(
-                    content: string.Empty,
-                    embeds: new[] { ToInteractionEmbed(embed) },
-                    components: buttons == null ? null : buttons.Count < 1 ? Array.Empty<InteractionResponse.Component>() : new[] {
-                        new InteractionResponse.Component(ActionRowType, components: buttons.Select(b =>
-                            new InteractionResponse.Component(ButtonType, label: b.Label, style: (byte)ToInteractionStyle(b.Style), custom_id: b.Id)
-                        ).ToList()
-                    ) }
-                ))
+                JsonContent.Create(ToInteractionData(message, buttons))
             );
 
             response.EnsureSuccessStatusCode();
         }
 
-        public async ValueTask EditOriginalResponseAsync(ButtonComponent component, Embed embed, IReadOnlyList<Button>? buttons = null)
+        public async ValueTask EditOriginalResponseAsync(ButtonComponent component, MessageResponse message, IReadOnlyList<Button>? buttons = null)
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PatchAsync(
                 $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{component.Token}/messages/@original",
-                JsonContent.Create(new InteractionResponse.InteractionApplicationCommandCallbackData(
-                    content: string.Empty,
-                    embeds: new[] { ToInteractionEmbed(embed) },
-                    components: buttons == null ? null : buttons.Count < 1 ? Array.Empty<InteractionResponse.Component>() : new[] {
-                        new InteractionResponse.Component(ActionRowType, components: buttons.Select(b =>
-                            new InteractionResponse.Component(ButtonType, label: b.Label, style: (byte)ToInteractionStyle(b.Style), custom_id: b.Id)
-                        ).ToList()
-                    ) }
-                ))
+                JsonContent.Create(ToInteractionData(message, buttons))
             );
 
             response.EnsureSuccessStatusCode();

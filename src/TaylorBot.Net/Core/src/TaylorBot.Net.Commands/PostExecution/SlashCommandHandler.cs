@@ -143,7 +143,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                 switch (result)
                 {
                     case EmbedResult embedResult:
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, embedResult.Embed);
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(embedResult.Embed));
                         break;
 
                     case PromptEmbedResult promptEmbedResult:
@@ -156,8 +156,8 @@ namespace TaylorBot.Net.Commands.PostExecution
                             {
                                 _messageComponentHandler.RemoveCallback(confirmId);
 
-                                var embed = await promptEmbedResult.Confirm();
-                                await _interactionResponseClient.EditOriginalResponseAsync(button, embed, Array.Empty<Button>());
+                                var updated = await promptEmbedResult.Confirm();
+                                await _interactionResponseClient.EditOriginalResponseAsync(button, updated, Array.Empty<Button>());
                             }
                         });
                         _messageComponentHandler.AddCallback(cancelId, async button =>
@@ -166,10 +166,10 @@ namespace TaylorBot.Net.Commands.PostExecution
                             {
                                 _messageComponentHandler.RemoveCallback(cancelId);
 
-                                var cancel = promptEmbedResult.Cancel ?? (() => new(EmbedFactory.CreateError("👍 Operation cancelled")));
+                                var cancel = promptEmbedResult.Cancel ?? (() => new(new MessageResponse(EmbedFactory.CreateError("👍 Operation cancelled."))));
 
-                                var embed = await cancel();
-                                await _interactionResponseClient.EditOriginalResponseAsync(button, embed, Array.Empty<Button>());
+                                var updated = await cancel();
+                                await _interactionResponseClient.EditOriginalResponseAsync(button, updated, Array.Empty<Button>());
                             }
                         });
 
@@ -177,18 +177,18 @@ namespace TaylorBot.Net.Commands.PostExecution
                             new Button(confirmId, ButtonStyle.Success, "Confirm"), new Button(cancelId, ButtonStyle.Danger, "Cancel")
                         });
 
-                        await Task.Delay(TimeSpan.FromMinutes(1));
+                        await Task.Delay(TimeSpan.FromMinutes(5));
                         _messageComponentHandler.RemoveCallback(confirmId);
                         _messageComponentHandler.RemoveCallback(cancelId);
                         break;
 
                     case ParsingFailed parsingFailed:
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, EmbedFactory.CreateError(parsingFailed.Message));
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
                         break;
 
                     case PreconditionFailed preconditionFailed:
                         _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {preconditionFailed.PrivateReason}.");
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, EmbedFactory.CreateError(preconditionFailed.UserReason.Reason));
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
                         break;
 
                     case EmptyResult _:
@@ -217,7 +217,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                             await _ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
                         }
 
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines)));
+                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
                         break;
 
                     default:

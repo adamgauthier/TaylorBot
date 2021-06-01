@@ -116,6 +116,7 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ModLogSetSlashCommand, ModLogSetSlashCommand.Options>()
             .AddSlashCommand<ModLogStopSlashCommand, NoOptions>()
             .AddSlashCommand<ModLogShowSlashCommand, NoOptions>()
+            .AddSlashCommand<ModMailMessageUserSlashCommand, ModMailMessageUserSlashCommand.Options>()
             .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>()
             .AddSlashCommand<KickSlashCommand, KickSlashCommand.Options>()
             .AddSlashCommand<ChooseSlashCommand, ChooseSlashCommand.Options>();

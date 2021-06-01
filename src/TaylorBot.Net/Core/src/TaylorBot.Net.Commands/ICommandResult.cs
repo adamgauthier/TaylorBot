@@ -16,5 +16,5 @@ namespace TaylorBot.Net.Commands
 
     public record PageMessageResult(PageMessage PageMessage) : ICommandResult;
 
-    public record PromptEmbedResult(Embed Prompt, Func<ValueTask<Embed>> Confirm, Func<ValueTask<Embed>>? Cancel = null) : ICommandResult;
+    public record PromptEmbedResult(MessageResponse Prompt, Func<ValueTask<MessageResponse>> Confirm, Func<ValueTask<MessageResponse>>? Cancel = null) : ICommandResult;
 }

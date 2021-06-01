@@ -4,6 +4,32 @@
     "description": "Moderate your server with these utility commands",
     "options": [
       {
+        "name": "mail",
+        "description": "Send or receive messages from a server's moderation team",
+        "type": 2,
+        "options": [
+          {
+            "name": "message-user",
+            "description": "As a moderator, send a direct message from the moderation team to a user",
+            "type": 1,
+            "options": [
+              {
+                "name": "user",
+                "description": "The user to send a message to",
+                "type": 6,
+                "required": true
+              },
+              {
+                "name": "message",
+                "description": "The message to send",
+                "type": 3,
+                "required": true
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "log",
         "description": "Configure moderation command usage logging for this server",
         "type": 2,

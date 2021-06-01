@@ -12,6 +12,7 @@ namespace TaylorBot.Net.Commands.StringMappers
                 GuildPermission.ManageGuild => "Manage Server",
                 GuildPermission.KickMembers => "Kick Members",
                 GuildPermission.ManageRoles => "Manage Roles",
+                GuildPermission.BanMembers => "Ban Members",
                 _ => throw new ArgumentOutOfRangeException(nameof(guildPermission), guildPermission, "No mapping defined."),
             };
         }
