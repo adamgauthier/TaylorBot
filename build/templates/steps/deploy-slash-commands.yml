@@ -16,7 +16,7 @@ steps:
     foreach ($file in $files) {
       $command = Get-Content $file.FullName | ConvertFrom-Json
       $body = $command.body | ConvertTo-Json -Depth 100
-      $baseUrl = "https://discord.com/api/v8/applications/${{ parameters.applicationId }}/"
+      $baseUrl = "https://discord.com/api/v9/applications/${{ parameters.applicationId }}/"
       $suffix = if ($command.guild -eq $null) { 'commands' } else { "guilds/$($command.guild)/commands" }
       $url = $baseUrl + $suffix
 

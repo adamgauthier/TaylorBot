@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Parsers;
@@ -18,7 +19,10 @@ namespace TaylorBot.Net.Commands.Extensions
     {
         public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddHttpClient<InteractionResponseClient>();
+            services.AddHttpClient<InteractionResponseClient>((provider, client) =>
+            {
+                client.BaseAddress = new Uri("https://discord.com/api/v9/");
+            });
 
             return services
                 .AddTaylorBotApplicationServices(configuration)

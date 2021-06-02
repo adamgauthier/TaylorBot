@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.PostExecution
         public async ValueTask SendAcknowledgementResponseAsync(ApplicationCommand interaction, bool IsEphemeral = false)
         {
             var response = await _httpClient.PostAsync(
-                $"https://discord.com/api/v8/interactions/{interaction.Id}/{interaction.Token}/callback",
+                $"interactions/{interaction.Id}/{interaction.Token}/callback",
                 JsonContent.Create(new InteractionResponse(DeferredChannelMessageWithSourceInteractionResponseType, IsEphemeral ? new(flags: 64) : null))
             );
 
@@ -57,7 +57,7 @@ namespace TaylorBot.Net.Commands.PostExecution
         public async ValueTask SendComponentAcknowledgementResponseAsync(Interaction interaction)
         {
             var response = await _httpClient.PostAsync(
-                $"https://discord.com/api/v8/interactions/{interaction.id}/{interaction.token}/callback",
+                $"interactions/{interaction.id}/{interaction.token}/callback",
                 JsonContent.Create(new InteractionResponse(DeferredUpdateMessageInteractionResponseType, null))
             );
 
@@ -109,7 +109,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PostAsync(
-                $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{interaction.Token}",
+                $"webhooks/{applicationInfo.Id}/{interaction.Token}",
                 JsonContent.Create(ToInteractionData(message, buttons))
             );
 
@@ -121,7 +121,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PatchAsync(
-                $"https://discord.com/api/v8/webhooks/{applicationInfo.Id}/{component.Token}/messages/@original",
+                $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original",
                 JsonContent.Create(ToInteractionData(message, buttons))
             );
 
