@@ -39,7 +39,6 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
-using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -113,13 +112,14 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
-            .AddSlashCommand<ModLogSetSlashCommand, ModLogSetSlashCommand.Options>()
-            .AddSlashCommand<ModLogStopSlashCommand, NoOptions>()
-            .AddSlashCommand<ModLogShowSlashCommand, NoOptions>()
-            .AddSlashCommand<ModMailMessageUserSlashCommand, ModMailMessageUserSlashCommand.Options>()
-            .AddSlashCommand<AvatarSlashCommand, AvatarSlashCommand.Options>()
-            .AddSlashCommand<KickSlashCommand, KickSlashCommand.Options>()
-            .AddSlashCommand<ChooseSlashCommand, ChooseSlashCommand.Options>();
+            .AddSlashCommand<ModLogSetSlashCommand>()
+            .AddSlashCommand<ModLogStopSlashCommand>()
+            .AddSlashCommand<ModLogShowSlashCommand>()
+            .AddSlashCommand<ModMailMessageUserSlashCommand>()
+            .AddSlashCommand<ModMailMessageModsSlashCommand>()
+            .AddSlashCommand<AvatarSlashCommand>()
+            .AddSlashCommand<KickSlashCommand>()
+            .AddSlashCommand<ChooseSlashCommand>();
     })
     .Build();
 

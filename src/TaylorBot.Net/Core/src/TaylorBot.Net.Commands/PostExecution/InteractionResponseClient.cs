@@ -24,13 +24,15 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             public record Component(byte type, byte? style = null, string? label = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
 
-            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer);
+            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields);
 
             public record EmbedAuthor(string? name, string? url, string? icon_url);
 
             public record EmbedImage(string? url);
 
             public record EmbedFooter(string text, string? icon_url, string? proxy_icon_url);
+
+            public record EmbedField(string name, string value, bool? inline);
         }
 
         private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
@@ -72,7 +74,8 @@ namespace TaylorBot.Net.Commands.PostExecution
                 author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
                 image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
                 color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,
-                footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null
+                footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null,
+                fields: embed.Fields.Select(f => new InteractionResponse.EmbedField(f.Name, f.Value, f.Inline)).ToList()
             );
         }
 

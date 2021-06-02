@@ -87,8 +87,8 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<IOptionParser, T>();
         }
 
-        public static IServiceCollection AddSlashCommand<T, U>(this IServiceCollection services)
-            where T : class, ISlashCommand<U>
+        public static IServiceCollection AddSlashCommand<T>(this IServiceCollection services)
+            where T : class, ISlashCommand
         {
             return services.AddTransient<ISlashCommand, T>();
         }
