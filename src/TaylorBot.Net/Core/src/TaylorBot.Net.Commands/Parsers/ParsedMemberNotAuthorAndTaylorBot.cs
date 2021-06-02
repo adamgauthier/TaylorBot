@@ -8,11 +8,11 @@ namespace TaylorBot.Net.Commands.Parsers
 {
     public record ParsedMemberNotAuthorAndTaylorBot(IGuildUser Member);
 
-    public class ParsedMemberNotAuthorAndTaylorBotParser : IOptionParser<ParsedMemberNotAuthorAndTaylorBot>
+    public class MemberNotAuthorAndTaylorBotParser : IOptionParser<ParsedMemberNotAuthorAndTaylorBot>
     {
         private readonly MemberNotAuthorParser _memberNotAuthorParser;
 
-        public ParsedMemberNotAuthorAndTaylorBotParser(MemberNotAuthorParser memberNotAuthorParser)
+        public MemberNotAuthorAndTaylorBotParser(MemberNotAuthorParser memberNotAuthorParser)
         {
             _memberNotAuthorParser = memberNotAuthorParser;
         }

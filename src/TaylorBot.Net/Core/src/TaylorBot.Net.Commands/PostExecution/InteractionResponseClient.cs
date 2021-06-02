@@ -1,6 +1,7 @@
 ﻿using Discord;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -24,7 +25,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             public record Component(byte type, byte? style = null, string? label = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
 
-            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields);
+            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
 
             public record EmbedAuthor(string? name, string? url, string? icon_url);
 
@@ -75,7 +76,8 @@ namespace TaylorBot.Net.Commands.PostExecution
                 image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
                 color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,
                 footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null,
-                fields: embed.Fields.Select(f => new InteractionResponse.EmbedField(f.Name, f.Value, f.Inline)).ToList()
+                fields: embed.Fields.Select(f => new InteractionResponse.EmbedField(f.Name, f.Value, f.Inline)).ToList(),
+                timestamp: embed.Timestamp.HasValue ? embed.Timestamp.Value.ToString("s", CultureInfo.InvariantCulture) : null
             );
         }
 

@@ -20,7 +20,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
-                @"SELECT EXISTS (
+                @"SELECT EXISTS(
                     SELECT FROM plus.plus_users WHERE user_id = @UserId AND active = TRUE
                 );",
                 new
@@ -35,7 +35,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
-                @"SELECT EXISTS (
+                @"SELECT EXISTS(
                     SELECT FROM plus.plus_guilds WHERE guild_id = @GuildId AND state = 'enabled'
                 );",
                 new

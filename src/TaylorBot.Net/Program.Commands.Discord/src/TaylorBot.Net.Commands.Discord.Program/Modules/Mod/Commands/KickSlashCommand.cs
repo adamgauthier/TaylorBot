@@ -78,7 +78,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                                 }));
                             }
 
-                            await _modChannelLogger.TrySendModLogAsync(member.Guild, author, member, logEmbed =>
+                            var wasLogged = await _modChannelLogger.TrySendModLogAsync(member.Guild, author, member, logEmbed =>
                             {
                                 if (!string.IsNullOrEmpty(options.reason.Value))
                                     logEmbed.AddField("Reason", options.reason.Value);
@@ -88,7 +88,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                                     .WithFooter("User kicked");
                             });
 
-                            return EmbedFactory.CreateSuccess($"👢 Kicked {member.FormatTagAndMention()}");
+                            return _modChannelLogger.CreateResultEmbed(wasLogged, $"{member.FormatTagAndMention()} was successfully kicked. 👢");
                         }
                     }
                     else

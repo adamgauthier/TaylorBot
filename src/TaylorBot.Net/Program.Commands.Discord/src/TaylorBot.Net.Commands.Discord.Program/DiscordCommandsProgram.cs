@@ -56,7 +56,8 @@ var host = Host.CreateDefaultBuilder()
             .AddCommandClient(env)
             .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true)
             .AddJsonFile(path: "Settings/dailyPayout.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: "Settings/lastFm.json", optional: false, reloadOnChange: true);
+            .AddJsonFile(path: "Settings/lastFm.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: "Settings/modMail.json", optional: false, reloadOnChange: true);
 
         appConfig.AddEnvironmentVariables("TaylorBot_");
     })
@@ -111,12 +112,16 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
+            .AddTransient<IModMailBlockedUsersRepository, ModMailBlockedUsersPostgresRepository>()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand>()
             .AddSlashCommand<ModLogStopSlashCommand>()
             .AddSlashCommand<ModLogShowSlashCommand>()
+            .ConfigureRequired<ModMailOptions>(config, "ModMail")
             .AddSlashCommand<ModMailMessageUserSlashCommand>()
             .AddSlashCommand<ModMailMessageModsSlashCommand>()
+            .AddSlashCommand<ModMailBlockSlashCommand>()
+            .AddSlashCommand<ModMailUnblockSlashCommand>()
             .AddSlashCommand<AvatarSlashCommand>()
             .AddSlashCommand<KickSlashCommand>()
             .AddSlashCommand<ChooseSlashCommand>();

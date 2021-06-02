@@ -72,10 +72,12 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<UserParser>()
                 .AddOptionParser<UserNotAuthorParser>()
                 .AddOptionParser<UserNotAuthorAndTaylorBotParser>()
+                .AddOptionParser<UserNotAuthorAndBotParser>()
                 .AddOptionParser<UserOrAuthorParser>()
                 .AddOptionParser<MemberParser>()
                 .AddOptionParser<MemberNotAuthorParser>()
-                .AddOptionParser<ParsedMemberNotAuthorAndTaylorBotParser>()
+                .AddOptionParser<MemberNotAuthorAndTaylorBotParser>()
+                .AddOptionParser<MemberNotAuthorAndBotParser>()
                 .AddOptionParser<TextChannelOrCurrentParser>();
         }
 

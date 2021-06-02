@@ -9,6 +9,19 @@
         "type": 2,
         "options": [
           {
+            "name": "message-mods",
+            "description": "As a user, send a message to a server's moderation team",
+            "type": 1,
+            "options": [
+              {
+                "name": "message",
+                "description": "The message to send",
+                "type": 3,
+                "required": true
+              }
+            ]
+          },
+          {
             "name": "message-user",
             "description": "As a moderator, send a direct message from the moderation team to a user",
             "type": 1,
@@ -28,14 +41,27 @@
             ]
           },
           {
-            "name": "message-mods",
-            "description": "As a user, send a message to a server's moderation team",
+            "name": "block",
+            "description": "As a moderator, block a user from sending mod mail",
             "type": 1,
             "options": [
               {
-                "name": "message",
-                "description": "The message to send",
-                "type": 3,
+                "name": "user",
+                "description": "The user to block",
+                "type": 6,
+                "required": true
+              }
+            ]
+          },
+          {
+            "name": "unblock",
+            "description": "As a moderator, unblock a user from sending mod mail",
+            "type": 1,
+            "options": [
+              {
+                "name": "user",
+                "description": "The user to unblock",
+                "type": 6,
                 "required": true
               }
             ]

@@ -10,6 +10,7 @@ using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Snowflake;
 using Xunit;
 
@@ -31,6 +32,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandContext.Guild).Returns(_guild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
             A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
+            A.CallTo(() => _modLogChannelLogger.CreateResultEmbed(A<bool>.Ignored, A<string>.Ignored)).ReturnsLazily(call => EmbedFactory.CreateSuccess(call.Arguments.Get<string>(1)!));
         }
 
         [Fact]

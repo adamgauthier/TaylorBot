@@ -13,6 +13,7 @@ using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
 {
@@ -82,15 +83,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                                 }
                             }
 
-                            await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
+                            var wasLogged = await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
                                 .WithColor(new(95, 107, 120))
                                 .WithFooter("User jailed")
                             );
 
-                            return new EmbedResult(embed
-                                .WithColor(TaylorBotColors.SuccessColor)
-                                .WithDescription($"{user.Mention} was successfully jailed.")
-                            .Build());
+                            return new EmbedResult(_modChannelLogger.CreateResultEmbed(wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
 
                         default: throw new NotImplementedException();
                     }
@@ -166,15 +164,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                                 }
                             }
 
-                            await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
+                            var wasLogged = await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
                                 .WithColor(new(119, 136, 153))
                                 .WithFooter("User freed")
                             );
 
-                            return new EmbedResult(embed
-                                .WithColor(TaylorBotColors.SuccessColor)
-                                .WithDescription($"{user.Mention} was successfully freed.")
-                            .Build());
+                            return new EmbedResult(_modChannelLogger.CreateResultEmbed(wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
 
                         default: throw new NotImplementedException();
                     }

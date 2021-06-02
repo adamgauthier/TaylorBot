@@ -1,7 +1,9 @@
 ﻿using Discord;
 using Discord.Net;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -14,47 +16,42 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public SlashCommandInfo Info => new("mod mail message-user", IsPrivateResponse: true);
 
-        public record Options(ParsedMemberNotAuthorAndTaylorBot user, ParsedString message);
+        public record Options(ParsedMemberNotAuthorAndBot user, ParsedString message);
 
-        private static readonly Color EmbedColor = new(240, 255, 240);
+        private static readonly Color EmbedColor = new(255, 255, 240);
 
         private readonly IModChannelLogger _modChannelLogger;
+        private readonly IOptionsMonitor<ModMailOptions> _options;
 
-        public ModMailMessageUserSlashCommand(IModChannelLogger modChannelLogger)
+        public ModMailMessageUserSlashCommand(IModChannelLogger modChannelLogger, IOptionsMonitor<ModMailOptions> options)
         {
             _modChannelLogger = modChannelLogger;
+            _options = options;
         }
 
         public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
         {
             return new(new Command(
                 new(Info.Name),
-                async () =>
+                () =>
                 {
                     var guild = context.Guild!;
                     var user = options.user.Member;
-                    var channel = await _modChannelLogger.GetModLogAsync(guild);
-
-                    if (channel == null)
-                        return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                            "It looks like the moderation log channel is not set for this server. ❌",
-                            "This is required to send mod mail to make sure other moderators can see what message has been sent.",
-                            "Use `/mod log set` to set up moderation command usage logging in this server."
-                        })));
 
                     var embed = new EmbedBuilder()
                         .WithGuildAsAuthor(guild)
                         .WithColor(EmbedColor)
                         .WithTitle("Message from the moderation team")
                         .WithDescription(options.message.Value)
+                        .WithFooter("Reply with /mod mail message-mods")
                     .Build();
 
-                    return new PromptEmbedResult(
+                    return new(new PromptEmbedResult(
                         new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {user.FormatTagAndMention()}?") }),
-                        Confirm: async () => new(await SendAsync(channel))
-                    );
+                        Confirm: async () => new(await SendAsync())
+                    ));
 
-                    async ValueTask<Embed> SendAsync(ITextChannel channel)
+                    async ValueTask<Embed> SendAsync()
                     {
                         try
                         {
@@ -68,14 +65,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                             }));
                         }
 
-                        await _modChannelLogger.TrySendModLogAsync(channel, context.User, user, logEmbed =>
+                        var wasLogged = await _modChannelLogger.TrySendModLogAsync(guild, context.User, user, logEmbed =>
                             logEmbed
                                 .WithColor(EmbedColor)
                                 .AddField("Message", options.message.Value)
-                                .WithFooter("Mod mail sent")
+                                .WithFooter("Mod mail sent", iconUrl: _options.CurrentValue.SentLogEmbedFooterIconUrl)
                         );
 
-                        return EmbedFactory.CreateSuccess($"✉ Message sent to {user.FormatTagAndMention()}");
+                        return _modChannelLogger.CreateResultEmbed(wasLogged, $"Message sent to {user.FormatTagAndMention()}. ✉");
                     }
                 },
                 Preconditions: new ICommandPrecondition[] {
