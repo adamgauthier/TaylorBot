@@ -54,6 +54,8 @@ namespace TaylorBot.Net.Core.Program
             // Wait to login in case of a boot loop
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
 
+            _logger.LogInformation($"Starting client with intents: {flaggedIntents}.");
+
             await _client.StartAsync();
         }
 
@@ -96,7 +98,7 @@ namespace TaylorBot.Net.Core.Program
                             await shardReadyHandler.ShardReadyAsync(socketClient),
                             nameof(IShardReadyHandler)
                         );
-                });
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMembers });
             }
 
             var allReadyHandler = _services.GetService<IAllReadyHandler>();
@@ -109,7 +111,7 @@ namespace TaylorBot.Net.Core.Program
                             await allReadyHandler.AllShardsReadyAsync(),
                             nameof(IAllReadyHandler)
                         );
-                });
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMembers });
             }
 
             var interactionHandler = _services.GetService<IInteractionCreatedHandler>();
@@ -122,7 +124,7 @@ namespace TaylorBot.Net.Core.Program
                             await interactionHandler.InteractionCreatedAsync(interaction),
                             nameof(IInteractionCreatedHandler)
                         );
-                }, new[] { GatewayIntents.Guilds });
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMembers });
             }
         }
 
@@ -143,7 +145,7 @@ namespace TaylorBot.Net.Core.Program
                             );
                         }
                     };
-                }, new[] { GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
 
             var messageDeletedHandler = _services.GetService<IMessageDeletedHandler>();
@@ -158,7 +160,7 @@ namespace TaylorBot.Net.Core.Program
                             nameof(IMessageDeletedHandler)
                         );
                     };
-                }, new[] { GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
 
             }
 
@@ -174,7 +176,7 @@ namespace TaylorBot.Net.Core.Program
                             nameof(IMessageBulkDeletedHandler)
                         );
                     };
-                }, new[] { GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
         }
 
