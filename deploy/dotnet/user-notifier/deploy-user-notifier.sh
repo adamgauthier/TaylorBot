@@ -15,7 +15,6 @@ image_name=${load_ouput##* }
 
 docker container run \
     --detach \
-    --mount source=${container_name},target=/app/Settings \
     --name ${container_name} \
     --network ${network_name} \
     --env-file ${env_file_path} \
