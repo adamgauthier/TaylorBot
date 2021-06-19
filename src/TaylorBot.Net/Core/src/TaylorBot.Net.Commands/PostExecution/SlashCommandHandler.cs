@@ -231,7 +231,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
         private static (string, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options) GetFullCommandNameAndOptions(Interaction.ApplicationCommandInteractionData data)
         {
-            if (data.options != null && data.options.Count == 1 && data.options[0].type == SubCommandGroupOptionType)
+            if (data.options != null && data.options.Count == 1)
             {
                 if (data.options[0].type == SubCommandOptionType)
                 {

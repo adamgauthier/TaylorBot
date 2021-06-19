@@ -1,0 +1,27 @@
+{
+  "body": {
+    "name": "remind",
+    "description": "Create reminders for the future",
+    "options": [
+      {
+        "name": "add",
+        "description": "Add a new reminder",
+        "type": 1,
+        "options": [
+          {
+            "name": "time",
+            "description": "When you want to be reminded from now (3m = 3 minutes, 4h = 4 hours, 5d = 5 days)",
+            "type": 3,
+            "required": true
+          },
+          {
+            "name": "text",
+            "description": "The text you want to be reminded about",
+            "type": 3,
+            "required": true
+          }
+        ]
+      }
+    ]
+  }
+}

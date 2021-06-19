@@ -78,7 +78,8 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<MemberNotAuthorParser>()
                 .AddOptionParser<MemberNotAuthorAndTaylorBotParser>()
                 .AddOptionParser<MemberNotAuthorAndBotParser>()
-                .AddOptionParser<TextChannelOrCurrentParser>();
+                .AddOptionParser<TextChannelOrCurrentParser>()
+                .AddOptionParser<TimeSpanParser>();
         }
 
         public static IServiceCollection AddOptionParser<T>(this IServiceCollection services)

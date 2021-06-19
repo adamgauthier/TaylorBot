@@ -27,6 +27,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
@@ -112,7 +115,6 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
-            .AddTransient<IModMailBlockedUsersRepository, ModMailBlockedUsersPostgresRepository>()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand>()
             .AddSlashCommand<ModLogStopSlashCommand>()
@@ -120,11 +122,14 @@ var host = Host.CreateDefaultBuilder()
             .ConfigureRequired<ModMailOptions>(config, "ModMail")
             .AddSlashCommand<ModMailMessageUserSlashCommand>()
             .AddSlashCommand<ModMailMessageModsSlashCommand>()
+            .AddTransient<IModMailBlockedUsersRepository, ModMailBlockedUsersPostgresRepository>()
             .AddSlashCommand<ModMailBlockSlashCommand>()
             .AddSlashCommand<ModMailUnblockSlashCommand>()
             .AddSlashCommand<AvatarSlashCommand>()
             .AddSlashCommand<KickSlashCommand>()
-            .AddSlashCommand<ChooseSlashCommand>();
+            .AddSlashCommand<ChooseSlashCommand>()
+            .AddTransient<IReminderRepository, ReminderPostgresRepository>()
+            .AddSlashCommand<RemindAddSlashCommand>();
     })
     .Build();
 
