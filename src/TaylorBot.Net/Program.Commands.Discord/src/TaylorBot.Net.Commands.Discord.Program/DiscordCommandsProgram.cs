@@ -129,7 +129,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<KickSlashCommand>()
             .AddSlashCommand<ChooseSlashCommand>()
             .AddTransient<IReminderRepository, ReminderPostgresRepository>()
-            .AddSlashCommand<RemindAddSlashCommand>();
+            .AddSlashCommand<RemindAddSlashCommand>()
+            .AddSlashCommand<RemindManageSlashCommand>();
     })
     .Build();
 

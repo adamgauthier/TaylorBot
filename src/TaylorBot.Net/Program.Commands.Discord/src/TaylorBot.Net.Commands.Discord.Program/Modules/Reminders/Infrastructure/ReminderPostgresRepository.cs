@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using Discord;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -30,6 +32,29 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
             );
         }
 
+        private class ReminderDto
+        {
+            public Guid reminder_id { get; set; }
+            public DateTimeOffset remind_at { get; set; }
+            public string reminder_text { get; set; } = null!;
+        }
+
+        public async ValueTask<IList<Reminder>> GetRemindersAsync(IUser user)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var reminders = await connection.QueryAsync<ReminderDto>(
+                @"SELECT reminder_id, remind_at, reminder_text FROM users.reminders
+                WHERE user_id = @UserId;",
+                new
+                {
+                    UserId = user.Id.ToString()
+                }
+            );
+
+            return reminders.Select(r => new Reminder(r.reminder_id, r.remind_at, r.reminder_text)).ToList();
+        }
+
         public async ValueTask AddReminderAsync(IUser user, DateTimeOffset remindAt, string text)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
@@ -42,6 +67,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
                     UserId = user.Id.ToString(),
                     RemindAt = remindAt,
                     ReminderText = text,
+                }
+            );
+        }
+
+        public async ValueTask ClearReminderAsync(Reminder reminder)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"DELETE FROM users.reminders WHERE reminder_id = @ReminderId;",
+                new
+                {
+                    ReminderId = reminder.Id,
+                }
+            );
+        }
+
+        public async ValueTask ClearAllRemindersAsync(IUser user)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"DELETE FROM users.reminders WHERE user_id = @UserId;",
+                new
+                {
+                    UserId = user.Id.ToString(),
                 }
             );
         }

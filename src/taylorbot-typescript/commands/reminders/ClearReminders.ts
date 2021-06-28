@@ -7,19 +7,25 @@ class ClearRemindersCommand extends Command {
             name: 'clearreminders',
             aliases: ['clearreminder', 'cr'],
             group: 'Reminders ⏰',
-            description: 'Clears all your reminders.',
+            description: 'This command is obsolete and will be removed in a future version. Please use **/remind manage** instead.',
             examples: [''],
 
-            args: []
+            args: [
+                {
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
+                }
+            ]
         });
     }
 
     async run({ message, client, author }: CommandMessageContext): Promise<void> {
-        const { reminders } = client.master.database;
-
-        const removed = await reminders.removeFrom(author);
-
-        await client.sendEmbedSuccess(message.channel, `Successfully cleared \`${removed.length}\` reminders. 😊`);
+        await client.sendEmbedError(
+            message.channel,
+            `This command is obsolete and will be removed in a future version. Please use **/remind manage** instead.`
+        );
     }
 }
 

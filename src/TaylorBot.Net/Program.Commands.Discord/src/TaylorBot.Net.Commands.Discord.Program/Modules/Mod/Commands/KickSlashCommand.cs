@@ -50,12 +50,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     {
                         if (member.JoinedAt.HasValue && (DateTimeOffset.Now - member.JoinedAt.Value) > TimeSpan.FromDays(30))
                         {
-                            return new PromptEmbedResult(
+                            return MessageResult.CreatePrompt(
                                 new(EmbedFactory.CreateWarning(string.Join('\n', new[] {
                                     $"{member.FormatTagAndMention()} joined the server **{member.JoinedAt.Value.Humanize(culture: TaylorBotCulture.Culture)}**.",
                                     "Are you sure you want to kick?"
                                 }))),
-                                Confirm: async () => new(await KickAsync())
+                                confirm: async () => new(await KickAsync())
                             );
                         }
                         else

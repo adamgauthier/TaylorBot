@@ -146,40 +146,39 @@ namespace TaylorBot.Net.Commands.PostExecution
                         await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(embedResult.Embed));
                         break;
 
-                    case PromptEmbedResult promptEmbedResult:
-                        var confirmId = $"{Guid.NewGuid():N}-confirm";
-                        var cancelId = $"{Guid.NewGuid():N}-cancel";
+                    case MessageResult messageResult:
+                        var buttons = messageResult.Buttons != null ?
+                            messageResult.Buttons.Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } }).ToList() :
+                            new List<MessageResult.ButtonResult>();
 
-                        _messageComponentHandler.AddCallback(confirmId, async button =>
+                        foreach (var button in buttons)
                         {
-                            if (button.UserId == author.Id.ToString())
+                            _messageComponentHandler.AddCallback(button.Button.Id, async component =>
                             {
-                                _messageComponentHandler.RemoveCallback(confirmId);
+                                if (component.UserId == author.Id.ToString())
+                                {
+                                    _messageComponentHandler.RemoveCallback(button.Button.Id);
 
-                                var updated = await promptEmbedResult.Confirm();
-                                await _interactionResponseClient.EditOriginalResponseAsync(button, updated, Array.Empty<Button>());
-                            }
-                        });
-                        _messageComponentHandler.AddCallback(cancelId, async button =>
+                                    var updated = await button.Action();
+                                    await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated, Array.Empty<Button>()));
+                                }
+                            });
+                        }
+
+                        await _interactionResponseClient.SendFollowupResponseAsync(
+                            interaction,
+                            new(messageResult.Content, buttons.Select(b => b.Button).ToList())
+                        );
+
+                        if (buttons.Count > 0)
                         {
-                            if (button.UserId == author.Id.ToString())
+                            await Task.Delay(TimeSpan.FromMinutes(5));
+
+                            foreach (var button in buttons)
                             {
-                                _messageComponentHandler.RemoveCallback(cancelId);
-
-                                var cancel = promptEmbedResult.Cancel ?? (() => new(new MessageResponse(EmbedFactory.CreateError("👍 Operation cancelled."))));
-
-                                var updated = await cancel();
-                                await _interactionResponseClient.EditOriginalResponseAsync(button, updated, Array.Empty<Button>());
+                                _messageComponentHandler.RemoveCallback(button.Button.Id);
                             }
-                        });
-
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, promptEmbedResult.Prompt, buttons: new[] {
-                            new Button(confirmId, ButtonStyle.Success, "Confirm"), new Button(cancelId, ButtonStyle.Danger, "Cancel")
-                        });
-
-                        await Task.Delay(TimeSpan.FromMinutes(5));
-                        _messageComponentHandler.RemoveCallback(confirmId);
-                        _messageComponentHandler.RemoveCallback(cancelId);
+                        }
                         break;
 
                     case ParsingFailed parsingFailed:

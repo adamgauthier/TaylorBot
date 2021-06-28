@@ -52,9 +52,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         .WithCurrentTimestamp()
                     .Build();
 
-                    return new(new PromptEmbedResult(
+                    return new(MessageResult.CreatePrompt(
                         new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?") }),
-                        Confirm: async () => new(await SendAsync())
+                        confirm: async () => new(await SendAsync())
                     ));
 
                     async ValueTask<Embed> SendAsync()

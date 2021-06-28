@@ -17,7 +17,6 @@ import { GuildCommandRepository } from './repositories/GuildCommandRepository';
 import { CommandRepository } from './repositories/CommandRepository';
 import { UserGroupRepository } from './repositories/UserGroupRepository';
 import { RoleGroupRepository } from './repositories/RoleGroupRepository';
-import { ReminderRepository } from './repositories/ReminderRepository';
 import { TextChannelRepository } from './repositories/TextChannelRepository';
 import { AttributeRepository } from './repositories/AttributeRepository';
 import { TextAttributeRepository } from './repositories/TextAttributeRepository';
@@ -47,7 +46,6 @@ export class DatabaseDriver {
     readonly commands: CommandRepository;
     readonly userGroups: UserGroupRepository;
     readonly roleGroups: RoleGroupRepository;
-    readonly reminders: ReminderRepository;
     readonly textChannels: TextChannelRepository;
     readonly attributes: AttributeRepository;
     readonly textAttributes: TextAttributeRepository;
@@ -82,7 +80,6 @@ export class DatabaseDriver {
         this.commands = new CommandRepository(db);
         this.userGroups = new UserGroupRepository(db, helpers);
         this.roleGroups = new RoleGroupRepository(db);
-        this.reminders = new ReminderRepository(db);
         this.textChannels = new TextChannelRepository(db);
         this.attributes = new AttributeRepository(db, helpers);
         this.textAttributes = new TextAttributeRepository(db);

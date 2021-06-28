@@ -46,9 +46,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         .WithFooter("Reply with /mod mail message-mods")
                     .Build();
 
-                    return new(new PromptEmbedResult(
+                    return new(MessageResult.CreatePrompt(
                         new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {user.FormatTagAndMention()}?") }),
-                        Confirm: async () => new(await SendAsync())
+                        confirm: async () => new(await SendAsync())
                     ));
 
                     async ValueTask<Embed> SendAsync()

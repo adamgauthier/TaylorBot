@@ -27,7 +27,7 @@ namespace TaylorBot.Net.Commands.Parsers
                 return new(Error(new ParsingFailed(UnrecognizedFormatText)));
             }
 
-            var suffix = input[^1];
+            var suffix = char.ToLowerInvariant(input[^1]);
 
             return suffix switch
             {

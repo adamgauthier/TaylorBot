@@ -21,6 +21,11 @@
             "required": true
           }
         ]
+      },
+      {
+        "name": "manage",
+        "description": "Manage (show and delete) your current reminders",
+        "type": 1
       }
     ]
   }

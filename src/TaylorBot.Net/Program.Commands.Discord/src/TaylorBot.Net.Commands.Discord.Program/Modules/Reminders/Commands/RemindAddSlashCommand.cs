@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 
@@ -14,17 +15,20 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
     {
         private const uint MinMinutes = 1;
         private const uint MaxDays = 365;
-        private const uint MaxReminders = 3;
+        private const uint MaxRemindersNonPlus = 2;
+        private const uint MaxRemindersPlus = 4;
 
         public SlashCommandInfo Info => new("remind add");
 
         public record Options(ParsedTimeSpan time, ParsedString text);
 
         private readonly IReminderRepository _reminderRepository;
+        private readonly IPlusRepository _plusRepository;
 
-        public RemindAddSlashCommand(IReminderRepository reminderRepository)
+        public RemindAddSlashCommand(IReminderRepository reminderRepository, IPlusRepository plusRepository)
         {
             _reminderRepository = reminderRepository;
+            _plusRepository = plusRepository;
         }
 
         public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -56,11 +60,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                         ));
                     }
 
-                    if (await _reminderRepository.GetReminderCountAsync(context.User) >= MaxReminders)
+                    var maxReminders = await _plusRepository.IsActivePlusUserAsync(context.User) ? MaxRemindersPlus : MaxRemindersNonPlus;
+
+                    if (await _reminderRepository.GetReminderCountAsync(context.User) >= maxReminders)
                     {
-                        return new EmbedResult(EmbedFactory.CreateError(
-                            $"Sorry, you can't have more than {MaxReminders} set at the same time. 😕"
-                        ));
+                        return new EmbedResult(EmbedFactory.CreateError(string.Join("\n", new[] {
+                            $"Sorry, you can't have more than {maxReminders} set at the same time. 😕",
+                            "Use **/remind manage** to clear some of your current reminders.",
+                            $"By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}."
+                        })));
                     }
 
                     var remindAt = DateTimeOffset.Now + fromNow;
@@ -68,7 +76,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                     await _reminderRepository.AddReminderAsync(context.User, remindAt, options.text.Value);
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(
-                        $"Okay, I will remind you **{remindAt.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
+                        $"Okay, I will remind you in **{fromNow.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
                     ));
                 }
             ));
