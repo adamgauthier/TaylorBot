@@ -1,28 +1,13 @@
 import { Log } from '../../tools/Logger';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import * as pgPromise from 'pg-promise';
-import { Guild, TextChannel } from 'discord.js';
+import { TextChannel } from 'discord.js';
 
 export class TextChannelRepository {
     readonly #db: pgPromise.IDatabase<unknown>;
 
     constructor(db: pgPromise.IDatabase<unknown>) {
         this.#db = db;
-    }
-
-    async getAllLogChannelsInGuild(guild: Guild, type: 'member' | 'message'): Promise<{ channel_id: string }[]> {
-        try {
-            return await this.#db.any(
-                `SELECT channel_id FROM guilds.text_channels WHERE guild_id = $[guild_id] AND is_${type}_log = TRUE;`,
-                {
-                    guild_id: guild.id
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting all guild ${type} log channels for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
     }
 
     mapChannelToDatabase(guildChannel: TextChannel): { guild_id: string; channel_id: string } {

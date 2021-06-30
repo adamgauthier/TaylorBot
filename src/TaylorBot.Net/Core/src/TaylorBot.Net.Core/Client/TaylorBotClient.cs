@@ -30,6 +30,7 @@ namespace TaylorBot.Net.Core.Client
         ValueTask<IUser> ResolveRequiredUserAsync(SnowflakeId id);
         ValueTask<IChannel> ResolveRequiredChannelAsync(SnowflakeId id);
         ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId);
+        ValueTask<IGuildUser?> ResolveGuildUserAsync(SnowflakeId guildId, SnowflakeId userId);
     }
 
     public class TaylorBotClient : ITaylorBotClient
@@ -171,6 +172,12 @@ namespace TaylorBot.Net.Core.Client
             }
 
             return channel;
+        }
+
+        public async ValueTask<IGuildUser?> ResolveGuildUserAsync(SnowflakeId guildId, SnowflakeId userId)
+        {
+            var guild = ResolveRequiredGuild(guildId);
+            return await ResolveGuildUserAsync(guild, userId);
         }
 
         public async ValueTask<IGuildUser?> ResolveGuildUserAsync(IGuild guild, SnowflakeId userId)

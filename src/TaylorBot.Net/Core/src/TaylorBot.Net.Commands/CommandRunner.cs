@@ -1,13 +1,28 @@
 ﻿using Discord;
+using FakeItEasy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands
 {
-    public record RunContext(DateTimeOffset CreatedAt, IUser User, IMessageChannel Channel, IGuild? Guild, IDiscordClient Client, string CommandPrefix, OnGoingState OnGoingState);
+    public record MessageChannel(string Id)
+    {
+        public string Mention => MentionUtils.MentionChannel(new SnowflakeId(Id).Id);
+
+        public ITextChannel CreateLegacyTextChannel(IGuild guild)
+        {
+            var textChannel = A.Fake<ITextChannel>(o => o.Strict());
+            A.CallTo(() => textChannel.Id).Returns(new SnowflakeId(Id).Id);
+            A.CallTo(() => textChannel.GuildId).Returns(guild.Id);
+            return textChannel;
+        }
+    }
+
+    public record RunContext(DateTimeOffset CreatedAt, IUser User, MessageChannel Channel, IGuild? Guild, IDiscordClient Client, string CommandPrefix, OnGoingState OnGoingState);
     public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
 
     public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);

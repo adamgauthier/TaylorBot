@@ -15,7 +15,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(ITextChannel textChannel, CommandMetadata command)
+        public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -26,8 +26,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 );",
                 new
                 {
-                    GuildId = textChannel.GuildId.ToString(),
-                    ChannelId = textChannel.Id.ToString(),
+                    GuildId = guild.Id.ToString(),
+                    ChannelId = channel.Id.ToString(),
                     CommandId = command.Name
                 }
             );

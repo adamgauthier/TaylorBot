@@ -1,5 +1,4 @@
-﻿using Discord;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Preconditions
@@ -15,8 +14,9 @@ namespace TaylorBot.Net.Commands.Preconditions
 
         public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
         {
-            if (context.Channel is ITextChannel textChannel)
+            if (context.Guild != null)
             {
+                var textChannel = context.Channel.CreateLegacyTextChannel(context.Guild);
                 await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
             }
 

@@ -31,7 +31,7 @@ namespace TaylorBot.Net.Commands.Parsers
             }
             else
             {
-                var channel = context.Channel;
+                var channel = await _taylorBotClient.ResolveRequiredChannelAsync(new(context.Channel.Id));
                 if (channel is not ITextChannel text)
                 {
                     return Error(new ParsingFailed($"The current channel {channel.Name} is not part of a server."));

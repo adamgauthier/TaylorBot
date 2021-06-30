@@ -6,7 +6,15 @@ namespace TaylorBot.Net.Commands.DiscordNet
     {
         public static RunContext MapToRunContext(ITaylorBotCommandContext context)
         {
-            RunContext runContext = new(context.Message.Timestamp, context.User, context.Channel, context.Guild, context.Client, context.CommandPrefix, new());
+            RunContext runContext = new(
+                context.Message.Timestamp,
+                context.User,
+                new(context.Channel.Id.ToString()),
+                context.Guild,
+                context.Client,
+                context.CommandPrefix,
+                new()
+            );
             context.RunContext = runContext;
             return runContext;
         }

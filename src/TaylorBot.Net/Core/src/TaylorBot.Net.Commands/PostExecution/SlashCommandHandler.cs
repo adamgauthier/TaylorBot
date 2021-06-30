@@ -14,6 +14,7 @@ using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Snowflake;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.PostExecution
@@ -108,30 +109,30 @@ namespace TaylorBot.Net.Commands.PostExecution
             {
                 await _interactionResponseClient.SendAcknowledgementResponseAsync(interaction, IsEphemeral: slashCommand.Info.IsPrivateResponse);
 
-                var channel = (IMessageChannel)await _taylorBotClient.Value.ResolveRequiredChannelAsync(new(interaction.ChannelId));
-
-                var author = channel is ITextChannel text ?
+                var author = interaction.Guild != null ?
                     (await _taylorBotClient.Value.ResolveGuildUserAsync(
-                        text.Guild,
-                        new(interaction.Guild!.Member.user.id)
+                        new SnowflakeId(interaction.Guild.Id),
+                        new(interaction.Guild.Member.user.id)
                     ))! :
                     await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
 
-                var oldPrefix = channel is ITextChannel textChannel ?
-                    await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(textChannel.Guild) :
+                var oldPrefix = author is IGuildUser aGuildUser ?
+                    await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(aGuildUser.Guild) :
                     string.Empty;
 
                 var context = new RunContext(
                     DateTimeOffset.Now,
                     author,
-                    channel,
+                    new(interaction.ChannelId),
                     author is IGuildUser guildUser ? guildUser.Guild : null,
                     _taylorBotClient.Value.DiscordShardedClient,
                     oldPrefix,
                     new()
                 );
 
-                _logger.LogInformation($"{context.User.FormatLog()} using slash command '{slashCommand.Info.Name}' ({interaction.Data.id}) in {context.Channel.FormatLog()}");
+                _logger.LogInformation(
+                    $"{context.User.FormatLog()} using slash command '{slashCommand.Info.Name}' ({interaction.Data.id}) in channel {context.Channel.Id}{(context.Guild != null ? $"on {context.Guild.FormatLog()}" : "")}"
+                );
 
                 var result = await RunCommandAsync(slashCommand, context, options);
 
