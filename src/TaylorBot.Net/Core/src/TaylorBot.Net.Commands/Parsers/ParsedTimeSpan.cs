@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands.Parsers
             var input = optionValue.Value.GetString()!;
 
             var rawQuantity = input[0..^1];
-            if (!ushort.TryParse(rawQuantity, out var quantity))
+            if (!uint.TryParse(rawQuantity, out var quantity))
             {
                 return new(Error(new ParsingFailed(UnrecognizedFormatText)));
             }

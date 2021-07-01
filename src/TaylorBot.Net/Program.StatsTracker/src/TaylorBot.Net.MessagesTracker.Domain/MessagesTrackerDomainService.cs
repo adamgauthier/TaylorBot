@@ -23,7 +23,8 @@ namespace TaylorBot.Net.MessagesTracker.Domain
 
     public interface IMessageRepository
     {
-        ValueTask AddMessagesAndWordsAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd);
+        ValueTask QueueAddMessagesAndWordsAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd);
+        ValueTask PersistQueuedMessagesAndWordsAsync();
     }
 
     public class MessagesTrackerDomainService
@@ -61,7 +62,7 @@ namespace TaylorBot.Net.MessagesTracker.Domain
 
             if (!isSpam)
             {
-                await _messageRepository.AddMessagesAndWordsAsync(guildUser, 1, _wordCounter.CountWords(message.Content));
+                await _messageRepository.QueueAddMessagesAndWordsAsync(guildUser, 1, _wordCounter.CountWords(message.Content));
             }
 
             await _guildUserLastSpokeRepository.QueueUpdateLastSpokeAsync(guildUser, message.Timestamp);
@@ -82,6 +83,23 @@ namespace TaylorBot.Net.MessagesTracker.Domain
                 }
 
                 await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);
+            }
+        }
+
+        public async Task StartPersistingMemberMessagesAndWordsAsync()
+        {
+            while (true)
+            {
+                try
+                {
+                    await _messageRepository.PersistQueuedMessagesAndWordsAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Unhandled exception in {nameof(_messageRepository.PersistQueuedMessagesAndWordsAsync)}.");
+                }
+
+                await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingMemberMessagesAndWords);
             }
         }
 

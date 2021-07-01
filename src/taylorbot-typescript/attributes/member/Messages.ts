@@ -1,7 +1,7 @@
 import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute';
-import { SimpleStatPresenter } from '../member-presenters/SimpleStatPresenter';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { Guild, GuildMember } from 'discord.js';
+import { AboutPresenter } from '../member-presenters/AboutPresenter';
 
 class MessagesAttribute extends SimpleStatMemberAttribute {
     constructor() {
@@ -11,7 +11,7 @@ class MessagesAttribute extends SimpleStatMemberAttribute {
             description: 'total messages sent',
             columnName: 'message_count',
             singularName: 'message',
-            presenter: SimpleStatPresenter
+            presenter: AboutPresenter
         });
     }
 

@@ -1,7 +1,7 @@
 import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute';
-import { SimpleStatPresenter } from '../member-presenters/SimpleStatPresenter';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { Guild, GuildMember } from 'discord.js';
+import { AboutPresenter } from '../member-presenters/AboutPresenter';
 
 class WordsAttribute extends SimpleStatMemberAttribute {
     constructor() {
@@ -11,7 +11,7 @@ class WordsAttribute extends SimpleStatMemberAttribute {
             description: 'total words sent',
             columnName: 'word_count',
             singularName: 'word',
-            presenter: SimpleStatPresenter
+            presenter: AboutPresenter
         });
     }
 

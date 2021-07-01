@@ -18,6 +18,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
         private readonly MinutesTrackerDomainService _minutesTrackerDomainService;
         private readonly SingletonTaskRunner _lastSpokeSingletonTaskRunner;
         private readonly SingletonTaskRunner _channelMessageCountSingletonTaskRunner;
+        private readonly SingletonTaskRunner _memberMessageAndWordsSingletonTaskRunner;
         private readonly MessagesTrackerDomainService _messagesTrackerDomainService;
 
         public ReadyHandler(
@@ -27,6 +28,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
             MinutesTrackerDomainService minutesTrackerDomainService,
             SingletonTaskRunner lastSpokeSingletonTaskRunner,
             SingletonTaskRunner channelMessageCountSingletonTaskRunner,
+            SingletonTaskRunner memberMessageAndWordsSingletonTaskRunner,
             MessagesTrackerDomainService messagesTrackerDomainService
         )
         {
@@ -36,6 +38,7 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
             _minutesTrackerDomainService = minutesTrackerDomainService;
             _lastSpokeSingletonTaskRunner = lastSpokeSingletonTaskRunner;
             _channelMessageCountSingletonTaskRunner = channelMessageCountSingletonTaskRunner;
+            _memberMessageAndWordsSingletonTaskRunner = memberMessageAndWordsSingletonTaskRunner;
             _messagesTrackerDomainService = messagesTrackerDomainService;
         }
 
@@ -54,6 +57,11 @@ namespace TaylorBot.Net.StatsTracker.Program.Events
             _ = _channelMessageCountSingletonTaskRunner.StartTaskIfNotStarted(
                 _messagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync,
                 nameof(MessagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync)
+            );
+
+            _ = _memberMessageAndWordsSingletonTaskRunner.StartTaskIfNotStarted(
+                _messagesTrackerDomainService.StartPersistingMemberMessagesAndWordsAsync,
+                nameof(MessagesTrackerDomainService.StartPersistingMemberMessagesAndWordsAsync)
             );
 
             return Task.CompletedTask;
