@@ -1,103 +1,101 @@
 {
-  "body": {
-    "name": "mod",
-    "description": "Moderate your server with these utility commands",
-    "options": [
-      {
-        "name": "mail",
-        "description": "Send or receive messages from a server's moderation team",
-        "type": 2,
-        "options": [
-          {
-            "name": "message-mods",
-            "description": "As a user, send a message to a server's moderation team",
-            "type": 1,
-            "options": [
-              {
-                "name": "message",
-                "description": "The message to send",
-                "type": 3,
-                "required": true
-              }
-            ]
-          },
-          {
-            "name": "message-user",
-            "description": "As a moderator, send a direct message from the moderation team to a user",
-            "type": 1,
-            "options": [
-              {
-                "name": "user",
-                "description": "The user to send a message to",
-                "type": 6,
-                "required": true
-              },
-              {
-                "name": "message",
-                "description": "The message to send",
-                "type": 3,
-                "required": true
-              }
-            ]
-          },
-          {
-            "name": "block",
-            "description": "As a moderator, block a user from sending mod mail",
-            "type": 1,
-            "options": [
-              {
-                "name": "user",
-                "description": "The user to block",
-                "type": 6,
-                "required": true
-              }
-            ]
-          },
-          {
-            "name": "unblock",
-            "description": "As a moderator, unblock a user from sending mod mail",
-            "type": 1,
-            "options": [
-              {
-                "name": "user",
-                "description": "The user to unblock",
-                "type": 6,
-                "required": true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "log",
-        "description": "Configure moderation command usage logging for this server",
-        "type": 2,
-        "options": [
-          {
-            "name": "set",
-            "description": "Set a channel for logging moderation command usage in this server",
-            "type": 1,
-            "options": [
-              {
-                "name": "channel",
-                "description": "The text channel you want moderation command usage to be logged in, or the current channel",
-                "type": 7,
-                "required": false
-              }
-            ]
-          },
-          {
-            "name": "show",
-            "description": "Show the configuration of moderation command usage logging in this server",
-            "type": 1
-          },
-          {
-            "name": "stop",
-            "description": "Stop logging moderation command usage in this server",
-            "type": 1
-          }
-        ]
-      }
-    ]
-  }
+  "name": "mod",
+  "description": "Moderate your server with these utility commands",
+  "options": [
+    {
+      "name": "mail",
+      "description": "Send or receive messages from a server's moderation team",
+      "type": 2,
+      "options": [
+        {
+          "name": "message-mods",
+          "description": "As a user, send a message to a server's moderation team",
+          "type": 1,
+          "options": [
+            {
+              "name": "message",
+              "description": "The message to send",
+              "type": 3,
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "message-user",
+          "description": "As a moderator, send a direct message from the moderation team to a user",
+          "type": 1,
+          "options": [
+            {
+              "name": "user",
+              "description": "The user to send a message to",
+              "type": 6,
+              "required": true
+            },
+            {
+              "name": "message",
+              "description": "The message to send",
+              "type": 3,
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "block",
+          "description": "As a moderator, block a user from sending mod mail",
+          "type": 1,
+          "options": [
+            {
+              "name": "user",
+              "description": "The user to block",
+              "type": 6,
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "unblock",
+          "description": "As a moderator, unblock a user from sending mod mail",
+          "type": 1,
+          "options": [
+            {
+              "name": "user",
+              "description": "The user to unblock",
+              "type": 6,
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "log",
+      "description": "Configure moderation command usage logging for this server",
+      "type": 2,
+      "options": [
+        {
+          "name": "set",
+          "description": "Set a channel for logging moderation command usage in this server",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The text channel you want moderation command usage to be logged in, or the current channel",
+              "type": 7,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "show",
+          "description": "Show the configuration of moderation command usage logging in this server",
+          "type": 1
+        },
+        {
+          "name": "stop",
+          "description": "Stop logging moderation command usage in this server",
+          "type": 1
+        }
+      ]
+    }
+  ]
 }

@@ -1,14 +1,12 @@
 {
-  "body": {
-    "name": "choose",
-    "description": "Choose randomly between multiple options",
-    "options": [
-      {
-        "name": "options",
-        "description": "The comma-separated options to choose from (e.g. Cake, Pie)",
-        "type": 3,
-        "required": true
-      }
-    ]
-  }
+  "name": "choose",
+  "description": "Choose randomly between multiple options",
+  "options": [
+    {
+      "name": "options",
+      "description": "The comma-separated options to choose from (e.g. Cake, Pie)",
+      "type": 3,
+      "required": true
+    }
+  ]
 }

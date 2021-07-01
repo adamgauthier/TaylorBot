@@ -13,24 +13,18 @@ steps:
     $files = Get-ChildItem ${{ parameters.slashCommandsDir }}
     Write-Output "Processing $($files.Count) slash command file(s)"
 
-    foreach ($file in $files) {
-      $command = Get-Content $file.FullName | ConvertFrom-Json
-      $body = $command.body | ConvertTo-Json -Depth 100
-      $baseUrl = "https://discord.com/api/v9/applications/${{ parameters.applicationId }}/"
-      $suffix = if ($command.guild -eq $null) { 'commands' } else { "guilds/$($command.guild)/commands" }
-      $url = $baseUrl + $suffix
+    $merged = $files | % { $_ | Get-Content | ConvertFrom-Json } | ConvertTo-Json -Depth 100
 
-      $response = Invoke-WebRequest -Uri $url `
-        -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.1.0)' `
-        -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
-        -Method 'POST' `
-        -ContentType 'application/json' `
-        -Body $body
+    $url = "https://discord.com/api/v9/applications/${{ parameters.applicationId }}/commands"
 
-      Write-Output "$($file.Name) - $url ($($response.StatusCode))"
+    $response = Invoke-WebRequest -Uri $url `
+      -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.2.0)' `
+      -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
+      -Method 'PUT' `
+      -ContentType 'application/json' `
+      -Body $merged
 
-      Start-Sleep -Seconds 2
-    }
+    Write-Output "$url ($($response.StatusCode))"
   displayName: 'Push all slash commands'
   env:
     BOT_TOKEN: ${{ parameters.botToken }}

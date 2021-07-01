@@ -1,14 +1,12 @@
 {
-  "body": {
-    "name": "avatar",
-    "description": "Display user avatars in full size",
-    "options": [
-      {
-        "name": "user",
-        "description": "The user to retrieve the avatar for, or your own",
-        "type": 6,
-        "required": false
-      }
-    ]
-  }
+  "name": "avatar",
+  "description": "Display user avatars in full size",
+  "options": [
+    {
+      "name": "user",
+      "description": "The user to retrieve the avatar for, or your own",
+      "type": 6,
+      "required": false
+    }
+  ]
 }

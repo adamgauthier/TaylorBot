@@ -1,20 +1,18 @@
 {
-  "body": {
-    "name": "kick",
-    "description": "Kick server members",
-    "options": [
-      {
-        "name": "member",
-        "description": "The member to kick from the server",
-        "type": 6,
-        "required": true
-      },
-      {
-        "name": "reason",
-        "description": "The reason why this member is being kicked",
-        "type": 3,
-        "required": false
-      }
-    ]
-  }
+  "name": "kick",
+  "description": "Kick server members",
+  "options": [
+    {
+      "name": "member",
+      "description": "The member to kick from the server",
+      "type": 6,
+      "required": true
+    },
+    {
+      "name": "reason",
+      "description": "The reason why this member is being kicked",
+      "type": 3,
+      "required": false
+    }
+  ]
 }
