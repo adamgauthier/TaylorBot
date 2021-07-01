@@ -1,7 +1,7 @@
 ﻿using Discord;
 using System;
 
-namespace TaylorBot.Net.Commands.PageMessages
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
 {
     public interface IEmbedPageEditor
     {

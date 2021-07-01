@@ -58,9 +58,18 @@ namespace TaylorBot.Net.Commands.PostExecution
             }
         }
 
-        public void AddCallback(string customId, Func<ButtonComponent, ValueTask> callback)
+        public void AddCallback(string customId, Func<ButtonComponent, ValueTask> callback, TimeSpan? expire = null)
         {
             _callbacks.Add(customId, callback);
+
+            if (expire.HasValue)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(expire.Value);
+                    RemoveCallback(customId);
+                });
+            }
         }
 
         public void RemoveCallback(string customId)

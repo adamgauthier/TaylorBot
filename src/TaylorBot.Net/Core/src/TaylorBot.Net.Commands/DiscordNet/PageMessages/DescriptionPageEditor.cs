@@ -1,7 +1,7 @@
 ﻿using Discord;
 using System.Collections.Generic;
 
-namespace TaylorBot.Net.Commands.PageMessages
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
 {
     public class DescriptionPageEditor : IEmbedPageEditor
     {

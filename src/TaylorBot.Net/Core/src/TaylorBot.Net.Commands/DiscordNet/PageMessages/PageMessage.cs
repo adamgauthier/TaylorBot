@@ -8,7 +8,7 @@ using System.Timers;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Core.Logging;
 
-namespace TaylorBot.Net.Commands.PageMessages
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
 {
     public record PageMessageOptions(EmbedPageMessageRenderer Renderer, bool Cancellable = false);
 

@@ -131,7 +131,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                 );
 
                 _logger.LogInformation(
-                    $"{context.User.FormatLog()} using slash command '{slashCommand.Info.Name}' ({interaction.Data.id}) in channel {context.Channel.Id}{(context.Guild != null ? $"on {context.Guild.FormatLog()}" : "")}"
+                    $"{context.User.FormatLog()} using slash command '{slashCommand.Info.Name}' ({interaction.Data.id}) in channel {context.Channel.Id}{(context.Guild != null ? $" on {context.Guild.FormatLog()}" : "")}"
                 );
 
                 var result = await RunCommandAsync(slashCommand, context, options);
@@ -148,38 +148,43 @@ namespace TaylorBot.Net.Commands.PostExecution
                         break;
 
                     case MessageResult messageResult:
-                        var buttons = messageResult.Buttons != null ?
-                            messageResult.Buttons.Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } }).ToList() :
-                            new List<MessageResult.ButtonResult>();
-
-                        foreach (var button in buttons)
+                        IReadOnlyList<Button> CreateAndBindButtons(MessageResult m, string authorId)
                         {
-                            _messageComponentHandler.AddCallback(button.Button.Id, async component =>
-                            {
-                                if (component.UserId == author.Id.ToString())
-                                {
-                                    _messageComponentHandler.RemoveCallback(button.Button.Id);
-
-                                    var updated = await button.Action();
-                                    await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated, Array.Empty<Button>()));
-                                }
-                            });
-                        }
-
-                        await _interactionResponseClient.SendFollowupResponseAsync(
-                            interaction,
-                            new(messageResult.Content, buttons.Select(b => b.Button).ToList())
-                        );
-
-                        if (buttons.Count > 0)
-                        {
-                            await Task.Delay(TimeSpan.FromMinutes(5));
+                            var buttons = m.Buttons != null ?
+                                m.Buttons.Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } }).ToList() :
+                                new List<MessageResult.ButtonResult>();
 
                             foreach (var button in buttons)
                             {
-                                _messageComponentHandler.RemoveCallback(button.Button.Id);
+                                _messageComponentHandler.AddCallback(button.Button.Id, async component =>
+                                {
+                                    if (component.UserId == authorId)
+                                    {
+                                        _messageComponentHandler.RemoveCallback(button.Button.Id);
+
+                                        var updated = await button.Action();
+                                        if (updated != null)
+                                        {
+                                            var buttons = CreateAndBindButtons(updated, authorId);
+                                            await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated.Content, buttons));
+                                        }
+                                        else
+                                        {
+                                            await _interactionResponseClient.DeleteOriginalResponseAsync(component);
+                                        }
+                                    }
+                                }, expire: TimeSpan.FromMinutes(10));
                             }
+
+                            return buttons.Select(b => b.Button).ToList();
                         }
+
+                        var buttons = CreateAndBindButtons(messageResult, author.Id.ToString());
+
+                        await _interactionResponseClient.SendFollowupResponseAsync(
+                            interaction,
+                            new(messageResult.Content, buttons)
+                        );
                         break;
 
                     case ParsingFailed parsingFailed:

@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="5.0.1" />
     <PackageReference Include="Google.Apis.CustomSearchAPI.v1" Version="1.51.0.2238" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.52.0.2366" />
     <PackageReference Include="Inflatable.Lastfm" Version="1.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>

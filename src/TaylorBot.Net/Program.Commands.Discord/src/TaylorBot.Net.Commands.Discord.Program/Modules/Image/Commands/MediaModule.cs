@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.PageMessages;
+using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;

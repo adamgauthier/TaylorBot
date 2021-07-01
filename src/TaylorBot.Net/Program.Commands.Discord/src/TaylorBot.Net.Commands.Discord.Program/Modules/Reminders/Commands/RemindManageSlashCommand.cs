@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                         async () =>
                         {
                             await _reminderRepository.ClearReminderAsync(r.Domain);
-                            return new MessageContent(EmbedFactory.CreateSuccess($"Reminder {r.UserFacingId} has been cleared. 👍"));
+                            return new(new MessageContent(EmbedFactory.CreateSuccess($"Reminder {r.UserFacingId} has been cleared. 👍")));
                         }
                     ));
 
@@ -56,7 +56,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                         async () =>
                         {
                             await _reminderRepository.ClearAllRemindersAsync(context.User);
-                            return new MessageContent(EmbedFactory.CreateSuccess("All your reminders have been cleared. 👍"));
+                            return new(new MessageContent(EmbedFactory.CreateSuccess("All your reminders have been cleared. 👍")));
                         }
                     );
 

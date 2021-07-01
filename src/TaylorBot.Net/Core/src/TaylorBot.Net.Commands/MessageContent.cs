@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System;
 using System.Collections.Generic;
 
 namespace TaylorBot.Net.Commands
@@ -6,6 +7,7 @@ namespace TaylorBot.Net.Commands
     public record MessageContent(IReadOnlyList<Embed> Embeds, string Content = "")
     {
         public MessageContent(Embed Embed) : this(new[] { Embed }) { }
+        public MessageContent(string Content) : this(Array.Empty<Embed>(), Content) { }
     }
 
     public enum ButtonStyle { Primary, Secondary, Success, Danger }

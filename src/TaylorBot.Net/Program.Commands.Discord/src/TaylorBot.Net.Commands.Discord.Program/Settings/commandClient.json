@@ -5,7 +5,8 @@
   "CommandApplication": {
     "ApplicationName": "commands-discord",
     "DailyLimits": {
-      "custom-search": 10
+      "custom-search": 10,
+      "youtube-search": 7
     }
   }
 }

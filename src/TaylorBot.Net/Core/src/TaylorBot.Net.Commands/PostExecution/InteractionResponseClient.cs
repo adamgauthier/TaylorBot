@@ -136,5 +136,16 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             response.EnsureSuccessStatusCode();
         }
+
+        public async ValueTask DeleteOriginalResponseAsync(ButtonComponent component)
+        {
+            var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
+
+            var response = await _httpClient.DeleteAsync(
+                $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original"
+            );
+
+            response.EnsureSuccessStatusCode();
+        }
     }
 }

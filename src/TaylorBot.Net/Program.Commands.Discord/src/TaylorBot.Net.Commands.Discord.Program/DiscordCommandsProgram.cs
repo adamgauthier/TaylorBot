@@ -1,5 +1,6 @@
 ﻿using Google.Apis.CustomSearchAPI.v1;
 using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
 using IF.Lastfm.Core.Api;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Extensions;
@@ -104,13 +108,14 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>()
             .AddTransient<IUsernameHistoryRepository, UsernameHistoryPostgresRepository>()
             .AddTransient<IPlusUserRepository, PlusUserPostgresRepository>()
-            .ConfigureRequired<ImageOptions>(config, "Image")
+            .ConfigureRequired<GoogleOptions>(config, "Google")
             .AddSingleton(provider =>
             {
-                var auth = provider.GetRequiredService<IOptionsMonitor<ImageOptions>>().CurrentValue;
+                var auth = provider.GetRequiredService<IOptionsMonitor<GoogleOptions>>().CurrentValue;
                 return new BaseClientService.Initializer { ApiKey = auth.GoogleApiKey };
             })
             .AddTransient<CustomSearchAPIService>()
+            .ConfigureRequired<ImageOptions>(config, "Image")
             .AddTransient<IImageSearchClient, GoogleCustomSearchClient>()
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
@@ -130,7 +135,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ChooseSlashCommand>()
             .AddTransient<IReminderRepository, ReminderPostgresRepository>()
             .AddSlashCommand<RemindAddSlashCommand>()
-            .AddSlashCommand<RemindManageSlashCommand>();
+            .AddSlashCommand<RemindManageSlashCommand>()
+            .AddTransient<YouTubeService>()
+            .AddTransient<IYouTubeClient, YouTubeClient>()
+            .AddSlashCommand<YouTubeSlashCommand>();
     })
     .Build();
 

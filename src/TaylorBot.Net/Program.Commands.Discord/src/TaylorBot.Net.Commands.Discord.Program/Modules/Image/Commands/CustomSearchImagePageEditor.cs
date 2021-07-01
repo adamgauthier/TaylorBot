@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
-using TaylorBot.Net.Commands.PageMessages;
+using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
 {

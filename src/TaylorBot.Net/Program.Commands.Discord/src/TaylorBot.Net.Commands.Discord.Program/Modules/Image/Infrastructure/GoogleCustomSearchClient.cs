@@ -44,7 +44,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure
 
                 return new SuccessfulSearch(results, response.SearchInformation.FormattedTotalResults, response.SearchInformation.FormattedSearchTime);
             }
-            catch (GoogleApiException e) when (e.Error.Errors[0].Reason == "dailyLimitExceeded")
+            catch (GoogleApiException e) when (e.Error.Errors[0].Reason == "rateLimitExceeded")
             {
                 return new DailyLimitExceeded();
             }
