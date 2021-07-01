@@ -1,5 +1,6 @@
 ﻿{
   "Discord": {
-    "ShardCount": null
+    "ShardCount": null,
+    "ExclusiveBulkDelete": true
   }
 }
