@@ -23,7 +23,7 @@
     },
     {
       "name": "manage",
-      "description": "Manage (show and delete) your current reminders",
+      "description": "Show your active reminders and optionally delete some of them",
       "type": 1
     }
   ]

@@ -25,3 +25,4 @@
 0021_bump_version_1.11.1 2021-05-16T02:20:11Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.11.1
 0022_add_mod_mail_blocked_users 2021-06-03T16:33:37Z Adam Gauthier <adamgauthier12@gmail.com> # Add moderation.mod_mail_blocked_users
 0023_bump_version_1.12.0 2021-06-05T03:53:54Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.12.0
+0024_bump_version_1.13.0 2021-07-05T01:35:56Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.13.0
