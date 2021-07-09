@@ -25,6 +25,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
@@ -138,7 +139,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<RemindManageSlashCommand>()
             .AddTransient<YouTubeService>()
             .AddTransient<IYouTubeClient, YouTubeClient>()
-            .AddSlashCommand<YouTubeSlashCommand>();
+            .AddSlashCommand<YouTubeSlashCommand>()
+            .AddSlashCommand<OwnerIgnoreSlashCommand>();
     })
     .Build();
 
