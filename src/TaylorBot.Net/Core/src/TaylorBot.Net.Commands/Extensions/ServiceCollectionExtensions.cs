@@ -6,6 +6,8 @@ using System;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Parsers;
+using TaylorBot.Net.Commands.Parsers.Numbers;
+using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
@@ -70,6 +72,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<StringParser>()
                 .AddOptionParser<OptionalStringParser>()
                 .AddOptionParser<UserParser>()
+                .AddOptionParser<OptionalUserParser>()
                 .AddOptionParser<UserNotAuthorParser>()
                 .AddOptionParser<UserNotAuthorAndTaylorBotParser>()
                 .AddOptionParser<UserNotAuthorAndBotParser>()
@@ -79,7 +82,9 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<MemberNotAuthorAndTaylorBotParser>()
                 .AddOptionParser<MemberNotAuthorAndBotParser>()
                 .AddOptionParser<TextChannelOrCurrentParser>()
-                .AddOptionParser<TimeSpanParser>();
+                .AddOptionParser<TimeSpanParser>()
+                .AddOptionParser<IntegerParser>()
+                .AddOptionParser<PositiveIntegerParser>();
         }
 
         public static IServiceCollection AddOptionParser<T>(this IServiceCollection services)

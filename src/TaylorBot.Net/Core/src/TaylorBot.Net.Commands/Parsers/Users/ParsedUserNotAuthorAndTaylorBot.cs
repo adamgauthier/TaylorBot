@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers
+namespace TaylorBot.Net.Commands.Parsers.Users
 {
     public record ParsedUserNotAuthorAndTaylorBot(IUser User);
 

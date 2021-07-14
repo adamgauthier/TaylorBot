@@ -140,7 +140,8 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<YouTubeService>()
             .AddTransient<IYouTubeClient, YouTubeClient>()
             .AddSlashCommand<YouTubeSlashCommand>()
-            .AddSlashCommand<OwnerIgnoreSlashCommand>();
+            .AddSlashCommand<OwnerIgnoreSlashCommand>()
+            .AddSlashCommand<OwnerRewardSlashCommand>();
     })
     .Build();
 
