@@ -5,20 +5,20 @@ using TaylorBot.Net.MessageLogging.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events
 {
-    public class UserMessageReceivedHandler : IUserMessageReceivedHandler
+    public class MessageReceivedHandler : IMessageReceivedHandler
     {
         private readonly MessageDeletedLoggerService _messageDeletedLoggerService;
 
-        public UserMessageReceivedHandler(MessageDeletedLoggerService messageDeletedLoggerService)
+        public MessageReceivedHandler(MessageDeletedLoggerService messageDeletedLoggerService)
         {
             _messageDeletedLoggerService = messageDeletedLoggerService;
         }
 
-        public async Task UserMessageReceivedAsync(SocketUserMessage userMessage)
+        public async Task MessageReceivedAsync(SocketMessage message)
         {
-            if (userMessage.Channel is SocketTextChannel textChannel)
+            if (message.Channel is SocketTextChannel textChannel)
             {
-                await _messageDeletedLoggerService.OnGuildUserMessageReceivedAsync(textChannel, userMessage);
+                await _messageDeletedLoggerService.OnGuildUserMessageReceivedAsync(textChannel, message);
             }
         }
     }

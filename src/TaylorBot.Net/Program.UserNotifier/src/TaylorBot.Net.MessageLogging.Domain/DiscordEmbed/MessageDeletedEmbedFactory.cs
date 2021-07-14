@@ -81,10 +81,15 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                             .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
                             .AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
 
-                        if (taylorBot.Content != string.Empty)
+                        if (taylorBot.SystemMessageType.HasValue)
                         {
                             builder
-                                .WithTitle("Message Content").WithDescription(taylorBot.Content);
+                                .WithTitle("System Message Type")
+                                .WithDescription(GetSystemMessageTypeString(taylorBot.SystemMessageType.Value));
+                        }
+                        else if (!string.IsNullOrEmpty(taylorBot.Content))
+                        {
+                            builder.WithTitle("Message Content").WithDescription(taylorBot.Content);
                         }
                         break;
                 }
@@ -108,7 +113,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 .Build();
         }
 
-        private string GetSystemMessageTypeString(MessageType messageType)
+        private static string GetSystemMessageTypeString(MessageType messageType)
         {
             return messageType switch
             {

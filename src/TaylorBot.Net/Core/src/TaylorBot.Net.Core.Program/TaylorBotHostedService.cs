@@ -130,6 +130,21 @@ namespace TaylorBot.Net.Core.Program
 
         private IEnumerable<EventHandlerRegistrar> GetMessageRegistrars()
         {
+            var messageReceivedHandler = _services.GetService<IMessageReceivedHandler>();
+            if (messageReceivedHandler != null)
+            {
+                yield return new EventHandlerRegistrar((client) =>
+                {
+                    client.DiscordShardedClient.MessageReceived += async (message) =>
+                    {
+                        await _taskExceptionLogger.LogOnError(async () =>
+                            await messageReceivedHandler.MessageReceivedAsync(message),
+                            nameof(IMessageReceivedHandler)
+                        );
+                    };
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+            }
+
             var userMessageReceivedHandler = _services.GetService<IUserMessageReceivedHandler>();
             if (userMessageReceivedHandler != null)
             {

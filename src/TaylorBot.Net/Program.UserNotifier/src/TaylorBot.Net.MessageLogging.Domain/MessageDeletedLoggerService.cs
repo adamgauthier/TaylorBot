@@ -10,7 +10,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
     public record CachedMessage(SnowflakeId Id, ICachedMessageData? Data);
     public interface ICachedMessageData { }
     public record DiscordNetCachedMessageData(IMessage Message) : ICachedMessageData;
-    public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, string Content) : ICachedMessageData;
+    public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, MessageType? SystemMessageType, string? Content) : ICachedMessageData;
 
     public interface ICachedMessageRepository
     {
@@ -85,7 +85,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
             }
         }
 
-        public async Task OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketUserMessage message)
+        public async Task OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketMessage message)
         {
             var logTextChannel = await _messageLogChannelFinder.FindLogChannelAsync(textChannel.Guild);
 
@@ -93,7 +93,12 @@ namespace TaylorBot.Net.MessageLogging.Domain
             {
                 await _cachedMessageRepository.SaveMessageAsync(
                     new(message.Id),
-                    new(AuthorTag: $"{message.Author.Username}#{message.Author.Discriminator}", AuthorId: message.Author.Id.ToString(), Content: message.Content)
+                    new(
+                        AuthorTag: $"{message.Author.Username}#{message.Author.Discriminator}",
+                        AuthorId: message.Author.Id.ToString(),
+                        SystemMessageType: message is ISystemMessage systemMessage ? systemMessage.Type : null,
+                        Content: message is IUserMessage userMessage ? userMessage.Content : null
+                    )
                 );
             }
         }
