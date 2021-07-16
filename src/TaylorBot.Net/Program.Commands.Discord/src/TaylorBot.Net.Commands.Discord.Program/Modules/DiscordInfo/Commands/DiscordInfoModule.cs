@@ -337,6 +337,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         embed.AddField("Description", guild.Description);
                     }
 
+                    if (guild.BannerUrl != null)
+                    {
+                        embed.WithImageUrl(guild.BannerUrl);
+                    }
+
                     embed
                         .AddField(
                             "Channel".ToQuantity(channels.Count),
