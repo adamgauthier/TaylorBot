@@ -37,11 +37,11 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
 
                         builder
                             .WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl)
-                            .AddField("Sent At", message.Timestamp.FormatShortUserLogDate(), inline: true);
+                            .AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
 
                         if (message.EditedTimestamp.HasValue)
                         {
-                            builder.AddField("Edited At", message.EditedTimestamp.Value.FormatShortUserLogDate(), inline: true);
+                            builder.AddField("Edited", message.EditedTimestamp.Value.FormatShortUserLogDate(), inline: true);
                         }
 
                         if (message.Activity != null)
@@ -79,7 +79,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                     case TaylorBotCachedMessageData taylorBot:
                         builder
                             .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
-                            .AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+                            .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
 
                         if (taylorBot.SystemMessageType.HasValue)
                         {
@@ -89,14 +89,14 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         }
                         else if (!string.IsNullOrEmpty(taylorBot.Content))
                         {
-                            builder.WithTitle("Message Content").WithDescription(taylorBot.Content);
+                            builder.WithTitle("Original Message Content").WithDescription(taylorBot.Content);
                         }
                         break;
                 }
             }
             else
             {
-                builder.AddField("Sent At", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+                builder.AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
             }
 
             return builder;
@@ -140,7 +140,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 .WithTimestamp(eventTime)
                 .WithColor(embedColor)
                 .AddField("Channel", channel.Mention, inline: true)
-                .WithTitle($"{"uncached message".ToQuantity(chunk.Count)} deleted (Id - Sent At)")
+                .WithTitle($"{"uncached message".ToQuantity(chunk.Count)} deleted (Id - Sent)")
                 .WithDescription(string.Join('\n', chunk.Select(uncached =>
                     $"`{uncached.Id}` - `{SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatShortUserLogDate()}`"
                 )))

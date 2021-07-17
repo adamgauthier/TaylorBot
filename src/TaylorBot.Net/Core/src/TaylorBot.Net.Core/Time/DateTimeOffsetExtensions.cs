@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Core.Time
 
         public static string FormatShortUserLogDate(this DateTimeOffset date)
         {
-            return date.ToString("u", CultureInfo.InvariantCulture);
+            return $"<t:{date.ToUnixTimeSeconds()}:R>";
         }
     }
 }
