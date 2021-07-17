@@ -5,8 +5,19 @@
   "CommandApplication": {
     "ApplicationName": "commands-discord",
     "DailyLimits": {
-      "custom-search": 10,
-      "youtube-search": 7
+      "custom-search": {
+        "FriendlyName": "Searching Images (slash command)",
+        "MaxUsesForUser": 4,
+        "MaxUsesForPlusUser": 7
+      },
+      "custom-search-legacy": {
+        "FriendlyName": "Searching Images (prefix command)",
+        "MaxUsesForUser": 3
+      },
+      "youtube-search": {
+        "FriendlyName": "Searching YouTube",
+        "MaxUsesForUser": 7
+      }
     }
   }
 }

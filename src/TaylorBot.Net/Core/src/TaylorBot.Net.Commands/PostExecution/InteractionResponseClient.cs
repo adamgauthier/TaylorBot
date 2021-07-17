@@ -21,7 +21,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             public record Component(byte type, byte? style = null, string? label = null, Emoji? emoji = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
 
-            public record Embed(string? title, string? description, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
+            public record Embed(string? title, string? description, string? url, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
 
             public record EmbedAuthor(string? name, string? url, string? icon_url);
 
@@ -70,6 +70,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             return new InteractionResponse.Embed(
                 title: embed.Title,
                 description: embed.Description,
+                url: embed.Url,
                 author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
                 image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
                 color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,

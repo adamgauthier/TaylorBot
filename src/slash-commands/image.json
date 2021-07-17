@@ -1,0 +1,12 @@
+{
+  "name": "image",
+  "description": "Search the web for images",
+  "options": [
+    {
+      "name": "search",
+      "description": "The search query to match images with",
+      "type": 3,
+      "required": true
+    }
+  ]
+}

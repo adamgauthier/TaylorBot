@@ -208,7 +208,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                         if (rateLimited.Uses < rateLimited.Limit + 6)
                         {
                             baseDescriptionLines = baseDescriptionLines
-                                .Append("**Stop trying to perform this action or you will be ignored.**")
+                                .Append("**Stop trying to perform this action or all your commands will be ignored.**")
                                 .ToArray();
                         }
                         else

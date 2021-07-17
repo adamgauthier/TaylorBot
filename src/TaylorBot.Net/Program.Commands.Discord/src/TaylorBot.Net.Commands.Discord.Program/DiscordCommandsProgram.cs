@@ -14,6 +14,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastruct
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
@@ -141,7 +142,8 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IYouTubeClient, YouTubeClient>()
             .AddSlashCommand<YouTubeSlashCommand>()
             .AddSlashCommand<OwnerIgnoreSlashCommand>()
-            .AddSlashCommand<OwnerRewardSlashCommand>();
+            .AddSlashCommand<OwnerRewardSlashCommand>()
+            .AddSlashCommand<ImageSlashCommand>();
     })
     .Build();
 

@@ -34,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public async Task ImageAsync_WhenDailyLimitExceeded_ThenReturnsErrorEmbed()
         {
             const string Text = "taylor swift";
-            A.CallTo(() => _rateLimiter.VerifyDailyLimitAsync(_commandUser, A<string>.Ignored, A<string>.Ignored)).Returns(null);
+            A.CallTo(() => _rateLimiter.VerifyDailyLimitAsync(_commandUser, A<string>.Ignored)).Returns(null);
             A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new DailyLimitExceeded());
 
             var result = (await _mediaModule.ImageAsync(Text)).GetResult<EmbedResult>();
@@ -46,7 +46,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         public async Task ImageAsync_ThenReturnsSuccessEmbed()
         {
             const string Text = "taylor swift";
-            A.CallTo(() => _rateLimiter.VerifyDailyLimitAsync(_commandUser, A<string>.Ignored, A<string>.Ignored)).Returns(null);
+            A.CallTo(() => _rateLimiter.VerifyDailyLimitAsync(_commandUser, A<string>.Ignored)).Returns(null);
             A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new SuccessfulSearch(
                 Images: new ImageResult[] {
                     new(

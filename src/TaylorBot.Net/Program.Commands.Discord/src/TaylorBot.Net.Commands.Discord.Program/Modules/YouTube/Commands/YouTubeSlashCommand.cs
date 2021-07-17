@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands
                 new(Info.Name),
                 async () =>
                 {
-                    var rateLimitResult = await _rateLimiter.VerifyDailyLimitAsync(context.User, "youtube-search", "Searching YouTube");
+                    var rateLimitResult = await _rateLimiter.VerifyDailyLimitAsync(context.User, "youtube-search");
                     if (rateLimitResult != null)
                         return rateLimitResult;
 
@@ -37,9 +37,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands
 
                     return result switch
                     {
-                        SuccessfulSearch search => new PageMessageResultBuilder(
-                            new(new PageMessageResultRenderer(search.VideoUrls), IsCancellable: true)
-                        ).Build(),
+                        SuccessfulSearch search => new PageMessageResultBuilder(new(
+                            new(new MessageTextEditor(search.VideoUrls)),
+                            IsCancellable: true
+                        )).Build(),
 
                         GenericError error => new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
                             "YouTube returned an unexpected error. 😢",
