@@ -8,8 +8,8 @@ class GuildTextChannelOrCurrentArgumentType extends GuildTextChannelArgumentType
         return 'guild-text-channel-or-current';
     }
 
-    canBeEmpty({ message }: MessageContext): boolean {
-        return message.channel.type === 'text';
+    canBeEmpty(context: MessageContext): boolean {
+        return context.isGuild;
     }
 
     default({ message }: CommandMessageContext): TextChannel | DMChannel | NewsChannel {

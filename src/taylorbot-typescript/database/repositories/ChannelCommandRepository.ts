@@ -1,7 +1,7 @@
 import { Log } from '../../tools/Logger';
 import * as pgPromise from 'pg-promise';
 import { Format } from '../../modules/discord/DiscordFormatter';
-import { TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 import { DatabaseCommand } from './CommandRepository';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 
@@ -31,7 +31,7 @@ export class ChannelCommandRepository {
         }
     }
 
-    async disableCommandInChannel(guildTextChannel: TextChannel, command: DatabaseCommand): Promise<void> {
+    async disableCommandInChannel(guildTextChannel: TextChannel | NewsChannel, command: DatabaseCommand): Promise<void> {
         try {
             await this.#db.none(
                 `INSERT INTO guilds.channel_commands (guild_id, channel_id, command_id)
@@ -49,7 +49,7 @@ export class ChannelCommandRepository {
         }
     }
 
-    async enableCommandInChannel(guildTextChannel: TextChannel, command: DatabaseCommand): Promise<void> {
+    async enableCommandInChannel(guildTextChannel: TextChannel | NewsChannel, command: DatabaseCommand): Promise<void> {
         try {
             await this.#db.none(
                 'DELETE FROM guilds.channel_commands WHERE guild_id = $[guild_id] AND channel_id = $[channel_id] AND command_id = $[command_id];',

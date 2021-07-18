@@ -2,7 +2,7 @@ import UserGroups = require('../../client/UserGroups');
 import { Format } from '../../modules/discord/DiscordFormatter';
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
-import { TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 
 class AddSpamChannelCommand extends Command {
     constructor() {
@@ -26,7 +26,7 @@ class AddSpamChannelCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { channel }: { channel: TextChannel }): Promise<void> {
+    async run({ message, client }: CommandMessageContext, { channel }: { channel: TextChannel | NewsChannel }): Promise<void> {
         await client.master.registry.guilds.setSpamChannelAsync(channel);
 
         await client.sendEmbedSuccess(message.channel, `Successfully made ${Format.guildChannel(channel, '#name (`#id`)')} a spam channel.`);

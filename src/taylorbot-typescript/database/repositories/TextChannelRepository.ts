@@ -1,7 +1,7 @@
 import { Log } from '../../tools/Logger';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import * as pgPromise from 'pg-promise';
-import { TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 
 export class TextChannelRepository {
     readonly #db: pgPromise.IDatabase<unknown>;
@@ -10,7 +10,7 @@ export class TextChannelRepository {
         this.#db = db;
     }
 
-    mapChannelToDatabase(guildChannel: TextChannel): { guild_id: string; channel_id: string } {
+    mapChannelToDatabase(guildChannel: TextChannel | NewsChannel): { guild_id: string; channel_id: string } {
         return {
             'guild_id': guildChannel.guild.id,
             'channel_id': guildChannel.id
@@ -37,7 +37,7 @@ export class TextChannelRepository {
         }
     }
 
-    async insertOrGetIsSpamChannelAsync(guildChannel: TextChannel): Promise<boolean> {
+    async insertOrGetIsSpamChannelAsync(guildChannel: TextChannel | NewsChannel): Promise<boolean> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this.#db.one(
@@ -54,7 +54,7 @@ export class TextChannelRepository {
         }
     }
 
-    async upsertSpamChannel(guildChannel: TextChannel, isSpam: boolean): Promise<void> {
+    async upsertSpamChannel(guildChannel: TextChannel | NewsChannel, isSpam: boolean): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             await this.#db.none(
@@ -68,21 +68,6 @@ export class TextChannelRepository {
         }
         catch (e) {
             Log.error(`Upserting ${Format.guildChannel(guildChannel)} as spam channel: ${e}`);
-            throw e;
-        }
-    }
-
-    async insertChannel(guildChannel: TextChannel): Promise<void> {
-        const databaseChannel = this.mapChannelToDatabase(guildChannel);
-        try {
-            await this.#db.none(
-                `INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES ($[guild_id], $[channel_id])
-                ON CONFLICT (guild_id, channel_id) DO NOTHING;`,
-                databaseChannel
-            );
-        }
-        catch (e) {
-            Log.error(`Inserting ${Format.guildChannel(guildChannel)}: ${e}`);
             throw e;
         }
     }

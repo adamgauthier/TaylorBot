@@ -1,7 +1,7 @@
 import { Command } from '../Command';
 import UserGroups = require('../../client/UserGroups');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class EnableChannelCommandCommand extends Command {
@@ -32,7 +32,7 @@ class EnableChannelCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: TextChannel }): Promise<void> {
+    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: TextChannel | NewsChannel }): Promise<void> {
         await client.master.registry.channelCommands.enableCommandInChannel(channel, databaseCommand);
 
         await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${databaseCommand.name}\` in ${channel}.`);

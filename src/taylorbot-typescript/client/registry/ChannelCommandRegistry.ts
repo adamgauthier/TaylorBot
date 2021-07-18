@@ -1,6 +1,6 @@
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { RedisDriver } from '../../caching/RedisDriver';
-import { TextChannel } from 'discord.js';
+import { NewsChannel, TextChannel } from 'discord.js';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 import { CachedCommand } from './CachedCommand';
 
@@ -31,7 +31,7 @@ export class ChannelCommandRegistry {
         return isEnabled === '0';
     }
 
-    async disableCommandInChannel(guildTextChannel: TextChannel, command: DatabaseCommand): Promise<void> {
+    async disableCommandInChannel(guildTextChannel: TextChannel | NewsChannel, command: DatabaseCommand): Promise<void> {
         await this.#database.channelCommands.disableCommandInChannel(guildTextChannel, command);
         await this.#redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),
@@ -40,7 +40,7 @@ export class ChannelCommandRegistry {
         );
     }
 
-    async enableCommandInChannel(guildTextChannel: TextChannel, command: DatabaseCommand): Promise<void> {
+    async enableCommandInChannel(guildTextChannel: TextChannel | NewsChannel, command: DatabaseCommand): Promise<void> {
         await this.#database.channelCommands.enableCommandInChannel(guildTextChannel, command);
         await this.#redis.hashSet(
             this.key(guildTextChannel.guild.id, guildTextChannel.id),

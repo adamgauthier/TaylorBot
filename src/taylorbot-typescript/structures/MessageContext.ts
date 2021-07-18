@@ -8,6 +8,6 @@ export class MessageContext {
     }
 
     get isGuild(): boolean {
-        return this.message.channel.type === 'text';
+        return this.message.guild != null;
     }
 }
