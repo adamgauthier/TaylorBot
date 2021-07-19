@@ -1,5 +1,4 @@
 import redisCommandsConfig = require('../config/redis-commands.json');
-import redisHeistsConfig = require('../config/redis-heists.json');
 
 import { DatabaseDriver } from '../database/DatabaseDriver';
 import { TaylorBotClient } from './TaylorBotClient';
@@ -9,7 +8,6 @@ import { RedisDriver } from '../caching/RedisDriver';
 import { EnvUtil } from '../modules/util/EnvUtil';
 
 const redisCommandsPassword = EnvUtil.getRequiredEnvVariable('TaylorBot_RedisCommandsConnection__Password');
-const redisHeistsPassword = EnvUtil.getRequiredEnvVariable('TaylorBot_RedisHeistsConnection__Password');
 
 export class TaylorBotMasterClient {
     readonly #client: TaylorBotClient;
@@ -18,15 +16,13 @@ export class TaylorBotMasterClient {
     readonly registry: Registry;
 
     constructor() {
-        const redisCommands = new RedisDriver(redisCommandsConfig.HOST, redisCommandsConfig.PORT, redisCommandsPassword);
-        const redisHeists = new RedisDriver(redisHeistsConfig.HOST, redisHeistsConfig.PORT, redisHeistsPassword);
+        const redis = new RedisDriver(redisCommandsConfig.HOST, redisCommandsConfig.PORT, redisCommandsPassword);
 
         this.#client = new TaylorBotClient(this);
 
         this.registry = new Registry(
             this.database,
-            redisCommands,
-            redisHeists
+            redis
         );
     }
 

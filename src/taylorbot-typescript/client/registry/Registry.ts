@@ -29,23 +29,23 @@ export class Registry {
     cooldowns: CooldownRegistry;
     onGoingCommands: OnGoingCommandRegistry;
     heists: HeistRegistry;
-    redisCommands: RedisDriver;
+    redis: RedisDriver;
 
-    constructor(database: DatabaseDriver, redisCommands: RedisDriver, redisHeists: RedisDriver) {
-        this.redisCommands = redisCommands;
+    constructor(database: DatabaseDriver, redis: RedisDriver) {
+        this.redis = redis;
         this.attributes = new AttributeRegistry(database);
         this.inhibitors = new InhibitorRegistry();
         this.types = new TypeRegistry();
         this.watchers = new MessageWatcherRegistry();
         this.groups = new GroupRegistry(database);
-        this.guilds = new GuildRegistry(database, redisCommands);
+        this.guilds = new GuildRegistry(database, redis);
         this.roleGroups = new GuildRoleGroupRegistry(database, this.guilds);
-        this.commands = new CommandRegistry(database, redisCommands);
-        this.users = new UserRegistry(database, redisCommands);
-        this.channelCommands = new ChannelCommandRegistry(database, redisCommands);
-        this.cooldowns = new CooldownRegistry(redisCommands);
-        this.onGoingCommands = new OnGoingCommandRegistry(redisCommands);
-        this.heists = new HeistRegistry(redisHeists);
+        this.commands = new CommandRegistry(database, redis);
+        this.users = new UserRegistry(database, redis);
+        this.channelCommands = new ChannelCommandRegistry(database, redis);
+        this.cooldowns = new CooldownRegistry(redis);
+        this.onGoingCommands = new OnGoingCommandRegistry(redis);
+        this.heists = new HeistRegistry(redis);
     }
 
     async load(): Promise<void> {
