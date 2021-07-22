@@ -26,3 +26,4 @@
 0022_add_mod_mail_blocked_users 2021-06-03T16:33:37Z Adam Gauthier <adamgauthier12@gmail.com> # Add moderation.mod_mail_blocked_users
 0023_bump_version_1.12.0 2021-06-05T03:53:54Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.12.0
 0024_bump_version_1.13.0 2021-07-05T01:35:56Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.13.0
+0025_daily_rebuy 2021-07-20T00:58:57Z Adam Gauthier <adamgauthier12@gmail.com> # Add max_streak_coount to daily_payouts

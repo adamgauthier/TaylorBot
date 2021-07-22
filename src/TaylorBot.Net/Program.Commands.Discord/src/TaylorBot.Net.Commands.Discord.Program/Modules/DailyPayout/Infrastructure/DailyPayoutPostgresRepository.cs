@@ -84,7 +84,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
                             ELSE 1
                         END)
                         ELSE daily_payouts.streak_count
-                    END)
+                    END),
+                    max_streak_count = GREATEST(daily_payouts.streak_count, daily_payouts.max_streak_count)
                 RETURNING CURRENT_TIMESTAMP = last_payout_at AS was_streak_added, streak_count, CASE
                     WHEN streak_count % @DaysForBonus = 0
                     THEN (@BaseBonus + @BonusMultiplier * SQRT(streak_count))::bigint
