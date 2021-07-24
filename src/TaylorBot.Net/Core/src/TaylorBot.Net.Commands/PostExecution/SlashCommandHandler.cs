@@ -162,15 +162,26 @@ namespace TaylorBot.Net.Commands.PostExecution
                                     {
                                         _messageComponentHandler.RemoveCallback(button.Button.Id);
 
-                                        var updated = await button.Action();
-                                        if (updated != null)
+                                        try
                                         {
-                                            var buttons = CreateAndBindButtons(updated, authorId);
-                                            await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated.Content, buttons));
+                                            var updated = await button.Action();
+                                            if (updated != null)
+                                            {
+                                                var buttons = CreateAndBindButtons(updated, authorId);
+                                                await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated.Content, buttons));
+                                            }
+                                            else
+                                            {
+                                                await _interactionResponseClient.DeleteOriginalResponseAsync(component);
+                                            }
                                         }
-                                        else
+                                        catch (Exception e)
                                         {
-                                            await _interactionResponseClient.DeleteOriginalResponseAsync(component);
+                                            _logger.LogError(e, $"Unhandled exception in button {button.Button.Id} action:");
+                                            await _interactionResponseClient.EditOriginalResponseAsync(component, new(
+                                                new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
+                                                Array.Empty<Button>()
+                                            ));
                                         }
                                     }
                                 }, expire: TimeSpan.FromMinutes(10));
