@@ -61,7 +61,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
             public long taypoint_count { get; set; }
         }
 
-        public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user)
+        public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount)
         {
             var options = _options.CurrentValue;
 
@@ -108,14 +108,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
                     @"UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd WHERE user_id = @UserId RETURNING taypoint_count;",
                     new
                     {
-                        PointsToAdd = options.DailyPayoutAmount + redeem.bonus_reward,
+                        PointsToAdd = payoutAmount + redeem.bonus_reward,
                         UserId = user.Id.ToString()
                     }
                 );
                 transaction.Commit();
 
                 return new RedeemResult(
-                    PayoutAmount: options.DailyPayoutAmount,
                     BonusAmount: redeem.bonus_reward,
                     TotalTaypointCount: taypointAdd.taypoint_count,
                     CurrentDailyStreak: redeem.streak_count,

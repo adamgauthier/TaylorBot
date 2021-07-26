@@ -2,6 +2,7 @@
 {
     public class DailyPayoutOptions
     {
+        public uint LegacyDailyPayoutAmount { get; set; }
         public uint DailyPayoutAmount { get; set; }
         public uint DaysForBonus { get; set; }
         public uint BaseBonusAmount { get; set; }

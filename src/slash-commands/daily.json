@@ -3,6 +3,11 @@
   "description": "Claim taypoints every day and build up a streak",
   "options": [
     {
+      "name": "claim",
+      "description": "Claim your daily taypoints",
+      "type": 1
+    },
+    {
       "name": "rebuy",
       "description": "Re-buy your highest daily streak you had in the past",
       "type": 1

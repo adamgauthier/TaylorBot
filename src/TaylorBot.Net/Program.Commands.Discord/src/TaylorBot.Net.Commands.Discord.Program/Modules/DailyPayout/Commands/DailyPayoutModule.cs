@@ -1,15 +1,6 @@
-﻿using Discord;
-using Discord.Commands;
-using Humanizer;
-using System;
-using System.Linq;
+﻿using Discord.Commands;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.Globalization;
-using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
 {
@@ -19,77 +10,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
     public class DailyPayoutModule : TaylorBotModule
     {
         private readonly ICommandRunner _commandRunner;
-        private readonly IDailyPayoutRepository _dailyPayoutRepository;
-        private readonly IMessageOfTheDayRepository _messageOfTheDayRepository;
+        private readonly DailyClaimCommand _dailyClaimCommand;
 
-        public DailyPayoutModule(ICommandRunner commandRunner, IDailyPayoutRepository dailyPayoutRepository, IMessageOfTheDayRepository messageOfTheDayRepository)
+        public DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand dailyClaimCommand)
         {
             _commandRunner = commandRunner;
-            _dailyPayoutRepository = dailyPayoutRepository;
-            _messageOfTheDayRepository = messageOfTheDayRepository;
+            _dailyClaimCommand = dailyClaimCommand;
         }
 
         [Command]
         [Summary("Awards you with your daily amount of taypoints.")]
         public async Task<RuntimeResult> DailyAsync()
         {
-            var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-            {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User);
-
-                var canRedeem = await _dailyPayoutRepository.CanUserRedeemAsync(Context.User);
-
-                if (canRedeem is UserCantRedeem userCantRedeem)
-                {
-                    return new EmbedResult(embed
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            "You've already redeemed your daily payout today.",
-                            $"You can redeem again **{userCantRedeem.CanRedeemAt.Humanize(culture: TaylorBotCulture.Culture)}**."
-                        }))
-                    .Build());
-                }
-
-                var redeemResult = await _dailyPayoutRepository.RedeemDailyPayoutAsync(Context.User);
-
-                if (redeemResult == null)
-                {
-                    return new EmbedResult(embed
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription("You've already redeemed your daily payout today.")
-                    .Build());
-                }
-
-                var messages = await _messageOfTheDayRepository.GetAllMessagesAsync();
-
-                var now = DateTimeOffset.UtcNow;
-
-                var messagePriorities = messages.ToLookup(m => m.MessagePriority != null && now >= m.MessagePriority.From && now <= m.MessagePriority.To);
-                var priorities = messagePriorities[true].ToList();
-                var nonPriorities = messagePriorities[false].ToList();
-
-                var messagesToConsider = priorities.Any() ? priorities : nonPriorities;
-
-                var messageOfTheDay = messagesToConsider[now.DayOfYear % messagesToConsider.Count].Message;
-
-                var nextStreakForBonus = redeemResult.CurrentDailyStreak - redeemResult.CurrentDailyStreak % redeemResult.DaysForBonus + redeemResult.DaysForBonus;
-                var format = TaylorBotFormats.BoldReadable;
-
-                return new EmbedResult(embed
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"You redeemed {"taypoint".ToQuantity(redeemResult.PayoutAmount, format)} + {"bonus point".ToQuantity(redeemResult.BonusAmount, format)}." +
-                            $" You now have {redeemResult.TotalTaypointCount.ToString(format)}. 💰",
-                        $"Bonus streak: {redeemResult.CurrentDailyStreak.ToString(format)}/{nextStreakForBonus.ToString(format)}." +
-                            " Don't miss a day and get a bonus! See you tomorrow! 😄",
-                        $"\n**Daily Message:** {messageOfTheDay.Replace("{prefix}", Context.CommandPrefix)}"
-                    }))
-                .Build());
-            });
-
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context);
+            var result = await _commandRunner.RunAsync(
+                _dailyClaimCommand.Claim(Context.User, Context.CommandPrefix, isLegacyCommand: true),
+                context
+            );
 
             return new TaylorBotResult(result, context);
         }

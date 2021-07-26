@@ -145,7 +145,9 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<OwnerIgnoreSlashCommand>()
             .AddSlashCommand<OwnerRewardSlashCommand>()
             .AddSlashCommand<ImageSlashCommand>()
-            .AddSlashCommand<DailyRebuySlashCommand>();
+            .AddSlashCommand<DailyRebuySlashCommand>()
+            .AddTransient<DailyClaimCommand>()
+            .AddSlashCommand<DailyClaimSlashCommand>();
     })
     .Build();
 

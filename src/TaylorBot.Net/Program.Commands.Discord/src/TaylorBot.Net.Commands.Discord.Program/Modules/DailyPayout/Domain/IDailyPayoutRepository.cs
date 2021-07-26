@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
 
     public record UserCantRedeem(DateTimeOffset CanRedeemAt) : ICanUserRedeemResult;
 
-    public record RedeemResult(long PayoutAmount, long BonusAmount, long TotalTaypointCount, long CurrentDailyStreak, uint DaysForBonus);
+    public record RedeemResult(long BonusAmount, long TotalTaypointCount, long CurrentDailyStreak, uint DaysForBonus);
 
     public record RebuyResult(long TotalTaypointCount, long CurrentDailyStreak);
     public record RebuyFailed(long TotalTaypointCount);
@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
     public interface IDailyPayoutRepository
     {
         ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(IUser user);
-        ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user);
+        ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount);
         ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user);
         ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay);
     }
