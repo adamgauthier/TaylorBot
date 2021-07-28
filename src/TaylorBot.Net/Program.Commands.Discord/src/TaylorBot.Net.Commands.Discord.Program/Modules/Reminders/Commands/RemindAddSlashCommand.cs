@@ -76,7 +76,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                     await _reminderRepository.AddReminderAsync(context.User, remindAt, options.text.Value);
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(
-                        $"Okay, I will remind you in **{fromNow.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
+                        $"Okay, I will remind you in about **{fromNow.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
                     ));
                 }
             ));
