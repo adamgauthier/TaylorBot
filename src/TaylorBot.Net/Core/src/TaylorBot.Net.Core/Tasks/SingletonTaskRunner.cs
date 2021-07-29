@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Core.Tasks
 {
     public class SingletonTaskRunner
     {
-        private readonly object _lockObject = new object();
+        private readonly object _lockObject = new();
         private Task? _runningTask;
 
         private readonly ILogger<SingletonTaskRunner> _logger;

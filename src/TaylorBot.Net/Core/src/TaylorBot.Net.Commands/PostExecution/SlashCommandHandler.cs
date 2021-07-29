@@ -15,6 +15,7 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.Tasks;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.PostExecution
@@ -62,6 +63,7 @@ namespace TaylorBot.Net.Commands.PostExecution
         private readonly Lazy<IReadOnlyDictionary<Type, IOptionParser>> _optionParsers;
         private readonly InteractionResponseClient _interactionResponseClient;
         private readonly MessageComponentHandler _messageComponentHandler;
+        private readonly TaskExceptionLogger _taskExceptionLogger;
 
         public SlashCommandHandler(
             ILogger<SlashCommandHandler> logger,
@@ -73,6 +75,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             ICommandPrefixRepository commandPrefixRepository,
             InteractionResponseClient interactionResponseClient,
             MessageComponentHandler messageComponentHandler,
+            TaskExceptionLogger taskExceptionLogger,
             IServiceProvider services
         )
         {
@@ -85,6 +88,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             _commandPrefixRepository = commandPrefixRepository;
             _interactionResponseClient = interactionResponseClient;
             _messageComponentHandler = messageComponentHandler;
+            _taskExceptionLogger = taskExceptionLogger;
             _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name));
             _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
         }
@@ -154,13 +158,18 @@ namespace TaylorBot.Net.Commands.PostExecution
                                 m.Buttons.Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } }).ToList() :
                                 new List<MessageResult.ButtonResult>();
 
+                            var buttonPressed = false;
+
                             foreach (var button in buttons)
                             {
                                 _messageComponentHandler.AddCallback(button.Button.Id, async component =>
                                 {
                                     if (component.UserId == authorId)
                                     {
-                                        _messageComponentHandler.RemoveCallback(button.Button.Id);
+                                        buttonPressed = true;
+
+                                        foreach (var b in buttons)
+                                            _messageComponentHandler.RemoveCallback(b.Button.Id);
 
                                         try
                                         {
@@ -184,8 +193,21 @@ namespace TaylorBot.Net.Commands.PostExecution
                                             ));
                                         }
                                     }
-                                }, expire: TimeSpan.FromMinutes(10));
+                                });
                             }
+
+                            _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(async () =>
+                            {
+                                await Task.Delay(TimeSpan.FromMinutes(10));
+
+                                if (!buttonPressed)
+                                {
+                                    foreach (var b in buttons)
+                                        _messageComponentHandler.RemoveCallback(b.Button.Id);
+
+                                    await _interactionResponseClient.EditOriginalResponseAsync(interaction, new(m.Content, Array.Empty<Button>()));
+                                }
+                            }, nameof(CreateAndBindButtons)));
 
                             return buttons.Select(b => b.Button).ToList();
                         }

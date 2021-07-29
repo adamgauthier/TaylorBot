@@ -126,12 +126,22 @@ namespace TaylorBot.Net.Commands.PostExecution
             response.EnsureSuccessStatusCode();
         }
 
+        public async ValueTask EditOriginalResponseAsync(ApplicationCommand interaction, MessageResponse message)
+        {
+            await EditOriginalResponseAsync(interaction.Token, message);
+        }
+
         public async ValueTask EditOriginalResponseAsync(ButtonComponent component, MessageResponse message)
+        {
+            await EditOriginalResponseAsync(component.Token, message);
+        }
+
+        private async Task EditOriginalResponseAsync(string token, MessageResponse message)
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
             var response = await _httpClient.PatchAsync(
-                $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original",
+                $"webhooks/{applicationInfo.Id}/{token}/messages/@original",
                 JsonContent.Create(ToInteractionData(message.Content, message.Buttons))
             );
 
