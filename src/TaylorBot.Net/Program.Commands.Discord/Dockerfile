@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0.302 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0.400 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -34,7 +34,7 @@ ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Releas
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/runtime:5.0.8 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime:5.0.9 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.Commands.Discord.Program.dll"]
