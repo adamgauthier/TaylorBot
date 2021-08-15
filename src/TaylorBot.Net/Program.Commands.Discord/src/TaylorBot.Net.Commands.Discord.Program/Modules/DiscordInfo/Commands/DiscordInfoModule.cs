@@ -76,7 +76,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     .WithUserAsAuthor(u)
                     .WithColor(GetColorFromStatus(u.Status));
 
-                if (u.Activity == null)
+                if (u.Activities.Count == 0)
                 {
                     embed
                         .WithTitle("Status")
@@ -84,7 +84,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                 }
                 else
                 {
-                    switch (u.Activity)
+                    var firstActivity = u.Activities.First();
+                    switch (firstActivity)
                     {
                         case CustomStatusGame customStatus:
                             embed
@@ -110,7 +111,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                             break;
 
                         default:
-                            embed.WithDescription(u.Activity.Name);
+                            embed.WithDescription(firstActivity.Name);
                             break;
                     }
                 }
@@ -158,9 +159,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
                         .AddField("Id", $"`{guildUser.Id}`", inline: true);
-
-                    if (guildUser.Activity != null && !string.IsNullOrWhiteSpace(guildUser.Activity.Name))
-                        embed.AddField("Activity", guildUser.Activity.Name, inline: true);
 
                     if (guildUser.JoinedAt.HasValue)
                         embed.AddField("Server Joined", guildUser.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));

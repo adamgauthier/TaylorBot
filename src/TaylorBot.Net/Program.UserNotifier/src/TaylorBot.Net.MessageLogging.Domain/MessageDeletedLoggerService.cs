@@ -48,7 +48,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
             }
         }
 
-        public async Task OnMessageDeletedAsync(Cacheable<IMessage, ulong> cachedMessage, ISocketMessageChannel channel)
+        public async Task OnMessageDeletedAsync(Cacheable<IMessage, ulong> cachedMessage, IMessageChannel channel)
         {
             if (channel is ITextChannel textChannel)
             {
@@ -63,7 +63,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
             }
         }
 
-        public async Task OnMessageBulkDeletedAsync(IReadOnlyCollection<Cacheable<IMessage, ulong>> cachedMessages, ISocketMessageChannel channel)
+        public async Task OnMessageBulkDeletedAsync(IReadOnlyCollection<Cacheable<IMessage, ulong>> cachedMessages, IMessageChannel channel)
         {
             if (channel is ITextChannel textChannel)
             {

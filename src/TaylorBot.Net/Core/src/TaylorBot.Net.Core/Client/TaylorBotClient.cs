@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.Rest;
 using Discord.WebSocket;
 using Humanizer;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,6 @@ namespace TaylorBot.Net.Core.Client
         event Func<Interaction, Task> InteractionCreated;
 
         DiscordShardedClient DiscordShardedClient { get; }
-        DiscordRestClient DiscordRestClient { get; }
 
         ValueTask StartAsync();
         ValueTask StopAsync();
@@ -57,15 +55,13 @@ namespace TaylorBot.Net.Core.Client
         }
 
         public DiscordShardedClient DiscordShardedClient { get; }
-        public DiscordRestClient DiscordRestClient { get; }
 
         public TaylorBotClient(
             ILogger<TaylorBotClient> logger,
             ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper,
             TaylorBotToken taylorBotToken,
             RawEventsHandler rawEventsHandler,
-            DiscordShardedClient discordShardedClient,
-            DiscordRestClient discordRestClient
+            DiscordShardedClient discordShardedClient
         )
         {
             _logger = logger;
@@ -73,7 +69,6 @@ namespace TaylorBot.Net.Core.Client
             _taylorBotToken = taylorBotToken;
             _rawEventsHandler = rawEventsHandler;
             DiscordShardedClient = discordShardedClient;
-            DiscordRestClient = discordRestClient;
 
             DiscordShardedClient.Log += LogAsync;
             DiscordShardedClient.ShardReady += ShardReadyAsync;
@@ -81,7 +76,6 @@ namespace TaylorBot.Net.Core.Client
 
         public async ValueTask StartAsync()
         {
-            await DiscordRestClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
             await Task.Delay(TimeSpan.FromSeconds(10));
 
             await DiscordShardedClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
@@ -102,7 +96,6 @@ namespace TaylorBot.Net.Core.Client
         public async ValueTask StopAsync()
         {
             await DiscordShardedClient.StopAsync();
-            DiscordRestClient.Dispose();
         }
 
         private Task LogAsync(LogMessage log)
@@ -144,7 +137,7 @@ namespace TaylorBot.Net.Core.Client
             var user = await ((IDiscordClient)DiscordShardedClient).GetUserAsync(id.Id);
             if (user == null)
             {
-                var restUser = await DiscordRestClient.GetUserAsync(id.Id);
+                var restUser = await DiscordShardedClient.Rest.GetUserAsync(id.Id);
                 if (restUser != null)
                 {
                     return restUser;
@@ -162,7 +155,7 @@ namespace TaylorBot.Net.Core.Client
 
             if (channel == null)
             {
-                var restChannel = await DiscordRestClient.GetChannelAsync(id.Id);
+                var restChannel = await DiscordShardedClient.Rest.GetChannelAsync(id.Id);
                 if (restChannel != null)
                 {
                     return restChannel;
@@ -186,7 +179,7 @@ namespace TaylorBot.Net.Core.Client
 
             if (user == null)
             {
-                var restUser = await DiscordRestClient.GetGuildUserAsync(guild.Id, userId.Id);
+                var restUser = await DiscordShardedClient.Rest.GetGuildUserAsync(guild.Id, userId.Id);
                 return restUser;
             }
 

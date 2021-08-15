@@ -1,7 +1,6 @@
 ﻿{
   "Discord": {
     "ShardCount": null,
-    "MessageCacheSize": 3,
-    "ExclusiveBulkDelete": true
+    "MessageCacheSize": 3
   }
 }

@@ -6,6 +6,6 @@ namespace TaylorBot.Net.Core.Program.Events
 {
     public interface IReactionAddedHandler
     {
-        ValueTask ReactionAddedAsync(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction);
+        ValueTask ReactionAddedAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction);
     }
 }

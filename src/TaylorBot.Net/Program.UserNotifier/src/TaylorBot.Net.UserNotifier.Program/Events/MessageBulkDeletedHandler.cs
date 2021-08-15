@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Program.Events;
@@ -19,10 +18,10 @@ namespace TaylorBot.Net.UserNotifier.Program.Events
             _messageDeletedLoggerService = messageDeletedLoggerService;
         }
 
-        public ValueTask MessageBulkDeletedAsync(IReadOnlyCollection<Cacheable<IMessage, ulong>> cachedMessages, ISocketMessageChannel channel)
+        public ValueTask MessageBulkDeletedAsync(IReadOnlyCollection<Cacheable<IMessage, ulong>> cachedMessages, Cacheable<IMessageChannel, ulong> channel)
         {
             Task.Run(async () => await _taskExceptionLogger.LogOnError(
-                _messageDeletedLoggerService.OnMessageBulkDeletedAsync(cachedMessages, channel),
+                _messageDeletedLoggerService.OnMessageBulkDeletedAsync(cachedMessages, await channel.GetOrDownloadAsync()),
                 nameof(_messageDeletedLoggerService.OnMessageDeletedAsync)
             ));
             return default;

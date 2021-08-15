@@ -1,6 +1,8 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
@@ -47,7 +49,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             const UserStatus AUserStatus = UserStatus.DoNotDisturb;
             var user = A.Fake<IUser>();
-            A.CallTo(() => user.Activity).Returns(null!);
+            A.CallTo(() => user.Activities).Returns(ImmutableList<IActivity>.Empty);
             A.CallTo(() => user.Status).Returns(AUserStatus);
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
@@ -62,7 +64,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             const string ACustomStatus = "the end of a decade but the start of an age";
             var user = A.Fake<IUser>();
-            A.CallTo(() => user.Activity).Returns(_presenceFactory.CreateCustomStatus(ACustomStatus));
+            A.CallTo(() => user.Activities).Returns(new List<IActivity> { _presenceFactory.CreateCustomStatus(ACustomStatus) }.ToImmutableList());
             var userArgument = A.Fake<IUserArgument<IUser>>();
             A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 

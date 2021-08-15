@@ -1,4 +1,4 @@
-﻿using Discord.Rest;
+﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,16 +20,12 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 .ConfigureRequired<DiscordOptions>(configuration, "Discord")
                 .AddTransient<ILogSeverityToLogLevelMapper, LogSeverityToLogLevelMapper>()
                 .AddTransient<RawEventsHandler>()
-                .AddTransient<DiscordRestClient>()
                 .AddTransient(provider => new TaylorBotToken(provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue.Token))
                 .AddSingleton(provider =>
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
 
-                    var config = new DiscordSocketConfig
-                    {
-                        ExclusiveBulkDelete = options.ExclusiveBulkDelete,
-                    };
+                    var config = new DiscordSocketConfig();
 
                     if (options.ShardCount.HasValue)
                     {
@@ -47,8 +43,8 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 {
                     var config = provider.GetRequiredService<DiscordSocketConfig>();
 
-                    if (config.GatewayIntents == null)
-                        throw new InvalidOperationException($"Creating client without {nameof(config.GatewayIntents)}.");
+                    if (config.GatewayIntents == GatewayIntents.None)
+                        throw new InvalidOperationException("Creating client no gateway intents.");
 
                     return new DiscordShardedClient(config);
                 })

@@ -85,7 +85,7 @@ namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
             }
         }
 
-        private async Task OnReactAsync(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task OnReactAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
         {
             if (message.Id == _message.Id && reaction.UserId == _commandUser.Id)
             {

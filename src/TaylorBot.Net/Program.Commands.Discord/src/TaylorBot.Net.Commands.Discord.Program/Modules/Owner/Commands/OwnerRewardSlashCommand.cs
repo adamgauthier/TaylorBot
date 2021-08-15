@@ -70,7 +70,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands
                             $"Successfully rewarded {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)} to:"
                         }.Concat(rewardedUsers.Select(
                             u => $"{MentionUtils.MentionUser(u.UserId.Id)} - now has {u.NewTaypointCount.ToString(TaylorBotFormats.BoldReadable)}"
-                        ))).Truncate(2048)
+                        ))).Truncate(EmbedBuilder.MaxDescriptionLength)
                     ));
                 },
                 Preconditions: new ICommandPrecondition[] {
