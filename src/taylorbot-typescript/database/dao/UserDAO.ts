@@ -1,4 +1,4 @@
-import { User } from "discord.js";
+import { User } from 'discord.js';
 import * as pgPromise from 'pg-promise';
 import { TaypointAmount } from '../../modules/points/TaypointAmount';
 

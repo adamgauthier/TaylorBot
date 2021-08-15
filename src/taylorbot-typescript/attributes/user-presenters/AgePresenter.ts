@@ -2,13 +2,10 @@ import moment = require('moment');
 
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { UserAttributePresenter } from '../UserAttributePresenter.js';
-import { UserAttribute } from '../UserAttribute.js';
 import { MessageEmbed, User } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class AgePresenter implements UserAttributePresenter {
-    constructor(_: UserAttribute) { }
-
     present(commandContext: CommandMessageContext, user: User, { age, birthday }: Record<string, any> & { rank: string }): Promise<MessageEmbed> {
         const embed = DiscordEmbedFormatter.baseUserSuccessEmbed(user);
 
