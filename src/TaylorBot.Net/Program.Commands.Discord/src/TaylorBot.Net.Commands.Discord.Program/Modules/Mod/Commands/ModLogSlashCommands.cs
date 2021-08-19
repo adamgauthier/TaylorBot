@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers;
+using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
@@ -12,7 +13,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public SlashCommandInfo Info => new("mod log set");
 
-        public record Options(ParsedTextChannelOrCurrent channel);
+        public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
         private readonly IModLogChannelRepository _modLogChannelRepository;
 

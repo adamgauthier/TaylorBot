@@ -44,6 +44,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                     {
                         var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
 
+                        if (textChannel is IThreadChannel thread)
+                        {
+                            return new EmbedResult(EmbedFactory.CreateError($"Channel '{thread.Name}' is a thread! Please use another text channel."));
+                        }
+
                         await _deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(textChannel);
 
                         return new EmbedResult(new EmbedBuilder()
@@ -129,6 +134,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                     async () =>
                     {
                         var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
+
+                        if (textChannel is IThreadChannel thread)
+                        {
+                            return new EmbedResult(EmbedFactory.CreateError($"Channel '{thread.Name}' is a thread! Please use another text channel."));
+                        }
 
                         await _memberLogChannelRepository.AddOrUpdateMemberLogAsync(textChannel);
 

@@ -58,6 +58,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 A<Embed>.That.Matches(e => e.Description.Contains(AUsername)),
                 null,
                 null,
+                null,
                 null
             )).MustHaveHappenedOnceExactly();
         }

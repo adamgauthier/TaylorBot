@@ -25,7 +25,10 @@ namespace TaylorBot.Net.Core.Program.Extensions
                 {
                     var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
 
-                    var config = new DiscordSocketConfig();
+                    var config = new DiscordSocketConfig
+                    {
+                        AlwaysAcknowledgeInteractions = false,
+                    };
 
                     if (options.ShardCount.HasValue)
                     {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers
+namespace TaylorBot.Net.Commands.Parsers.Channels
 {
     public record ParsedTextChannelOrCurrent(ITextChannel Channel);
 

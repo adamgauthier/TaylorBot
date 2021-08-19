@@ -6,6 +6,7 @@ using System;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Parsers;
+using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
@@ -82,6 +83,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<MemberNotAuthorAndTaylorBotParser>()
                 .AddOptionParser<MemberNotAuthorAndBotParser>()
                 .AddOptionParser<TextChannelOrCurrentParser>()
+                .AddOptionParser<NonThreadTextChannellOrCurrentParser>()
                 .AddOptionParser<TimeSpanParser>()
                 .AddOptionParser<IntegerParser>()
                 .AddOptionParser<PositiveIntegerParser>();

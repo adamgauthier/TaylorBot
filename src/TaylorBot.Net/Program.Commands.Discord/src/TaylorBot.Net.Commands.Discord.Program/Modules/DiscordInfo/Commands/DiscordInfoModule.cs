@@ -263,7 +263,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                 var c = channel == null ? Context.Channel : channel.Channel;
 
                 var embed = new EmbedBuilder()
-                    .WithAuthor(channel is ITextChannel t && t.IsNsfw ? $"{c.Name} 🔞" : c.Name)
+                    .WithAuthor(c is ITextChannel t && t.IsNsfw ? $"{c.Name} 🔞" : c.Name)
                     .AddField("Id", $"`{c.Id}`", inline: true)
                     .AddField("Type", _channelTypeStringMapper.MapChannelToTypeString(c), inline: true)
                     .AddField("Created", c.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
@@ -343,7 +343,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     embed
                         .AddField(
                             "Channel".ToQuantity(channels.Count),
-                            $"{channels.OfType<ICategoryChannel>().Count()} Category, {channels.OfType<ITextChannel>().Count()} Text, {channels.OfType<IVoiceChannel>().Count()} Voice"
+                            $"{channels.OfType<ICategoryChannel>().Count()} Category, {channels.OfType<ITextChannel>().Count()} Text ({channels.OfType<IThreadChannel>().Count()} Thread), {channels.OfType<IVoiceChannel>().Count()} Voice ({channels.OfType<IStageChannel>().Count()} Stage)"
                         )
                         .AddField(
                             "Role".ToQuantity(orderedRoles.Count),

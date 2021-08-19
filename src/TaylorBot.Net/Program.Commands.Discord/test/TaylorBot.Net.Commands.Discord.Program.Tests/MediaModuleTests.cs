@@ -68,6 +68,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 A<Embed>.That.Matches(e => e.Color == TaylorBotColors.SuccessColor),
                 null,
                 null,
+                null,
                 null
             )).MustHaveHappenedOnceExactly();
         }
