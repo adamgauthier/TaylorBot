@@ -15,9 +15,9 @@ class CommandUseInterval extends Interval {
         const cache = Array.from(registry.commands.useCountCache.entries());
         registry.commands.useCountCache.clear();
 
-        await Promise.all(cache.map(
-            ([commandName, { count, errorCount }]) => database.commands.addUseCount([commandName], count, errorCount)
-        ));
+        for (const [commandName, { count, errorCount }] of cache) {
+            await database.commands.addUseCount([commandName], count, errorCount);
+        }
     }
 }
 
