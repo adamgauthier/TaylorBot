@@ -42,10 +42,10 @@ class GroupAccessInhibitor extends NoisyInhibitor {
         const { member } = message;
 
         if (member) {
-            if (member.guild.ownerID === member.id && UserGroups.GuildOwners.accessLevel >= minimumGroupLevel)
+            if (member.guild.ownerId === member.id && UserGroups.GuildOwners.accessLevel >= minimumGroupLevel)
                 return true;
 
-            if (UserGroups.GuildManagers.accessLevel >= minimumGroupLevel && member.hasPermission(Permissions.FLAGS.MANAGE_GUILD))
+            if (UserGroups.GuildManagers.accessLevel >= minimumGroupLevel && member.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
                 return true;
 
             if (GroupAccessInhibitor.roleGroupHasAccess(minimumGroupLevel, member, registry.guilds, registry.groups))

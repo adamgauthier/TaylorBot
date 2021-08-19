@@ -3,6 +3,7 @@ import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatt
 import { StringUtil } from '../../modules/util/StringUtil';
 import { RandomModule } from '../../modules/random/RandomModule';
 import { CommandMessageContext } from '../CommandMessageContext';
+import { HexColorString } from 'discord.js';
 
 class RollCommand extends Command {
     constructor() {
@@ -23,7 +24,7 @@ class RollCommand extends Command {
 
         const roll = await RandomModule.getRandIntInclusive(0, 1989);
 
-        const { color, reward } = await (async (): Promise<{ color: string; reward: number }> => {
+        const { color, reward } = await (async (): Promise<{ color: HexColorString; reward: number }> => {
             switch (roll) {
                 case 1:
                 case 7:

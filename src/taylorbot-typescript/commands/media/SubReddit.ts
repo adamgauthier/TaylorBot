@@ -4,6 +4,7 @@ import { RedditModule } from '../../modules/reddit/RedditModule';
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { StringUtil } from '../../modules/util/StringUtil';
 import { CommandMessageContext } from '../CommandMessageContext';
+import { HexColorString } from 'discord.js';
 
 class SubRedditCommand extends Command {
     constructor() {
@@ -43,7 +44,7 @@ class SubRedditCommand extends Command {
         await client.sendEmbed(channel,
             DiscordEmbedFormatter
                 .baseUserHeader(author)
-                .setColor(subredditAbout.key_color)
+                .setColor(subredditAbout.key_color as HexColorString)
                 .setTitle(subredditAbout.title)
                 .setURL(`https://www.reddit.com/${subredditAbout.display_name_prefixed}`)
                 .setThumbnail(subredditAbout.icon_img)

@@ -51,7 +51,10 @@ export class PageMessage<T> {
         }
 
         if (this.buttons.length > 0) {
-            this.collector = this.message.createReactionCollector((reaction, user) => this.filter(reaction, user), { dispose: true });
+            this.collector = this.message.createReactionCollector({
+                filter: (reaction, user) => this.filter(reaction, user),
+                dispose: true
+            });
 
             this.collector
                 .on('collect', reaction => this.onReact(reaction))
@@ -66,7 +69,7 @@ export class PageMessage<T> {
     }
 
     filter(reaction: MessageReaction, user: User): boolean {
-        return user.id === this.owner.id && this.buttons.includes(reaction.emoji.name);
+        return user.id === this.owner.id && reaction.emoji.name !== null && this.buttons.includes(reaction.emoji.name);
     }
 
     onReact(reaction: MessageReaction): void {

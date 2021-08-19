@@ -30,13 +30,13 @@ class DiagnosticCommand extends Command {
 
         const embed = DiscordEmbedFormatter
             .baseUserSuccessEmbed(client.user!)
-            .addField('Guild Cache', client.guilds.cache.size, true)
-            .addField('User Cache', client.users.cache.size, true)
-            .addField('Channel Cache', client.channels.cache.size, true)
+            .addField('Guild Cache', `${client.guilds.cache.size}`, true)
+            .addField('User Cache', `${client.users.cache.size}`, true)
+            .addField('Channel Cache', `${client.channels.cache.size}`, true)
             .addField('Uptime', `\`${client.uptime}\` ms`, true);
 
         if (client.shard != null)
-            embed.addField('Shard Count', client.shard.count, true);
+            embed.addField('Shard Count', `${client.shard.count}`, true);
 
         await client.sendEmbed(message.channel, embed);
     }

@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js';
+import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
@@ -23,7 +23,7 @@ class ChannelStatsCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { channel }: { channel: TextChannel }): Promise<void> {
+    async run({ message, client }: CommandMessageContext, { channel }: { channel: BaseGuildTextChannel | ThreadChannel }): Promise<void> {
         const textChannel = (await client.master.database.textChannels.get(channel))!;
 
         const embed = DiscordEmbedFormatter

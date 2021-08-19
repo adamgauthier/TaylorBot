@@ -1,7 +1,7 @@
 import { Log } from '../../tools/Logger';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import * as pgPromise from 'pg-promise';
-import { NewsChannel, TextChannel } from 'discord.js';
+import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
 
 export class TextChannelRepository {
     readonly #db: pgPromise.IDatabase<unknown>;
@@ -10,14 +10,14 @@ export class TextChannelRepository {
         this.#db = db;
     }
 
-    mapChannelToDatabase(guildChannel: TextChannel | NewsChannel): { guild_id: string; channel_id: string } {
+    mapChannelToDatabase(guildChannel: BaseGuildTextChannel | ThreadChannel): { guild_id: string; channel_id: string } {
         return {
             'guild_id': guildChannel.guild.id,
             'channel_id': guildChannel.id
         };
     }
 
-    async get(guildChannel: TextChannel): Promise<{
+    async get(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<{
         guild_id: string;
         channel_id: string;
         message_count: string;
@@ -37,7 +37,7 @@ export class TextChannelRepository {
         }
     }
 
-    async insertOrGetIsSpamChannelAsync(guildChannel: TextChannel | NewsChannel): Promise<boolean> {
+    async insertOrGetIsSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<boolean> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             return await this.#db.one(
@@ -54,7 +54,7 @@ export class TextChannelRepository {
         }
     }
 
-    async upsertSpamChannel(guildChannel: TextChannel | NewsChannel, isSpam: boolean): Promise<void> {
+    async upsertSpamChannel(guildChannel: BaseGuildTextChannel | ThreadChannel, isSpam: boolean): Promise<void> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
             await this.#db.none(

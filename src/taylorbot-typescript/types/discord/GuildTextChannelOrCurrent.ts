@@ -1,4 +1,4 @@
-import { DMChannel, NewsChannel, TextChannel } from 'discord.js';
+import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { MessageContext } from '../../structures/MessageContext';
 import GuildTextChannelArgumentType = require('./GuildTextChannel.js');
@@ -12,8 +12,8 @@ class GuildTextChannelOrCurrentArgumentType extends GuildTextChannelArgumentType
         return context.isGuild;
     }
 
-    default({ message }: CommandMessageContext): TextChannel | DMChannel | NewsChannel {
-        return message.channel;
+    default({ message }: CommandMessageContext): BaseGuildTextChannel | ThreadChannel {
+        return message.channel as BaseGuildTextChannel | ThreadChannel;
     }
 }
 

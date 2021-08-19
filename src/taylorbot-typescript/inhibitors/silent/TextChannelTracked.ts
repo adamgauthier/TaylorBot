@@ -5,7 +5,7 @@ class TextChannelTracked extends SilentInhibitor {
     async shouldBeBlocked({ message, client }: MessageContext): Promise<string | null> {
         const { channel } = message;
 
-        if (channel.type === 'text' || channel.type === 'news') {
+        if (channel.type === 'GUILD_TEXT' || channel.type === 'GUILD_NEWS' || channel.isThread()) {
             await client.master.registry.guilds.insertOrGetIsSpamChannelAsync(channel);
         }
 

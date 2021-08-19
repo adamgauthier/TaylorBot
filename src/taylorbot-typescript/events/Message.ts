@@ -4,7 +4,7 @@ import { Message as DiscordMessage } from 'discord.js';
 
 class Message extends EventHandler {
     constructor() {
-        super('message');
+        super('messageCreate');
     }
 
     handler(client: TaylorBotClient, message: DiscordMessage): void {

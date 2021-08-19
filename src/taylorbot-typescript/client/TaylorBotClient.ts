@@ -6,6 +6,7 @@ import { IntervalRunner } from '../intervals/IntervalRunner';
 import { EmbedUtil } from '../modules/discord/EmbedUtil';
 import { TaylorBotMasterClient } from './TaylorBotMasterClient';
 import { EnvUtil } from '../modules/util/EnvUtil';
+import { Intents, Options } from 'discord.js';
 
 const discordToken = EnvUtil.getRequiredEnvVariable('TaylorBot_Discord__Token');
 
@@ -14,21 +15,21 @@ export class TaylorBotClient extends Discord.Client {
     readonly intervalRunner: IntervalRunner;
 
     constructor(master: TaylorBotMasterClient) {
+        const cacheSettings = Options.defaultMakeCacheSettings;
+        cacheSettings.MessageManager = 0;
         super({
             shards: 'auto',
-            messageCacheMaxSize: 0,
-            disableMentions: 'all',
-            partials: ['REACTION', 'MESSAGE'],
-            ws: {
-                intents: [
-                    'GUILDS',
-                    'GUILD_MEMBERS',
-                    'GUILD_MESSAGES',
-                    'GUILD_MESSAGE_REACTIONS',
-                    'DIRECT_MESSAGES',
-                    'DIRECT_MESSAGE_REACTIONS'
-                ]
-            }
+            allowedMentions: { parse: [], repliedUser: true },
+            partials: ['REACTION', 'MESSAGE', 'CHANNEL'],
+            intents: [
+                Intents.FLAGS.GUILDS,
+                Intents.FLAGS.GUILD_MEMBERS,
+                Intents.FLAGS.GUILD_MESSAGES,
+                Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+                Intents.FLAGS.DIRECT_MESSAGES,
+                Intents.FLAGS.DIRECT_MESSAGE_REACTIONS
+            ],
+            makeCache: Options.cacheWithLimits(cacheSettings),
         });
 
         this.master = master;
@@ -51,7 +52,7 @@ export class TaylorBotClient extends Discord.Client {
     }
 
     sendEmbed(recipient: Discord.PartialTextBasedChannelFields, embed: Discord.MessageEmbed): Promise<Discord.Message> {
-        return recipient.send(embed);
+        return recipient.send({ embeds: [embed] });
     }
 
     sendEmbedError(recipient: Discord.PartialTextBasedChannelFields, errorMessage: string): Promise<Discord.Message> {

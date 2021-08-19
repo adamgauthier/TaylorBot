@@ -1,6 +1,6 @@
 import { RedisDriver } from '../../caching/RedisDriver';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
-import { GuildMember, Guild, TextChannel, NewsChannel } from 'discord.js';
+import { GuildMember, Guild, BaseGuildTextChannel, ThreadChannel } from 'discord.js';
 
 export class GuildRegistry extends Map<string, { roleGroups: Record<string, string | undefined> }> {
     readonly #database: DatabaseDriver;
@@ -61,11 +61,11 @@ export class GuildRegistry extends Map<string, { roleGroups: Record<string, stri
         return false;
     }
 
-    spamChannelKey(channel: TextChannel | NewsChannel): string {
+    spamChannelKey(channel: BaseGuildTextChannel | ThreadChannel): string {
         return `spam-channel:guild:${channel.guild.id}:channel:${channel.id}`;
     }
 
-    async insertOrGetIsSpamChannelAsync(guildChannel: TextChannel | NewsChannel): Promise<boolean> {
+    async insertOrGetIsSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<boolean> {
         const key = this.spamChannelKey(guildChannel);
         const cachedSpamChannel = await this.#redis.get(key);
 
@@ -82,7 +82,7 @@ export class GuildRegistry extends Map<string, { roleGroups: Record<string, stri
         return Number.parseInt(cachedSpamChannel) !== 0;
     }
 
-    async setSpamChannelAsync(guildChannel: TextChannel | NewsChannel): Promise<void> {
+    async setSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<void> {
         const key = this.spamChannelKey(guildChannel);
 
         await this.#database.textChannels.upsertSpamChannel(guildChannel, true);
@@ -93,7 +93,7 @@ export class GuildRegistry extends Map<string, { roleGroups: Record<string, stri
         );
     }
 
-    async removeSpamChannelAsync(guildChannel: TextChannel | NewsChannel): Promise<void> {
+    async removeSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<void> {
         const key = this.spamChannelKey(guildChannel);
 
         await this.#database.textChannels.upsertSpamChannel(guildChannel, false);

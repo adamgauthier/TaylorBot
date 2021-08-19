@@ -40,7 +40,7 @@ class ProfileCommand extends Command {
                 .baseUserSuccessEmbed(user)
                 .addField('Age',
                     parsedBirthday !== null && parsedBirthday.year() !== 1804 ?
-                        moment.utc().diff(parsedBirthday, 'years') :
+                        moment.utc().diff(parsedBirthday, 'years').toString() :
                         ageAttribute ?
                             `${ageAttribute.integer_value} ⚠` :
                             'Not Set 🚫',

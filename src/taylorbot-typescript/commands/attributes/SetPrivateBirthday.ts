@@ -28,7 +28,7 @@ class SetPrivateBirthdayCommand extends Command {
 
     async run(commandContext: CommandMessageContext, { value }: { value: moment.Moment }): Promise<void> {
         const { client, message, author } = commandContext;
-        if (message.channel.type !== 'dm') {
+        if (message.channel.type !== 'DM') {
             throw new CommandError(`This command is meant to be used in DMs to protect your privacy. Type \`setprivatebirthday\` in a direct message.`);
         }
 

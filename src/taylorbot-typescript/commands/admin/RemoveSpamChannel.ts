@@ -1,4 +1,4 @@
-import { NewsChannel, TextChannel } from 'discord.js';
+import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
 import UserGroups = require('../../client/UserGroups');
 import { Format } from '../../modules/discord/DiscordFormatter';
 import { Command } from '../Command';
@@ -26,7 +26,7 @@ class RemoveSpamChannelCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { channel }: { channel: TextChannel | NewsChannel }): Promise<void> {
+    async run({ message, client }: CommandMessageContext, { channel }: { channel: BaseGuildTextChannel | ThreadChannel }): Promise<void> {
         await client.master.registry.guilds.removeSpamChannelAsync(channel);
 
         await client.sendEmbedSuccess(message.channel, `Successfully removed ${Format.guildChannel(channel, '#name (`#id`)')} as a spam channel.`);

@@ -18,6 +18,6 @@ export abstract class EmbedPageEditor<T> extends PageEditor<T> {
     abstract update(pages: T[], currentPage: number): Promise<void>;
 
     edit(message: Message): Promise<Message> {
-        return message.edit('', this.embed);
+        return message.edit({ embeds: [ this.embed ] });
     }
 }

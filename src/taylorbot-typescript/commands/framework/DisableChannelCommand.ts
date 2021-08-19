@@ -2,7 +2,7 @@ import { Command } from '../Command';
 import { CommandError } from '../CommandError';
 import UserGroups = require('../../client/UserGroups');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { NewsChannel, TextChannel } from 'discord.js';
+import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
 import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class DisableChannelCommandCommand extends Command {
@@ -33,7 +33,7 @@ class DisableChannelCommandCommand extends Command {
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: TextChannel | NewsChannel }): Promise<void> {
+    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: BaseGuildTextChannel | ThreadChannel }): Promise<void> {
         if (databaseCommand.module_name.toLowerCase() === 'framework' || databaseCommand.module_name.toLowerCase() === 'command') {
             throw new CommandError(`Can't disable \`${databaseCommand.name}\` because it's a framework command.`);
         }

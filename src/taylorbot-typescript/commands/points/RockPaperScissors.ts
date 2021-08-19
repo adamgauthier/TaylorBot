@@ -4,6 +4,7 @@ import { StringUtil } from '../../modules/util/StringUtil';
 import { RandomModule } from '../../modules/random/RandomModule';
 import RpsMove = require('../../modules/points/RpsMove');
 import { CommandMessageContext } from '../CommandMessageContext';
+import { HexColorString } from 'discord.js';
 
 class RockPaperScissorsCommand extends Command {
     constructor() {
@@ -33,7 +34,7 @@ class RockPaperScissorsCommand extends Command {
         const winner = this.findWinner(move, opponentMove);
         const winReward = 1;
 
-        let color;
+        let color: HexColorString;
         let resultMessage;
         if (winner === move) {
             const { taypoint_count } = await client.master.database.rpsStats.winRpsGame(author, winReward);
