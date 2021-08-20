@@ -142,7 +142,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 .AddField("Channel", channel.Mention, inline: true)
                 .WithTitle($"{"uncached message".ToQuantity(chunk.Count)} deleted (Id - Sent)")
                 .WithDescription(string.Join('\n', chunk.Select(uncached =>
-                    $"`{uncached.Id}` - `{SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatShortUserLogDate()}`"
+                    $"`{uncached.Id}` - {SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatShortUserLogDate()}"
                 )))
                 .WithFooter($"{chunk.Count}/{footerText}")
                 .Build()
