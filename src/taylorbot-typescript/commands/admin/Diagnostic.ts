@@ -7,7 +7,7 @@ class DiagnosticCommand extends Command {
     constructor() {
         super({
             name: 'diagnostic',
-            group: 'Stats 📊',
+            group: 'admin',
             description: 'Gets diagnostic information a TaylorBot component.',
             minimumGroup: UserGroups.Master,
             examples: [''],
