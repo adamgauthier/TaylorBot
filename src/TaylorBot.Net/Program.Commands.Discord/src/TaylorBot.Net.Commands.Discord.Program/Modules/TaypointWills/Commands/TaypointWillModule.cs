@@ -201,7 +201,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands
                             .Concat(gifters.Select(g =>
                                 $"Claimed {FormatTaypointQuantity(g.OriginalTaypointCount)} from {g.Username} ({MentionUtils.MentionUser(g.UserId.Id)})."
                             ))
-                        ).Truncate(2048));
+                        ).Truncate(EmbedBuilder.MaxDescriptionLength));
                 }
                 else
                 {
@@ -213,7 +213,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands
                             .Concat(ongoingWills.Select(w =>
                                 $"{w.OwnerUsername} ({MentionUtils.MentionUser(w.OwnerUserId.Id)}) was active on {w.OwnerLatestSpokeAt.FormatShortUserDate(TaylorBotCulture.Culture)}."
                             ))
-                        ).Truncate(2048));
+                        ).Truncate(EmbedBuilder.MaxDescriptionLength));
                 }
 
                 return new EmbedResult(embed.Build());

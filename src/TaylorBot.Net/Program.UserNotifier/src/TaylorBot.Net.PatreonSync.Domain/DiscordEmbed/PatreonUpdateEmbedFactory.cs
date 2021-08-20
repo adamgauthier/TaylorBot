@@ -46,7 +46,7 @@ namespace TaylorBot.Net.PatreonSync.Domain.DiscordEmbed
                             string.Join('\n', inactivity.DisabledGuilds.Select(name => $"- {name}")),
                             string.Empty,
                             "If you think this is a mistake, message the bot owner on Discord or Patreon! ✉",
-                        }).Truncate(2048))
+                        }).Truncate(EmbedBuilder.MaxDescriptionLength))
                     .Build();
 
                 case GuildsDisabledForLoweredPledge loweredPledge:
@@ -61,7 +61,7 @@ namespace TaylorBot.Net.PatreonSync.Domain.DiscordEmbed
                             string.Join('\n', loweredPledge.DisabledGuilds.Select(name => $"- {name}")),
                             string.Empty,
                             "If you think this is a mistake, message the bot owner on Discord or Patreon! ✉",
-                        }).Truncate(2048))
+                        }).Truncate(EmbedBuilder.MaxDescriptionLength))
                     .Build();
 
                 default: return null;

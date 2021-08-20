@@ -33,38 +33,38 @@ namespace TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed
             {
                 case LinkPost linkPost:
                     if (!string.IsNullOrWhiteSpace(linkPost.Description))
-                        builder.WithDescription(linkPost.Description.Truncate(2048));
+                        builder.WithDescription(linkPost.Description.Truncate(EmbedBuilder.MaxDescriptionLength));
                     builder.WithThumbnailUrl(options.TumblrLinkPostThumbnailUrl);
                     break;
 
                 case VideoPost videoPost:
                     builder
-                        .WithDescription(videoPost.VideoUrl.Truncate(2048))
+                        .WithDescription(videoPost.VideoUrl.Truncate(EmbedBuilder.MaxDescriptionLength))
                         .WithThumbnailUrl(string.IsNullOrWhiteSpace(videoPost.ThumbnailUrl) ? options.TumblrDefaultVideoThumbnailUrl : videoPost.ThumbnailUrl);
                     break;
 
                 case PhotoPost photoPost:
                     if (!string.IsNullOrWhiteSpace(photoPost.Caption))
-                        builder.WithDescription(photoPost.Caption.Truncate(2048));
+                        builder.WithDescription(photoPost.Caption.Truncate(EmbedBuilder.MaxDescriptionLength));
                     else if (photoPost.Tags.Any())
-                        builder.WithDescription(string.Join(" ", photoPost.Tags.Select(t => $"#{t}")).Truncate(2048));
+                        builder.WithDescription(string.Join(" ", photoPost.Tags.Select(t => $"#{t}")).Truncate(EmbedBuilder.MaxDescriptionLength));
                     builder.WithThumbnailUrl(photoPost.Photo.OriginalSize.ImageUrl);
                     break;
 
                 case TextPost textPost:
                     builder
                         .WithThumbnailUrl(options.TumblrTextPostThumbnailUrl)
-                        .WithDescription(textPost.Body.Truncate(2048));
+                        .WithDescription(textPost.Body.Truncate(EmbedBuilder.MaxDescriptionLength));
                     break;
 
                 case ChatPost chatPost:
-                    builder.WithDescription(chatPost.Body.Truncate(2048));
+                    builder.WithDescription(chatPost.Body.Truncate(EmbedBuilder.MaxDescriptionLength));
                     break;
 
                 case QuotePost quotePost:
                     builder
                         .WithThumbnailUrl(options.TumblrQuotePostThumbnailUrl)
-                        .WithDescription(quotePost.Text.Truncate(2048));
+                        .WithDescription(quotePost.Text.Truncate(EmbedBuilder.MaxDescriptionLength));
                     break;
 
                 case AudioPost audioPost:
