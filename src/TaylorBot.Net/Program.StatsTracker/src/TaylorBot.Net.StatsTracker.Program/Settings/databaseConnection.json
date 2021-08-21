@@ -1,6 +1,7 @@
 ﻿{
   "DatabaseConnection": {
     "Database": "taylorbot",
-    "ApplicationName": "stats-tracker"
+    "ApplicationName": "stats-tracker",
+    "MaxPoolSize": 2
   }
 }

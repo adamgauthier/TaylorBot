@@ -1,6 +1,7 @@
 ﻿{
   "DatabaseConnection": {
     "Database": "taylorbot",
-    "ApplicationName": "user-notifier"
+    "ApplicationName": "user-notifier",
+    "MaxPoolSize": 2
   }
 }

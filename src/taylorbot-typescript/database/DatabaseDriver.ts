@@ -33,6 +33,7 @@ import { EnvUtil } from '../modules/util/EnvUtil';
 const postgresHost = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Host');
 const postgresPort = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Port');
 const postgresSSL = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__UseSSL');
+const postgresMaxPoolSize = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__MaxPoolSize');
 const postgresUsername = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Username');
 const postgresPassword = EnvUtil.getRequiredEnvVariable('TaylorBot_DatabaseConnection__Password');
 
@@ -65,7 +66,9 @@ export class DatabaseDriver {
             database: PostgreSQLConfig.database,
             user: postgresUsername,
             password: postgresPassword,
-            ssl: postgresSSL === 'true' ? { rejectUnauthorized: false } : false
+            ssl: postgresSSL === 'true' ? { rejectUnauthorized: false } : false,
+            max: Number.parseInt(postgresMaxPoolSize),
+            application_name: 'commands-attributes'
         });
         const helpers = pgp.helpers;
 

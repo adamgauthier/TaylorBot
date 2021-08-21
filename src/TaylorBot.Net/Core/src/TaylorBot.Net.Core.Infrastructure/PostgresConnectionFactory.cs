@@ -24,6 +24,7 @@ namespace TaylorBot.Net.Core.Infrastructure
                 $"Password={options.Password}",
                 $"Database={options.Database}",
                 $"ApplicationName={options.ApplicationName}",
+                $"Maximum Pool Size={options.MaxPoolSize}",
                 "SSL Mode=Prefer",
                 "Trust Server Certificate=true",
             }));

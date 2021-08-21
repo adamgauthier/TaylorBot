@@ -8,5 +8,6 @@
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
         public string ApplicationName { get; set; } = null!;
+        public uint MaxPoolSize { get; set; }
     }
 }
