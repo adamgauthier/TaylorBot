@@ -11,7 +11,7 @@ class WeatherCommand extends Command {
             name: 'weather',
             group: 'Weather 🌦',
             description: `Get current weather forecast for a user's location. Weather data is [Powered by Dark Sky](https://darksky.net/poweredby/).`,
-            examples: ['@Enchanted13#1989', 'Enchanted13'],
+            examples: ['@Adam#0420', 'Enchanted13'],
             maxDailyUseCount: 15,
 
             args: [

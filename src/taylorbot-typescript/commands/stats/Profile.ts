@@ -12,7 +12,7 @@ class ProfileCommand extends Command {
             aliases: ['info', 'asl'],
             group: 'Stats 📊',
             description: 'Gets the profile of a user.',
-            examples: ['@Enchanted13#1989', 'Enchanted13'],
+            examples: ['@Adam#0420', 'Enchanted13'],
 
             args: [
                 {

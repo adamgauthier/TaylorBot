@@ -14,7 +14,7 @@ class HoroscopeCommand extends Command {
             aliases: ['hs'],
             group: 'Knowledge ❓',
             description: 'Gets the horoscope of a user based on their set birthday.',
-            examples: ['@Enchanted13#1989', 'Enchanted13'],
+            examples: ['@Adam#0420', 'Enchanted13'],
             maxDailyUseCount: 20,
 
             args: [
