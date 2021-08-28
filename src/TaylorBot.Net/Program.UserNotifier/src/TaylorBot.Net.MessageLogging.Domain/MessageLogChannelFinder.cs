@@ -14,13 +14,19 @@ namespace TaylorBot.Net.MessageLogging.Domain
             _messageLoggingChannelRepository = messageLoggingChannelRepository;
         }
 
-        public async Task<ITextChannel?> FindLogChannelAsync(IGuild guild)
+        public async Task<ITextChannel?> FindDeletedLogChannelAsync(IGuild guild)
         {
             var logChannel = await _messageLoggingChannelRepository.GetDeletedLogsChannelForGuildAsync(guild);
 
             return logChannel != null ?
                 (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id) :
                 null;
+        }
+
+        public Task<ITextChannel?> FindEditedLogChannelAsync(IGuild guild)
+        {
+            // Retrieve from repository
+            return Task.FromResult((ITextChannel?)null);
         }
     }
 }

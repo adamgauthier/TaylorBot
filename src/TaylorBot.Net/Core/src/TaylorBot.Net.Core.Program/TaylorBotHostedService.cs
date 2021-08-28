@@ -193,6 +193,22 @@ namespace TaylorBot.Net.Core.Program
                     };
                 }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
+
+            var messageUpdatedHandler = _services.GetService<IMessageUpdatedHandler>();
+            if (messageUpdatedHandler != null)
+            {
+                yield return new EventHandlerRegistrar((client) =>
+                {
+                    client.DiscordShardedClient.MessageUpdated += async (oldMessage, newMessage, channel) =>
+                    {
+                        await _taskExceptionLogger.LogOnError(async () =>
+                            await messageUpdatedHandler.MessageUpdatedAsync(oldMessage, newMessage, channel),
+                            nameof(IMessageUpdatedHandler)
+                        );
+                    };
+                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+
+            }
         }
 
         private IEnumerable<EventHandlerRegistrar> GetReactionsRegistrars()

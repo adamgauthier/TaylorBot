@@ -23,7 +23,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
 
         public ValueTask SaveMessageAsync(SnowflakeId messageId, TaylorBotCachedMessageData data)
         {
-            _cachedMessages.Add(messageId.Id, data);
+            _cachedMessages[messageId.Id] = data;
             return new();
         }
     }

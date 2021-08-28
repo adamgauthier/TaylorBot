@@ -36,7 +36,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
                         (IMessageLoggingChannelRepository)provider.GetRequiredService<MessageLoggingChannelPostgresRepository>();
                 })
                 .AddTransient<MessageLogChannelFinder>()
-                .AddTransient<MessageDeletedEmbedFactory>()
+                .AddTransient<MessageLogEmbedFactory>()
                 .AddSingleton<CachedMessageInMemoryRepository>()
                 .AddTransient<CachedMessageRedisRepository>()
                 .AddTransient(provider =>
@@ -46,7 +46,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
                         provider.GetRequiredService<CachedMessageRedisRepository>() :
                         (ICachedMessageRepository)provider.GetRequiredService<CachedMessageInMemoryRepository>();
                 })
-                .AddTransient<MessageDeletedLoggerService>();
+                .AddTransient<MessageLoggerService>();
         }
     }
 }

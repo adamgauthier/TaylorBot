@@ -18,20 +18,16 @@ namespace TaylorBot.Net.MessageLogging.Domain
         ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId);
     }
 
-    public class MessageDeletedLoggerService
+    public class MessageLoggerService
     {
         private readonly MessageLogChannelFinder _messageLogChannelFinder;
-        private readonly MessageDeletedEmbedFactory _messageDeletedEmbedFactory;
+        private readonly MessageLogEmbedFactory _messageLogEmbedFactory;
         private readonly ICachedMessageRepository _cachedMessageRepository;
 
-        public MessageDeletedLoggerService(
-            MessageLogChannelFinder messageLogChannelFinder,
-            MessageDeletedEmbedFactory messageDeletedEmbedFactory,
-            ICachedMessageRepository cachedMessageRepository
-        )
+        public MessageLoggerService(MessageLogChannelFinder messageLogChannelFinder, MessageLogEmbedFactory messageLogEmbedFactory, ICachedMessageRepository cachedMessageRepository)
         {
             _messageLogChannelFinder = messageLogChannelFinder;
-            _messageDeletedEmbedFactory = messageDeletedEmbedFactory;
+            _messageLogEmbedFactory = messageLogEmbedFactory;
             _cachedMessageRepository = cachedMessageRepository;
         }
 
@@ -52,13 +48,13 @@ namespace TaylorBot.Net.MessageLogging.Domain
         {
             if (channel is ITextChannel textChannel)
             {
-                var logTextChannel = await _messageLogChannelFinder.FindLogChannelAsync(textChannel.Guild);
+                var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
                 if (logTextChannel != null)
                 {
                     CachedMessage message = new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage));
 
-                    await logTextChannel.SendMessageAsync(embed: _messageDeletedEmbedFactory.CreateMessageDeleted(message, textChannel));
+                    await logTextChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageDeleted(message, textChannel));
                 }
             }
         }
@@ -67,7 +63,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
         {
             if (channel is ITextChannel textChannel)
             {
-                var logTextChannel = await _messageLogChannelFinder.FindLogChannelAsync(textChannel.Guild);
+                var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
                 if (logTextChannel != null)
                 {
@@ -77,7 +73,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
                         messages.Add(new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage)));
                     }
 
-                    foreach (var embed in _messageDeletedEmbedFactory.CreateMessageBulkDeleted(messages, textChannel))
+                    foreach (var embed in _messageLogEmbedFactory.CreateMessageBulkDeleted(messages, textChannel))
                     {
                         await logTextChannel.SendMessageAsync(embed: embed);
                     }
@@ -85,22 +81,52 @@ namespace TaylorBot.Net.MessageLogging.Domain
             }
         }
 
+        public async Task OnMessageUpdatedAsync(Cacheable<IMessage, ulong> oldMessage, IMessage newMessage, IMessageChannel channel)
+        {
+            if (channel is ITextChannel textChannel)
+            {
+                var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
+                if (editedLogChannel != null)
+                {
+                    CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
+
+                    await editedLogChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+
+                    await CacheMessageAsync(newMessage);
+                }
+                else
+                {
+                    var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+                    if (deletedLogChannel != null)
+                    {
+                        await CacheMessageAsync(newMessage);
+                    }
+                }
+            }
+        }
+
+
         public async Task OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketMessage message)
         {
-            var logTextChannel = await _messageLogChannelFinder.FindLogChannelAsync(textChannel.Guild);
+            var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
             if (logTextChannel != null)
             {
-                await _cachedMessageRepository.SaveMessageAsync(
-                    new(message.Id),
-                    new(
-                        AuthorTag: $"{message.Author.Username}#{message.Author.Discriminator}",
-                        AuthorId: message.Author.Id.ToString(),
-                        SystemMessageType: message is ISystemMessage systemMessage ? systemMessage.Type : null,
-                        Content: message is IUserMessage userMessage ? userMessage.Content : null
-                    )
-                );
+                await CacheMessageAsync(message);
             }
+        }
+
+        private async ValueTask CacheMessageAsync(IMessage newMessage)
+        {
+            await _cachedMessageRepository.SaveMessageAsync(
+                new(newMessage.Id),
+                new(
+                    AuthorTag: $"{newMessage.Author.Username}#{newMessage.Author.Discriminator}",
+                    AuthorId: newMessage.Author.Id.ToString(),
+                    SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
+                    Content: newMessage is IUserMessage userMessage ? userMessage.Content : null
+                )
+            );
         }
     }
 }

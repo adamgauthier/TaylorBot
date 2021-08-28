@@ -10,9 +10,9 @@ namespace TaylorBot.Net.UserNotifier.Program.Events
     public class MessageBulkDeletedHandler : IMessageBulkDeletedHandler
     {
         private readonly TaskExceptionLogger _taskExceptionLogger;
-        private readonly MessageDeletedLoggerService _messageDeletedLoggerService;
+        private readonly MessageLoggerService _messageDeletedLoggerService;
 
-        public MessageBulkDeletedHandler(TaskExceptionLogger taskExceptionLogger, MessageDeletedLoggerService messageDeletedLoggerService)
+        public MessageBulkDeletedHandler(TaskExceptionLogger taskExceptionLogger, MessageLoggerService messageDeletedLoggerService)
         {
             _taskExceptionLogger = taskExceptionLogger;
             _messageDeletedLoggerService = messageDeletedLoggerService;

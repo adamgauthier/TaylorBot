@@ -7,9 +7,9 @@ namespace TaylorBot.Net.UserNotifier.Program.Events
 {
     public class MessageReceivedHandler : IMessageReceivedHandler
     {
-        private readonly MessageDeletedLoggerService _messageDeletedLoggerService;
+        private readonly MessageLoggerService _messageDeletedLoggerService;
 
-        public MessageReceivedHandler(MessageDeletedLoggerService messageDeletedLoggerService)
+        public MessageReceivedHandler(MessageLoggerService messageDeletedLoggerService)
         {
             _messageDeletedLoggerService = messageDeletedLoggerService;
         }

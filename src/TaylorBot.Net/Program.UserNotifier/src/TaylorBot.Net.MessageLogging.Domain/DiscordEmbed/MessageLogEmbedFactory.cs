@@ -12,11 +12,11 @@ using TaylorBot.Net.MessageLogging.Domain.Options;
 
 namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
 {
-    public class MessageDeletedEmbedFactory
+    public class MessageLogEmbedFactory
     {
         private readonly IOptionsMonitor<MessageDeletedLoggingOptions> _optionsMonitor;
 
-        public MessageDeletedEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions> optionsMonitor)
+        public MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions> optionsMonitor)
         {
             _optionsMonitor = optionsMonitor;
         }
@@ -70,7 +70,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                             case IUserMessage userMessage:
                                 if (!string.IsNullOrEmpty(userMessage.Content))
                                 {
-                                    builder.WithTitle("Message Content").WithDescription(userMessage.Content);
+                                    builder.WithTitle("Message Content").WithDescription(userMessage.Content.Truncate(EmbedBuilder.MaxDescriptionLength));
                                 }
                                 break;
                         }
@@ -89,7 +89,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         }
                         else if (!string.IsNullOrEmpty(taylorBot.Content))
                         {
-                            builder.WithTitle("Original Message Content").WithDescription(taylorBot.Content);
+                            builder.WithTitle("Message Content").WithDescription(taylorBot.Content.Truncate(EmbedBuilder.MaxDescriptionLength));
                         }
                         break;
                 }
@@ -111,6 +111,90 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 .WithFooter($"Message deleted ({cachedMessage.Id})")
                 .WithCurrentTimestamp()
                 .Build();
+        }
+
+        public Embed CreateMessageEdited(CachedMessage cachedMessage, IMessage newMessage, ITextChannel channel)
+        {
+            var options = _optionsMonitor.CurrentValue;
+
+            var builder = new EmbedBuilder()
+                .WithColor(DiscordColor.FromHexString(options.MessageEditedEmbedColorHex))
+                .WithFooter($"Message edited ({cachedMessage.Id})");
+
+            if (cachedMessage.Data != null)
+            {
+                switch (cachedMessage.Data)
+                {
+                    case DiscordNetCachedMessageData discordNet:
+                        var message = discordNet.Message;
+
+                        var avatarUrl = message.Author.GetAvatarUrlOrDefault();
+
+                        builder.WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl);
+
+                        if (message.EditedTimestamp.HasValue)
+                        {
+                            builder.WithTimestamp(message.EditedTimestamp.Value);
+                        }
+                        else
+                        {
+                            builder.WithCurrentTimestamp();
+                        }
+
+                        if (message is IUserMessage userMessage && !string.IsNullOrEmpty(userMessage.Content) &&
+                            !string.IsNullOrEmpty(newMessage.Content) && userMessage.Content != newMessage.Content)
+                        {
+                            builder
+                                .WithTitle("Message Content Before Edit")
+                                .WithDescription(userMessage.Content.Truncate(EmbedBuilder.MaxDescriptionLength))
+                                .AddField("Message Content After Edit", newMessage.Content.Truncate(EmbedFieldBuilder.MaxFieldValueLength));
+                        }
+
+                        builder
+                            .AddField("Channel", channel.Mention, inline: true)
+                            .AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
+                        break;
+
+                    case TaylorBotCachedMessageData taylorBot:
+                        builder
+                            .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
+                            .WithCurrentTimestamp();
+
+                        if (!string.IsNullOrEmpty(taylorBot.Content) && !string.IsNullOrEmpty(newMessage.Content) && taylorBot.Content != newMessage.Content)
+                        {
+                            builder
+                                .WithTitle("Message Content Before Edit")
+                                .WithDescription(taylorBot.Content.Truncate(EmbedBuilder.MaxDescriptionLength))
+                                .AddField("Message Content After Edit", newMessage.Content.Truncate(EmbedFieldBuilder.MaxFieldValueLength));
+                        }
+
+                        builder
+                            .AddField("Channel", channel.Mention, inline: true)
+                            .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+                        break;
+                }
+            }
+            else
+            {
+                builder
+                    .WithCurrentTimestamp()
+                    .WithTitle("Unknown Message Content Before Edit")
+                    .WithDescription(string.Join('\n', new[] {
+                        "Unfortunately, I don't remember this message's content before the edit. 😕",
+                        "This is likely because the message is too old."
+                    }));
+
+                if (!string.IsNullOrEmpty(newMessage.Content))
+                {
+                    builder.AddField("Message Content After Edit", newMessage.Content.Truncate(EmbedFieldBuilder.MaxFieldValueLength));
+                }
+
+                builder
+                    .AddField("Channel", channel.Mention, inline: true)
+                    .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+            }
+
+            return builder.Build();
         }
 
         private static string GetSystemMessageTypeString(MessageType messageType)
