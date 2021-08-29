@@ -27,6 +27,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
@@ -147,7 +150,14 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ImageSlashCommand>()
             .AddSlashCommand<DailyRebuySlashCommand>()
             .AddTransient<DailyClaimCommand>()
-            .AddSlashCommand<DailyClaimSlashCommand>();
+            .AddSlashCommand<DailyClaimSlashCommand>()
+            .AddTransient<IEditedLogChannelRepository, EditedLogChannelPostgresRepository>()
+            .AddSlashCommand<MonitorEditedSetSlashCommand>()
+            .AddSlashCommand<MonitorEditedShowSlashCommand>()
+            .AddSlashCommand<MonitorEditedStopSlashCommand>()
+            .AddSlashCommand<MonitorDeletedSetSlashCommand>()
+            .AddSlashCommand<MonitorDeletedShowSlashCommand>()
+            .AddSlashCommand<MonitorDeletedStopSlashCommand>();
     })
     .Build();
 

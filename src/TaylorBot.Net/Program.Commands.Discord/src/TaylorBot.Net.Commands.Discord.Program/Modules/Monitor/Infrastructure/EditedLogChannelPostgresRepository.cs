@@ -1,30 +1,30 @@
 ﻿using Dapper;
 using Discord;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure
 {
-    public class DeletedLogChannelPostgresRepository : IDeletedLogChannelRepository
+    public class EditedLogChannelPostgresRepository : IEditedLogChannelRepository
     {
         private readonly PostgresConnectionFactory _postgresConnectionFactory;
 
-        public DeletedLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
+        public EditedLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
         {
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async ValueTask AddOrUpdateDeletedLogAsync(ITextChannel textChannel)
+        public async ValueTask AddOrUpdateEditedLogAsync(ITextChannel textChannel)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
-                @"INSERT INTO plus.deleted_log_channels (guild_id, deleted_log_channel_id)
+                @"INSERT INTO plus.edited_log_channels (guild_id, edited_log_channel_id)
                 VALUES (@GuildId, @ChannelId)
                 ON CONFLICT (guild_id) DO UPDATE SET
-                    deleted_log_channel_id = excluded.deleted_log_channel_id;",
+                    edited_log_channel_id = excluded.edited_log_channel_id;",
                 new
                 {
                     GuildId = textChannel.GuildId.ToString(),
@@ -35,15 +35,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure
 
         private class LogChannelDto
         {
-            public string deleted_log_channel_id { get; set; } = null!;
+            public string edited_log_channel_id { get; set; } = null!;
         }
 
-        public async ValueTask<DeletedLog?> GetDeletedLogForGuildAsync(IGuild guild)
+        public async ValueTask<EditedLog?> GetEditedLogForGuildAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
-                @"SELECT deleted_log_channel_id FROM plus.deleted_log_channels
+                @"SELECT edited_log_channel_id FROM plus.edited_log_channels
                 WHERE guild_id = @GuildId;",
                 new
                 {
@@ -51,15 +51,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure
                 }
             );
 
-            return logChannel != null ? new DeletedLog(new SnowflakeId(logChannel.deleted_log_channel_id)) : null;
+            return logChannel != null ? new EditedLog(new SnowflakeId(logChannel.edited_log_channel_id)) : null;
         }
 
-        public async ValueTask RemoveDeletedLogAsync(IGuild guild)
+        public async ValueTask RemoveEditedLogAsync(IGuild guild)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
-                "DELETE FROM plus.deleted_log_channels WHERE guild_id = @GuildId;",
+                "DELETE FROM plus.edited_log_channels WHERE guild_id = @GuildId;",
                 new
                 {
                     GuildId = guild.Id.ToString()

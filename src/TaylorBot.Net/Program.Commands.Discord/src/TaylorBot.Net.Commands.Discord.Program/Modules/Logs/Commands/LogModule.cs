@@ -19,19 +19,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
         public class DeletedModule : TaylorBotModule
         {
             private readonly ICommandRunner _commandRunner;
-            private readonly IPlusRepository _plusRepository;
-            private readonly IDeletedLogChannelRepository _deletedLogChannelRepository;
 
-            public DeletedModule(ICommandRunner commandRunner, IPlusRepository plusRepository, IDeletedLogChannelRepository deletedLogChannelRepository)
+            public DeletedModule(ICommandRunner commandRunner)
             {
                 _commandRunner = commandRunner;
-                _plusRepository = plusRepository;
-                _deletedLogChannelRepository = deletedLogChannelRepository;
             }
 
             [Priority(-1)]
             [Command]
-            [Summary("Directs TaylorBot to log deleted messages in a specific channel.")]
+            [Summary("This command has moved to a slash command. Use `/monitor deleted set` instead!")]
             public async Task<RuntimeResult> AddAsync(
                 [Summary("What channel would you like deleted messages to be logged in?")]
                 [Remainder]
@@ -40,30 +36,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
             {
                 var command = new Command(
                     DiscordNetContextMapper.MapToCommandMetadata(Context),
-                    async () =>
+                    () =>
                     {
-                        var textChannel = channel == null ? (ITextChannel)Context.Channel : channel.Channel;
-
-                        if (textChannel is IThreadChannel thread)
-                        {
-                            return new EmbedResult(EmbedFactory.CreateError($"Channel '{thread.Name}' is a thread! Please use another text channel."));
-                        }
-
-                        await _deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(textChannel);
-
-                        return new EmbedResult(new EmbedBuilder()
-                            .WithColor(TaylorBotColors.SuccessColor)
+                        return new(new EmbedResult(new EmbedBuilder()
+                            .WithColor(TaylorBotColors.ErrorColor)
                             .WithUserAsAuthor(Context.User)
-                            .WithDescription(string.Join('\n', new[] {
-                                $"Ok, I will now log deleted messages in {textChannel.Mention}. Please wait up to 5 minutes for changes to take effect. ⌚",
-                                $"Use `{Context.CommandPrefix}log deleted stop` to undo this action."
-                            }))
-                        .Build());
-                    },
-                    Preconditions: new ICommandPrecondition[] {
-                        new InGuildPrecondition(),
-                        new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
-                        new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                            .WithDescription("This command has moved to a slash command. Use `/monitor deleted set` instead!")
+                        .Build()));
                     }
                 );
 
@@ -74,27 +53,18 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
             }
 
             [Command("stop")]
-            [Summary("Directs TaylorBot to stop logging deleted messages in this server.")]
+            [Summary("This command has moved to a slash command. Use `/monitor deleted stop` instead!")]
             public async Task<RuntimeResult> RemoveAsync()
             {
                 var command = new Command(
                     DiscordNetContextMapper.MapToCommandMetadata(Context),
-                    async () =>
+                    () =>
                     {
-                        await _deletedLogChannelRepository.RemoveDeletedLogAsync(Context.Guild);
-
-                        return new EmbedResult(new EmbedBuilder()
-                            .WithColor(TaylorBotColors.SuccessColor)
+                        return new(new EmbedResult(new EmbedBuilder()
+                            .WithColor(TaylorBotColors.ErrorColor)
                             .WithUserAsAuthor(Context.User)
-                            .WithDescription(string.Join('\n', new[] {
-                                "Ok, I will stop logging deleted messages in this server. Please wait up to 5 minutes for changes to take effect. ⌚",
-                                $"Use `{Context.CommandPrefix}log deleted` to log deleted messages in a specific channel."
-                            }))
-                        .Build());
-                    },
-                    Preconditions: new ICommandPrecondition[] {
-                        new InGuildPrecondition(),
-                        new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                            .WithDescription("This command has moved to a slash command. Use `/monitor deleted stop` instead!")
+                        .Build()));
                     }
                 );
 

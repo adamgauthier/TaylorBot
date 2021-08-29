@@ -9,5 +9,6 @@ namespace TaylorBot.Net.MessageLogging.Domain.TextChannel
     public interface IMessageLoggingChannelRepository
     {
         ValueTask<LogChannel?> GetDeletedLogsChannelForGuildAsync(IGuild guild);
+        ValueTask<LogChannel?> GetEditedLogsChannelForGuildAsync(IGuild guild);
     }
 }

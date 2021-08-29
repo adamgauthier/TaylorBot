@@ -1,0 +1,66 @@
+{
+  "name": "monitor",
+  "description": "Monitor different events in your server",
+  "options": [
+    {
+      "name": "deleted",
+      "description": "Monitor deleted messages in this server",
+      "type": 2,
+      "options": [
+        {
+          "name": "set",
+          "description": "Set a channel where this server's deleted messages will be recorded in",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The text channel you want deleted messages to be logged in, or the current channel",
+              "type": 7,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "show",
+          "description": "Show the configuration of deleted messages monitoring in this server",
+          "type": 1
+        },
+        {
+          "name": "stop",
+          "description": "Stop monitoring deleted messages in this server",
+          "type": 1
+        }
+      ]
+    },
+    {
+      "name": "edited",
+      "description": "Monitor edited messages in this server",
+      "type": 2,
+      "options": [
+        {
+          "name": "set",
+          "description": "Set a channel where this server's edited messages will be recorded in",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The text channel you want edited messages to be logged in, or the current channel",
+              "type": 7,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "show",
+          "description": "Show the configuration of edited messages monitoring in this server",
+          "type": 1
+        },
+        {
+          "name": "stop",
+          "description": "Stop monitoring edited messages in this server",
+          "type": 1
+        }
+      ]
+    }
+  ]
+}

@@ -85,14 +85,25 @@ namespace TaylorBot.Net.MessageLogging.Domain
         {
             if (channel is ITextChannel textChannel)
             {
-                var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
-                if (editedLogChannel != null)
+                if (!newMessage.Author.IsBot)
                 {
-                    CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
+                    var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
+                    if (editedLogChannel != null)
+                    {
+                        CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
 
-                    await editedLogChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+                        await editedLogChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
 
-                    await CacheMessageAsync(newMessage);
+                        await CacheMessageAsync(newMessage);
+                    }
+                    else
+                    {
+                        var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+                        if (deletedLogChannel != null)
+                        {
+                            await CacheMessageAsync(newMessage);
+                        }
+                    }
                 }
                 else
                 {
@@ -108,11 +119,22 @@ namespace TaylorBot.Net.MessageLogging.Domain
 
         public async Task OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketMessage message)
         {
-            var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+            var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
-            if (logTextChannel != null)
+            if (deletedLogChannel != null)
             {
                 await CacheMessageAsync(message);
+            }
+            else
+            {
+                if (!message.Author.IsBot)
+                {
+                    var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
+                    if (editedLogChannel != null)
+                    {
+                        await CacheMessageAsync(message);
+                    }
+                }
             }
         }
 
