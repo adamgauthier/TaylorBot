@@ -3,6 +3,36 @@
   "description": "Monitor different events in your server",
   "options": [
     {
+      "name": "members",
+      "description": "Monitor member joins, leaves and bans in this server",
+      "type": 2,
+      "options": [
+        {
+          "name": "set",
+          "description": "Set a channel where this server's joins, leaves and bans will be recorded in",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The text channel you want member events to be logged in, or the current channel",
+              "type": 7,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "show",
+          "description": "Show the configuration of members monitoring in this server",
+          "type": 1
+        },
+        {
+          "name": "stop",
+          "description": "Stop monitoring member events in this server",
+          "type": 1
+        }
+      ]
+    },
+    {
       "name": "deleted",
       "description": "Monitor deleted messages in this server",
       "type": 2,

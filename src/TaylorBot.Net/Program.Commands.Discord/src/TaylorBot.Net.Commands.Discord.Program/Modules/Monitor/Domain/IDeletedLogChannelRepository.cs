@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain
 {
     public record DeletedLog(SnowflakeId ChannelId);
 

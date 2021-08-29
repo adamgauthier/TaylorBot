@@ -157,7 +157,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<MonitorEditedStopSlashCommand>()
             .AddSlashCommand<MonitorDeletedSetSlashCommand>()
             .AddSlashCommand<MonitorDeletedShowSlashCommand>()
-            .AddSlashCommand<MonitorDeletedStopSlashCommand>();
+            .AddSlashCommand<MonitorDeletedStopSlashCommand>()
+            .AddSlashCommand<MonitorMembersSetSlashCommand>()
+            .AddSlashCommand<MonitorMembersShowSlashCommand>()
+            .AddSlashCommand<MonitorMembersStopSlashCommand>();
     })
     .Build();
 

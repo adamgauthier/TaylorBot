@@ -3,6 +3,7 @@ using Discord;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure
 {
@@ -30,6 +31,27 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure
                     ChannelId = textChannel.Id.ToString()
                 }
             );
+        }
+
+        private class LogChannelDto
+        {
+            public string member_log_channel_id { get; set; } = null!;
+        }
+
+        public async ValueTask<MemberLog?> GetMemberLogForGuildAsync(IGuild guild)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
+                @"SELECT member_log_channel_id FROM plus.member_log_channels
+                WHERE guild_id = @GuildId;",
+                new
+                {
+                    GuildId = guild.Id.ToString()
+                }
+            );
+
+            return logChannel != null ? new MemberLog(new SnowflakeId(logChannel.member_log_channel_id)) : null;
         }
 
         public async ValueTask RemoveMemberLogAsync(IGuild guild)

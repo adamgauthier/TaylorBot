@@ -1,11 +1,11 @@
 ﻿using Dapper;
 using Discord;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure
 {
     public class DeletedLogChannelPostgresRepository : IDeletedLogChannelRepository
     {
