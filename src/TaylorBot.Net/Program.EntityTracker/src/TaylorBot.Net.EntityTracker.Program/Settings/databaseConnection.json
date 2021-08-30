@@ -2,6 +2,6 @@
   "DatabaseConnection": {
     "Database": "taylorbot",
     "ApplicationName": "entity-tracker",
-    "MaxPoolSize": 2
+    "MaxPoolSize": 4
   }
 }
