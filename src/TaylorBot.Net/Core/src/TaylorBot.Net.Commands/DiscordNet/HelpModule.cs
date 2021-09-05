@@ -157,7 +157,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
 
                     var embed = new EmbedBuilder()
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithUserAsAuthor(Context.Client.CurrentUser)
+                        .WithUserAsAuthor(Context.CurrentUser)
                         .AddField("Guild Cache", (await Context.Client.GetGuildsAsync(CacheMode.CacheOnly)).Count, inline: true)
                         .AddField("DM Channels Cache", (await Context.Client.GetDMChannelsAsync(CacheMode.CacheOnly)).Count, inline: true);
 

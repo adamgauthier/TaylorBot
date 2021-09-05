@@ -49,7 +49,7 @@ namespace TaylorBot.Net.Commands.Tests.Modules
             A.CallTo(() => _commandApplicationOptions.CurrentValue).Returns(new CommandApplicationOptions { ApplicationName = ApplicationName });
             var discordClient = A.Fake<IDiscordClient>(o => o.Strict());
             A.CallTo(() => _commandContext.Client).Returns(discordClient);
-            A.CallTo(() => discordClient.CurrentUser).Returns(A.Fake<ISelfUser>());
+            A.CallTo(() => _commandContext.CurrentUser).Returns(A.Fake<ISelfUser>());
             A.CallTo(() => discordClient.GetGuildsAsync(CacheMode.CacheOnly, null)).Returns(Array.Empty<IGuild>());
             A.CallTo(() => discordClient.GetDMChannelsAsync(CacheMode.CacheOnly, null)).Returns(Array.Empty<IDMChannel>());
 

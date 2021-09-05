@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands.Parsers.Users
             var parsedUser = await _userNotAuthorParser.ParseAsync(context, optionValue);
             if (parsedUser)
             {
-                return parsedUser.Value.User.Id != context.Client.CurrentUser.Id ?
+                return parsedUser.Value.User.Id != context.BotUser.Id ?
                     new ParsedUserNotAuthorAndTaylorBot(parsedUser.Value.User) :
                     Error(new ParsingFailed("User can't be TaylorBot."));
             }

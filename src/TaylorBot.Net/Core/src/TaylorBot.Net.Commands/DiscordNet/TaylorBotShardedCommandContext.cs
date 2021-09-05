@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
         string CommandPrefix { get; }
         IList<CommandInfo> CommandInfos { get; set; }
         RunContext? RunContext { get; set; }
+        ISelfUser CurrentUser { get; }
         string GetUsage(CommandInfo commandInfo);
     }
 
@@ -18,6 +20,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
         public string CommandPrefix { get; }
         public IList<CommandInfo> CommandInfos { get; set; } = new List<CommandInfo>();
         public RunContext? RunContext { get; set; }
+        public ISelfUser CurrentUser => Client.CurrentUser;
 
         public TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : base(client, msg)
         {

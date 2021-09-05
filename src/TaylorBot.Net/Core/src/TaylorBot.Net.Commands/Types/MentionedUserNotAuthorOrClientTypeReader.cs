@@ -2,6 +2,7 @@
 using Discord.Commands;
 using System;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.DiscordNet;
 
 namespace TaylorBot.Net.Commands.Types
 {
@@ -23,7 +24,7 @@ namespace TaylorBot.Net.Commands.Types
             if (result.Values != null)
             {
                 var mentioned = (IUserArgument<T>)result.BestMatch;
-                if (mentioned.UserId == context.Client.CurrentUser.Id)
+                if (mentioned.UserId == ((ITaylorBotCommandContext)context).CurrentUser.Id)
                 {
                     return TypeReaderResult.FromError(CommandError.ParseFailed, $"You can't mention me.");
                 }

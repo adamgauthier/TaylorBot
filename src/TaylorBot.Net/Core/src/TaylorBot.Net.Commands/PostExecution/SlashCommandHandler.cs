@@ -130,6 +130,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                     new(interaction.ChannelId),
                     author is IGuildUser guildUser ? guildUser.Guild : null,
                     _taylorBotClient.Value.DiscordShardedClient,
+                    _taylorBotClient.Value.DiscordShardedClient.CurrentUser,
                     oldPrefix,
                     new()
                 );

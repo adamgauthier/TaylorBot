@@ -12,6 +12,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
                 new(context.Channel.Id.ToString()),
                 context.Guild,
                 context.Client,
+                context.CurrentUser,
                 context.CommandPrefix,
                 new()
             );

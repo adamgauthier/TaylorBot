@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands
         }
     }
 
-    public record RunContext(DateTimeOffset CreatedAt, IUser User, MessageChannel Channel, IGuild? Guild, IDiscordClient Client, string CommandPrefix, OnGoingState OnGoingState);
+    public record RunContext(DateTimeOffset CreatedAt, IUser User, MessageChannel Channel, IGuild? Guild, IDiscordClient Client, ISelfUser BotUser, string CommandPrefix, OnGoingState OnGoingState);
     public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
 
     public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);

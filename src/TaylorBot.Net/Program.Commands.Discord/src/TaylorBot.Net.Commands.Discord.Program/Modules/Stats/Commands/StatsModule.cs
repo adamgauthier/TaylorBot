@@ -72,7 +72,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Commands
                 var applicationInfo = await Context.Client.GetApplicationInfoAsync();
 
                 return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.Client.CurrentUser)
+                    .WithUserAsAuthor(Context.CurrentUser)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(applicationInfo.Description)
                     .AddField("Version", productVersion, inline: true)
