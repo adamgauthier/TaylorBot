@@ -6,14 +6,27 @@ namespace TaylorBot.Net.Core.Tasks
 {
     public class TaskExceptionLogger
     {
-        public ILogger<TaskExceptionLogger> logger;
+        public ILogger<TaskExceptionLogger> _logger;
 
         public TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
-        public async Task LogOnError(Task task, string taskName, bool shouldRethrow = true)
+        public async ValueTask LogOnError(ValueTask valueTask, string taskName)
+        {
+            try
+            {
+                await valueTask;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, $"Unhandled exception in {taskName}.");
+                throw;
+            }
+        }
+
+        public async Task LogOnError(Task task, string taskName)
         {
             try
             {
@@ -21,15 +34,14 @@ namespace TaylorBot.Net.Core.Tasks
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Unhandled exception in {taskName}{(shouldRethrow ? "" : ", not rethrowing")}.");
-                if (shouldRethrow)
-                    throw;
+                _logger.LogError(exception, $"Unhandled exception in {taskName}.");
+                throw;
             }
         }
 
-        public Task LogOnError(Func<Task> task, string taskName, bool shouldRethrow = true)
+        public Task LogOnError(Func<Task> task, string taskName)
         {
-            return LogOnError(task(), taskName, shouldRethrow);
+            return LogOnError(task(), taskName);
         }
     }
 }
