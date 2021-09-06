@@ -30,7 +30,7 @@ export class GuildMemberRepository {
                         alive,
                         rank() OVER (ORDER BY first_joined_at ASC) AS rank
                    FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id] AND first_joined_at IS NOT NULL
+                   WHERE guild_id = $[guild_id]
                 ) AS ranked
                 WHERE alive = TRUE
                 LIMIT $[limit];`,
@@ -56,7 +56,7 @@ export class GuildMemberRepository {
                        user_id,
                        rank() OVER (ORDER BY first_joined_at ASC) AS rank
                    FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id] AND first_joined_at IS NOT NULL
+                   WHERE guild_id = $[guild_id]
                 ) AS ranked
                 WHERE ranked.user_id = $[user_id];`,
                 {
@@ -67,6 +67,25 @@ export class GuildMemberRepository {
         }
         catch (e) {
             Log.error(`Getting ranked first joined at for guild member ${Format.member(guildMember)}: ${e}`);
+            throw e;
+        }
+    }
+
+    async _getMemberAttribute(guildMember: GuildMember, column: string): Promise<any> {
+        try {
+            return await this.#db.one(
+                `SELECT $[column~]
+                FROM guilds.guild_members
+                WHERE guild_id = $[guild_id] AND user_id = $[user_id];`,
+                {
+                    guild_id: guildMember.guild.id,
+                    user_id: guildMember.id,
+                    column
+                }
+            );
+        }
+        catch (e) {
+            Log.error(`Getting attribute '${column}' for guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
     }
@@ -166,6 +185,10 @@ export class GuildMemberRepository {
         return this._getRankedUsers(guild, limit, 'message_count');
     }
 
+    getMessagesFor(guildMember: GuildMember): Promise<{ message_count: string; }> {
+        return this._getMemberAttribute(guildMember, 'message_count');
+    }
+
     getRankedMessagesFor(guildMember: GuildMember): Promise<{ message_count: string; rank: string }> {
         return this._getRankedAliveFor(guildMember, 'message_count');
     }
@@ -174,12 +197,20 @@ export class GuildMemberRepository {
         return this._getRankedUsers(guild, limit, 'word_count');
     }
 
+    getWordsFor(guildMember: GuildMember): Promise<{ word_count: string; }> {
+        return this._getMemberAttribute(guildMember, 'word_count');
+    }
+
     getRankedWordsFor(guildMember: GuildMember): Promise<{ word_count: string; rank: string }> {
         return this._getRankedAliveFor(guildMember, 'word_count');
     }
 
     getRankedMinutes(guild: Guild, limit: number): Promise<{ minute_count: string; user_id: string; rank: string }[]> {
         return this._getRankedUsers(guild, limit, 'minute_count');
+    }
+
+    getMinutesFor(guildMember: GuildMember): Promise<{ minute_count: string }> {
+        return this._getMemberAttribute(guildMember, 'minute_count');
     }
 
     getRankedMinutesFor(guildMember: GuildMember): Promise<{ minute_count: string; rank: string }> {

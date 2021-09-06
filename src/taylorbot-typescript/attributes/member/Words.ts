@@ -15,8 +15,11 @@ class WordsAttribute extends SimpleStatMemberAttribute {
         });
     }
 
-    retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
-        return database.guildMembers.getRankedWordsFor(member);
+    async retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
+        if (member.guild.memberCount < 10000)
+            return await database.guildMembers.getRankedWordsFor(member);
+
+        return await database.guildMembers.getWordsFor(member);
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {

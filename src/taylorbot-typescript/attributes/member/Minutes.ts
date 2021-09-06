@@ -15,8 +15,11 @@ class MinutesAttribute extends SimpleStatMemberAttribute {
         });
     }
 
-    retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
-        return database.guildMembers.getRankedMinutesFor(member);
+    async retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
+        if (member.guild.memberCount < 10000)
+            return database.guildMembers.getRankedMinutesFor(member);
+
+        return await database.guildMembers.getMinutesFor(member);
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {

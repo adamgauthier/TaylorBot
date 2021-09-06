@@ -15,8 +15,11 @@ class MessagesAttribute extends SimpleStatMemberAttribute {
         });
     }
 
-    retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
-        return database.guildMembers.getRankedMessagesFor(member);
+    async retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
+        if (member.guild.memberCount < 10000)
+            return database.guildMembers.getRankedMessagesFor(member);
+
+        return await database.guildMembers.getMessagesFor(member);
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {

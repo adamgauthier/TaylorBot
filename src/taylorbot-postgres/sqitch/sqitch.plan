@@ -29,3 +29,4 @@
 0025_daily_rebuy 2021-07-20T00:58:57Z Adam Gauthier <adamgauthier12@gmail.com> # Add max_streak_coount to daily_payouts
 0026_bump_version_1.14.0 2021-07-30T02:28:13Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.14.0
 0027_edited_log_channels 2021-08-29T00:15:52Z Adam Gauthier <adamgauthier12@gmail.com> # Add edited log channels
+0028_rank_performance 2021-09-05T18:45:42Z Adam Gauthier <adamgauthier12@gmail.com> # Improve performance of rank queries

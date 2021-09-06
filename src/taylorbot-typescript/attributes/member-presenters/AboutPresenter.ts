@@ -8,12 +8,17 @@ import { MathUtil } from '../../modules/util/MathUtil';
 
 export class AboutPresenter extends SimpleStatPresenter {
     present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: stat, rank }: Record<string, any> & { rank: string }): MessageEmbed {
+        const description = [
+            `${member.displayName} has ~${StringUtil.plural(stat, this.attribute.singularName, '**')}.`
+        ];
+
+        if (rank !== null && rank !== undefined) {
+            description.push(`They are ranked **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in this server (excluding users who left).`);
+        }
+
         return DiscordEmbedFormatter
             .baseUserSuccessEmbed(member.user)
-            .setDescription([
-                `${member.displayName} has ~${StringUtil.plural(stat, this.attribute.singularName, '**')}.`,
-                `They are ranked **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in this server (excluding users who left).`
-            ].join('\n'));
+            .setDescription(description.join('\n'));
     }
 
     presentRankEntry(member: GuildMember, { [this.attribute.columnName]: stat, rank }: Record<string, any> & { rank: string }): string {
