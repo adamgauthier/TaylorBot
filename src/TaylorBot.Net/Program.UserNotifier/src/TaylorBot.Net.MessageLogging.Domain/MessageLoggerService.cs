@@ -90,9 +90,14 @@ namespace TaylorBot.Net.MessageLogging.Domain
                     var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
                     if (editedLogChannel != null)
                     {
-                        CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
+                        var isEmbedOnlyEdit = oldMessage.HasValue && oldMessage.Value.Content == newMessage.Content && newMessage.Embeds.Count != oldMessage.Value.Embeds.Count;
 
-                        await editedLogChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+                        if (!isEmbedOnlyEdit)
+                        {
+                            CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
+
+                            await editedLogChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+                        }
 
                         await CacheMessageAsync(newMessage);
                     }
