@@ -1,6 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0.400 AS build
 WORKDIR /app
 
+RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | sh
+
 # copy csproj and restore as distinct layers
 COPY ./Directory.Build.props ./Directory.Build.props
 COPY ./Core/src/*/*.csproj ./
@@ -9,6 +11,8 @@ RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Cor
 COPY ./Program.PostNotifier/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.PostNotifier/src/${file%.*}/ && mv $file Program.PostNotifier/src/${file%.*}/; done
 
+ARG FEED_ACCESS_TOKEN
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/louistio/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESS_TOKEN}\"}]}"
 RUN dotnet restore ./Program.PostNotifier/src/TaylorBot.Net.PostNotifier.Program/TaylorBot.Net.PostNotifier.Program.csproj
 
 # copy and build app and libraries

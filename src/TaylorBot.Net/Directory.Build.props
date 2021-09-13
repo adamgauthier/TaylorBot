@@ -2,6 +2,6 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <Features>strict</Features>
-    <RestoreAdditionalProjectSources>https://www.myget.org/F/discord-net/api/v3/index.json</RestoreAdditionalProjectSources>
+    <RestoreAdditionalProjectSources>https://pkgs.dev.azure.com/louistio/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
 </Project>

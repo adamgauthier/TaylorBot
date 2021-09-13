@@ -27,7 +27,7 @@ stages:
           command: build
           dockerfile: ${{ parameters.dockerfilePath }}
           buildContext: ${{ parameters.dockerBuildContext }}
-          arguments: '--target test --tag $(testImageTag)'
+          arguments: '--target test --tag $(testImageTag) --build-arg FEED_ACCESS_TOKEN=$(taylorbot_feed_access_token)'
 
       - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag) --verbosity normal
         displayName: 'Run tests'
@@ -38,7 +38,7 @@ stages:
           command: build
           dockerfile: ${{ parameters.dockerfilePath }}
           buildContext: ${{ parameters.dockerBuildContext }}
-          arguments: '--tag $(containerImageTag)'
+          arguments: '--tag $(containerImageTag) --build-arg FEED_ACCESS_TOKEN=$(taylorbot_feed_access_token)'
 
       - task: PublishTestResults@2
         displayName: 'Publish tests results'
