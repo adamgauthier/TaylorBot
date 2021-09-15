@@ -1,8 +1,11 @@
 trigger:
   - master
-  
+
 resources:
 - repo: self
+
+variables:
+  DOCKER_BUILDKIT: 1
 
 stages:
 - template: templates/stages/build-test-publish-dotnet-docker.yml
@@ -10,4 +13,3 @@ stages:
     componentName: entity-tracker
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.EntityTracker/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
-  

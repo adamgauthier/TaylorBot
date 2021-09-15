@@ -4,6 +4,9 @@ trigger:
 resources:
 - repo: self
 
+variables:
+  DOCKER_BUILDKIT: 1
+
 stages:
 - template: templates/stages/build-test-publish-dotnet-docker.yml
   parameters:

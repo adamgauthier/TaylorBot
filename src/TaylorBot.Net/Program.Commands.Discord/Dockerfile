@@ -1,7 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0.400 AS build
 WORKDIR /app
 
-RUN curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | sh
+ARG FEED_ACCESS_TOKEN
+RUN if test -n "${FEED_ACCESS_TOKEN}" ; then \
+        curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | sh ; \
+    fi
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/louistio/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESS_TOKEN}\"}]}"
 
 # copy csproj and restore as distinct layers
 COPY ./Directory.Build.props ./Directory.Build.props
@@ -11,9 +15,7 @@ RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Cor
 COPY ./Program.Commands.Discord/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.Commands.Discord/src/${file%.*}/ && mv $file Program.Commands.Discord/src/${file%.*}/; done
 
-ARG FEED_ACCESS_TOKEN
-ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/louistio/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESS_TOKEN}\"}]}"
-RUN dotnet restore ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
+RUN dotnet restore -p:TreatWarningsAsErrors=true ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
