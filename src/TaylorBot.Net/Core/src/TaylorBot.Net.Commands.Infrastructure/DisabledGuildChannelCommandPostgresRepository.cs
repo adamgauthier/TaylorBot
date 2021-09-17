@@ -15,6 +15,38 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
+        public async ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"INSERT INTO guilds.channel_commands(guild_id, channel_id, command_id)
+                VALUES(@GuildId, @ChannelId, @CommandId) ON CONFLICT DO NOTHING;",
+                new
+                {
+                    GuildId = guild.Id.ToString(),
+                    ChannelId = channel.Id.ToString(),
+                    CommandId = commandName
+                }
+            );
+        }
+
+        public async ValueTask EnableInAsync(MessageChannel channel, IGuild guild, string commandName)
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                @"DELETE FROM guilds.channel_commands
+                WHERE guild_id = @GuildId AND channel_id = @ChannelId AND command_id = @CommandId;",
+                new
+                {
+                    GuildId = guild.Id.ToString(),
+                    ChannelId = channel.Id.ToString(),
+                    CommandId = commandName
+                }
+            );
+        }
+
         public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();

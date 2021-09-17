@@ -1,0 +1,70 @@
+{
+  "name": "command",
+  "description": "Enable and disable commands",
+  "options": [
+    {
+      "name": "server-disable",
+      "description": "Disable a command everywhere in this server",
+      "type": 1,
+      "options": [
+        {
+          "name": "command",
+          "description": "The name of the command you want to disable (for example 'avatar')",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "server-enable",
+      "description": "Enable a disabled command everywhere in this server",
+      "type": 1,
+      "options": [
+        {
+          "name": "command",
+          "description": "The name of the disabled command you want to enable (for example 'avatar')",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "channel-disable",
+      "description": "Disable a command in a specific channel",
+      "type": 1,
+      "options": [
+        {
+          "name": "command",
+          "description": "The name of the command you want to disable (for example 'avatar')",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "channel",
+          "description": "The text channel you want the command disabled in, or the current channel",
+          "type": 7,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "channel-enable",
+      "description": "Enable a disabled command in a specific channel",
+      "type": 1,
+      "options": [
+        {
+          "name": "command",
+          "description": "The name of the disabled command you want to enable (for example 'avatar')",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "channel",
+          "description": "The text channel you want the command enabled in, or the current channel",
+          "type": 7,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

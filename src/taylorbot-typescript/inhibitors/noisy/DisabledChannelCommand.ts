@@ -4,7 +4,7 @@ import { MessageContext } from '../../structures/MessageContext';
 import UserGroups = require('../../client/UserGroups');
 
 class DisabledChannelCommandInhibitor extends NoisyInhibitor {
-    async getBlockedMessage({ client, message, prefix }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
+    async getBlockedMessage({ client, message }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
         if (command.command.minimumGroup === UserGroups.Master)
             return null;
 
@@ -17,7 +17,7 @@ class DisabledChannelCommandInhibitor extends NoisyInhibitor {
                 return {
                     ui: [
                         `You can't use \`${command.name}\` because it is disabled in ${channel}.`,
-                        `You can re-enable it by typing \`${prefix}ecc ${command.name}\`.`
+                        `You can re-enable it by typing **/command channel-enable ${command.name}**.`
                     ].join('\n'),
                     log: 'The command is disabled in this channel.'
                 };

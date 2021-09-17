@@ -11,27 +11,6 @@ export class GuildCommandRepository {
         this.#db = db;
     }
 
-    async setDisabled(guild: Guild, commandName: string, disabled: boolean): Promise<{ disabled: boolean }> {
-        try {
-            return await this.#db.one(
-                `INSERT INTO guilds.guild_commands (guild_id, command_name, disabled)
-                VALUES ($[guild_id], $[command_name], $[disabled])
-                ON CONFLICT (guild_id, command_name) DO UPDATE
-                  SET disabled = excluded.disabled
-                RETURNING disabled;`,
-                {
-                    'guild_id': guild.id,
-                    'command_name': commandName,
-                    'disabled': disabled
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Upserting guild command ${Format.guild(guild)} for '${commandName}' disabled to '${disabled}': ${e}`);
-            throw e;
-        }
-    }
-
     async getIsGuildCommandDisabled(guild: Guild, command: CachedCommand): Promise<{ exists: boolean }> {
         try {
             return await this.#db.one(

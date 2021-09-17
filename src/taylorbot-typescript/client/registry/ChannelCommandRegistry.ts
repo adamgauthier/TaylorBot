@@ -1,7 +1,6 @@
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { RedisDriver } from '../../caching/RedisDriver';
 import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
-import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 import { CachedCommand } from './CachedCommand';
 
 export class ChannelCommandRegistry {
@@ -29,23 +28,5 @@ export class ChannelCommandRegistry {
         }
 
         return isEnabled === '0';
-    }
-
-    async disableCommandInChannel(guildTextChannel: BaseGuildTextChannel | ThreadChannel, command: DatabaseCommand): Promise<void> {
-        await this.#database.channelCommands.disableCommandInChannel(guildTextChannel, command);
-        await this.#redis.hashSet(
-            this.key(guildTextChannel.guild.id, guildTextChannel.id),
-            command.name,
-            '0'
-        );
-    }
-
-    async enableCommandInChannel(guildTextChannel: BaseGuildTextChannel | ThreadChannel, command: DatabaseCommand): Promise<void> {
-        await this.#database.channelCommands.enableCommandInChannel(guildTextChannel, command);
-        await this.#redis.hashSet(
-            this.key(guildTextChannel.guild.id, guildTextChannel.id),
-            command.name,
-            '1'
-        );
     }
 }

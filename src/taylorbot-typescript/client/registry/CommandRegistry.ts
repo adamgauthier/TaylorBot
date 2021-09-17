@@ -124,10 +124,4 @@ export class CommandRegistry {
 
         return isEnabled === '0';
     }
-
-    async setGuildEnabled(guild: Guild, commandName: string, enabled: boolean): Promise<boolean> {
-        const { disabled } = await this.database.guildCommands.setDisabled(guild, commandName, !enabled);
-        await this.redis.hashSet(this.enabledGuildRedisKey(guild), commandName, (!disabled) ? '1' : '0');
-        return !disabled;
-    }
 }

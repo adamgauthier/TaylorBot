@@ -16,11 +16,30 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _connectionMultiplexer = connectionMultiplexer;
             _disabledGuildChannelCommandPostgresRepository = disabledGuildChannelCommandPostgresRepository;
         }
+        private static string GetKey(IGuild guild, MessageChannel channel) => $"enabled-commands:guild:{guild.Id}:channel:{channel.Id}";
+
+        public async ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName)
+        {
+            await _disabledGuildChannelCommandPostgresRepository.DisableInAsync(channel, guild, commandName);
+            var redis = _connectionMultiplexer.GetDatabase();
+            var key = GetKey(guild, channel);
+            await redis.HashSetAsync(key, commandName, false);
+            await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
+        }
+
+        public async ValueTask EnableInAsync(MessageChannel channel, IGuild guild, string commandName)
+        {
+            await _disabledGuildChannelCommandPostgresRepository.EnableInAsync(channel, guild, commandName);
+            var redis = _connectionMultiplexer.GetDatabase();
+            var key = GetKey(guild, channel);
+            await redis.HashSetAsync(key, commandName, true);
+            await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
+        }
 
         public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command)
         {
             var redis = _connectionMultiplexer.GetDatabase();
-            var key = $"enabled-commands:guild:{guild.Id}:channel:{channel.Id}";
+            var key = GetKey(guild, channel);
             var isEnabled = await redis.HashGetAsync(key, command.Name);
 
             if (!isEnabled.HasValue)

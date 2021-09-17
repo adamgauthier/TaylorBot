@@ -11,6 +11,7 @@ using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
@@ -160,7 +161,11 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<MonitorDeletedStopSlashCommand>()
             .AddSlashCommand<MonitorMembersSetSlashCommand>()
             .AddSlashCommand<MonitorMembersShowSlashCommand>()
-            .AddSlashCommand<MonitorMembersStopSlashCommand>();
+            .AddSlashCommand<MonitorMembersStopSlashCommand>()
+            .AddSlashCommand<CommandServerDisableSlashCommand>()
+            .AddSlashCommand<CommandServerEnableSlashCommand>()
+            .AddSlashCommand<CommandChannelDisableSlashCommand>()
+            .AddSlashCommand<CommandChannelEnableSlashCommand>();
     })
     .Build();
 

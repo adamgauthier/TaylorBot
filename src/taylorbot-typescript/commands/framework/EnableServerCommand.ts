@@ -1,8 +1,5 @@
-import UserGroups = require('../../client/UserGroups');
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
-import { Guild } from 'discord.js';
-import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class EnableServerCommandCommand extends Command {
     constructor() {
@@ -10,31 +7,25 @@ class EnableServerCommandCommand extends Command {
             name: 'enableservercommand',
             aliases: ['enableguildcommand', 'egc', 'esc'],
             group: 'framework',
-            description: 'Enables a disabled command in a server.',
-            minimumGroup: UserGroups.Moderators,
-            examples: ['avatar', 'uinfo'],
-            guildOnly: true,
+            description: 'This command is obsolete and will be removed in a future version. Please use **/command server-enable** instead.',
+            examples: [''],
 
             args: [
                 {
-                    key: 'databaseCommand',
-                    label: 'command',
-                    type: 'database-command',
-                    prompt: 'What command would you like to enable?'
-                },
-                {
-                    key: 'guild',
-                    label: 'server',
-                    prompt: 'What server would you like to enable the command in?',
-                    type: 'guild-or-current'
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { databaseCommand, guild }: { databaseCommand: DatabaseCommand; guild: Guild }): Promise<void> {
-        await client.master.registry.commands.setGuildEnabled(guild, databaseCommand.name, true);
-        await client.sendEmbedSuccess(message.channel, `Successfully enabled \`${databaseCommand.name}\` in ${guild.name}.`);
+    async run({ message, client }: CommandMessageContext, { args }: { args: string }): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command is obsolete and will be removed in a future version.`,
+            `Please use **/command server-enable** instead.`
+        ].join('\n'));
     }
 }
 

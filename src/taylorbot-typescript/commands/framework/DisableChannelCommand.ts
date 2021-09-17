@@ -1,9 +1,5 @@
 import { Command } from '../Command';
-import { CommandError } from '../CommandError';
-import UserGroups = require('../../client/UserGroups');
 import { CommandMessageContext } from '../CommandMessageContext';
-import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
-import { DatabaseCommand } from '../../database/repositories/CommandRepository';
 
 class DisableChannelCommandCommand extends Command {
     constructor() {
@@ -11,36 +7,25 @@ class DisableChannelCommandCommand extends Command {
             name: 'disablechannelcommand',
             aliases: ['dcc'],
             group: 'framework',
-            description: 'Disables a command in a channel.',
-            minimumGroup: UserGroups.Moderators,
-            examples: ['roll general', 'gamble'],
-            guildOnly: true,
+            description: 'This command is obsolete and will be removed in a future version. Please use **/command channel-disable** instead.',
+            examples: [''],
 
             args: [
                 {
-                    key: 'databaseCommand',
-                    label: 'command',
-                    type: 'database-command',
-                    prompt: 'What command would you like to disable?'
-                },
-                {
-                    key: 'channel',
-                    label: 'channel',
-                    prompt: 'What channel would you like to disable the command in?',
-                    type: 'guild-text-channel-or-current'
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { databaseCommand, channel }: { databaseCommand: DatabaseCommand; channel: BaseGuildTextChannel | ThreadChannel }): Promise<void> {
-        if (databaseCommand.module_name.toLowerCase() === 'framework' || databaseCommand.module_name.toLowerCase() === 'command') {
-            throw new CommandError(`Can't disable \`${databaseCommand.name}\` because it's a framework command.`);
-        }
-
-        await client.master.registry.channelCommands.disableCommandInChannel(channel, databaseCommand);
-
-        await client.sendEmbedSuccess(message.channel, `Successfully disabled \`${databaseCommand.name}\` in ${channel}.`);
+    async run({ message, client }: CommandMessageContext, { args }: { args: string }): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command is obsolete and will be removed in a future version.`,
+            `Please use **/command channel-disable** instead.`
+        ].join('\n'));
     }
 }
 

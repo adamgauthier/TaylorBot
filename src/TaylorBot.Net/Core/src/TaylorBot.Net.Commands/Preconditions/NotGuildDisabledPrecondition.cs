@@ -7,6 +7,8 @@ namespace TaylorBot.Net.Commands.Preconditions
     public interface IDisabledGuildCommandRepository
     {
         ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command);
+        ValueTask EnableInAsync(IGuild guild, string commandName);
+        ValueTask DisableInAsync(IGuild guild, string commandName);
     }
 
     public class NotGuildDisabledPrecondition : ICommandPrecondition
@@ -32,7 +34,7 @@ namespace TaylorBot.Net.Commands.Preconditions
                         string.Join('\n',
                             new[] {
                                 $"You can't use `{command.Metadata.Name}` because it is disabled in this server.",
-                                $"You can re-enable it by typing `{context.CommandPrefix}esc {command.Metadata.Name}`."
+                                $"You can re-enable it by typing **/command server-enable {command.Metadata.Name}**."
                             }),
                         HideInPrefixCommands: true
                     )

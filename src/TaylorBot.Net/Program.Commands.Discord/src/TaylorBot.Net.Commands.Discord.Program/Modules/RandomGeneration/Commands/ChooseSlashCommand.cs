@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
 {
     public class ChooseCommand
     {
-        public static readonly CommandMetadata Metadata = new("choose", "Random 🎲", new[] { "av", "avi" });
+        public static readonly CommandMetadata Metadata = new("choose", "Random 🎲");
 
         private readonly ICryptoSecureRandom _cryptoSecureRandom;
 

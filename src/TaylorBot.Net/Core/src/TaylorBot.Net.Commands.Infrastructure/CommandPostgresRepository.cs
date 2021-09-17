@@ -28,8 +28,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
             var commandDtos = await connection.QueryAsync<CommandDto>("SELECT name, module_name FROM commands.commands;");
 
             return commandDtos.Select(dto => new ICommandRepository.Command(
-                name: dto.name,
-                moduleName: dto.module_name
+                Name: dto.name,
+                ModuleName: dto.module_name
             )).ToList();
         }
 

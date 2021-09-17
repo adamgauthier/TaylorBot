@@ -7,6 +7,8 @@ namespace TaylorBot.Net.Commands.Preconditions
     public interface IDisabledGuildChannelCommandRepository
     {
         ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command);
+        ValueTask EnableInAsync(MessageChannel channel, IGuild guild, string commandName);
+        ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName);
     }
 
     public class NotGuildChannelDisabledPrecondition : ICommandPrecondition
@@ -30,7 +32,7 @@ namespace TaylorBot.Net.Commands.Preconditions
                     PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {context.Guild.FormatLog()}",
                     UserReason: new(string.Join('\n', new[] {
                         $"You can't use `{command.Metadata.Name}` because it is disabled in {context.Channel.Mention}.",
-                        $"You can re-enable it by typing `{context.CommandPrefix}ecc {command.Metadata.Name}`."
+                        $"You can re-enable it by typing **/command channel-enable {command.Metadata.Name}**."
                     }))
                 ) :
                 new PreconditionPassed();

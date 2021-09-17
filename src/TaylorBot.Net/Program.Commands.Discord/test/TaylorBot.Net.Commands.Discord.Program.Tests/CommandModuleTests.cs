@@ -30,7 +30,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
         {
             const string CommandName = "avatar";
             A.CallTo(() => _disabledCommandRepository.EnableGloballyAsync(CommandName)).Returns(default);
-            var command = new ICommandRepository.Command(name: CommandName, moduleName: string.Empty);
+            var command = new ICommandRepository.Command(Name: CommandName, ModuleName: string.Empty);
 
             var result = (await _commandModule.EnableGlobalAsync(command)).GetResult<EmbedResult>();
 
@@ -43,7 +43,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const string CommandName = "avatar";
             const string DisabledMesssage = "The command is down for maintenance.";
             A.CallTo(() => _disabledCommandRepository.DisableGloballyAsync(CommandName, DisabledMesssage)).Returns(DisabledMesssage);
-            var command = new ICommandRepository.Command(name: CommandName, moduleName: "Framework");
+            var command = new ICommandRepository.Command(Name: CommandName, ModuleName: "Framework");
 
             var result = (await _commandModule.DisableGlobalAsync(command, DisabledMesssage)).GetResult<EmbedResult>();
 
@@ -56,7 +56,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             const string CommandName = "avatar";
             const string DisabledMesssage = "The command is down for maintenance.";
             A.CallTo(() => _disabledCommandRepository.DisableGloballyAsync(CommandName, DisabledMesssage)).Returns(DisabledMesssage);
-            var command = new ICommandRepository.Command(name: CommandName, moduleName: string.Empty);
+            var command = new ICommandRepository.Command(Name: CommandName, ModuleName: string.Empty);
 
             var result = (await _commandModule.DisableGlobalAsync(command, DisabledMesssage)).GetResult<EmbedResult>();
 

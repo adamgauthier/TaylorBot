@@ -10,6 +10,7 @@ namespace TaylorBot.Net.Commands.StringMappers
             return guildPermission switch
             {
                 GuildPermission.ManageGuild => "Manage Server",
+                GuildPermission.ManageChannels => "Manage Channels",
                 GuildPermission.KickMembers => "Kick Members",
                 GuildPermission.ManageRoles => "Manage Roles",
                 GuildPermission.BanMembers => "Ban Members",
