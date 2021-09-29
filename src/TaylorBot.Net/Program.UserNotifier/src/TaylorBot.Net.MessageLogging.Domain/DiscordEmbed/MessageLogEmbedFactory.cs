@@ -117,8 +117,11 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
         {
             var options = _optionsMonitor.CurrentValue;
 
+            var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
+
             var builder = new EmbedBuilder()
                 .WithColor(DiscordColor.FromHexString(options.MessageEditedEmbedColorHex))
+                .WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl)
                 .WithFooter($"Message edited ({cachedMessage.Id})");
 
             if (cachedMessage.Data != null)
@@ -127,10 +130,6 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 {
                     case DiscordNetCachedMessageData discordNet:
                         var message = discordNet.Message;
-
-                        var avatarUrl = message.Author.GetAvatarUrlOrDefault();
-
-                        builder.WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl);
 
                         if (message.EditedTimestamp.HasValue)
                         {
@@ -156,9 +155,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         break;
 
                     case TaylorBotCachedMessageData taylorBot:
-                        builder
-                            .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
-                            .WithCurrentTimestamp();
+                        builder.WithCurrentTimestamp();
 
                         if (!string.IsNullOrEmpty(taylorBot.Content) && !string.IsNullOrEmpty(newMessage.Content) && taylorBot.Content != newMessage.Content)
                         {
