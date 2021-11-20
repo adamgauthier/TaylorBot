@@ -16,7 +16,11 @@
               "name": "channel",
               "description": "The text channel you want member events to be logged in, or the current channel",
               "type": 7,
-              "required": false
+              "required": false,
+              "channel_types": [
+                0,
+                5
+              ]
             }
           ]
         },
@@ -46,7 +50,11 @@
               "name": "channel",
               "description": "The text channel you want deleted messages to be logged in, or the current channel",
               "type": 7,
-              "required": false
+              "required": false,
+              "channel_types": [
+                0,
+                5
+              ]
             }
           ]
         },
@@ -76,7 +84,11 @@
               "name": "channel",
               "description": "The text channel you want edited messages to be logged in, or the current channel",
               "type": 7,
-              "required": false
+              "required": false,
+              "channel_types": [
+                0,
+                5
+              ]
             }
           ]
         },
