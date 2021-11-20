@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Microsoft.FSharp.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
@@ -60,7 +59,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Command
                     var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt:MMMM dd, yyyy}: {u.Username}");
 
                     var pages =
-                        SeqModule.ChunkBySize(15, usernamesAsLines)
+                        usernamesAsLines.Chunk(size: 15)
                         .Select(lines => string.Join('\n', lines))
                         .ToList();
 

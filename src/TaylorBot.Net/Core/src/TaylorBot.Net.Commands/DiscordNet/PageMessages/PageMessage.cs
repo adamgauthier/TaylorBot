@@ -57,8 +57,9 @@ namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
                 _unsubscribeTimer = new Timer(interval: TimeSpan.FromSeconds(30).TotalMilliseconds);
                 _unsubscribeTimer.Elapsed += (source, arguments) =>
                 {
-                    if (_lastInteractionAt == null ||
-                        (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30)
+                    if (source != null &&
+                        (_lastInteractionAt == null ||
+                        (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30))
                     {
                         pageMessageReactionsHandler.OnReact -= OnReactAsync;
                         ((Timer)source).Stop();
