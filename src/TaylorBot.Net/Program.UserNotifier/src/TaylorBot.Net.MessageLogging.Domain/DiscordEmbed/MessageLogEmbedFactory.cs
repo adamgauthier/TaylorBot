@@ -36,7 +36,7 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         var avatarUrl = message.Author.GetAvatarUrlOrDefault();
 
                         builder
-                            .WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl)
+                            .WithAuthor($"{message.Author.Username}{(message.Author.Discriminator != "0000" ? $"#{message.Author.Discriminator}" : "")} ({message.Author.Id})", avatarUrl, avatarUrl)
                             .AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
 
                         if (message.EditedTimestamp.HasValue)
@@ -52,6 +52,25 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         if (message.Embeds.Any())
                         {
                             builder.AddField("Embed Count", message.Embeds.Count, inline: true);
+                        }
+
+                        if (message.Reference != null)
+                        {
+                            if (message.Reference.MessageId.IsSpecified)
+                            {
+                                if (message.Reference.ChannelId == channel.Id)
+                                {
+                                    builder.AddField("Replying To", $"`{message.Reference.MessageId.Value}`", inline: true);
+                                }
+                                else
+                                {
+                                    builder.AddField("Published Announcement From", $"{MentionUtils.MentionChannel(message.Reference.ChannelId)} in server `{message.Reference.GuildId.Value}`");
+                                }
+                            }
+                            else if (message.Reference.GuildId.IsSpecified)
+                            {
+                                builder.AddField("Referenced Channel", $"{MentionUtils.MentionChannel(message.Reference.ChannelId)} in server `{message.Reference.GuildId.Value}`");
+                            }
                         }
 
                         if (message.Attachments.Any())
@@ -80,6 +99,11 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         builder
                             .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
                             .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+
+                        if (!string.IsNullOrWhiteSpace(taylorBot.ReplyingToId))
+                        {
+                            builder.AddField("Replying To", $"`{taylorBot.ReplyingToId}`", inline: true);
+                        }
 
                         if (taylorBot.SystemMessageType.HasValue)
                         {
@@ -124,21 +148,21 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                 .WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl)
                 .WithFooter($"Message edited ({cachedMessage.Id})");
 
+            if (newMessage.EditedTimestamp.HasValue)
+            {
+                builder.WithTimestamp(newMessage.EditedTimestamp.Value);
+            }
+            else
+            {
+                builder.WithCurrentTimestamp();
+            }
+
             if (cachedMessage.Data != null)
             {
                 switch (cachedMessage.Data)
                 {
                     case DiscordNetCachedMessageData discordNet:
                         var message = discordNet.Message;
-
-                        if (message.EditedTimestamp.HasValue)
-                        {
-                            builder.WithTimestamp(message.EditedTimestamp.Value);
-                        }
-                        else
-                        {
-                            builder.WithCurrentTimestamp();
-                        }
 
                         if (message is IUserMessage userMessage && !string.IsNullOrEmpty(userMessage.Content) &&
                             !string.IsNullOrEmpty(newMessage.Content) && userMessage.Content != newMessage.Content)
@@ -174,7 +198,6 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             else
             {
                 builder
-                    .WithCurrentTimestamp()
                     .WithTitle("Unknown Message Content Before Edit")
                     .WithDescription(string.Join('\n', new[] {
                         "Unfortunately, I don't remember this message's content before the edit. 😕",

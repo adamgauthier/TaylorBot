@@ -10,7 +10,7 @@ namespace TaylorBot.Net.MessageLogging.Domain
     public record CachedMessage(SnowflakeId Id, ICachedMessageData? Data);
     public interface ICachedMessageData { }
     public record DiscordNetCachedMessageData(IMessage Message) : ICachedMessageData;
-    public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, MessageType? SystemMessageType, string? Content) : ICachedMessageData;
+    public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, MessageType? SystemMessageType, string? Content, string? ReplyingToId) : ICachedMessageData;
 
     public interface ICachedMessageRepository
     {
@@ -145,13 +145,18 @@ namespace TaylorBot.Net.MessageLogging.Domain
 
         private async ValueTask CacheMessageAsync(IMessage newMessage)
         {
+            var author = newMessage.Author;
+
             await _cachedMessageRepository.SaveMessageAsync(
                 new(newMessage.Id),
                 new(
-                    AuthorTag: $"{newMessage.Author.Username}#{newMessage.Author.Discriminator}",
+                    AuthorTag: $"{author.Username}{(author.Discriminator != "0000" ? $"#{author.Discriminator}" : "")}",
                     AuthorId: newMessage.Author.Id.ToString(),
                     SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
-                    Content: newMessage is IUserMessage userMessage ? userMessage.Content : null
+                    Content: newMessage is IUserMessage userMessage ? userMessage.Content : null,
+                    ReplyingToId:
+                        newMessage.Reference != null && newMessage.Reference.MessageId.IsSpecified && newMessage.Reference.ChannelId == newMessage.Channel.Id ?
+                            $"{newMessage.Reference.MessageId.Value}" : null
                 )
             );
         }
