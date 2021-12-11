@@ -10,7 +10,6 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
@@ -47,7 +46,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(string.Join('\n', new[] {
                             "You've already redeemed your daily payout today.",
-                            $"You can redeem again **{userCantRedeem.CanRedeemAt.Humanize(culture: TaylorBotCulture.Culture)}**."
+                            $"You can redeem again <t:{userCantRedeem.CanRedeemAt.ToUnixTimeSeconds()}:R>."
                         }))
                     .Build());
                 }
