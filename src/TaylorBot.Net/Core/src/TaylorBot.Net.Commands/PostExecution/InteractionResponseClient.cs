@@ -21,11 +21,13 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             public record Component(byte type, byte? style = null, string? label = null, Emoji? emoji = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
 
-            public record Embed(string? title, string? description, string? url, EmbedAuthor? author, EmbedImage? image, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
+            public record Embed(string? title, string? description, string? url, EmbedAuthor? author, EmbedImage? image, EmbedThumbnail? thumbnail, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
 
             public record EmbedAuthor(string? name, string? url, string? icon_url);
 
-            public record EmbedImage(string? url);
+            public record EmbedImage(string url);
+
+            public record EmbedThumbnail(string url);
 
             public record EmbedFooter(string text, string? icon_url, string? proxy_icon_url);
 
@@ -73,6 +75,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                 url: embed.Url,
                 author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
                 image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
+                thumbnail: embed.Thumbnail.HasValue ? new(embed.Thumbnail.Value.Url) : null,
                 color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,
                 footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null,
                 fields: embed.Fields.Select(f => new InteractionResponse.EmbedField(f.Name, f.Value, f.Inline)).ToList(),

@@ -1,0 +1,122 @@
+{
+  "name": "lastfm",
+  "description": "Retrieve data from your Last.fm listening history",
+  "options": [
+    {
+      "name": "current",
+      "description": "Display a user's now playing or most recent track",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to retrieve the track for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "albums",
+      "description": "Get the most listened albums by a user over a given period",
+      "type": 1,
+      "options": [
+        {
+          "name": "period",
+          "description": "The period for the most listened albums (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "type": 3,
+          "required": false
+        },
+        {
+          "name": "user",
+          "description": "The user to get the most listened albums for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "artists",
+      "description": "Get the most listened artists by a user over a given period",
+      "type": 1,
+      "options": [
+        {
+          "name": "period",
+          "description": "The period for the most listened artists (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "type": 3,
+          "required": false
+        },
+        {
+          "name": "user",
+          "description": "The user to get the most listened artists for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "tracks",
+      "description": "Get the most listened tracks by a user over a given period",
+      "type": 1,
+      "options": [
+        {
+          "name": "period",
+          "description": "The period for the most listened tracks (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "type": 3,
+          "required": false
+        },
+        {
+          "name": "user",
+          "description": "The user to get the most listened tracks for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "collage",
+      "description": "Display a collage based on a user's Last.fm listening habits.",
+      "type": 1,
+      "options": [
+        {
+          "name": "period",
+          "description": "The period of the collage for (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "type": 3,
+          "required": false
+        },
+        {
+          "name": "size",
+          "description": "The size (number of rows and columns) of the collage for (3, 4, 5), default 3",
+          "type": 4,
+          "min_value": 3,
+          "max_value": 5,
+          "required": false
+        },
+        {
+          "name": "user",
+          "description": "The user to generate a collage for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "set",
+      "description": "Register your Last.fm username for use with other Last.fm commands",
+      "type": 1,
+      "options": [
+        {
+          "name": "username",
+          "description": "The username of your Last.fm account",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "description": "Clears your registered Last.fm username from TaylorBot",
+      "type": 1,
+      "options": []
+    }
+  ]
+}

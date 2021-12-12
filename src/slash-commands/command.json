@@ -41,7 +41,7 @@
         },
         {
           "name": "channel",
-          "description": "The text channel you want the command disabled in, or the current channel",
+          "description": "The text channel you want the command disabled in, default current channel",
           "type": 7,
           "required": false,
           "channel_types": [
@@ -67,7 +67,7 @@
         },
         {
           "name": "channel",
-          "description": "The text channel you want the command enabled in, or the current channel",
+          "description": "The text channel you want the command enabled in, default current channel",
           "type": 7,
           "required": false,
           "channel_types": [

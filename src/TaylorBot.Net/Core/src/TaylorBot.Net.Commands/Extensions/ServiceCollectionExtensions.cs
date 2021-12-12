@@ -86,6 +86,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<NonThreadTextChannellOrCurrentParser>()
                 .AddOptionParser<TimeSpanParser>()
                 .AddOptionParser<IntegerParser>()
+                .AddOptionParser<OptionalIntegerParser>()
                 .AddOptionParser<PositiveIntegerParser>();
         }
 

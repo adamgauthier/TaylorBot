@@ -14,7 +14,7 @@
           "options": [
             {
               "name": "channel",
-              "description": "The text channel you want member events to be logged in, or the current channel",
+              "description": "The text channel you want member events to be logged in, default current channel",
               "type": 7,
               "required": false,
               "channel_types": [
@@ -48,7 +48,7 @@
           "options": [
             {
               "name": "channel",
-              "description": "The text channel you want deleted messages to be logged in, or the current channel",
+              "description": "The text channel you want deleted messages to be logged in, default current channel",
               "type": 7,
               "required": false,
               "channel_types": [
@@ -82,7 +82,7 @@
           "options": [
             {
               "name": "channel",
-              "description": "The text channel you want edited messages to be logged in, or the current channel",
+              "description": "The text channel you want edited messages to be logged in, default current channel",
               "type": 7,
               "required": false,
               "channel_types": [

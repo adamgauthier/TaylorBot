@@ -53,7 +53,19 @@ namespace TaylorBot.Net.Commands.DiscordNet
                     switch (((TaylorBotResult)result).Result)
                     {
                         case EmbedResult embedResult:
-                            await context.Channel.SendMessageAsync(embed: embedResult.Embed);
+                            // Check for slash command-like errors and use message reply
+                            if (embedResult.Embed.Color == TaylorBotColors.ErrorColor && !embedResult.Embed.Author.HasValue)
+                            {
+                                await context.Channel.SendMessageAsync(
+                                    embed: embedResult.Embed,
+                                    messageReference: new(context.Message.Id),
+                                    allowedMentions: new AllowedMentions { MentionRepliedUser = false }
+                                );
+                            }
+                            else
+                            {
+                                await context.Channel.SendMessageAsync(embed: embedResult.Embed);
+                            }
                             break;
 
                         case PageMessageResult pageResult:
@@ -85,7 +97,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
                             }
 
                             await context.Channel.SendMessageAsync(
-                                messageReference: new MessageReference(context.Message.Id),
+                                messageReference: new(context.Message.Id),
                                 embed: new EmbedBuilder()
                                     .WithColor(TaylorBotColors.ErrorColor)
                                     .WithDescription(string.Join('\n', baseDescriptionLines))
@@ -129,7 +141,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
                                     break;
                             }
                             await context.Channel.SendMessageAsync(
-                                messageReference: new MessageReference(context.Message.Id),
+                                messageReference: new(context.Message.Id),
                                 allowedMentions: new AllowedMentions { MentionRepliedUser = false },
                                 embed: CreateUnknownErrorEmbed()
                             );
@@ -165,7 +177,7 @@ namespace TaylorBot.Net.Commands.DiscordNet
                         default:
                             _logger.LogError($"Unhandled error in command - {result.Error}, {result.ErrorReason}");
                             await context.Channel.SendMessageAsync(
-                                messageReference: new MessageReference(context.Message.Id),
+                                messageReference: new(context.Message.Id),
                                 allowedMentions: new AllowedMentions { MentionRepliedUser = false },
                                 embed: CreateUnknownErrorEmbed()
                             );

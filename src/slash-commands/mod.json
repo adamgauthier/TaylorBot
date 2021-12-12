@@ -79,7 +79,7 @@
           "options": [
             {
               "name": "channel",
-              "description": "The text channel you want moderation command usage to be logged in, or the current channel",
+              "description": "The text channel you want moderation command usage to be logged in, default current channel",
               "type": 7,
               "required": false,
               "channel_types": [
