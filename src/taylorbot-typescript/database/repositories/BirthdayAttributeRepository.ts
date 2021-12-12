@@ -85,12 +85,16 @@ export class BirthdayAttributeRepository {
                     WHEN normalized_birthday < CURRENT_DATE
                     THEN (normalized_birthday + INTERVAL '1 YEAR')::text
                     ELSE normalized_birthday::text
-                END 
+                END
                 AS next_birthday
                 FROM attributes.birthdays, make_date(
                     date_part('year', CURRENT_DATE)::int,
                     date_part('month', birthday)::int,
-                    date_part('day', birthday)::int
+                    CASE
+                        WHEN date_part('month', birthday)::int = 2 AND date_part('day', birthday)::int = 29
+                        THEN 28
+                        ELSE date_part('day', birthday)::int
+                    END
                 ) AS normalized_birthday
                 WHERE is_private = FALSE
                 AND user_id IN (
