@@ -40,8 +40,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 {
                     GuildId = member.GuildId.ToString(),
                     UserId = member.Id.ToString(),
-                    FirstJoinedAt = member.JoinedAt,
-                    LastSpokeAt = lastSpokeAt
+                    FirstJoinedAt = member.JoinedAt?.ToUniversalTime(),
+                    LastSpokeAt = lastSpokeAt?.ToUniversalTime()
                 }
             );
 

@@ -65,7 +65,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
                 new
                 {
                     UserId = user.Id.ToString(),
-                    RemindAt = remindAt,
+                    RemindAt = remindAt.ToUniversalTime(),
                     ReminderText = text,
                 }
             );

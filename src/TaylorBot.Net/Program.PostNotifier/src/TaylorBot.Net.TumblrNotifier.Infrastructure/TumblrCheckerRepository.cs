@@ -48,7 +48,7 @@ namespace TaylorBot.Net.TumblrNotifier.Infrastructure
 
             await connection.ExecuteAsync(
                 @"UPDATE checkers.tumblr_checker SET last_link = @LastLink
-                      WHERE tumblr_user = @TumblrUser AND guild_id = @GuildId AND channel_id = @ChannelId;",
+                WHERE tumblr_user = @TumblrUser AND guild_id = @GuildId AND channel_id = @ChannelId;",
                 new
                 {
                     TumblrUser = tumblrChecker.BlogName,

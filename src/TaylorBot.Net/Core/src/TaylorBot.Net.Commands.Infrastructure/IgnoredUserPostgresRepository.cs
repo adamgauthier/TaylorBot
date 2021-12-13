@@ -61,7 +61,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 new
                 {
                     UserId = user.Id.ToString(),
-                    IgnoreUntil = until
+                    IgnoreUntil = until.ToUniversalTime(),
                 }
             );
         }

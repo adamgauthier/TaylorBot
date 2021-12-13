@@ -58,7 +58,7 @@ namespace TaylorBot.Net.RedditNotifier.Infrastructure
                     GuildId = redditChecker.GuildId.ToString(),
                     ChannelId = redditChecker.ChannelId.ToString(),
                     LastPostId = redditPost.Id,
-                    LastCreated = redditPost.Created
+                    LastCreated = redditPost.Created.ToUniversalTime(),
                 }
             );
         }

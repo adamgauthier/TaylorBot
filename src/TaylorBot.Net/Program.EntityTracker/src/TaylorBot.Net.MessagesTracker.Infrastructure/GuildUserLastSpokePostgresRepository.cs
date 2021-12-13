@@ -56,7 +56,7 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
                         WHERE guild_id = @GuildId AND user_id = @UserId;",
                         new
                         {
-                            LastSpokeAt = lastSpokeAt,
+                            LastSpokeAt = lastSpokeAt.ToUniversalTime(),
                             GuildId = guildId,
                             UserId = userId
                         }

@@ -64,7 +64,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
                     GuildId = youtubeChecker.GuildId.ToString(),
                     ChannelId = youtubeChecker.ChannelId.ToString(),
                     LastVideoId = youtubePost.ResourceId.VideoId,
-                    LastPublishedAt = youtubePost.PublishedAt
+                    LastPublishedAt = youtubePost.PublishedAt?.ToUniversalTime(),
                 }
             );
         }

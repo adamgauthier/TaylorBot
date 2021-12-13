@@ -57,7 +57,7 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
                     GuildId = instagramChecker.GuildId.ToString(),
                     ChannelId = instagramChecker.ChannelId.ToString(),
                     LastPostCode = instagramPost.ShortCode,
-                    LastTakenAt = instagramPost.TakenAt
+                    LastTakenAt = instagramPost.TakenAt.ToUniversalTime()
                 }
             );
         }
