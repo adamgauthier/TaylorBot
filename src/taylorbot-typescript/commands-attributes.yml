@@ -1,6 +1,11 @@
 trigger:
-  - master
-  
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/taylorbot-typescript
+
 resources:
 - repo: self
 
@@ -10,7 +15,7 @@ stages:
     variables:
       containerImageTag: 'taylorbot/commands-attributes:$(Build.SourceVersion)'
       containerImageFilePath: '$(Build.ArtifactStagingDirectory)/commands-attributes.tar'
-    jobs:  
+    jobs:
     - job: build
       displayName: 'Build container image'
       pool:
@@ -23,10 +28,10 @@ stages:
           dockerfile: '$(Build.SourcesDirectory)/src/taylorbot-typescript/Dockerfile'
           buildContext: '$(Build.SourcesDirectory)/src/taylorbot-typescript'
           arguments: '--tag $(containerImageTag)'
-  
+
       - script: docker save --output $(containerImageFilePath) $(containerImageTag)
         displayName: 'Save container image to file'
-  
+
       - publish: $(containerImageFilePath)
         artifact: 'Docker Image'
         displayName: 'Publish built container image'

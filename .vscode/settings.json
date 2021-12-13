@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "**/build/**/*.yml": "azure-pipelines"
+        "*.yml": "azure-pipelines"
     },
     "cSpell.words": [
         "scrobble",

@@ -10,7 +10,7 @@ steps:
 - pwsh: |
     $ProgressPreference = 'SilentlyContinue'
 
-    $files = Get-ChildItem ${{ parameters.slashCommandsDir }}
+    $files = Get-ChildItem -File ${{ parameters.slashCommandsDir }}
     Write-Output "Processing $($files.Count) slash command file(s)"
 
     $merged = $files | % { $_ | Get-Content | ConvertFrom-Json } | ConvertTo-Json -Depth 100

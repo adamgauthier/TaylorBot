@@ -1,5 +1,10 @@
 trigger:
-  - master
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/TaylorBot.Net
 
 resources:
 - repo: self
@@ -8,7 +13,7 @@ variables:
   DOCKER_BUILDKIT: 1
 
 stages:
-- template: templates/stages/build-test-publish-dotnet-docker.yml
+- template: ../build-test-publish-dotnet-docker.yml
   parameters:
     componentName: user-notifier
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.UserNotifier/Dockerfile'
