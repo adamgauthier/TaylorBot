@@ -66,7 +66,7 @@ namespace TaylorBot.Net.Reminder.Domain
                     }
                     catch (Discord.Net.HttpException httpException)
                     {
-                        if (httpException.DiscordCode == 50007)
+                        if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                         {
                             _logger.LogWarning($"Could not remind {user.FormatLog()} with {reminder} because they can't receive DMs.");
                             await _reminderRepository.RemoveReminderAsync(reminder);

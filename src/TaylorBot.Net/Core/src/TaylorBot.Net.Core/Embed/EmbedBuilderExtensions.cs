@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Linq;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Core.Embed
@@ -21,7 +19,7 @@ namespace TaylorBot.Net.Core.Embed
         public static EmbedBuilder WithGuildAsAuthor(this EmbedBuilder embedBuilder, IGuild guild)
         {
             return embedBuilder
-                .WithAuthor(guild.Features.Contains("VIP_REGIONS") ? $"{guild.Name} ⭐" : guild.Name, guild.IconUrl);
+                .WithAuthor(guild.Features?.HasFeature(GuildFeature.Partnered) == true ? $"{guild.Name} ⭐" : guild.Name, guild.IconUrl);
         }
     }
 }

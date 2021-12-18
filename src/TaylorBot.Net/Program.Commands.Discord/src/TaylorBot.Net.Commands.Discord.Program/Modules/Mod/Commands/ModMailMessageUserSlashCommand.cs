@@ -58,7 +58,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         {
                             await user.SendMessageAsync(embed: embed);
                         }
-                        catch (HttpException e) when (e.DiscordCode == 50007)
+                        catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                         {
                             return EmbedFactory.CreateError(string.Join('\n', new[] {
                                 $"I couldn't send this message to {user.FormatTagAndMention()} because their DM settings won't allow it. ❌",
