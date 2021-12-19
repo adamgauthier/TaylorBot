@@ -7,6 +7,6 @@ namespace TaylorBot.Net.EntityTracker.Domain.Member
     {
         ValueTask<bool> AddNewMemberAsync(IGuildUser member);
         ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member);
-        ValueTask SetMemberDeadAsync(IGuildUser member);
+        ValueTask SetMemberDeadAsync(IGuild guild, IUser user);
     }
 }

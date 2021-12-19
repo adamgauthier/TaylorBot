@@ -66,7 +66,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
             }
         }
 
-        public async ValueTask SetMemberDeadAsync(IGuildUser member)
+        public async ValueTask SetMemberDeadAsync(IGuild guild, IUser user)
         {
             using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -74,8 +74,8 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
                 "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND user_id = @UserId;",
                 new
                 {
-                    GuildId = member.GuildId.ToString(),
-                    UserId = member.Id.ToString()
+                    GuildId = guild.Id.ToString(),
+                    UserId = user.Id.ToString()
                 }
             );
         }

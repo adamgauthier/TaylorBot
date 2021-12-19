@@ -6,23 +6,21 @@ namespace TaylorBot.Net.MemberLogging.Domain
 {
     public class GuildMemberLeftLoggerService
     {
-        private readonly MemberLogChannelFinder memberLogChannelFinder;
-        private readonly GuildMemberLeftEmbedFactory guildMemberLeftEmbedFactory;
+        private readonly MemberLogChannelFinder _memberLogChannelFinder;
+        private readonly GuildMemberLeftEmbedFactory _guildMemberLeftEmbedFactory;
 
-        public GuildMemberLeftLoggerService(
-            MemberLogChannelFinder memberLogChannelFinder,
-            GuildMemberLeftEmbedFactory guildMemberLeftEmbedFactory)
+        public GuildMemberLeftLoggerService(MemberLogChannelFinder memberLogChannelFinder, GuildMemberLeftEmbedFactory guildMemberLeftEmbedFactory)
         {
-            this.memberLogChannelFinder = memberLogChannelFinder;
-            this.guildMemberLeftEmbedFactory = guildMemberLeftEmbedFactory;
+            _memberLogChannelFinder = memberLogChannelFinder;
+            _guildMemberLeftEmbedFactory = guildMemberLeftEmbedFactory;
         }
 
-        public async Task OnGuildMemberLeftAsync(IGuildUser guildUser)
+        public async Task OnGuildMemberLeftAsync(IGuild guild, IUser user)
         {
-            var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guildUser.Guild);
+            var logTextChannel = await _memberLogChannelFinder.FindLogChannelAsync(guild);
 
             if (logTextChannel != null)
-                await logTextChannel.SendMessageAsync(embed: guildMemberLeftEmbedFactory.CreateMemberLeft(guildUser));
+                await logTextChannel.SendMessageAsync(embed: _guildMemberLeftEmbedFactory.CreateMemberLeft(user));
         }
     }
 }

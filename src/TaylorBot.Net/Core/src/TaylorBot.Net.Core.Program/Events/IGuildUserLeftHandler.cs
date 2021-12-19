@@ -5,6 +5,6 @@ namespace TaylorBot.Net.Core.Program.Events
 {
     public interface IGuildUserLeftHandler
     {
-        Task GuildUserLeftAsync(SocketGuildUser guildUser);
+        Task GuildUserLeftAsync(SocketGuild guild, SocketUser user);
     }
 }

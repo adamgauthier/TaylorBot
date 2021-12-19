@@ -165,9 +165,9 @@ namespace TaylorBot.Net.EntityTracker.Domain
             }
         }
 
-        public async Task OnGuildUserLeftAsync(SocketGuildUser guildUser)
+        public async Task OnGuildUserLeftAsync(IGuild guild, IUser user)
         {
-            await _memberRepository.SetMemberDeadAsync(guildUser);
+            await _memberRepository.SetMemberDeadAsync(guild, user);
         }
 
         public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)

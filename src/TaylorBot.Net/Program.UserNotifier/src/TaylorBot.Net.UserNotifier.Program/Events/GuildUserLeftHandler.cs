@@ -17,10 +17,10 @@ namespace TaylorBot.Net.UserNotifier.Program.Events
             this.guildMemberLeftLoggerService = guildMemberLeftLoggerService;
         }
 
-        public Task GuildUserLeftAsync(SocketGuildUser guildUser)
+        public Task GuildUserLeftAsync(SocketGuild guild, SocketUser user)
         {
             Task.Run(async () => await taskExceptionLogger.LogOnError(
-                guildMemberLeftLoggerService.OnGuildMemberLeftAsync(guildUser),
+                guildMemberLeftLoggerService.OnGuildMemberLeftAsync(guild, user),
                 nameof(guildMemberLeftLoggerService.OnGuildMemberLeftAsync)
             ));
             return Task.CompletedTask;

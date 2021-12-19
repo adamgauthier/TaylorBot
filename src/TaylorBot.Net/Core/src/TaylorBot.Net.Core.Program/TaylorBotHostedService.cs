@@ -319,15 +319,12 @@ namespace TaylorBot.Net.Core.Program
             {
                 yield return new EventHandlerRegistrar((client) =>
                 {
-                    client.DiscordShardedClient.UserLeft += async (user) =>
+                    client.DiscordShardedClient.UserLeft += async (guild, user) =>
                     {
-                        if (user is SocketGuildUser guildUser)
-                        {
-                            await _taskExceptionLogger.LogOnError(async () =>
-                                await guildUserLeftHandler.GuildUserLeftAsync(guildUser),
-                                nameof(IGuildUserLeftHandler)
-                            );
-                        }
+                        await _taskExceptionLogger.LogOnError(async () =>
+                            await guildUserLeftHandler.GuildUserLeftAsync(guild, user),
+                            nameof(IGuildUserLeftHandler)
+                        );
                     };
                 }, new[] { GatewayIntents.GuildMembers });
             }

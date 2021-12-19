@@ -7,20 +7,20 @@ namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed
 {
     public class GuildMemberLeftEmbedFactory
     {
-        private readonly IOptionsMonitor<MemberLeftLoggingOptions> optionsMonitor;
+        private readonly IOptionsMonitor<MemberLeftLoggingOptions> _optionsMonitor;
 
         public GuildMemberLeftEmbedFactory(IOptionsMonitor<MemberLeftLoggingOptions> optionsMonitor)
         {
-            this.optionsMonitor = optionsMonitor;
+            _optionsMonitor = optionsMonitor;
         }
 
-        public Embed CreateMemberLeft(IGuildUser guildUser)
+        public Embed CreateMemberLeft(IUser user)
         {
-            var options = optionsMonitor.CurrentValue;
-            var avatarUrl = guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl();
+            var options = _optionsMonitor.CurrentValue;
+            var avatarUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl();
 
             return new EmbedBuilder()
-                .WithAuthor($"{guildUser.Username}#{guildUser.Discriminator} ({guildUser.Id})", avatarUrl, avatarUrl)
+                .WithAuthor($"{user.Username}#{user.Discriminator} ({user.Id})", avatarUrl, avatarUrl)
                 .WithCurrentTimestamp()
                 .WithColor(DiscordColor.FromHexString(options.MemberLeftEmbedColorHex))
                 .WithFooter("User left")

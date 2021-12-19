@@ -17,10 +17,10 @@ namespace TaylorBot.Net.EntityTracker.Program.Events
             this.entityTrackerDomainService = entityTrackerDomainService;
         }
 
-        public Task GuildUserLeftAsync(SocketGuildUser guildUser)
+        public Task GuildUserLeftAsync(SocketGuild guild, SocketUser user)
         {
             Task.Run(async () => await taskExceptionLogger.LogOnError(
-                entityTrackerDomainService.OnGuildUserLeftAsync(guildUser),
+                entityTrackerDomainService.OnGuildUserLeftAsync(guild, user),
                 nameof(entityTrackerDomainService.OnGuildUserLeftAsync)
             ));
             return Task.CompletedTask;
