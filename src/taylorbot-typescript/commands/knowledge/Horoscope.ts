@@ -1,5 +1,3 @@
-import moment = require('moment');
-
 import { Command } from '../Command';
 import { CommandError } from '../CommandError';
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
@@ -37,7 +35,7 @@ class HoroscopeCommand extends Command {
 
         await client.sendEmbed(message.channel, DiscordEmbedFormatter
             .baseUserSuccessEmbed(user)
-            .setTitle(`${sunsign} - ${moment.utc(date, 'YYYY-MM-DD').format('dddd, MMMM Do YYYY')}`)
+            .setTitle(`${sunsign} - ${date.format('dddd, MMMM Do YYYY')}`)
             .setDescription(horoscope)
         );
     }
