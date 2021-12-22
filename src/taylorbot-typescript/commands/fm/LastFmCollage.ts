@@ -7,7 +7,7 @@ class LastFmCollageCommand extends Command {
             name: 'lastfmcollage',
             aliases: ['fmcollage', 'fmc'],
             group: 'fm',
-            description: 'This command is obsolete and will be removed in a future version. Please use `lastfm collage` instead.',
+            description: 'This command is obsolete and will be removed in a future version. Please use **/lastfm collage** instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class LastFmCollageCommand extends Command {
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(
             message.channel,
-            `This command is obsolete and will be removed in a future version. Please use \`${messageContext.prefix}lastfm collage\` or \`${messageContext.prefix}fm c\` instead.`
+            `This command is obsolete and will be removed in a future version. Please use **/lastfm collage** instead.`
         );
     }
 }
