@@ -325,9 +325,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         .AddField("Id", $"`{guild.Id}`", inline: true)
                         .AddField("Owner", MentionUtils.MentionUser(guild.OwnerId), inline: true)
                         .AddField("Members", guild is SocketGuild socketGuild ? $"{socketGuild.MemberCount}" : "?", inline: true)
-                        .AddField("Voice Region", guild.VoiceRegionId, inline: true)
                         .AddField("Boosts", guild.PremiumSubscriptionCount, inline: true)
                         .AddField("Custom Emotes", guild.Emotes.Count, inline: true)
+                        .AddField("Custom Stickers", guild.Stickers.Count, inline: true)
                         .AddField("Created", guild.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
                     if (!string.IsNullOrWhiteSpace(guild.Description))
