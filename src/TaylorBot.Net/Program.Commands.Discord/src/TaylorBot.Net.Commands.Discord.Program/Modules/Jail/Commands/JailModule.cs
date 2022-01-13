@@ -95,7 +95,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                 },
                 Preconditions: new ICommandPrecondition[] {
                     new InGuildPrecondition(),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ModerateMembers),
                     new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
                 }
             );
@@ -176,7 +176,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                 },
                 Preconditions: new ICommandPrecondition[] {
                     new InGuildPrecondition(),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.ModerateMembers),
                     new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
                 }
             );
