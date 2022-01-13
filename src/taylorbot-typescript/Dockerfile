@@ -1,4 +1,4 @@
-FROM node:17.3.0-slim AS install-ready
+FROM node:17.3.1-slim AS install-ready
 
 RUN npm install --global npm@8.3.0
 
