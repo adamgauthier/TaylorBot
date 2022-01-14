@@ -3,7 +3,7 @@ import { Guild, MessageEmbed, User } from 'discord.js';
 export class DiscordEmbedFormatter {
     static baseUserHeader(user: User, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)): MessageEmbed {
         return new MessageEmbed()
-            .setAuthor(`${user.tag} ${(user.bot ? '🤖' : '')}`, avatarURL, avatarURL);
+            .setAuthor({ name: `${user.tag} ${(user.bot ? '🤖' : '')}`, iconURL: avatarURL, url: avatarURL });
     }
 
     static baseUserSuccessEmbed(user: User, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)): MessageEmbed {
@@ -23,7 +23,7 @@ export class DiscordEmbedFormatter {
         const isVip = guild.features.includes('VIP_REGIONS');
 
         return new MessageEmbed()
-            .setAuthor(`${guild.name}${isVip ? ' ⭐' : ''}`, iconURL!, iconURL!)
+            .setAuthor({ name: `${guild.name}${isVip ? ' ⭐' : ''}`, iconURL: iconURL!, url: iconURL! })
             .setColor(guild.roles.highest.color);
     }
 
