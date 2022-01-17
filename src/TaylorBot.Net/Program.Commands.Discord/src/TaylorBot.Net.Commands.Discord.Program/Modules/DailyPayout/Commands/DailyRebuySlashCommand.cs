@@ -31,7 +31,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
                     {
                         return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
                             "You've never claimed your daily reward! ❌",
-                            $"Use `{context.CommandPrefix}daily` to start!"
+                            $"Use **/daily claim** to start!"
                         })));
                     }
                     else if (streakInfo.Value.MaxStreak > streakInfo.Value.CurrentStreak)

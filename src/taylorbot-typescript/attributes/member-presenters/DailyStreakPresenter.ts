@@ -1,11 +1,9 @@
-import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { GuildMember, MessageEmbed } from 'discord.js';
-import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { StringUtil } from '../../modules/util/StringUtil';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
 import { MemberAttribute } from '../MemberAttribute';
-import { MathUtil } from '../../modules/util/MathUtil';
+import { EmbedUtil } from '../../modules/discord/EmbedUtil';
 
 export class DailyStreakPresenter implements MemberAttributePresenter {
     readonly #attribute: MemberAttribute;
@@ -14,15 +12,8 @@ export class DailyStreakPresenter implements MemberAttributePresenter {
         this.#attribute = attribute;
     }
 
-    present(commandContext: CommandMessageContext, member: GuildMember, attribute: Record<string, any> & { rank: string }): MessageEmbed {
-        const streak = attribute[this.#attribute.columnName];
-        const { rank } = attribute;
-        return DiscordEmbedFormatter
-            .baseUserSuccessEmbed(member.user)
-            .setDescription([
-                `${member.displayName} is currently on a **${StringUtil.formatNumberString(streak)}** day payout streak.`,
-                `They are ranked **${MathUtil.formatNumberSuffix(Number.parseInt(rank))}** in this server (excluding users who left).`
-            ].join('\n'));
+    present(): MessageEmbed {
+        return EmbedUtil.error('This command has been removed. Please use **/daily streak** instead.');
     }
 
     presentRankEntry(member: GuildMember, attribute: Record<string, any> & { rank: string }): string {

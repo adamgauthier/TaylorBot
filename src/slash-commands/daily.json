@@ -11,6 +11,19 @@
       "name": "rebuy",
       "description": "Re-buy your highest daily streak you had in the past",
       "type": 1
+    },
+    {
+      "name": "streak",
+      "description": "Show the daily streak information of a user",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the streak for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
     }
   ]
 }

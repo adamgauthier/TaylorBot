@@ -15,7 +15,7 @@ class DailyPayoutStreakMemberAttribute extends MemberAttribute {
     }
 
     retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
-        return database.guildMembers.getRankedForeignStatFor(member, 'users', 'daily_payouts', this.columnName);
+        return Promise.resolve(-1);
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {
