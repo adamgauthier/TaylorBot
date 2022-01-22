@@ -1,6 +1,7 @@
 ﻿using Discord;
 using OperationResult;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
@@ -14,7 +15,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
     public record RedeemResult(long BonusAmount, long TotalTaypointCount, long CurrentDailyStreak, uint DaysForBonus);
 
     public record RebuyResult(long TotalTaypointCount, long CurrentDailyStreak);
+
     public record RebuyFailed(long TotalTaypointCount);
+
+    public record DailyLeaderboardEntry(string UserId, string Username, long CurrentDailyStreak, long Rank);
 
     public interface IDailyPayoutRepository
     {
@@ -22,6 +26,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
         ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount);
         ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user);
         ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay);
+        ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync();
     }
 }
 

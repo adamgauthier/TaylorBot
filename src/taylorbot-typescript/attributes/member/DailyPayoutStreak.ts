@@ -19,7 +19,7 @@ class DailyPayoutStreakMemberAttribute extends MemberAttribute {
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {
-        return database.guildMembers.getRankedForeignStat(guild, entries, 'users', 'daily_payouts', this.columnName);
+        return Promise.resolve(['/daily leaderboard']);
     }
 }
 

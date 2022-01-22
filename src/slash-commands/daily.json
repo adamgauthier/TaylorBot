@@ -24,6 +24,11 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show the daily streak leaderboard",
+      "type": 1
     }
   ]
 }

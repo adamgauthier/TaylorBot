@@ -3,6 +3,8 @@ using Discord;
 using Microsoft.Extensions.Options;
 using OperationResult;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
@@ -222,6 +224,32 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
                 transaction.Rollback();
                 throw new InvalidOperationException();
             }
+        }
+
+        private class LeaderboardEntryDto
+        {
+            public string user_id { get; set; } = null!;
+            public string username { get; set; } = null!;
+            public long streak_count { get; set; }
+            public long rank { get; set; }
+        }
+
+        public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync()
+        {
+            using var connection = _postgresConnectionFactory.CreateConnection();
+
+            var entries = await connection.QueryAsync<LeaderboardEntryDto>(
+                @"SELECT u.user_id, u.username, dp.streak_count, rank() OVER (ORDER BY streak_count DESC) AS rank
+                FROM users.daily_payouts AS dp JOIN users.users AS u ON dp.user_id = u.user_id
+                LIMIT 100;"
+            );
+
+            return entries.Select(e => new DailyLeaderboardEntry(
+                e.user_id,
+                e.username,
+                e.streak_count,
+                e.rank
+            )).ToList();
         }
     }
 }

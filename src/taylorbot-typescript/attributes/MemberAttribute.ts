@@ -7,6 +7,7 @@ import { DatabaseDriver } from '../database/DatabaseDriver';
 import { GuildMember, Guild, MessageEmbed } from 'discord.js';
 import { MemberAttributePresenter } from './MemberAttributePresenter';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
+import { DeprecatedCommandPageMessage } from '../modules/paging/DeprecatedCommandPageMessage';
 
 export type MemberAttributeParameters = Omit<AttributeParameters, 'list'> & { presenter: new (a: MemberAttribute) => MemberAttributePresenter; columnName: string };
 
@@ -40,6 +41,10 @@ export abstract class MemberAttribute extends Attribute {
 
     async rankCommand({ client, author }: CommandMessageContext, guild: Guild): Promise<PageMessage<any>> {
         const members = await this.rank(client.master.database, guild, 100);
+
+        if (typeof members[0] == 'string') {
+            return new DeprecatedCommandPageMessage(members[0]);
+        }
 
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(guild)
