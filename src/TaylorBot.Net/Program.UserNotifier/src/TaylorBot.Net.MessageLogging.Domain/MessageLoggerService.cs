@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain.DiscordEmbed;
@@ -73,9 +74,11 @@ namespace TaylorBot.Net.MessageLogging.Domain
                         messages.Add(new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage)));
                     }
 
-                    foreach (var embed in _messageLogEmbedFactory.CreateMessageBulkDeleted(messages, textChannel))
+                    var embeds = _messageLogEmbedFactory.CreateMessageBulkDeleted(messages, textChannel);
+
+                    foreach (var chunk in embeds.Chunk(10))
                     {
-                        await logTextChannel.SendMessageAsync(embed: embed);
+                        await logTextChannel.SendMessageAsync(embeds: chunk);
                     }
                 }
             }
