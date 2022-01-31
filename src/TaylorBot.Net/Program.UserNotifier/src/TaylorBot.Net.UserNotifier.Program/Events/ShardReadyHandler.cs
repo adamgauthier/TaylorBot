@@ -7,9 +7,9 @@ using TaylorBot.Net.RedditNotifier.Domain;
 using TaylorBot.Net.TumblrNotifier.Domain;
 using TaylorBot.Net.YoutubeNotifier.Domain;
 
-namespace TaylorBot.Net.PostNotifier.Program.Events
+namespace TaylorBot.Net.UserNotifier.Program.Events
 {
-    public class ReadyHandler : IShardReadyHandler
+    public class ShardReadyHandler : IShardReadyHandler
     {
         private readonly SingletonTaskRunner _redditSingletonTaskRunner;
         private readonly SingletonTaskRunner _youtubeSingletonTaskRunner;
@@ -21,7 +21,7 @@ namespace TaylorBot.Net.PostNotifier.Program.Events
         private readonly InstagramNotifierService _instagramNotifierService;
         private readonly TaskExceptionLogger _taskExceptionLogger;
 
-        public ReadyHandler(
+        public ShardReadyHandler(
             SingletonTaskRunner redditSingletonTaskRunner,
             SingletonTaskRunner youtubeSingletonTaskRunner,
             SingletonTaskRunner tumblrSingletonTaskRunner,
