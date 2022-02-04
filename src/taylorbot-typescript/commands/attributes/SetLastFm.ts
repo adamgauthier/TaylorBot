@@ -7,7 +7,7 @@ class SetLastFmCommand extends Command {
             name: `setlastfm`,
             aliases: ['setfm'],
             group: 'attributes',
-            description: `This command is obsolete and will be removed in a future version. Please use \`lastfm set\` instead.`,
+            description: `This command has been removed. Please use \`lastfm set\` instead.`,
             examples: ['taylor'],
 
             args: [
@@ -24,7 +24,7 @@ class SetLastFmCommand extends Command {
     async run(commandContext: CommandMessageContext, { lastFmUsername }: { lastFmUsername: string }): Promise<void> {
         await commandContext.client.sendEmbedError(
             commandContext.message.channel,
-            `This command is obsolete and will be removed in a future version. Please use \`${commandContext.messageContext.prefix}lastfm set ${lastFmUsername}\` instead.`
+            `This command has been removed. Please use \`${commandContext.messageContext.prefix}lastfm set ${lastFmUsername}\` instead.`
         );
     }
 }

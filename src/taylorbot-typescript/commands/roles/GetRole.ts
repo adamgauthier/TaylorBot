@@ -6,7 +6,7 @@ class GetRoleCommand extends Command {
         super({
             name: 'getrole',
             group: 'Roles 🆔',
-            description: 'This command is obsolete and will be removed in a future version. Please use the `roles` command instead.',
+            description: 'This command has been removed. Please use the `roles` command instead.',
             examples: [''],
 
             args: [
@@ -22,7 +22,7 @@ class GetRoleCommand extends Command {
 
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command is obsolete and will be removed in a future version.`,
+            `This command has been removed.`,
             `Please use \`${messageContext.prefix}role ${args}\` instead.`
         ].join('\n'));
     }

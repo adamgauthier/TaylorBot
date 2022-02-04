@@ -28,7 +28,7 @@ class ClearAttributeCommand extends Command {
         if (attribute.id === 'lastfm') {
             await commandContext.client.sendEmbedError(
                 commandContext.message.channel,
-                `This command is obsolete and will be removed in a future version. Please use \`${commandContext.messageContext.prefix}lastfm clear\` instead.`
+                `This command has been removed. Please use \`${commandContext.messageContext.prefix}lastfm clear\` instead.`
             );
         }
         else {

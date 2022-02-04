@@ -7,7 +7,7 @@ class RemoveAccessibleRoleCommand extends Command {
             name: 'removeaccessiblerole',
             aliases: ['rar'],
             group: 'admin',
-            description: 'This command is obsolete and will be removed in a future version. Please use the `roles remove` command instead.',
+            description: 'This command has been removed. Please use the `roles remove` command instead.',
             examples: ['', ''],
             guildOnly: true,
 
@@ -24,7 +24,7 @@ class RemoveAccessibleRoleCommand extends Command {
 
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command is obsolete and will be removed in a future version.`,
+            `This command has been removed.`,
             `Please use \`${messageContext.prefix}roles remove ${args}\` instead.`
         ].join('\n'));
     }

@@ -7,7 +7,7 @@ class AddSupporterServerCommand extends Command {
             name: 'addsupporterserver',
             aliases: ['ass'],
             group: 'support',
-            description: 'This command is obsolete and will be removed in a future version. Please use the `plus add` command instead.',
+            description: 'This command has been removed. Please use the `plus add` command instead.',
             examples: [''],
             guildOnly: true,
 
@@ -24,7 +24,7 @@ class AddSupporterServerCommand extends Command {
 
     async run({ message, client, messageContext }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command is obsolete and will be removed in a future version.`,
+            `This command has been removed.`,
             `Please use \`${messageContext.prefix}plus add\` instead.`
         ].join('\n'));
     }

@@ -7,7 +7,7 @@ class RemoveLogChannelCommand extends Command {
             name: 'removelogchannel',
             aliases: ['rlc'],
             group: 'admin',
-            description: 'This command is obsolete and will be removed in a future version. Please use the `log member stop` or `log deleted stop` commands instead.',
+            description: 'This command has been removed. Please use the `log member stop` or `log deleted stop` commands instead.',
             examples: [''],
 
             args: [
@@ -23,7 +23,7 @@ class RemoveLogChannelCommand extends Command {
 
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command is obsolete and will be removed in a future version.`,
+            `This command has been removed.`,
             `Please use \`${messageContext.prefix}log member stop\` and \`${messageContext.prefix}log deleted stop\` instead.`
         ].join('\n'));
     }

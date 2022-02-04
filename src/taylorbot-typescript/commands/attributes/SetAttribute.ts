@@ -35,7 +35,7 @@ class SetAttributeCommand extends Command {
         if (attribute.id === 'lastfm') {
             await commandContext.client.sendEmbedError(
                 commandContext.message.channel,
-                `This command is obsolete and will be removed in a future version. Please use \`${commandContext.messageContext.prefix}lastfm set ${value}\` instead.`
+                `This command has been removed. Please use \`${commandContext.messageContext.prefix}lastfm set ${value}\` instead.`
             );
         }
         else {

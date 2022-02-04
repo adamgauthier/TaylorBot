@@ -7,7 +7,7 @@ class AddAccessibleRoleCommand extends Command {
             name: 'addaccessiblerole',
             aliases: ['aar'],
             group: 'admin',
-            description: 'This command is obsolete and will be removed in a future version. Please use the `roles add` command instead.',
+            description: 'This command has been removed. Please use the `roles add` command instead.',
             examples: [''],
 
             args: [
@@ -23,7 +23,7 @@ class AddAccessibleRoleCommand extends Command {
 
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command is obsolete and will be removed in a future version.`,
+            `This command has been removed.`,
             `Please use \`${messageContext.prefix}roles add ${args}\` instead.`
         ].join('\n'));
     }

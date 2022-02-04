@@ -7,7 +7,7 @@ class RemindMeCommand extends Command {
             name: 'remindme',
             aliases: ['reminder'],
             group: 'Reminders ⏰',
-            description: 'This command is obsolete and will be removed in a future version. Please use **/remind add** instead.',
+            description: 'This command has been removed. Please use **/remind add** instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class RemindMeCommand extends Command {
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(
             message.channel,
-            `This command is obsolete and will be removed in a future version. Please use **/remind add** instead.`
+            `This command has been removed. Please use **/remind add** instead.`
         );
     }
 }

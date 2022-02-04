@@ -7,7 +7,7 @@ class DisableChannelCommandCommand extends Command {
             name: 'disablechannelcommand',
             aliases: ['dcc'],
             group: 'framework',
-            description: 'This command is obsolete and will be removed in a future version. Please use **/command channel-disable** instead.',
+            description: 'This command has been removed. Please use **/command channel-disable** instead.',
             examples: [''],
 
             args: [
@@ -23,7 +23,7 @@ class DisableChannelCommandCommand extends Command {
 
     async run({ message, client }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command is obsolete and will be removed in a future version.`,
+            `This command has been removed.`,
             `Please use **/command channel-disable** instead.`
         ].join('\n'));
     }
