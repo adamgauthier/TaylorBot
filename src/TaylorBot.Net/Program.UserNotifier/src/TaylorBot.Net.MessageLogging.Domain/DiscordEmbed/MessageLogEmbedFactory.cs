@@ -33,11 +33,13 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                     case DiscordNetCachedMessageData discordNet:
                         var message = discordNet.Message;
 
-                        var avatarUrl = message.Author.GetAvatarUrlOrDefault();
+                        if (message.Author.Id != 0)
+                        {
+                            var avatarUrl = message.Author.GetAvatarUrlOrDefault();
+                            builder.WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl);
+                        }
 
-                        builder
-                            .WithAuthor($"{message.Author.Username}{(message.Author.Discriminator != "0000" ? $"#{message.Author.Discriminator}" : "")} ({message.Author.Id})", avatarUrl, avatarUrl)
-                            .AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
+                        builder.AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
 
                         if (message.EditedTimestamp.HasValue)
                         {
@@ -141,11 +143,8 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
         {
             var options = _optionsMonitor.CurrentValue;
 
-            var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-
             var builder = new EmbedBuilder()
                 .WithColor(DiscordColor.FromHexString(options.MessageEditedEmbedColorHex))
-                .WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl)
                 .WithFooter($"Message edited ({cachedMessage.Id})");
 
             if (newMessage.EditedTimestamp.HasValue)
@@ -164,6 +163,16 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                     case DiscordNetCachedMessageData discordNet:
                         var message = discordNet.Message;
 
+                        var author = message.Author.Id != 0 ?
+                            message.Author :
+                            newMessage.Author.Id != 0 ? newMessage.Author : null;
+
+                        if (author != null)
+                        {
+                            var avatarUrl = author.GetAvatarUrlOrDefault();
+                            builder.WithAuthor($"{author.Username}#{author.Discriminator} ({author.Id})", avatarUrl, avatarUrl);
+                        }
+
                         if (message is IUserMessage userMessage && !string.IsNullOrEmpty(userMessage.Content) &&
                             !string.IsNullOrEmpty(newMessage.Content) && userMessage.Content != newMessage.Content)
                         {
@@ -179,7 +188,15 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
                         break;
 
                     case TaylorBotCachedMessageData taylorBot:
-                        builder.WithCurrentTimestamp();
+                        if (newMessage.Author.Id != 0)
+                        {
+                            var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
+                            builder.WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
+                        }
+                        else
+                        {
+                            builder.WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})");
+                        }
 
                         if (!string.IsNullOrEmpty(taylorBot.Content) && !string.IsNullOrEmpty(newMessage.Content) && taylorBot.Content != newMessage.Content)
                         {
@@ -197,6 +214,12 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             }
             else
             {
+                if (newMessage.Author.Id != 0)
+                {
+                    var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
+                    builder.WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
+                }
+
                 builder
                     .WithTitle("Unknown Message Content Before Edit")
                     .WithDescription(string.Join('\n', new[] {
@@ -240,15 +263,15 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             var deletedCached = areCached[true].ToList();
             var deletedNotCached = areCached[false].ToList();
 
-            var uncachedEmbeds = Split(deletedNotCached, 40).Select(chunk => new EmbedBuilder()
+            var uncachedEmbeds = deletedNotCached.Chunk(40).Select(chunk => new EmbedBuilder()
                 .WithTimestamp(eventTime)
                 .WithColor(embedColor)
                 .AddField("Channel", channel.Mention, inline: true)
-                .WithTitle($"{"uncached message".ToQuantity(chunk.Count)} deleted (Id - Sent)")
+                .WithTitle($"{"uncached message".ToQuantity(chunk.Length)} deleted (Id - Sent)")
                 .WithDescription(string.Join('\n', chunk.Select(uncached =>
                     $"`{uncached.Id}` - {SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatShortUserLogDate()}"
                 )))
-                .WithFooter($"{chunk.Count}/{footerText}")
+                .WithFooter($"{chunk.Length}/{footerText}")
                 .Build()
             );
 
@@ -261,15 +284,6 @@ namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed
             );
 
             return uncachedEmbeds.Concat(cachedEmbeds).ToList();
-        }
-
-        private static IList<List<T>> Split<T>(IReadOnlyList<T> source, uint chunkSize)
-        {
-            return source
-                .Select((x, i) => new { Index = i, Value = x })
-                .GroupBy(x => x.Index / chunkSize)
-                .Select(x => x.Select(v => v.Value).ToList())
-                .ToList();
         }
     }
 }
