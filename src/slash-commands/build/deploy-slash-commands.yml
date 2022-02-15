@@ -15,7 +15,7 @@ steps:
 
     $merged = $files | % { $_ | Get-Content | ConvertFrom-Json } | ConvertTo-Json -Depth 100
 
-    $url = "https://discord.com/api/v9/applications/${{ parameters.applicationId }}/commands"
+    $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/commands"
 
     $response = Invoke-WebRequest -Uri $url `
       -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.2.0)' `

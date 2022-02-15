@@ -24,7 +24,7 @@ namespace TaylorBot.Net.Commands.Extensions
         {
             services.AddHttpClient<InteractionResponseClient>((provider, client) =>
             {
-                client.BaseAddress = new Uri("https://discord.com/api/v9/");
+                client.BaseAddress = new Uri("https://discord.com/api/v10/");
             });
 
             return services
