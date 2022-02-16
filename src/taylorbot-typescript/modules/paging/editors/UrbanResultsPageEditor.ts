@@ -13,7 +13,7 @@ export class UrbanResultsPageEditor extends EmbedPageEditor<UrbanResult> {
             .setURL(result.permalink)
             .setTimestamp(new Date(Date.parse(result.written_on)))
             .setDescription(StringUtil.shrinkString(result.definition, 2048, ' (...)'))
-            .setFooter(result.author)
+            .setFooter({ text: result.author })
             .addField('Votes', `👍 \`${result.thumbs_up}\` | \`${result.thumbs_down}\` 👎`, true);
 
         return Promise.resolve();

@@ -43,7 +43,7 @@ export class Poll extends events.EventEmitter {
                 this.#options.entries(),
                 ([key, option]) => `**${key}**: ${option.name}`
             ).join('\n'))
-            .setFooter('Type a number to vote!')
+            .setFooter({ text: 'Type a number to vote!' })
         );
         this.setCloseTimeout();
     }
@@ -70,7 +70,7 @@ export class Poll extends events.EventEmitter {
                 this.#options.entries(),
                 ([key, option]) => `**${key}**: ${option.name} - ${StringUtil.plural(option.voteCount, 'vote')}`
             ).join('\n'))
-            .setFooter('Type a number to vote!')
+            .setFooter({ text: 'Type a number to vote!' })
         );
     }
 

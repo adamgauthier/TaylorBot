@@ -42,7 +42,7 @@ class EvalCommand extends Command {
         await client.sendEmbed(message.channel,
             EmbedUtil
                 .success(result)
-                .setFooter(`Evaluation took ${end - start} nanoseconds`)
+                .setFooter({ text: `Evaluation took ${end - start} nanoseconds` })
         );
     }
 }

@@ -53,7 +53,7 @@ class SubRedditCommand extends Command {
                 .addField('Users',
                     `${StringUtil.plural(subredditAbout.subscribers, 'subscriber', '`')} (\`${StringUtil.formatNumberString(subredditAbout.active_user_count)}\` online)`
                 )
-                .setFooter(subredditAbout.display_name_prefixed, 'https://i.imgur.com/HbUa6WQ.png')
+                .setFooter({ text: subredditAbout.display_name_prefixed, iconURL: 'https://i.imgur.com/HbUa6WQ.png' })
         );
     }
 }

@@ -43,7 +43,7 @@ class WolframCommand extends Command {
                 .baseUserSuccessEmbed(author)
                 .setTitle(inputPod.plaintext)
                 .setImage(resultPod.img.src)
-                .setFooter(`Wolfram|Alpha - Query took ${result.timing} seconds`, 'https://i.imgur.com/aHl1jlS.png')
+                .setFooter({ text: `Wolfram|Alpha - Query took ${result.timing} seconds`, iconURL: 'https://i.imgur.com/aHl1jlS.png' })
         );
     }
 }

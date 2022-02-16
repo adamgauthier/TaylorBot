@@ -45,7 +45,7 @@ class ReactPollCommand extends Command {
                 pollOptions.entries(),
                 ([key, option]) => `${key}: ${option}`
             ).join('\n'))
-            .setFooter('React to vote!')
+            .setFooter({ text: 'React to vote!' })
         );
 
         for (const key of pollOptions.keys()) {

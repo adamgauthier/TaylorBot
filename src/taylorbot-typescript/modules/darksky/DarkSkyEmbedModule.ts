@@ -16,7 +16,7 @@ export class DarkSkyEmbedModule {
                 `Humidity: ${Math.round(dataPoint.humidity * 100)}%`
             ].join('\n'))
             .setThumbnail(`https://darksky.net/images/weather-icons/${dataPoint.icon}.png`)
-            .setFooter(formattedAddress)
+            .setFooter({ text: formattedAddress })
             .setTimestamp(dataPoint.time * 1000);
     }
 

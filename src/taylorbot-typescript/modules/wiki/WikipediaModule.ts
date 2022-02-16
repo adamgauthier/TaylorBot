@@ -40,7 +40,7 @@ export class WikipediaModule {
             .setTitle(page.title)
             .setURL(page.fullurl)
             .setDescription(StringUtil.shrinkString(page.extract, 250, ' (...)'))
-            .setFooter(`${Object.values(page.pageviews)[0]} views in the last day`);
+            .setFooter({ text: `${Object.values(page.pageviews)[0]} views in the last day` });
 
         if (page.original)
             embed.setImage(page.original.source);
