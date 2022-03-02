@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Commands.Preconditions
         public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
         {
             var guildUser = (IGuildUser)context.User;
-            if (guildUser.GuildPermissions.Has(GuildPermission))
+            if (guildUser.GuildPermissions.Has(GuildPermission) || guildUser.Guild.OwnerId == guildUser.Id)
             {
                 return new PreconditionPassed();
             }
