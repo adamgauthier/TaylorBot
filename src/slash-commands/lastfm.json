@@ -22,9 +22,35 @@
       "options": [
         {
           "name": "period",
-          "description": "The period for the most listened albums (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "description": "The period for the most listened albums, default last 7 days",
           "type": 3,
-          "required": false
+          "required": false,
+          "choices": [
+            {
+              "name": "Last 7 days",
+              "value": "7day"
+            },
+            {
+              "name": "Last 30 days",
+              "value": "1month"
+            },
+            {
+              "name": "Last 90 days",
+              "value": "3month"
+            },
+            {
+              "name": "Last 180 days",
+              "value": "6month"
+            },
+            {
+              "name": "Last 365 days",
+              "value": "12month"
+            },
+            {
+              "name": "All time",
+              "value": "all"
+            }
+          ]
         },
         {
           "name": "user",
@@ -41,9 +67,35 @@
       "options": [
         {
           "name": "period",
-          "description": "The period for the most listened artists (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "description": "The period for the most listened artists, default last 7 days",
           "type": 3,
-          "required": false
+          "required": false,
+          "choices": [
+            {
+              "name": "Last 7 days",
+              "value": "7day"
+            },
+            {
+              "name": "Last 30 days",
+              "value": "1month"
+            },
+            {
+              "name": "Last 90 days",
+              "value": "3month"
+            },
+            {
+              "name": "Last 180 days",
+              "value": "6month"
+            },
+            {
+              "name": "Last 365 days",
+              "value": "12month"
+            },
+            {
+              "name": "All time",
+              "value": "all"
+            }
+          ]
         },
         {
           "name": "user",
@@ -60,9 +112,35 @@
       "options": [
         {
           "name": "period",
-          "description": "The period for the most listened tracks (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "description": "The period for the most listened tracks, default last 7 days",
           "type": 3,
-          "required": false
+          "required": false,
+          "choices": [
+            {
+              "name": "Last 7 days",
+              "value": "7day"
+            },
+            {
+              "name": "Last 30 days",
+              "value": "1month"
+            },
+            {
+              "name": "Last 90 days",
+              "value": "3month"
+            },
+            {
+              "name": "Last 180 days",
+              "value": "6month"
+            },
+            {
+              "name": "Last 365 days",
+              "value": "12month"
+            },
+            {
+              "name": "All time",
+              "value": "all"
+            }
+          ]
         },
         {
           "name": "user",
@@ -79,17 +157,57 @@
       "options": [
         {
           "name": "period",
-          "description": "The period of the collage for (7day, 1month, 3month, 6month, 12month, all), default 7day",
+          "description": "The period of the collage for, default last 7 days",
           "type": 3,
-          "required": false
+          "required": false,
+          "choices": [
+            {
+              "name": "Last 7 days",
+              "value": "7day"
+            },
+            {
+              "name": "Last 30 days",
+              "value": "1month"
+            },
+            {
+              "name": "Last 90 days",
+              "value": "3month"
+            },
+            {
+              "name": "Last 180 days",
+              "value": "6month"
+            },
+            {
+              "name": "Last 365 days",
+              "value": "12month"
+            },
+            {
+              "name": "All time",
+              "value": "all"
+            }
+          ]
         },
         {
           "name": "size",
-          "description": "The size (number of rows and columns) of the collage for (3, 4, 5), default 3",
+          "description": "The size (number of rows and columns) of the collage for, default 3 by 3",
           "type": 4,
           "min_value": 3,
           "max_value": 5,
-          "required": false
+          "required": false,
+          "choices": [
+            {
+              "name": "3 by 3",
+              "value": 3
+            },
+            {
+              "name": "4 by 4",
+              "value": 4
+            },
+            {
+              "name": "5 by 5",
+              "value": 5
+            }
+          ]
         },
         {
           "name": "user",
