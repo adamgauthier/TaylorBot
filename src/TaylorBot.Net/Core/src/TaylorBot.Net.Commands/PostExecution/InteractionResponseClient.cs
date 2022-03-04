@@ -17,9 +17,17 @@ namespace TaylorBot.Net.Commands.PostExecution
 
         private record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData? data)
         {
-            public record InteractionApplicationCommandCallbackData(string? content = null, IReadOnlyList<Embed>? embeds = null, byte? flags = null, IReadOnlyList<Component>? components = null);
+            public record InteractionApplicationCommandCallbackData(
+                string? content = null,
+                IReadOnlyList<Embed>? embeds = null,
+                byte? flags = null,
+                IReadOnlyList<Component>? components = null,
+                IReadOnlyList<Attachment>? attachments = null
+            );
 
             public record Component(byte type, byte? style = null, string? label = null, Emoji? emoji = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
+
+            public record Attachment(int id, string filename, string? description = null);
 
             public record Embed(string? title, string? description, string? url, EmbedAuthor? author, EmbedImage? image, EmbedThumbnail? thumbnail, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
 
@@ -83,13 +91,16 @@ namespace TaylorBot.Net.Commands.PostExecution
             );
         }
 
-        private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageContent content, IReadOnlyList<Button>? buttons)
+        private const byte ActionRowType = 1;
+        private const byte ButtonType = 2;
+
+        private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageResponse response)
         {
             return new InteractionResponse.InteractionApplicationCommandCallbackData(
-                content: content.Content,
-                embeds: content.Embeds.Select(ToInteractionEmbed).ToList(),
-                components: buttons == null ? null : buttons.Count < 1 ? Array.Empty<InteractionResponse.Component>() : new[] {
-                    new InteractionResponse.Component(ActionRowType, components: buttons.Select(b =>
+                content: response.Content.Content,
+                embeds: response.Content.Embeds.Select(ToInteractionEmbed).ToList(),
+                components: response.Buttons == null ? null : response.Buttons.Count < 1 ? Array.Empty<InteractionResponse.Component>() : new[] {
+                    new InteractionResponse.Component(ActionRowType, components: response.Buttons.Select(b =>
                         new InteractionResponse.Component(
                             ButtonType,
                             label: b.Label,
@@ -98,7 +109,11 @@ namespace TaylorBot.Net.Commands.PostExecution
                             emoji: b.Emoji != null ? new(name: b.Emoji) : null
                         )
                     ).ToList()
-                ) }
+                ) },
+                attachments: response.Content.Attachments?.Select((a, i) => new InteractionResponse.Attachment(
+                    id: i,
+                    filename: a.Filename
+                )).ToList()
             );
         }
 
@@ -114,16 +129,34 @@ namespace TaylorBot.Net.Commands.PostExecution
             };
         }
 
-        private const byte ActionRowType = 1;
-        private const byte ButtonType = 2;
+        private static MultipartFormDataContent CreateContentWithAttachments(IReadOnlyList<Attachment> attachments, JsonContent jsonContent)
+        {
+            var content = new MultipartFormDataContent
+            {
+                { jsonContent, "payload_json" },
+            };
+
+            foreach (var (attachment, i) in attachments.Select((item, index) => (item, index)))
+            {
+                content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.Filename);
+            }
+
+            return content;
+        }
 
         public async ValueTask SendFollowupResponseAsync(ApplicationCommand interaction, MessageResponse message)
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
+            var jsonContent = JsonContent.Create(ToInteractionData(message));
+
+            using HttpContent httpContent = message.Content.Attachments?.Any() == true ?
+                CreateContentWithAttachments(message.Content.Attachments, jsonContent) :
+                jsonContent;
+
             var response = await _httpClient.PostAsync(
                 $"webhooks/{applicationInfo.Id}/{interaction.Token}",
-                JsonContent.Create(ToInteractionData(message.Content, message.Buttons))
+                httpContent
             );
 
             response.EnsureSuccessStatusCode();
@@ -143,9 +176,11 @@ namespace TaylorBot.Net.Commands.PostExecution
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
+            using var content = JsonContent.Create(ToInteractionData(message));
+
             var response = await _httpClient.PatchAsync(
                 $"webhooks/{applicationInfo.Id}/{token}/messages/@original",
-                JsonContent.Create(ToInteractionData(message.Content, message.Buttons))
+                content
             );
 
             response.EnsureSuccessStatusCode();

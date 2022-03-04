@@ -2,6 +2,11 @@
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
@@ -11,26 +16,26 @@ using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests
 {
-    public class LastFmCollageCommandTests
+    public class LastFmCollageSlashCommandTests
     {
         private readonly IUser _commandUser = A.Fake<IUser>();
         private readonly IOptionsMonitor<LastFmOptions> _options = A.Fake<IOptionsMonitor<LastFmOptions>>(o => o.Strict());
         private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
         private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
-        private readonly LastFmCollageCommand _lastFmCollageCommand;
+        private readonly LastFmCollageSlashCommand _lastFmCollageSlashCommand;
 
-        public LastFmCollageCommandTests()
+        public LastFmCollageSlashCommandTests()
         {
-            _lastFmCollageCommand = new(_lastFmUsernameRepository, new(_lastFmPeriodStringMapper), _lastFmPeriodStringMapper);
+            _lastFmCollageSlashCommand = new(_lastFmUsernameRepository, new(_lastFmPeriodStringMapper), _lastFmPeriodStringMapper, new HttpClient(new AlwaysSucceedHttpMessageHandler()));
         }
-
 
         [Fact]
         public async Task CollageAsync_WhenUsernameNotSet_ThenReturnsErrorEmbed()
         {
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
 
-            var result = (EmbedResult)await _lastFmCollageCommand.Collage(null, null, _commandUser, isLegacyCommand: false).RunAsync();
+            var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
+            var result = (EmbedResult)await command.RunAsync();
 
             result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
         }
@@ -42,9 +47,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
             A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
 
-            var result = (EmbedResult)await _lastFmCollageCommand.Collage(null, null, _commandUser, isLegacyCommand: false).RunAsync();
+            var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
+            var result = (MessageResult)await command.RunAsync();
 
-            result.Embed.Image.Should().NotBeNull();
+            result.Content.Embeds[0].Image.Should().NotBeNull();
+        }
+
+        public class AlwaysSucceedHttpMessageHandler : HttpMessageHandler
+        {
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                var response = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes("Some file content")))
+                };
+
+                return Task.FromResult(response);
+            }
         }
     }
 }

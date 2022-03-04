@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 {
@@ -17,7 +18,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
         private readonly LastFmCurrentCommand _lastFmCurrentCommand;
         private readonly LastFmSetCommand _lastFmSetCommand;
         private readonly LastFmClearCommand _lastFmClearCommand;
-        private readonly LastFmCollageCommand _lastFmCollageCommand;
         private readonly LastFmTracksCommand _lastFmTracksCommand;
         private readonly LastFmAlbumsCommand _lastFmAlbumsCommand;
         private readonly LastFmArtistsCommand _lastFmArtistsCommand;
@@ -27,7 +27,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
             LastFmCurrentCommand lastFmCurrentCommand,
             LastFmSetCommand lastFmSetCommand,
             LastFmClearCommand lastFmClearCommand,
-            LastFmCollageCommand lastFmCollageCommand,
             LastFmTracksCommand lastFmTracksCommand,
             LastFmAlbumsCommand lastFmAlbumsCommand,
             LastFmArtistsCommand lastFmArtistsCommand,
@@ -38,7 +37,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
             _lastFmCurrentCommand = lastFmCurrentCommand;
             _lastFmSetCommand = lastFmSetCommand;
             _lastFmClearCommand = lastFmClearCommand;
-            _lastFmCollageCommand = lastFmCollageCommand;
             _lastFmTracksCommand = lastFmTracksCommand;
             _lastFmAlbumsCommand = lastFmAlbumsCommand;
             _lastFmArtistsCommand = lastFmArtistsCommand;
@@ -150,24 +148,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 
         [Command("collage")]
         [Alias("c")]
-        [Summary("Generates a collage based on a user's Last.fm listening habits. Collages are provided by a third-party and might have loading problems.")]
-        public async Task<RuntimeResult> CollageAsync(
-            [Summary("What period of time would you like the collage for?")]
-            LastFmPeriod? period = null,
-            [Summary("What size (number of rows and columns) would you like the collage to be?")]
-            LastFmCollageSize? size = null,
-            [Summary("What user would you like to see a collage for?")]
+        [Summary("This command has been moved to **/lastfm collage**, please use it instead.")]
+        public Task<RuntimeResult> CollageAsync(
             [Remainder]
-            IUserArgument<IUser>? user = null
+            string any = ""
         )
         {
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(
-                _lastFmCollageCommand.Collage(period, size, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
-                context
-            );
-
-            return new TaylorBotResult(result, context);
+            return Task.FromResult<RuntimeResult>(new TaylorBotResult(
+                new EmbedResult(EmbedFactory.CreateError($"This command has been moved to **/lastfm collage**, please use it instead.")),
+                DiscordNetContextMapper.MapToRunContext(Context)
+            ));
         }
     }
 }
