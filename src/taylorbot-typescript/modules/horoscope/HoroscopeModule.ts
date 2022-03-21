@@ -14,7 +14,7 @@ export class HoroscopeModule {
         ).then(res => res.text());
 
         const horoscope = body.match(/<p id="horo_content">(.*)<\/p>/)![1];
-        const dateString = body.match(/<p class="mb-0">(.*)<\/p>/)![1];
+        const dateString = body.match(/<p class="mb-0">(.*?)<\/p>/s)![1].trim();
 
         const date = moment.utc(dateString, 'DD-MM-YYYY');
 
