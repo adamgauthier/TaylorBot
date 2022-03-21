@@ -71,7 +71,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
                 null,
                 null,
                 null,
-                null
+                null,
+                MessageFlags.None
             )).MustHaveHappenedOnceExactly();
         }
     }
