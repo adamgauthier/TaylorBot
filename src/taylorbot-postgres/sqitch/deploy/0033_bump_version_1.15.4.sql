@@ -1,7 +1,0 @@
--- Deploy taylorbot-postgres:0033_bump_version_1.15.4 to pg
-
-BEGIN;
-
--- XXX Add DDLs here.
-
-COMMIT;

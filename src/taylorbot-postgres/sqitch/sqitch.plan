@@ -31,8 +31,8 @@
 0027_edited_log_channels 2021-08-29T00:15:52Z Adam Gauthier <adamgauthier12@gmail.com> # Add edited log channels
 0028_rank_performance 2021-09-05T18:45:42Z Adam Gauthier <adamgauthier12@gmail.com> # Improve performance of rank queries
 0029_bump_version_1.15.0 2021-09-11T18:31:59Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.15.0
-0029_bump_version_1.15.1 2021-11-15T04:14:00Z adamg <adamg@TeaRiver> # Bump product version to 1.15.1
-0030_slash_lastfm 2021-12-12T05:28:47Z adamg <adamg@TeaRiver> # Rename lastfm commands for /lastfm
-0031_bump_version_1.15.2 2021-12-18T22:37:51Z adamg <adamg@TeaRiver> # Bump product version to 1.15.2
-0032_bump_version_1.15.3 2022-01-22T06:27:24Z adamg <adamg@TeaRiver> # Bump product version to 1.15.3
-0033_bump_version_1.15.4 2022-03-21T05:59:58Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.15.4
+0030_bump_version_1.15.1 2021-11-15T04:14:00Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.15.1
+0031_slash_lastfm 2021-12-12T05:28:47Z Adam Gauthier <adamgauthier12@gmail.com> # Rename lastfm commands for /lastfm
+0032_bump_version_1.15.2 2021-12-18T22:37:51Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.15.2
+0033_bump_version_1.15.3 2022-01-22T06:27:24Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.15.3
+0034_bump_version_1.15.4 2022-03-21T05:59:58Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.15.4

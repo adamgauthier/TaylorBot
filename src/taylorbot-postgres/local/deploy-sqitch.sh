@@ -10,8 +10,8 @@ container_name=$(cat "${__dir}/taylorbot-postgres.name")
 
 taylorbot_role_password=$(cat "${__dir}/taylorbot-role.pass")
 
-sqitch_bundle_path=${__dir}/taylorbot-sqitch-bundle
-rm -rf ${sqitch_bundle_path}
+sqitch_bundle_path=${__dir}/taylorbot-sqitch-bundle-extracted
+[ -d ${sqitch_bundle_path} ] && rm -rf ${sqitch_bundle_path}
 mkdir ${sqitch_bundle_path}
 tar -xvf ${__dir}/taylorbot-sqitch-bundle.tgz --directory ${sqitch_bundle_path} --strip-components=1
 
