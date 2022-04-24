@@ -21,6 +21,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
@@ -182,7 +184,9 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<LastFmAlbumsCommand>()
             .AddSlashCommand<LastFmAlbumsSlashCommand>()
             .AddTransient<LastFmArtistsCommand>()
-            .AddSlashCommand<LastFmArtistsSlashCommand>();
+            .AddSlashCommand<LastFmArtistsSlashCommand>()
+            .AddTransient<IHoroscopeClient, GaneshaSpeaksHoroscopeClient>()
+            .AddTransient<IZodiacSignRepository, ZodiacSignPostgresRepository>();
     })
     .Build();
 

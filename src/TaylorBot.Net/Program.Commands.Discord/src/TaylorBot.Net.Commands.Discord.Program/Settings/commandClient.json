@@ -17,6 +17,10 @@
       "youtube-search": {
         "FriendlyName": "Searching YouTube",
         "MaxUsesForUser": 7
+      },
+      "horoscope": {
+        "FriendlyName": "Fetching an horoscope",
+        "MaxUsesForUser": 20
       }
     }
   }
