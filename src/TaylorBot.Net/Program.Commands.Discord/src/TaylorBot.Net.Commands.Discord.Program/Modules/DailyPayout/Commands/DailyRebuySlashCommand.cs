@@ -51,7 +51,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
                                 if (result.IsSuccess)
                                 {
                                     return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
-                                        $"Successfully reset your daily streak back to **{result.Value.CurrentDailyStreak}**. 👍",
+                                        $"Successfully reset your daily streak back to **{result.Value.CurrentDailyStreak}**. Don't forget to claim it tomorrow! 👍",
                                         $"You now have {"taypoint".ToQuantity(result.Value.TotalTaypointCount, TaylorBotFormats.BoldReadable)}."
                                     })));
                                 }

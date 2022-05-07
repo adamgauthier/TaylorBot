@@ -178,7 +178,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
                     WHERE user_id = @UserId FOR UPDATE
                 )
                 UPDATE users.daily_payouts AS d
-                SET streak_count = GREATEST(d.streak_count, d.max_streak_count)
+                SET streak_count = GREATEST(d.streak_count, d.max_streak_count), last_payout_at = CURRENT_TIMESTAMP
                 FROM old_daily
                 WHERE d.user_id = old_daily.user_id
                 RETURNING d.streak_count, old_daily.streak_count AS original_streak_count;",
