@@ -1,4 +1,4 @@
-import { BaseGuildTextChannel, DMChannel, PartialDMChannel, ThreadChannel } from 'discord.js';
+import { DMChannel, NewsChannel, PartialDMChannel, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import ChannelArgumentType = require('./Channel.js');
 
@@ -11,7 +11,7 @@ class ChannelOrCurrentArgumentType extends ChannelArgumentType {
         return true;
     }
 
-    default({ message }: CommandMessageContext): BaseGuildTextChannel | ThreadChannel | DMChannel | PartialDMChannel {
+    default({ message }: CommandMessageContext): ThreadChannel | DMChannel | PartialDMChannel | NewsChannel | TextChannel | VoiceChannel {
         return message.channel;
     }
 }
