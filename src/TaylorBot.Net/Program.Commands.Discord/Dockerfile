@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0.202 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0.301 AS build
 WORKDIR /app
 
 ARG FEED_ACCESS_TOKEN
@@ -40,7 +40,7 @@ ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Releas
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/runtime:6.0.4 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime:6.0.6 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.Commands.Discord.Program.dll"]
