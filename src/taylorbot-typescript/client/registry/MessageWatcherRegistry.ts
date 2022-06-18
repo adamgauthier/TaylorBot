@@ -35,7 +35,12 @@ export class MessageWatcherRegistry {
                 await watcher.messageHandler(client, message);
             }
             catch (e) {
-                Log.error(`Message Watcher ${name} Error: \n${e.stack}`);
+                if (e instanceof Error) {
+                    Log.error(`Message Watcher ${name} Error: \n${e.stack}`);
+                }
+                else {
+                    Log.error(`Message Watcher ${name} Error: \n${e}`);
+                }
             }
         });
     }

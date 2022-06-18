@@ -1,4 +1,3 @@
-import fetch = require('node-fetch');
 import querystring = require('querystring');
 
 import { EnvUtil } from '../util/EnvUtil';

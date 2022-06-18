@@ -1,5 +1,4 @@
 import { MessageEmbed, User } from 'discord.js';
-import fetch = require('node-fetch');
 import querystring = require('querystring');
 
 import { DiscordEmbedFormatter } from '../discord/DiscordEmbedFormatter';

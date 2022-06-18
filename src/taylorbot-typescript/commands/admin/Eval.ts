@@ -34,8 +34,14 @@ class EvalCommand extends Command {
         try {
             result = eval(code);
         } catch (e) {
-            Log.error(`Eval error: ${e.stack}`);
-            throw new CommandError(e.toString());
+            if (e instanceof Error) {
+                Log.error(`Eval error: ${e.stack}`);
+                throw new CommandError(e.toString());
+            }
+            else {
+                Log.error(`Eval error: ${e}`);
+                throw new CommandError(`${e}`);
+            }
         }
         const end = process.hrtime.bigint();
 

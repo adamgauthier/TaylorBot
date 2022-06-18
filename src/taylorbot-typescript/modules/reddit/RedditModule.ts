@@ -1,5 +1,3 @@
-import fetch = require('node-fetch');
-
 type SubredditAboutResponse = {
     error: number | undefined;
     reason: string | undefined;

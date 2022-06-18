@@ -1,4 +1,3 @@
-import fetch = require('node-fetch');
 import querystring = require('querystring');
 
 export type UrbanResult = {
