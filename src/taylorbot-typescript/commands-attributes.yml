@@ -9,29 +9,65 @@ trigger:
 resources:
 - repo: self
 
+variables:
+  artifactName: commands-attributes-image
+  archiveName: commands-attributes.tar
+
 stages:
-  - stage: build
+- stage: build
+  displayName: 'Build container image'
+  variables:
+    containerImageTag: 'taylorbot/commands-attributes:$(Build.SourceVersion)'
+    containerImageFilePath: '$(Build.ArtifactStagingDirectory)/$(archiveName)'
+  jobs:
+  - job: build
     displayName: 'Build container image'
-    variables:
-      containerImageTag: 'taylorbot/commands-attributes:$(Build.SourceVersion)'
-      containerImageFilePath: '$(Build.ArtifactStagingDirectory)/commands-attributes.tar'
-    jobs:
-    - job: build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
       displayName: 'Build container image'
-      pool:
-        vmImage: 'ubuntu-latest'
-      steps:
-      - task: Docker@2
-        displayName: 'Build container image'
-        inputs:
-          command: build
-          dockerfile: '$(Build.SourcesDirectory)/src/taylorbot-typescript/Dockerfile'
-          buildContext: '$(Build.SourcesDirectory)/src/taylorbot-typescript'
-          arguments: '--tag $(containerImageTag)'
+      inputs:
+        command: build
+        dockerfile: '$(Build.SourcesDirectory)/src/taylorbot-typescript/Dockerfile'
+        buildContext: '$(Build.SourcesDirectory)/src/taylorbot-typescript'
+        arguments: '--tag $(containerImageTag)'
 
-      - script: docker save --output $(containerImageFilePath) $(containerImageTag)
-        displayName: 'Save container image to file'
+    - script: docker save --output $(containerImageFilePath) $(containerImageTag)
+      displayName: 'Save container image to file'
 
-      - publish: $(containerImageFilePath)
-        artifact: 'Docker Image'
-        displayName: 'Publish built container image'
+    - publish: $(containerImageFilePath)
+      artifact: $(artifactName)
+      displayName: 'Publish built container image'
+
+- stage: deploy
+  displayName: 'TaylorBot'
+  dependsOn: build
+  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  jobs:
+    - deployment: deploy_commands_attributes
+      displayName: 'Deploy to virtual machine'
+      environment:
+        name: taylorbot
+        resourceType: VirtualMachine
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            # This assumes we have set up a remote virtual machine resource with the repository cloned in home folder
+            - script: |
+                set -o errexit
+                set -o pipefail
+                set -o nounset
+
+                deploy_folder=~/TaylorBot/src/linux-infrastructure/node/commands-attributes
+
+                echo 'Moving $(archiveName) to deploy folder'
+                rm -f ${deploy_folder}/$(archiveName).bak
+                mv ${deploy_folder}/$(archiveName) ${deploy_folder}/$(archiveName).bak
+                mv $(Pipeline.Workspace)/$(artifactName)/$(archiveName) ${deploy_folder}/$(archiveName)
+
+                cd ${deploy_folder}
+                docker rm -f taylorbot-commands-attributes &>/dev/null && echo 'Removed previous container'
+                ./deploy-commands-attributes.sh
+              displayName: 'Deploy image and start container'

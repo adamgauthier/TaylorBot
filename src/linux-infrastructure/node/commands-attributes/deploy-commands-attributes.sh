@@ -20,5 +20,3 @@ docker container run \
     --env-file ${env_file_path} \
     --restart=on-failure:100 \
     ${image_name}
-
-docker logs --follow ${container_name}
