@@ -2,7 +2,7 @@ import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatt
 import { TimeUtil } from '../../modules/util/TimeUtil';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
-import { MessageEmbed, GuildMember } from 'discord.js';
+import { EmbedBuilder, GuildMember } from 'discord.js';
 import { MemberAttribute } from '../MemberAttribute';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 import { MathUtil } from '../../modules/util/MathUtil';
@@ -11,7 +11,7 @@ export class JoinedPresenter implements MemberAttributePresenter {
     constructor(private readonly attribute: MemberAttribute) {
     }
 
-    present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: firstJoinedAt, rank }: Record<string, any> & { rank: string }): MessageEmbed {
+    present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: firstJoinedAt, rank }: Record<string, any> & { rank: string }): EmbedBuilder {
         return DiscordEmbedFormatter
             .baseUserSuccessEmbed(member.user)
             .setDescription(firstJoinedAt ? [

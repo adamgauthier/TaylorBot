@@ -6,7 +6,7 @@ import { IntervalRunner } from '../intervals/IntervalRunner';
 import { EmbedUtil } from '../modules/discord/EmbedUtil';
 import { TaylorBotMasterClient } from './TaylorBotMasterClient';
 import { EnvUtil } from '../modules/util/EnvUtil';
-import { Intents, Options } from 'discord.js';
+import { GatewayIntentBits, Partials, Options } from 'discord.js';
 
 const discordToken = EnvUtil.getRequiredEnvVariable('TaylorBot_Discord__Token');
 
@@ -15,19 +15,20 @@ export class TaylorBotClient extends Discord.Client {
     readonly intervalRunner: IntervalRunner;
 
     constructor(master: TaylorBotMasterClient) {
-        const cacheSettings = Options.defaultMakeCacheSettings;
+        const cacheSettings = Options.DefaultMakeCacheSettings;
         cacheSettings.MessageManager = 0;
         super({
             shards: 'auto',
             allowedMentions: { parse: [], repliedUser: true },
-            partials: ['REACTION', 'MESSAGE', 'CHANNEL'],
+            partials: [Partials.Reaction, Partials.Message, Partials.Channel],
             intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MEMBERS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-                Intents.FLAGS.DIRECT_MESSAGES,
-                Intents.FLAGS.DIRECT_MESSAGE_REACTIONS
+                GatewayIntentBits.MessageContent,
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildMessageReactions,
+                GatewayIntentBits.DirectMessages,
+                GatewayIntentBits.DirectMessageReactions,
             ],
             makeCache: Options.cacheWithLimits(cacheSettings),
         });
@@ -51,7 +52,7 @@ export class TaylorBotClient extends Discord.Client {
         await this.login(discordToken);
     }
 
-    sendEmbed(recipient: Discord.PartialTextBasedChannelFields, embed: Discord.MessageEmbed): Promise<Discord.Message> {
+    sendEmbed(recipient: Discord.PartialTextBasedChannelFields, embed: Discord.EmbedBuilder): Promise<Discord.Message> {
         return recipient.send({ embeds: [embed] });
     }
 

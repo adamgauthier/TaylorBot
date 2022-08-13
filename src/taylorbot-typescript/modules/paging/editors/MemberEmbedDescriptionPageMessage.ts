@@ -1,5 +1,5 @@
 import { DiscordUtil } from '../../discord/DiscordUtil';
-import { Guild, GuildMember, MessageEmbed } from 'discord.js';
+import { Guild, GuildMember, EmbedBuilder } from 'discord.js';
 import { DatabaseDriver } from '../../../database/DatabaseDriver';
 import { EmbedPageEditor } from './EmbedPageEditor';
 
@@ -10,7 +10,7 @@ export class MemberEmbedDescriptionPageMessage extends EmbedPageEditor<MemberObj
     readonly #guild: Guild;
     readonly #formatLine: (member: GuildMember, attribute: MemberObject) => string;
 
-    constructor(embed: MessageEmbed, database: DatabaseDriver, guild: Guild, formatLine: (member: GuildMember, attribute: MemberObject) => string) {
+    constructor(embed: EmbedBuilder, database: DatabaseDriver, guild: Guild, formatLine: (member: GuildMember, attribute: MemberObject) => string) {
         super(embed);
         this.#database = database;
         this.#guild = guild;

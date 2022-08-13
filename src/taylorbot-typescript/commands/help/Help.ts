@@ -37,11 +37,16 @@ class HelpCommand extends Command {
                 .baseUserSuccessEmbed(author)
                 .setTitle(`Command '${command.name}'`)
                 .setDescription(command.command.description)
-                .addField('Usage', [
-                    `\`${helpCommandContext.usage()}\``,
-                    ...helpCommandContext.argsUsage().map(({ identifier, hint }) => `\`${identifier}\`: ${hint}`)
-                ].join('\n'))
-                .addField('Example', `\`${helpCommandContext.example()}\``)
+                .addFields([
+                    {
+                        name: 'Usage',
+                        value: [
+                            `\`${helpCommandContext.usage()}\``,
+                            ...helpCommandContext.argsUsage().map(({ identifier, hint }) => `\`${identifier}\`: ${hint}`)
+                        ].join('\n')
+                    },
+                    { name: 'Example', value: `\`${helpCommandContext.example()}\`` }
+                ])
         );
     }
 }

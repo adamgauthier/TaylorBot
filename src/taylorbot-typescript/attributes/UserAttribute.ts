@@ -1,7 +1,7 @@
 import { Attribute, AttributeParameters } from './Attribute';
 import { DiscordEmbedFormatter } from '../modules/discord/DiscordEmbedFormatter';
 import { DatabaseDriver } from '../database/DatabaseDriver';
-import { User, MessageEmbed, Guild } from 'discord.js';
+import { User, EmbedBuilder, Guild } from 'discord.js';
 import { UserAttributePresenter } from './UserAttributePresenter';
 import { PageMessage } from '../modules/paging/PageMessage';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
@@ -21,7 +21,7 @@ export abstract class UserAttribute extends Attribute {
 
     abstract formatValue(attribute: Record<string, any>): string;
 
-    async getCommand(commandContext: CommandMessageContext, user: User): Promise<MessageEmbed> {
+    async getCommand(commandContext: CommandMessageContext, user: User): Promise<EmbedBuilder> {
         const attribute = await this.retrieve(commandContext.client.master.database, user);
 
         if (!attribute) {

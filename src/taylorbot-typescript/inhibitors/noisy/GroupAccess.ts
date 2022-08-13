@@ -1,4 +1,4 @@
-import { Permissions, Message, GuildMember, User } from 'discord.js';
+import { Message, GuildMember, User, PermissionFlagsBits } from 'discord.js';
 
 import { NoisyInhibitor } from '../NoisyInhibitor';
 import UserGroups = require('../../client/UserGroups');
@@ -45,7 +45,7 @@ class GroupAccessInhibitor extends NoisyInhibitor {
             if (member.guild.ownerId === member.id && UserGroups.GuildOwners.accessLevel >= minimumGroupLevel)
                 return true;
 
-            if (UserGroups.GuildManagers.accessLevel >= minimumGroupLevel && member.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+            if (UserGroups.GuildManagers.accessLevel >= minimumGroupLevel && member.permissions.has(PermissionFlagsBits.ManageGuild))
                 return true;
 
             if (GroupAccessInhibitor.roleGroupHasAccess(minimumGroupLevel, member, registry.guilds, registry.groups))

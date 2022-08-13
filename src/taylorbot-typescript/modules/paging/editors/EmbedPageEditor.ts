@@ -1,12 +1,12 @@
 import Discord = require('discord.js');
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import { TaylorBotClient } from '../../../client/TaylorBotClient';
 import { PageEditor } from './PageEditor';
 
 export abstract class EmbedPageEditor<T> extends PageEditor<T> {
-    readonly embed: MessageEmbed;
+    readonly embed: EmbedBuilder;
 
-    constructor(embed: MessageEmbed) {
+    constructor(embed: EmbedBuilder) {
         super();
         this.embed = embed;
     }

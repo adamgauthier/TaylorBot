@@ -50,9 +50,10 @@ class SubRedditCommand extends Command {
                 .setThumbnail(subredditAbout.icon_img)
                 .setTimestamp(subredditAbout.created * 1000)
                 .setDescription(subredditAbout.public_description)
-                .addField('Users',
-                    `${StringUtil.plural(subredditAbout.subscribers, 'subscriber', '`')} (\`${StringUtil.formatNumberString(subredditAbout.active_user_count)}\` online)`
-                )
+                .addFields({
+                    name: 'Users',
+                    value: `${StringUtil.plural(subredditAbout.subscribers, 'subscriber', '`')} (\`${StringUtil.formatNumberString(subredditAbout.active_user_count)}\` online)`
+                })
                 .setFooter({ text: subredditAbout.display_name_prefixed, iconURL: 'https://i.imgur.com/HbUa6WQ.png' })
         );
     }

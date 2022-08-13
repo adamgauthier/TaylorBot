@@ -1,4 +1,4 @@
-import { MessageEmbed, User } from 'discord.js';
+import { EmbedBuilder, User } from 'discord.js';
 import querystring = require('querystring');
 
 import { DiscordEmbedFormatter } from '../discord/DiscordEmbedFormatter';
@@ -33,7 +33,7 @@ export class WikipediaModule {
         return response.query.pages[0];
     }
 
-    static getPageEmbed(user: User, page: WikipediaPage): MessageEmbed {
+    static getPageEmbed(user: User, page: WikipediaPage): EmbedBuilder {
         const embed = DiscordEmbedFormatter
             .baseUserSuccessEmbed(user)
             .setTitle(page.title)

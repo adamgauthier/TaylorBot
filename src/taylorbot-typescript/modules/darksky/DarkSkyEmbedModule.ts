@@ -1,9 +1,9 @@
-import { MessageEmbed, User } from 'discord.js';
+import { EmbedBuilder, User } from 'discord.js';
 import { DiscordEmbedFormatter } from '../discord/DiscordEmbedFormatter';
 import { DarkSkyCurrently } from './DarkSkyModule';
 
 export class DarkSkyEmbedModule {
-    static dataPointToEmbed(dataPoint: DarkSkyCurrently, user: User, formattedAddress: string): MessageEmbed {
+    static dataPointToEmbed(dataPoint: DarkSkyCurrently, user: User, formattedAddress: string): EmbedBuilder {
         const celsius = dataPoint.temperature;
         const fahrenheit = DarkSkyEmbedModule.celsiusToFahrenheit(celsius).toFixed(2);
 

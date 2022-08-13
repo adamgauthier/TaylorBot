@@ -38,21 +38,27 @@ class ProfileCommand extends Command {
         await client.sendEmbed(message.channel,
             DiscordEmbedFormatter
                 .baseUserSuccessEmbed(user)
-                .addField('Age',
-                    parsedBirthday !== null && parsedBirthday.year() !== 1804 ?
-                        moment.utc().diff(parsedBirthday, 'years').toString() :
-                        ageAttribute ?
-                            `${ageAttribute.integer_value} ⚠` :
-                            'Not Set 🚫',
-                    true
-                )
-                .addField('Gender', genderAttribute ? genderAttribute.attribute_value : 'Not Set 🚫', true)
-                .addField('Location',
-                    locationAttribute !== null ?
-                        ProfileCommand.formatLocation(locationAttribute) :
-                        'Not Set 🚫',
-                    true
-                )
+                .addFields([
+                    {
+                        name: 'Age',
+                        value: parsedBirthday !== null && parsedBirthday.year() !== 1804 ?
+                            moment.utc().diff(parsedBirthday, 'years').toString() :
+                            ageAttribute ?
+                                `${ageAttribute.integer_value} ⚠` :
+                                'Not Set 🚫',
+                        inline: true
+                    },
+                    {
+                        name: 'Gender',
+                        value: genderAttribute ? genderAttribute.attribute_value : 'Not Set 🚫',
+                        inline: true
+                    },
+                    {
+                        name: 'Location',
+                        value: locationAttribute !== null ? ProfileCommand.formatLocation(locationAttribute) : 'Not Set 🚫',
+                        inline: true
+                    },
+                ])
         );
     }
 

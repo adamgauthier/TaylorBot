@@ -4,7 +4,7 @@ import { PageMessage } from '../modules/paging/PageMessage';
 import { MemberEmbedDescriptionPageMessage } from '../modules/paging/editors/MemberEmbedDescriptionPageMessage';
 import { ArrayUtil } from '../modules/util/ArrayUtil';
 import { UserAttribute, UserAttributeParameters } from './UserAttribute.js';
-import { Guild, GuildMember, User, MessageEmbed } from 'discord.js';
+import { Guild, GuildMember, User, EmbedBuilder } from 'discord.js';
 import { DatabaseDriver } from '../database/DatabaseDriver.js';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
 
@@ -21,7 +21,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
 
     abstract clear(database: DatabaseDriver, user: User): Promise<void>;
 
-    async setCommand({ author, client }: CommandMessageContext, value: any): Promise<MessageEmbed> {
+    async setCommand({ author, client }: CommandMessageContext, value: any): Promise<EmbedBuilder> {
         const attribute = await this.set(client.master.database, author, value);
 
         return DiscordEmbedFormatter
@@ -30,7 +30,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
             .setDescription(`Your ${this.description} has been set to '${this.formatValue(attribute)}'. ✅`);
     }
 
-    async clearCommand({ author, client }: CommandMessageContext): Promise<MessageEmbed> {
+    async clearCommand({ author, client }: CommandMessageContext): Promise<EmbedBuilder> {
         await this.clear(client.master.database, author);
 
         return DiscordEmbedFormatter

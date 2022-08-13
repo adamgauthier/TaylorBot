@@ -1,14 +1,14 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
 export class EmbedUtil {
-    static success(text: string): MessageEmbed {
-        return new MessageEmbed()
+    static success(text: string): EmbedBuilder {
+        return new EmbedBuilder()
             .setColor('#43b581')
             .setDescription(text);
     }
 
-    static error(text: string): MessageEmbed {
-        return new MessageEmbed()
+    static error(text: string): EmbedBuilder {
+        return new EmbedBuilder()
             .setColor('#f04747')
             .setDescription(text);
     }

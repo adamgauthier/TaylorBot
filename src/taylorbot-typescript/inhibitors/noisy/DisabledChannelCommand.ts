@@ -2,6 +2,7 @@ import { NoisyInhibitor } from '../NoisyInhibitor';
 import { CachedCommand } from '../../client/registry/CachedCommand';
 import { MessageContext } from '../../structures/MessageContext';
 import UserGroups = require('../../client/UserGroups');
+import { ChannelType } from 'discord.js';
 
 class DisabledChannelCommandInhibitor extends NoisyInhibitor {
     async getBlockedMessage({ client, message }: MessageContext, command: CachedCommand): Promise<{ log: string; ui: string } | null> {
@@ -10,7 +11,7 @@ class DisabledChannelCommandInhibitor extends NoisyInhibitor {
 
         const { channel } = message;
 
-        if (channel.type === 'GUILD_TEXT' || channel.type === 'GUILD_NEWS' || channel.isThread()) {
+        if (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildNews || channel.isThread()) {
             const isCommandDisabledInChannel = await client.master.registry.channelCommands.isCommandDisabledInChannel(channel, command);
 
             if (isCommandDisabledInChannel) {

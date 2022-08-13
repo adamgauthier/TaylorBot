@@ -2,7 +2,7 @@ import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatt
 import { StringUtil } from '../../modules/util/StringUtil';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
-import { GuildMember, MessageEmbed } from 'discord.js';
+import { GuildMember, EmbedBuilder } from 'discord.js';
 import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute';
 import { MemberAttribute } from '../MemberAttribute';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
@@ -17,7 +17,7 @@ export class SimpleStatPresenter implements MemberAttributePresenter {
         this.attribute = attribute as SimpleStatMemberAttribute;
     }
 
-    present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: stat, rank }: Record<string, any> & { rank: string }): MessageEmbed {
+    present(commandContext: CommandMessageContext, member: GuildMember, { [this.attribute.columnName]: stat, rank }: Record<string, any> & { rank: string }): EmbedBuilder {
         const description = [
             `${member.displayName} has ${StringUtil.plural(stat, this.attribute.singularName, '**')}.`
         ];

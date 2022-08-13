@@ -1,4 +1,4 @@
-import { Channel, DMChannel, Guild, GuildChannel, GuildMember, PartialDMChannel, Role, ThreadChannel, User } from 'discord.js';
+import { Channel, ChannelType, DMChannel, Guild, GuildChannel, GuildMember, PartialDMChannel, Role, ThreadChannel, User } from 'discord.js';
 
 export class Format {
     static user(user: User, formatString = '#name (#id)'): string {
@@ -27,7 +27,7 @@ export class Format {
             return `Thread ${channel.name} (${channel.id}) on ${channel.guild.name} (${channel.guildId})`;
         }
         else {
-            if (channel.type === 'DM')
+            if (channel.type === ChannelType.DM)
                 return Format.dmChannel(channel as (DMChannel | PartialDMChannel));
             else
                 return Format.guildChannel(channel as GuildChannel | ThreadChannel);
@@ -36,8 +36,8 @@ export class Format {
 
     static dmChannel(channel: DMChannel | PartialDMChannel, formatString = 'DM with [#rName (#rId)] (#id)'): string {
         return formatString
-            .replace('#rName', channel.recipient.username)
-            .replace('#rId', channel.recipient.id)
+            .replace('#rName', channel.recipient?.username ?? '')
+            .replace('#rId', channel.recipient?.id ?? '')
             .replace('#id', channel.id);
     }
 

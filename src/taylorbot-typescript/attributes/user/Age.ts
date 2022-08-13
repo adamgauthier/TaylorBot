@@ -2,7 +2,7 @@ import { CommandError } from '../../commands/CommandError';
 import { AgePresenter } from '../user-presenters/AgePresenter.js';
 import { SettableUserAttribute } from '../SettableUserAttribute.js';
 import { DatabaseDriver } from '../../database/DatabaseDriver.js';
-import { User, MessageEmbed } from 'discord.js';
+import { User, EmbedBuilder } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 class AgeAttribute extends SettableUserAttribute {
@@ -35,7 +35,7 @@ class AgeAttribute extends SettableUserAttribute {
         };
     }
 
-    setCommand(commandContext: CommandMessageContext, _: any): Promise<MessageEmbed> {
+    setCommand(commandContext: CommandMessageContext, _: any): Promise<EmbedBuilder> {
         const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
         const context = new CommandMessageContext(commandContext.messageContext, setCommand);
 

@@ -4,7 +4,7 @@ import { PageMessage } from '../modules/paging/PageMessage';
 import { MemberEmbedDescriptionPageMessage } from '../modules/paging/editors/MemberEmbedDescriptionPageMessage';
 import { ArrayUtil } from '../modules/util/ArrayUtil';
 import { DatabaseDriver } from '../database/DatabaseDriver';
-import { GuildMember, Guild, MessageEmbed } from 'discord.js';
+import { GuildMember, Guild, EmbedBuilder } from 'discord.js';
 import { MemberAttributePresenter } from './MemberAttributePresenter';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
 import { DeprecatedCommandPageMessage } from '../modules/paging/DeprecatedCommandPageMessage';
@@ -23,7 +23,7 @@ export abstract class MemberAttribute extends Attribute {
 
     abstract retrieve(database: DatabaseDriver, member: GuildMember): Promise<any>;
 
-    async getCommand(commandContext: CommandMessageContext, member: GuildMember): Promise<MessageEmbed> {
+    async getCommand(commandContext: CommandMessageContext, member: GuildMember): Promise<EmbedBuilder> {
         const attribute = await this.retrieve(commandContext.client.master.database, member);
 
         if (!attribute) {

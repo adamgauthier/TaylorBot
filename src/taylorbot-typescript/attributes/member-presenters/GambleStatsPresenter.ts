@@ -1,12 +1,12 @@
 import { SimpleStatPresenter } from './SimpleStatPresenter';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
-import { GuildMember, MessageEmbed } from 'discord.js';
+import { GuildMember, EmbedBuilder } from 'discord.js';
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { StringUtil } from '../../modules/util/StringUtil';
 import { MathUtil } from '../../modules/util/MathUtil';
 
 export class GambleStatsPresenter extends SimpleStatPresenter {
-    present(commandContext: CommandMessageContext, member: GuildMember, { gamble_win_count, rank, gamble_lose_count, gamble_win_amount, gamble_lose_amount }: Record<string, any> & { rank: string }): MessageEmbed {
+    present(commandContext: CommandMessageContext, member: GuildMember, { gamble_win_count, rank, gamble_lose_count, gamble_win_amount, gamble_lose_amount }: Record<string, any> & { rank: string }): EmbedBuilder {
         const winCount = BigInt(gamble_win_count);
         const loseCount = BigInt(gamble_lose_count);
         const winAmount = BigInt(gamble_win_amount);

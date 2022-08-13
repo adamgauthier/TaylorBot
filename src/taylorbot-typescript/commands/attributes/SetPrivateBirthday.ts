@@ -5,6 +5,7 @@ import { CommandError } from '../../commands/CommandError';
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { CommandMessageContext } from '../CommandMessageContext';
 import BirthdayUserAttribute = require('../../attributes/user/Birthday');
+import { ChannelType } from 'discord.js';
 
 class SetPrivateBirthdayCommand extends Command {
     constructor() {
@@ -28,7 +29,7 @@ class SetPrivateBirthdayCommand extends Command {
 
     async run(commandContext: CommandMessageContext, { value }: { value: moment.Moment }): Promise<void> {
         const { client, message, author } = commandContext;
-        if (message.channel.type !== 'DM') {
+        if (message.channel.type !== ChannelType.DM) {
             throw new CommandError(`This command is meant to be used in DMs to protect your privacy. Type \`setprivatebirthday\` in a direct message.`);
         }
 

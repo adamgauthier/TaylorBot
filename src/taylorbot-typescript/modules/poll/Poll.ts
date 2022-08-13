@@ -4,7 +4,7 @@ import { DiscordEmbedFormatter } from '../discord/DiscordEmbedFormatter';
 import { StringUtil } from '../util/StringUtil';
 import { Option } from './Option';
 import { TaylorBotClient } from '../../client/TaylorBotClient';
-import { User, TextChannel, GuildMember } from 'discord.js';
+import { User, TextChannel, GuildMember, PermissionFlagsBits } from 'discord.js';
 import { EnvUtil } from '../util/EnvUtil';
 
 const botOwnerUserId = EnvUtil.getRequiredEnvVariable('TaylorBot_BotOwner__UserId');
@@ -75,7 +75,7 @@ export class Poll extends events.EventEmitter {
     }
 
     canClose(member: GuildMember): boolean {
-        return this.owner.id === member.id || botOwnerUserId === member.id || member.permissionsIn(this.channel).has('MANAGE_MESSAGES');
+        return this.owner.id === member.id || botOwnerUserId === member.id || member.permissionsIn(this.channel).has(PermissionFlagsBits.ManageMessages);
     }
 
     vote(user: User, number: number): void {

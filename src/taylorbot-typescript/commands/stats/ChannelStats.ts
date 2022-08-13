@@ -29,8 +29,10 @@ class ChannelStatsCommand extends Command {
         const embed = DiscordEmbedFormatter
             .baseGuildHeader(channel.guild)
             .setTitle(channel.name)
-            .addField('Messages', `~${textChannel.message_count}`, true)
-            .addField('Spam', textChannel.is_spam ? '✅' : '🚫', true);
+            .addFields([
+                { name: 'Messages', value: `~${textChannel.message_count}`, inline: true },
+                { name: 'Spam', value: textChannel.is_spam ? '✅' : '🚫', inline: true },
+            ]);
 
         await client.sendEmbed(message.channel, embed);
     }

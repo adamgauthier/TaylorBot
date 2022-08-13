@@ -2,11 +2,11 @@ import moment = require('moment-timezone');
 
 import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { UserAttributePresenter } from '../UserAttributePresenter.js';
-import { User, MessageEmbed } from 'discord.js';
+import { User, EmbedBuilder } from 'discord.js';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 export class LocationPresenter implements UserAttributePresenter {
-    present(commandContext: CommandMessageContext, user: User, location: Record<string, any> & { rank: string }): Promise<MessageEmbed> {
+    present(commandContext: CommandMessageContext, user: User, location: Record<string, any> & { rank: string }): Promise<EmbedBuilder> {
         return Promise.resolve(
             DiscordEmbedFormatter
                 .baseUserSuccessEmbed(user)

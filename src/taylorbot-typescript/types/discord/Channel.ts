@@ -1,7 +1,7 @@
 import TextArgumentType = require('../base/Text');
 import { ArgumentParsingError } from '../ArgumentParsingError';
 import { CommandArgumentInfo, CommandMessageContext } from '../../commands/CommandMessageContext';
-import { GuildChannel, ThreadChannel } from 'discord.js';
+import { GuildChannel, PermissionFlagsBits, ThreadChannel } from 'discord.js';
 
 class ChannelArgumentType extends TextArgumentType {
     readonly channelFilter: (channel: GuildChannel | ThreadChannel) => boolean;
@@ -22,7 +22,7 @@ class ChannelArgumentType extends TextArgumentType {
             const matches = val.trim().match(/^(?:<#)?([0-9]+)>?$/);
             if (matches) {
                 const channel = guild.channels.resolve(matches[1]);
-                if (channel && channel.permissionsFor(member).has('VIEW_CHANNEL')) {
+                if (channel && channel.permissionsFor(member).has(PermissionFlagsBits.ViewChannel)) {
                     return channel;
                 }
             }
@@ -34,7 +34,7 @@ class ChannelArgumentType extends TextArgumentType {
             }
             else if (channels.size === 1) {
                 const channel = channels.first()!;
-                if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
+                if (channel.permissionsFor(member).has(PermissionFlagsBits.ViewChannel)) {
                     return channel;
                 }
                 else {
@@ -45,13 +45,13 @@ class ChannelArgumentType extends TextArgumentType {
             const exactChannels = channels.filter(this.channelFilterExact(search));
 
             for (const channel of exactChannels.values()) {
-                if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
+                if (channel.permissionsFor(member).has(PermissionFlagsBits.ViewChannel)) {
                     return channel;
                 }
             }
 
             for (const channel of channels.values()) {
-                if (channel.permissionsFor(member).has('VIEW_CHANNEL')) {
+                if (channel.permissionsFor(member).has(PermissionFlagsBits.ViewChannel)) {
                     return channel;
                 }
             }

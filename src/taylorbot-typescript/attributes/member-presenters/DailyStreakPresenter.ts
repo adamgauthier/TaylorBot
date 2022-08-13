@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbed } from 'discord.js';
+import { GuildMember, EmbedBuilder } from 'discord.js';
 import { StringUtil } from '../../modules/util/StringUtil';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import { MemberAttributePresenter } from '../MemberAttributePresenter';
@@ -12,7 +12,7 @@ export class DailyStreakPresenter implements MemberAttributePresenter {
         this.#attribute = attribute;
     }
 
-    present(): MessageEmbed {
+    present(): EmbedBuilder {
         return EmbedUtil.error('This command has been removed. Please use **/daily streak** instead.');
     }
 
