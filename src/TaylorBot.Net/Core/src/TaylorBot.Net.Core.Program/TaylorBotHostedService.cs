@@ -16,6 +16,8 @@ namespace TaylorBot.Net.Core.Program
 {
     public class TaylorBotHostedService : IHostedService
     {
+        private const GatewayIntents IntentMessageContent = (GatewayIntents)(1 << 15);
+
         private readonly IServiceProvider _services;
         private readonly ILogger<TaylorBotHostedService> _logger;
         private readonly TaskExceptionLogger _taskExceptionLogger;
@@ -54,7 +56,7 @@ namespace TaylorBot.Net.Core.Program
             // Wait to login in case of a boot loop
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
 
-            _logger.LogInformation($"Starting client with intents: {flaggedIntents}.");
+            _logger.LogInformation($"Starting client with intents: {string.Join(", ", intents)} ({flaggedIntents}).");
 
             await _client.StartAsync();
         }
@@ -142,7 +144,7 @@ namespace TaylorBot.Net.Core.Program
                             nameof(IMessageReceivedHandler)
                         );
                     };
-                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
 
             var userMessageReceivedHandler = _services.GetService<IUserMessageReceivedHandler>();
@@ -160,7 +162,7 @@ namespace TaylorBot.Net.Core.Program
                             );
                         }
                     };
-                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
 
             var messageDeletedHandler = _services.GetService<IMessageDeletedHandler>();
@@ -175,7 +177,7 @@ namespace TaylorBot.Net.Core.Program
                             nameof(IMessageDeletedHandler)
                         );
                     };
-                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
 
             }
 
@@ -191,7 +193,7 @@ namespace TaylorBot.Net.Core.Program
                             nameof(IMessageBulkDeletedHandler)
                         );
                     };
-                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+                }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
 
             var messageUpdatedHandler = _services.GetService<IMessageUpdatedHandler>();
@@ -206,8 +208,7 @@ namespace TaylorBot.Net.Core.Program
                             nameof(IMessageUpdatedHandler)
                         );
                     };
-                }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
-
+                }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
             }
         }
 
