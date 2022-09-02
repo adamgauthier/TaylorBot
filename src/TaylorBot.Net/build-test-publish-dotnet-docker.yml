@@ -6,6 +6,7 @@ parameters:
   - name: dockerBuildContext
     default: ''
 
+
 stages:
   - stage: build
     displayName: 'Build container image'
@@ -14,7 +15,6 @@ stages:
       containerImageFilePath: '$(Build.ArtifactStagingDirectory)/${{ parameters.componentName }}.tar'
       testImageTag: 'taylorbot/${{ parameters.componentName }}-tests'
       testResultsPath: '$(Build.ArtifactStagingDirectory)/TestResults'
-      buildTestTaskDisplayName: 'Build test container image'
     jobs:
     - job: build
       displayName: 'Run tests and build container image'
@@ -22,7 +22,7 @@ stages:
         vmImage: 'ubuntu-latest'
       steps:
       - task: Docker@2
-        displayName: $(buildTestTaskDisplayName)
+        displayName: 'Build test container image'
         inputs:
           command: build
           dockerfile: ${{ parameters.dockerfilePath }}
@@ -58,5 +58,42 @@ stages:
         displayName: 'Save container image to file'
 
       - publish: $(containerImageFilePath)
-        artifact: 'Docker Image'
+        artifact: '${{ parameters.componentName }}-image'
         displayName: 'Publish built container image'
+
+  - stage: deploy
+    displayName: 'TaylorBot'
+    dependsOn: build
+    condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+    variables:
+      artifactName: '${{ parameters.componentName }}-image'
+      archiveName: '${{ parameters.componentName }}.tar'
+    jobs:
+      - deployment: deploy_component
+        displayName: 'Deploy to virtual machine'
+        environment:
+          name: taylorbot
+          resourceType: VirtualMachine
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - download: current
+                artifact: $(artifactName)
+              # This assumes we have set up a remote virtual machine resource with the repository cloned in home folder
+              - script: |
+                  set -o errexit
+                  set -o pipefail
+                  set -o nounset
+
+                  deploy_folder=~/TaylorBot/src/linux-infrastructure/dotnet/${{ parameters.componentName }}
+
+                  echo 'Moving $(archiveName) to deploy folder'
+                  rm -f ${deploy_folder}/$(archiveName).bak
+                  mv ${deploy_folder}/$(archiveName) ${deploy_folder}/$(archiveName).bak
+                  mv $(Pipeline.Workspace)/$(artifactName)/$(archiveName) ${deploy_folder}/$(archiveName)
+
+                  cd ${deploy_folder}
+                  docker rm -f taylorbot-${{ parameters.componentName }} &>/dev/null && echo 'Removed previous container'
+                  ./deploy-${{ parameters.componentName }}.sh
+                displayName: 'Deploy image and start container'
