@@ -46,6 +46,7 @@
           "required": false,
           "channel_types": [
             0,
+            2,
             5,
             10,
             11,
@@ -72,6 +73,7 @@
           "required": false,
           "channel_types": [
             0,
+            2,
             5,
             10,
             11,
