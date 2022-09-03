@@ -47,7 +47,7 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
                     var nameParts = entry.Name.ToString().Split(':');
                     var guildId = nameParts[1];
                     var userId = nameParts[3];
-                    var lastSpokeAt = DateTimeOffset.ParseExact(entry.Value, "o", CultureInfo.InvariantCulture);
+                    var lastSpokeAt = DateTimeOffset.ParseExact($"{entry.Value}", "o", CultureInfo.InvariantCulture);
 
                     using var connection = _postgresConnectionFactory.CreateConnection();
 

@@ -30,7 +30,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 return prefix;
             }
 
-            return cachedPrefix;
+            return cachedPrefix.ToString();
         }
 
         public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)

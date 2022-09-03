@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 return disabledMessage;
             }
 
-            return message;
+            return message.ToString();
         }
 
         public async ValueTask EnableGloballyAsync(string commandName)

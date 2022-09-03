@@ -25,9 +25,9 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(messageId.ToString());
-            var cachedJson = await redis.StringGetAsync(key);
+            var cachedJson = (string?)await redis.StringGetAsync(key);
 
-            if (cachedJson.HasValue)
+            if (!string.IsNullOrEmpty(cachedJson))
             {
                 return JsonSerializer.Deserialize<TaylorBotCachedMessageData>(cachedJson);
             }

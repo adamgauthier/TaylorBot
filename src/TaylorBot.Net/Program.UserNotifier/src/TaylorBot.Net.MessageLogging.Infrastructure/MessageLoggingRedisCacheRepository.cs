@@ -31,7 +31,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
                 return logChannel;
             }
 
-            return logChannelId == string.Empty ? null : new LogChannel(new SnowflakeId(logChannelId));
+            return logChannelId == string.Empty ? null : new LogChannel(new SnowflakeId(logChannelId.ToString()));
         }
 
         public async ValueTask<LogChannel?> GetEditedLogsChannelForGuildAsync(IGuild guild)
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
                 return logChannel;
             }
 
-            return logChannelId == string.Empty ? null : new LogChannel(new SnowflakeId(logChannelId));
+            return logChannelId == string.Empty ? null : new LogChannel(new SnowflakeId(logChannelId.ToString()));
         }
     }
 }
