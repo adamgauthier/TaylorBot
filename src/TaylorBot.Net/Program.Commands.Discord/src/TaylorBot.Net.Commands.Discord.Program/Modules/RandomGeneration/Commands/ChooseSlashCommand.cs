@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Parsers;
@@ -19,7 +20,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
             _cryptoSecureRandom = cryptoSecureRandom;
         }
 
-        public Command Choose(string options, string? footer = null, IUser? author = null) => new(
+        public Command Choose(string options, IUser? author = null) => new(
             Metadata,
             () =>
             {
@@ -27,16 +28,19 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
 
                 var randomOption = _cryptoSecureRandom.GetRandomElement(parsedOptions);
 
-                var embed = new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithTitle("I choose:")
-                    .WithDescription(randomOption);
+                var description = new List<string> { randomOption };
+                var embed = new EmbedBuilder();
 
                 if (author != null)
+                {
                     embed.WithUserAsAuthor(author);
+                    description.AddRange(new[] { "", "Use </choose:843563366751404063> instead! 😊" });
+                }
 
-                if (footer != null)
-                    embed.WithFooter(footer);
+                embed
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithTitle("I choose:")
+                    .WithDescription(string.Join('\n', description));
 
                 return new(new EmbedResult(embed.Build()));
             }

@@ -45,7 +45,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
 
             var result = (await _randomModule.ChooseAsync($"Taylor Swift, Fearless, {ChosenOption}, Red, 1989, reputation, Lover")).GetResult<EmbedResult>();
 
-            result.Embed.Description.Should().Be(ChosenOption);
+            result.Embed.Description.Should().Contain(ChosenOption);
         }
     }
 }

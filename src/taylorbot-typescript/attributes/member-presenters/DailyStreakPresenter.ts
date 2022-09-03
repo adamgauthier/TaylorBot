@@ -13,7 +13,7 @@ export class DailyStreakPresenter implements MemberAttributePresenter {
     }
 
     present(): EmbedBuilder {
-        return EmbedUtil.error('This command has been removed. Please use **/daily streak** instead.');
+        return EmbedUtil.error('This command has been removed. Please use </daily streak:870731803739168859> instead.');
     }
 
     presentRankEntry(member: GuildMember, attribute: Record<string, any> & { rank: string }): string {

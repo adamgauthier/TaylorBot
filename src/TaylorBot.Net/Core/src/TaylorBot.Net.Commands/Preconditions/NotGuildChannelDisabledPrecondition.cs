@@ -32,7 +32,7 @@ namespace TaylorBot.Net.Commands.Preconditions
                     PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {context.Guild.FormatLog()}",
                     UserReason: new(string.Join('\n', new[] {
                         $"You can't use `{command.Metadata.Name}` because it is disabled in {context.Channel.Mention}.",
-                        $"You can re-enable it by typing **/command channel-enable {command.Metadata.Name}**."
+                        $"You can re-enable it by typing </command channel-enable:909694280703016991> {command.Metadata.Name}."
                     }))
                 ) :
                 new PreconditionPassed();

@@ -41,7 +41,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
             return new(EmbedFactory.CreateError(string.Join('\n', new[] {
                 $"{user.Mention}'s Last.fm username is not set. 🚫",
                 $"Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.",
-                $"You can then link it to TaylorBot with **/lastfm set**."
+                $"You can then link it to TaylorBot with </lastfm set:922354806574678086>."
             })));
         }
 

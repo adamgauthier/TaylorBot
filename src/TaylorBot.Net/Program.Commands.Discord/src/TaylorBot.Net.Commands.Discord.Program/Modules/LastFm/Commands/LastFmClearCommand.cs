@@ -28,7 +28,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(string.Join('\n', new[] {
                         $"Your Last.fm username has been cleared. Last.fm commands will no longer work. ✅",
-                        $"You can set it again with **/lastfm set**."
+                        $"You can set it again with </lastfm set:922354806574678086>."
                     }));
 
                 if (isLegacyCommand)

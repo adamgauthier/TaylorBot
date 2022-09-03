@@ -39,7 +39,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                         string.Join("\n", reminderViews.Select(r => $"**{r.UserFacingId}:** {r.Summary}")) :
                         string.Join("\n", new[] {
                             "You don't have any reminders. 😶",
-                            "Add one with **/remind add**."
+                            "Add one with </remind add:861754955728027678>."
                         });
 
                     var clearButtons = reminderViews.Select(r => new MessageResult.ButtonResult(

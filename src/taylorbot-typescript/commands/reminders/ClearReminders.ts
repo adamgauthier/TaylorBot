@@ -7,7 +7,7 @@ class ClearRemindersCommand extends Command {
             name: 'clearreminders',
             aliases: ['clearreminder', 'cr'],
             group: 'Reminders ⏰',
-            description: 'This command has been removed. Please use **/remind manage** instead.',
+            description: 'This command has been removed. Please use </remind manage:861754955728027678> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class ClearRemindersCommand extends Command {
     async run({ message, client, author }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(
             message.channel,
-            `This command has been removed. Please use **/remind manage** instead.`
+            `This command has been removed. Please use </remind manage:861754955728027678> instead.`
         );
     }
 }

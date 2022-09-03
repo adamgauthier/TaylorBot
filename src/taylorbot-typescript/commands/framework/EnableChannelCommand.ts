@@ -7,7 +7,7 @@ class EnableChannelCommandCommand extends Command {
             name: 'enablechannelcommand',
             aliases: ['ecc'],
             group: 'framework',
-            description: 'This command has been removed. Please use **/command channel-enable** instead.',
+            description: 'This command has been removed. Please use </command channel-enable:909694280703016991> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class EnableChannelCommandCommand extends Command {
     async run({ message, client }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use **/command channel-enable** instead.`
+            `Please use </command channel-enable:909694280703016991> instead.`
         ].join('\n'));
     }
 }

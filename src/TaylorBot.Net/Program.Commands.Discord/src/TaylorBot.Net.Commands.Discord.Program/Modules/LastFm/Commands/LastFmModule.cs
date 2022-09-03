@@ -148,14 +148,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 
         [Command("collage")]
         [Alias("c")]
-        [Summary("This command has been moved to **/lastfm collage**, please use it instead.")]
+        [Summary("This command has been moved to </lastfm collage:922354806574678086>, please use it instead.")]
         public Task<RuntimeResult> CollageAsync(
             [Remainder]
             string any = ""
         )
         {
             return Task.FromResult<RuntimeResult>(new TaylorBotResult(
-                new EmbedResult(EmbedFactory.CreateError($"This command has been moved to **/lastfm collage**, please use it instead.")),
+                new EmbedResult(EmbedFactory.CreateError($"This command has been moved to </lastfm collage:922354806574678086>, please use it instead.")),
                 DiscordNetContextMapper.MapToRunContext(Context)
             ));
         }

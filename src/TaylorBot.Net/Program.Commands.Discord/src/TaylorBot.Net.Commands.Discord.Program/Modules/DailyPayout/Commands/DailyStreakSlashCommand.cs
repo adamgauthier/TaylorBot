@@ -33,7 +33,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
                     {
                         return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                             $"{options.user.User.Mention} has never claimed their daily reward! ❌",
-                            "Use **/daily claim** to claim your daily reward!"
+                            "Use </daily claim:870731803739168859> to claim your daily reward!"
                         })));
                     }
                     else if (streakInfo.Value.MaxStreak > streakInfo.Value.CurrentStreak)

@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
 
-        public Command Avatar(IUser user, string? footer = null) => new(
+        public Command Avatar(IUser user, string? description = null) => new(
             Metadata,
             () =>
             {
@@ -21,8 +21,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithImageUrl(user.GetAvatarUrlOrDefault(size: 2048));
 
-                if (footer != null)
-                    embed.WithFooter(footer);
+                if (description != null)
+                    embed.WithDescription(description);
 
                 return new(new EmbedResult(embed.Build()));
             }

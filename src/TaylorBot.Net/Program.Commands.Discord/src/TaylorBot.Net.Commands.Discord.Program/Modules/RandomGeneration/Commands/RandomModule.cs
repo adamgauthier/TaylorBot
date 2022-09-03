@@ -74,7 +74,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
         {
             var context = DiscordNetContextMapper.MapToRunContext(Context);
             var result = await _commandRunner.RunAsync(
-                new ChooseCommand(_cryptoSecureRandom).Choose(options, "Type /choose for a shiny new command experience! ⭐", Context.User),
+                new ChooseCommand(_cryptoSecureRandom).Choose(options, Context.User),
                 context
             );
 

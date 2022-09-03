@@ -7,7 +7,7 @@ class EnableServerCommandCommand extends Command {
             name: 'enableservercommand',
             aliases: ['enableguildcommand', 'egc', 'esc'],
             group: 'framework',
-            description: 'This command has been removed. Please use **/command server-enable** instead.',
+            description: 'This command has been removed. Please use </command server-enable:909694280703016991> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class EnableServerCommandCommand extends Command {
     async run({ message, client }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use **/command server-enable** instead.`
+            `Please use </command server-enable:909694280703016991> instead.`
         ].join('\n'));
     }
 }

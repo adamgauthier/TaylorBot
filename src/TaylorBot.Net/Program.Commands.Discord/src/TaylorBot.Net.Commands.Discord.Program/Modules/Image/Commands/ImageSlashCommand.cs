@@ -48,7 +48,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
                                 new EmbedBuilder()
                                     .WithUserAsAuthor(user)
                                     .WithColor(TaylorBotColors.SuccessColor)
-                                    .WithFooter("Type /image for a shiny new command experience! ⭐");
+                                    .WithDescription("Use </image:870731803739168860> instead! 😊");
 
                             return new PageMessageResult(new PageMessage(new(
                                 new EmbedPageMessageRenderer(new CustomSearchImagePageEditor(search.Images), BuildBaseEmbed),

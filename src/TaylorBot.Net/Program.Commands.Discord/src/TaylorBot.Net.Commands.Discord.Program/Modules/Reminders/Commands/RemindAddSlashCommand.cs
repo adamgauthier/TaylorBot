@@ -66,7 +66,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
                     {
                         return new EmbedResult(EmbedFactory.CreateError(string.Join("\n", new[] {
                             $"Sorry, you can't have more than {maxReminders} set at the same time. 😕",
-                            "Use **/remind manage** to clear some of your current reminders.",
+                            "Use </remind manage:861754955728027678> to clear some of your current reminders.",
                             $"By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}."
                         })));
                     }

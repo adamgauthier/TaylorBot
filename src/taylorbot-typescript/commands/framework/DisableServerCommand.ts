@@ -7,7 +7,7 @@ class DisableServerCommandCommand extends Command {
             name: 'disableservercommand',
             aliases: ['disableguildcommand', 'dgc', 'dsc'],
             group: 'framework',
-            description: 'This command has been removed. Please use **/command server-disable** instead.',
+            description: 'This command has been removed. Please use </command server-disable:909694280703016991> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class DisableServerCommandCommand extends Command {
     async run({ message, client }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use **/command server-disable** instead.`
+            `Please use </command server-disable:909694280703016991> instead.`
         ].join('\n'));
     }
 }

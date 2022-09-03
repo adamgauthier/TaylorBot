@@ -37,7 +37,7 @@ class YoutubeCommand extends Command {
         await new PageMessage(
             client,
             author,
-            results.map(r => `Use **/youtube** for a better command experience and higher daily limit.\nhttps://youtu.be/${r.id.videoId}`),
+            results.map(r => `Use </youtube:861754955728027679> for a better command experience and higher daily limit.\nhttps://youtu.be/${r.id.videoId}`),
             new TextPageEditor(),
             { cancellable: true }
         ).send(channel);

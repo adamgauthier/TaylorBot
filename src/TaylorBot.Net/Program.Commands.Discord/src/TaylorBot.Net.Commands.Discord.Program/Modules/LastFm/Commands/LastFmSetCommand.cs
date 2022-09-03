@@ -28,7 +28,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(string.Join('\n', new[] {
                         $"Your Last.fm username has been set to {lastFmUsername.Username.DiscordMdLink(lastFmUsername.LinkToProfile)}. ✅",
-                        $"You can now use Last.fm commands, get started with **/lastfm current**."
+                        $"You can now use Last.fm commands, get started with </lastfm current:922354806574678086>."
                     }));
 
                 if (isLegacyCommand)

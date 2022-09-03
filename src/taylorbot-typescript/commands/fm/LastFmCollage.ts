@@ -7,7 +7,7 @@ class LastFmCollageCommand extends Command {
             name: 'lastfmcollage',
             aliases: ['fmcollage', 'fmc'],
             group: 'fm',
-            description: 'This command has been removed. Please use **/lastfm collage** instead.',
+            description: 'This command has been removed. Please use </lastfm collage:922354806574678086> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class LastFmCollageCommand extends Command {
     async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
         await client.sendEmbedError(
             message.channel,
-            `This command has been removed. Please use **/lastfm collage** instead.`
+            `This command has been removed. Please use </lastfm collage:922354806574678086> instead.`
         );
     }
 }
