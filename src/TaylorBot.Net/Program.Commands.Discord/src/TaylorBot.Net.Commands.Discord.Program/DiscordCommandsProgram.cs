@@ -48,6 +48,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure;
@@ -186,7 +189,13 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<LastFmArtistsCommand>()
             .AddSlashCommand<LastFmArtistsSlashCommand>()
             .AddTransient<IHoroscopeClient, GaneshaSpeaksHoroscopeClient>()
-            .AddTransient<IZodiacSignRepository, ZodiacSignPostgresRepository>();
+            .AddTransient<IZodiacSignRepository, ZodiacSignPostgresRepository>()
+            .AddTransient<ILocationRepository, LocationPostgresRepository>()
+            .AddTransient<ILocationClient, GooglePlacesClient>()
+            .ConfigureRequired<WeatherOptions>(config, "Weather")
+            .AddTransient<IWeatherClient, DarkSkyWeatherClient>()
+            .AddTransient<WeatherCommand>()
+            .AddSlashCommand<WeatherSlashCommand>();
     })
     .Build();
 

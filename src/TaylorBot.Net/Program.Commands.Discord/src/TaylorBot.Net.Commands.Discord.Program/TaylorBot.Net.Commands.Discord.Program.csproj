@@ -21,6 +21,7 @@
     <PackageReference Include="Google.Apis.CustomSearchAPI.v1" Version="1.55.0.2455" />
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.55.0.2449" />
     <PackageReference Include="Inflatable.Lastfm" Version="1.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
   </ItemGroup>
 

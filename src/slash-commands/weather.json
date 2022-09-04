@@ -1,0 +1,18 @@
+{
+  "name": "weather",
+  "description": "Get current weather forecast for a user's location. Weather data is powered by Dark Sky.",
+  "options": [
+    {
+      "name": "user",
+      "description": "The user to show the weather for, or your own",
+      "type": 6,
+      "required": false
+    },
+    {
+      "name": "location",
+      "description": "The location to show the weather for, instead of a user's location",
+      "type": 3,
+      "required": false
+    }
+  ]
+}

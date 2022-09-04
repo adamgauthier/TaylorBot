@@ -140,7 +140,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, $"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):");
+                    _logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
                     return new LastFmGenericErrorResult(null);
                 }
             }
@@ -192,7 +192,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, $"Unhandled error when parsing json in Last.Fm error response ({response.StatusCode}):");
+                    _logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
                     return new LastFmGenericErrorResult(null);
                 }
             }

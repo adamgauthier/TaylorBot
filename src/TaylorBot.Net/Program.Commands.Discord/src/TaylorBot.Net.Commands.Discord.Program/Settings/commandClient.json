@@ -6,13 +6,21 @@
     "ApplicationName": "commands-discord",
     "DailyLimits": {
       "custom-search": {
-        "FriendlyName": "Searching Images (slash command)",
+        "FriendlyName": "Searching images (slash command)",
         "MaxUsesForUser": 4,
         "MaxUsesForPlusUser": 7
       },
       "custom-search-legacy": {
-        "FriendlyName": "Searching Images (prefix command)",
+        "FriendlyName": "Searching images (prefix command)",
         "MaxUsesForUser": 3
+      },
+      "google-places-search": {
+        "FriendlyName": "Searching a location on Google Maps",
+        "MaxUsesForUser": 5
+      },
+      "weather-report": {
+        "FriendlyName": "Getting a weather report",
+        "MaxUsesForUser": 15
       },
       "youtube-search": {
         "FriendlyName": "Searching YouTube",
