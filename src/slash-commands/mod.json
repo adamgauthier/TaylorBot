@@ -1,6 +1,7 @@
 {
   "name": "mod",
   "description": "Moderate your server with these utility commands",
+  "dm_permission": false,
   "options": [
     {
       "name": "mail",

@@ -1,6 +1,7 @@
 {
   "name": "kick",
   "description": "Kick server members",
+  "dm_permission": false,
   "options": [
     {
       "name": "member",

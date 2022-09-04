@@ -1,6 +1,7 @@
 {
   "name": "monitor",
   "description": "Monitor different events in your server",
+  "dm_permission": false,
   "options": [
     {
       "name": "members",

@@ -1,6 +1,7 @@
 {
   "name": "command",
   "description": "Enable and disable commands",
+  "dm_permission": false,
   "options": [
     {
       "name": "server-disable",
