@@ -39,7 +39,7 @@ namespace TaylorBot.Net.Commands.Preconditions
             else
             {
                 await _ongoingCommandRepository.AddOngoingCommandAsync(context.User, pool);
-                context.OnGoingState.OnGoingCommandAddedToPool = pool;
+                context.OnGoing.OnGoingCommandAddedToPool = pool;
                 return new PreconditionPassed();
             }
         }

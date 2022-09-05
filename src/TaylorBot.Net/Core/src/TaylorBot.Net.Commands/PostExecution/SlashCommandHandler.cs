@@ -131,6 +131,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                     author is IGuildUser guildUser ? guildUser.Guild : null,
                     _taylorBotClient.Value.DiscordShardedClient,
                     _taylorBotClient.Value.DiscordShardedClient.CurrentUser,
+                    new(interaction.Data.id, interaction.Data.name),
                     oldPrefix,
                     new()
                 );
@@ -141,9 +142,9 @@ namespace TaylorBot.Net.Commands.PostExecution
 
                 var result = await RunCommandAsync(slashCommand, context, options);
 
-                if (context.OnGoingState.OnGoingCommandAddedToPool != null)
+                if (context.OnGoing.OnGoingCommandAddedToPool != null)
                 {
-                    await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, context.OnGoingState.OnGoingCommandAddedToPool);
+                    await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, context.OnGoing.OnGoingCommandAddedToPool);
                 }
 
                 switch (result)

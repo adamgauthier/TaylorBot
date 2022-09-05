@@ -11,6 +11,6 @@ export class DeprecatedCommandPageMessage extends PageMessage<string> {
     }
 
     async send(channel: Discord.PartialTextBasedChannelFields): Promise<void> {
-        await channel.send({ embeds: [EmbedUtil.error(`This command has been removed. Please use **${this.#newCommandName}** instead.`)] });
+        await channel.send({ embeds: [EmbedUtil.error(`This command has been removed. Please use ${this.#newCommandName} instead.`)] });
     }
 }

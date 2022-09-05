@@ -44,7 +44,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
                             return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 $"Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚",
-                                $"Use `/monitor edited stop` to stop monitoring edited messages."
+                                $"Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages."
                             })));
                         }
                     ));
@@ -87,14 +87,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
                         {
                             embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 $"This server is configured to log edited messages in {channel.Mention}. ✅",
-                                $"Use `/monitor edited stop` to stop monitoring edited messages in this server."
+                                $"Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages in this server."
                             }));
                         }
                         else
                         {
                             embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 "I can't find the previously configured edited messages logging channel in this server. ❌",
-                                "Was it deleted? Use `/monitor edited set` to log edited messages in another channel."
+                                $"Was it deleted? Use {context.MentionCommand("monitor edited set")} to log edited messages in another channel."
                             }));
                         }
                     }
@@ -102,7 +102,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
                     {
                         embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                             "Edited message monitoring is not configured in this server. ❌",
-                            $"Use `/monitor edited set` to log edited messages in a specific channel."
+                            $"Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel."
                         }));
                     }
 
@@ -137,7 +137,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                         "Ok, I will stop logging edited messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚",
-                        $"Use `/monitor edited set` to log edited messages in a specific channel."
+                        $"Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel."
                     })));
                 },
                 Preconditions: new ICommandPrecondition[] {

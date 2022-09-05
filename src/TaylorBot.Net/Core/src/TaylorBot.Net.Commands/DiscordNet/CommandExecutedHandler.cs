@@ -186,9 +186,9 @@ namespace TaylorBot.Net.Commands.DiscordNet
                 }
             }
 
-            if (commandContext.RunContext?.OnGoingState.OnGoingCommandAddedToPool != null)
+            if (commandContext.RunContext?.OnGoing.OnGoingCommandAddedToPool != null)
             {
-                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoingState.OnGoingCommandAddedToPool);
+                await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
             }
         }
 

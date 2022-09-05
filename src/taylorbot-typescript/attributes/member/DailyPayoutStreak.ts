@@ -19,7 +19,7 @@ class DailyPayoutStreakMemberAttribute extends MemberAttribute {
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {
-        return Promise.resolve(['/daily leaderboard']);
+        return Promise.resolve(['</daily leaderboard:870731803739168859>']);
     }
 }
 

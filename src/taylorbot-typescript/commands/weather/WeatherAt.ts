@@ -6,7 +6,7 @@ class WeatherCommand extends Command {
         super({
             name: 'weatherat',
             group: 'Weather 🌦',
-            description: 'This command has been removed. Please use **/weather** with the **location** option instead.',
+            description: 'This command has been removed. Please use </weather:1015857497896136755> with the **location** option instead.',
             examples: [''],
 
             args: [
@@ -23,7 +23,7 @@ class WeatherCommand extends Command {
     async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             'This command has been removed.',
-            'Please use **/weather** with the **location** option instead.'
+            'Please use </weather:1015857497896136755> with the **location** option instead.'
         ].join('\n'));
     }
 }

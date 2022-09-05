@@ -35,7 +35,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                         $"Ok, I will now log member joins, leaves and bans in {channel.Mention}. 😊",
-                        $"Use `/monitor members stop` to stop monitoring member events."
+                        $"Use {context.MentionCommand("monitor members stop")} to stop monitoring member events."
                     })));
                 },
                 Preconditions: new ICommandPrecondition[] {
@@ -76,14 +76,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
                         {
                             embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 $"This server is configured to log member joins, leaves and bans in {channel.Mention}. ✅",
-                                $"Use `/monitor members stop` to stop monitoring member events in this server."
+                                $"Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server."
                             }));
                         }
                         else
                         {
                             embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 "I can't find the previously configured member events logging channel in this server. ❌",
-                                "Was it deleted? Use `/monitor members set` to log member events in another channel."
+                                $"Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel."
                             }));
                         }
                     }
@@ -91,7 +91,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
                     {
                         embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                             "Member events monitoring is not configured in this server. ❌",
-                            $"Use `/monitor members set` to log member events in a specific channel."
+                            $"Use {context.MentionCommand("monitor members set")} to log member events in a specific channel."
                         }));
                     }
 
@@ -126,7 +126,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                         "Ok, I will stop logging member events in this server. 😊",
-                        $"Use `/monitor members set` to log member events in a specific channel."
+                        $"Use {context.MentionCommand("monitor members set")} to log member events in a specific channel."
                     })));
                 },
                 Preconditions: new ICommandPrecondition[] {

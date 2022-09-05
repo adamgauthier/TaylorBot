@@ -34,7 +34,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithDescription(string.Join('\n', new[] {
                             $"Ok, I will now log moderation command usage in {options.channel.Channel.Mention}. ✅",
-                            $"Use `/mod log stop` to undo this action."
+                            $"Use {context.MentionCommand("mod log stop")} to undo this action."
                         }))
                     .Build());
                 },
@@ -69,7 +69,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithDescription(string.Join('\n', new[] {
                             "Ok, I will stop logging moderation command usage in this server. ✅",
-                            "Use `/mod log set` to log moderation command usage in a specific channel."
+                            $"Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel."
                         }))
                     .Build());
                 },
@@ -110,14 +110,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         {
                             embed.WithDescription(string.Join('\n', new[] {
                                 $"This server is configured to log moderation command usage in {channel.Mention}. ✅",
-                                "Use `/mod log stop` to stop logging moderation command usage in this server."
+                                $"Use {context.MentionCommand("mod log stop")} to stop logging moderation command usage in this server."
                             }));
                         }
                         else
                         {
                             embed.WithDescription(string.Join('\n', new[] {
                                 "I can't find the previously configured moderation command usage logging channel in this server. ❌",
-                                "Was it deleted? Use `/mod log set` to log moderation command usage in another channel."
+                                $"Was it deleted? Use {context.MentionCommand("mod log set")} to log moderation command usage in another channel."
                             }));
                         }
                     }
@@ -125,7 +125,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     {
                         embed.WithDescription(string.Join('\n', new[] {
                             "There is no moderation command usage logging configured in this server. ❌",
-                            "Use `/mod log set` to log moderation command usage in a specific channel."
+                            $"Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel."
                         }));
                     }
 

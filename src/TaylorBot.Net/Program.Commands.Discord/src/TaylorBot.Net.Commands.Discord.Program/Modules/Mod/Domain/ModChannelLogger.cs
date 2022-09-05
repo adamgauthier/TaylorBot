@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain
     {
         ValueTask<ITextChannel?> GetModLogAsync(IGuild guild);
         ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed);
-        Embed CreateResultEmbed(bool wasLogged, string successMessage);
+        Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
     }
 
     public class ModChannelLogger : IModChannelLogger
@@ -63,14 +63,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain
             return false;
         }
 
-        public Embed CreateResultEmbed(bool wasLogged, string successMessage)
+        public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
         {
             return wasLogged ?
                 EmbedFactory.CreateSuccess(successMessage) :
                 EmbedFactory.CreateWarning(string.Join('\n', new[] {
                     successMessage,
                     "However, I was not able to log this action in your moderation log channel.",
-                    "Make sure you set it up with `/mod log set` and TaylorBot has access to it."
+                    $"Make sure you set it up with {context.MentionCommand("mod log set")} and TaylorBot has access to it."
                 }));
         }
     }

@@ -85,7 +85,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
                         return EmbedFactory.CreateError(string.Join('\n', new[] {
                             "I was not able to send the message to the moderation team. 😕",
-                            "Make sure they have a moderation log set up with `/mod log set` and TaylorBot has access to it.",
+                            $"Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it.",
                         }));
                     }
                 },

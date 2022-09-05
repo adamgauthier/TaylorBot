@@ -32,7 +32,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests
             A.CallTo(() => _commandContext.Guild).Returns(_guild);
             A.CallTo(() => _commandContext.User).Returns(_commandUser);
             A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
-            A.CallTo(() => _modLogChannelLogger.CreateResultEmbed(A<bool>.Ignored, A<string>.Ignored)).ReturnsLazily(call => EmbedFactory.CreateSuccess(call.Arguments.Get<string>(1)!));
+            A.CallTo(() => _modLogChannelLogger.CreateResultEmbed(A<RunContext>.Ignored, A<bool>.Ignored, A<string>.Ignored)).ReturnsLazily(call => EmbedFactory.CreateSuccess(call.Arguments.Get<string>(2)!));
         }
 
         [Fact]

@@ -22,8 +22,26 @@ namespace TaylorBot.Net.Commands
         }
     }
 
-    public record RunContext(DateTimeOffset CreatedAt, IUser User, MessageChannel Channel, IGuild? Guild, IDiscordClient Client, ISelfUser BotUser, string CommandPrefix, OnGoingState OnGoingState);
-    public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
+    public record RunContext(
+        DateTimeOffset CreatedAt,
+        IUser User,
+        MessageChannel Channel,
+        IGuild? Guild,
+        IDiscordClient Client,
+        ISelfUser BotUser,
+        RunContext.CurrentCommandInfo CommandInfo,
+        string CommandPrefix,
+        RunContext.OnGoingState OnGoing
+    )
+    {
+        public record CurrentCommandInfo(string Id, string Name);
+        public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
+
+        public string MentionCommand(string name) =>
+            name.Split(' ')[0] == CommandInfo.Name.Split(' ')[0] ?
+                $"</{name}:{CommandInfo.Id}>" :
+                $"**/{name}**";
+    }
 
     public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);
     public record CommandMetadata(string Name, string? ModuleName = null, IReadOnlyList<string>? Aliases = null);

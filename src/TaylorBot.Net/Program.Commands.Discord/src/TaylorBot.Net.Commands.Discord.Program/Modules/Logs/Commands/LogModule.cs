@@ -25,7 +25,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
 
             [Priority(-1)]
             [Command]
-            [Summary("This command has moved to a slash command. Use `/monitor deleted set` instead!")]
+            [Summary("This command has moved to </monitor deleted set:887146682146488390>.")]
             public async Task<RuntimeResult> AddAsync(
                 [Summary("What channel would you like deleted messages to be logged in?")]
                 [Remainder]
@@ -39,7 +39,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                         return new(new EmbedResult(new EmbedBuilder()
                             .WithColor(TaylorBotColors.ErrorColor)
                             .WithUserAsAuthor(Context.User)
-                            .WithDescription("This command has moved to a slash command. Use `/monitor deleted set` instead!")
+                            .WithDescription("This command has moved to </monitor deleted set:887146682146488390>.")
                         .Build()));
                     }
                 );
@@ -51,7 +51,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
             }
 
             [Command("stop")]
-            [Summary("This command has moved to a slash command. Use `/monitor deleted stop` instead!")]
+            [Summary("This command has moved to </monitor deleted stop:887146682146488390>.")]
             public async Task<RuntimeResult> RemoveAsync()
             {
                 var command = new Command(
@@ -61,7 +61,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                         return new(new EmbedResult(new EmbedBuilder()
                             .WithColor(TaylorBotColors.ErrorColor)
                             .WithUserAsAuthor(Context.User)
-                            .WithDescription("This command has moved to a slash command. Use `/monitor deleted stop` instead!")
+                            .WithDescription("This command has moved to </monitor deleted stop:887146682146488390>.")
                         .Build()));
                     }
                 );
@@ -86,7 +86,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
 
             [Priority(-1)]
             [Command]
-            [Summary("This command has moved to a slash command. Use `/monitor members set` instead!")]
+            [Summary("This command has moved to </monitor members set:887146682146488390>.")]
             public async Task<RuntimeResult> AddAsync(
                 [Summary("What channel would you like member events to be logged in?")]
                 [Remainder]
@@ -100,7 +100,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                         return new(new EmbedResult(new EmbedBuilder()
                             .WithColor(TaylorBotColors.ErrorColor)
                             .WithUserAsAuthor(Context.User)
-                            .WithDescription("This command has moved to a slash command. Use `/monitor members set` instead!")
+                            .WithDescription("This command has moved to </monitor members set:887146682146488390>.")
                         .Build()));
                     }
                 );
@@ -112,7 +112,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
             }
 
             [Command("stop")]
-            [Summary("This command has moved to a slash command. Use `/monitor members stop` instead!")]
+            [Summary("This command has moved to </monitor members stop:887146682146488390>.")]
             public async Task<RuntimeResult> RemoveAsync()
             {
                 var command = new Command(
@@ -122,7 +122,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands
                         return new(new EmbedResult(new EmbedBuilder()
                             .WithColor(TaylorBotColors.ErrorColor)
                             .WithUserAsAuthor(Context.User)
-                            .WithDescription("This command has moved to a slash command. Use `/monitor members stop` instead!")
+                            .WithDescription("This command has moved to </monitor members stop:887146682146488390>.")
                         .Build()));
                     }
                 );

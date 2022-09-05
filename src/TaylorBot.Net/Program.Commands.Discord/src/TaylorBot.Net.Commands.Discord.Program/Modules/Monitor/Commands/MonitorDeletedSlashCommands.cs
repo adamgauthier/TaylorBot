@@ -43,7 +43,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
                             return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 $"Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚",
-                                $"Use `/monitor deleted stop` to stop monitoring deleted messages."
+                                $"Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages."
                             })));
                         }
                     ));
@@ -86,14 +86,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
                         {
                             embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 $"This server is configured to log deleted messages in {channel.Mention}. ✅",
-                                $"Use `/monitor deleted stop` to stop monitoring deleted messages in this server."
+                                $"Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages in this server."
                             }));
                         }
                         else
                         {
                             embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                                 "I can't find the previously configured deleted messages logging channel in this server. ❌",
-                                "Was it deleted? Use `/monitor deleted set` to log deleted messages in another channel."
+                                $"Was it deleted? Use {context.MentionCommand("monitor deleted set")} to log deleted messages in another channel."
                             }));
                         }
                     }
@@ -101,7 +101,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
                     {
                         embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                             "Deleted message monitoring is not configured in this server. ❌",
-                            $"Use `/monitor deleted set` to log deleted messages in a specific channel."
+                            $"Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel."
                         }));
                     }
 
@@ -136,7 +136,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                         "Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚",
-                        $"Use `/monitor deleted set` to log deleted messages in a specific channel."
+                        $"Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel."
                     })));
                 },
                 Preconditions: new ICommandPrecondition[] {

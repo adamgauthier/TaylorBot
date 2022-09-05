@@ -62,9 +62,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                             .WithFooter("User blocked from sending mod mail")
                     );
 
-                    return new EmbedResult(_modChannelLogger.CreateResultEmbed(wasLogged, string.Join('\n', new[] {
+                    return new EmbedResult(_modChannelLogger.CreateResultEmbed(context, wasLogged, string.Join('\n', new[] {
                         $"Blocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍",
-                        "You can undo this action with `/mod mail unblock`."
+                        $"You can undo this action with {context.MentionCommand("mod mail unblock")}."
                     })));
                 },
                 Preconditions: new ICommandPrecondition[] {
@@ -109,9 +109,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                             .WithFooter("User unblocked from sending mod mail")
                     );
 
-                    return new EmbedResult(_modChannelLogger.CreateResultEmbed(wasLogged, string.Join('\n', new[] {
+                    return new EmbedResult(_modChannelLogger.CreateResultEmbed(context, wasLogged, string.Join('\n', new[] {
                         $"Unblocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍",
-                        "You can block again with `/mod mail block`."
+                        $"You can block again with {context.MentionCommand("mod mail block")}."
                     })));
                 },
                 Preconditions: new ICommandPrecondition[] {

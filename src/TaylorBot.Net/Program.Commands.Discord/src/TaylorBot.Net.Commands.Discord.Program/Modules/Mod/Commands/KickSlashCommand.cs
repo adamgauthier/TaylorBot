@@ -89,7 +89,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                                     .WithFooter("User kicked");
                             });
 
-                            return _modChannelLogger.CreateResultEmbed(wasLogged, $"{member.FormatTagAndMention()} was successfully kicked. 👢");
+                            return _modChannelLogger.CreateResultEmbed(context, wasLogged, $"{member.FormatTagAndMention()} was successfully kicked. 👢");
                         }
                     }
                     else

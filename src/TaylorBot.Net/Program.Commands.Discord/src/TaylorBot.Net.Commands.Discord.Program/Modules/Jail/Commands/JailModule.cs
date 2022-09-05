@@ -41,6 +41,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             IMentionedUserNotAuthorOrClient<IGuildUser> mentionedUser
         )
         {
+            var context = DiscordNetContextMapper.MapToRunContext(Context);
             var command = new Command(
                 DiscordNetContextMapper.MapToCommandMetadata(Context),
                 async () =>
@@ -88,7 +89,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                                 .WithFooter("User jailed")
                             );
 
-                            return new EmbedResult(_modChannelLogger.CreateResultEmbed(wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
+                            return new EmbedResult(_modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
 
                         default: throw new NotImplementedException();
                     }
@@ -100,7 +101,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                 }
             );
 
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
             var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
@@ -114,6 +114,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
             IMentionedUserNotAuthor<IGuildUser> mentionedUser
         )
         {
+            var context = DiscordNetContextMapper.MapToRunContext(Context);
             var command = new Command(
                 DiscordNetContextMapper.MapToCommandMetadata(Context),
                 async () =>
@@ -169,7 +170,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                                 .WithFooter("User freed")
                             );
 
-                            return new EmbedResult(_modChannelLogger.CreateResultEmbed(wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
+                            return new EmbedResult(_modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
 
                         default: throw new NotImplementedException();
                     }
@@ -181,7 +182,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands
                 }
             );
 
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
             var result = await _commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);

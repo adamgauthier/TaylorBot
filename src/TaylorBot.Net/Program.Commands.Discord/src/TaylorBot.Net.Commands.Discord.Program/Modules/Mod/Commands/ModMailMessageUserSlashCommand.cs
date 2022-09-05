@@ -73,7 +73,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                                 .WithFooter("Mod mail sent", iconUrl: _options.CurrentValue.SentLogEmbedFooterIconUrl)
                         );
 
-                        return _modChannelLogger.CreateResultEmbed(wasLogged, $"Message sent to {user.FormatTagAndMention()}. ✉");
+                        return _modChannelLogger.CreateResultEmbed(context, wasLogged, $"Message sent to {user.FormatTagAndMention()}. ✉");
                     }
                 },
                 Preconditions: new ICommandPrecondition[] {
