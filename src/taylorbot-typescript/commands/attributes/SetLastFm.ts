@@ -12,10 +12,10 @@ class SetLastFmCommand extends Command {
 
             args: [
                 {
-                    key: 'lastFmUsername',
-                    label: 'username',
-                    type: 'text',
-                    prompt: `What do you want to set your Last.fm username to?`
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });

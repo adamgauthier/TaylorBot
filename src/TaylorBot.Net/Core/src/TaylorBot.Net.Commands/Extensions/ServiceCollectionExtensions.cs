@@ -72,6 +72,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<ICommandRunner, CommandRunner>()
                 .AddOptionParser<StringParser>()
                 .AddOptionParser<OptionalStringParser>()
+                .AddOptionParser<OptionalBooleanParser>()
                 .AddOptionParser<UserParser>()
                 .AddOptionParser<OptionalUserParser>()
                 .AddOptionParser<UserNotAuthorParser>()

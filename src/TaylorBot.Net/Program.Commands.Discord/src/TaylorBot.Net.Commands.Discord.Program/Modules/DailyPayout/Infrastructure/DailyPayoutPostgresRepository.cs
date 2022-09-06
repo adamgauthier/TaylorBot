@@ -240,12 +240,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
 
             var entries = await connection.QueryAsync<LeaderboardEntryDto>(
                 @"SELECT u.user_id, u.username, dp.streak_count, rank() OVER (ORDER BY streak_count DESC) AS rank
-                FROM users.daily_payouts AS dp JOIN users.users AS u ON dp.user_id = u.user_id
+                FROM users.daily_payouts AS dp INNER JOIN users.users AS u ON dp.user_id = u.user_id
                 LIMIT 100;"
             );
 
             return entries.Select(e => new DailyLeaderboardEntry(
-                e.user_id,
+                new(e.user_id),
                 e.username,
                 e.streak_count,
                 e.rank

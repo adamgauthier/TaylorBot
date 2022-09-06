@@ -1,0 +1,68 @@
+{
+  "name": "birthday",
+  "description": "Set and see your friends birthdays",
+  "options": [
+    {
+      "name": "show",
+      "description": "Show the birthday of a user",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the birthday for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "set",
+      "description": "Register your birthday for calendar, horoscope, age and birthday taypoints",
+      "type": 1,
+      "options": [
+        {
+          "name": "day",
+          "description": "Your birthday day of the month",
+          "type": 4,
+          "min_value": 1,
+          "max_value": 31,
+          "required": true
+        },
+        {
+          "name": "month",
+          "description": "Your birthday month number (December = 12)",
+          "type": 4,
+          "min_value": 1,
+          "max_value": 12,
+          "required": true
+        },
+        {
+          "name": "year",
+          "description": "Your birthday year, if not included, your age can't be displayed",
+          "type": 4,
+          "min_value": 1907,
+          "max_value": 2009,
+          "required": false
+        },
+        {
+          "name": "privately",
+          "description": "If true, your birthday won't be visible. Horoscope, age and birthday taypoints will still work",
+          "type": 5,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "description": "Clears your registered birthday",
+      "type": 1,
+      "options": []
+    },
+    {
+      "name": "calendar",
+      "description": "Show a calendar of upcoming birthdays in the current server",
+      "type": 1,
+      "options": []
+    }
+  ]
+}

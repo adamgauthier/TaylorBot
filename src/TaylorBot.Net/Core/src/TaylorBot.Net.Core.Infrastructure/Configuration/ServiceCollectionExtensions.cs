@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -11,6 +12,8 @@ namespace TaylorBot.Net.Core.Infrastructure.Configuration
     {
         public static IServiceCollection AddPostgresConnection(this IServiceCollection services, IConfiguration configuration)
         {
+            SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+
             return services
                 .ConfigureRequired<DatabaseConnectionOptions>(configuration, "DatabaseConnection")
                 .AddTransient<PostgresConnectionFactory>();

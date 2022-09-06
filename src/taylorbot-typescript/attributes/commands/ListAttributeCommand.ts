@@ -1,6 +1,7 @@
 import { Command } from '../../commands/Command';
 import { Attribute } from '../Attribute';
 import { CommandMessageContext } from '../../commands/CommandMessageContext';
+import { CommandError } from '../../commands/CommandError';
 
 export class ListAttributeCommand extends Command {
     readonly #attribute: Attribute;
@@ -22,6 +23,9 @@ export class ListAttributeCommand extends Command {
         const { guild, channel } = commandContext.message;
         if (guild === null)
             throw new Error(`This command can only be used in a guild.`);
+
+        if (typeof this.#attribute.list == 'string')
+            throw new CommandError(`This command has been removed. Please use ${this.#attribute.list} instead.`);
 
         const pageMessage = await this.#attribute.listCommand(commandContext, guild);
 

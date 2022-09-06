@@ -8,7 +8,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
-using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
 {
@@ -32,7 +32,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
                     var leaderboard = await _dailyPayoutRepository.GetLeaderboardAsync();
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                        entry => $"{entry.Rank}: [{entry.Username}]({MentionUtils.MentionUser(new SnowflakeId(entry.UserId).Id)}) - {"day".ToQuantity(entry.CurrentDailyStreak, TaylorBotFormats.CodedReadable)}"
+                        entry => $"{entry.Rank}: {entry.Username.MdUserLink(entry.UserId)} - {"day".ToQuantity(entry.CurrentDailyStreak, TaylorBotFormats.CodedReadable)}"
                     ))).ToList();
 
                     var baseEmbed = new EmbedBuilder()
@@ -40,7 +40,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
                         .WithTitle("Daily Streak Leaderboard");
 
                     return new PageMessageResultBuilder(new(
-                        new(new EmbedDescriptionTextEditor(baseEmbed, pages, hasPageFooter: true)),
+                        new(new EmbedDescriptionTextEditor(
+                            baseEmbed,
+                            pages,
+                            hasPageFooter: true,
+                            emptyText: string.Join('\n', new[] {
+                                "No daily streaks in this server.",
+                                $"Members need to use {context.MentionCommand("daily claim")}! 😊"
+                            })
+                        )),
                         IsCancellable: true
                     )).Build();
                 }

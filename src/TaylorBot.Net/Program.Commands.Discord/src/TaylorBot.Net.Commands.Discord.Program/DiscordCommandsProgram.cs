@@ -11,6 +11,9 @@ using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
@@ -195,7 +198,12 @@ var host = Host.CreateDefaultBuilder()
             .ConfigureRequired<WeatherOptions>(config, "Weather")
             .AddTransient<IWeatherClient, DarkSkyWeatherClient>()
             .AddTransient<WeatherCommand>()
-            .AddSlashCommand<WeatherSlashCommand>();
+            .AddSlashCommand<WeatherSlashCommand>()
+            .AddTransient<IBirthdayRepository, BirthdayPostgresRepository>()
+            .AddSlashCommand<BirthdayShowSlashCommand>()
+            .AddSlashCommand<BirthdayClearSlashCommand>()
+            .AddSlashCommand<BirthdaySetSlashCommand>()
+            .AddSlashCommand<BirthdayCalendarSlashCommand>();
     })
     .Build();
 

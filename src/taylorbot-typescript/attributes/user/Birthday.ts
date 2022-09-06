@@ -13,12 +13,11 @@ class BirthdayUserAttribute extends SettableUserAttribute {
             description: 'birthday',
             value: {
                 label: 'date',
-                type: 'birthday',
+                type: 'any-text',
                 example: '1989-12-13'
             },
             presenter: SimplePresenter,
-            list: (database, guild, entries) =>
-                database.birthdays.getUpcomingInGuild(guild, entries)
+            list: '**/birthday calendar**'
         });
     }
 
@@ -26,38 +25,20 @@ class BirthdayUserAttribute extends SettableUserAttribute {
         return database.birthdays.get(user);
     }
 
-    set(database: DatabaseDriver, user: User, value: any): Promise<Record<string, any>> {
-        return this.setBirthday(database, user, value, false);
+    async set(database: DatabaseDriver, user: User, value: any): Promise<string | Record<string, any>> {
+        return '**/birthday set**';
     }
 
-    async setBirthday(database: DatabaseDriver, user: User, value: any, isPrivate: boolean): Promise<Record<string, any>> {
-        const age = await database.integerAttributes.get('age', user);
-        if (age) {
-            await database.integerAttributes.clear('age', user);
-            if (value.year() === 1804) {
-                const now = moment.utc();
-                if (now.isBefore(value.year(now.year()))) {
-                    value.year(now.year() - (age.integer_value + 1));
-                }
-                else {
-                    value.year(now.year() - age.integer_value);
-                }
-            }
-        }
-
-        return database.birthdays.set(user, value.format('YYYY-MM-DD'), isPrivate);
-    }
-
-    async clear(database: DatabaseDriver, user: User): Promise<void> {
-        await database.birthdays.clear(user);
+    async clear(database: DatabaseDriver, user: User): Promise<string | void> {
+        return '**/birthday clear**';
     }
 
     formatValue(attribute: Record<string, any>): string {
-        const birthdayString = attribute.next_birthday || attribute.birthday;
+        const parsed = moment.utc(attribute.birthday, 'YYYY-MM-DD');
 
-        const parsed = moment.utc(birthdayString, 'YYYY-MM-DD');
+        const firstLine = attribute.is_private ? `This user's birthday is private` : parsed.format('MMMM Do');
 
-        return attribute.is_private ? `This user's birthday is private` : parsed.format('MMMM Do');
+        return firstLine + '\nPlease use **/birthday show** instead! 😊';
     }
 }
 

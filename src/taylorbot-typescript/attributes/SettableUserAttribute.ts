@@ -7,6 +7,7 @@ import { UserAttribute, UserAttributeParameters } from './UserAttribute.js';
 import { Guild, GuildMember, User, EmbedBuilder } from 'discord.js';
 import { DatabaseDriver } from '../database/DatabaseDriver.js';
 import { CommandMessageContext } from '../commands/CommandMessageContext';
+import { EmbedUtil } from '../modules/discord/EmbedUtil';
 
 export type SettableUserAttributeParameters = Omit<UserAttributeParameters, 'canSet'> & { value: { label: string; type: string; example: string; maxDailySetCount?: number } };
 
@@ -17,12 +18,16 @@ export abstract class SettableUserAttribute extends UserAttribute {
         this.value = options.value;
     }
 
-    abstract set(database: DatabaseDriver, user: User, value: any): Promise<Record<string, any>>;
+    abstract set(database: DatabaseDriver, user: User, value: any): Promise<string | Record<string, any>>;
 
-    abstract clear(database: DatabaseDriver, user: User): Promise<void>;
+    abstract clear(database: DatabaseDriver, user: User): Promise<string | void>;
 
     async setCommand({ author, client }: CommandMessageContext, value: any): Promise<EmbedBuilder> {
         const attribute = await this.set(client.master.database, author, value);
+
+        if (typeof attribute == 'string') {
+            return EmbedUtil.error(`This command has been removed. Please use ${attribute} instead.`);
+        }
 
         return DiscordEmbedFormatter
             .baseUserHeader(author)
@@ -31,7 +36,11 @@ export abstract class SettableUserAttribute extends UserAttribute {
     }
 
     async clearCommand({ author, client }: CommandMessageContext): Promise<EmbedBuilder> {
-        await this.clear(client.master.database, author);
+        const newCommand = await this.clear(client.master.database, author);
+
+        if (newCommand) {
+            return EmbedUtil.error(`This command has been removed. Please use ${newCommand} instead.`);
+        }
 
         return DiscordEmbedFormatter
             .baseUserSuccessEmbed(author)
@@ -39,7 +48,7 @@ export abstract class SettableUserAttribute extends UserAttribute {
     }
 
     async listCommand({ client, author }: CommandMessageContext, guild: Guild): Promise<PageMessage<any>> {
-        if (this.list === null)
+        if (this.list === null || typeof this.list == 'string')
             throw new Error(`Can't list this attribute.`);
 
         const attributes = await this.list(client.master.database, guild, 100);

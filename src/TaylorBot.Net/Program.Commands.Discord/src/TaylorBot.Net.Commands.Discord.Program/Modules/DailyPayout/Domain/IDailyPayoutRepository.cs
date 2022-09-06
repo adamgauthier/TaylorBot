@@ -3,6 +3,7 @@ using OperationResult;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
 {
@@ -18,7 +19,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
 
     public record RebuyFailed(long TotalTaypointCount);
 
-    public record DailyLeaderboardEntry(string UserId, string Username, long CurrentDailyStreak, long Rank);
+    public record DailyLeaderboardEntry(SnowflakeId UserId, string Username, long CurrentDailyStreak, long Rank);
 
     public interface IDailyPayoutRepository
     {
