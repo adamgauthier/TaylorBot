@@ -61,7 +61,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Commands
                             return new EmbedResult(new EmbedBuilder()
                                 .WithUserAsAuthor(Context.User)
                                 .WithColor(TaylorBotColors.SuccessColor)
-                                .WithTitle($"{zodiac} - {horoscope.Date.ToString("dddd MMMM dd, yyyy", TaylorBotCulture.Culture)}")
+                                .WithTitle($"{zodiac} - {DateTime.UtcNow.ToString("dddd MMMM dd, yyyy", TaylorBotCulture.Culture)}")
                                 .WithDescription(horoscope.Text)
                             .Build());
 
