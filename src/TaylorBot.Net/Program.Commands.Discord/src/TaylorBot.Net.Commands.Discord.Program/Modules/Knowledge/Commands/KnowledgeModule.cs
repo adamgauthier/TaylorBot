@@ -51,7 +51,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Commands
                     var zodiac = await _zodiacSignRepository.GetZodiacForUserAsync(u);
 
                     if (zodiac == null)
-                        return new EmbedResult(EmbedFactory.CreateError($"{u.Username}'s birthday is not set. They can use the `setbirthday` command to set it."));
+                        return new EmbedResult(EmbedFactory.CreateError($"{u.Username}'s birthday is not set. They can use </birthday set:1016938623880400907> to set it."));
 
                     var horoscopeResult = await _horoscopeClient.GetHoroscopeAsync(zodiac);
 

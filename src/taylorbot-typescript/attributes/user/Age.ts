@@ -36,13 +36,10 @@ class AgeAttribute extends SettableUserAttribute {
     }
 
     setCommand(commandContext: CommandMessageContext, _: any): Promise<EmbedBuilder> {
-        const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
-        const context = new CommandMessageContext(commandContext.messageContext, setCommand);
-
         throw new CommandError([
-            `Setting age directly is no longer supported, please use \`${context.usage()}\`. ⚠`,
+            `Setting age directly is no longer supported, please use </birthday set:1016938623880400907> with the **year** option. ⚠`,
             `This way, your age will automatically update and you will get points on your birthday every year! 🎈`,
-            `If you don't want to share your exact birthday but still want the points as well as horoscope and age commands, use \`setprivatebirthday\` in DMs. 🕵️‍`
+            `If you don't want to share your exact birthday, but want the points, horoscope and age commands, use </birthday set:1016938623880400907> with the **privately** option. 🕵️‍`
         ].join('\n'));
     }
 

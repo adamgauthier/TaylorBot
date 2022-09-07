@@ -17,7 +17,7 @@ class BirthdayUserAttribute extends SettableUserAttribute {
                 example: '1989-12-13'
             },
             presenter: SimplePresenter,
-            list: '**/birthday calendar**'
+            list: '</birthday calendar:1016938623880400907>'
         });
     }
 
@@ -26,11 +26,11 @@ class BirthdayUserAttribute extends SettableUserAttribute {
     }
 
     async set(database: DatabaseDriver, user: User, value: any): Promise<string | Record<string, any>> {
-        return '**/birthday set**';
+        return '</birthday set:1016938623880400907>';
     }
 
     async clear(database: DatabaseDriver, user: User): Promise<string | void> {
-        return '**/birthday clear**';
+        return '</birthday clear:1016938623880400907>';
     }
 
     formatValue(attribute: Record<string, any>): string {
@@ -38,7 +38,7 @@ class BirthdayUserAttribute extends SettableUserAttribute {
 
         const firstLine = attribute.is_private ? `This user's birthday is private` : parsed.format('MMMM Do');
 
-        return firstLine + '\nPlease use **/birthday show** instead! 😊';
+        return firstLine + '\nPlease use </birthday show:1016938623880400907> instead! 😊';
     }
 }
 

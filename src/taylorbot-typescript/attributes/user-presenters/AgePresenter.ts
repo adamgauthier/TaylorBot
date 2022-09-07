@@ -10,17 +10,14 @@ export class AgePresenter implements UserAttributePresenter {
         const embed = DiscordEmbedFormatter.baseUserSuccessEmbed(user);
 
         if (!birthday) {
-            const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
-            const context = new CommandMessageContext(commandContext.messageContext, setCommand);
-
             return Promise.resolve(
                 embed
                     .setColor('#f04747')
                     .setDescription([
                         `${user.username} is **${age.integer_value}** years old.`,
                         `⚠ This user has set their age manually so it might be outdated. ⚠`,
-                        `Please use \`${context.usage()}\`, your age will automatically update and you will get points on your birthday every year! 🎈`,
-                        `If you don't want to share your exact birthday but still want the points as well as horoscope and age commands, use \`setprivatebirthday\` in DMs. 🕵️‍`
+                        `Please use </birthday set:1016938623880400907> with the **year** option, your age will automatically update and you will get points on your birthday every year! 🎈`,
+                        `If you don't want to share your exact birthday, but want the points, horoscope and age commands, use </birthday set:1016938623880400907> with the **privately** option. 🕵️‍`
                     ].join('\n'))
             );
         }
@@ -28,16 +25,13 @@ export class AgePresenter implements UserAttributePresenter {
         const parsedBirthday = moment.utc(birthday.birthday, 'YYYY-MM-DD');
 
         if (parsedBirthday.year() === 1804) {
-            const setCommand = commandContext.client.master.registry.commands.getCommand(`setbirthday`);
-            const context = new CommandMessageContext(commandContext.messageContext, setCommand);
-
             return Promise.resolve(
                 embed
                     .setColor('#f04747')
                     .setDescription([
                         `I don't know how old ${user.username} is because their birthday was set without a year. 😕`,
-                        `Please use \`${context.usage()}\`, your age will automatically update and you will get points on your birthday every year! 🎈`,
-                        `If you don't want to share your exact birthday but still want the points as well as horoscope and age commands, use \`setprivatebirthday\` in DMs. 🕵️‍`
+                        `Please use </birthday set:1016938623880400907> with the **year** option, your age will automatically update and you will get points on your birthday every year! 🎈`,
+                        `If you don't want to share your exact birthday, but want the points, horoscope and age commands, use </birthday set:1016938623880400907> with the **privately** option. 🕵️‍`
                     ].join('\n'))
             );
         }
