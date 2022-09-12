@@ -95,5 +95,6 @@ stages:
 
                   cd ${deploy_folder}
                   docker rm -f taylorbot-${{ parameters.componentName }} &>/dev/null && echo 'Removed previous container'
+                  chmod +x ./deploy-${{ parameters.componentName }}.sh
                   ./deploy-${{ parameters.componentName }}.sh
                 displayName: 'Deploy image and start container'

@@ -69,5 +69,6 @@ stages:
 
                 cd ${deploy_folder}
                 docker rm -f taylorbot-commands-attributes &>/dev/null && echo 'Removed previous container'
+                chmod +x ./deploy-commands-attributes.sh
                 ./deploy-commands-attributes.sh
               displayName: 'Deploy image and start container'
