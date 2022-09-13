@@ -5,7 +5,7 @@ set -o nounset
 
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-network_name=$(cat "${__dir}/../../../deploy/docker-network.name")
+network_name=$(cat "${__dir}/../../linux-infrastructure/docker-network.name")
 container_name=$(cat "${__dir}/taylorbot-postgres.name")
 
 curr_date=`date +%Y.%m.%d-%H.%M.%S`
