@@ -27,10 +27,12 @@ docker container run \
     --publish 127.0.0.1:14487:5432/tcp \
     postgres:12
 
-sleep 10s
+echo "Waiting for database server to be ready..."
+sleep 20
 
 taylorbot_role_password=$(cat "${__dir}/taylorbot-role.pass")
 
+echo "Creating taylorbot role..."
 docker exec --interactive ${container_name} \
     psql --username=postgres --command="CREATE ROLE taylorbot WITH LOGIN PASSWORD '${taylorbot_role_password}';"
 docker exec --interactive ${container_name} \
