@@ -6,6 +6,14 @@ trigger:
     include:
     - src/slash-commands
 
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/slash-commands
+
 resources:
 - repo: self
 

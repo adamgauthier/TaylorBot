@@ -6,6 +6,14 @@ trigger:
     include:
     - src/taylorbot-typescript
 
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/taylorbot-typescript
+
 resources:
 - repo: self
 

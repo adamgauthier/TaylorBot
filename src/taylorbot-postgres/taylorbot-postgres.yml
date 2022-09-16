@@ -6,6 +6,14 @@ trigger:
     include:
     - src/taylorbot-postgres
 
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/taylorbot-postgres
+
 resources:
 - repo: self
 

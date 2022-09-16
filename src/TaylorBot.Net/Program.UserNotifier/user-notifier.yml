@@ -6,6 +6,14 @@ trigger:
     include:
     - src/TaylorBot.Net
 
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/TaylorBot.Net
+
 resources:
 - repo: self
 
