@@ -29,10 +29,13 @@ namespace TaylorBot.Net.Commands.Parsers.Users
             }
 
             var user = await _taylorBotClient.ResolveRequiredUserAsync(new(optionValue.Value.GetString()!));
+            var member = context.Guild == null
+                ? user
+                : await _taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!));
 
             await _userTracker.TrackUserFromArgumentAsync(user);
 
-            return new ParsedUser(user);
+            return new ParsedUser(member ?? user);
         }
     }
 }
