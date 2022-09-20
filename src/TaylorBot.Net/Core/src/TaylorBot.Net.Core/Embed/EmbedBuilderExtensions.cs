@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Core.Embed
             if (user.IsBot)
                 author += " 🤖";
 
-            var avatarUrl = user.GetAvatarUrlOrDefault();
+            var avatarUrl = user.GetGuildAvatarUrlOrDefault();
 
             return embedBuilder.WithAuthor(author, iconUrl: avatarUrl, url: avatarUrl);
         }

@@ -1,9 +1,9 @@
 ﻿using Discord;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
@@ -12,19 +12,17 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
 
-        public Command Avatar(IUser user, string? description = null, string? type = "guild") => new(
+        public Command Avatar(IUser user, string? description = null, AvatarType? type = AvatarType.Guild) => new(
             Metadata,
             () =>
             {
-                type ??= "guild";
-                var avatarUrl = user is IGuildUser guildUser ?
-                    guildUser.GuildAvatarId != null && type == "guild" ? 
-                        guildUser.GetGuildAvatarUrl(size: 2048) :
-                        user.GetAvatarUrlOrDefault(size: 2048)
+                type ??= AvatarType.Guild;
+                var avatarUrl = type.Value == AvatarType.Guild
+                    ? user.GetGuildAvatarUrlOrDefault(size: 2048)
                     : user.GetAvatarUrlOrDefault(size: 2048);
 
                 var embed = new EmbedBuilder()
-                    .WithAuthor(user.ToString(), avatarUrl, avatarUrl)
+                    .WithUserAsAuthor(user)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithImageUrl(avatarUrl);
 
@@ -40,7 +38,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public SlashCommandInfo Info => new(AvatarCommand.Metadata.Name);
 
-        public record Options(ParsedUserOrAuthor user, ParsedOptionalString type);
+        public record Options(ParsedUserOrAuthor user, AvatarType? type);
 
         public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
         {
@@ -48,7 +46,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                 new AvatarCommand().Avatar(
                     options.user.User,
                     null,
-                    options.type.Value
+                    options.type
                 )
             );
         }
