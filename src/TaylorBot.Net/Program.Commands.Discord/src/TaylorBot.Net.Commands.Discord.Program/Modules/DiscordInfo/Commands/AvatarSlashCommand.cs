@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
 
-        public Command Avatar(IUser user,  AvatarType? type, string? description = null) => new(
+        public Command Avatar(IUser user, AvatarType? type, string? description = null) => new(
             Metadata,
             () =>
             {
