@@ -10,7 +10,7 @@
     },
     {
       "name": "type",
-      "description": "The type of avatar to display",
+      "description": "The type of avatar to display, default server avatar",
       "type": 3,
       "required": false,
       "choices": [

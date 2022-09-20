@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
 
-        public Command Avatar(IUser user, string? description = null, AvatarType? type = AvatarType.Guild) => new(
+        public Command Avatar(IUser user,  AvatarType? type, string? description = null) => new(
             Metadata,
             () =>
             {
@@ -45,8 +45,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
             return new(
                 new AvatarCommand().Avatar(
                     options.user.User,
-                    null,
-                    options.type
+                    options.type,
+                    null
                 )
             );
         }

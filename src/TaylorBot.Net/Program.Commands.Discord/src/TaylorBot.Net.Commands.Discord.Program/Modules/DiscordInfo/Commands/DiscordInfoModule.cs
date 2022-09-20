@@ -51,7 +51,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
             var result = await _commandRunner.RunAsync(
-                new AvatarCommand().Avatar(u, "Use </avatar:832103922709692436> instead! 😊"),
+                new AvatarCommand().Avatar(u, AvatarType.Guild,"Use </avatar:832103922709692436> instead! 😊"),
                 context
             );
 
