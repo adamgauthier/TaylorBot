@@ -56,7 +56,7 @@ namespace TaylorBot.Net.Core.Program
             // Wait to login in case of a boot loop
             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
 
-            _logger.LogInformation($"Starting client with intents: {string.Join(", ", intents)} ({flaggedIntents}).");
+            _logger.LogInformation("Starting client with intents: {intents} ({value}).", flaggedIntents, (int)flaggedIntents);
 
             await _client.StartAsync();
         }
