@@ -14,7 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     
     public class OptionalAvatarTypeParser : IOptionParser<AvatarType?>
     {
-        public static Result<AvatarType, ParsingFailed> Parse(string input)
+        private static Result<AvatarType, ParsingFailed> Parse(string input)
         {
             return input switch
             {

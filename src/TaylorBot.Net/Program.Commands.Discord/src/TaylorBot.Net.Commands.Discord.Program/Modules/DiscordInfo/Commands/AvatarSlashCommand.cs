@@ -45,8 +45,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
             return new(
                 new AvatarCommand().Avatar(
                     options.user.User,
-                    options.type,
-                    null
+                    options.type
                 )
             );
         }

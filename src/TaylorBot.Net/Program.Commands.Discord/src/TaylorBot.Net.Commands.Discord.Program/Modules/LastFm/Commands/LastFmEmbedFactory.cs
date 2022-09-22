@@ -31,7 +31,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
         {
             return new EmbedBuilder().WithAuthor(
                 name: lastFmUsername.Username,
-                iconUrl: user.GetAvatarUrlOrDefault(),
+                iconUrl: user.GetGuildAvatarUrlOrDefault(),
                 url: lastFmUsername.LinkToProfile
             );
         }
