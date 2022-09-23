@@ -155,7 +155,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         await member.GetTrackedUserAsync();
 
                     var embed = new EmbedBuilder()
-                        .WithUserAsAuthor(guildUser, false)
+                        .WithUserAsAuthor(guildUser, showGuildAvatar: false)
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
                         .AddField("Id", $"`{guildUser.Id}`", inline: true);

@@ -72,7 +72,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithAuthor(
                             name: lastFmUsername.Username,
-                            iconUrl: user.GetAvatarUrlOrDefault(),
+                            iconUrl: user.GetGuildAvatarUrlOrDefault(),
                             url: lastFmUsername.LinkToProfile
                         )
                         .WithTitle($"Collage {size.Parsed}x{size.Parsed} | {_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
