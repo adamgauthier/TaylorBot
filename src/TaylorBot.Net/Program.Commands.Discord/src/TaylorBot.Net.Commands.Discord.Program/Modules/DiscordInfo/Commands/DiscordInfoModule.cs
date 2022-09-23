@@ -51,7 +51,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
             var result = await _commandRunner.RunAsync(
-                new AvatarCommand().Avatar(u, "Use </avatar:832103922709692436> instead! 😊"),
+                new AvatarCommand().Avatar(u, AvatarType.Guild, "Use </avatar:832103922709692436> instead! 😊"),
                 context
             );
 
@@ -155,7 +155,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                         await member.GetTrackedUserAsync();
 
                     var embed = new EmbedBuilder()
-                        .WithUserAsAuthor(guildUser)
+                        .WithUserAsAuthor(guildUser, showGuildAvatar: false)
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
                         .AddField("Id", $"`{guildUser.Id}`", inline: true);

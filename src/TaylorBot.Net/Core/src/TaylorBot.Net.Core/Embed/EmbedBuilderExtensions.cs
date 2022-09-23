@@ -5,13 +5,15 @@ namespace TaylorBot.Net.Core.Embed
 {
     public static class EmbedBuilderExtensions
     {
-        public static EmbedBuilder WithUserAsAuthor(this EmbedBuilder embedBuilder, IUser user)
+        public static EmbedBuilder WithUserAsAuthor(this EmbedBuilder embedBuilder, IUser user, bool? showGuildAvatar = true)
         {
             var author = $"{user.Username}#{user.Discriminator}";
             if (user.IsBot)
                 author += " 🤖";
 
-            var avatarUrl = user.GetAvatarUrlOrDefault();
+            var avatarUrl = showGuildAvatar == true ? 
+                user.GetGuildAvatarUrlOrDefault() :
+                user.GetAvatarUrlOrDefault();
 
             return embedBuilder.WithAuthor(author, iconUrl: avatarUrl, url: avatarUrl);
         }

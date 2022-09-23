@@ -12,14 +12,19 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
 
-        public Command Avatar(IUser user, string? description = null) => new(
+        public Command Avatar(IUser user, AvatarType? type, string? description = null) => new(
             Metadata,
             () =>
             {
+                type ??= AvatarType.Guild;
+                var avatarUrl = type.Value == AvatarType.Guild
+                    ? user.GetGuildAvatarUrlOrDefault(size: 2048)
+                    : user.GetAvatarUrlOrDefault(size: 2048);
+
                 var embed = new EmbedBuilder()
                     .WithUserAsAuthor(user)
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithImageUrl(user.GetAvatarUrlOrDefault(size: 2048));
+                    .WithImageUrl(avatarUrl);
 
                 if (description != null)
                     embed.WithDescription(description);
@@ -33,11 +38,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         public SlashCommandInfo Info => new(AvatarCommand.Metadata.Name);
 
-        public record Options(ParsedUserOrAuthor user);
+        public record Options(ParsedUserOrAuthor user, AvatarType? type);
 
         public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
         {
-            return new(new AvatarCommand().Avatar(options.user.User));
+            return new(
+                new AvatarCommand().Avatar(
+                    options.user.User,
+                    options.type
+                )
+            );
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Snowflake;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users
@@ -28,7 +29,11 @@ namespace TaylorBot.Net.Commands.Parsers.Users
                 return Error(new ParsingFailed("User option is required."));
             }
 
-            var user = await _taylorBotClient.ResolveRequiredUserAsync(new(optionValue.Value.GetString()!));
+            SnowflakeId userId = new(optionValue.Value.GetString()!);
+            var user = context.Guild != null
+                ? await _taylorBotClient.ResolveGuildUserAsync(context.Guild, userId) ??
+                  await _taylorBotClient.ResolveRequiredUserAsync(userId)
+                : await _taylorBotClient.ResolveRequiredUserAsync(userId);
 
             await _userTracker.TrackUserFromArgumentAsync(user);
 

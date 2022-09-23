@@ -7,6 +7,22 @@
       "description": "The user to retrieve the avatar for, default you",
       "type": 6,
       "required": false
+    },
+    {
+      "name": "type",
+      "description": "The type of avatar to display, default server avatar",
+      "type": 3,
+      "required": false,
+      "choices": [
+        {
+          "name": "Server Avatar",
+          "value": "guild"
+        },
+        {
+          "name": "Global Avatar",
+          "value": "global"
+        }
+      ]
     }
   ]
 }
