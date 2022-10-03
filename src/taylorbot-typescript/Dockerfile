@@ -1,4 +1,4 @@
-FROM node:18.9.0-slim AS install-ready
+FROM node:18.10.0-slim AS install-ready
 
 RUN npm install --global npm@8.19.2
 
