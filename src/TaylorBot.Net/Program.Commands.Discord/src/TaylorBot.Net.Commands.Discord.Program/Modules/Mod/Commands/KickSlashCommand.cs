@@ -102,7 +102,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                 },
                 Preconditions: new ICommandPrecondition[] {
                     new InGuildPrecondition(),
-                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers),
+                    new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers, GuildPermission.BanMembers),
                     new TaylorBotHasPermissionPrecondition(GuildPermission.KickMembers)
                 }
             ));

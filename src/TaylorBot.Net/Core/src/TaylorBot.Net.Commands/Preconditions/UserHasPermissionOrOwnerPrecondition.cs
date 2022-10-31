@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.StringMappers;
 
@@ -9,17 +10,17 @@ namespace TaylorBot.Net.Commands.Preconditions
         private readonly PermissionStringMapper _permissionStringMapper = new();
         private readonly TaylorBotOwnerPrecondition _taylorBotOwnerPrecondition = new();
 
-        public GuildPermission GuildPermission { get; }
+        public GuildPermission[] GuildPermissions { get; }
 
-        public UserHasPermissionOrOwnerPrecondition(GuildPermission permission)
+        public UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permissions)
         {
-            GuildPermission = permission;
+            GuildPermissions = permissions;
         }
 
         public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
         {
             var guildUser = (IGuildUser)context.User;
-            if (guildUser.GuildPermissions.Has(GuildPermission) || guildUser.Guild.OwnerId == guildUser.Id)
+            if (guildUser.Guild.OwnerId == guildUser.Id || GuildPermissions.Any(p => guildUser.GuildPermissions.Has(p)))
             {
                 return new PreconditionPassed();
             }
@@ -31,13 +32,14 @@ namespace TaylorBot.Net.Commands.Preconditions
                 }
                 else
                 {
-                    var permissionName = GuildPermission.ToString();
-                    var permissionUIName = _permissionStringMapper.MapGuildPermissionToString(GuildPermission);
+                    var permissionMessage = GuildPermissions.Length > 1
+                        ? $"one of these permissions in this server: **{string.Join("** or **", GuildPermissions.Select(p => _permissionStringMapper.MapGuildPermissionToString(p)))}**"
+                        : $"the **{_permissionStringMapper.MapGuildPermissionToString(GuildPermissions[0])}** permission in this server";
 
                     return new PreconditionFailed(
-                        PrivateReason: $"{command.Metadata.Name} can only be used with permission {permissionName}",
+                        PrivateReason: $"{command.Metadata.Name} can only be used with one of {string.Join(',', GuildPermissions)}",
                         UserReason: new(string.Join('\n', new[] {
-                            $"You can't use `{command.Metadata.Name}` because you don't have the '{permissionUIName}' permission in this server.",
+                            $"You can't use `{command.Metadata.Name}` because you need {permissionMessage}.",
                             "Ask someone with more permissions than you to use the command or to give you this permission in the server settings."
                         }))
                     );
