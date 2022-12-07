@@ -18,7 +18,7 @@ class DisabledChannelCommandInhibitor extends NoisyInhibitor {
                 return {
                     ui: [
                         `You can't use \`${command.name}\` because it is disabled in ${channel}.`,
-                        `You can re-enable it by typing </command channel-disable:909694280703016991> ${command.name}.`
+                        `You can re-enable it by typing </command channel-enable:909694280703016991> ${command.name}.`
                     ].join('\n'),
                     log: 'The command is disabled in this channel.'
                 };
