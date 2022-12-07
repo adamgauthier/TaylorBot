@@ -27,7 +27,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
         public async ValueTask<Will?> GetWillAsync(IUser owner)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var willDto = await connection.QuerySingleOrDefaultAsync<WillGetDto?>(
                 @"SELECT beneficiary_user_id, username
@@ -53,7 +53,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
         public async ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var willAddDto = await connection.QuerySingleAsync<WillAddDto>(
                 @"WITH insert_will AS (
@@ -93,7 +93,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
         public async ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var willRemoveDto = await connection.QuerySingleOrDefaultAsync<WillRemoveDto>(
                 @"WITH delete_will AS (
@@ -132,7 +132,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
         public async ValueTask<IReadOnlyCollection<WillOwner>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var willDtos = await connection.QueryAsync<WillWithBeneficiaryDto>(
                 @"SELECT DISTINCT ON (user_id) user_id, last_spoke_at AS max_last_spoke_at, owner_username
@@ -166,7 +166,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
         public async ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var transferDtos = await connection.QueryAsync<TransferDto>(
                 @"WITH
@@ -204,7 +204,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
         public async ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"DELETE FROM users.taypoint_wills

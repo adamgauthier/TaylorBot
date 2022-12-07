@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure
 
         public async ValueTask SetJailRoleAsync(IGuild guild, IRole jailRole)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO guilds.jail_roles (guild_id, jail_role_id, set_at) VALUES (@GuildId, @JailRoleId, CURRENT_TIMESTAMP)
@@ -41,7 +41,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure
 
         public async ValueTask<JailRole?> GetJailRoleAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var role = await connection.QuerySingleOrDefaultAsync<GetJailRoleDto>(
                 @"SELECT jail_role_id FROM guilds.jail_roles WHERE guild_id = @GuildId;",

@@ -23,7 +23,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<ICommandRepository.Command>> GetAllCommandsAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var commandDtos = await connection.QueryAsync<CommandDto>("SELECT name, module_name FROM commands.commands;");
 
@@ -35,7 +35,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<ICommandRepository.Command?> FindCommandByAliasAsync(string alias)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var command = await connection.QuerySingleOrDefaultAsync<CommandDto>(
                 "SELECT name, module_name FROM commands.commands WHERE name = @NameOrAlias OR @NameOrAlias = ANY(aliases);",

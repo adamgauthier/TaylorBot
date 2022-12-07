@@ -39,7 +39,7 @@ namespace TaylorBot.Net.PatreonSync.Infrastructure
 
         public async ValueTask<IUpdatePlusUserResult> AddOrUpdatePlusUserAsync(Patron patron)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
             connection.Open();
             using var transaction = connection.BeginTransaction();
 

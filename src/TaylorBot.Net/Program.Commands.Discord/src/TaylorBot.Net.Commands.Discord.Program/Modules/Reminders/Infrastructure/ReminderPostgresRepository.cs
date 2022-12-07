@@ -20,7 +20,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
 
         public async ValueTask<long> GetReminderCountAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<int>(
                 @"SELECT COUNT(*) FROM users.reminders
@@ -41,7 +41,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
 
         public async ValueTask<IList<Reminder>> GetRemindersAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var reminders = await connection.QueryAsync<ReminderDto>(
                 @"SELECT reminder_id, remind_at, reminder_text FROM users.reminders
@@ -57,7 +57,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
 
         public async ValueTask AddReminderAsync(IUser user, DateTimeOffset remindAt, string text)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO users.reminders (user_id, remind_at, reminder_text)
@@ -73,7 +73,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
 
         public async ValueTask ClearReminderAsync(Reminder reminder)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"DELETE FROM users.reminders WHERE reminder_id = @ReminderId;",
@@ -86,7 +86,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructur
 
         public async ValueTask ClearAllRemindersAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"DELETE FROM users.reminders WHERE user_id = @UserId;",

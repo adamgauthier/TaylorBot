@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure
 
         public async ValueTask AddOrUpdateDeletedLogAsync(ITextChannel textChannel)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO plus.deleted_log_channels (guild_id, deleted_log_channel_id)
@@ -40,7 +40,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure
 
         public async ValueTask<DeletedLog?> GetDeletedLogForGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
                 @"SELECT deleted_log_channel_id FROM plus.deleted_log_channels
@@ -56,7 +56,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure
 
         public async ValueTask RemoveDeletedLogAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "DELETE FROM plus.deleted_log_channels WHERE guild_id = @GuildId;",

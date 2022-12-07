@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure
 
         public async ValueTask<Location?> GetLocationAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var location = await connection.QuerySingleOrDefaultAsync<LocationDto?>(
                 @"SELECT latitude, longitude, formatted_address

@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         private async ValueTask UpdateUsageCountAsync(string commandName, CommandUsage commandUsage)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE commands.commands SET

@@ -24,7 +24,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild
 
         public async ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var guildAddedOrUpdatedDto = await connection.QuerySingleAsync<GuildAddedOrUpdatedDto>(
                 @"INSERT INTO guilds.guilds (guild_id, guild_name, previous_guild_name) VALUES (@GuildId, @GuildName, NULL)

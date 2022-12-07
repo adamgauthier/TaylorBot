@@ -16,7 +16,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<string> GetOrInsertGuildPrefixAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<string>(
                 """
@@ -36,7 +36,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "UPDATE guilds.guilds SET prefix = @Prefix WHERE guild_id = @GuildId;",

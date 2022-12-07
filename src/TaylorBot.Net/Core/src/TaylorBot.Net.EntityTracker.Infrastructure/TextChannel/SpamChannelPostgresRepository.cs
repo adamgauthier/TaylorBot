@@ -17,7 +17,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel
 
         public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(ITextChannel channel)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
                 @"INSERT INTO guilds.text_channels (guild_id, channel_id) VALUES (@GuildId, @ChannelId)

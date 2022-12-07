@@ -23,7 +23,7 @@ namespace TaylorBot.Net.MemberLogging.Infrastructure
 
         public async ValueTask<LogChannel?> GetLogChannelForGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
                 @"SELECT member_log_channel_id FROM plus.member_log_channels

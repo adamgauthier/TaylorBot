@@ -1,5 +1,4 @@
 ﻿using Npgsql;
-using System.Data;
 
 namespace TaylorBot.Net.Core.Infrastructure
 {
@@ -12,6 +11,6 @@ namespace TaylorBot.Net.Core.Infrastructure
             _npgsqlDataSource = npgsqlDataSource;
         }
 
-        public IDbConnection CreateConnection() => _npgsqlDataSource.CreateConnection();
+        public NpgsqlConnection CreateConnection() => _npgsqlDataSource.CreateConnection();
     }
 }

@@ -30,7 +30,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<YoutubeChecker>> GetYoutubeCheckersAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var checkers = await connection.QueryAsync<YoutubeCheckerDto>(
                 "SELECT guild_id, channel_id, playlist_id, last_video_id, last_published_at FROM checkers.youtube_checker;"
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.YoutubeNotifier.Infrastructure
 
         public async ValueTask UpdateLastPostAsync(YoutubeChecker youtubeChecker, PlaylistItemSnippet youtubePost)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE checkers.youtube_checker SET

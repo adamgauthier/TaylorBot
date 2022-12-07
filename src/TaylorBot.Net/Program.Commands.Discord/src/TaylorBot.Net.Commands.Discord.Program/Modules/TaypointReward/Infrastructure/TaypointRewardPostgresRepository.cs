@@ -26,7 +26,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastr
 
         public async ValueTask<IReadOnlyCollection<RewardedUserResult>> RewardUsersAsync(IReadOnlyCollection<IUser> users, int taypointCount)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var results = await connection.QueryAsync<RewardedUserDto>(
                 @"UPDATE users.users

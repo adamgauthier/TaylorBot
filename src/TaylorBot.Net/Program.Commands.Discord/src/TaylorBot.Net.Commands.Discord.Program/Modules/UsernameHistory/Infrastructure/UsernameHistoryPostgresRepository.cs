@@ -25,7 +25,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrast
 
         public async ValueTask<IReadOnlyList<IUsernameHistoryRepository.UsernameChange>> GetUsernameHistoryFor(IUser user, int count)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var usernames = await connection.QueryAsync<UsernameDto>(
                 @"SELECT username, changed_at
@@ -48,7 +48,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrast
 
         public async ValueTask<bool> IsUsernameHistoryHiddenFor(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleOrDefaultAsync<bool>(
                 @"SELECT is_hidden
@@ -63,7 +63,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrast
 
         public async ValueTask HideUsernameHistoryFor(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO users.username_history_configuration (user_id, is_hidden) VALUES (@UserId, @IsHidden)
@@ -78,7 +78,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrast
 
         public async ValueTask UnhideUsernameHistoryFor(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE users.username_history_configuration

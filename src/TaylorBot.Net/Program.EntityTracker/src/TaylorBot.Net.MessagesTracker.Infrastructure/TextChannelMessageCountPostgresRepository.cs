@@ -46,7 +46,7 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
                     var channelId = nameParts[3];
                     var increment = (long)entry.Value;
 
-                    using var connection = _postgresConnectionFactory.CreateConnection();
+                    await using var connection = _postgresConnectionFactory.CreateConnection();
 
                     await connection.ExecuteAsync(
                         @"UPDATE guilds.text_channels

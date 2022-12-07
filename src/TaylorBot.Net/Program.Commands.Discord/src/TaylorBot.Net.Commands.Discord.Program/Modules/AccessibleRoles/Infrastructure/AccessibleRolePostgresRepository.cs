@@ -20,7 +20,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask<bool> IsRoleAccessibleAsync(IRole role)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
                 @"SELECT EXISTS(
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask<AccessibleRoleWithGroup?> GetAccessibleRoleAsync(IRole role)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var accessibleRole = await connection.QuerySingleOrDefaultAsync<GetSingleAccessibleRoleDto?>(
                 @"SELECT group_name FROM guilds.guild_accessible_roles
@@ -98,7 +98,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask<IReadOnlyCollection<AccessibleRole>> GetAccessibleRolesAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var roles = await connection.QueryAsync<AccessibleRoleDto>(
                 @"SELECT role_id, group_name FROM guilds.guild_accessible_roles
@@ -117,7 +117,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask AddAccessibleRoleAsync(IRole role)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible)
@@ -134,7 +134,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask AddOrUpdateAccessibleRoleWithGroupAsync(IRole role, AccessibleGroupName groupName)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible, group_name)
@@ -152,7 +152,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask RemoveAccessibleRoleAsync(IRole role)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE guilds.guild_accessible_roles
@@ -168,7 +168,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrast
 
         public async ValueTask ClearGroupFromAccessibleRoleAsync(IRole role)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE guilds.guild_accessible_roles

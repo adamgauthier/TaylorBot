@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask AddOrUpdateModLogAsync(ITextChannel textChannel)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO moderation.mod_log_channels (guild_id, channel_id)
@@ -35,7 +35,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask RemoveModLogAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "DELETE FROM moderation.mod_log_channels WHERE guild_id = @GuildId;",
@@ -53,7 +53,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask<ModLog?> GetModLogForGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
                 @"SELECT channel_id FROM moderation.mod_log_channels

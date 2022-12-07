@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure
 
         public async ValueTask<LastFmUsername?> GetLastFmUsernameAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var username = await connection.QuerySingleOrDefaultAsync<string?>(
                 "SELECT attribute_value FROM attributes.text_attributes WHERE user_id = @UserId AND attribute_id = 'lastfm';",
@@ -32,7 +32,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure
 
         public async ValueTask SetLastFmUsernameAsync(IUser user, LastFmUsername lastFmUsername)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO attributes.text_attributes (user_id, attribute_id, attribute_value) VALUES (@UserId, 'lastfm', @LastFmUsername)
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure
 
         public async ValueTask ClearLastFmUsernameAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"DELETE FROM attributes.text_attributes WHERE user_id = @UserId AND attribute_id = 'lastfm';",

@@ -29,7 +29,7 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<InstagramChecker>> GetInstagramCheckersAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var checkers = await connection.QueryAsync<InstagramCheckerDto>(
                 "SELECT guild_id, channel_id, instagram_username, last_post_code, last_taken_at FROM checkers.instagram_checker;"
@@ -46,7 +46,7 @@ namespace TaylorBot.Net.InstagramNotifier.Infrastructure
 
         public async ValueTask UpdateLastPostAsync(InstagramChecker instagramChecker, InstagramPost instagramPost)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE checkers.instagram_checker SET last_post_code = @LastPostCode, last_taken_at = @LastTakenAt

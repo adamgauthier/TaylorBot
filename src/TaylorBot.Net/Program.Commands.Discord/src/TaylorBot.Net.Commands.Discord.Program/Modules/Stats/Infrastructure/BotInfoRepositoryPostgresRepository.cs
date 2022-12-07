@@ -21,7 +21,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure
 
         public async ValueTask<string> GetProductVersionAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var productVersionDto = await connection.QuerySingleAsync<ProductVersionDto>(
                 "SELECT info_value FROM configuration.application_info WHERE info_key = 'product_version';"

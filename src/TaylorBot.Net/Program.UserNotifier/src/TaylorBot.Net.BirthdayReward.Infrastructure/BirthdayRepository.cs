@@ -30,7 +30,7 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
             connection.Open();
             using var transaction = connection.BeginTransaction();
 

@@ -26,7 +26,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure
 
         public async ValueTask<IReadOnlyList<MessageOfTheDay>> GetAllMessagesAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var messages = await connection.QueryAsync<MessageDto>(
                 "SELECT message, priority_from, priority_to FROM commands.messages_of_the_day ORDER BY added_at ASC;"

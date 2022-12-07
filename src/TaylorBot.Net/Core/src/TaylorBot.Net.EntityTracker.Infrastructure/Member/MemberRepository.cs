@@ -17,7 +17,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 
         public async ValueTask<bool> AddNewMemberAsync(IGuildUser member)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var result = await connection.QuerySingleOrDefaultAsync<bool>(
                 @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES (@GuildId, @UserId, @FirstJoinedAt)
@@ -36,7 +36,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 
         public async ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var memberAddedOrUpdatedDto = await connection.QuerySingleAsync<MemberAddedOrUpdatedDto>(
                 @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at) VALUES (@GuildId, @UserId, @FirstJoinedAt)
@@ -68,7 +68,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 
         public async ValueTask SetMemberDeadAsync(IGuild guild, IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "UPDATE guilds.guild_members SET alive = FALSE WHERE guild_id = @GuildId AND user_id = @UserId;",

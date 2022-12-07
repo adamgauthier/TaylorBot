@@ -23,7 +23,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
 
         public async ValueTask<LogChannel?> GetDeletedLogsChannelForGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<DeletedLogChannelDto?>(
                 @"SELECT deleted_log_channel_id FROM plus.deleted_log_channels
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure
 
         public async ValueTask<LogChannel?> GetEditedLogsChannelForGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var logChannel = await connection.QuerySingleOrDefaultAsync<EditedLogChannelDto?>(
                 @"SELECT edited_log_channel_id FROM plus.edited_log_channels

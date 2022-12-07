@@ -30,7 +30,7 @@ namespace TaylorBot.Net.RedditNotifier.Infrastructure
 
         public async ValueTask<IReadOnlyCollection<RedditChecker>> GetRedditCheckersAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var checkers = await connection.QueryAsync<RedditCheckerDto>(
                 "SELECT guild_id, channel_id, subreddit, last_post_id, last_created FROM checkers.reddit_checker;"
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.RedditNotifier.Infrastructure
 
         public async ValueTask UpdateLastPostAsync(RedditChecker redditChecker, Post redditPost)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE checkers.reddit_checker SET last_post_id = @LastPostId, last_created = @LastCreated

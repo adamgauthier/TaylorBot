@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<bool> IsActivePlusUserAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
                 @"SELECT EXISTS(
@@ -32,7 +32,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<bool> IsActivePlusGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
                 @"SELECT EXISTS(

@@ -17,7 +17,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Username
 
         public async ValueTask AddNewUsernameAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "INSERT INTO users.usernames (user_id, username) VALUES (@UserId, @Username);",

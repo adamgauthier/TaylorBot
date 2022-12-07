@@ -49,7 +49,7 @@ namespace TaylorBot.Net.MessagesTracker.Infrastructure
                     var userId = nameParts[3];
                     var lastSpokeAt = DateTimeOffset.ParseExact($"{entry.Value}", "o", CultureInfo.InvariantCulture);
 
-                    using var connection = _postgresConnectionFactory.CreateConnection();
+                    await using var connection = _postgresConnectionFactory.CreateConnection();
 
                     await connection.ExecuteAsync(
                         @"UPDATE guilds.guild_members SET last_spoke_at = @LastSpokeAt

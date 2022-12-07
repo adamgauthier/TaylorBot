@@ -32,11 +32,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
 
         public async ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var canRedeem = await connection.QuerySingleOrDefaultAsync<CanRedeemDto>(
                 """
-                SELECT 
+                SELECT
                     last_payout_at < date_trunc('day', CURRENT_TIMESTAMP) AS can_redeem,
                     date_trunc('day', ((CURRENT_TIMESTAMP + INTERVAL '1 DAY'))) AS can_redeem_at
                 FROM users.daily_payouts
@@ -69,7 +69,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
         {
             var options = _options.CurrentValue;
 
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
             connection.Open();
             using var transaction = connection.BeginTransaction();
 
@@ -140,7 +140,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
 
         public async ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var streakInfo = await connection.QuerySingleOrDefaultAsync<StreakInfoDto?>(
                 @"SELECT streak_count, max_streak_count
@@ -170,7 +170,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
 
         public async ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
             connection.Open();
             using var transaction = connection.BeginTransaction();
 
@@ -238,7 +238,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
 
         public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync()
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var entries = await connection.QueryAsync<LeaderboardEntryDto>(
                 @"SELECT u.user_id, u.username, dp.streak_count, rank() OVER (ORDER BY streak_count DESC) AS rank

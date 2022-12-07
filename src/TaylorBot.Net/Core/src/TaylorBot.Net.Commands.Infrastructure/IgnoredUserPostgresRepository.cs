@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var userAddedOrUpdatedDto = await connection.QuerySingleAsync<UserAddedOrUpdatedDto>(
                 """
@@ -56,7 +56,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"UPDATE users.users SET ignore_until = @IgnoreUntil WHERE user_id = @UserId;",

@@ -23,7 +23,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure
 
         public async ValueTask<AgeStats> GetAgeStatsInGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var ageStats = await connection.QuerySingleAsync<AgeStatsDto>(
                 @"SELECT ROUND(AVG(human_age), 2) AS age_average, ROUND(MEDIAN(human_age), 2) AS age_median
@@ -55,12 +55,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure
 
         public async ValueTask<GenderStats> GetGenderStatsInGuildAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var genderStats = await connection.QuerySingleAsync<GenderStatsDto>(
                 @"SELECT
                     COUNT(*) AS total_count,
-                    SUM(CASE WHEN attribute_value = 'Male' THEN 1 ELSE 0 END) AS male_count, 
+                    SUM(CASE WHEN attribute_value = 'Male' THEN 1 ELSE 0 END) AS male_count,
                     SUM(CASE WHEN attribute_value = 'Female' THEN 1 ELSE 0 END) AS female_count,
                     SUM(CASE WHEN attribute_value = 'Other' THEN 1 ELSE 0 END) AS other_count
                 FROM attributes.text_attributes

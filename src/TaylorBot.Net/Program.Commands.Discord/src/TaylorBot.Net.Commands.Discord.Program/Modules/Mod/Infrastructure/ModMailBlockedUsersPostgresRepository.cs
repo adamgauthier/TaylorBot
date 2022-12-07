@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask<int> GetBlockedUserCountAsync(IGuild guild)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<int>(
                 @"SELECT COUNT(*) FROM moderation.mod_mail_blocked_users
@@ -31,7 +31,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask BlockAsync(IGuild guild, IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 @"INSERT INTO moderation.mod_mail_blocked_users (guild_id, user_id)
@@ -47,7 +47,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask UnblockAsync(IGuild guild, IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             await connection.ExecuteAsync(
                 "DELETE FROM moderation.mod_mail_blocked_users WHERE guild_id = @GuildId AND user_id = @UserId;",
@@ -61,7 +61,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure
 
         public async ValueTask<bool> IsBlockedAsync(IGuild guild, IUser user)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<bool>(
                 @"SELECT EXISTS(

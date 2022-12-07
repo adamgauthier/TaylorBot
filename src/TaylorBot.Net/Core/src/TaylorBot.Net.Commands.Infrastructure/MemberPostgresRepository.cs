@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
         public async ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt)
         {
-            using var connection = _postgresConnectionFactory.CreateConnection();
+            await using var connection = _postgresConnectionFactory.CreateConnection();
 
             var experience = await connection.QuerySingleAsync<long>(
                 """
