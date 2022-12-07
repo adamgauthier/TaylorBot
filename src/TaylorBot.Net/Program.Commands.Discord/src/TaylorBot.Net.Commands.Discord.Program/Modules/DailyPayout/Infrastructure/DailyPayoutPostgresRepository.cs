@@ -35,11 +35,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             var canRedeem = await connection.QuerySingleOrDefaultAsync<CanRedeemDto>(
-                @"SELECT
+                """
+                SELECT 
                     last_payout_at < date_trunc('day', CURRENT_TIMESTAMP) AS can_redeem,
                     date_trunc('day', ((CURRENT_TIMESTAMP + INTERVAL '1 DAY'))) AS can_redeem_at
                 FROM users.daily_payouts
-                WHERE user_id = @UserId;",
+                WHERE user_id = @UserId;
+                """,
                 new
                 {
                     UserId = user.Id.ToString()

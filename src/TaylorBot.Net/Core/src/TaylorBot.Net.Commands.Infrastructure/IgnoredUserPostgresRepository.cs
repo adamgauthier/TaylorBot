@@ -21,13 +21,15 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             var userAddedOrUpdatedDto = await connection.QuerySingleAsync<UserAddedOrUpdatedDto>(
-                @"INSERT INTO users.users (user_id, is_bot, username, previous_username) VALUES (@UserId, @IsBot, @Username, NULL)
+                """
+                INSERT INTO users.users (user_id, is_bot, username, previous_username) VALUES (@UserId, @IsBot, @Username, NULL)
                 ON CONFLICT (user_id) DO UPDATE SET
                     previous_username = users.users.username,
                     username = excluded.username
                 RETURNING
                     ignore_until, previous_username IS NULL AS was_inserted,
-                    previous_username IS DISTINCT FROM username AS username_changed, previous_username;",
+                    previous_username IS DISTINCT FROM username AS username_changed, previous_username;
+                """,
                 new
                 {
                     UserId = user.Id.ToString(),

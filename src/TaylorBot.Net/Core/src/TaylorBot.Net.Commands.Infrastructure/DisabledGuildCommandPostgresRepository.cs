@@ -51,10 +51,12 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             var disabled = await connection.QuerySingleOrDefaultAsync<bool>(
-                @"SELECT EXISTS(
+                """
+                SELECT EXISTS(
                     SELECT 1 FROM guilds.guild_commands
                     WHERE guild_id = @GuildId AND command_name = @CommandName AND disabled = TRUE
-                );",
+                );
+                """,
                 new
                 {
                     GuildId = guild.Id.ToString(),

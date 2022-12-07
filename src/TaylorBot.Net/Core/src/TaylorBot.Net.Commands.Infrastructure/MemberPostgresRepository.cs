@@ -21,7 +21,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             var experience = await connection.QuerySingleAsync<long>(
-                @"INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at, last_spoke_at) VALUES (@GuildId, @UserId, @FirstJoinedAt, @LastSpokeAt)
+                """
+                INSERT INTO guilds.guild_members (guild_id, user_id, first_joined_at, last_spoke_at) VALUES (@GuildId, @UserId, @FirstJoinedAt, @LastSpokeAt)
                 ON CONFLICT (guild_id, user_id) DO UPDATE SET
                     alive = TRUE,
                     first_joined_at = CASE
@@ -35,7 +36,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
                         THEN guild_members.last_spoke_at
                         ELSE excluded.last_spoke_at
                     END
-                RETURNING experience;",
+                RETURNING experience;
+                """,
                 new
                 {
                     GuildId = member.GuildId.ToString(),

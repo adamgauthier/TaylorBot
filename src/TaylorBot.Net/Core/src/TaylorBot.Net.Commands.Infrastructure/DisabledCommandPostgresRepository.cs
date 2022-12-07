@@ -20,11 +20,13 @@ namespace TaylorBot.Net.Commands.Infrastructure
             using var connection = _postgresConnectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<string>(
-                @"INSERT INTO commands.commands (name, aliases, module_name) VALUES (@CommandName, @Aliases, @ModuleName)
+                """
+                INSERT INTO commands.commands (name, aliases, module_name) VALUES (@CommandName, @Aliases, @ModuleName)
                 ON CONFLICT (name) DO UPDATE SET
                     aliases = excluded.aliases,
                     module_name = excluded.module_name
-                RETURNING disabled_message;",
+                RETURNING disabled_message;
+                """,
                 new
                 {
                     CommandName = command.Name,

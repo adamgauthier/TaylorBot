@@ -1,33 +1,17 @@
-﻿using Microsoft.Extensions.Options;
-using Npgsql;
+﻿using Npgsql;
 using System.Data;
-using TaylorBot.Net.Core.Infrastructure.Options;
 
 namespace TaylorBot.Net.Core.Infrastructure
 {
     public class PostgresConnectionFactory
     {
-        private readonly IOptionsMonitor<DatabaseConnectionOptions> _optionsMonitor;
+        private readonly NpgsqlDataSource _npgsqlDataSource;
 
-        public PostgresConnectionFactory(IOptionsMonitor<DatabaseConnectionOptions> optionsMonitor)
+        public PostgresConnectionFactory(NpgsqlDataSource npgsqlDataSource)
         {
-            _optionsMonitor = optionsMonitor;
+            _npgsqlDataSource = npgsqlDataSource;
         }
 
-        public IDbConnection CreateConnection()
-        {
-            var options = _optionsMonitor.CurrentValue;
-            return new NpgsqlConnection(string.Join(';', new[] {
-                $"Server={options.Host}",
-                $"Port={options.Port}",
-                $"Username={options.Username}",
-                $"Password={options.Password}",
-                $"Database={options.Database}",
-                $"ApplicationName={options.ApplicationName}",
-                $"Maximum Pool Size={options.MaxPoolSize}",
-                "SSL Mode=Prefer",
-                "Trust Server Certificate=true",
-            }));
-        }
+        public IDbConnection CreateConnection() => _npgsqlDataSource.CreateConnection();
     }
 }
