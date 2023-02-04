@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="Npgsql" Version="7.0.0" />
-    <PackageReference Include="Npgsql.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Npgsql" Version="7.0.1" />
+    <PackageReference Include="Npgsql.DependencyInjection" Version="7.0.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.80" />
   </ItemGroup>
 
