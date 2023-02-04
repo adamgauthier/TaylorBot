@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
@@ -51,6 +52,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Valentines.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Valentines.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Valentines.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure;
@@ -63,6 +67,7 @@ using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
+using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 
 var host = Host.CreateDefaultBuilder()
@@ -204,7 +209,13 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<BirthdayShowSlashCommand>()
             .AddSlashCommand<BirthdayClearSlashCommand>()
             .AddSlashCommand<BirthdaySetSlashCommand>()
-            .AddSlashCommand<BirthdayCalendarSlashCommand>();
+            .AddSlashCommand<BirthdayCalendarSlashCommand>()
+            .AddTransient<IValentinesRepository, ValentinesPostgresRepository>()
+            .AddSlashCommand<LoveSpreadSlashCommand>()
+            .AddSlashCommand<LoveHistorySlashCommand>()
+            .AddSlashCommand<LoveReadySlashCommand>()
+            .AddTransient<IAllReadyHandler, AllReadyHandler>()
+            .AddTransient<ValentineGiveawayDomainService>();
     })
     .Build();
 

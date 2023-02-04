@@ -64,7 +64,7 @@ stages:
   - stage: deploy
     displayName: 'TaylorBot'
     dependsOn: build
-    condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+    condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/valentines2023')))
     variables:
       artifactName: '${{ parameters.componentName }}-image'
       archiveName: '${{ parameters.componentName }}.tar'
