@@ -1,0 +1,37 @@
+{
+  "name": "love",
+  "description": "Spread love during this special Valentine's celebration",
+  "options": [
+    {
+      "name": "spread",
+      "description": "Spread your special love role to your bestie",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to spread love to",
+          "type": 6,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history",
+      "description": "Shows the history of what path love took to reach a user",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to retrieve the history for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ready",
+      "description": "Find out who's ready to spread love",
+      "type": 1
+    }
+  ]
+}

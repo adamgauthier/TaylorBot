@@ -11,7 +11,7 @@ using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2024;
 
 public static class Valentines
 {
