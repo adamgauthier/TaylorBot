@@ -17,7 +17,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 
         public record Options(ParsedPositiveInteger day, ParsedPositiveInteger month, ParsedOptionalInteger year, ParsedOptionalBoolean privately);
 
-        private const int NoYearValue = 1804;
         private const int MinAge = 13;
         private const int MaxAge = 115;
         private readonly IBirthdayRepository _birthdayRepository;
@@ -33,17 +32,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
                 new(Info.Name),
                 async () =>
                 {
-                    DateOnly birthday = new(options.year.Value ?? NoYearValue, options.month.Value, options.day.Value);
+                    DateOnly birthday = new(options.year.Value ?? IBirthdayRepository.Birthday.NoYearValue, options.month.Value, options.day.Value);
 
-                    if (birthday.Year != NoYearValue)
+                    if (birthday.Year != IBirthdayRepository.Birthday.NoYearValue)
                     {
-                        var today = context.CreatedAt.Date;
-                        var age = today.Year - birthday.Year;
-
-                        if (birthday.ToDateTime(TimeOnly.MinValue) > today.AddYears(-age))
-                        {
-                            age--;
-                        }
+                        int age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday);
 
                         if (age < MinAge)
                         {
@@ -58,7 +51,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 
                     var isPrivate = options.privately.Value ?? false;
 
-                    if (birthday.Year != NoYearValue)
+                    if (birthday.Year != IBirthdayRepository.Birthday.NoYearValue)
                     {
                         await _birthdayRepository.ClearLegacyAgeAsync(context.User);
                     }
@@ -69,9 +62,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithDescription(string.Join('\n', new[] {
                             $"Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}**. ✅",
-                            birthday.Year == NoYearValue ?
-                                $"Please consider setting your birthday with the **year** option for `{context.CommandPrefix}age` to work. ❓" :
-                                $"You can now use `{context.CommandPrefix}age` to display your age. 🔢",
+                            birthday.Year == IBirthdayRepository.Birthday.NoYearValue ?
+                                $"Please consider setting your birthday with the **year** option for {context.MentionCommand("birthday age")} to work. ❓" :
+                                $"You can now use {context.MentionCommand("birthday age")} to display your age. 🔢",
                             isPrivate ?
                                 $"Since your birthday is private, it won't show up in {context.MentionCommand("birthday calendar")}. 🙈" :
                                 $"Your birthday will show up in {context.MentionCommand("birthday calendar")}. 📅",

@@ -8,7 +8,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain
 {
     public interface IBirthdayRepository
     {
-        record Birthday(DateOnly Date, bool IsPrivate);
+        record Birthday(DateOnly Date, bool IsPrivate)
+        {
+            public const int NoYearValue = 1804;
+        }
         record BirthdayCalendarEntry(SnowflakeId UserId, string Username, DateOnly NextBirthday);
 
         ValueTask<Birthday?> GetBirthdayAsync(IUser user);

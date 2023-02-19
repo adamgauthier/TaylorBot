@@ -22,17 +22,7 @@ class AgeAttribute extends SettableUserAttribute {
     }
 
     async retrieve(database: DatabaseDriver, user: User): Promise<any> {
-        const age = await database.integerAttributes.get(this.id, user);
-        const birthday = await database.birthdays.get(user);
-
-        if (!age && !birthday) {
-            return null;
-        }
-
-        return {
-            age,
-            birthday
-        };
+        return {};
     }
 
     setCommand(commandContext: CommandMessageContext, _: any): Promise<EmbedBuilder> {

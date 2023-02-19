@@ -41,7 +41,7 @@
           "description": "Your birthday year, if not included, your age can't be displayed",
           "type": 4,
           "min_value": 1907,
-          "max_value": 2009,
+          "max_value": 2012,
           "required": false
         },
         {
@@ -53,10 +53,17 @@
       ]
     },
     {
-      "name": "clear",
-      "description": "Clears your registered birthday",
+      "name": "age",
+      "description": "Show the age of a user according to their set birthday",
       "type": 1,
-      "options": []
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the age for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
     },
     {
       "name": "calendar",
@@ -77,5 +84,11 @@
         }
       ]
     },
+    {
+      "name": "clear",
+      "description": "Clears your registered birthday",
+      "type": 1,
+      "options": []
+    }
   ]
 }

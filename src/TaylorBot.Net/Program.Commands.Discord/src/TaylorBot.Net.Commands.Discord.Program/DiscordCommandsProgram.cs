@@ -203,7 +203,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<BirthdayClearSlashCommand>()
             .AddSlashCommand<BirthdaySetSlashCommand>()
             .AddSlashCommand<BirthdayCalendarSlashCommand>()
-            .AddSlashCommand<BirthdayHoroscopeSlashCommand>();
+            .AddSlashCommand<BirthdayHoroscopeSlashCommand>()
+            .AddSlashCommand<BirthdayAgeSlashCommand>();
     })
     .Build();
 
