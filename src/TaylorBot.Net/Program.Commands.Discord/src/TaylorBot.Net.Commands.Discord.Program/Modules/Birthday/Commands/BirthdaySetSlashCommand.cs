@@ -75,7 +75,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
                             isPrivate ?
                                 $"Since your birthday is private, it won't show up in {context.MentionCommand("birthday calendar")}. 🙈" :
                                 $"Your birthday will show up in {context.MentionCommand("birthday calendar")}. 📅",
-                            $"You can now use `{context.CommandPrefix}horoscope` to get your horoscope. ✨",
+                            $"You can now use {context.MentionCommand("birthday horoscope")} to get your horoscope. ✨",
                             "You will get taypoints on your birthday every year. 🎁",
                         }));
 

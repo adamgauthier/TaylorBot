@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Domain
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain
 {
     public interface IHoroscopeClient
     {

@@ -24,8 +24,6 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
@@ -204,7 +202,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<BirthdayShowSlashCommand>()
             .AddSlashCommand<BirthdayClearSlashCommand>()
             .AddSlashCommand<BirthdaySetSlashCommand>()
-            .AddSlashCommand<BirthdayCalendarSlashCommand>();
+            .AddSlashCommand<BirthdayCalendarSlashCommand>()
+            .AddSlashCommand<BirthdayHoroscopeSlashCommand>();
     })
     .Build();
 

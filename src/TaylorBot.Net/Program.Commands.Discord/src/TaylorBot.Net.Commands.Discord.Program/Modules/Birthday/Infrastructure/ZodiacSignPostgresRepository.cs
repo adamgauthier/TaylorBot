@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using Discord;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Infrastructure
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure
 {
     public class ZodiacSignPostgresRepository : IZodiacSignRepository
     {

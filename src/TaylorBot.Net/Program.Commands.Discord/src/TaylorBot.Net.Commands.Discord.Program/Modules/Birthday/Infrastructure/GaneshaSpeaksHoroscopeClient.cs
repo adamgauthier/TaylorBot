@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Infrastructure
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure
 {
     public class GaneshaSpeaksHoroscopeClient : IHoroscopeClient
     {

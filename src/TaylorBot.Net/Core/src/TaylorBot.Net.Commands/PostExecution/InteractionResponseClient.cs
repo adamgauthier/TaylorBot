@@ -114,7 +114,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                     id: i,
                     filename: a.Filename
                 )).ToList(),
-                flags: response.IsEphemeral ? 64 : null
+                flags: response.IsPrivate ? 64 : null
             );
         }
 
