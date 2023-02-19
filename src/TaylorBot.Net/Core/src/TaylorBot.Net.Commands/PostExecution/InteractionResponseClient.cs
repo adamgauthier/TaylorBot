@@ -113,7 +113,8 @@ namespace TaylorBot.Net.Commands.PostExecution
                 attachments: response.Content.Attachments?.Select((a, i) => new InteractionResponse.Attachment(
                     id: i,
                     filename: a.Filename
-                )).ToList()
+                )).ToList(),
+                flags: response.IsEphemeral ? 64 : null
             );
         }
 
@@ -144,7 +145,17 @@ namespace TaylorBot.Net.Commands.PostExecution
             return content;
         }
 
+        public async ValueTask SendFollowupResponseAsync(ButtonComponent component, MessageResponse message)
+        {
+            await SendFollowupResponseAsync(component.Token, message);
+        }
+
         public async ValueTask SendFollowupResponseAsync(ApplicationCommand interaction, MessageResponse message)
+        {
+            await SendFollowupResponseAsync(interaction.Token, message);
+        }
+
+        public async ValueTask SendFollowupResponseAsync(string token, MessageResponse message)
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
@@ -155,7 +166,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                 jsonContent;
 
             var response = await _httpClient.PostAsync(
-                $"webhooks/{applicationInfo.Id}/{interaction.Token}",
+                $"webhooks/{applicationInfo.Id}/{token}",
                 httpContent
             );
 

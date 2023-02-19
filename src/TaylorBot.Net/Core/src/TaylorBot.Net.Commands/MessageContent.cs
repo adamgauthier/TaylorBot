@@ -17,7 +17,7 @@ namespace TaylorBot.Net.Commands
 
     public record Attachment(Stream Stream, string Filename);
 
-    public record MessageResponse(MessageContent Content, IReadOnlyList<Button>? Buttons = null)
+    public record MessageResponse(MessageContent Content, IReadOnlyList<Button>? Buttons = null, bool IsEphemeral = false)
     {
         public MessageResponse(Embed Embed) : this(new MessageContent(Embed)) { }
     }

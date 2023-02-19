@@ -27,12 +27,16 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             var isDisabled = await _disabledGuildChannelCommandRepository.IsGuildChannelCommandDisabledAsync(context.Channel, context.Guild, command.Metadata);
 
+            var canRun = await new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageChannels).CanRunAsync(command, context);
+
             return isDisabled ?
                 new PreconditionFailed(
                     PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {context.Guild.FormatLog()}",
                     UserReason: new(string.Join('\n', new[] {
                         $"You can't use `{command.Metadata.Name}` because it is disabled in {context.Channel.Mention}.",
-                        $"You can re-enable it by typing </command channel-enable:909694280703016991> {command.Metadata.Name}."
+                        canRun is PreconditionPassed
+                            ? $"You can re-enable it by typing </command channel-enable:909694280703016991> {command.Metadata.Name}."
+                            : "Ask a moderator to re-enable it."
                     }))
                 ) :
                 new PreconditionPassed();

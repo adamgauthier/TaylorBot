@@ -27,6 +27,8 @@ namespace TaylorBot.Net.Commands.Preconditions
 
             var isDisabled = await _disabledGuildCommandRepository.IsGuildCommandDisabledAsync(context.Guild, command.Metadata);
 
+            var canRun = await new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild).CanRunAsync(command, context);
+
             return isDisabled ?
                 new PreconditionFailed(
                     PrivateReason: $"{command.Metadata.Name} is disabled in {context.Guild.FormatLog()}",
@@ -34,7 +36,9 @@ namespace TaylorBot.Net.Commands.Preconditions
                         string.Join('\n',
                             new[] {
                                 $"You can't use `{command.Metadata.Name}` because it is disabled in this server.",
-                                $"You can re-enable it by typing </command server-enable:909694280703016991> {command.Metadata.Name}."
+                                canRun is PreconditionPassed
+                                    ? $"You can re-enable it by typing </command server-enable:909694280703016991> {command.Metadata.Name}."
+                                    : "Ask a moderator to re-enable it."
                             }),
                         HideInPrefixCommands: true
                     )

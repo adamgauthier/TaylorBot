@@ -1,18 +1,8 @@
 ﻿namespace TaylorBot.Net.Core.Snowflake
 {
-    public class SnowflakeId
+    public record SnowflakeId(ulong Id)
     {
-        public ulong Id { get; }
-
-        public SnowflakeId(ulong id)
-        {
-            Id = id;
-        }
-
-        public SnowflakeId(string id)
-        {
-            Id = ulong.Parse(id);
-        }
+        public SnowflakeId(string id) : this(ulong.Parse(id)) { }
 
         public override string ToString()
         {
