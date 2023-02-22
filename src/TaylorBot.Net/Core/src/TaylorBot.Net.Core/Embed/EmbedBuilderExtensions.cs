@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Core.Embed
@@ -11,7 +12,7 @@ namespace TaylorBot.Net.Core.Embed
             if (user.IsBot)
                 author += " 🤖";
 
-            var avatarUrl = showGuildAvatar == true ? 
+            var avatarUrl = showGuildAvatar == true ?
                 user.GetGuildAvatarUrlOrDefault() :
                 user.GetAvatarUrlOrDefault();
 
@@ -22,6 +23,18 @@ namespace TaylorBot.Net.Core.Embed
         {
             return embedBuilder
                 .WithAuthor(guild.Features?.HasFeature(GuildFeature.Partnered) == true ? $"{guild.Name} ⭐" : guild.Name, guild.IconUrl);
+        }
+
+        public static EmbedBuilder WithSafeUrl(this EmbedBuilder embedBuilder, string url)
+        {
+            if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            {
+                return embedBuilder.WithUrl(url);
+            }
+            else
+            {
+                return embedBuilder;
+            }
         }
     }
 }

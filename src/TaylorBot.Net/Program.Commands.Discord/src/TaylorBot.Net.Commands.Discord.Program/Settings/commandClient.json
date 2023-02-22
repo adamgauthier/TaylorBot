@@ -29,6 +29,14 @@
       "horoscope": {
         "FriendlyName": "Fetching an horoscope",
         "MaxUsesForUser": 20
+      },
+      "urbandictionary-search-legacy": {
+        "FriendlyName": "Searching UrbanDictionary (prefix command)",
+        "MaxUsesForUser": 1
+      },
+      "urbandictionary-search": {
+        "FriendlyName": "Searching UrbanDictionary (slash command)",
+        "MaxUsesForUser": 99
       }
     }
   }

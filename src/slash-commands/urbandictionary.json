@@ -1,0 +1,12 @@
+{
+  "name": "urbandictionary",
+  "description": "Get definitions for slang words and phrases with UrbanDictionary",
+  "options": [
+    {
+      "name": "search",
+      "description": "The slang word or phrase you want to find a definition for",
+      "type": 3,
+      "required": true
+    }
+  ]
+}

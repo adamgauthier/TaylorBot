@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Embed;
@@ -11,10 +12,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Commands
     public class KnowledgeModule : TaylorBotModule
     {
         private readonly ICommandRunner _commandRunner;
+        private readonly UrbanDictionaryCommand _urbanDictionaryCommand;
 
-        public KnowledgeModule(ICommandRunner commandRunner)
+        public KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryCommand urbanDictionaryCommand)
         {
             _commandRunner = commandRunner;
+            _urbanDictionaryCommand = urbanDictionaryCommand;
         }
 
         [Command("horoscope")]
@@ -35,6 +38,23 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Commands
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
             var result = await _commandRunner.RunAsync(command, context);
+
+            return new TaylorBotResult(result, context);
+        }
+
+        [Command("urbandictionary")]
+        [Alias("urban")]
+        [Summary("Get definitions for slang words and phrases with UrbanDictionary.")]
+        public async Task<RuntimeResult> UrbanDictionaryAsync(
+            [Remainder]
+            string text
+        )
+        {
+            var context = DiscordNetContextMapper.MapToRunContext(Context);
+            var result = await _commandRunner.RunAsync(
+                _urbanDictionaryCommand.Search(Context.User, text, isLegacyCommand: true),
+                context
+            );
 
             return new TaylorBotResult(result, context);
         }

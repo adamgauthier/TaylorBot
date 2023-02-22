@@ -1,8 +1,8 @@
 ﻿using Discord;
-using System;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
 {
@@ -23,15 +23,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
+                .WithTitle(page.Title)
+                .WithSafeUrl(page.PageUrl)
+                .WithImageUrl(page.ImageUrl)
                 .WithFooter($"{_search.ResultCount} results found in {_search.SearchTimeSeconds} seconds");
 
-            if (Uri.IsWellFormedUriString(page.PageUrl, UriKind.Absolute))
-                embed.WithUrl(page.PageUrl);
-
-            return new(embed
-                .WithTitle(page.Title)
-                .WithImageUrl(page.ImageUrl)
-            .Build());
+            return new(embed.Build());
         }
     }
 }

@@ -47,6 +47,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands;
@@ -204,7 +207,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<BirthdaySetSlashCommand>()
             .AddSlashCommand<BirthdayCalendarSlashCommand>()
             .AddSlashCommand<BirthdayHoroscopeSlashCommand>()
-            .AddSlashCommand<BirthdayAgeSlashCommand>();
+            .AddSlashCommand<BirthdayAgeSlashCommand>()
+            .AddTransient<IUrbanDictionaryClient, UrbanDictionaryClient>()
+            .AddTransient<UrbanDictionaryCommand>()
+            .AddSlashCommand<UrbanDictionarySlashCommand>();
     })
     .Build();
 
