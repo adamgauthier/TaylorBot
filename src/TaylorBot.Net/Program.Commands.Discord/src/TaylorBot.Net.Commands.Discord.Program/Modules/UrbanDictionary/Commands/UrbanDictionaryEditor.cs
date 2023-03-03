@@ -35,7 +35,7 @@ public class UrbanDictionaryEditor : IMessageEditor, IEmbedPageEditor
 
         EditEmbed(embed, page);
 
-        embed.Description += "\n\nUse **/urbandictionary** instead! 😊";
+        embed.Description += "\n\nUse </urbandictionary:1080373890020282508> instead! 😊";
 
         return embed;
     }
