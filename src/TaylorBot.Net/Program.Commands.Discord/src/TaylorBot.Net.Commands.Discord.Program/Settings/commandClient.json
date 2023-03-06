@@ -37,6 +37,10 @@
       "urbandictionary-search": {
         "FriendlyName": "Searching UrbanDictionary (slash command)",
         "MaxUsesForUser": 99
+      },
+      "wolframalpha-query": {
+        "FriendlyName": "Querying WolframAlpha",
+        "MaxUsesForUser": 10
       }
     }
   }

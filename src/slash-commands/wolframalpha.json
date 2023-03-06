@@ -1,0 +1,12 @@
+{
+  "name": "wolframalpha",
+  "description": "Get answers for factual queries using WolframAlpha",
+  "options": [
+    {
+      "name": "question",
+      "description": "The question you want to get an answer for",
+      "type": 3,
+      "required": true
+    }
+  ]
+}

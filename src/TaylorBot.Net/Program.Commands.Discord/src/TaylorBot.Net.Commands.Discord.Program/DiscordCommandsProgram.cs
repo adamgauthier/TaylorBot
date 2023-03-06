@@ -55,6 +55,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastruct
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure;
@@ -210,7 +213,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<BirthdayAgeSlashCommand>()
             .AddTransient<IUrbanDictionaryClient, UrbanDictionaryClient>()
             .AddTransient<UrbanDictionaryCommand>()
-            .AddSlashCommand<UrbanDictionarySlashCommand>();
+            .AddSlashCommand<UrbanDictionarySlashCommand>()
+            .ConfigureRequired<WolframAlphaOptions>(config, "WolframAlpha")
+            .AddTransient<IWolframAlphaClient, WolframAlphaClient>()
+            .AddSlashCommand<WolframAlphaSlashCommand>();
     })
     .Build();
 
