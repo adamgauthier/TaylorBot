@@ -116,6 +116,9 @@ stages:
                 set -o pipefail
                 set -o nounset
 
+                echo 'Resolving current machine IP address'
+                dig +short myip.opendns.com @resolver1.opendns.com
+
                 sqitch_bundle_path=$(Pipeline.Workspace)/taylorbot-sqitch-bundle
                 mkdir ${sqitch_bundle_path}
 
