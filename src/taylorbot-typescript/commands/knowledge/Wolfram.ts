@@ -8,7 +8,7 @@ class WolframCommand extends Command {
             aliases: ['wolframalpha', 'wa'],
             group: 'Knowledge ❓',
             description: 'Search on Wolfram|Alpha!',
-            examples: ['This command has been moved to **/wolframalpha**. Use it instead!'],
+            examples: ['This command has been moved to </wolframalpha:1082193237210574910>. Use it instead!'],
             maxDailyUseCount: 10,
 
             args: [
@@ -23,7 +23,7 @@ class WolframCommand extends Command {
     }
 
     async run({ message, client }: CommandMessageContext): Promise<void> {
-        await client.sendEmbedError(message.channel, 'This command has been moved to **/wolframalpha**. Please use it instead! 😊');
+        await client.sendEmbedError(message.channel, 'This command has been moved to </wolframalpha:1082193237210574910>. Please use it instead! 😊');
     }
 }
 
