@@ -31,6 +31,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
@@ -139,6 +142,7 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
+            .AddTransient<ModMailChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand>()
             .AddSlashCommand<ModLogStopSlashCommand>()
             .AddSlashCommand<ModLogShowSlashCommand>()
@@ -146,8 +150,12 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ModMailMessageUserSlashCommand>()
             .AddSlashCommand<ModMailMessageModsSlashCommand>()
             .AddTransient<IModMailBlockedUsersRepository, ModMailBlockedUsersPostgresRepository>()
+            .AddTransient<IModMailLogChannelRepository, ModMailLogChannelPostgresRepository>()
             .AddSlashCommand<ModMailBlockSlashCommand>()
             .AddSlashCommand<ModMailUnblockSlashCommand>()
+            .AddSlashCommand<ModMailLogSetSlashCommand>()
+            .AddSlashCommand<ModMailLogStopSlashCommand>()
+            .AddSlashCommand<ModMailLogShowSlashCommand>()
             .AddSlashCommand<AvatarSlashCommand>()
             .AddOptionParser<OptionalAvatarTypeParser>()
             .AddSlashCommand<KickSlashCommand>()

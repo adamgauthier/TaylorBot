@@ -1,0 +1,92 @@
+{
+  "name": "modmail",
+  "description": "Send or receive messages from a server's moderation team",
+  "dm_permission": false,
+  "options": [
+    {
+      "name": "message-mods",
+      "description": "As a user, send a message to a server's moderation team",
+      "type": 1,
+      "options": [
+        {
+          "name": "message",
+          "description": "The message to send",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "message-user",
+      "description": "As a moderator, send a direct message from the moderation team to a user",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to send a message to",
+          "type": 6,
+          "required": true
+        },
+        {
+          "name": "message",
+          "description": "The message to send",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "block",
+      "description": "As a moderator, block a user from sending mod mail",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to block",
+          "type": 6,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "unblock",
+      "description": "As a moderator, unblock a user from sending mod mail",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to unblock",
+          "type": 6,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "log-set",
+      "description": "Set a channel for modmail logging (if none is set, it defaults to global moderation log channel)",
+      "type": 1,
+      "options": [
+        {
+          "name": "channel",
+          "description": "The text channel you want modmail logged in, default current channel",
+          "type": 7,
+          "required": false,
+          "channel_types": [
+            0,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "name": "log-show",
+      "description": "Show the configuration of modmail logging in this server",
+      "type": 1
+    },
+    {
+      "name": "log-stop",
+      "description": "Revert to using global moderation log channel from /mod log set",
+      "type": 1
+    }
+  ]
+}
