@@ -49,7 +49,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
 
     public class ChooseSlashCommand : ISlashCommand<ChooseSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new(ChooseCommand.Metadata.Name);
+        public ISlashCommandInfo Info => new MessageCommandInfo(ChooseCommand.Metadata.Name);
 
         public record Options(ParsedString options);
 

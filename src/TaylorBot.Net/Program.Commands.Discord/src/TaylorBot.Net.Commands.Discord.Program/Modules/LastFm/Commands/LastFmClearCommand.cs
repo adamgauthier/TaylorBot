@@ -43,7 +43,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 
     public class LastFmClearSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("lastfm clear");
+        public ISlashCommandInfo Info => new MessageCommandInfo("lastfm clear");
 
         private readonly LastFmClearCommand _lastFmClearCommand;
 

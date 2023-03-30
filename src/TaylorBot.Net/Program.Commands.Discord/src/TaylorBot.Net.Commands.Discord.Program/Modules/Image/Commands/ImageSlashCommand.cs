@@ -103,7 +103,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands
 
     public class ImageSlashCommand : ISlashCommand<ImageSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new(ImageCommand.Metadata.Name);
+        public ISlashCommandInfo Info => new MessageCommandInfo(ImageCommand.Metadata.Name);
 
         public record Options(ParsedString search);
 

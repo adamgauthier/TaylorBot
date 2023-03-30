@@ -28,7 +28,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             );
         }
 
-        public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
+        public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot)
         {
             var redis = _connectionMultiplexer.GetDatabase();
             var key = GetKey(user);
@@ -36,7 +36,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
 
             if (!cachedIgnoreUntil.HasValue)
             {
-                var getUserIgnoreUntilResult = await _ignoredUserPostgresRepository.InsertOrGetUserIgnoreUntilAsync(user);
+                var getUserIgnoreUntilResult = await _ignoredUserPostgresRepository.InsertOrGetUserIgnoreUntilAsync(user, isBot);
                 await CacheAsync(redis, key, getUserIgnoreUntilResult.IgnoreUntil);
                 return getUserIgnoreUntilResult;
             }

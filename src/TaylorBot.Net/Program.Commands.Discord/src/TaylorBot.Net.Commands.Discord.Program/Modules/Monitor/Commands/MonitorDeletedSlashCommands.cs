@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 {
     public class MonitorDeletedSetSlashCommand : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("monitor deleted set");
+        public ISlashCommandInfo Info => new MessageCommandInfo("monitor deleted set");
 
         public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -59,7 +59,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
     public class MonitorDeletedShowSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("monitor deleted show");
+        public ISlashCommandInfo Info => new MessageCommandInfo("monitor deleted show");
 
         private readonly IDeletedLogChannelRepository _deletedLogChannelRepository;
 
@@ -117,7 +117,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
     public class MonitorDeletedStopSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("monitor deleted stop");
+        public ISlashCommandInfo Info => new MessageCommandInfo("monitor deleted stop");
 
         private readonly IDeletedLogChannelRepository _deletedLogChannelRepository;
 

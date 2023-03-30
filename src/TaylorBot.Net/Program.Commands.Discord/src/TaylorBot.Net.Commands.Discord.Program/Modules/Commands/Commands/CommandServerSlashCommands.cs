@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands
 {
     public class CommandServerDisableSlashCommand : ISlashCommand<CommandServerDisableSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("command server-disable");
+        public ISlashCommandInfo Info => new MessageCommandInfo("command server-disable");
 
         public record Options(ParsedString command);
 
@@ -42,6 +42,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands
                         return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential. 😕"));
                     }
 
+                    if (command.Name.StartsWith("modmail"))
+                    {
+                        return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
+                    }
+
                     await _disabledGuildCommandRepository.DisableInAsync(guild, command.Name);
 
                     return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in '{guild.Name}'. ✅"));
@@ -56,7 +61,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands
 
     public class CommandServerEnableSlashCommand : ISlashCommand<CommandServerEnableSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("command server-enable");
+        public ISlashCommandInfo Info => new MessageCommandInfo("command server-enable");
 
         public record Options(ParsedString command);
 

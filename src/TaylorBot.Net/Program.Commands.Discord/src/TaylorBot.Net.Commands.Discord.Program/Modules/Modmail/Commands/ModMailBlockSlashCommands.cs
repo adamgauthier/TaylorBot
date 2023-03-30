@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailBlockSlashCommand : ISlashCommand<ModMailBlockSlashCommand.Options>
 {
-    public SlashCommandInfo Info => new("modmail block", IsPrivateResponse: true);
+    public ISlashCommandInfo Info => new MessageCommandInfo("modmail block", IsPrivateResponse: true);
 
     public record Options(ParsedUserNotAuthorAndBot user);
 
@@ -77,7 +77,7 @@ public class ModMailBlockSlashCommand : ISlashCommand<ModMailBlockSlashCommand.O
 
 public class ModMailUnblockSlashCommand : ISlashCommand<ModMailUnblockSlashCommand.Options>
 {
-    public SlashCommandInfo Info => new("modmail unblock", IsPrivateResponse: true);
+    public ISlashCommandInfo Info => new MessageCommandInfo("modmail unblock", IsPrivateResponse: true);
 
     public record Options(ParsedUserNotAuthorAndBot user);
 

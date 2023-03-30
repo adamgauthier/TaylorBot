@@ -31,7 +31,8 @@ namespace TaylorBot.Net.Commands
         ISelfUser BotUser,
         RunContext.CurrentCommandInfo CommandInfo,
         string CommandPrefix,
-        RunContext.OnGoingState OnGoing
+        RunContext.OnGoingState OnGoing,
+        bool WasAcknowledged = true
     )
     {
         public record CurrentCommandInfo(string Id, string Name);

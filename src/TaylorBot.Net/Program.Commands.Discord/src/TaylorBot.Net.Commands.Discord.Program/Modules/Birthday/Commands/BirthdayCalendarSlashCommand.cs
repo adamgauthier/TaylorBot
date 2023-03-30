@@ -15,7 +15,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 {
     public class BirthdayCalendarSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("birthday calendar");
+        public ISlashCommandInfo Info => new MessageCommandInfo("birthday calendar");
 
         private readonly IBirthdayRepository _birthdayRepository;
 

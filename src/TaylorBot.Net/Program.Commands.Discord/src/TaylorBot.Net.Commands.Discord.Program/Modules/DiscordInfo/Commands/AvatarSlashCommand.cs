@@ -36,7 +36,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
     public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new(AvatarCommand.Metadata.Name);
+        public ISlashCommandInfo Info => new MessageCommandInfo(AvatarCommand.Metadata.Name);
 
         public record Options(ParsedUserOrAuthor user, AvatarType? type);
 

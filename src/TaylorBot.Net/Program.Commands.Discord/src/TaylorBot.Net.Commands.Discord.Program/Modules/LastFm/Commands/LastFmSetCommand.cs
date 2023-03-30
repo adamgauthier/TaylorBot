@@ -43,7 +43,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 
     public class LastFmSetSlashCommand : ISlashCommand<LastFmSetSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("lastfm set");
+        public ISlashCommandInfo Info => new MessageCommandInfo("lastfm set");
 
         public record Options(LastFmUsername username);
 

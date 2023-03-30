@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
 
 public class WolframAlphaSlashCommand : ISlashCommand<WolframAlphaSlashCommand.Options>
 {
-    public SlashCommandInfo Info => new("wolframalpha");
+    public ISlashCommandInfo Info => new MessageCommandInfo("wolframalpha");
 
     public record Options(ParsedString question);
 

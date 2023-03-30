@@ -16,7 +16,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailMessageModsSlashCommand : ISlashCommand<ModMailMessageModsSlashCommand.Options>
 {
-    public SlashCommandInfo Info => new("modmail message-mods", IsPrivateResponse: true);
+    public ISlashCommandInfo Info => new MessageCommandInfo("modmail message-mods", IsPrivateResponse: true);
 
     public record Options(ParsedString message);
 

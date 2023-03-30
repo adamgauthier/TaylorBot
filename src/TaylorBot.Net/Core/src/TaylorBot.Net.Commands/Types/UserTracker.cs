@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Types
 
         public async ValueTask TrackUserFromArgumentAsync(IUser user)
         {
-            var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user);
+            var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user, user.IsBot);
             await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, getUserIgnoreUntilResult);
 
             if (user is IGuildUser guildUser)

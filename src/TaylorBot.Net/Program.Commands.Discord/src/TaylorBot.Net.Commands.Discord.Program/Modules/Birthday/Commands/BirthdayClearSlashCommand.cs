@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 {
     public class BirthdayClearSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("birthday clear");
+        public ISlashCommandInfo Info => new MessageCommandInfo("birthday clear");
 
         private readonly IBirthdayRepository _birthdayRepository;
 

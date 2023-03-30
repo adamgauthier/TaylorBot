@@ -13,7 +13,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands
 {
     public class OwnerIgnoreSlashCommand : ISlashCommand<OwnerIgnoreSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("owner ignore");
+        public ISlashCommandInfo Info => new MessageCommandInfo("owner ignore");
 
         public record Options(ParsedUserNotAuthorAndTaylorBot user, ParsedTimeSpan time);
 

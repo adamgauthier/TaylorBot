@@ -14,7 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 {
     public class LastFmCollageSlashCommand : ISlashCommand<LastFmCollageSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("lastfm collage");
+        public ISlashCommandInfo Info => new MessageCommandInfo("lastfm collage");
         public record Options(LastFmPeriod? period, ParsedOptionalInteger size, ParsedUserOrAuthor user);
 
         private readonly ILastFmUsernameRepository _lastFmUsernameRepository;

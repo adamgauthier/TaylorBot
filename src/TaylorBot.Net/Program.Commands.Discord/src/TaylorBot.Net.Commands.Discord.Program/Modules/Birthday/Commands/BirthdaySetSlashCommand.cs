@@ -13,7 +13,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 {
     public class BirthdaySetSlashCommand : ISlashCommand<BirthdaySetSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("birthday set", IsPrivateResponse: true);
+        public ISlashCommandInfo Info => new MessageCommandInfo("birthday set", IsPrivateResponse: true);
 
         public record Options(ParsedPositiveInteger day, ParsedPositiveInteger month, ParsedOptionalInteger year, ParsedOptionalBoolean privately);
 

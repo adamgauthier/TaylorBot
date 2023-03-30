@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 {
     public class MonitorMembersSetSlashCommand : ISlashCommand<MonitorMembersSetSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("monitor members set");
+        public ISlashCommandInfo Info => new MessageCommandInfo("monitor members set");
 
         public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -49,7 +49,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
     public class MonitorMembersShowSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("monitor members show");
+        public ISlashCommandInfo Info => new MessageCommandInfo("monitor members show");
 
         private readonly IMemberLogChannelRepository _memberLogChannelRepository;
 
@@ -107,7 +107,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands
 
     public class MonitorMembersStopSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("monitor members stop");
+        public ISlashCommandInfo Info => new MessageCommandInfo("monitor members stop");
 
         private readonly IMemberLogChannelRepository _memberLogChannelRepository;
 

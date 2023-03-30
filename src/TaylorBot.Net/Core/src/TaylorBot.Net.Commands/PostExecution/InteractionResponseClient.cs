@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,8 +13,10 @@ namespace TaylorBot.Net.Commands.PostExecution
 {
     public class InteractionResponseClient
     {
+        private const byte ChannelMessageWithSourceInteractionResponseType = 4;
         private const byte DeferredChannelMessageWithSourceInteractionResponseType = 5;
-        private const byte DeferredUpdateMessageInteractionResponseType = 6;
+        private const byte ComponentDeferredUpdateMessageInteractionResponseType = 6;
+        private const byte ModalInteractionResponseType = 9;
 
         private record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData? data)
         {
@@ -22,10 +25,59 @@ namespace TaylorBot.Net.Commands.PostExecution
                 IReadOnlyList<Embed>? embeds = null,
                 byte? flags = null,
                 IReadOnlyList<Component>? components = null,
-                IReadOnlyList<Attachment>? attachments = null
+                IReadOnlyList<Attachment>? attachments = null,
+                string? custom_id = null,
+                string? title = null
             );
 
-            public record Component(byte type, byte? style = null, string? label = null, Emoji? emoji = null, string? custom_id = null, string? url = null, bool? disabled = null, IReadOnlyList<Component>? components = null);
+            public record Component(
+                byte type,
+                byte? style = null,
+                string? label = null,
+                Emoji? emoji = null,
+                string? custom_id = null,
+                string? url = null,
+                bool? disabled = null,
+                int? min_length = null,
+                int? max_length = null,
+                bool? required = null,
+                string? value = null,
+                string? placeholder = null,
+                IReadOnlyList<Component>? components = null
+            )
+            {
+                public static Component CreateActionRow(IReadOnlyList<Component> components)
+                {
+                    return new Component(1, components: components);
+                }
+
+                public static Component CreateButton(byte style, string label, string custom_id, Emoji? emoji = null, bool? disabled = null)
+                {
+                    return new Component(
+                        2,
+                        style: style,
+                        label: label,
+                        custom_id: custom_id,
+                        emoji: emoji,
+                        disabled: disabled
+                    );
+                }
+
+                public static Component CreateTextInput(string custom_id, byte style, string label, int? min_length = null, int? max_length = null, bool? required = null, string? value = null, string? placeholder = null)
+                {
+                    return new Component(
+                        4,
+                        style: style,
+                        label: label,
+                        custom_id: custom_id,
+                        min_length: min_length,
+                        max_length: max_length,
+                        required: required,
+                        value: value,
+                        placeholder: placeholder
+                    );
+                }
+            };
 
             public record Attachment(int id, string filename, string? description = null);
 
@@ -45,34 +97,82 @@ namespace TaylorBot.Net.Commands.PostExecution
         }
 
         private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
+        private enum InteractionTextInputStyle { Short = 1, Paragraph = 2 }
 
+        private readonly ILogger<InteractionResponseClient> _logger;
         private readonly Lazy<ITaylorBotClient> _taylorBotClient;
         private readonly HttpClient _httpClient;
 
-        public InteractionResponseClient(Lazy<ITaylorBotClient> taylorBotClient, HttpClient httpClient)
+        public InteractionResponseClient(ILogger<InteractionResponseClient> logger, Lazy<ITaylorBotClient> taylorBotClient, HttpClient httpClient)
         {
+            _logger = logger;
             _taylorBotClient = taylorBotClient;
             _httpClient = httpClient;
         }
 
-        public async ValueTask SendAcknowledgementResponseAsync(ApplicationCommand interaction, bool IsEphemeral = false)
+        public async ValueTask SendImmediateResponseAsync(ApplicationCommand interaction, MessageResponse message)
         {
             var response = await _httpClient.PostAsync(
                 $"interactions/{interaction.Id}/{interaction.Token}/callback",
+                JsonContent.Create(new InteractionResponse(ChannelMessageWithSourceInteractionResponseType, ToInteractionData(message)))
+            );
+
+            await EnsureSuccess(response);
+        }
+
+        public async ValueTask SendAckResponseWithLoadingMessageAsync(ApplicationCommand interaction, bool IsEphemeral = false)
+        {
+            await SendAckResponseWithLoadingMessageAsync(interaction.Id, interaction.Token, IsEphemeral);
+        }
+
+        public async ValueTask SendAckResponseWithLoadingMessageAsync(ModalSubmit interaction, bool IsEphemeral = false)
+        {
+            await SendAckResponseWithLoadingMessageAsync(interaction.Id, interaction.Token, IsEphemeral);
+        }
+
+        private async ValueTask SendAckResponseWithLoadingMessageAsync(string id, string token, bool IsEphemeral)
+        {
+            var response = await _httpClient.PostAsync(
+                $"interactions/{id}/{token}/callback",
                 JsonContent.Create(new InteractionResponse(DeferredChannelMessageWithSourceInteractionResponseType, IsEphemeral ? new(flags: 64) : null))
             );
 
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccess(response);
         }
 
-        public async ValueTask SendComponentAcknowledgementResponseAsync(Interaction interaction)
+        public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(ButtonComponent interaction)
         {
             var response = await _httpClient.PostAsync(
-                $"interactions/{interaction.id}/{interaction.token}/callback",
-                JsonContent.Create(new InteractionResponse(DeferredUpdateMessageInteractionResponseType, null))
+                $"interactions/{interaction.Id}/{interaction.Token}/callback",
+                JsonContent.Create(new InteractionResponse(ComponentDeferredUpdateMessageInteractionResponseType, null))
             );
 
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccess(response);
+        }
+
+        public async ValueTask SendModalResponseAsync(ApplicationCommand interaction, CreateModalResult createModal)
+        {
+            var components = new[] {
+                InteractionResponse.Component.CreateActionRow(createModal.TextInputs.Select(t =>
+                    InteractionResponse.Component.CreateTextInput(
+                        custom_id: t.Id,
+                        style: (byte)ToInteractionStyle(t.Style),
+                        label: t.Label
+                    )
+                ).ToList())
+            };
+
+            InteractionResponse interactionResponse = new(
+                ModalInteractionResponseType,
+                new(custom_id: createModal.Id, title: createModal.Title, components: components)
+            );
+
+            var response = await _httpClient.PostAsync(
+                $"interactions/{interaction.Id}/{interaction.Token}/callback",
+                JsonContent.Create(interactionResponse)
+            );
+
+            await EnsureSuccess(response);
         }
 
         private static InteractionResponse.Embed ToInteractionEmbed(Embed embed)
@@ -91,31 +191,44 @@ namespace TaylorBot.Net.Commands.PostExecution
             );
         }
 
-        private const byte ActionRowType = 1;
-        private const byte ButtonType = 2;
-
         private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageResponse response)
         {
             return new InteractionResponse.InteractionApplicationCommandCallbackData(
                 content: response.Content.Content,
                 embeds: response.Content.Embeds.Select(ToInteractionEmbed).ToList(),
-                components: response.Buttons == null ? null : response.Buttons.Count < 1 ? Array.Empty<InteractionResponse.Component>() : new[] {
-                    new InteractionResponse.Component(ActionRowType, components: response.Buttons.Select(b =>
-                        new InteractionResponse.Component(
-                            ButtonType,
-                            label: b.Label,
-                            style: (byte)ToInteractionStyle(b.Style),
-                            custom_id: b.Id,
-                            emoji: b.Emoji != null ? new(name: b.Emoji) : null
-                        )
-                    ).ToList()
-                ) },
+                components: ToInteractionComponents(response),
                 attachments: response.Content.Attachments?.Select((a, i) => new InteractionResponse.Attachment(
                     id: i,
                     filename: a.Filename
                 )).ToList(),
                 flags: response.IsPrivate ? 64 : null
             );
+        }
+
+        private static InteractionResponse.Component[]? ToInteractionComponents(MessageResponse response)
+        {
+            if (response.Buttons != null)
+            {
+                if (!response.Buttons.Any())
+                {
+                    return Array.Empty<InteractionResponse.Component>();
+                }
+
+                return new[] {
+                    InteractionResponse.Component.CreateActionRow(response.Buttons.Select(b =>
+                        InteractionResponse.Component.CreateButton(
+                            style: (byte)ToInteractionStyle(b.Style),
+                            label: b.Label,
+                            custom_id: b.Id,
+                            emoji: b.Emoji != null ? new(name: b.Emoji) : null
+                        )
+                    ).ToList())
+                };
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static InteractionButtonStyle ToInteractionStyle(ButtonStyle style)
@@ -126,6 +239,16 @@ namespace TaylorBot.Net.Commands.PostExecution
                 ButtonStyle.Secondary => InteractionButtonStyle.Secondary,
                 ButtonStyle.Success => InteractionButtonStyle.Success,
                 ButtonStyle.Danger => InteractionButtonStyle.Danger,
+                _ => throw new ArgumentOutOfRangeException(nameof(style)),
+            };
+        }
+
+        private static InteractionTextInputStyle ToInteractionStyle(TextInputStyle style)
+        {
+            return style switch
+            {
+                TextInputStyle.Short => InteractionTextInputStyle.Short,
+                TextInputStyle.Paragraph => InteractionTextInputStyle.Paragraph,
                 _ => throw new ArgumentOutOfRangeException(nameof(style)),
             };
         }
@@ -170,7 +293,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                 httpContent
             );
 
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccess(response);
         }
 
         public async ValueTask EditOriginalResponseAsync(ApplicationCommand interaction, MessageResponse message)
@@ -183,7 +306,12 @@ namespace TaylorBot.Net.Commands.PostExecution
             await EditOriginalResponseAsync(component.Token, message);
         }
 
-        private async Task EditOriginalResponseAsync(string token, MessageResponse message)
+        public async ValueTask EditOriginalResponseAsync(ModalSubmit submit, MessageResponse message)
+        {
+            await EditOriginalResponseAsync(submit.Token, message);
+        }
+
+        private async ValueTask EditOriginalResponseAsync(string token, MessageResponse message)
         {
             var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
@@ -194,7 +322,7 @@ namespace TaylorBot.Net.Commands.PostExecution
                 content
             );
 
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccess(response);
         }
 
         public async ValueTask DeleteOriginalResponseAsync(ButtonComponent component)
@@ -205,7 +333,25 @@ namespace TaylorBot.Net.Commands.PostExecution
                 $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original"
             );
 
-            response.EnsureSuccessStatusCode();
+            await EnsureSuccess(response);
+        }
+
+        private async ValueTask EnsureSuccess(HttpResponseMessage response)
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                try
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Error response from Discord ({StatusCode}): {Body}", response.StatusCode, body);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Unhandled error when parsing error body ({StatusCode}):", response.StatusCode);
+                }
+
+                response.EnsureSuccessStatusCode();
+            }
         }
     }
 }

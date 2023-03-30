@@ -13,7 +13,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 {
     public class BirthdayShowSlashCommand : ISlashCommand<BirthdayShowSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("birthday show");
+        public ISlashCommandInfo Info => new MessageCommandInfo("birthday show");
 
         public record Options(ParsedUserOrAuthor user);
 

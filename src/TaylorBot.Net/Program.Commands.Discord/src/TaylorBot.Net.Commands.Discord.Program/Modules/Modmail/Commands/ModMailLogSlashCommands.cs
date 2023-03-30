@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailLogSetSlashCommand : ISlashCommand<ModMailLogSetSlashCommand.Options>
 {
-    public SlashCommandInfo Info => new("modmail log-set");
+    public ISlashCommandInfo Info => new MessageCommandInfo("modmail log-set");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -48,7 +48,7 @@ public class ModMailLogSetSlashCommand : ISlashCommand<ModMailLogSetSlashCommand
 
 public class ModMailLogStopSlashCommand : ISlashCommand<NoOptions>
 {
-    public SlashCommandInfo Info => new("modmail log-stop");
+    public ISlashCommandInfo Info => new MessageCommandInfo("modmail log-stop");
 
     private readonly IModMailLogChannelRepository _modMailLogChannelRepository;
 
@@ -83,7 +83,7 @@ public class ModMailLogStopSlashCommand : ISlashCommand<NoOptions>
 
 public class ModMailLogShowSlashCommand : ISlashCommand<NoOptions>
 {
-    public SlashCommandInfo Info => new("modmail log-show");
+    public ISlashCommandInfo Info => new MessageCommandInfo("modmail log-show");
 
     private readonly IModMailLogChannelRepository _modMailLogChannelRepository;
 

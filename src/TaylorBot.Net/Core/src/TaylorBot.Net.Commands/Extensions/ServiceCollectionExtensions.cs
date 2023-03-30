@@ -39,6 +39,7 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddTransient<IAllReadyHandler, CommandHandler>()
                 .AddTransient<SlashCommandHandler>()
                 .AddSingleton<MessageComponentHandler>()
+                .AddSingleton<ModalInteractionHandler>()
                 .AddTransient<IInteractionCreatedHandler, InteractionCreatedHandler>()
                 .AddSingleton<PageMessageReactionsHandler>()
                 .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())

@@ -70,7 +70,7 @@ public class UrbanDictionaryCommand
 
 public class UrbanDictionarySlashCommand : ISlashCommand<UrbanDictionarySlashCommand.Options>
 {
-    public SlashCommandInfo Info => new("urbandictionary");
+    public ISlashCommandInfo Info => new MessageCommandInfo("urbandictionary");
 
     public record Options(ParsedString search);
 

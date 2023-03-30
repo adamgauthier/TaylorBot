@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands
         private const uint MaxRemindersNonPlus = 2;
         private const uint MaxRemindersPlus = 4;
 
-        public SlashCommandInfo Info => new("remind add");
+        public ISlashCommandInfo Info => new MessageCommandInfo("remind add");
 
         public record Options(ParsedTimeSpan time, ParsedString text);
 

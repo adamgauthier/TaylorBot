@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Snowflake;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users
@@ -32,7 +33,9 @@ namespace TaylorBot.Net.Commands.Parsers.Users
                 return Error(new ParsingFailed("Member option can only be used in a server."));
             }
 
-            var member = await _taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!));
+            var member = context.WasAcknowledged
+                ? await _taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!))
+                : await _taylorBotClient.ResolveGuildUserAsync(new SnowflakeId(context.Guild.Id), new(optionValue.Value.GetString()!));
 
             if (member == null)
             {

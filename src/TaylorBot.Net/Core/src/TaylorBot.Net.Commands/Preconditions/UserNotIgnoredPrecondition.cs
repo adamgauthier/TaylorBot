@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 
     public interface IIgnoredUserRepository
     {
-        ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user);
+        ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot);
         ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until);
     }
 
@@ -29,7 +29,7 @@ namespace TaylorBot.Net.Commands.Preconditions
 
         public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
         {
-            var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(context.User);
+            var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(context.User, isBot: false);
 
             await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
 

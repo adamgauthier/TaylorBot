@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 {
     public class ModLogSetSlashCommand : ISlashCommand<ModLogSetSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("mod log set");
+        public ISlashCommandInfo Info => new MessageCommandInfo("mod log set");
 
         public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -48,7 +48,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
     public class ModLogStopSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("mod log stop");
+        public ISlashCommandInfo Info => new MessageCommandInfo("mod log stop");
 
         private readonly IModLogChannelRepository _modLogChannelRepository;
 
@@ -83,7 +83,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
 
     public class ModLogShowSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("mod log show");
+        public ISlashCommandInfo Info => new MessageCommandInfo("mod log show");
 
         private readonly IModLogChannelRepository _modLogChannelRepository;
 

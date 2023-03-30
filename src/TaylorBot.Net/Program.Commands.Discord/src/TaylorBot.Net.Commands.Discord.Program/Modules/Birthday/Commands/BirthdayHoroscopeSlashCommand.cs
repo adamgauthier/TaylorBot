@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 {
     public class BirthdayHoroscopeSlashCommand : ISlashCommand<BirthdayHoroscopeSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("birthday horoscope");
+        public ISlashCommandInfo Info => new MessageCommandInfo("birthday horoscope");
 
         public record Options(ParsedUserOrAuthor user);
 

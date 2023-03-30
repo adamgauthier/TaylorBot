@@ -21,7 +21,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
     {
         private const int MaxAuditLogReasonSize = 512;
 
-        public SlashCommandInfo Info => new("kick", IsPrivateResponse: true);
+        public ISlashCommandInfo Info => new MessageCommandInfo("kick", IsPrivateResponse: true);
 
         public record Options(ParsedMemberNotAuthorAndTaylorBot member, ParsedOptionalString reason);
 

@@ -85,7 +85,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 
     public class LastFmAlbumsSlashCommand : ISlashCommand<LastFmAlbumsSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("lastfm albums");
+        public ISlashCommandInfo Info => new MessageCommandInfo("lastfm albums");
         public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
 
         private readonly LastFmAlbumsCommand _lastFmAlbumsCommand;

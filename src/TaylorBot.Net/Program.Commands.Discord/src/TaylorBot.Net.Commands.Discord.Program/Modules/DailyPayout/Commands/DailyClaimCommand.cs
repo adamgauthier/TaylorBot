@@ -100,7 +100,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
 
     public class DailyClaimSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("daily claim");
+        public ISlashCommandInfo Info => new MessageCommandInfo("daily claim");
 
         private readonly DailyClaimCommand _dailyClaimCommand;
 

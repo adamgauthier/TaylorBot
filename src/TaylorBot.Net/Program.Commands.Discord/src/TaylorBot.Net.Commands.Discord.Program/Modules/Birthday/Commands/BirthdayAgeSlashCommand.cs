@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
 {
     public class BirthdayAgeSlashCommand : ISlashCommand<BirthdayAgeSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("birthday age");
+        public ISlashCommandInfo Info => new MessageCommandInfo("birthday age");
 
         public record Options(ParsedUserOrAuthor user);
 

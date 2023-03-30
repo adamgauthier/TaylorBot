@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands
 {
     public class CommandChannelDisableSlashCommand : ISlashCommand<CommandChannelDisableSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("command channel-disable");
+        public ISlashCommandInfo Info => new MessageCommandInfo("command channel-disable");
 
         public record Options(ParsedString command, ParsedTextChannelOrCurrent channel);
 
@@ -43,6 +43,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands
                         return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential. 😕"));
                     }
 
+                    if (command.Name.StartsWith("modmail"))
+                    {
+                        return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
+                    }
+
                     await _disabledGuildChannelCommandRepository.DisableInAsync(new(options.channel.Channel.Id.ToString()), guild, command.Name);
 
                     return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
@@ -57,7 +62,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands
 
     public class CommandChannelEnableSlashCommand : ISlashCommand<CommandChannelEnableSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("command channel-enable");
+        public ISlashCommandInfo Info => new MessageCommandInfo("command channel-enable");
 
         public record Options(ParsedString command, ParsedTextChannelOrCurrent channel);
 

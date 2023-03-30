@@ -15,7 +15,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands
 {
     public class OwnerRewardSlashCommand : ISlashCommand<OwnerRewardSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("owner reward");
+        public ISlashCommandInfo Info => new MessageCommandInfo("owner reward");
 
         public record Options(
             ParsedPositiveInteger amount,

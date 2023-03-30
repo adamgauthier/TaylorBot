@@ -16,7 +16,7 @@ namespace TaylorBot.Net.Commands.Infrastructure
             _postgresConnectionFactory = postgresConnectionFactory;
         }
 
-        public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user)
+        public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot)
         {
             await using var connection = _postgresConnectionFactory.CreateConnection();
 
@@ -33,8 +33,8 @@ namespace TaylorBot.Net.Commands.Infrastructure
                 new
                 {
                     UserId = user.Id.ToString(),
-                    IsBot = user.IsBot,
-                    Username = user.Username
+                    IsBot = isBot,
+                    Username = user.Username,
                 }
             );
 

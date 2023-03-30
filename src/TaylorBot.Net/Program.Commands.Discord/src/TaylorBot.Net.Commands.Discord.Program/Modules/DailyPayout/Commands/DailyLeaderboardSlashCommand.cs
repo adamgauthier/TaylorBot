@@ -14,7 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
 {
     public class DailyLeaderboardSlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("daily leaderboard");
+        public ISlashCommandInfo Info => new MessageCommandInfo("daily leaderboard");
 
         private readonly IDailyPayoutRepository _dailyPayoutRepository;
 

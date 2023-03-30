@@ -42,18 +42,18 @@ namespace TaylorBot.Net.Commands.PostExecution
 
                     if (_callbacks.TryGetValue(button.CustomId, out var callback))
                     {
-                        await _interactionResponseClient.SendComponentAcknowledgementResponseAsync(interaction);
+                        await _interactionResponseClient.SendComponentAckResponseWithoutLoadingMessageAsync(button);
 
                         await callback(button);
                     }
                     else
                     {
-                        _logger.LogWarning($"Button component without callback: {interaction}");
+                        _logger.LogWarning("Button component without callback: {Interaction}", interaction);
                     }
                     break;
 
                 default:
-                    _logger.LogWarning($"Unknown component type: {interaction}");
+                    _logger.LogWarning("Unknown component type: {Interaction}", interaction);
                     break;
             }
         }

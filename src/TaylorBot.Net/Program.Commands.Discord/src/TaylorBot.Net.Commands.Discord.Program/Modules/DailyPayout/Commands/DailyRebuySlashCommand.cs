@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands
 {
     public class DailyRebuySlashCommand : ISlashCommand<NoOptions>
     {
-        public SlashCommandInfo Info => new("daily rebuy");
+        public ISlashCommandInfo Info => new MessageCommandInfo("daily rebuy");
 
         private readonly IDailyPayoutRepository _dailyPayoutRepository;
 

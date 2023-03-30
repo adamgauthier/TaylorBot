@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands
 {
     public class YouTubeSlashCommand : ISlashCommand<YouTubeSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("youtube");
+        public ISlashCommandInfo Info => new MessageCommandInfo("youtube");
 
         public record Options(ParsedString search);
 

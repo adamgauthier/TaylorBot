@@ -1,4 +1,5 @@
 ﻿using Discord;
+using FakeItEasy;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,14 +21,20 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.PostExecution
 {
-    public record SlashCommandInfo(string Name, bool IsPrivateResponse = false);
+    public interface ISlashCommandInfo
+    {
+        string Name { get; }
+    }
+
+    public record MessageCommandInfo(string Name, bool IsPrivateResponse = false) : ISlashCommandInfo;
+    public record ModalCommandInfo(string Name) : ISlashCommandInfo;
 
     public interface ISlashCommand
     {
         Type OptionType { get; }
         ValueTask<Command> GetCommandAsync(RunContext context, object options);
 
-        SlashCommandInfo Info { get; }
+        ISlashCommandInfo Info { get; }
     }
 
     public interface ISlashCommand<T> : ISlashCommand
@@ -63,6 +70,7 @@ namespace TaylorBot.Net.Commands.PostExecution
         private readonly Lazy<IReadOnlyDictionary<Type, IOptionParser>> _optionParsers;
         private readonly InteractionResponseClient _interactionResponseClient;
         private readonly MessageComponentHandler _messageComponentHandler;
+        private readonly ModalInteractionHandler _modalInteractionHandler;
         private readonly TaskExceptionLogger _taskExceptionLogger;
 
         public SlashCommandHandler(
@@ -75,6 +83,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             ICommandPrefixRepository commandPrefixRepository,
             InteractionResponseClient interactionResponseClient,
             MessageComponentHandler messageComponentHandler,
+            ModalInteractionHandler modalInteractionHandler,
             TaskExceptionLogger taskExceptionLogger,
             IServiceProvider services
         )
@@ -88,6 +97,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             _commandPrefixRepository = commandPrefixRepository;
             _interactionResponseClient = interactionResponseClient;
             _messageComponentHandler = messageComponentHandler;
+            _modalInteractionHandler = modalInteractionHandler;
             _taskExceptionLogger = taskExceptionLogger;
             _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name));
             _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
@@ -111,34 +121,7 @@ namespace TaylorBot.Net.Commands.PostExecution
 
             if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
             {
-                await _interactionResponseClient.SendAcknowledgementResponseAsync(interaction, IsEphemeral: slashCommand.Info.IsPrivateResponse);
-
-                var author = interaction.Guild != null ?
-                    (await _taylorBotClient.Value.ResolveGuildUserAsync(
-                        new SnowflakeId(interaction.Guild.Id),
-                        new(interaction.Guild.Member.user.id)
-                    ))! :
-                    await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
-
-                var oldPrefix = author is IGuildUser aGuildUser ?
-                    await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(aGuildUser.Guild) :
-                    string.Empty;
-
-                var context = new RunContext(
-                    DateTimeOffset.Now,
-                    author,
-                    new(interaction.ChannelId),
-                    author is IGuildUser guildUser ? guildUser.Guild : null,
-                    _taylorBotClient.Value.DiscordShardedClient,
-                    _taylorBotClient.Value.DiscordShardedClient.CurrentUser,
-                    new(interaction.Data.id, interaction.Data.name),
-                    oldPrefix,
-                    new()
-                );
-
-                _logger.LogInformation(
-                    $"{context.User.FormatLog()} using slash command '{slashCommand.Info.Name}' ({interaction.Data.id}) in channel {context.Channel.Id}{(context.Guild != null ? $" on {context.Guild.FormatLog()}" : "")}"
-                );
+                RunContext context = await CreateRunContextAsync(interaction, slashCommand);
 
                 var result = await RunCommandAsync(slashCommand, context, options);
 
@@ -150,71 +133,18 @@ namespace TaylorBot.Net.Commands.PostExecution
                 switch (result)
                 {
                     case EmbedResult embedResult:
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(embedResult.Embed));
+                        if (context.WasAcknowledged)
+                        {
+                            await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(embedResult.Embed));
+                        }
+                        else
+                        {
+                            await _interactionResponseClient.SendImmediateResponseAsync(interaction, new(embedResult.Embed));
+                        }
                         break;
 
                     case MessageResult messageResult:
-                        IReadOnlyList<Button> CreateAndBindButtons(MessageResult m, string authorId)
-                        {
-                            var buttons = m.Buttons != null ?
-                                m.Buttons.Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } }).ToList() :
-                                new List<MessageResult.ButtonResult>();
-
-                            var buttonPressed = false;
-
-                            foreach (var button in buttons)
-                            {
-                                _messageComponentHandler.AddCallback(button.Button.Id, async component =>
-                                {
-                                    if (component.UserId == authorId)
-                                    {
-                                        buttonPressed = true;
-
-                                        foreach (var b in buttons)
-                                            _messageComponentHandler.RemoveCallback(b.Button.Id);
-
-                                        try
-                                        {
-                                            var updated = await button.Action();
-                                            if (updated != null)
-                                            {
-                                                var buttons = CreateAndBindButtons(updated, authorId);
-                                                await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated.Content, buttons));
-                                            }
-                                            else
-                                            {
-                                                await _interactionResponseClient.DeleteOriginalResponseAsync(component);
-                                            }
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            _logger.LogError(e, $"Unhandled exception in button {button.Button.Id} action:");
-                                            await _interactionResponseClient.EditOriginalResponseAsync(component, new(
-                                                new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
-                                                Array.Empty<Button>()
-                                            ));
-                                        }
-                                    }
-                                });
-                            }
-
-                            _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(async () =>
-                            {
-                                await Task.Delay(TimeSpan.FromMinutes(10));
-
-                                if (!buttonPressed)
-                                {
-                                    foreach (var b in buttons)
-                                        _messageComponentHandler.RemoveCallback(b.Button.Id);
-
-                                    await _interactionResponseClient.EditOriginalResponseAsync(interaction, new(m.Content, Array.Empty<Button>()));
-                                }
-                            }, nameof(CreateAndBindButtons)));
-
-                            return buttons.Select(b => b.Button).ToList();
-                        }
-
-                        var buttons = CreateAndBindButtons(messageResult, author.Id.ToString());
+                        IReadOnlyList<Button>? buttons = CreateAndBindButtons(interaction, messageResult, context.User.Id.ToString());
 
                         await _interactionResponseClient.SendFollowupResponseAsync(
                             interaction,
@@ -222,13 +152,68 @@ namespace TaylorBot.Net.Commands.PostExecution
                         );
                         break;
 
+                    case CreateModalResult createModal:
+                        var submitted = false;
+
+                        var modal = createModal with { Id = $"{Guid.NewGuid():N}-{createModal.Id}" };
+
+                        _modalInteractionHandler.AddCallback(modal.Id, new(async submit =>
+                        {
+                            if (submit.UserId == $"{context.User.Id}")
+                            {
+                                _modalInteractionHandler.RemoveCallback(submit.CustomId);
+                                submitted = true;
+
+                                try
+                                {
+                                    var result = await modal.SubmitAction(submit);
+                                    var buttons = CreateAndBindButtons(interaction, result, $"{context.User.Id}");
+                                    await _interactionResponseClient.EditOriginalResponseAsync(submit, new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
+                                }
+                                catch (Exception e)
+                                {
+                                    _logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Id);
+                                    await _interactionResponseClient.EditOriginalResponseAsync(submit, new(
+                                        EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")
+                                    ));
+                                }
+                            }
+                        }, createModal.IsPrivateResponse));
+
+                        _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(async () =>
+                        {
+                            await Task.Delay(TimeSpan.FromMinutes(10));
+
+                            if (!submitted)
+                            {
+                                _modalInteractionHandler.RemoveCallback(modal.Id);
+                            }
+                        }, nameof(CreateModalResult)));
+
+                        await _interactionResponseClient.SendModalResponseAsync(interaction, modal);
+                        break;
+
                     case ParsingFailed parsingFailed:
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
+                        if (context.WasAcknowledged)
+                        {
+                            await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
+                        }
+                        else
+                        {
+                            await _interactionResponseClient.SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(parsingFailed.Message)), IsPrivate: true));
+                        }
                         break;
 
                     case PreconditionFailed preconditionFailed:
-                        _logger.LogInformation($"{context.User.FormatLog()} precondition failure: {preconditionFailed.PrivateReason}.");
-                        await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
+                        _logger.LogInformation("{User} precondition failure: {PrivateReason}.", context.User.FormatLog(), preconditionFailed.PrivateReason);
+                        if (context.WasAcknowledged)
+                        {
+                            await _interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
+                        }
+                        else
+                        {
+                            await _interactionResponseClient.SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)), IsPrivate: true));
+                        }
                         break;
 
                     case EmptyResult _:
@@ -264,6 +249,99 @@ namespace TaylorBot.Net.Commands.PostExecution
                         throw new InvalidOperationException($"Unexpected command result: {result.GetType()}");
                 }
             }
+        }
+
+        private async Task<RunContext> CreateRunContextAsync(ApplicationCommand interaction, ISlashCommand slashCommand)
+        {
+            RunContext context;
+
+            switch (slashCommand.Info)
+            {
+                case MessageCommandInfo info:
+                    await _interactionResponseClient.SendAckResponseWithLoadingMessageAsync(interaction, IsEphemeral: info.IsPrivateResponse);
+
+                    var author = interaction.Guild != null ?
+                        (await _taylorBotClient.Value.ResolveGuildUserAsync(
+                            new SnowflakeId(interaction.Guild.Id),
+                            new(interaction.Guild.Member.user.id)
+                        ))! :
+                        await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
+
+                    var oldPrefix = author is IGuildUser aGuildUser ?
+                        await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(aGuildUser.Guild) :
+                        string.Empty;
+
+                    context = new RunContext(
+                        DateTimeOffset.Now,
+                        author,
+                        new(interaction.ChannelId),
+                        author is IGuildUser authorGuildUser ? authorGuildUser.Guild : null,
+                        _taylorBotClient.Value.DiscordShardedClient,
+                        _taylorBotClient.Value.DiscordShardedClient.CurrentUser,
+                        new(interaction.Data.id, interaction.Data.name),
+                        oldPrefix,
+                        new()
+                    );
+
+                    _logger.LogInformation(
+                        "{User} using slash command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
+                        context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
+                    );
+                    break;
+
+                case ModalCommandInfo info:
+                    IUser user;
+                    if (interaction.Guild != null)
+                    {
+                        var guild = A.Fake<IGuild>(o => o.Strict());
+                        A.CallTo(() => guild.Id).Returns(new SnowflakeId(interaction.Guild.Id).Id);
+                        // Assuming GuildPermissions will cover use cases where this property is used
+                        A.CallTo(() => guild.OwnerId).Returns(ulong.MaxValue);
+
+                        var fakeGuildUser = A.Fake<IGuildUser>(o => o.Strict());
+                        A.CallTo(() => fakeGuildUser.Id).Returns(new SnowflakeId(interaction.Guild.Member.user.id).Id);
+                        A.CallTo(() => fakeGuildUser.Guild).Returns(guild);
+                        A.CallTo(() => fakeGuildUser.GuildId).Returns(guild.Id);
+                        A.CallTo(() => fakeGuildUser.Username).Returns(interaction.Guild.Member.user.username);
+                        A.CallTo(() => fakeGuildUser.Discriminator).Returns(interaction.Guild.Member.user.discriminator);
+                        A.CallTo(() => fakeGuildUser.GuildPermissions).Returns(new GuildPermissions(interaction.Guild.Member.permissions));
+                        A.CallTo(() => fakeGuildUser.JoinedAt).Returns(DateTimeOffset.Parse(interaction.Guild.Member.joined_at));
+                        A.CallTo(() => fakeGuildUser.Mention).Returns(MentionUtils.MentionUser(fakeGuildUser.Id));
+                        user = fakeGuildUser;
+                    }
+                    else
+                    {
+                        user = A.Fake<IUser>(o => o.Strict());
+                        A.CallTo(() => user.Id).Returns(new SnowflakeId(interaction.UserData!.id).Id);
+                        A.CallTo(() => user.Username).Returns(interaction.UserData!.username);
+                        A.CallTo(() => user.Discriminator).Returns(interaction.UserData!.discriminator);
+                        A.CallTo(() => user.Mention).Returns(MentionUtils.MentionUser(user.Id));
+                    }
+
+                    context = new RunContext(
+                        DateTimeOffset.Now,
+                        user,
+                        new(interaction.ChannelId),
+                        user is IGuildUser guildUser ? guildUser.Guild : null,
+                        _taylorBotClient.Value.DiscordShardedClient,
+                        _taylorBotClient.Value.DiscordShardedClient.CurrentUser,
+                        new(interaction.Data.id, interaction.Data.name),
+                        string.Empty,
+                        new(),
+                        WasAcknowledged: false
+                    );
+
+                    _logger.LogInformation(
+                        "{User} using modal command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
+                        context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.Id}" : ""
+                    );
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Unexpected SlashCommandInfo: {slashCommand.Info.GetType()}");
+            }
+
+            return context;
         }
 
         private const byte SubCommandOptionType = 1;
@@ -312,7 +390,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in slash command '{slashCommand.Info.Name}':");
+                _logger.LogError(e, "Unhandled exception in slash command '{CommandName}':", slashCommand.Info.Name);
                 _commandUsageRepository.QueueIncrementUnhandledErrorCount(slashCommand.Info.Name);
                 return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕"));
             }
@@ -348,6 +426,66 @@ namespace TaylorBot.Net.Commands.PostExecution
             }
 
             return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
+        }
+
+        private IReadOnlyList<Button> CreateAndBindButtons(ApplicationCommand interaction, MessageResult m, string authorId)
+        {
+            var buttons = m.Buttons != null ?
+                m.Buttons.Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } }).ToList() :
+                new List<MessageResult.ButtonResult>();
+
+            var buttonPressed = false;
+
+            foreach (var button in buttons)
+            {
+                _messageComponentHandler.AddCallback(button.Button.Id, async component =>
+                {
+                    if (component.UserId == authorId)
+                    {
+                        buttonPressed = true;
+
+                        foreach (var b in buttons)
+                            _messageComponentHandler.RemoveCallback(b.Button.Id);
+
+                        try
+                        {
+                            var updated = await button.Action();
+                            if (updated != null)
+                            {
+                                var buttons = CreateAndBindButtons(interaction, updated, authorId);
+                                await _interactionResponseClient.EditOriginalResponseAsync(component, new(updated.Content, buttons));
+                            }
+                            else
+                            {
+                                await _interactionResponseClient.DeleteOriginalResponseAsync(component);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, $"Unhandled exception in button {button.Button.Id} action:");
+                            await _interactionResponseClient.EditOriginalResponseAsync(component, new(
+                                new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
+                                Array.Empty<Button>()
+                            ));
+                        }
+                    }
+                });
+            }
+
+            _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(async () =>
+            {
+                await Task.Delay(TimeSpan.FromMinutes(10));
+
+                if (!buttonPressed)
+                {
+                    foreach (var b in buttons)
+                        _messageComponentHandler.RemoveCallback(b.Button.Id);
+
+                    await _interactionResponseClient.EditOriginalResponseAsync(interaction, new(m.Content, Array.Empty<Button>()));
+                }
+            }, nameof(CreateAndBindButtons)));
+
+            return buttons.Select(b => b.Button).ToList();
         }
     }
 }

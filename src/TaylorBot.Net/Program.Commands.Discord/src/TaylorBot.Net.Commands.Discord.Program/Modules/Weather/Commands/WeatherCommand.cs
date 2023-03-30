@@ -116,7 +116,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands
 
     public class WeatherSlashCommand : ISlashCommand<WeatherSlashCommand.Options>
     {
-        public SlashCommandInfo Info => new("weather");
+        public ISlashCommandInfo Info => new MessageCommandInfo("weather");
 
         public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
 
