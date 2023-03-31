@@ -15,7 +15,7 @@ parameters:
 trigger:
   branches:
     include:
-    - master
+    - adam
   paths:
     include:
     - src/TaylorBot.Net
