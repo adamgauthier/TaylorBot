@@ -87,6 +87,19 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "addfeedbackusers",
+      "description": "Add users to feedback role",
+      "type": 1,
+      "options": [
+        {
+          "name": "whatif",
+          "description": "Whether to do a test run when no role is added and no DM is sent, default true",
+          "type": 5,
+          "required": false
+        }
+      ]
     }
   ]
 }
