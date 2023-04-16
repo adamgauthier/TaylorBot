@@ -9,8 +9,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Services
         {
             return channel switch
             {
-                ITextChannel _ => "Text",
                 IVoiceChannel _ => "Voice",
+                ITextChannel _ => "Text",
                 ICategoryChannel _ => "Category",
                 IDMChannel _ => "DM",
                 _ => throw new ArgumentOutOfRangeException(nameof(channel)),

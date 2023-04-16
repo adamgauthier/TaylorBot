@@ -1,6 +1,6 @@
 {
   "name": "weather",
-  "description": "Get current weather forecast for a user's location. Weather data is powered by Dark Sky.",
+  "description": "Get current weather forecast for a user's location. Icons by Dr. Lex.",
   "options": [
     {
       "name": "user",

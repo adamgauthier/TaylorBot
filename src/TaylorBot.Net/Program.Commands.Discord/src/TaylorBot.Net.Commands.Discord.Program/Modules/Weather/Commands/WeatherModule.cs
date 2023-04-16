@@ -19,7 +19,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands
         }
 
         [Command("weather")]
-        [Summary("Gets current weather forecast for a user's location. Weather data is [Powered by Dark Sky](https://darksky.net/poweredby/).")]
+        [Summary("Gets current weather forecast for a user's location. Icons by Dr. Lex.")]
         public async Task<RuntimeResult> WeatherAsync(
             [Summary("What user would you like to see the weather for?")]
             [Remainder]

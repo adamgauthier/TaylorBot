@@ -279,13 +279,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands
                     embed.AddField("Server", $"{guildChannel.Guild.Name} (`{guildChannel.GuildId}`)", inline: true);
                     switch (guildChannel)
                     {
-                        case ITextChannel text:
-                            embed.AddField("Topic", string.IsNullOrEmpty(text.Topic) ? "None" : text.Topic);
-                            break;
                         case IVoiceChannel voice:
                             embed
                                 .AddField("Bitrate", $"{voice.Bitrate} bps", inline: true)
                                 .AddField("User Limit", voice.UserLimit.HasValue ? $"{voice.UserLimit.Value}" : "None", inline: true);
+                            break;
+                        case ITextChannel text:
+                            embed.AddField("Topic", string.IsNullOrEmpty(text.Topic) ? "None" : text.Topic);
                             break;
                         case ICategoryChannel category:
                             var channels = await category.Guild.GetChannelsAsync();

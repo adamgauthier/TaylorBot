@@ -24,7 +24,7 @@ docker container run \
     --env-file ${__dir}/taylorbot-postgres.env \
     --mount type=bind,source=${data_path},destination=/var/lib/postgresql/data \
     --mount type=bind,source=${backups_path},destination=/home/pg-backups \
-    --publish 127.0.0.1:14487:5432/tcp \
+    --publish 14487:5432 \
     postgres:12
 
 echo "Waiting for database server to be ready..."

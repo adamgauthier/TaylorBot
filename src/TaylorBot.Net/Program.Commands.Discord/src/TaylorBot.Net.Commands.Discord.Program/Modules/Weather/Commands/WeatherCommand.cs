@@ -83,7 +83,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands
                 switch (result)
                 {
                     case CurrentForecast forecast:
-                        return new EmbedResult(new EmbedBuilder()
+                        var embed = new EmbedBuilder()
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithUserAsAuthor(user)
                             .WithTitle(forecast.Summary)
@@ -92,10 +92,15 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands
                                 $"Wind: {forecast.WindSpeed} m/s",
                                 $"Humidity: {Math.Round(forecast.Humidity * 100)}%"
                             }))
-                            .WithThumbnailUrl(forecast.IconUrl)
                             .WithFooter(location.FormattedAddress)
-                            .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(forecast.Time))
-                        .Build());
+                            .WithTimestamp(DateTimeOffset.FromUnixTimeSeconds(forecast.Time));
+
+                        if (forecast.IconUrl != null)
+                        {
+                            embed.WithThumbnailUrl(forecast.IconUrl);
+                        }
+
+                        return new EmbedResult(embed.Build());
 
                     case WeatherGenericErrorResult _:
                         return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {

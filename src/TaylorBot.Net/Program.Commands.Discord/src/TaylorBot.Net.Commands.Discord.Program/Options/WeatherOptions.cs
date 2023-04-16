@@ -2,6 +2,6 @@
 {
     public class WeatherOptions
     {
-        public string DarkSkyApiKey { get; set; } = null!;
+        public string PirateWeatherApiKey { get; set; } = null!;
     }
 }
