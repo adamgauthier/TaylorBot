@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
@@ -7,7 +6,6 @@ using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
@@ -47,23 +45,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 
                     var queryString = new[] {
                         $"user={lastFmUsername.Username}",
-                        $"period={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
-                        $"rows={size.Parsed}",
-                        $"cols={size.Parsed}",
-                        "imageSize=400",
+                        $"type={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
+                        $"size={size.Parsed}x{size.Parsed}",
                     };
 
-                    var response = await _httpClient.GetAsync($"https://lastfmtopalbums.dinduks.com/patchwork.php?{string.Join('&', queryString)}");
-
+                    var response = await _httpClient.GetAsync($"https://www.tapmusic.net/collage.php?{string.Join('&', queryString)}");
                     response.EnsureSuccessStatusCode();
-                    var responseAsString = await response.Content.ReadAsStringAsync();
-
-                    if (responseAsString.Contains("error", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        return new EmbedResult(EmbedFactory.CreateError(
-                            "Oops, something went wrong when generating the collage. Make sure there is enough listening data in the selected period or try again later."
-                        ));
-                    }
 
                     var collage = await response.Content.ReadAsStreamAsync();
                     const string filename = "collage.png";
