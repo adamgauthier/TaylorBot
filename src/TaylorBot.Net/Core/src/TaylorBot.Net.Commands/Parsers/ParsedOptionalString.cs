@@ -1,16 +1,16 @@
 ﻿using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
 
-namespace TaylorBot.Net.Commands.Parsers
+namespace TaylorBot.Net.Commands.Parsers;
+
+public record ParsedOptionalString(string? Value);
+
+public class OptionalStringParser : IOptionParser<ParsedOptionalString>
 {
-    public record ParsedOptionalString(string? Value);
-
-    public class OptionalStringParser : IOptionParser<ParsedOptionalString>
+    public ValueTask<Result<ParsedOptionalString, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        public ValueTask<Result<ParsedOptionalString, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
-        {
-            return new(new ParsedOptionalString(optionValue.HasValue ? optionValue.Value.GetString() : null));
-        }
+        return new(new ParsedOptionalString(optionValue.HasValue ? optionValue.Value.GetString() : null));
     }
 }

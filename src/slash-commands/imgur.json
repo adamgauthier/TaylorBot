@@ -1,0 +1,18 @@
+{
+  "name": "imgur",
+  "description": "Upload images to image hosting service Imgur",
+  "options": [
+    {
+      "name": "file",
+      "description": "File on your device to upload to Imgur",
+      "type": 11,
+      "required": false
+    },
+    {
+      "name": "link",
+      "description": "Link to an image to upload to Imgur",
+      "type": 3,
+      "required": false
+    }
+  ]
+}

@@ -18,6 +18,7 @@ using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;
 using static OperationResult.Helpers;
+using static TaylorBot.Net.Core.Client.Interaction;
 
 namespace TaylorBot.Net.Commands.PostExecution
 {
@@ -123,7 +124,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             {
                 RunContext context = await CreateRunContextAsync(interaction, slashCommand);
 
-                var result = await RunCommandAsync(slashCommand, context, options);
+                var result = await RunCommandAsync(slashCommand, context, options, interaction.Data.resolved);
 
                 if (context.OnGoing.OnGoingCommandAddedToPool != null)
                 {
@@ -347,7 +348,7 @@ namespace TaylorBot.Net.Commands.PostExecution
         private const byte SubCommandOptionType = 1;
         private const byte SubCommandGroupOptionType = 2;
 
-        private static (string, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options) GetFullCommandNameAndOptions(Interaction.ApplicationCommandInteractionData data)
+        private static (string, IReadOnlyList<Interaction.ApplicationCommandOption>? options) GetFullCommandNameAndOptions(Interaction.ApplicationCommandInteractionData data)
         {
             if (data.options != null && data.options.Count == 1)
             {
@@ -372,11 +373,11 @@ namespace TaylorBot.Net.Commands.PostExecution
             return (data.name, data.options);
         }
 
-        private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options)
+        private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, IReadOnlyList<ApplicationCommandOption>? options, Resolved? resolved)
         {
             try
             {
-                var parsedOptions = await ParseOptionsAsync(slashCommand, context, options);
+                var parsedOptions = await ParseOptionsAsync(slashCommand, context, options, resolved);
                 if (parsedOptions.Error != null)
                     return parsedOptions.Error;
 
@@ -396,13 +397,12 @@ namespace TaylorBot.Net.Commands.PostExecution
             }
         }
 
-        private async ValueTask<Result<object, ParsingFailed>> ParseOptionsAsync(ISlashCommand command, RunContext context, IReadOnlyList<Interaction.ApplicationCommandInteractionDataOption>? options)
+        private async ValueTask<Result<object, ParsingFailed>> ParseOptionsAsync(ISlashCommand command, RunContext context, IReadOnlyList<ApplicationCommandOption>? options, Resolved? resolved)
         {
             if (command.OptionType == typeof(NoOptions))
                 return new NoOptions();
 
-            if (options == null)
-                options = Array.Empty<Interaction.ApplicationCommandInteractionDataOption>();
+            options ??= Array.Empty<ApplicationCommandOption>();
 
             var constructorParameters = command.OptionType.GetConstructors().Single().GetParameters();
 
@@ -417,7 +417,7 @@ namespace TaylorBot.Net.Commands.PostExecution
             {
                 var parser = _optionParsers.Value[constructorParameter.ParameterType];
 
-                var parseResult = await parser.ParseAsync(context, (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value);
+                var parseResult = await parser.ParseAsync(context, (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value, resolved);
 
                 if (parseResult.Error != null)
                     return Error(new ParsingFailed($"⚠ `{constructorParameter.Name}`: {parseResult.Error.Message}"));

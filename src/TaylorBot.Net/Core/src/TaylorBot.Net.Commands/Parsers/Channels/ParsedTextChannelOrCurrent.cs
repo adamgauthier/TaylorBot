@@ -18,7 +18,7 @@ namespace TaylorBot.Net.Commands.Parsers.Channels
             _taylorBotClient = taylorBotClient;
         }
 
-        public async ValueTask<Result<ParsedTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
         {
             if (optionValue.HasValue)
             {

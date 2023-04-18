@@ -41,6 +41,11 @@
       "wolframalpha-query": {
         "FriendlyName": "Querying WolframAlpha",
         "MaxUsesForUser": 10
+      },
+      "imgur-upload": {
+        "FriendlyName": "Uploading to Imgur",
+        "MaxUsesForUser": 5,
+        "MaxUsesForPlusUser": 15
       }
     }
   }

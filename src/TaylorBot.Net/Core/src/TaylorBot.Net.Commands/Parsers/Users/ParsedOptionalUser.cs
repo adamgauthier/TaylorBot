@@ -2,39 +2,39 @@
 using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers.Users
+namespace TaylorBot.Net.Commands.Parsers.Users;
+
+public record ParsedOptionalUser(IUser? User);
+
+public class OptionalUserParser : IOptionParser<ParsedOptionalUser>
 {
-    public record ParsedOptionalUser(IUser? User);
+    private readonly UserParser _userParser;
 
-    public class OptionalUserParser : IOptionParser<ParsedOptionalUser>
+    public OptionalUserParser(UserParser userParser)
     {
-        private readonly UserParser _userParser;
+        _userParser = userParser;
+    }
 
-        public OptionalUserParser(UserParser userParser)
+    public async ValueTask<Result<ParsedOptionalUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    {
+        if (optionValue.HasValue)
         {
-            _userParser = userParser;
-        }
-
-        public async ValueTask<Result<ParsedOptionalUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
-        {
-            if (optionValue.HasValue)
+            var parsed = await _userParser.ParseAsync(context, optionValue, resolved);
+            if (parsed)
             {
-                var parsed = await _userParser.ParseAsync(context, optionValue);
-                if (parsed)
-                {
-                    return new ParsedOptionalUser(parsed.Value.User);
-                }
-                else
-                {
-                    return Error(parsed.Error);
-                }
+                return new ParsedOptionalUser(parsed.Value.User);
             }
             else
             {
-                return new ParsedOptionalUser(null);
+                return Error(parsed.Error);
             }
+        }
+        else
+        {
+            return new ParsedOptionalUser(null);
         }
     }
 }

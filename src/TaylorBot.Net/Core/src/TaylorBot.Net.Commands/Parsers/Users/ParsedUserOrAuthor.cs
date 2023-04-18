@@ -2,39 +2,39 @@
 using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers.Users
+namespace TaylorBot.Net.Commands.Parsers.Users;
+
+public record ParsedUserOrAuthor(IUser User);
+
+public class UserOrAuthorParser : IOptionParser<ParsedUserOrAuthor>
 {
-    public record ParsedUserOrAuthor(IUser User);
+    private readonly UserParser _userParser;
 
-    public class UserOrAuthorParser : IOptionParser<ParsedUserOrAuthor>
+    public UserOrAuthorParser(UserParser userParser)
     {
-        private readonly UserParser _userParser;
+        _userParser = userParser;
+    }
 
-        public UserOrAuthorParser(UserParser userParser)
+    public async ValueTask<Result<ParsedUserOrAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    {
+        if (optionValue.HasValue)
         {
-            _userParser = userParser;
-        }
-
-        public async ValueTask<Result<ParsedUserOrAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
-        {
-            if (optionValue.HasValue)
+            var parsedUser = await _userParser.ParseAsync(context, optionValue, resolved);
+            if (parsedUser)
             {
-                var parsedUser = await _userParser.ParseAsync(context, optionValue);
-                if (parsedUser)
-                {
-                    return new ParsedUserOrAuthor(parsedUser.Value.User);
-                }
-                else
-                {
-                    return Error(parsedUser.Error);
-                }
+                return new ParsedUserOrAuthor(parsedUser.Value.User);
             }
             else
             {
-                return new ParsedUserOrAuthor(context.User);
+                return Error(parsedUser.Error);
             }
+        }
+        else
+        {
+            return new ParsedUserOrAuthor(context.User);
         }
     }
 }

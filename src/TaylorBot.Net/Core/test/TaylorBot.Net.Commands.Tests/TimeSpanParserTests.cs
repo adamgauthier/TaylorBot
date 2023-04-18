@@ -16,7 +16,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         {
             JsonElement element = CreateJsonElement("5h");
 
-            var result = await _timeSpanParser.ParseAsync(null!, element);
+            var result = await _timeSpanParser.ParseAsync(null!, element, null!);
 
             result.Value.Value.Should().Be(5.Hours());
         }
@@ -26,7 +26,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         {
             JsonElement element = CreateJsonElement("1d 11h");
 
-            var result = await _timeSpanParser.ParseAsync(null!, element);
+            var result = await _timeSpanParser.ParseAsync(null!, element, null!);
 
             result.Value.Value.Should().Be(1.Days().And(11.Hours()));
         }
@@ -36,7 +36,7 @@ namespace TaylorBot.Net.Commands.Types.Tests
         {
             JsonElement element = CreateJsonElement("5m 10m");
 
-            var result = await _timeSpanParser.ParseAsync(null!, element);
+            var result = await _timeSpanParser.ParseAsync(null!, element, null!);
 
             result.Error.Should().NotBeNull();
         }

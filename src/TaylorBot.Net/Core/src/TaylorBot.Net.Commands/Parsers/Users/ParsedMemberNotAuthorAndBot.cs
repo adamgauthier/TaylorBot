@@ -2,34 +2,34 @@
 using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers.Users
+namespace TaylorBot.Net.Commands.Parsers.Users;
+
+public record ParsedMemberNotAuthorAndBot(IGuildUser Member);
+
+public class MemberNotAuthorAndBotParser : IOptionParser<ParsedMemberNotAuthorAndBot>
 {
-    public record ParsedMemberNotAuthorAndBot(IGuildUser Member);
+    private readonly MemberNotAuthorParser _memberNotAuthorParser;
 
-    public class MemberNotAuthorAndBotParser : IOptionParser<ParsedMemberNotAuthorAndBot>
+    public MemberNotAuthorAndBotParser(MemberNotAuthorParser memberNotAuthorParser)
     {
-        private readonly MemberNotAuthorParser _memberNotAuthorParser;
+        _memberNotAuthorParser = memberNotAuthorParser;
+    }
 
-        public MemberNotAuthorAndBotParser(MemberNotAuthorParser memberNotAuthorParser)
+    public async ValueTask<Result<ParsedMemberNotAuthorAndBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    {
+        var parsedMember = await _memberNotAuthorParser.ParseAsync(context, optionValue, resolved);
+        if (parsedMember)
         {
-            _memberNotAuthorParser = memberNotAuthorParser;
+            return !parsedMember.Value.Member.IsBot ?
+                new ParsedMemberNotAuthorAndBot(parsedMember.Value.Member) :
+                Error(new ParsingFailed("Member can't be a bot."));
         }
-
-        public async ValueTask<Result<ParsedMemberNotAuthorAndBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
+        else
         {
-            var parsedMember = await _memberNotAuthorParser.ParseAsync(context, optionValue);
-            if (parsedMember)
-            {
-                return !parsedMember.Value.Member.IsBot ?
-                    new ParsedMemberNotAuthorAndBot(parsedMember.Value.Member) :
-                    Error(new ParsingFailed("Member can't be a bot."));
-            }
-            else
-            {
-                return Error(parsedMember.Error);
-            }
+            return Error(parsedMember.Error);
         }
     }
 }

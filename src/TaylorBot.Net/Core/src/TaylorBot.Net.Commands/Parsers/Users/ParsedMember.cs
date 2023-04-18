@@ -22,7 +22,7 @@ namespace TaylorBot.Net.Commands.Parsers.Users
             _userTracker = userTracker;
         }
 
-        public async ValueTask<Result<ParsedMember, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
+        public async ValueTask<Result<ParsedMember, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
         {
             if (!optionValue.HasValue)
             {

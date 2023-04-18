@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System;
+using System.Net.Http.Headers;
 using TaylorBot.Net.Commands;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
@@ -22,6 +24,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
@@ -225,7 +229,15 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<UrbanDictionarySlashCommand>()
             .ConfigureRequired<WolframAlphaOptions>(config, "WolframAlpha")
             .AddTransient<IWolframAlphaClient, WolframAlphaClient>()
-            .AddSlashCommand<WolframAlphaSlashCommand>();
+            .AddSlashCommand<WolframAlphaSlashCommand>()
+            .AddSlashCommand<ImgurSlashCommand>()
+            .ConfigureRequired<ImgurOptions>(config, "Imgur")
+            .AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
+            {
+                var options = provider.GetRequiredService<IOptionsMonitor<ImgurOptions>>().CurrentValue;
+                ArgumentException.ThrowIfNullOrEmpty(options.ClientId);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", options.ClientId);
+            });
     })
     .Build();
 

@@ -89,7 +89,9 @@ namespace TaylorBot.Net.Commands.Extensions
                 .AddOptionParser<TimeSpanParser>()
                 .AddOptionParser<IntegerParser>()
                 .AddOptionParser<OptionalIntegerParser>()
-                .AddOptionParser<PositiveIntegerParser>();
+                .AddOptionParser<PositiveIntegerParser>()
+                .AddOptionParser<AttachmentParser>()
+                .AddOptionParser<OptionalAttachmentParser>();
         }
 
         public static IServiceCollection AddOptionParser<T>(this IServiceCollection services)

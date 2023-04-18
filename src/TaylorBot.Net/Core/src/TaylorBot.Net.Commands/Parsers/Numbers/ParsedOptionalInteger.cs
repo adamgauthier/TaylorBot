@@ -1,34 +1,34 @@
 ﻿using OperationResult;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers.Numbers
-{
-    public record ParsedOptionalInteger(int? Value);
+namespace TaylorBot.Net.Commands.Parsers.Numbers;
 
-    public class OptionalIntegerParser : IOptionParser<ParsedOptionalInteger>
+public record ParsedOptionalInteger(int? Value);
+
+public class OptionalIntegerParser : IOptionParser<ParsedOptionalInteger>
+{
+    public ValueTask<Result<ParsedOptionalInteger, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        public ValueTask<Result<ParsedOptionalInteger, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue)
+        return new(Parse(optionValue));
+    }
+
+    private static Result<ParsedOptionalInteger, ParsingFailed> Parse(JsonElement? optionValue)
+    {
+        if (!optionValue.HasValue)
         {
-            return new(Parse(optionValue));
+            return new ParsedOptionalInteger(null);
         }
 
-        private static Result<ParsedOptionalInteger, ParsingFailed> Parse(JsonElement? optionValue)
+        if (optionValue.Value.TryGetInt32(out var integer))
         {
-            if (!optionValue.HasValue)
-            {
-                return new ParsedOptionalInteger(null);
-            }
-
-            if (optionValue.Value.TryGetInt32(out var integer))
-            {
-                return new ParsedOptionalInteger(integer);
-            }
-            else
-            {
-                return Error(new ParsingFailed("Invalid number."));
-            }
+            return new ParsedOptionalInteger(integer);
+        }
+        else
+        {
+            return Error(new ParsingFailed("Invalid number."));
         }
     }
 }
