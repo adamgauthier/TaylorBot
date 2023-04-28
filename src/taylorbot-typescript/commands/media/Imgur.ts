@@ -6,7 +6,7 @@ class ImgurCommand extends Command {
         super({
             name: 'imgur',
             group: 'Media 📷',
-            description: 'This command has been removed. Please use **/imgur** instead.',
+            description: 'This command has been removed. Please use </imgur:1101376729135726652> instead.',
             examples: [''],
 
             args: [
@@ -23,7 +23,7 @@ class ImgurCommand extends Command {
     async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             'This command has been removed.',
-            'Please use **/imgur** instead.'
+            'Please use </imgur:1101376729135726652> instead.'
         ].join('\n'));
     }
 }
