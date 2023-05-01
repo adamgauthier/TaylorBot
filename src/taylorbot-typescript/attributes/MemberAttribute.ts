@@ -23,7 +23,7 @@ export abstract class MemberAttribute extends Attribute {
 
     abstract retrieve(database: DatabaseDriver, member: GuildMember): Promise<any>;
 
-    async getCommand(commandContext: CommandMessageContext, member: GuildMember): Promise<EmbedBuilder> {
+    async getCommand(commandContext: CommandMessageContext, member: GuildMember): Promise<EmbedBuilder | null> {
         const attribute = await this.retrieve(commandContext.client.master.database, member);
 
         if (!attribute) {

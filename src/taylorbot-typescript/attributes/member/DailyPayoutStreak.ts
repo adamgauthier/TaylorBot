@@ -1,7 +1,7 @@
 import { MemberAttribute } from '../MemberAttribute';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { GuildMember, Guild } from 'discord.js';
-import { DailyStreakPresenter } from '../member-presenters/DailyStreakPresenter';
+import { DeprecatedMemberPresenter } from '../member-presenters/DeprecatedMemberPresenter';
 
 class DailyPayoutStreakMemberAttribute extends MemberAttribute {
     constructor() {
@@ -10,12 +10,12 @@ class DailyPayoutStreakMemberAttribute extends MemberAttribute {
             aliases: ['dailystreak', 'dstreak'],
             description: 'daily payout streak',
             columnName: 'streak_count',
-            presenter: DailyStreakPresenter
+            presenter: DeprecatedMemberPresenter
         });
     }
 
     retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
-        return Promise.resolve(-1);
+        return Promise.resolve({ newCommand: '</daily streak:870731803739168859>' });
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {

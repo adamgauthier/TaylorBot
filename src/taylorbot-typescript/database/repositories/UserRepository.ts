@@ -17,22 +17,6 @@ export class UserRepository {
         };
     }
 
-    async getTaypointsFor(user: User): Promise<{ taypoint_count: string; }> {
-        const databaseUser = this.mapUserToDatabase(user);
-        try {
-            return await this.#db.one(
-                'SELECT taypoint_count FROM users.users WHERE user_id = $[user_id];',
-                {
-                    ...databaseUser
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting taypoints for user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
     async hasEnoughTaypointCount(user: User, taypointCount: number): Promise<{ taypoint_count: string; has_enough: boolean }> {
         const databaseUser = this.mapUserToDatabase(user);
         try {

@@ -52,6 +52,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
@@ -232,12 +235,18 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<WolframAlphaSlashCommand>()
             .AddSlashCommand<ImgurSlashCommand>()
             .ConfigureRequired<ImgurOptions>(config, "Imgur")
-            .AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
-            {
-                var options = provider.GetRequiredService<IOptionsMonitor<ImgurOptions>>().CurrentValue;
-                ArgumentException.ThrowIfNullOrEmpty(options.ClientId);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", options.ClientId);
-            });
+            .AddTransient<ITaypointBalanceRepository, TaypointBalancePostgresRepository>()
+            .AddTransient<TaypointsBalanceCommand>()
+            .AddSlashCommand<TaypointsBalanceSlashCommand>()
+            .AddSlashCommand<TaypointsLeaderboardSlashCommand>()
+            ;
+
+        services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
+        {
+            var options = provider.GetRequiredService<IOptionsMonitor<ImgurOptions>>().CurrentValue;
+            ArgumentException.ThrowIfNullOrEmpty(options.ClientId);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", options.ClientId);
+        });
     })
     .Build();
 

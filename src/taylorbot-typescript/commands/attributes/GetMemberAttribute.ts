@@ -32,9 +32,13 @@ class GetMemberAttributeCommand extends Command {
 
     async run(commandContext: CommandMessageContext, { attribute, member }: { attribute: MemberAttribute; member: GuildMember }): Promise<void> {
         const { client, message } = commandContext;
+        const embed = await attribute.getCommand(commandContext, member);
+        if (embed === null) {
+            return;
+        }
         await client.sendEmbed(
             message.channel,
-            await attribute.getCommand(commandContext, member)
+            embed
         );
     }
 }

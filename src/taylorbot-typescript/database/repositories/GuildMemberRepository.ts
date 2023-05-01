@@ -217,14 +217,6 @@ export class GuildMemberRepository {
         return this._getRankedAliveFor(guildMember, 'minute_count');
     }
 
-    getRankedTaypoints(guild: Guild, limit: number): Promise<{ taypoint_count: string; user_id: string; rank: string }[]> {
-        return this._getRankedUsers(guild, limit, 'taypoint_count');
-    }
-
-    getRankedTaypointsFor(guildMember: GuildMember): Promise<{ taypoint_count: string; rank: string }> {
-        return this._getRankedAliveFor(guildMember, 'taypoint_count');
-    }
-
     getRankedForeignStat(guild: Guild, limit: number, schema: string, table: string, column: string): Promise<any[]> {
         return this._getRankedAliveForeign(guild, limit, new this.#helpers.TableName({ schema: schema, table: table }), column);
     }

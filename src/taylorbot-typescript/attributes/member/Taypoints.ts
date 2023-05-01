@@ -1,7 +1,8 @@
 import { SimpleStatMemberAttribute } from '../SimpleStatMemberAttribute';
-import { SimpleStatPresenter } from '../member-presenters/SimpleStatPresenter';
+import { DeprecatedMemberPresenter } from '../member-presenters/DeprecatedMemberPresenter';
 import { GuildMember, Guild } from 'discord.js';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
+import { CommandMessageContext } from '../../commands/CommandMessageContext';
 
 class TaypointsMemberAttribute extends SimpleStatMemberAttribute {
     constructor() {
@@ -11,19 +12,20 @@ class TaypointsMemberAttribute extends SimpleStatMemberAttribute {
             description: 'taypoints',
             columnName: 'taypoint_count',
             singularName: 'taypoint',
-            presenter: SimpleStatPresenter
+            presenter: DeprecatedMemberPresenter
         });
     }
 
-    async retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
-        if (member.guild.memberCount < 10000)
-            return await database.guildMembers.getRankedTaypointsFor(member);
+    async getCommand(commandContext: CommandMessageContext, member: GuildMember): Promise<null> {
+        return null;
+    }
 
-        return await database.users.getTaypointsFor(member.user);
+    async retrieve(database: DatabaseDriver, member: GuildMember): Promise<any> {
+        throw new Error('Deprecated');
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {
-        return database.guildMembers.getRankedTaypoints(guild, entries);
+        return Promise.resolve(['**/taypoints leaderboard**']);
     }
 }
 

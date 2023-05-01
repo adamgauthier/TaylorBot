@@ -7,7 +7,7 @@ class ClearLastFmCommand extends Command {
             name: `clearlastfm`,
             aliases: ['clearfm'],
             group: 'attributes',
-            description: `This command has been removed. Please use \`lastfm clear\` instead.`,
+            description: `This command has been removed. Please use </lastfm clear:922354806574678086> instead.`,
             examples: [''],
 
             args: []
@@ -17,7 +17,7 @@ class ClearLastFmCommand extends Command {
     async run(commandContext: CommandMessageContext): Promise<void> {
         await commandContext.client.sendEmbedError(
             commandContext.message.channel,
-            `This command has been removed. Please use \`${commandContext.messageContext.prefix}lastfm clear\` instead.`
+            `This command has been removed. Please use </lastfm clear:922354806574678086> instead.`
         );
     }
 }
