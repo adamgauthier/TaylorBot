@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Domain;
@@ -12,10 +12,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure
 {
     public class PirateWeatherClient : IWeatherClient
     {
-        private static readonly string ForecastQueryString = QueryString.Create(new[] {
-            new KeyValuePair<string, string>("exclude", "minutely,hourly,daily,alerts,flags"),
-            new KeyValuePair<string, string>("units", "si"),
-        }).ToUriComponent();
+        private static readonly string ForecastQueryString = string.Join('&', new[] {
+            ("exclude", "minutely,hourly,daily,alerts,flags"),
+            ("units", "si"),
+        }.Select(param => (UrlEncoder.Default.Encode(param.Item1), UrlEncoder.Default.Encode(param.Item2))));
 
         private readonly ILogger<PirateWeatherClient> _logger;
         private readonly IOptionsMonitor<WeatherOptions> _options;
@@ -35,7 +35,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure
 
         public async ValueTask<IForecastResult> GetCurrentForecastAsync(string latitude, string longitude)
         {
-            var response = await _httpClient.GetAsync($"https://api.pirateweather.net/forecast/{_options.CurrentValue.PirateWeatherApiKey}/{latitude},{longitude}{ForecastQueryString}");
+            var response = await _httpClient.GetAsync($"https://api.pirateweather.net/forecast/{_options.CurrentValue.PirateWeatherApiKey}/{latitude},{longitude}?{ForecastQueryString}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -62,6 +62,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure
         {
             return iconName switch
             {
+                "clear-day" => "https://i.imgur.com/juu8tLC.png",
                 "clear-night" => "https://i.imgur.com/ewFmV1R.png",
                 "cloudy" => "https://i.imgur.com/2t0W3Dp.png",
                 "fog" => "https://i.imgur.com/0UFQXeg.png",

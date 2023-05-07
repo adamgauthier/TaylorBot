@@ -1,18 +1,15 @@
 import { DiscordUtil } from '../../discord/DiscordUtil';
 import { Guild, GuildMember, EmbedBuilder } from 'discord.js';
-import { DatabaseDriver } from '../../../database/DatabaseDriver';
 import { EmbedPageEditor } from './EmbedPageEditor';
 
 type MemberObject = Record<string, any> & { user_id: string };
 
 export class MemberEmbedDescriptionPageMessage extends EmbedPageEditor<MemberObject[]> {
-    readonly #database: DatabaseDriver;
     readonly #guild: Guild;
     readonly #formatLine: (member: GuildMember, attribute: MemberObject) => string;
 
-    constructor(embed: EmbedBuilder, database: DatabaseDriver, guild: Guild, formatLine: (member: GuildMember, attribute: MemberObject) => string) {
+    constructor(embed: EmbedBuilder, guild: Guild, formatLine: (member: GuildMember, attribute: MemberObject) => string) {
         super(embed);
-        this.#database = database;
         this.#guild = guild;
         this.#formatLine = formatLine;
     }
