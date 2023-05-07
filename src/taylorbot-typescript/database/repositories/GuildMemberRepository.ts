@@ -276,20 +276,4 @@ export class GuildMemberRepository {
             throw e;
         }
     }
-
-
-    async setDead(memberIds: string[]): Promise<void> {
-        try {
-            await this.#db.none(
-                `UPDATE guilds.guild_members SET alive = FALSE WHERE user_id IN ($[user_ids:csv]);`,
-                {
-                    user_ids: memberIds,
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Setting dead ${memberIds.join()}: ${e}`);
-            throw e;
-        }
-    }
 }

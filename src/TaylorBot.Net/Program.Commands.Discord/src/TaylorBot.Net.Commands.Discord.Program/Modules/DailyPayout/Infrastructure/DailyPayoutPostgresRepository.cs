@@ -74,7 +74,8 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
         using var transaction = connection.BeginTransaction();
 
         var redeem = await connection.QuerySingleAsync<RedeemDto>(
-            @"INSERT INTO users.daily_payouts (user_id)
+            """
+            INSERT INTO users.daily_payouts (user_id)
             VALUES (@UserId)
             ON CONFLICT (user_id) DO UPDATE SET
                 last_payout_at = (CASE
@@ -96,7 +97,8 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
                 WHEN streak_count % @DaysForBonus = 0
                 THEN (@BaseBonus + @BonusMultiplier * SQRT(streak_count))::bigint
                 ELSE 0
-            END AS bonus_reward;",
+            END AS bonus_reward;
+            """,
             new
             {
                 UserId = user.Id.ToString(),
@@ -109,7 +111,7 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
         if (redeem.was_streak_added)
         {
             var taypointAdd = await connection.QuerySingleAsync<TaypointAddDto>(
-                @"UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd WHERE user_id = @UserId RETURNING taypoint_count;",
+                "UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd WHERE user_id = @UserId RETURNING taypoint_count;",
                 new
                 {
                     PointsToAdd = payoutAmount + redeem.bonus_reward,
@@ -143,9 +145,11 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
         await using var connection = _postgresConnectionFactory.CreateConnection();
 
         var streakInfo = await connection.QuerySingleOrDefaultAsync<StreakInfoDto?>(
-            @"SELECT streak_count, max_streak_count
+            """
+            SELECT streak_count, max_streak_count
             FROM users.daily_payouts
-            WHERE user_id = @UserId;",
+            WHERE user_id = @UserId;
+            """,
             new
             {
                 UserId = user.Id.ToString()
@@ -175,7 +179,8 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
         using var transaction = connection.BeginTransaction();
 
         var updateStreak = await connection.QuerySingleAsync<UpdateStreakDto>(
-            @"WITH old_daily AS (
+            """
+            WITH old_daily AS (
                 SELECT user_id, streak_count FROM users.daily_payouts
                 WHERE user_id = @UserId FOR UPDATE
             )
@@ -183,7 +188,8 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
             SET streak_count = GREATEST(d.streak_count, d.max_streak_count), last_payout_at = CURRENT_TIMESTAMP
             FROM old_daily
             WHERE d.user_id = old_daily.user_id
-            RETURNING d.streak_count, old_daily.streak_count AS original_streak_count;",
+            RETURNING d.streak_count, old_daily.streak_count AS original_streak_count;
+            """,
             new
             {
                 UserId = user.Id.ToString()
@@ -236,14 +242,23 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
         public long rank { get; set; }
     }
 
-    public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync()
+    public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
     {
         await using var connection = _postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<LeaderboardEntryDto>(
-            @"SELECT u.user_id, u.username, dp.streak_count, rank() OVER (ORDER BY streak_count DESC) AS rank
-            FROM users.daily_payouts AS dp INNER JOIN users.users AS u ON dp.user_id = u.user_id
-            LIMIT 100;"
+            """
+            SELECT gm.user_id, u.username, dp.streak_count, rank() OVER (ORDER BY streak_count DESC) AS rank
+            FROM guilds.guild_members AS gm
+            JOIN users.daily_payouts AS dp ON dp.user_id = gm.user_id
+            JOIN users.users AS u ON u.user_id = gm.user_id
+            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
+            LIMIT 100;
+            """,
+            new
+            {
+                GuildId = $"{guild.Id}",
+            }
         );
 
         return entries.Select(e => new DailyLeaderboardEntry(

@@ -25,7 +25,7 @@ class TaypointsMemberAttribute extends SimpleStatMemberAttribute {
     }
 
     rank(database: DatabaseDriver, guild: Guild, entries: number): Promise<any[]> {
-        return Promise.resolve(['**/taypoints leaderboard**']);
+        return Promise.resolve(['</taypoints leaderboard:1103846727880028180>']);
     }
 }
 

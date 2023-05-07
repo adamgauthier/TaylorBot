@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.Guild;
 using TaylorBot.Net.EntityTracker.Domain.GuildName;
 using TaylorBot.Net.EntityTracker.Domain.Member;
@@ -14,166 +15,165 @@ using TaylorBot.Net.EntityTracker.Domain.Options;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using TaylorBot.Net.EntityTracker.Domain.User;
 
-namespace TaylorBot.Net.EntityTracker.Domain
+namespace TaylorBot.Net.EntityTracker.Domain;
+
+public class EntityTrackerDomainService
 {
-    public class EntityTrackerDomainService
+    private readonly ILogger<EntityTrackerDomainService> _logger;
+    private readonly IOptionsMonitor<EntityTrackerOptions> _optionsMonitor;
+    private readonly UsernameTrackerDomainService _usernameTrackerDomainService;
+    private readonly IUserRepository _userRepository;
+    private readonly ISpamChannelRepository _spamChannelRepository;
+    private readonly IGuildRepository _guildRepository;
+    private readonly IGuildNameRepository _guildNameRepository;
+    private readonly IMemberRepository _memberRepository;
+
+    private readonly AsyncEvent<Func<IGuildUser, Task>> guildMemberFirstJoinedEvent = new AsyncEvent<Func<IGuildUser, Task>>();
+    public event Func<IGuildUser, Task> GuildMemberFirstJoinedEvent
     {
-        private readonly ILogger<EntityTrackerDomainService> _logger;
-        private readonly IOptionsMonitor<EntityTrackerOptions> _optionsMonitor;
-        private readonly UsernameTrackerDomainService _usernameTrackerDomainService;
-        private readonly IUserRepository _userRepository;
-        private readonly ISpamChannelRepository _spamChannelRepository;
-        private readonly IGuildRepository _guildRepository;
-        private readonly IGuildNameRepository _guildNameRepository;
-        private readonly IMemberRepository _memberRepository;
+        add { guildMemberFirstJoinedEvent.Add(value); }
+        remove { guildMemberFirstJoinedEvent.Remove(value); }
+    }
 
-        private readonly AsyncEvent<Func<IGuildUser, Task>> guildMemberFirstJoinedEvent = new AsyncEvent<Func<IGuildUser, Task>>();
-        public event Func<IGuildUser, Task> GuildMemberFirstJoinedEvent
+    private readonly AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>> guildMemberRejoinedEvent = new AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>>();
+    public event Func<IGuildUser, DateTimeOffset, Task> GuildMemberRejoinedEvent
+    {
+        add { guildMemberRejoinedEvent.Add(value); }
+        remove { guildMemberRejoinedEvent.Remove(value); }
+    }
+
+    public EntityTrackerDomainService(
+        ILogger<EntityTrackerDomainService> logger,
+        IOptionsMonitor<EntityTrackerOptions> optionsMonitor,
+        UsernameTrackerDomainService usernameTrackerDomainService,
+        IUserRepository userRepository,
+        ISpamChannelRepository spamChannelRepository,
+        IGuildRepository guildRepository,
+        IGuildNameRepository guildNameRepository,
+        IMemberRepository memberRepository)
+    {
+        _logger = logger;
+        _optionsMonitor = optionsMonitor;
+        _usernameTrackerDomainService = usernameTrackerDomainService;
+        _userRepository = userRepository;
+        _spamChannelRepository = spamChannelRepository;
+        _guildRepository = guildRepository;
+        _guildNameRepository = guildNameRepository;
+        _memberRepository = memberRepository;
+    }
+
+    public async Task OnGuildJoinedAsync(SocketGuild guild, bool downloadAllUsers)
+    {
+        var guildAddedResult = await _guildRepository.AddGuildIfNotAddedAsync(guild);
+
+        if (guildAddedResult.WasAdded)
         {
-            add { guildMemberFirstJoinedEvent.Add(value); }
-            remove { guildMemberFirstJoinedEvent.Remove(value); }
+            _logger.LogInformation($"Added new guild {guild.FormatLog()}.");
+            await _guildNameRepository.AddNewGuildNameAsync(guild);
+        }
+        else if (guildAddedResult.WasGuildNameChanged)
+        {
+            await UpdateGuildNameAsync(guild, guildAddedResult.PreviousGuildName);
         }
 
-        private readonly AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>> guildMemberRejoinedEvent = new AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>>();
-        public event Func<IGuildUser, DateTimeOffset, Task> GuildMemberRejoinedEvent
+        foreach (var textChannel in guild.TextChannels)
         {
-            add { guildMemberRejoinedEvent.Add(value); }
-            remove { guildMemberRejoinedEvent.Remove(value); }
+            await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
         }
 
-        public EntityTrackerDomainService(
-            ILogger<EntityTrackerDomainService> logger,
-            IOptionsMonitor<EntityTrackerOptions> optionsMonitor,
-            UsernameTrackerDomainService usernameTrackerDomainService,
-            IUserRepository userRepository,
-            ISpamChannelRepository spamChannelRepository,
-            IGuildRepository guildRepository,
-            IGuildNameRepository guildNameRepository,
-            IMemberRepository memberRepository)
+        if (downloadAllUsers)
+            await guild.DownloadUsersAsync();
+
+        foreach (var member in guild.Users)
         {
-            _logger = logger;
-            _optionsMonitor = optionsMonitor;
-            _usernameTrackerDomainService = usernameTrackerDomainService;
-            _userRepository = userRepository;
-            _spamChannelRepository = spamChannelRepository;
-            _guildRepository = guildRepository;
-            _guildNameRepository = guildNameRepository;
-            _memberRepository = memberRepository;
+            await OnGuildUserJoinedAsync(member);
+        }
+    }
+
+    public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
+    {
+        _logger.LogInformation($"Starting startup entity tracking sequence for shard {shardClient.ShardId}.");
+
+        foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
+        {
+            await OnGuildJoinedAsync(guild, downloadAllUsers: false);
+            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
         }
 
-        public async Task OnGuildJoinedAsync(SocketGuild guild, bool downloadAllUsers)
+        _logger.LogInformation($"Completed startup entity tracking sequence for shard {shardClient.ShardId}.");
+    }
+
+    public async Task OnUserUpdatedAsync(SocketUser oldUser, SocketUser newUser)
+    {
+        if (oldUser.Username != newUser.Username)
         {
-            var guildAddedResult = await _guildRepository.AddGuildIfNotAddedAsync(guild);
+            var userAddedResult = await _userRepository.AddNewUserAsync(newUser);
+
+            await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(newUser, userAddedResult);
+        }
+    }
+
+    public async Task OnGuildUpdatedAsync(SocketGuild oldGuild, SocketGuild newGuild)
+    {
+        if (oldGuild.Name != newGuild.Name)
+        {
+            var guildAddedResult = await _guildRepository.AddGuildIfNotAddedAsync(newGuild);
 
             if (guildAddedResult.WasAdded)
             {
-                _logger.LogInformation($"Added new guild {guild.FormatLog()}.");
-                await _guildNameRepository.AddNewGuildNameAsync(guild);
+                _logger.LogInformation($"Added new guild {newGuild.FormatLog()}.");
+                await _guildNameRepository.AddNewGuildNameAsync(newGuild);
             }
             else if (guildAddedResult.WasGuildNameChanged)
             {
-                await UpdateGuildNameAsync(guild, guildAddedResult.PreviousGuildName);
-            }
-
-            foreach (var textChannel in guild.TextChannels)
-            {
-                await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
-            }
-
-            if (downloadAllUsers)
-                await guild.DownloadUsersAsync();
-
-            foreach (var member in guild.Users)
-            {
-                await OnGuildUserJoinedAsync(member);
+                await UpdateGuildNameAsync(newGuild, guildAddedResult.PreviousGuildName);
             }
         }
+    }
 
-        public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
+    private async Task UpdateGuildNameAsync(IGuild guild, string? previousGuildName)
+    {
+        await _guildNameRepository.AddNewGuildNameAsync(guild);
+        _logger.LogInformation($"Added new guild name for {guild.FormatLog()}{(previousGuildName != null ? $", previously was '{previousGuildName}'" : "")}.");
+    }
+
+    public async Task OnGuildUserJoinedAsync(SocketGuildUser guildUser)
+    {
+        var userAddedResult = await _userRepository.AddNewUserAsync(guildUser);
+        await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(guildUser, userAddedResult);
+
+        if (userAddedResult.WasAdded)
         {
-            _logger.LogInformation($"Starting startup entity tracking sequence for shard {shardClient.ShardId}.");
-
-            foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
+            var memberAdded = await _memberRepository.AddNewMemberAsync(guildUser);
+            if (memberAdded)
             {
-                await OnGuildJoinedAsync(guild, downloadAllUsers: false);
-                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
-            }
-
-            _logger.LogInformation($"Completed startup entity tracking sequence for shard {shardClient.ShardId}.");
-        }
-
-        public async Task OnUserUpdatedAsync(SocketUser oldUser, SocketUser newUser)
-        {
-            if (oldUser.Username != newUser.Username)
-            {
-                var userAddedResult = await _userRepository.AddNewUserAsync(newUser);
-
-                await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(newUser, userAddedResult);
-            }
-        }
-
-        public async Task OnGuildUpdatedAsync(SocketGuild oldGuild, SocketGuild newGuild)
-        {
-            if (oldGuild.Name != newGuild.Name)
-            {
-                var guildAddedResult = await _guildRepository.AddGuildIfNotAddedAsync(newGuild);
-
-                if (guildAddedResult.WasAdded)
-                {
-                    _logger.LogInformation($"Added new guild {newGuild.FormatLog()}.");
-                    await _guildNameRepository.AddNewGuildNameAsync(newGuild);
-                }
-                else if (guildAddedResult.WasGuildNameChanged)
-                {
-                    await UpdateGuildNameAsync(newGuild, guildAddedResult.PreviousGuildName);
-                }
+                _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
+                await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
             }
         }
-
-        private async Task UpdateGuildNameAsync(IGuild guild, string? previousGuildName)
+        else
         {
-            await _guildNameRepository.AddNewGuildNameAsync(guild);
-            _logger.LogInformation($"Added new guild name for {guild.FormatLog()}{(previousGuildName != null ? $", previously was '{previousGuildName}'" : "")}.");
-        }
+            var memberAddedResult = await _memberRepository.AddNewMemberOrUpdateAsync(guildUser);
 
-        public async Task OnGuildUserJoinedAsync(SocketGuildUser guildUser)
-        {
-            var userAddedResult = await _userRepository.AddNewUserAsync(guildUser);
-            await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(guildUser, userAddedResult);
-
-            if (userAddedResult.WasAdded)
+            if (memberAddedResult is RejoinedMemberAddResult rejoinedMemberAddResult)
             {
-                var memberAdded = await _memberRepository.AddNewMemberAsync(guildUser);
-                if (memberAdded)
-                {
-                    _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
-                    await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
-                }
+                await guildMemberRejoinedEvent.InvokeAsync(guildUser, rejoinedMemberAddResult.FirstJoinedAt);
             }
             else
             {
-                var memberAddedResult = await _memberRepository.AddNewMemberOrUpdateAsync(guildUser);
-
-                if (memberAddedResult is RejoinedMemberAddResult rejoinedMemberAddResult)
-                {
-                    await guildMemberRejoinedEvent.InvokeAsync(guildUser, rejoinedMemberAddResult.FirstJoinedAt);
-                }
-                else
-                {
-                    await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
-                }
+                await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
             }
         }
+    }
 
-        public async Task OnGuildUserLeftAsync(IGuild guild, IUser user)
-        {
-            await _memberRepository.SetMemberDeadAsync(guild, user);
-        }
+    public async Task OnGuildUserLeftAsync(IGuild guild, IUser user)
+    {
+        await _memberRepository.UpdateMembersNotInGuildAsync(guild, new[] { new SnowflakeId(user.Id) });
+    }
 
-        public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
-        {
-            await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
-            _logger.LogInformation($"Added new text channel {textChannel.FormatLog()}.");
-        }
+    public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
+    {
+        await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
+        _logger.LogInformation($"Added new text channel {textChannel.FormatLog()}.");
     }
 }

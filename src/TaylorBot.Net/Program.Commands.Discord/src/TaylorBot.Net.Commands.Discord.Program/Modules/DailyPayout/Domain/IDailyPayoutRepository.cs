@@ -27,7 +27,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
         ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount);
         ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user);
         ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay);
-        ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync();
+        ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
     }
 }
 

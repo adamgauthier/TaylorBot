@@ -27,7 +27,7 @@
     },
     {
       "name": "leaderboard",
-      "description": "Show the daily streak leaderboard",
+      "description": "Show the current server's daily streak leaderboard",
       "type": 1
     }
   ]

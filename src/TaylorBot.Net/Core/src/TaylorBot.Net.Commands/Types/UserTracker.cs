@@ -5,41 +5,40 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.EntityTracker.Domain;
 
-namespace TaylorBot.Net.Commands.Types
+namespace TaylorBot.Net.Commands.Types;
+
+public interface IUserTracker
 {
-    public interface IUserTracker
+    ValueTask TrackUserFromArgumentAsync(IUser user);
+}
+
+public class UserTracker : IUserTracker
+{
+    private readonly ILogger<UserTracker> _logger;
+    private readonly IIgnoredUserRepository _ignoredUserRepository;
+    private readonly UsernameTrackerDomainService _usernameTrackerDomainService;
+    private readonly IMemberTrackingRepository _memberRepository;
+
+    public UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, IMemberTrackingRepository memberRepository)
     {
-        ValueTask TrackUserFromArgumentAsync(IUser user);
+        _logger = logger;
+        _ignoredUserRepository = ignoredUserRepository;
+        _usernameTrackerDomainService = usernameTrackerDomainService;
+        _memberRepository = memberRepository;
     }
 
-    public class UserTracker : IUserTracker
+    public async ValueTask TrackUserFromArgumentAsync(IUser user)
     {
-        private readonly ILogger<UserTracker> _logger;
-        private readonly IIgnoredUserRepository _ignoredUserRepository;
-        private readonly UsernameTrackerDomainService _usernameTrackerDomainService;
-        private readonly IMemberRepository _memberRepository;
+        var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user, user.IsBot);
+        await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, getUserIgnoreUntilResult);
 
-        public UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, IMemberRepository memberRepository)
+        if (user is IGuildUser guildUser)
         {
-            _logger = logger;
-            _ignoredUserRepository = ignoredUserRepository;
-            _usernameTrackerDomainService = usernameTrackerDomainService;
-            _memberRepository = memberRepository;
-        }
+            var memberAdded = await _memberRepository.AddOrUpdateMemberAsync(guildUser, lastSpokeAt: null);
 
-        public async ValueTask TrackUserFromArgumentAsync(IUser user)
-        {
-            var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user, user.IsBot);
-            await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, getUserIgnoreUntilResult);
-
-            if (user is IGuildUser guildUser)
+            if (memberAdded)
             {
-                var memberAdded = await _memberRepository.AddOrUpdateMemberAsync(guildUser, lastSpokeAt: null);
-
-                if (memberAdded)
-                {
-                    _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
-                }
+                _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
             }
         }
     }

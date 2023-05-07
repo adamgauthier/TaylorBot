@@ -30,7 +30,6 @@ export class MemberEmbedDescriptionPageMessage extends EmbedPageEditor<MemberObj
     }
 
     async formatDescription(currentPage: MemberObject[]): Promise<string> {
-        const deadMembers = [];
         const descriptionLines = [];
 
         for (const memberLine of currentPage) {
@@ -40,13 +39,7 @@ export class MemberEmbedDescriptionPageMessage extends EmbedPageEditor<MemberObj
                     this.#formatLine(member, memberLine)
                 );
             }
-            else {
-                deadMembers.push(memberLine.user_id);
-            }
         }
-
-        if (deadMembers.length > 0)
-            await this.#database.guildMembers.setDead(deadMembers);
 
         return descriptionLines.join('\n');
     }

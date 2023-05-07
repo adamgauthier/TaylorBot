@@ -30,7 +30,7 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
             "SELECT taypoint_count FROM users.users WHERE user_id = @UserId;",
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
             }
         );
 
@@ -48,7 +48,7 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
         await using var connection = _postgresConnectionFactory.CreateConnection();
 
         var balance = await connection.QuerySingleAsync<TaypointBalanceWithRankDto>(
-            $"""
+            """
             SELECT taypoint_count, rank FROM (
                 SELECT taypoint_count, gm.user_id, rank() OVER (ORDER BY taypoint_count DESC) AS rank
                 FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
@@ -58,8 +58,8 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
             """,
             new
             {
-                UserId = user.Id.ToString(),
-                GuildId = user.GuildId.ToString(),
+                UserId = $"{user.Id}",
+                GuildId = $"{user.GuildId}",
             }
         );
 
@@ -79,10 +79,12 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
         await using var connection = _postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<LeaderboardEntryDto>(
-            @"SELECT gm.user_id, u.username, taypoint_count, rank() OVER (ORDER BY taypoint_count DESC) AS rank
+            """
+            SELECT gm.user_id, u.username, taypoint_count, rank() OVER (ORDER BY taypoint_count DESC) AS rank
             FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
             WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
-            LIMIT 100;",
+            LIMIT 100;
+            """,
             new
             {
                 GuildId = $"{guild.Id}",
