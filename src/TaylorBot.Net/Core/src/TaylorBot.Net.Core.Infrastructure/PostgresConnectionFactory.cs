@@ -1,16 +1,15 @@
 ﻿using Npgsql;
 
-namespace TaylorBot.Net.Core.Infrastructure
+namespace TaylorBot.Net.Core.Infrastructure;
+
+public class PostgresConnectionFactory
 {
-    public class PostgresConnectionFactory
+    private readonly NpgsqlDataSource _npgsqlDataSource;
+
+    public PostgresConnectionFactory(NpgsqlDataSource npgsqlDataSource)
     {
-        private readonly NpgsqlDataSource _npgsqlDataSource;
-
-        public PostgresConnectionFactory(NpgsqlDataSource npgsqlDataSource)
-        {
-            _npgsqlDataSource = npgsqlDataSource;
-        }
-
-        public NpgsqlConnection CreateConnection() => _npgsqlDataSource.CreateConnection();
+        _npgsqlDataSource = npgsqlDataSource;
     }
+
+    public NpgsqlConnection CreateConnection() => _npgsqlDataSource.CreateConnection();
 }

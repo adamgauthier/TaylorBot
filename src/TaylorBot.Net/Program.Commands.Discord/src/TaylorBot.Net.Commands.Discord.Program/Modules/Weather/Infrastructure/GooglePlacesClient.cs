@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Core.Infrastructure.Extensions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure;
 
@@ -33,12 +32,12 @@ public class GooglePlacesClient : ILocationClient
 
     public async ValueTask<ILocationResult> GetLocationAsync(string search)
     {
-        var qs = string.Join('&', new[] {
-            ("key", _options.CurrentValue.GoogleApiKey),
-            ("inputtype", "textquery"),
-            ("fields", "formatted_address,geometry/location"),
-            ("input", search),
-        }.Select(param => (UrlEncoder.Default.Encode(param.Item1), UrlEncoder.Default.Encode(param.Item2))));
+        var qs = new Dictionary<string, string>() {
+            { "key", _options.CurrentValue.GoogleApiKey },
+            { "inputtype", "textquery" },
+            { "fields", "formatted_address,geometry/location" },
+            { "input", search },
+        }.ToUrlQueryString();
 
         var response = await _httpClient.GetAsync($"https://maps.googleapis.com/maps/api/place/findplacefromtext/json?{qs}");
 

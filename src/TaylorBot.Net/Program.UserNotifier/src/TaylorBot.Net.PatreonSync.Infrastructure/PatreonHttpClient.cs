@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TaylorBot.Net.Core.Infrastructure.Extensions;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.PatreonSync.Domain;
 
@@ -12,11 +12,11 @@ namespace TaylorBot.Net.PatreonSync.Infrastructure;
 
 public class PatreonHttpClient : IPatreonClient
 {
-    private static readonly string GetPatronsQueryString = string.Join('&', new[] {
-        ("include", "user"),
-        ("fields[member]", "email,full_name,last_charge_date,last_charge_status,lifetime_support_cents,currently_entitled_amount_cents,patron_status"),
-        ("fields[user]", "social_connections"),
-    }.Select(param => (UrlEncoder.Default.Encode(param.Item1), UrlEncoder.Default.Encode(param.Item2))));
+    private static readonly string GetPatronsQueryString = new Dictionary<string, string>() {
+        { "include", "user" },
+        { "fields[member]", "email,full_name,last_charge_date,last_charge_status,lifetime_support_cents,currently_entitled_amount_cents,patron_status" },
+        { "fields[user]", "social_connections" },
+    }.ToUrlQueryString();
 
     private readonly HttpClient _httpClient;
 
