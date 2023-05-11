@@ -107,6 +107,11 @@ public class MessageLogEmbedFactory
                         builder.AddField("Replying To", taylorBot.ReplyingToId.LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true);
                     }
 
+                    if (taylorBot.AttachmentUrls?.Any() == true)
+                    {
+                        builder.AddField("Attachments", string.Join(" | ", taylorBot.AttachmentUrls.Select(url => url[(url.LastIndexOf('/') + 1)..].DiscordMdLink(url))));
+                    }
+
                     if (taylorBot.SystemMessageType.HasValue)
                     {
                         builder
