@@ -1,53 +1,80 @@
 ﻿using Discord;
 using StackExchange.Redis;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
-using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 
-namespace TaylorBot.Net.MessageLogging.Infrastructure
+namespace TaylorBot.Net.MessageLogging.Infrastructure;
+
+public class MessageLoggingRedisCacheRepository : IMessageLoggingChannelRepository
 {
-    public class MessageLoggingRedisCacheRepository : IMessageLoggingChannelRepository
+    private readonly ConnectionMultiplexer _connectionMultiplexer;
+    private readonly MessageLoggingChannelPostgresRepository _messageLoggingChannelPostgresRepository;
+
+    public MessageLoggingRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, MessageLoggingChannelPostgresRepository messageLoggingChannelPostgresRepository)
     {
-        private readonly ConnectionMultiplexer _connectionMultiplexer;
-        private readonly MessageLoggingChannelPostgresRepository _messageLoggingChannelPostgresRepository;
+        _connectionMultiplexer = connectionMultiplexer;
+        _messageLoggingChannelPostgresRepository = messageLoggingChannelPostgresRepository;
+    }
 
-        public MessageLoggingRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, MessageLoggingChannelPostgresRepository messageLoggingChannelPostgresRepository)
+    public async ValueTask<MessageLogChannel?> GetDeletedLogsChannelForGuildAsync(IGuild guild)
+    {
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = $"deleted-logs:guild:{guild.Id}";
+        var cachedLogChannel = await redis.StringGetAsync(key);
+
+        if (cachedLogChannel.IsNull)
         {
-            _connectionMultiplexer = connectionMultiplexer;
-            _messageLoggingChannelPostgresRepository = messageLoggingChannelPostgresRepository;
+            var logChannel = await _messageLoggingChannelPostgresRepository.GetDeletedLogsChannelForGuildAsync(guild);
+            await redis.StringSetAsync(key, logChannel == null ? string.Empty : $"{logChannel.ChannelId}/{JsonSerializer.Serialize(logChannel.CacheExpiry)}", TimeSpan.FromMinutes(5));
+            return logChannel;
         }
 
-        public async ValueTask<LogChannel?> GetDeletedLogsChannelForGuildAsync(IGuild guild)
+        if (cachedLogChannel == string.Empty)
         {
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = $"deleted-logs:guild:{guild.Id}";
-            var logChannelId = await redis.StringGetAsync(key);
-
-            if (logChannelId.IsNull)
-            {
-                var logChannel = await _messageLoggingChannelPostgresRepository.GetDeletedLogsChannelForGuildAsync(guild);
-                await redis.StringSetAsync(key, logChannel == null ? string.Empty : logChannel.ChannelId.ToString(), TimeSpan.FromMinutes(5));
-                return logChannel;
-            }
-
-            return logChannelId == string.Empty ? null : new LogChannel(new SnowflakeId(logChannelId.ToString()));
+            return null;
         }
 
-        public async ValueTask<LogChannel?> GetEditedLogsChannelForGuildAsync(IGuild guild)
+        var parts = $"{cachedLogChannel}".Split('/');
+
+        if (parts.Length > 1)
         {
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = $"edited-logs:guild:{guild.Id}";
-            var logChannelId = await redis.StringGetAsync(key);
+            return new(parts[0], JsonSerializer.Deserialize<TimeSpan>(parts[1]));
+        }
+        else
+        {
+            return new(parts[0], null);
+        }
+    }
 
-            if (logChannelId.IsNull)
-            {
-                var logChannel = await _messageLoggingChannelPostgresRepository.GetEditedLogsChannelForGuildAsync(guild);
-                await redis.StringSetAsync(key, logChannel == null ? string.Empty : logChannel.ChannelId.ToString(), TimeSpan.FromMinutes(5));
-                return logChannel;
-            }
+    public async ValueTask<MessageLogChannel?> GetEditedLogsChannelForGuildAsync(IGuild guild)
+    {
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = $"edited-logs:guild:{guild.Id}";
+        var cachedLogChannel = await redis.StringGetAsync(key);
 
-            return logChannelId == string.Empty ? null : new LogChannel(new SnowflakeId(logChannelId.ToString()));
+        if (cachedLogChannel.IsNull)
+        {
+            var logChannel = await _messageLoggingChannelPostgresRepository.GetEditedLogsChannelForGuildAsync(guild);
+            await redis.StringSetAsync(key, logChannel == null ? string.Empty : $"{logChannel.ChannelId}/{JsonSerializer.Serialize(logChannel.CacheExpiry)}", TimeSpan.FromMinutes(5));
+            return logChannel;
+        }
+
+        if (cachedLogChannel == string.Empty)
+        {
+            return null;
+        }
+
+        var parts = $"{cachedLogChannel}".Split('/');
+
+        if (parts.Length > 1)
+        {
+            return new(parts[0], JsonSerializer.Deserialize<TimeSpan>(parts[1]));
+        }
+        else
+        {
+            return new(parts[0], null);
         }
     }
 }

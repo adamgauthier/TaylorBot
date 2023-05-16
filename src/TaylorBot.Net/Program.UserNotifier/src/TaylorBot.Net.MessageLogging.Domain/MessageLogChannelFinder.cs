@@ -3,33 +3,50 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 
-namespace TaylorBot.Net.MessageLogging.Domain
+namespace TaylorBot.Net.MessageLogging.Domain;
+
+public record FoundChannel(MessageLogChannel Channel, ITextChannel Resolved);
+
+public class MessageLogChannelFinder
 {
-    public class MessageLogChannelFinder
+    private readonly IMessageLoggingChannelRepository _messageLoggingChannelRepository;
+
+    public MessageLogChannelFinder(IMessageLoggingChannelRepository messageLoggingChannelRepository)
     {
-        private readonly IMessageLoggingChannelRepository _messageLoggingChannelRepository;
+        _messageLoggingChannelRepository = messageLoggingChannelRepository;
+    }
 
-        public MessageLogChannelFinder(IMessageLoggingChannelRepository messageLoggingChannelRepository)
+    public async ValueTask<FoundChannel?> FindDeletedLogChannelAsync(IGuild guild)
+    {
+        var logChannel = await _messageLoggingChannelRepository.GetDeletedLogsChannelForGuildAsync(guild);
+        if (logChannel == null)
         {
-            _messageLoggingChannelRepository = messageLoggingChannelRepository;
+            return null;
         }
 
-        public async Task<ITextChannel?> FindDeletedLogChannelAsync(IGuild guild)
+        var resolved = (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id);
+        if (resolved == null)
         {
-            var logChannel = await _messageLoggingChannelRepository.GetDeletedLogsChannelForGuildAsync(guild);
-
-            return logChannel != null ?
-                (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id) :
-                null;
+            return null;
         }
 
-        public async ValueTask<ITextChannel?> FindEditedLogChannelAsync(IGuild guild)
-        {
-            var logChannel = await _messageLoggingChannelRepository.GetEditedLogsChannelForGuildAsync(guild);
+        return new(logChannel, resolved);
+    }
 
-            return logChannel != null ?
-                (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id) :
-                null;
+    public async ValueTask<FoundChannel?> FindEditedLogChannelAsync(IGuild guild)
+    {
+        var logChannel = await _messageLoggingChannelRepository.GetEditedLogsChannelForGuildAsync(guild);
+        if (logChannel == null)
+        {
+            return null;
         }
+
+        var resolved = (await guild.GetTextChannelsAsync()).FirstOrDefault(c => logChannel.ChannelId.Id == c.Id);
+        if (resolved == null)
+        {
+            return null;
+        }
+
+        return new(logChannel, resolved);
     }
 }

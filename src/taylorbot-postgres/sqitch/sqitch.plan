@@ -40,3 +40,4 @@
 0036_slash_command_mentions 2022-09-03T05:56:36Z Adam Gauthier <adamgauthier12@gmail.com> # Use slash command mentions in messages of the day
 0037_slash_birthday 2023-02-19T22:47:29Z Adam Gauthier <adamgauthier12@gmail.com> # Update messages of the day with /birthday
 0038_mod_mail_log 2023-03-16T05:59:04Z Adam Gauthier <adamgauthier12@gmail.com> # Add mod mail log channels
+0039_configure_log_cache 2023-05-16T02:49:20Z Adam Gauthier <adamgauthier12@gmail.com> # Add configurable content cache expiry for message log channels

@@ -1,30 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain;
 
-namespace TaylorBot.Net.MessageLogging.Infrastructure
+namespace TaylorBot.Net.MessageLogging.Infrastructure;
+
+public class CachedMessageInMemoryRepository : ICachedMessageRepository
 {
-    public class CachedMessageInMemoryRepository : ICachedMessageRepository
+    private readonly Dictionary<ulong, TaylorBotCachedMessageData> _cachedMessages = new();
+
+    public ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId)
     {
-        private readonly Dictionary<ulong, TaylorBotCachedMessageData> _cachedMessages = new();
-
-        public ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId)
+        if (_cachedMessages.TryGetValue(messageId.Id, out var value))
         {
-            if (_cachedMessages.TryGetValue(messageId.Id, out var value))
-            {
-                return new(value);
-            }
-            else
-            {
-                return new(result: null);
-            }
+            return new(value);
         }
-
-        public ValueTask SaveMessageAsync(SnowflakeId messageId, TaylorBotCachedMessageData data)
+        else
         {
-            _cachedMessages[messageId.Id] = data;
-            return new();
+            return new(result: null);
         }
+    }
+
+    public ValueTask SaveMessageAsync(SnowflakeId messageId, TimeSpan expiry, TaylorBotCachedMessageData data)
+    {
+        _cachedMessages[messageId.Id] = data;
+        return new();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, Mess
 
 public interface ICachedMessageRepository
 {
-    ValueTask SaveMessageAsync(SnowflakeId messageId, TaylorBotCachedMessageData data);
+    ValueTask SaveMessageAsync(SnowflakeId messageId, TimeSpan expiry, TaylorBotCachedMessageData data);
     ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId);
 }
 
@@ -55,7 +56,7 @@ public class MessageLoggerService
             {
                 CachedMessage message = new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage));
 
-                await logTextChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageDeleted(message, textChannel));
+                await logTextChannel.Resolved.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageDeleted(message, textChannel));
             }
         }
     }
@@ -78,7 +79,7 @@ public class MessageLoggerService
 
                 foreach (var chunk in embeds.Chunk(10))
                 {
-                    await logTextChannel.SendMessageAsync(embeds: chunk);
+                    await logTextChannel.Resolved.SendMessageAsync(embeds: chunk);
                 }
             }
         }
@@ -99,17 +100,17 @@ public class MessageLoggerService
                     {
                         CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
 
-                        await editedLogChannel.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+                        await editedLogChannel.Resolved.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
                     }
 
-                    await CacheMessageAsync(newMessage);
+                    await CacheMessageAsync(newMessage, editedLogChannel);
                 }
                 else
                 {
                     var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
                     if (deletedLogChannel != null)
                     {
-                        await CacheMessageAsync(newMessage);
+                        await CacheMessageAsync(newMessage, deletedLogChannel);
                     }
                 }
             }
@@ -118,7 +119,7 @@ public class MessageLoggerService
                 var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
                 if (deletedLogChannel != null)
                 {
-                    await CacheMessageAsync(newMessage);
+                    await CacheMessageAsync(newMessage, deletedLogChannel);
                 }
             }
         }
@@ -131,7 +132,7 @@ public class MessageLoggerService
 
         if (deletedLogChannel != null)
         {
-            await CacheMessageAsync(message);
+            await CacheMessageAsync(message, deletedLogChannel);
         }
         else
         {
@@ -140,26 +141,27 @@ public class MessageLoggerService
                 var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
                 if (editedLogChannel != null)
                 {
-                    await CacheMessageAsync(message);
+                    await CacheMessageAsync(message, editedLogChannel);
                 }
             }
         }
     }
 
-    private async ValueTask CacheMessageAsync(IMessage newMessage)
+    private async ValueTask CacheMessageAsync(IMessage newMessage, FoundChannel foundChannel)
     {
         var author = newMessage.Author;
 
         await _cachedMessageRepository.SaveMessageAsync(
             new(newMessage.Id),
+            foundChannel.Channel.CacheExpiry ?? TimeSpan.FromMinutes(10),
             new(
                 AuthorTag: $"{author.Username}{(author.Discriminator != "0000" ? $"#{author.Discriminator}" : "")}",
                 AuthorId: newMessage.Author.Id.ToString(),
                 SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
                 Content: newMessage is IUserMessage userMessage ? userMessage.Content : null,
-                ReplyingToId:
-                    newMessage.Reference != null && newMessage.Reference.MessageId.IsSpecified && newMessage.Reference.ChannelId == newMessage.Channel.Id ?
-                        $"{newMessage.Reference.MessageId.Value}" : null,
+                ReplyingToId: newMessage.Reference?.MessageId.IsSpecified == true && newMessage.Reference.ChannelId == newMessage.Channel.Id
+                    ? $"{newMessage.Reference.MessageId.Value}"
+                    : null,
                 AttachmentUrls: newMessage.Attachments.Count > 0 ? newMessage.Attachments.Select(a => a.ProxyUrl).ToList() : null
             )
         );

@@ -5,43 +5,42 @@ using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain;
 
-namespace TaylorBot.Net.MessageLogging.Infrastructure
+namespace TaylorBot.Net.MessageLogging.Infrastructure;
+
+public class CachedMessageRedisRepository : ICachedMessageRepository
 {
-    public class CachedMessageRedisRepository : ICachedMessageRepository
+    private readonly ConnectionMultiplexer _connectionMultiplexer;
+
+    public CachedMessageRedisRepository(ConnectionMultiplexer connectionMultiplexer)
     {
-        private readonly ConnectionMultiplexer _connectionMultiplexer;
+        _connectionMultiplexer = connectionMultiplexer;
+    }
 
-        public CachedMessageRedisRepository(ConnectionMultiplexer connectionMultiplexer)
+    private static string GetKey(string id)
+    {
+        return $"message-content:{id}";
+    }
+
+    public async ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId)
+    {
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = GetKey(messageId.ToString());
+        var cachedJson = (string?)await redis.StringGetAsync(key);
+
+        if (!string.IsNullOrEmpty(cachedJson))
         {
-            _connectionMultiplexer = connectionMultiplexer;
+            return JsonSerializer.Deserialize<TaylorBotCachedMessageData>(cachedJson);
         }
-
-        private static string GetKey(string id)
+        else
         {
-            return $"message-content:{id}";
+            return null;
         }
+    }
 
-        public async ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId)
-        {
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = GetKey(messageId.ToString());
-            var cachedJson = (string?)await redis.StringGetAsync(key);
-
-            if (!string.IsNullOrEmpty(cachedJson))
-            {
-                return JsonSerializer.Deserialize<TaylorBotCachedMessageData>(cachedJson);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public async ValueTask SaveMessageAsync(SnowflakeId messageId, TaylorBotCachedMessageData data)
-        {
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = GetKey(messageId.ToString());
-            await redis.StringSetAsync(key, JsonSerializer.Serialize(data), TimeSpan.FromMinutes(10));
-        }
+    public async ValueTask SaveMessageAsync(SnowflakeId messageId, TimeSpan expiry, TaylorBotCachedMessageData data)
+    {
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = GetKey(messageId.ToString());
+        await redis.StringSetAsync(key, JsonSerializer.Serialize(data), expiry);
     }
 }
