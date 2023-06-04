@@ -16,6 +16,10 @@ class FavoriteSongsAttribute extends TextUserAttribute {
             canList: false
         });
     }
+
+    formatValue(attribute: Record<string, any>): string {
+        return attribute.attribute_value;
+    }
 }
 
 export = FavoriteSongsAttribute;
