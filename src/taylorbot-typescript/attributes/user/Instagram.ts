@@ -1,6 +1,7 @@
-import { Format } from '../../modules/discord/DiscordFormatter';
+import { User } from 'discord.js';
+import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { TextUserAttribute } from '../TextUserAttribute.js';
-import { SimplePresenter } from '../user-presenters/SimplePresenter.js';
+import { DeprecatedUserPresenter } from '../user-presenters/DeprecatedUserPresenter';
 
 class InstagramAttribute extends TextUserAttribute {
     constructor() {
@@ -13,14 +14,21 @@ class InstagramAttribute extends TextUserAttribute {
                 type: 'instagram-username',
                 example: 'taylorswift'
             },
-            presenter: SimplePresenter,
-            canList: true
+            presenter: DeprecatedUserPresenter,
+            canList: false
         });
     }
 
-    formatValue(attribute: Record<string, any>): string {
-        const value = attribute.attribute_value;
-        return `[${Format.escapeDiscordMarkdown(value)}](https://www.instagram.com/${value}/)`;
+    retrieve(database: DatabaseDriver, user: User): Promise<any> {
+        return Promise.resolve({ newCommand: `Discord's profile connections feature` });
+    }
+
+    set(database: DatabaseDriver, user: User, value: any): Promise<string> {
+        return Promise.resolve(`Discord's profile connections feature`);
+    }
+
+    clear(database: DatabaseDriver, user: User): Promise<string> {
+        return Promise.resolve(`Discord's profile connections feature`);
     }
 }
 

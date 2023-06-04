@@ -19,11 +19,11 @@ export abstract class TextUserAttribute extends SettableUserAttribute {
         return database.textAttributes.get(this.id, user);
     }
 
-    set(database: DatabaseDriver, user: User, value: any): Promise<Record<string, any>> {
+    set(database: DatabaseDriver, user: User, value: any): Promise<string | Record<string, any>> {
         return database.textAttributes.set(this.id, user, value.toString());
     }
 
-    async clear(database: DatabaseDriver, user: User): Promise<void> {
+    async clear(database: DatabaseDriver, user: User): Promise<string | void> {
         await database.textAttributes.clear(this.id, user);
     }
 
