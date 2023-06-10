@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.MessageLogging.Domain.DiscordEmbed;
 
 namespace TaylorBot.Net.MessageLogging.Domain;
@@ -155,7 +156,7 @@ public class MessageLoggerService
             new(newMessage.Id),
             foundChannel.Channel.CacheExpiry ?? TimeSpan.FromMinutes(10),
             new(
-                AuthorTag: $"{author.Username}{(author.Discriminator != "0000" ? $"#{author.Discriminator}" : "")}",
+                AuthorTag: $"{author.Username}{author.DiscrimSuffix()}",
                 AuthorId: newMessage.Author.Id.ToString(),
                 SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
                 Content: newMessage is IUserMessage userMessage ? userMessage.Content : null,

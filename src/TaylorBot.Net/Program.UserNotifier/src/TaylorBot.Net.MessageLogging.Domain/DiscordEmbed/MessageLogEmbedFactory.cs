@@ -36,7 +36,7 @@ public class MessageLogEmbedFactory
                     if (message.Author.Id != 0)
                     {
                         var avatarUrl = message.Author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{message.Author.Username}#{message.Author.Discriminator} ({message.Author.Id})", avatarUrl, avatarUrl);
+                        builder.WithAuthor($"{message.Author.Username}{message.Author.DiscrimSuffix()} ({message.Author.Id})", avatarUrl, avatarUrl);
                     }
 
                     builder.AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
@@ -175,7 +175,7 @@ public class MessageLogEmbedFactory
                     if (author != null)
                     {
                         var avatarUrl = author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{author.Username}#{author.Discriminator} ({author.Id})", avatarUrl, avatarUrl);
+                        builder.WithAuthor($"{author.Username}{author.DiscrimSuffix()} ({author.Id})", avatarUrl, avatarUrl);
                     }
 
                     if (message is IUserMessage userMessage && !string.IsNullOrEmpty(userMessage.Content) &&
@@ -196,7 +196,7 @@ public class MessageLogEmbedFactory
                     if (newMessage.Author.Id != 0)
                     {
                         var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
+                        builder.WithAuthor($"{newMessage.Author.Username}{newMessage.Author.DiscrimSuffix()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
                     }
                     else
                     {
@@ -222,7 +222,7 @@ public class MessageLogEmbedFactory
             if (newMessage.Author.Id != 0)
             {
                 var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-                builder.WithAuthor($"{newMessage.Author.Username}#{newMessage.Author.Discriminator} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
+                builder.WithAuthor($"{newMessage.Author.Username}{newMessage.Author.DiscrimSuffix()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
             }
 
             builder
