@@ -1,0 +1,5 @@
+{
+    "name": "poll",
+    "description": "Start a poll in the current channel",
+    "options": []
+}

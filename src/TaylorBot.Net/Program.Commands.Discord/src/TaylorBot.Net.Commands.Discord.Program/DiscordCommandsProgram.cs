@@ -44,6 +44,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
@@ -240,6 +241,7 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<TaypointsBalanceCommand>()
             .AddSlashCommand<TaypointsBalanceSlashCommand>()
             .AddSlashCommand<TaypointsLeaderboardSlashCommand>()
+            .AddSlashCommand<PollSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

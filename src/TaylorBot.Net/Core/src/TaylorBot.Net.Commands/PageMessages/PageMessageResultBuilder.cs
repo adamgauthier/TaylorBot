@@ -1,62 +1,62 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using static TaylorBot.Net.Commands.MessageResult;
 
-namespace TaylorBot.Net.Commands.PageMessages
+namespace TaylorBot.Net.Commands.PageMessages;
+
+public record PageOptions(PageMessageResultRenderer Renderer, bool IsCancellable = false);
+
+public class PageMessageResultBuilder
 {
-    public record PageOptions(PageMessageResultRenderer Renderer, bool IsCancellable = false);
+    private readonly PageOptions _options;
+    private readonly List<ButtonResult> _buttons;
 
-    public class PageMessageResultBuilder
+    public PageMessageResultBuilder(PageOptions options)
     {
-        private readonly PageOptions _options;
-        private readonly List<MessageResult.ButtonResult> _buttons;
+        _options = options;
 
-        public PageMessageResultBuilder(PageOptions options)
+        _buttons = new();
+
+        if (_options.Renderer.HasMultiplePages)
         {
-            _options = options;
+            var previousButton = new ButtonResult(
+                new Button(Id: "previous", ButtonStyle.Primary, Label: "Previous", Emoji: "◀"),
+                PreviousAsync
+            );
 
-            _buttons = new();
+            var nextButton = new ButtonResult(
+                new Button(Id: "next", ButtonStyle.Primary, Label: "Next", Emoji: "▶"),
+                NextAsync
+            );
 
-            if (_options.Renderer.HasMultiplePages)
-            {
-                var previousButton = new MessageResult.ButtonResult(
-                    new Button(Id: "previous", ButtonStyle.Primary, Label: "Previous", Emoji: "◀"),
-                    PreviousAsync
-                );
-
-                var nextButton = new MessageResult.ButtonResult(
-                    new Button(Id: "next", ButtonStyle.Primary, Label: "Next", Emoji: "▶"),
-                    NextAsync
-                );
-
-                _buttons.AddRange(new[] { previousButton, nextButton });
-            }
-
-            if (_options.IsCancellable)
-            {
-                var cancelButton = new MessageResult.ButtonResult(
-                    new Button(Id: "cancel", ButtonStyle.Danger, Label: "Cancel", Emoji: "🗑"),
-                    () => new((MessageResult?)null)
-                );
-
-                _buttons.Add(cancelButton);
-            }
+            _buttons.AddRange(new[] { previousButton, nextButton });
         }
 
-        private ValueTask<MessageResult?> PreviousAsync()
+        if (_options.IsCancellable)
         {
-            var content = _options.Renderer.RenderPrevious();
-            return new(new MessageResult(content, _buttons));
-        }
+            var cancelButton = new ButtonResult(
+                new Button(Id: "cancel", ButtonStyle.Danger, Label: "Cancel", Emoji: "🗑"),
+                _ => new(new DeleteMessage())
+            );
 
-        private ValueTask<MessageResult?> NextAsync()
-        {
-            var content = _options.Renderer.RenderNext();
-            return new(new MessageResult(content, _buttons));
+            _buttons.Add(cancelButton);
         }
+    }
 
-        public MessageResult Build()
-        {
-            return new(_options.Renderer.Render(), _buttons);
-        }
+    private ValueTask<IButtonClickResult> PreviousAsync(string userId)
+    {
+        var content = _options.Renderer.RenderPrevious();
+        return new(new UpdateMessage(new(content, new(_buttons))));
+    }
+
+    private ValueTask<IButtonClickResult> NextAsync(string userId)
+    {
+        var content = _options.Renderer.RenderNext();
+        return new(new UpdateMessage(new(content, new(_buttons))));
+    }
+
+    public MessageResult Build()
+    {
+        return new(_options.Renderer.Render(), new(_buttons));
     }
 }

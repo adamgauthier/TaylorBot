@@ -38,3 +38,8 @@ public record Interaction(
 
     public record Attachment(string id, string filename, string url, int size, string content_type);
 }
+
+public interface IInteraction
+{
+    string Token { get; }
+}
