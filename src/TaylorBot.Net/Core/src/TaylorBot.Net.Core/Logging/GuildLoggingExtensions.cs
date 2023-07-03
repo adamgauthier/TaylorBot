@@ -1,12 +1,11 @@
 ﻿using Discord;
 
-namespace TaylorBot.Net.Core.Logging
+namespace TaylorBot.Net.Core.Logging;
+
+public static class GuildLoggingExtensions
 {
-    public static class GuildLoggingExtensions
+    public static string FormatLog(this IGuild guild)
     {
-        public static string FormatLog(this IGuild guild)
-        {
-            return $"{guild.Name} ({guild.Id})";
-        }
+        return $"{guild.Name} ({guild.Id})";
     }
 }
