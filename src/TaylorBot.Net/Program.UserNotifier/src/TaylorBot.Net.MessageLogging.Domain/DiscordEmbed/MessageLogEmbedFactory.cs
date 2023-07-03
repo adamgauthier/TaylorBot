@@ -1,10 +1,12 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using Humanizer;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.Core.User;
@@ -289,5 +291,28 @@ public class MessageLogEmbedFactory
         );
 
         return uncachedEmbeds.Concat(cachedEmbeds).ToList();
+    }
+
+    public Embed CreateReactionRemoved(ulong messageId, ITextChannel channel, SocketReaction reaction)
+    {
+        var options = _optionsMonitor.CurrentValue;
+
+        var embed = new EmbedBuilder()
+            .WithColor(DiscordColor.FromHexString(options.MessageReactionRemovedEmbedColorHex))
+            .AddField("Emote", reaction.Emote, inline: true)
+            .AddField("Message", $"{messageId}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
+            .WithFooter("Reaction removed")
+            .WithCurrentTimestamp();
+
+        if (reaction.User.IsSpecified)
+        {
+            embed.WithUserAsAuthor(reaction.User.Value);
+        }
+        else
+        {
+            embed.AddField("User", $"{MentionUtils.MentionUser(reaction.UserId)}", inline: true);
+        }
+
+        return embed.Build();
     }
 }

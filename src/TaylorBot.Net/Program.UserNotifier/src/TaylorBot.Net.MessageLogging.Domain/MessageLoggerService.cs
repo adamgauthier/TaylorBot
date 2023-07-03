@@ -47,6 +47,19 @@ public class MessageLoggerService
         }
     }
 
+    public async Task OnReactionRemovedAsync(Cacheable<IUserMessage, ulong> cachedMessage, IMessageChannel channel, SocketReaction reaction)
+    {
+        if (channel is ITextChannel textChannel)
+        {
+            var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+
+            if (logTextChannel != null)
+            {
+                await logTextChannel.Resolved.SendMessageAsync(embed: _messageLogEmbedFactory.CreateReactionRemoved(cachedMessage.Id, textChannel, reaction));
+            }
+        }
+    }
+
     public async Task OnMessageDeletedAsync(Cacheable<IMessage, ulong> cachedMessage, IMessageChannel channel)
     {
         if (channel is ITextChannel textChannel)

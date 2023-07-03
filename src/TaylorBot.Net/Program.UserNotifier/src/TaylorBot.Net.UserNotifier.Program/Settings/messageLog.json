@@ -1,5 +1,6 @@
 ﻿{
   "MessageDeleted": {
+    "MessageReactionRemovedEmbedColorHex": "#AB960F",
     "MessageDeletedEmbedColorHex": "#E3D729",
     "MessageBulkDeletedEmbedColorHex": "#BD9D0D",
     "MessageEditedEmbedColorHex": "#FFF0AB",
