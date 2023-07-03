@@ -3,7 +3,7 @@ import { Guild, EmbedBuilder, User } from 'discord.js';
 export class DiscordEmbedFormatter {
     static baseUserHeader(user: User, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)): EmbedBuilder {
         return new EmbedBuilder()
-            .setAuthor({ name: `${user.tag} ${(user.bot ? '🤖' : '')}`, iconURL: avatarURL, url: avatarURL });
+            .setAuthor({ name: `${user.discriminator === '0' ? user.username : user.tag} ${(user.bot ? '🤖' : '')}`, iconURL: avatarURL, url: avatarURL });
     }
 
     static baseUserSuccessEmbed(user: User, avatarURL = DiscordEmbedFormatter.getAvatarURL(user)): EmbedBuilder {
