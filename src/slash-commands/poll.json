@@ -1,5 +1,6 @@
 {
     "name": "poll",
     "description": "Start a poll in the current channel",
+    "dm_permission": false,
     "options": []
 }
