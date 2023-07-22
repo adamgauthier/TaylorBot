@@ -42,3 +42,4 @@
 0038_mod_mail_log 2023-03-16T05:59:04Z Adam Gauthier <adamgauthier12@gmail.com> # Add mod mail log channels
 0039_configure_log_cache 2023-05-16T02:49:20Z Adam Gauthier <adamgauthier12@gmail.com> # Add configurable content cache expiry for message log channels
 0040_bump_version_1.17.0 2023-07-03T18:50:20Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.17.0
+0041_age_role 2023-07-21T02:45:00Z Adam Gauthier <adamgauthier12@gmail.com> # Add age role configuration
