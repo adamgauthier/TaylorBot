@@ -81,26 +81,4 @@ export class GuildRegistry extends Map<string, { roleGroups: Record<string, stri
 
         return Number.parseInt(cachedSpamChannel) !== 0;
     }
-
-    async setSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<void> {
-        const key = this.spamChannelKey(guildChannel);
-
-        await this.#database.textChannels.upsertSpamChannel(guildChannel, true);
-        await this.#redis.setExpire(
-            key,
-            1 * 60 * 60,
-            '1'
-        );
-    }
-
-    async removeSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<void> {
-        const key = this.spamChannelKey(guildChannel);
-
-        await this.#database.textChannels.upsertSpamChannel(guildChannel, false);
-        await this.#redis.setExpire(
-            key,
-            1 * 60 * 60,
-            '0'
-        );
-    }
 }

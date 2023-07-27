@@ -33,6 +33,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
@@ -242,6 +243,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<TaypointsBalanceSlashCommand>()
             .AddSlashCommand<TaypointsLeaderboardSlashCommand>()
             .AddSlashCommand<PollSlashCommand>()
+            .AddSlashCommand<ModSpamAddSlashCommand>()
+            .AddSlashCommand<ModSpamRemoveSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

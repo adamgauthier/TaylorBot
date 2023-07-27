@@ -36,6 +36,47 @@
           "type": 1
         }
       ]
+    },
+    {
+      "name": "spam",
+      "description": "Configure spam channels for this server",
+      "type": 2,
+      "options": [
+        {
+          "name": "add",
+          "description": "Set a channel where users' messages/words will not be counted",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The text channel you want users' messages/words to not be counted in, default current channel",
+              "type": 7,
+              "required": false,
+              "channel_types": [
+                0,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "name": "remove",
+          "description": "Revert to counting users' messages/words in channel",
+          "type": 1,
+          "options": [
+            {
+              "name": "channel",
+              "description": "The text channel you want users' messages/words to be counted in, default current channel",
+              "type": 7,
+              "required": false,
+              "channel_types": [
+                0,
+                5
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
