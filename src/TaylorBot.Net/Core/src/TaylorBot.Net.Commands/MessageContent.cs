@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands;
 
 public record MessageContent(IReadOnlyList<Embed> Embeds, string Content = "", IReadOnlyList<Attachment>? Attachments = null)
 {
-    public MessageContent(Embed Embed) : this(new[] { Embed }) { }
+    public MessageContent(Embed Embed, string Content = "") : this(new[] { Embed }, Content) { }
     public MessageContent(string Content) : this(Array.Empty<Embed>(), Content) { }
 }
 

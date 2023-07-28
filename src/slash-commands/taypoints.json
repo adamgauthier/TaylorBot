@@ -19,6 +19,26 @@
       "name": "leaderboard",
       "description": "Show the current server's taypoints leaderboard",
       "type": 1
+    },
+    {
+      "name": "gift",
+      "description": "Gift some of your taypoints to a friend",
+      "type": 1,
+      "options": [
+        {
+          "name": "amount",
+          "description": "The amount of taypoints you want to give",
+          "type": 4,
+          "min_value": 1,
+          "required": true
+        },
+        {
+          "name": "user",
+          "description": "The user you want to give the taypoints to",
+          "type": 6,
+          "required": true
+        }
+      ]
     }
   ]
 }

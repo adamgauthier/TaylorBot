@@ -245,6 +245,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<PollSlashCommand>()
             .AddSlashCommand<ModSpamAddSlashCommand>()
             .AddSlashCommand<ModSpamRemoveSlashCommand>()
+            .AddTransient<ITaypointTransferRepository, TaypointTransferPostgresRepository>()
+            .AddSlashCommand<TaypointsGiftSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

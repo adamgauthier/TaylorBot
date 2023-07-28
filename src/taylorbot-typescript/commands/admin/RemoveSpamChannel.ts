@@ -7,7 +7,7 @@ class RemoveSpamChannelCommand extends Command {
             name: 'removespamchannel',
             aliases: ['rsc'],
             group: 'admin',
-            description: 'This command has been removed. Please use **/mod spam remove** instead.',
+            description: 'This command has been removed. Please use </mod spam remove:838266590294048778> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class RemoveSpamChannelCommand extends Command {
     async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             'This command has been removed.',
-            'Please use **/mod spam remove** instead.'
+            'Please use </mod spam remove:838266590294048778> instead.'
         ].join('\n'));
     }
 }

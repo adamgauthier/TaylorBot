@@ -414,7 +414,7 @@ public class SlashCommandHandler
             var parseResult = await parser.ParseAsync(context, (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value, resolved);
 
             if (parseResult.Error != null)
-                return Error(new ParsingFailed($"⚠ `{constructorParameter.Name}`: {parseResult.Error.Message}"));
+                return Error(new ParsingFailed($"⚠️ `{constructorParameter.Name}`: {parseResult.Error.Message}"));
 
             args.Add(parseResult.Value);
         }
