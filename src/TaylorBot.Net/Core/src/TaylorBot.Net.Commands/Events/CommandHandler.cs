@@ -17,27 +17,27 @@ public class CommandHandler : IUserMessageReceivedHandler, IAllReadyHandler
     private readonly IServiceProvider _serviceProvider;
     private readonly Lazy<ITaylorBotClient> _taylorBotClient;
     private readonly CommandService _commandService;
-    private readonly ICommandPrefixRepository _commandPrefixRepository;
     private readonly SingletonTaskRunner _commandUsageSingletonTaskRunner;
     private readonly ICommandUsageRepository _commandUsageRepository;
+    private readonly CommandPrefixDomainService _commandPrefixDomainService;
 
     public CommandHandler(
         ILogger<CommandHandler> logger,
         IServiceProvider serviceProvider,
         Lazy<ITaylorBotClient> taylorBotClient,
         CommandService commandService,
-        ICommandPrefixRepository commandPrefixRepository,
         SingletonTaskRunner commandUsageSingletonTaskRunner,
-        ICommandUsageRepository commandUsageRepository
+        ICommandUsageRepository commandUsageRepository,
+        CommandPrefixDomainService commandPrefixDomainService
     )
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
         _taylorBotClient = taylorBotClient;
         _commandService = commandService;
-        _commandPrefixRepository = commandPrefixRepository;
         _commandUsageSingletonTaskRunner = commandUsageSingletonTaskRunner;
         _commandUsageRepository = commandUsageRepository;
+        _commandPrefixDomainService = commandPrefixDomainService;
     }
 
     public async Task UserMessageReceivedAsync(SocketUserMessage userMessage)
@@ -46,11 +46,10 @@ public class CommandHandler : IUserMessageReceivedHandler, IAllReadyHandler
             return;
 
         // Create a number to track where the prefix ends and the command begins
-        int argPos = 0;
+        var argPos = 0;
 
-        var prefix = userMessage.Channel is SocketGuildChannel socketGuildChannel ?
-            await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(socketGuildChannel.Guild) :
-            string.Empty;
+        var prefix = await _commandPrefixDomainService.GetPrefixAsync(
+            userMessage.Channel is SocketGuildChannel socketGuildChannel ? socketGuildChannel.Guild : null);
 
         if (!(userMessage.HasStringPrefix(prefix, ref argPos) ||
             userMessage.HasMentionPrefix(_taylorBotClient.Value.DiscordShardedClient.CurrentUser, ref argPos)))

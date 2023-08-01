@@ -50,6 +50,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
@@ -247,6 +248,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ModSpamRemoveSlashCommand>()
             .AddTransient<ITaypointTransferRepository, TaypointTransferPostgresRepository>()
             .AddSlashCommand<TaypointsGiftSlashCommand>()
+            .AddTransient<IGuildNamesRepository, GuildNamesPostgresRepository>()
+            .AddSlashCommand<ServerNamesSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

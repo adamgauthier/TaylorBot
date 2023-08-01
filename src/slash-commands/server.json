@@ -1,0 +1,12 @@
+{
+  "name": "server",
+  "description": "Gets information about the current server",
+  "dm_permission": false,
+  "options": [
+    {
+      "name": "names",
+      "description": "Gets a list of previous names for the current server",
+      "type": 1
+    }
+  ]
+}

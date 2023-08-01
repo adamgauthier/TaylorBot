@@ -24,24 +24,4 @@ export class GuildNameRepository {
             throw e;
         }
     }
-
-    async getHistory(guild: Guild, limit: number): Promise<{ guild_name: string; changed_at: Date }[]> {
-        try {
-            return await this.#db.any(
-                `SELECT guild_name, changed_at
-                FROM guilds.guild_names
-                WHERE guild_id = $[guild_id]
-                ORDER BY changed_at DESC
-                LIMIT $[max_rows];`,
-                {
-                    guild_id: guild.id,
-                    max_rows: limit
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting guild name history for ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
 }

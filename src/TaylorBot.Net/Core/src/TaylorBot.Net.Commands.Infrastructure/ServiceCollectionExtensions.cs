@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
             .ConfigureRequired<CommandClientOptions>(configuration, "CommandClient")
             .AddTransient<CommandPrefixPostgresRepository>()
             .AddTransient<CommandPrefixRedisCacheRepository>()
+            .AddTransient<CommandPrefixDomainService>()
             .AddTransient(provider =>
             {
                 var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
@@ -48,6 +49,7 @@ public static class ServiceCollectionExtensions
                     provider.GetRequiredService<DisabledCommandRedisCacheRepository>() :
                     (IDisabledCommandRepository)provider.GetRequiredService<DisabledCommandPostgresRepository>();
             })
+            .AddTransient<DisabledGuildCommandDomainService>()
             .AddTransient<DisabledGuildCommandPostgresRepository>()
             .AddTransient<DisabledGuildCommandRedisCacheRepository>()
             .AddTransient(provider =>

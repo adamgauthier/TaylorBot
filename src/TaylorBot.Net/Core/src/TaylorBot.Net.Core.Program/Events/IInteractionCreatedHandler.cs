@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 
-namespace TaylorBot.Net.Core.Program.Events
+namespace TaylorBot.Net.Core.Program.Events;
+
+public interface IInteractionCreatedHandler
 {
-    public interface IInteractionCreatedHandler
-    {
-        Task InteractionCreatedAsync(Interaction interaction);
-    }
+    Task InteractionCreatedAsync(Interaction interaction);
 }

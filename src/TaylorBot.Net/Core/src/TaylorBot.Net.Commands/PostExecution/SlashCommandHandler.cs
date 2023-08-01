@@ -67,13 +67,13 @@ public class SlashCommandHandler
     private readonly IOngoingCommandRepository _ongoingCommandRepository;
     private readonly ICommandUsageRepository _commandUsageRepository;
     private readonly IIgnoredUserRepository _ignoredUserRepository;
-    private readonly ICommandPrefixRepository _commandPrefixRepository;
     private readonly Lazy<IReadOnlyDictionary<string, ISlashCommand>> _slashCommands;
     private readonly Lazy<IReadOnlyDictionary<Type, IOptionParser>> _optionParsers;
     private readonly InteractionResponseClient _interactionResponseClient;
     private readonly MessageComponentHandler _messageComponentHandler;
     private readonly ModalInteractionHandler _modalInteractionHandler;
     private readonly TaskExceptionLogger _taskExceptionLogger;
+    private readonly CommandPrefixDomainService _commandPrefixDomainService;
 
     public SlashCommandHandler(
         ILogger<SlashCommandHandler> logger,
@@ -82,11 +82,11 @@ public class SlashCommandHandler
         IOngoingCommandRepository ongoingCommandRepository,
         ICommandUsageRepository commandUsageRepository,
         IIgnoredUserRepository ignoredUserRepository,
-        ICommandPrefixRepository commandPrefixRepository,
         InteractionResponseClient interactionResponseClient,
         MessageComponentHandler messageComponentHandler,
         ModalInteractionHandler modalInteractionHandler,
         TaskExceptionLogger taskExceptionLogger,
+        CommandPrefixDomainService commandPrefixDomainService,
         IServiceProvider services
     )
     {
@@ -96,11 +96,11 @@ public class SlashCommandHandler
         _ongoingCommandRepository = ongoingCommandRepository;
         _commandUsageRepository = commandUsageRepository;
         _ignoredUserRepository = ignoredUserRepository;
-        _commandPrefixRepository = commandPrefixRepository;
         _interactionResponseClient = interactionResponseClient;
         _messageComponentHandler = messageComponentHandler;
         _modalInteractionHandler = modalInteractionHandler;
         _taskExceptionLogger = taskExceptionLogger;
+        _commandPrefixDomainService = commandPrefixDomainService;
         _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name));
         _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
     }
@@ -262,9 +262,8 @@ public class SlashCommandHandler
                     ))! :
                     await _taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
 
-                var oldPrefix = author is IGuildUser aGuildUser ?
-                    await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(aGuildUser.Guild) :
-                    string.Empty;
+                var oldPrefix = await _commandPrefixDomainService.GetPrefixAsync(
+                    author is IGuildUser aGuildUser ? aGuildUser.Guild : null);
 
                 context = new RunContext(
                     DateTimeOffset.Now,
@@ -323,7 +322,8 @@ public class SlashCommandHandler
                     new(interaction.Data.id, interaction.Data.name),
                     string.Empty,
                     new(),
-                    WasAcknowledged: false
+                    WasAcknowledged: false,
+                    IsFakeGuild: true
                 );
 
                 _logger.LogInformation(

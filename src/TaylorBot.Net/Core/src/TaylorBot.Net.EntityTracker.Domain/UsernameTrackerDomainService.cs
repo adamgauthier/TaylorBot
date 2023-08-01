@@ -5,31 +5,30 @@ using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.EntityTracker.Domain.User;
 using TaylorBot.Net.EntityTracker.Domain.Username;
 
-namespace TaylorBot.Net.EntityTracker.Domain
+namespace TaylorBot.Net.EntityTracker.Domain;
+
+public class UsernameTrackerDomainService
 {
-    public class UsernameTrackerDomainService
+    private readonly ILogger<UsernameTrackerDomainService> _logger;
+    private readonly IUsernameRepository _usernameRepository;
+
+    public UsernameTrackerDomainService(ILogger<UsernameTrackerDomainService> logger, IUsernameRepository usernameRepository)
     {
-        private readonly ILogger<UsernameTrackerDomainService> _logger;
-        private readonly IUsernameRepository _usernameRepository;
+        _logger = logger;
+        _usernameRepository = usernameRepository;
+    }
 
-        public UsernameTrackerDomainService(ILogger<UsernameTrackerDomainService> logger, IUsernameRepository usernameRepository)
+    public async ValueTask AddUsernameAfterUserAddedAsync(IUser user, IUserAddedResult userAddedResult)
+    {
+        if (userAddedResult.WasAdded)
         {
-            _logger = logger;
-            _usernameRepository = usernameRepository;
+            _logger.LogInformation($"Added new user {user.FormatLog()}.");
+            await _usernameRepository.AddNewUsernameAsync(user);
         }
-
-        public async ValueTask AddUsernameAfterUserAddedAsync(IUser user, IUserAddedResult userAddedResult)
+        else if (userAddedResult.WasUsernameChanged)
         {
-            if (userAddedResult.WasAdded)
-            {
-                _logger.LogInformation($"Added new user {user.FormatLog()}.");
-                await _usernameRepository.AddNewUsernameAsync(user);
-            }
-            else if (userAddedResult.WasUsernameChanged)
-            {
-                await _usernameRepository.AddNewUsernameAsync(user);
-                _logger.LogInformation($"Added new username for {user.FormatLog()}, previously was '{userAddedResult.PreviousUsername}'.");
-            }
+            await _usernameRepository.AddNewUsernameAsync(user);
+            _logger.LogInformation($"Added new username for {user.FormatLog()}, previously was '{userAddedResult.PreviousUsername}'.");
         }
     }
 }

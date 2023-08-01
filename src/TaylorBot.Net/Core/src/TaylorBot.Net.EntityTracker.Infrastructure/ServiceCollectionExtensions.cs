@@ -18,40 +18,40 @@ using TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
 using TaylorBot.Net.EntityTracker.Infrastructure.User;
 using TaylorBot.Net.EntityTracker.Infrastructure.Username;
 
-namespace TaylorBot.Net.EntityTracker.Infrastructure
-{
-    public static class ConfigurationBuilderExtensions
-    {
-        public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder, IHostEnvironment environment)
-        {
-            return builder
-                .AddJsonFile(path: "Settings/entityTracker.json", optional: false, reloadOnChange: true)
-                .AddJsonFile(path: $"Settings/entityTracker.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-        }
-    }
+namespace TaylorBot.Net.EntityTracker.Infrastructure;
 
-    public static class ServiceCollectionExtensions
+public static class ConfigurationBuilderExtensions
+{
+    public static IConfigurationBuilder AddEntityTracker(this IConfigurationBuilder builder, IHostEnvironment environment)
     {
-        public static IServiceCollection AddEntityTrackerInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            return services
-                .ConfigureRequired<EntityTrackerOptions>(configuration, "EntityTracker")
-                .AddTransient<UsernameTrackerDomainService>()
-                .AddTransient<IUsernameRepository, UsernameRepository>()
-                .AddTransient<EntityTrackerDomainService>()
-                .AddTransient<IUserRepository, UserRepository>()
-                .AddTransient<SpamChannelPostgresRepository>()
-                .AddTransient<SpamChannelRedisCacheRepository>()
-                .AddTransient(provider =>
-                {
-                    var options = provider.GetRequiredService<IOptionsMonitor<EntityTrackerOptions>>().CurrentValue;
-                    return options.UseRedisCache ?
-                        provider.GetRequiredService<SpamChannelRedisCacheRepository>() :
-                        (ISpamChannelRepository)provider.GetRequiredService<SpamChannelPostgresRepository>();
-                })
-                .AddTransient<IGuildRepository, GuildRepository>()
-                .AddTransient<IGuildNameRepository, GuildNameRepository>()
-                .AddTransient<IMemberRepository, MemberRepository>();
-        }
+        return builder
+            .AddJsonFile(path: "Settings/entityTracker.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: $"Settings/entityTracker.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    }
+}
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddEntityTrackerInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        return services
+            .ConfigureRequired<EntityTrackerOptions>(configuration, "EntityTracker")
+            .AddTransient<UsernameTrackerDomainService>()
+            .AddTransient<IUsernameRepository, UsernameRepository>()
+            .AddTransient<GuildTrackerDomainService>()
+            .AddTransient<EntityTrackerDomainService>()
+            .AddTransient<IUserRepository, UserRepository>()
+            .AddTransient<SpamChannelPostgresRepository>()
+            .AddTransient<SpamChannelRedisCacheRepository>()
+            .AddTransient(provider =>
+            {
+                var options = provider.GetRequiredService<IOptionsMonitor<EntityTrackerOptions>>().CurrentValue;
+                return options.UseRedisCache ?
+                    provider.GetRequiredService<SpamChannelRedisCacheRepository>() :
+                    (ISpamChannelRepository)provider.GetRequiredService<SpamChannelPostgresRepository>();
+            })
+            .AddTransient<IGuildRepository, GuildRepository>()
+            .AddTransient<IGuildNameRepository, GuildNameRepository>()
+            .AddTransient<IMemberRepository, MemberRepository>();
     }
 }

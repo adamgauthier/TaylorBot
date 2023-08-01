@@ -4,54 +4,53 @@ using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 
-namespace TaylorBot.Net.Commands.Infrastructure
+namespace TaylorBot.Net.Commands.Infrastructure;
+
+public class DisabledGuildCommandRedisCacheRepository : IDisabledGuildCommandRepository
 {
-    public class DisabledGuildCommandRedisCacheRepository : IDisabledGuildCommandRepository
+    private readonly ConnectionMultiplexer _connectionMultiplexer;
+    private readonly IDisabledGuildCommandRepository _disabledGuildCommandRepository;
+
+    public DisabledGuildCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, IDisabledGuildCommandRepository disabledGuildCommandRepository)
     {
-        private readonly ConnectionMultiplexer _connectionMultiplexer;
-        private readonly DisabledGuildCommandPostgresRepository _disabledGuildCommandPostgresRepository;
+        _connectionMultiplexer = connectionMultiplexer;
+        _disabledGuildCommandRepository = disabledGuildCommandRepository;
+    }
 
-        public DisabledGuildCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, DisabledGuildCommandPostgresRepository disabledGuildCommandPostgresRepository)
+    private static string GetKey(IGuild guild) => $"enabled-commands:guild:{guild.Id}";
+
+    public async ValueTask DisableInAsync(IGuild guild, string commandName)
+    {
+        await _disabledGuildCommandRepository.DisableInAsync(guild, commandName);
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = GetKey(guild);
+        await redis.HashSetAsync(key, commandName, false);
+        await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
+    }
+
+    public async ValueTask EnableInAsync(IGuild guild, string commandName)
+    {
+        await _disabledGuildCommandRepository.EnableInAsync(guild, commandName);
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = GetKey(guild);
+        await redis.HashSetAsync(key, commandName, true);
+        await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
+    }
+
+    public async ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
+    {
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = GetKey(guild);
+        var isEnabled = await redis.HashGetAsync(key, command.Name);
+
+        if (!isEnabled.HasValue)
         {
-            _connectionMultiplexer = connectionMultiplexer;
-            _disabledGuildCommandPostgresRepository = disabledGuildCommandPostgresRepository;
-        }
-
-        private static string GetKey(IGuild guild) => $"enabled-commands:guild:{guild.Id}";
-
-        public async ValueTask DisableInAsync(IGuild guild, string commandName)
-        {
-            await _disabledGuildCommandPostgresRepository.DisableInAsync(guild, commandName);
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = GetKey(guild);
-            await redis.HashSetAsync(key, commandName, false);
+            var result = await _disabledGuildCommandRepository.IsGuildCommandDisabledAsync(guild, command);
+            await redis.HashSetAsync(key, command.Name, !result.IsDisabled);
             await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
+            return result;
         }
 
-        public async ValueTask EnableInAsync(IGuild guild, string commandName)
-        {
-            await _disabledGuildCommandPostgresRepository.EnableInAsync(guild, commandName);
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = GetKey(guild);
-            await redis.HashSetAsync(key, commandName, true);
-            await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
-        }
-
-        public async ValueTask<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
-        {
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = GetKey(guild);
-            var isEnabled = await redis.HashGetAsync(key, command.Name);
-
-            if (!isEnabled.HasValue)
-            {
-                var isDisabled = await _disabledGuildCommandPostgresRepository.IsGuildCommandDisabledAsync(guild, command);
-                await redis.HashSetAsync(key, command.Name, !isDisabled);
-                await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
-                return isDisabled;
-            }
-
-            return !(bool)isEnabled;
-        }
+        return new GuildCommandDisabled(IsDisabled: !(bool)isEnabled, WasCacheHit: true);
     }
 }

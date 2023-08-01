@@ -1,11 +1,5 @@
-import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
-import { TimeUtil } from '../../modules/util/TimeUtil';
-import { ArrayUtil } from '../../modules/util/ArrayUtil';
-import { PageMessage } from '../../modules/paging/PageMessage';
-import { EmbedDescriptionPageEditor } from '../../modules/paging/editors/EmbedDescriptionPageEditor';
 import { CommandMessageContext } from '../CommandMessageContext';
-import { Guild } from 'discord.js';
 
 class ServerNamesCommand extends Command {
     constructor() {
@@ -13,34 +7,25 @@ class ServerNamesCommand extends Command {
             name: 'servernames',
             aliases: ['snames', 'guildnames', 'gnames'],
             group: 'Stats 📊',
-            description: 'Gets a list of previous names for a server.',
+            description: 'This command has been removed. Please use the **/server names** command instead.',
             examples: [''],
 
             args: [
                 {
-                    key: 'guild',
-                    label: 'server',
-                    prompt: 'What server would you like to see the names of?',
-                    type: 'guild-or-current'
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });
     }
 
-    async run({ message, client, author }: CommandMessageContext, { guild }: { guild: Guild }): Promise<void> {
-        const { channel } = message;
-        const guildNames = await client.master.database.guildNames.getHistory(guild, 75);
-        const embed = DiscordEmbedFormatter.baseGuildHeader(guild);
-
-        const lines = guildNames.map(gn => `${TimeUtil.formatSmall(gn.changed_at.getTime())} : ${gn.guild_name}`);
-        const chunks = ArrayUtil.chunk(lines, 15);
-
-        await new PageMessage(
-            client,
-            author,
-            chunks.map(chunk => chunk.join('\n')),
-            new EmbedDescriptionPageEditor(embed)
-        ).send(channel);
+    async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command has been removed.`,
+            `Please use \`${messageContext.prefix}role drop ${args}\` instead.`
+        ].join('\n'));
     }
 }
 

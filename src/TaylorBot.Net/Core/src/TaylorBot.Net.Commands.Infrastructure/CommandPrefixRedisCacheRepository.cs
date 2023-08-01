@@ -2,43 +2,42 @@
 using StackExchange.Redis;
 using System.Threading.Tasks;
 
-namespace TaylorBot.Net.Commands.Infrastructure
+namespace TaylorBot.Net.Commands.Infrastructure;
+
+public class CommandPrefixRedisCacheRepository : ICommandPrefixRepository
 {
-    public class CommandPrefixRedisCacheRepository : ICommandPrefixRepository
+    private readonly ConnectionMultiplexer _connectionMultiplexer;
+    private readonly CommandPrefixPostgresRepository _commandPrefixPostgresRepository;
+
+    public CommandPrefixRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, CommandPrefixPostgresRepository commandPrefixPostgresRepository)
     {
-        private readonly ConnectionMultiplexer _connectionMultiplexer;
-        private readonly CommandPrefixPostgresRepository _commandPrefixPostgresRepository;
+        _connectionMultiplexer = connectionMultiplexer;
+        _commandPrefixPostgresRepository = commandPrefixPostgresRepository;
+    }
 
-        public CommandPrefixRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, CommandPrefixPostgresRepository commandPrefixPostgresRepository)
+    private static string GetPrefixKey(IGuild guild) => $"prefix:guild:{guild.Id}";
+
+    public async ValueTask<CommandPrefix> GetOrInsertGuildPrefixAsync(IGuild guild)
+    {
+        var redis = _connectionMultiplexer.GetDatabase();
+        var key = GetPrefixKey(guild);
+        var cachedPrefix = await redis.StringGetAsync(key);
+
+        if (!cachedPrefix.HasValue)
         {
-            _connectionMultiplexer = connectionMultiplexer;
-            _commandPrefixPostgresRepository = commandPrefixPostgresRepository;
+            var result = await _commandPrefixPostgresRepository.GetOrInsertGuildPrefixAsync(guild);
+            await redis.StringSetAsync(key, result.Prefix);
+            return result;
         }
 
-        private string GetPrefixKey(IGuild guild) => $"prefix:guild:{guild.Id}";
+        return new CommandPrefix(new(WasAdded: false, WasGuildNameChanged: false, PreviousGuildName: null), $"{cachedPrefix}");
+    }
 
-        public async ValueTask<string> GetOrInsertGuildPrefixAsync(IGuild guild)
-        {
-            var redis = _connectionMultiplexer.GetDatabase();
-            var key = GetPrefixKey(guild);
-            var cachedPrefix = await redis.StringGetAsync(key);
+    public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)
+    {
+        await _commandPrefixPostgresRepository.ChangeGuildPrefixAsync(guild, prefix);
 
-            if (!cachedPrefix.HasValue)
-            {
-                var prefix = await _commandPrefixPostgresRepository.GetOrInsertGuildPrefixAsync(guild);
-                await redis.StringSetAsync(key, prefix);
-                return prefix;
-            }
-
-            return cachedPrefix.ToString();
-        }
-
-        public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)
-        {
-            await _commandPrefixPostgresRepository.ChangeGuildPrefixAsync(guild, prefix);
-
-            var redis = _connectionMultiplexer.GetDatabase();
-            await redis.StringSetAsync(GetPrefixKey(guild), prefix);
-        }
+        var redis = _connectionMultiplexer.GetDatabase();
+        await redis.StringSetAsync(GetPrefixKey(guild), prefix);
     }
 }

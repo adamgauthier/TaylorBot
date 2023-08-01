@@ -41,7 +41,8 @@ class GiftCommand extends Command {
             .baseUserSuccessEmbed(author)
             .setDescription([
                 `Successfully gifted ${StringUtil.plural(gifted_count, 'taypoint', '**')} out of ${StringUtil.formatNumberString(original_count)}:`,
-                ...usersToGift.map(({ user, giftedCount }) => `${StringUtil.plural(giftedCount, 'taypoint', '**')} to ${user}`)
+                ...usersToGift.map(({ user, giftedCount }) => `${StringUtil.plural(giftedCount, 'taypoint', '**')} to ${user}`),
+                'Check out </taypoints gift:1103846727880028180>'
             ].join('\n'))
         );
     }

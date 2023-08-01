@@ -1,6 +1,6 @@
 FROM node:20.3.1-slim AS install-ready
 
-RUN npm install --global npm@9.7.2
+RUN npm install --global npm@9.8.1
 
 # install dependencies first, in a different location for easier app bind mounting for local development
 # due to default /opt permissions we have to create the dir with root and change perms
