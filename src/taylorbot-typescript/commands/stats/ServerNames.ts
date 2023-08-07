@@ -7,7 +7,7 @@ class ServerNamesCommand extends Command {
             name: 'servernames',
             aliases: ['snames', 'guildnames', 'gnames'],
             group: 'Stats 📊',
-            description: 'This command has been removed. Please use the **/server names** command instead.',
+            description: 'This command has been removed. Please use the </server names:1137547317549998130> command instead.',
             examples: [''],
 
             args: [
@@ -21,10 +21,10 @@ class ServerNamesCommand extends Command {
         });
     }
 
-    async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
+    async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use \`${messageContext.prefix}role drop ${args}\` instead.`
+            `Please use </server names:1137547317549998130> instead.`
         ].join('\n'));
     }
 }
