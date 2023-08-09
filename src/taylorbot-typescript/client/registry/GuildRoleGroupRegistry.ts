@@ -1,6 +1,4 @@
-import { Role } from 'discord.js';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
-import { Format } from '../../modules/discord/DiscordFormatter';
 import { GuildRegistry } from './GuildRegistry';
 
 export class GuildRoleGroupRegistry {
@@ -23,18 +21,5 @@ export class GuildRoleGroupRegistry {
             throw new Error(`Could not cache role group ${databaseRoleGroup.group_name} because the guild ${databaseRoleGroup.guild_id} was not cached.`);
 
         guild.roleGroups[databaseRoleGroup.role_id] = databaseRoleGroup.group_name;
-    }
-
-    async addRoleGroup(role: Role, group: { name: string; accessLevel: number }): Promise<void> {
-        const inserted = await this.#database.roleGroups.add(role, group);
-        this.cacheRoleGroup(inserted);
-    }
-
-    getRoleGroup(role: Role, group: { name: string; accessLevel: number }): string | undefined {
-        const guild = this.#guildRegistry.get(role.guild.id);
-        if (!guild)
-            throw new Error(`Could not verify role ${Format.role(role)} group '${group.name}' because the guild ${Format.guild(role.guild)} was not cached.`);
-
-        return guild.roleGroups[role.id];
     }
 }
