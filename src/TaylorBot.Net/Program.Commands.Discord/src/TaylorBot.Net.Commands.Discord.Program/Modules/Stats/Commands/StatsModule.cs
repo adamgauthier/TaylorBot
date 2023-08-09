@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using System.Globalization;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
@@ -14,13 +13,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Commands;
 public class StatsModule : TaylorBotModule
 {
     private readonly ICommandRunner _commandRunner;
-    private readonly IServerStatsRepository _serverStatsRepository;
     private readonly IBotInfoRepository _botInfoRepository;
 
-    public StatsModule(ICommandRunner commandRunner, IServerStatsRepository serverStatsRepository, IBotInfoRepository botInfoRepository)
+    public StatsModule(ICommandRunner commandRunner, IBotInfoRepository botInfoRepository)
     {
         _commandRunner = commandRunner;
-        _serverStatsRepository = serverStatsRepository;
         _botInfoRepository = botInfoRepository;
     }
 
@@ -31,26 +28,14 @@ public class StatsModule : TaylorBotModule
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
-            async () =>
+            () =>
             {
-                var ageStats = await _serverStatsRepository.GetAgeStatsInGuildAsync(Context.Guild);
-                GenderStats genderStats = await _serverStatsRepository.GetGenderStatsInGuildAsync(Context.Guild);
-
-                string FormatPercent(long count) => ((decimal)count / genderStats.TotalCount).ToString("0.00%", CultureInfo.InvariantCulture);
-
-                return new EmbedResult(new EmbedBuilder()
-                    .WithGuildAsAuthor(Context.Guild)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .AddField("Age", string.Join('\n', new[] {
-                        $"Median: {(ageStats.AgeMedian.HasValue ? ageStats.AgeMedian.Value.ToString() : "No Data")}",
-                        $"Average: {(ageStats.AgeAverage.HasValue ? ageStats.AgeAverage.Value.ToString() : "No Data")}"
-                    }), inline: true)
-                    .AddField("Gender", string.Join('\n', new[] {
-                        $"Male: {genderStats.MaleCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.MaleCount)})" : string.Empty)}",
-                        $"Female: {genderStats.FemaleCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.FemaleCount)})" : string.Empty)}",
-                        $"Other: {genderStats.OtherCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.OtherCount)})" : string.Empty)}"
-                    }), inline: true)
-                .Build());
+                return new(new EmbedResult(EmbedFactory.CreateError(
+                    """
+                    This command has been moved to 👉 </server population:1137547317549998130> 👈
+                    Please use it instead! 😊
+                    """
+                )));
             },
             Preconditions: new[] { new InGuildPrecondition() }
         );
