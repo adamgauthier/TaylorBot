@@ -31,7 +31,7 @@ public class ServerPopulationSlashCommand : ISlashCommand<NoOptions>
                 var ageStats = await _serverStatsRepository.GetAgeStatsInGuildAsync(guild);
                 GenderStats genderStats = await _serverStatsRepository.GetGenderStatsInGuildAsync(guild);
 
-                string FormatPercent(long count) => ((decimal)count / genderStats.TotalCount).ToString("0.00%", CultureInfo.InvariantCulture);
+                string FormatPercent(long count) => ((decimal)count / genderStats.TotalCount).ToString("0.0%", CultureInfo.InvariantCulture);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithGuildAsAuthor(guild)

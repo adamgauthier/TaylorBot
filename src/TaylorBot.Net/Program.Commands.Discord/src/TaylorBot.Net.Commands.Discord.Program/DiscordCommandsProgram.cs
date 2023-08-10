@@ -16,6 +16,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastruct
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Channel.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Channel.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
@@ -253,6 +255,8 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IGuildNamesRepository, GuildNamesPostgresRepository>()
             .AddSlashCommand<ServerNamesSlashCommand>()
             .AddSlashCommand<ServerPopulationSlashCommand>()
+            .AddTransient<IChannelMessageCountRepository, ChannelMessageCountPostgresRepository>()
+            .AddSlashCommand<ChannelMessagesSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

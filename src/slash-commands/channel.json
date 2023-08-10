@@ -1,0 +1,24 @@
+{
+  "name": "channel",
+  "description": "Gets information about a channel",
+  "dm_permission": false,
+  "options": [
+    {
+      "name": "messages",
+      "description": "Get the message count for a text channel",
+      "type": 1,
+      "options": [
+        {
+          "name": "channel",
+          "description": "The text channel you want to see the message count for, default current channel",
+          "type": 7,
+          "required": false,
+          "channel_types": [
+            0,
+            5
+          ]
+        }
+      ]
+    }
+  ]
+}

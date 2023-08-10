@@ -1,5 +1,3 @@
-import { BaseGuildTextChannel, ThreadChannel } from 'discord.js';
-import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 
@@ -9,32 +7,25 @@ class ChannelStatsCommand extends Command {
             name: 'channelstats',
             aliases: ['cstats'],
             group: 'Stats 📊',
-            description: 'Gets stored stats about a text channel.',
-            examples: ['', '#general'],
+            description: 'This command has been removed. Please use **/channel messages** instead.',
+            examples: [''],
 
             args: [
                 {
-                    key: 'channel',
-                    label: 'channel',
-                    prompt: 'What channel would you like to see the stats of?',
-                    type: 'guild-text-channel-or-current'
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { channel }: { channel: BaseGuildTextChannel | ThreadChannel }): Promise<void> {
-        const textChannel = (await client.master.database.textChannels.get(channel))!;
-
-        const embed = DiscordEmbedFormatter
-            .baseGuildHeader(channel.guild)
-            .setTitle(channel.name)
-            .addFields([
-                { name: 'Messages', value: `~${textChannel.message_count}`, inline: true },
-                { name: 'Spam', value: textChannel.is_spam ? '✅' : '🚫', inline: true },
-            ]);
-
-        await client.sendEmbed(message.channel, embed);
+    async run({ message, client }: CommandMessageContext): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command has been removed.`,
+            `Please use **/channel messages** instead.`
+        ].join('\n'));
     }
 }
 

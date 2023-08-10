@@ -54,6 +54,6 @@ public class ServerPopulationSlashCommandTests
         var result = (EmbedResult)await (await _command.GetCommandAsync(_runContext, new())).RunAsync();
 
         result.Embed.Fields.Single(f => f.Name == "Age").Value.Should().Contain(AgeAverage.ToString()).And.Contain(AgeMedian.ToString());
-        result.Embed.Fields.Single(f => f.Name == "Gender").Value.Should().Contain($"{FemaleCount} ({FemaleCount}0.00%)");
+        result.Embed.Fields.Single(f => f.Name == "Gender").Value.Should().Contain($"{FemaleCount} ({FemaleCount}0.0%)");
     }
 }

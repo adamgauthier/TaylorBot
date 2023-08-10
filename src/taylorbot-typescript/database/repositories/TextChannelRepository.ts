@@ -17,26 +17,6 @@ export class TextChannelRepository {
         };
     }
 
-    async get(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<{
-        guild_id: string;
-        channel_id: string;
-        message_count: string;
-        registered_at: Date;
-        is_spam: boolean;
-    } | null> {
-        const databaseChannel = this.mapChannelToDatabase(guildChannel);
-        try {
-            return await this.#db.oneOrNone(
-                'SELECT * FROM guilds.text_channels WHERE guild_id = $[guild_id] AND channel_id = $[channel_id];',
-                databaseChannel
-            );
-        }
-        catch (e) {
-            Log.error(`Getting text channel ${Format.guildChannel(guildChannel)}: ${e}`);
-            throw e;
-        }
-    }
-
     async insertOrGetIsSpamChannelAsync(guildChannel: BaseGuildTextChannel | ThreadChannel): Promise<boolean> {
         const databaseChannel = this.mapChannelToDatabase(guildChannel);
         try {
