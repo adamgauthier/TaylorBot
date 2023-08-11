@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System;
 using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
@@ -21,13 +22,13 @@ public class DisabledGuildCommandDomainService
     private readonly TaskExceptionLogger _taskExceptionLogger;
     private readonly IDisabledGuildCommandRepository _disabledGuildCommandRepository;
     private readonly GuildTrackerDomainService _guildTrackerDomainService;
-    private readonly ITaylorBotClient _taylorBotClient;
+    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
 
     public DisabledGuildCommandDomainService(
         TaskExceptionLogger taskExceptionLogger,
         IDisabledGuildCommandRepository disabledGuildCommandRepository,
         GuildTrackerDomainService guildTrackerDomainService,
-        ITaylorBotClient taylorBotClient)
+        Lazy<ITaylorBotClient> taylorBotClient)
     {
         _taskExceptionLogger = taskExceptionLogger;
         _disabledGuildCommandRepository = disabledGuildCommandRepository;
@@ -46,7 +47,7 @@ public class DisabledGuildCommandDomainService
                 {
                     if (context.IsFakeGuild)
                     {
-                        var realGuild = _taylorBotClient.ResolveRequiredGuild(guild.Id);
+                        var realGuild = _taylorBotClient.Value.ResolveRequiredGuild(guild.Id);
                         await _guildTrackerDomainService.TrackGuildAndNameAsync(realGuild);
                     }
                     else

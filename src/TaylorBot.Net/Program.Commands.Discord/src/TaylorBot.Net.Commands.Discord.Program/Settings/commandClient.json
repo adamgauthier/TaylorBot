@@ -16,11 +16,13 @@
       },
       "google-places-search": {
         "FriendlyName": "Searching a location on Google Maps",
-        "MaxUsesForUser": 5
+        "MaxUsesForUser": 5,
+        "MaxUsesForPlusUser": 10
       },
       "weather-report": {
         "FriendlyName": "Getting a weather report",
-        "MaxUsesForUser": 15
+        "MaxUsesForUser": 15,
+        "MaxUsesForPlusUser": 20
       },
       "youtube-search": {
         "FriendlyName": "Searching YouTube",

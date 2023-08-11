@@ -11,54 +11,54 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Strings;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
+
+public class BirthdayCalendarSlashCommand : ISlashCommand<NoOptions>
 {
-    public class BirthdayCalendarSlashCommand : ISlashCommand<NoOptions>
+    public ISlashCommandInfo Info => new MessageCommandInfo("birthday calendar");
+
+    private readonly IBirthdayRepository _birthdayRepository;
+
+    public BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository)
     {
-        public ISlashCommandInfo Info => new MessageCommandInfo("birthday calendar");
+        _birthdayRepository = birthdayRepository;
+    }
 
-        private readonly IBirthdayRepository _birthdayRepository;
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    {
+        return new(new Command(
+            new(Info.Name),
+            async () =>
+            {
+                var guild = context.Guild!;
+                var calendar = await _birthdayRepository.GetBirthdayCalendarAsync(guild);
 
-        public BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository)
-        {
-            _birthdayRepository = birthdayRepository;
-        }
+                var pages = calendar.Chunk(15).Select(entries => string.Join('\n', entries.Select(
+                    entry => $"{entry.Username.MdUserLink(entry.UserId)} - {entry.NextBirthday.ToString("MMMM d", TaylorBotCulture.Culture)}"
+                ))).ToList();
 
-        public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
-        {
-            return new(new Command(
-                new(Info.Name),
-                async () =>
-                {
-                    var guild = context.Guild!;
-                    var calendar = await _birthdayRepository.GetBirthdayCalendarAsync(guild);
+                var baseEmbed = new EmbedBuilder()
+                    .WithGuildAsAuthor(guild)
+                    .WithColor(TaylorBotColors.SuccessColor)
+                    .WithTitle("Upcoming Birthdays");
 
-                    var pages = calendar.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                        entry => $"{entry.Username.MdUserLink(entry.UserId)} - {entry.NextBirthday.ToString("MMMM d", TaylorBotCulture.Culture)}"
-                    ))).ToList();
-
-                    var baseEmbed = new EmbedBuilder()
-                        .WithGuildAsAuthor(guild)
-                        .WithColor(TaylorBotColors.SuccessColor)
-                        .WithTitle("Upcoming Birthdays");
-
-                    return new PageMessageResultBuilder(new(
-                        new(new EmbedDescriptionTextEditor(
-                            baseEmbed,
-                            pages,
-                            hasPageFooter: true,
-                            emptyText: string.Join('\n', new[] {
-                                "No upcoming birthdays in this server.",
-                                $"Members need to use {context.MentionCommand("birthday set")}! 😊"
-                            })
-                        )),
-                        IsCancellable: true
-                    )).Build();
-                },
-                Preconditions: new ICommandPrecondition[] {
-                    new InGuildPrecondition(),
-                }
-            ));
-        }
+                return new PageMessageResultBuilder(new(
+                    new(new EmbedDescriptionTextEditor(
+                        baseEmbed,
+                        pages,
+                        hasPageFooter: true,
+                        emptyText:
+                            $"""
+                            No upcoming birthdays in this server.",
+                            "Members need to use {context.MentionCommand("birthday set")}! 😊
+                            """
+                    )),
+                    IsCancellable: true
+                )).Build();
+            },
+            Preconditions: new ICommandPrecondition[] {
+                new InGuildPrecondition(),
+            }
+        ));
     }
 }

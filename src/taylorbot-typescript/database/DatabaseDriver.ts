@@ -21,7 +21,6 @@ import { TextChannelRepository } from './repositories/TextChannelRepository';
 import { AttributeRepository } from './repositories/AttributeRepository';
 import { TextAttributeRepository } from './repositories/TextAttributeRepository';
 import { IntegerAttributeRepository } from './repositories/IntegerAttributeRepository';
-import { LocationAttributeRepository } from './repositories/LocationAttributeRepository';
 import { RollStatsRepository } from './repositories/RollStatsRepository';
 import { RpsStatsRepository } from './repositories/RpsStatsRepository';
 import { GambleStatsRepository } from './repositories/GambleStatsRepository';
@@ -51,7 +50,6 @@ export class DatabaseDriver {
     readonly attributes: AttributeRepository;
     readonly textAttributes: TextAttributeRepository;
     readonly integerAttributes: IntegerAttributeRepository;
-    readonly locationAttributes: LocationAttributeRepository;
     readonly rollStats: RollStatsRepository;
     readonly rpsStats: RpsStatsRepository;
     readonly gambleStats: GambleStatsRepository;
@@ -87,7 +85,6 @@ export class DatabaseDriver {
         this.attributes = new AttributeRepository(db, helpers);
         this.textAttributes = new TextAttributeRepository(db);
         this.integerAttributes = new IntegerAttributeRepository(db);
-        this.locationAttributes = new LocationAttributeRepository(db);
         this.rollStats = new RollStatsRepository(db, usersDAO);
         this.rpsStats = new RpsStatsRepository(db, usersDAO);
         this.gambleStats = new GambleStatsRepository(db, usersDAO);

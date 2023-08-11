@@ -54,19 +54,21 @@ public class BirthdayAgeSlashCommand : ISlashCommand<BirthdayAgeSlashCommand.Opt
                     }
                     else
                     {
-                        return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                            $"{user.Mention}'s birthday was set without a year so I can't tell how old they are. 🚫",
-                            $"Use {context.MentionCommand("birthday set")} with the **year** option, your age will automatically update and you will get taypoints on your birthday every year! 🎈",
-                            $"Don't want to share your exact birthday, but want the points, horoscope and age commands? Use the **privately** option. 🕵️",
-                        })));
+                        return new EmbedResult(EmbedFactory.CreateError(
+                            $"""
+                            {user.Mention}'s birthday was set without a year so I can't tell how old they are. 🚫
+                            Use {context.MentionCommand("birthday set")} with the **year** option, your age will automatically update and you will get taypoints on your birthday every year! 🎈
+                            Don't want to share your exact birthday, but want the points, horoscope and age commands? Use the **privately** option. 🕵️
+                            """));
                     }
                 }
                 else
                 {
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                        $"{user.Mention}'s birthday is not set so I can't tell how old they are. 🚫",
-                        $"They need to use {context.MentionCommand("birthday set")} to set it first.",
-                    })));
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        $"""
+                        {user.Mention}'s birthday is not set so I can't tell how old they are. 🚫
+                        They need to use {context.MentionCommand("birthday set")} to set it first.
+                        """));
                 }
             }
         ));

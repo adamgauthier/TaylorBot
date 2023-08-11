@@ -7,7 +7,7 @@ class ServerNamesCommand extends Command {
             name: 'servernames',
             aliases: ['snames', 'guildnames', 'gnames'],
             group: 'Stats 📊',
-            description: 'This command has been removed. Please use the </server names:1137547317549998130> command instead.',
+            description: 'This command has been removed. Please use </server names:1137547317549998130> instead.',
             examples: [''],
 
             args: [

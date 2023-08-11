@@ -7,7 +7,7 @@ class RemoveLogChannelCommand extends Command {
             name: 'removelogchannel',
             aliases: ['rlc'],
             group: 'admin',
-            description: 'This command has been removed. Please use the `log member stop` or `log deleted stop` commands instead.',
+            description: 'This command has been removed. Please use </monitor members stop:887146682146488390> and </monitor deleted stop:887146682146488390> instead.',
             examples: [''],
 
             args: [
@@ -21,10 +21,10 @@ class RemoveLogChannelCommand extends Command {
         });
     }
 
-    async run({ message, client, messageContext }: CommandMessageContext, { args }: { args: string }): Promise<void> {
+    async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use \`${messageContext.prefix}log member stop\` and \`${messageContext.prefix}log deleted stop\` instead.`
+            `Please use </monitor members stop:887146682146488390> and </monitor deleted stop:887146682146488390> instead.`
         ].join('\n'));
     }
 }

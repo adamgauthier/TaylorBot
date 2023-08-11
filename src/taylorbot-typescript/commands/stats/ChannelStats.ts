@@ -7,7 +7,7 @@ class ChannelStatsCommand extends Command {
             name: 'channelstats',
             aliases: ['cstats'],
             group: 'Stats 📊',
-            description: 'This command has been removed. Please use **/channel messages** instead.',
+            description: 'This command has been removed. Please use </channel messages:1139070407765409912> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class ChannelStatsCommand extends Command {
     async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use **/channel messages** instead.`
+            `Please use </channel messages:1139070407765409912> instead.`
         ].join('\n'));
     }
 }

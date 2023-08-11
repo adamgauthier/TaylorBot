@@ -67,18 +67,20 @@ public class BirthdayShowSlashCommand : ISlashCommand<BirthdayShowSlashCommand.O
                     }
                     else
                     {
-                        return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                            $"{user.Mention}'s birthday is private. 🙅",
-                            $"To set your birthday privately, use {context.MentionCommand("birthday set")} with the **privately** option.",
-                        })));
+                        return new EmbedResult(EmbedFactory.CreateError(
+                            $"""
+                            {user.Mention}'s birthday is private. 🙅
+                            To set your birthday privately, use {context.MentionCommand("birthday set")} with the **privately** option.
+                            """));
                     }
                 }
                 else
                 {
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                        $"{user.Mention}'s birthday is not set. 🚫",
-                        $"They need to use {context.MentionCommand("birthday set")} to set it first.",
-                    })));
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        $"""
+                        {user.Mention}'s birthday is not set. 🚫
+                        They need to use {context.MentionCommand("birthday set")} to set it first.
+                        """));
                 }
             }
         ));

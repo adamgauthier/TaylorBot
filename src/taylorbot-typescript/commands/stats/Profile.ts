@@ -1,7 +1,3 @@
-import { User } from 'discord.js';
-import moment = require('moment-timezone');
-
-import { DiscordEmbedFormatter } from '../../modules/discord/DiscordEmbedFormatter';
 import { Command } from '../Command';
 import { CommandMessageContext } from '../CommandMessageContext';
 
@@ -11,59 +7,25 @@ class ProfileCommand extends Command {
             name: 'profile',
             aliases: ['info', 'asl'],
             group: 'Stats 📊',
-            description: 'Gets the profile of a user.',
-            examples: ['@Adam#0420', 'Enchanted13'],
+            description: 'This command has been removed. Please use </birthday age:1016938623880400907>, **/location show** instead.',
+            examples: [''],
 
             args: [
                 {
-                    key: 'user',
-                    label: 'user',
-                    type: 'user-or-author',
-                    prompt: 'What user would you like to see the profile of?'
+                    key: 'args',
+                    label: 'args',
+                    type: 'any-text',
+                    prompt: 'What arguments would you like to use?'
                 }
             ]
         });
     }
 
-    async run({ message, client }: CommandMessageContext, { user }: { user: User }): Promise<void> {
-        const { master: { database } } = client;
-
-        const genderAttribute = await database.textAttributes.get('gender', user);
-        const birthdayAttribute = await database.birthdays.get(user);
-        const ageAttribute = await database.integerAttributes.get('age', user);
-        const locationAttribute = await database.locationAttributes.get(user);
-
-        const parsedBirthday = birthdayAttribute ? moment.utc(birthdayAttribute.birthday, 'YYYY-MM-DD') : null;
-
-        await client.sendEmbed(message.channel,
-            DiscordEmbedFormatter
-                .baseUserSuccessEmbed(user)
-                .addFields([
-                    {
-                        name: 'Age',
-                        value: parsedBirthday !== null && parsedBirthday.year() !== 1804 ?
-                            moment.utc().diff(parsedBirthday, 'years').toString() :
-                            ageAttribute ?
-                                `${ageAttribute.integer_value} ⚠` :
-                                'Not Set 🚫',
-                        inline: true
-                    },
-                    {
-                        name: 'Gender',
-                        value: genderAttribute ? genderAttribute.attribute_value : 'Not Set 🚫',
-                        inline: true
-                    },
-                    {
-                        name: 'Location',
-                        value: locationAttribute !== null ? ProfileCommand.formatLocation(locationAttribute) : 'Not Set 🚫',
-                        inline: true
-                    },
-                ])
-        );
-    }
-
-    static formatLocation(location: { user_id: string; formatted_address: string; longitude: string; latitude: string; timezone_id: string }): string {
-        return `${location.formatted_address} (${moment.utc().tz(location.timezone_id).format('LT')})`;
+    async run({ message, client }: CommandMessageContext): Promise<void> {
+        await client.sendEmbedError(message.channel, [
+            `This command has been removed.`,
+            `Please use </birthday age:1016938623880400907>, **/location show** instead.`
+        ].join('\n'));
     }
 }
 

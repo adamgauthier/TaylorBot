@@ -67,11 +67,10 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructur
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Weather.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Infrastructure;
@@ -221,12 +220,6 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<LastFmArtistsSlashCommand>()
             .AddTransient<IHoroscopeClient, GaneshaSpeaksHoroscopeClient>()
             .AddTransient<IZodiacSignRepository, ZodiacSignPostgresRepository>()
-            .AddTransient<ILocationRepository, LocationPostgresRepository>()
-            .AddTransient<ILocationClient, GooglePlacesClient>()
-            .ConfigureRequired<WeatherOptions>(config, "Weather")
-            .AddTransient<IWeatherClient, PirateWeatherClient>()
-            .AddTransient<WeatherCommand>()
-            .AddSlashCommand<WeatherSlashCommand>()
             .AddTransient<IBirthdayRepository, BirthdayPostgresRepository>()
             .AddSlashCommand<BirthdayShowSlashCommand>()
             .AddSlashCommand<BirthdayClearSlashCommand>()
@@ -257,6 +250,18 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ServerPopulationSlashCommand>()
             .AddTransient<IChannelMessageCountRepository, ChannelMessageCountPostgresRepository>()
             .AddSlashCommand<ChannelMessagesSlashCommand>()
+            .AddTransient<ILocationClient, GooglePlacesClient>()
+            .AddTransient<ILocationRepository, LocationPostgresRepository>()
+            .AddTransient<LocationFetcherDomainService>()
+            .AddTransient<LocationShowCommand>()
+            .AddSlashCommand<LocationShowSlashCommand>()
+            .AddSlashCommand<LocationTimeSlashCommand>()
+            .AddSlashCommand<LocationSetSlashCommand>()
+            .AddSlashCommand<LocationClearSlashCommand>()
+            .ConfigureRequired<WeatherOptions>(config, "Weather")
+            .AddTransient<IWeatherClient, PirateWeatherClient>()
+            .AddTransient<WeatherCommand>()
+            .AddSlashCommand<WeatherSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
