@@ -5,38 +5,37 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure;
+
+public class YouTubeClient : IYouTubeClient
 {
-    public class YouTubeClient : IYouTubeClient
+    private readonly ILogger<YouTubeClient> _logger;
+    private readonly YouTubeService _youTubeService;
+
+    public YouTubeClient(ILogger<YouTubeClient> logger, YouTubeService youTubeService)
     {
-        private readonly ILogger<YouTubeClient> _logger;
-        private readonly YouTubeService _youTubeService;
+        _logger = logger;
+        _youTubeService = youTubeService;
+    }
 
-        public YouTubeClient(ILogger<YouTubeClient> logger, YouTubeService youTubeService)
+    public async ValueTask<IYouTubeSearchResult> SearchAsync(string query)
+    {
+        var request = _youTubeService.Search.List("snippet");
+        request.Type = "video";
+        request.Q = query;
+
+        try
         {
-            _logger = logger;
-            _youTubeService = youTubeService;
+            var response = await request.ExecuteAsync();
+
+            var videoUrls = response.Items.Select(i => $"https://youtu.be/{i.Id.VideoId}").ToList();
+
+            return new SuccessfulSearch(videoUrls);
         }
-
-        public async ValueTask<IYouTubeSearchResult> SearchAsync(string query)
+        catch (Exception e)
         {
-            var request = _youTubeService.Search.List("snippet");
-            request.Type = "video";
-            request.Q = query;
-
-            try
-            {
-                var response = await request.ExecuteAsync();
-
-                var videoUrls = response.Items.Select(i => $"https://youtu.be/{i.Id.VideoId}").ToList();
-
-                return new SuccessfulSearch(videoUrls);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Unhandled error in YouTube Search API");
-                return new GenericError(e);
-            }
+            _logger.LogWarning(e, "Unhandled error in YouTube Search API");
+            return new GenericError(e);
         }
     }
 }

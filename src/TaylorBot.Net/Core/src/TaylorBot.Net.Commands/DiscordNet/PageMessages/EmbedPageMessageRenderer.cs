@@ -1,49 +1,48 @@
 ﻿using Discord;
 using System;
 
-namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
+
+public interface IEmbedPageEditor
 {
-    public interface IEmbedPageEditor
+    int PageCount { get; }
+    EmbedBuilder Edit(EmbedBuilder embed, int currentPage);
+}
+
+public class EmbedPageMessageRenderer
+{
+    private int _currentPage = 1;
+
+    private readonly IEmbedPageEditor _editor;
+    private readonly Func<EmbedBuilder> _baseEmbedBuilder;
+
+    public bool HasMultiplePages => _editor.PageCount > 1;
+
+    public EmbedPageMessageRenderer(IEmbedPageEditor editor, Func<EmbedBuilder> baseEmbedBuilder)
     {
-        int PageCount { get; }
-        EmbedBuilder Edit(EmbedBuilder embed, int currentPage);
+        _editor = editor;
+        _baseEmbedBuilder = baseEmbedBuilder;
     }
 
-    public class EmbedPageMessageRenderer
+    public Embed RenderNext()
     {
-        private int _currentPage = 1;
+        _currentPage = _currentPage + 1 > _editor.PageCount ? 1 : _currentPage + 1;
+        return Render();
+    }
 
-        private readonly IEmbedPageEditor _editor;
-        private readonly Func<EmbedBuilder> _baseEmbedBuilder;
+    public Embed RenderPrevious()
+    {
+        _currentPage = _currentPage - 1 == 0 ? _editor.PageCount : _currentPage - 1;
+        return Render();
+    }
 
-        public bool HasMultiplePages => _editor.PageCount > 1;
+    public Embed Render()
+    {
+        var edited = _editor.Edit(_baseEmbedBuilder(), _currentPage);
 
-        public EmbedPageMessageRenderer(IEmbedPageEditor editor, Func<EmbedBuilder> baseEmbedBuilder)
-        {
-            _editor = editor;
-            _baseEmbedBuilder = baseEmbedBuilder;
-        }
+        if (edited.Footer == null && _editor.PageCount > 0)
+            edited.WithFooter($"Page {_currentPage}/{_editor.PageCount}");
 
-        public Embed RenderNext()
-        {
-            _currentPage = _currentPage + 1 > _editor.PageCount ? 1 : _currentPage + 1;
-            return Render();
-        }
-
-        public Embed RenderPrevious()
-        {
-            _currentPage = _currentPage - 1 == 0 ? _editor.PageCount : _currentPage - 1;
-            return Render();
-        }
-
-        public Embed Render()
-        {
-            var edited = _editor.Edit(_baseEmbedBuilder(), _currentPage);
-
-            if (edited.Footer == null)
-                edited.WithFooter($"Page {_currentPage}/{_editor.PageCount}");
-
-            return edited.Build();
-        }
+        return edited.Build();
     }
 }

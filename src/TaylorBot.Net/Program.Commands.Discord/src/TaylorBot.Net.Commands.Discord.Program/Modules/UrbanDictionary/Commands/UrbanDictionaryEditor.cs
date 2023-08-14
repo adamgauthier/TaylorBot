@@ -21,35 +21,52 @@ public class UrbanDictionaryEditor : IMessageEditor, IEmbedPageEditor
 
     public MessageContent Edit(int currentPage)
     {
-        var page = _searchResult.Definitions[currentPage - 1];
         var embed = new EmbedBuilder();
-
-        EditEmbed(embed, page);
-
+        EditEmbed(embed, currentPage);
         return new(embed.Build());
     }
 
     public EmbedBuilder Edit(EmbedBuilder embed, int currentPage)
     {
-        var page = _searchResult.Definitions[currentPage - 1];
-
-        EditEmbed(embed, page);
-
-        embed.Description += "\n\nUse </urbandictionary:1080373890020282508> instead! 😊";
-
+        EditEmbed(embed, currentPage, isLegacy: true);
         return embed;
     }
 
-    private static void EditEmbed(EmbedBuilder embed, UrbanDictionaryResult.SlangDefinition page)
+    private void EditEmbed(EmbedBuilder embed, int currentPage, bool isLegacy = false)
     {
-        embed
-            .WithColor(TaylorBotColors.SuccessColor)
-            .WithTitle(page.Word)
-            .WithSafeUrl(page.Link.Replace("http:", "https:"))
-            .WithDescription(page.Definition.Truncate(EmbedBuilder.MaxDescriptionLength))
-            .AddField("Votes", $"👍 `{page.UpvoteCount}` | `{page.DownvoteCount}` 👎", inline: true)
-            .WithThumbnailUrl("https://i.imgur.com/egsQhin.png")
-            .WithFooter(page.Author)
-            .WithTimestamp(page.WrittenOn);
+        embed.WithThumbnailUrl("https://i.imgur.com/egsQhin.png");
+
+        if (PageCount > 0)
+        {
+            var page = _searchResult.Definitions[currentPage - 1];
+
+            var description = page.Definition.Truncate(EmbedBuilder.MaxDescriptionLength);
+
+            embed
+                .WithColor(TaylorBotColors.SuccessColor)
+                .WithTitle(page.Word)
+                .WithSafeUrl(page.Link.Replace("http:", "https:"))
+                .WithDescription(isLegacy
+                    ?
+                    $"""
+                    {description}
+
+                    Use </urbandictionary:1080373890020282508> instead! 😊
+                    """
+                    : description)
+                .AddField("Votes", $"👍 `{page.UpvoteCount}` | `{page.DownvoteCount}` 👎", inline: true)
+                .WithFooter(page.Author)
+                .WithTimestamp(page.WrittenOn);
+        }
+        else
+        {
+            embed
+                .WithColor(TaylorBotColors.ErrorColor)
+                .WithDescription(
+                    """
+                    No definition found on UrbanDictionary 😕
+                    Did you misspell your slang term? 🤔
+                    """);
+        }
     }
 }

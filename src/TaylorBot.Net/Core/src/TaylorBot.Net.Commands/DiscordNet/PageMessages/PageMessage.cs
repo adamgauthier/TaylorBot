@@ -8,106 +8,110 @@ using System.Timers;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Core.Logging;
 
-namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
+
+public record PageMessageOptions(EmbedPageMessageRenderer Renderer, bool Cancellable = false);
+
+public class PageMessage
 {
-    public record PageMessageOptions(EmbedPageMessageRenderer Renderer, bool Cancellable = false);
+    private readonly PageMessageOptions _options;
 
-    public class PageMessage
+    public PageMessage(PageMessageOptions options)
     {
-        private readonly PageMessageOptions _options;
+        _options = options;
+    }
 
-        public PageMessage(PageMessageOptions options)
+    public async ValueTask<SentPageMessage> SendAsync(IUser commandUser, IMessageChannel channel)
+    {
+        var message = await channel.SendMessageAsync(embed: _options.Renderer.Render());
+        return new SentPageMessage(commandUser, message, _options);
+    }
+}
+
+public class SentPageMessage
+{
+    private static readonly Emoji PreviousEmoji = new("◀");
+    private static readonly Emoji NextEmoji = new("▶");
+    private static readonly Emoji CancelEmoji = new("❌");
+
+    private readonly IUser _commandUser;
+    private readonly IUserMessage _message;
+    private readonly PageMessageOptions _options;
+
+    private DateTimeOffset? _lastInteractionAt = null;
+    private Timer? _unsubscribeTimer = null;
+
+    public SentPageMessage(IUser commandUser, IUserMessage message, PageMessageOptions options)
+    {
+        _commandUser = commandUser;
+        _message = message;
+        _options = options;
+    }
+
+    public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
+    {
+        var emotes = new List<Emoji>();
+        if (_options.Renderer.HasMultiplePages)
         {
-            _options = options;
+            emotes.AddRange(new[] { PreviousEmoji, NextEmoji });
+        }
+        if (_options.Cancellable)
+        {
+            emotes.Add(CancelEmoji);
         }
 
-        public async ValueTask<SentPageMessage> SendAsync(IUser commandUser, IMessageChannel channel)
+        if (emotes.Count > 0)
         {
-            var message = await channel.SendMessageAsync(embed: _options.Renderer.Render());
-            return new SentPageMessage(commandUser, message, _options);
+            pageMessageReactionsHandler.OnReact += OnReactAsync;
+
+            _unsubscribeTimer = new Timer(interval: TimeSpan.FromSeconds(30).TotalMilliseconds);
+            _unsubscribeTimer.Elapsed += (source, arguments) =>
+            {
+                if (source != null &&
+                    (_lastInteractionAt == null ||
+                    (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30))
+                {
+                    pageMessageReactionsHandler.OnReact -= OnReactAsync;
+                    ((Timer)source).Stop();
+                }
+            };
+
+            try
+            {
+                await _message.AddReactionsAsync(emotes.ToArray());
+            }
+            catch
+            {
+                logger.LogWarning($"Could not add reactions for page message {_message.FormatLog()} by {_commandUser.FormatLog()}.");
+            }
+            finally
+            {
+                _unsubscribeTimer.Start();
+            }
         }
     }
 
-    public class SentPageMessage
+    private async Task OnReactAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
     {
-        private static readonly Emoji PreviousEmoji = new("◀");
-        private static readonly Emoji NextEmoji = new("▶");
-        private static readonly Emoji CancelEmoji = new("❌");
-
-        private readonly IUser _commandUser;
-        private readonly IUserMessage _message;
-        private readonly PageMessageOptions _options;
-
-        private DateTimeOffset? _lastInteractionAt = null;
-        private Timer? _unsubscribeTimer = null;
-
-        public SentPageMessage(IUser commandUser, IUserMessage message, PageMessageOptions options)
+        if (message.Id == _message.Id && reaction.UserId == _commandUser.Id)
         {
-            _commandUser = commandUser;
-            _message = message;
-            _options = options;
-        }
-
-        public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
-        {
-            if (_options.Renderer.HasMultiplePages)
+            if (reaction.Emote.Equals(PreviousEmoji))
             {
-                pageMessageReactionsHandler.OnReact += OnReactAsync;
-
-                _unsubscribeTimer = new Timer(interval: TimeSpan.FromSeconds(30).TotalMilliseconds);
-                _unsubscribeTimer.Elapsed += (source, arguments) =>
-                {
-                    if (source != null &&
-                        (_lastInteractionAt == null ||
-                        (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30))
-                    {
-                        pageMessageReactionsHandler.OnReact -= OnReactAsync;
-                        ((Timer)source).Stop();
-                    }
-                };
-
-                var emotes = new List<Emoji> { PreviousEmoji, NextEmoji };
-
-                if (_options.Cancellable)
-                    emotes.Add(CancelEmoji);
-
-                try
-                {
-                    await _message.AddReactionsAsync(emotes.ToArray());
-                }
-                catch
-                {
-                    logger.LogWarning($"Could not add reactions for page message {_message.FormatLog()} by {_commandUser.FormatLog()}.");
-                }
-                finally
-                {
-                    _unsubscribeTimer.Start();
-                }
+                _lastInteractionAt = DateTimeOffset.Now;
+                await _message.ModifyAsync(m =>
+                    m.Embed = _options.Renderer.RenderNext()
+                );
             }
-        }
-
-        private async Task OnReactAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
-        {
-            if (message.Id == _message.Id && reaction.UserId == _commandUser.Id)
+            else if (reaction.Emote.Equals(NextEmoji))
             {
-                if (reaction.Emote.Equals(PreviousEmoji))
-                {
-                    _lastInteractionAt = DateTimeOffset.Now;
-                    await _message.ModifyAsync(m =>
-                        m.Embed = _options.Renderer.RenderNext()
-                    );
-                }
-                else if (reaction.Emote.Equals(NextEmoji))
-                {
-                    _lastInteractionAt = DateTimeOffset.Now;
-                    await _message.ModifyAsync(m =>
-                        m.Embed = _options.Renderer.RenderPrevious()
-                    );
-                }
-                else if (reaction.Emote.Equals(CancelEmoji) && _options.Cancellable)
-                {
-                    await _message.DeleteAsync();
-                }
+                _lastInteractionAt = DateTimeOffset.Now;
+                await _message.ModifyAsync(m =>
+                    m.Embed = _options.Renderer.RenderPrevious()
+                );
+            }
+            else if (reaction.Emote.Equals(CancelEmoji) && _options.Cancellable)
+            {
+                await _message.DeleteAsync();
             }
         }
     }
