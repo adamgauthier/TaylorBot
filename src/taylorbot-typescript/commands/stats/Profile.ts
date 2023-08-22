@@ -7,7 +7,7 @@ class ProfileCommand extends Command {
             name: 'profile',
             aliases: ['info', 'asl'],
             group: 'Stats 📊',
-            description: 'This command has been removed. Please use </birthday age:1016938623880400907>, **/location show** instead.',
+            description: 'This command has been removed. Please use </birthday age:1016938623880400907>, </location show:1141925890448691270> instead.',
             examples: [''],
 
             args: [
@@ -24,7 +24,7 @@ class ProfileCommand extends Command {
     async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
             `This command has been removed.`,
-            `Please use </birthday age:1016938623880400907>, **/location show** instead.`
+            `Please use </birthday age:1016938623880400907>, </location show:1141925890448691270> instead.`
         ].join('\n'));
     }
 }

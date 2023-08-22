@@ -52,7 +52,7 @@ public class WeatherCommand
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         {user.Mention}'s location is not set. 🚫
-                        They need to use {context?.MentionCommand("location set") ?? "**/location set**"} to set it first.
+                        They need to use {context?.MentionCommand("location set") ?? "</location set:1141925890448691270>"} to set it first.
                         """
                     ));
                 }
