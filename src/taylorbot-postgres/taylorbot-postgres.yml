@@ -110,14 +110,11 @@ stages:
         runOnce:
           deploy:
             steps:
-            # This assumes we have set up a remote postgres cluster with a "taylorbot" user who owns a "taylorbot" database, with the extension public.pgcrypto
+            # This assumes we have set up a remote postgres cluster with a "taylorbot" role who all privileges on a "taylorbot" database
             - script: |
                 set -o errexit
                 set -o pipefail
                 set -o nounset
-
-                echo 'Resolving current machine IP address'
-                dig +short myip.opendns.com @resolver1.opendns.com
 
                 sqitch_bundle_path=$(Pipeline.Workspace)/taylorbot-sqitch-bundle
                 mkdir ${sqitch_bundle_path}

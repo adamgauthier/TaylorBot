@@ -25,7 +25,7 @@ docker container run \
     --mount type=bind,source=${data_path},destination=/var/lib/postgresql/data \
     --mount type=bind,source=${backups_path},destination=/home/pg-backups \
     --publish 14487:5432 \
-    postgres:12
+    postgres:15
 
 echo "Waiting for database server to be ready..."
 sleep 20
@@ -36,6 +36,8 @@ echo "Creating taylorbot role..."
 docker exec --interactive ${container_name} \
     psql --username=postgres --command="CREATE ROLE taylorbot WITH LOGIN PASSWORD '${taylorbot_role_password}';"
 docker exec --interactive ${container_name} \
-    createdb --username=postgres --owner=taylorbot taylorbot
+    psql --username=postgres --command="CREATE DATABASE taylorbot;"
 docker exec --interactive ${container_name} \
-    psql --username=postgres --dbname=taylorbot --command="CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;"
+    psql --username=postgres --command="GRANT ALL PRIVILEGES ON DATABASE taylorbot TO taylorbot;"
+docker exec --interactive ${container_name} \
+    psql --username=postgres --dbname=taylorbot --command="GRANT ALL ON SCHEMA public TO taylorbot;"
