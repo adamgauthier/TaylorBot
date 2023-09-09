@@ -23,6 +23,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
@@ -262,6 +264,11 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IWeatherClient, PirateWeatherClient>()
             .AddTransient<WeatherCommand>()
             .AddSlashCommand<WeatherSlashCommand>()
+            .AddTransient<IGenderRepository, GenderPostgresRepository>()
+            .AddTransient<GenderShowCommand>()
+            .AddSlashCommand<GenderShowSlashCommand>()
+            .AddSlashCommand<GenderSetSlashCommand>()
+            .AddSlashCommand<GenderClearSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

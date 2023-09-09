@@ -32,7 +32,7 @@ sleep 20
 
 taylorbot_role_password=$(cat "${__dir}/taylorbot-role.pass")
 
-echo "Creating taylorbot role..."
+echo "Creating taylorbot database..."
 docker exec --interactive ${container_name} \
     psql --username=postgres --command="CREATE ROLE taylorbot WITH LOGIN PASSWORD '${taylorbot_role_password}';"
 docker exec --interactive ${container_name} \

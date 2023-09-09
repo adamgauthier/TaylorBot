@@ -22,7 +22,7 @@ public class KnowledgeModule : TaylorBotModule
 
     [Command("horoscope")]
     [Alias("hs")]
-    [Summary("Gets the horoscope of a user based on their set birthday.")]
+    [Summary("This command has been moved to </birthday horoscope:1016938623880400907>. Please use it instead! 😊")]
     public async Task<RuntimeResult> HoroscopeAsync(
         [Summary("What user would you like to see the horoscope of?")]
         [Remainder]
@@ -32,7 +32,7 @@ public class KnowledgeModule : TaylorBotModule
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(
-                EmbedFactory.CreateError($"This command has been moved to </birthday horoscope:1016938623880400907>. Please use it instead! 😊")
+                EmbedFactory.CreateError("This command has been moved to </birthday horoscope:1016938623880400907>. Please use it instead! 😊")
             ))
         );
 
