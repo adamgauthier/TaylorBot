@@ -23,8 +23,10 @@ class ProfileCommand extends Command {
 
     async run({ message, client }: CommandMessageContext): Promise<void> {
         await client.sendEmbedError(message.channel, [
-            `This command has been removed.`,
-            `Please use </birthday age:1016938623880400907>, </location show:1141925890448691270> instead.`
+            `This command has been removed. Please use these instead:`,
+            `</birthday age:1016938623880400907>`,
+            `</location show:1141925890448691270>`,
+            `</gender show:1150180971224764510>`,
         ].join('\n'));
     }
 }

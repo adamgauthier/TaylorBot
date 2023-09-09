@@ -11,9 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 public class GenderModule : TaylorBotModule
 {
     private readonly ICommandRunner _commandRunner;
-    private readonly GenderShowCommand _genderShowCommand;
+    private readonly GenderShowSlashCommand _genderShowCommand;
 
-    public GenderModule(ICommandRunner commandRunner, GenderShowCommand genderShowCommand)
+    public GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand genderShowCommand)
     {
         _commandRunner = commandRunner;
         _genderShowCommand = genderShowCommand;
@@ -21,7 +21,7 @@ public class GenderModule : TaylorBotModule
 
     [Command("gender")]
     [Summary("Show the gender of a user")]
-    public async Task<RuntimeResult> HoroscopeAsync(
+    public async Task<RuntimeResult> ShowGenderAsync(
         [Summary("What user would you like to see the gender of?")]
         [Remainder]
         IUserArgument<IUser>? user = null
@@ -40,7 +40,7 @@ public class GenderModule : TaylorBotModule
 
     [Command("setgender")]
     [Alias("set gender")]
-    [Summary("This command has been moved to **/gender set**. Please use instead! 😊")]
+    [Summary("This command has been moved to </gender set:1150180971224764510>. Please use it instead! 😊")]
     public async Task<RuntimeResult> SetGenderAsync(
         [Remainder]
         string? text = null
@@ -50,7 +50,7 @@ public class GenderModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/gender set** 👈
+                This command has been moved to 👉 </gender set:1150180971224764510> 👈
                 Please use it instead! 😊
                 """))));
 
@@ -62,7 +62,7 @@ public class GenderModule : TaylorBotModule
 
     [Command("cleargender")]
     [Alias("clear gender")]
-    [Summary("This command has been moved to **/gender clear**. Please use instead! 😊")]
+    [Summary("This command has been moved to </gender clear:1150180971224764510>. Please use it instead! 😊")]
     public async Task<RuntimeResult> ClearGenderAsync(
         [Remainder]
         string? text = null
@@ -72,7 +72,7 @@ public class GenderModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/gender clear** 👈
+                This command has been moved to 👉 </gender clear:1150180971224764510> 👈
                 Please use it instead! 😊
                 """))));
 

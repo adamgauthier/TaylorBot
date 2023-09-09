@@ -7,19 +7,21 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderShowCommand
+public class GenderShowSlashCommand : ISlashCommand<GenderShowSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("gender show");
+    public ISlashCommandInfo Info => new MessageCommandInfo("gender show");
+
+    public record Options(ParsedUserOrAuthor user);
 
     private readonly IGenderRepository _genderRepository;
 
-    public GenderShowCommand(IGenderRepository genderRepository)
+    public GenderShowSlashCommand(IGenderRepository genderRepository)
     {
         _genderRepository = genderRepository;
     }
 
     public Command Show(IUser user, RunContext? context = null) => new(
-        Metadata,
+        new(Info.Name),
         async () =>
         {
             var gender = await _genderRepository.GetGenderAsync(user);
@@ -41,28 +43,14 @@ public class GenderShowCommand
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s gender is not set. 🚫
-                    They need to use {context?.MentionCommand("gender set") ?? "**/gender set**"} to set it first.
+                    They need to use {context?.MentionCommand("gender set") ?? "</gender set:1150180971224764510>"} to set it first.
                     """));
             }
         }
     );
-}
-
-public class GenderShowSlashCommand : ISlashCommand<GenderShowSlashCommand.Options>
-{
-    public ISlashCommandInfo Info => new MessageCommandInfo("gender show");
-
-    public record Options(ParsedUserOrAuthor user);
-
-    private readonly GenderShowCommand _genderShowCommand;
-
-    public GenderShowSlashCommand(GenderShowCommand genderShowCommand)
-    {
-        _genderShowCommand = genderShowCommand;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(_genderShowCommand.Show(options.user.User, context));
+        return new(Show(options.user.User, context));
     }
 }
