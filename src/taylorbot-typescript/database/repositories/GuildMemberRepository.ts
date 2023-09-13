@@ -19,58 +19,6 @@ export class GuildMemberRepository {
         };
     }
 
-    async getRankedFirstJoinedAt(guild: Guild, limit: number): Promise<{ first_joined_at: Date; user_id: string; rank: string }[]> {
-        try {
-            return await this.#db.any(
-                `SELECT first_joined_at, user_id, rank
-                FROM (
-                   SELECT
-                        first_joined_at,
-                        user_id,
-                        alive,
-                        rank() OVER (ORDER BY first_joined_at ASC) AS rank
-                   FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id]
-                ) AS ranked
-                WHERE alive = TRUE
-                LIMIT $[limit];`,
-                {
-                    guild_id: guild.id,
-                    limit: limit
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting ranked first joined at for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async getRankedFirstJoinedAtFor(guildMember: GuildMember): Promise<{ first_joined_at: Date; rank: string } | null> {
-        try {
-            return await this.#db.oneOrNone(
-                `SELECT ranked.first_joined_at, ranked.rank
-                FROM (
-                   SELECT
-                       first_joined_at,
-                       user_id,
-                       rank() OVER (ORDER BY first_joined_at ASC) AS rank
-                   FROM guilds.guild_members
-                   WHERE guild_id = $[guild_id]
-                ) AS ranked
-                WHERE ranked.user_id = $[user_id];`,
-                {
-                    guild_id: guildMember.guild.id,
-                    user_id: guildMember.id
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting ranked first joined at for guild member ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
-    }
-
     async _getMemberAttribute(guildMember: GuildMember, column: string): Promise<any> {
         try {
             return await this.#db.one(
@@ -223,24 +171,6 @@ export class GuildMemberRepository {
 
     getRankedForeignStatFor(guildMember: GuildMember, schema: string, table: string, rankedColumn: string, additionalColumns: string[] = []): Promise<any> {
         return this._getRankedAliveForeignFor(guildMember, new this.#helpers.TableName({ schema: schema, table: table }), rankedColumn, additionalColumns);
-    }
-
-    async fixInvalidJoinDate(guildMember: GuildMember): Promise<void> {
-        const databaseMember = this.mapMemberToDatabase(guildMember);
-        try {
-            await this.#db.none(
-                `UPDATE guilds.guild_members SET first_joined_at = $[first_joined_at]
-                WHERE guild_id = $[guild_id] AND user_id = $[user_id] AND first_joined_at IS NULL;`,
-                {
-                    'first_joined_at': guildMember.joinedAt,
-                    ...databaseMember
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Fixing Invalid Join Date for ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
     }
 
     async addOrUpdateMemberAsync(guildMember: GuildMember, lastSpokeAt: Date | null): Promise<boolean> {

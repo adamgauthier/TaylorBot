@@ -9,6 +9,24 @@
       "type": 1
     },
     {
+      "name": "joined",
+      "description": "Show the first recorded joined date of a server member",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the joined date for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "timeline",
+      "description": "Gets a timeline of the first users who joined the current server",
+      "type": 1
+    },
+    {
       "name": "population",
       "description": "Gets age and gender statistics for the current server",
       "type": 1

@@ -11,6 +11,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
@@ -47,7 +48,7 @@ public class DailyClaimCommand
                     .WithDescription(
                         $"""
                         You've already redeemed your daily payout today.
-                        You can redeem again <t:{userCantRedeem.CanRedeemAt.ToUnixTimeSeconds()}:R>.
+                        You can redeem again {userCantRedeem.CanRedeemAt.FormatRelative()}.
                         """)
                 .Build());
             }

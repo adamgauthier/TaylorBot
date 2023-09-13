@@ -41,11 +41,11 @@ public class MessageLogEmbedFactory
                         builder.WithAuthor($"{message.Author.Username}{message.Author.DiscrimSuffix()} ({message.Author.Id})", avatarUrl, avatarUrl);
                     }
 
-                    builder.AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
+                    builder.AddField("Sent", message.Timestamp.FormatRelative(), inline: true);
 
                     if (message.EditedTimestamp.HasValue)
                     {
-                        builder.AddField("Edited", message.EditedTimestamp.Value.FormatShortUserLogDate(), inline: true);
+                        builder.AddField("Edited", message.EditedTimestamp.Value.FormatRelative(), inline: true);
                     }
 
                     if (message.Activity != null)
@@ -102,7 +102,7 @@ public class MessageLogEmbedFactory
                 case TaylorBotCachedMessageData taylorBot:
                     builder
                         .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
-                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
 
                     if (!string.IsNullOrWhiteSpace(taylorBot.ReplyingToId))
                     {
@@ -129,7 +129,7 @@ public class MessageLogEmbedFactory
         }
         else
         {
-            builder.AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+            builder.AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
         }
 
         return builder;
@@ -191,7 +191,7 @@ public class MessageLogEmbedFactory
 
                     builder
                         .AddField("Channel", channel.Mention, inline: true)
-                        .AddField("Sent", message.Timestamp.FormatShortUserLogDate(), inline: true);
+                        .AddField("Sent", message.Timestamp.FormatRelative(), inline: true);
                     break;
 
                 case TaylorBotCachedMessageData taylorBot:
@@ -215,7 +215,7 @@ public class MessageLogEmbedFactory
 
                     builder
                         .AddField("Channel", channel.Mention, inline: true)
-                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
                     break;
             }
         }
@@ -241,7 +241,7 @@ public class MessageLogEmbedFactory
 
             builder
                 .AddField("Channel", channel.Mention, inline: true)
-                .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatShortUserLogDate(), inline: true);
+                .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
         }
 
         return builder.Build();
@@ -276,7 +276,7 @@ public class MessageLogEmbedFactory
             .AddField("Channel", channel.Mention, inline: true)
             .WithTitle($"{"uncached message".ToQuantity(chunk.Length)} deleted (Id - Sent)")
             .WithDescription(string.Join('\n', chunk.Select(uncached =>
-                $"`{uncached.Id}` - {SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatShortUserLogDate()}"
+                $"`{uncached.Id}` - {SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatRelative()}"
             )))
             .WithFooter($"{chunk.Length}/{footerText}")
             .Build()

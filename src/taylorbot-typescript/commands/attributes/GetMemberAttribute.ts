@@ -10,7 +10,7 @@ class GetMemberAttributeCommand extends Command {
             aliases: ['gma'],
             group: 'attributes',
             description: 'Gets a member attribute for a user in the current server.',
-            examples: ['joined @Adam#0420', 'joined'],
+            examples: ['messages @Adam#0420', 'messages'],
             guildOnly: true,
 
             args: [

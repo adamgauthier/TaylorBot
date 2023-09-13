@@ -7,37 +7,36 @@ using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers.Users
+namespace TaylorBot.Net.Commands.Parsers.Users;
+
+public record ParsedUser(IUser User);
+
+public class UserParser : IOptionParser<ParsedUser>
 {
-    public record ParsedUser(IUser User);
+    private readonly ITaylorBotClient _taylorBotClient;
+    private readonly IUserTracker _userTracker;
 
-    public class UserParser : IOptionParser<ParsedUser>
+    public UserParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker)
     {
-        private readonly ITaylorBotClient _taylorBotClient;
-        private readonly IUserTracker _userTracker;
+        _taylorBotClient = taylorBotClient;
+        _userTracker = userTracker;
+    }
 
-        public UserParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker)
+    public async ValueTask<Result<ParsedUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    {
+        if (!optionValue.HasValue)
         {
-            _taylorBotClient = taylorBotClient;
-            _userTracker = userTracker;
+            return Error(new ParsingFailed("User option is required."));
         }
 
-        public async ValueTask<Result<ParsedUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
-        {
-            if (!optionValue.HasValue)
-            {
-                return Error(new ParsingFailed("User option is required."));
-            }
+        SnowflakeId userId = new(optionValue.Value.GetString()!);
+        var user = context.Guild != null
+            ? await _taylorBotClient.ResolveGuildUserAsync(context.Guild, userId) ??
+              await _taylorBotClient.ResolveRequiredUserAsync(userId)
+            : await _taylorBotClient.ResolveRequiredUserAsync(userId);
 
-            SnowflakeId userId = new(optionValue.Value.GetString()!);
-            var user = context.Guild != null
-                ? await _taylorBotClient.ResolveGuildUserAsync(context.Guild, userId) ??
-                  await _taylorBotClient.ResolveRequiredUserAsync(userId)
-                : await _taylorBotClient.ResolveRequiredUserAsync(userId);
+        await _userTracker.TrackUserFromArgumentAsync(user);
 
-            await _userTracker.TrackUserFromArgumentAsync(user);
-
-            return new ParsedUser(user);
-        }
+        return new ParsedUser(user);
     }
 }

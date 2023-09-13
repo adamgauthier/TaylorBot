@@ -221,8 +221,8 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
                     {displayedOptions}
 
                     {(_endedAt.HasValue
-                        ? $"Poll lasted {(_endedAt.Value - _startedAt).Humanize()}, closed {_endedAt.Value.FormatShortUserLogDate()} ✅"
-                        : $"Vote using the buttons below, the poll closes {_endsAt.FormatShortUserLogDate()} ⏱️")}
+                        ? $"Poll lasted {(_endedAt.Value - _startedAt).Humanize()}, closed {_endedAt.Value.FormatRelative()} ✅"
+                        : $"Vote using the buttons below, the poll closes {_endsAt.FormatRelative()} ⏱️")}
                     """)
                 .Build();
         }

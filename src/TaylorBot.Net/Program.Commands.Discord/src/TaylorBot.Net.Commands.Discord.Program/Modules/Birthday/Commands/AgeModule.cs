@@ -61,7 +61,7 @@ public class AgeModule : TaylorBotModule
 
     [Command("clearage")]
     [Alias("clear age")]
-    [Summary("This command has been moved to </birthday clear:1016938623880400907>. Please use it instead! 😊")]
+    [Summary("Your age is associated with your set birthday, you can use 👉 </birthday clear:1016938623880400907> 👈 to clear it 😊")]
     public async Task<RuntimeResult> ClearAgeAsync(
         [Remainder]
         string? text = null

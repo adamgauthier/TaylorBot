@@ -239,7 +239,6 @@ var host = Host.CreateDefaultBuilder()
             .ConfigureRequired<ImgurOptions>(config, "Imgur")
             .AddTransient<ITaypointBalanceRepository, TaypointBalancePostgresRepository>()
             .AddTransient<MemberNotInGuildUpdater>()
-            .AddTransient<TaypointsBalanceCommand>()
             .AddSlashCommand<TaypointsBalanceSlashCommand>()
             .AddSlashCommand<TaypointsLeaderboardSlashCommand>()
             .AddSlashCommand<PollSlashCommand>()
@@ -268,6 +267,9 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<GenderShowSlashCommand>()
             .AddSlashCommand<GenderSetSlashCommand>()
             .AddSlashCommand<GenderClearSlashCommand>()
+            .AddTransient<IServerJoinedRepository, ServerJoinedPostgresRepository>()
+            .AddSlashCommand<ServerJoinedSlashCommand>()
+            .AddSlashCommand<ServerTimelineSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

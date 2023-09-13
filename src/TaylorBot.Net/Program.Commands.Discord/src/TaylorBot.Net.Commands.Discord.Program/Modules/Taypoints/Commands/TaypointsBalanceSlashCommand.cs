@@ -12,19 +12,21 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsBalanceCommand
+public class TaypointsBalanceSlashCommand : ISlashCommand<TaypointsBalanceSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("taypoints", "Taypoints 🪙", new[] { "points" });
+    public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
+
+    public record Options(ParsedUserOrAuthor user);
 
     private readonly ITaypointBalanceRepository _taypointBalanceRepository;
 
-    public TaypointsBalanceCommand(ITaypointBalanceRepository taypointBalanceRepository)
+    public TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBalanceRepository)
     {
         _taypointBalanceRepository = taypointBalanceRepository;
     }
 
     public Command Balance(IUser user, bool isLegacyCommand) => new(
-        Metadata,
+        new("taypoints", "Taypoints 🪙", new[] { "points" }),
         async () =>
         {
             TaypointBalance balance;
@@ -53,25 +55,9 @@ public class TaypointsBalanceCommand
             .Build());
         }
     );
-}
-
-public class TaypointsBalanceSlashCommand : ISlashCommand<TaypointsBalanceSlashCommand.Options>
-{
-    public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
-
-    public record Options(ParsedUserOrAuthor user);
-
-    private readonly TaypointsBalanceCommand _taypointsBalanceCommand;
-
-    public TaypointsBalanceSlashCommand(TaypointsBalanceCommand taypointsBalanceCommand)
-    {
-        _taypointsBalanceCommand = taypointsBalanceCommand;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(
-            _taypointsBalanceCommand.Balance(options.user.User, isLegacyCommand: false)
-        );
+        return new(Balance(options.user.User, isLegacyCommand: false));
     }
 }

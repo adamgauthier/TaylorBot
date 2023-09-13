@@ -32,7 +32,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
             """,
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
             }
         );
 
@@ -50,7 +50,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
             "DELETE FROM attributes.birthdays WHERE user_id = @UserId;",
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
             }
         );
     }
@@ -69,7 +69,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
             """,
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
                 Birthday = birthday.Date,
                 IsPrivate = birthday.IsPrivate,
             }
@@ -113,7 +113,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
             """,
             new
             {
-                GuildId = guild.Id.ToString(),
+                GuildId = $"{guild.Id}",
             }
         );
 

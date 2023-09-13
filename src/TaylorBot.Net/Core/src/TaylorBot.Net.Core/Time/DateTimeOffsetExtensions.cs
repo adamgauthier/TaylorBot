@@ -17,7 +17,18 @@ public static class DateTimeOffsetExtensions
         return $"{date.ToString("MMMM", culture)} {date.Day.Ordinalize(culture)}, {date.ToString(@"yyyy", culture)} ({date.Humanize(culture: culture)})";
     }
 
-    public static string FormatShortUserLogDate(this DateTimeOffset date)
+    public static string FormatDetailedWithRelative(this DateTimeOffset date)
+    {
+        var unixTime = date.ToUnixTimeSeconds();
+        return $"<t:{unixTime}> (<t:{unixTime}:R>)";
+    }
+
+    public static string FormatLongDate(this DateTimeOffset date)
+    {
+        return $"<t:{date.ToUnixTimeSeconds()}:D>";
+    }
+
+    public static string FormatRelative(this DateTimeOffset date)
     {
         return $"<t:{date.ToUnixTimeSeconds()}:R>";
     }

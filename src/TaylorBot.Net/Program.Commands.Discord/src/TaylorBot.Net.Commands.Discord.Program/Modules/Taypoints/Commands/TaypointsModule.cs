@@ -12,9 +12,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 public class TaypointsModule : TaylorBotModule
 {
     private readonly ICommandRunner _commandRunner;
-    private readonly TaypointsBalanceCommand _taypointsBalanceCommand;
+    private readonly TaypointsBalanceSlashCommand _taypointsBalanceCommand;
 
-    public TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceCommand taypointsBalanceCommand)
+    public TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlashCommand taypointsBalanceCommand)
     {
         _commandRunner = commandRunner;
         _taypointsBalanceCommand = taypointsBalanceCommand;
@@ -41,4 +41,3 @@ public class TaypointsModule : TaylorBotModule
         return new TaylorBotResult(result, context);
     }
 }
-
