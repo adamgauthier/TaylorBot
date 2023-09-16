@@ -9,6 +9,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Time;
 
@@ -35,7 +36,7 @@ public class ServerTimelineSlashCommand : ISlashCommand<NoOptions>
                 var timeline = await _serverJoinedRepository.GetTimelineAsync(guild);
 
                 var pages = timeline.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
-                    $"{((DateTimeOffset)entry.first_joined_at).FormatLongDate()}: {entry.username.MdUserLink(entry.user_id)} is the {((int)entry.rank).Ordinalize()} to join"
+                    $"{((DateTimeOffset)entry.first_joined_at).FormatLongDate()}: {entry.username.MdUserLink(entry.user_id)} is {((int)entry.rank).Ordinalize(TaylorBotCulture.Culture)} to join"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()

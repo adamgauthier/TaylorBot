@@ -42,7 +42,7 @@ public class JoinedModule : TaylorBotModule
 
     [Command("rankjoined")]
     [Alias("rank joined")]
-    [Summary("This command has been moved to **/server timeline**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </server timeline:1137547317549998130>. Please use it instead! 😊")]
     public async Task<RuntimeResult> SetAgeAsync(
         [Remainder]
         string? _ = null
@@ -52,7 +52,7 @@ public class JoinedModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/server timeline** 👈
+                This command has been moved to 👉 </server timeline:1137547317549998130> 👈
                 Please use it instead! 😊
                 """))));
 

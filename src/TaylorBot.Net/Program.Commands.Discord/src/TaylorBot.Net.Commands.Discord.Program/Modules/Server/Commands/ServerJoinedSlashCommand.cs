@@ -62,8 +62,10 @@ public class ServerJoinedSlashCommand : ISlashCommand<ServerJoinedSlashCommand.O
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(
                     $"""
-                    {guildUser.Mention} first joined the server on {joinedAt.FormatDetailedWithRelative()} 🚪
+                    {guildUser.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
                     This was roughly **{sinceCreation.Humanize(culture: TaylorBotCulture.Culture)}** after the server was created 📆
+
+                    Check out </server timeline:1137547317549998130> for a history of who joined first! 📃
                     """);
 
             if (isLegacyCommand)
