@@ -43,7 +43,7 @@ public class TaypointsLeaderboardSlashCommand : ISlashCommand<NoOptions>
                     leaderboard.Select(e => e.UserId).ToList());
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                    entry => $"{entry.Rank}: {entry.Username.MdUserLink(entry.UserId)} - {"taypoint".ToQuantity(entry.TaypointCount, TaylorBotFormats.CodedReadable)}"
+                    entry => $"{entry.Rank}. {entry.Username.MdUserLink(entry.UserId)}: {"taypoint".ToQuantity(entry.TaypointCount, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()

@@ -22,14 +22,63 @@
       ]
     },
     {
+      "name": "messages",
+      "description": "Show the amount of messages sent by a server member",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the messages for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "minutes",
+      "description": "Show the amount of active minutes of a server member",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the minutes for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
       "name": "timeline",
-      "description": "Gets a timeline of the first users who joined the current server",
+      "description": "Get a timeline of the first users who joined the current server",
       "type": 1
     },
     {
       "name": "population",
-      "description": "Gets age and gender statistics for the current server",
+      "description": "Get age and gender statistics for the current server",
       "type": 1
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show a given leaderboard for the current server",
+      "type": 1,
+      "options": [
+        {
+          "name": "for",
+          "description": "What to rank by",
+          "type": 3,
+          "required": true,
+          "choices": [
+            {
+              "name": "Minutes spent in the server",
+              "value": "minutes"
+            },
+            {
+              "name": "Messages sent in the server",
+              "value": "messages"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -270,6 +270,10 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IServerJoinedRepository, ServerJoinedPostgresRepository>()
             .AddSlashCommand<ServerJoinedSlashCommand>()
             .AddSlashCommand<ServerTimelineSlashCommand>()
+            .AddTransient<IServerActivityRepository, ServerActivityPostgresRepository>()
+            .AddSlashCommand<ServerMessagesSlashCommand>()
+            .AddSlashCommand<ServerMinutesSlashCommand>()
+            .AddSlashCommand<ServerLeaderboardSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

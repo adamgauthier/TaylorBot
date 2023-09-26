@@ -19,67 +19,6 @@ export class GuildMemberRepository {
         };
     }
 
-    async _getMemberAttribute(guildMember: GuildMember, column: string): Promise<any> {
-        try {
-            return await this.#db.one(
-                `SELECT $[column~]
-                FROM guilds.guild_members
-                WHERE guild_id = $[guild_id] AND user_id = $[user_id];`,
-                {
-                    guild_id: guildMember.guild.id,
-                    user_id: guildMember.id,
-                    column
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting attribute '${column}' for guild member ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async _getRankedUsers(guild: Guild, limit: number, column: string): Promise<any[]> {
-        try {
-            return await this.#db.any(
-                `SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-                WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE AND u.is_bot = FALSE
-                LIMIT $[limit];`,
-                {
-                    guild_id: guild.id,
-                    limit: limit,
-                    column
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting ranked alive '${column}' for guild ${Format.guild(guild)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async _getRankedAliveFor(guildMember: GuildMember, column: string): Promise<any> {
-        try {
-            return await this.#db.one(
-                `SELECT $[column~], rank FROM (
-                    SELECT $[column~], gm.user_id, rank() OVER (ORDER BY $[column~] DESC) AS rank
-                    FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-                    WHERE gm.guild_id = $[guild_id] AND gm.alive = TRUE ${guildMember.user.bot ? '' : 'AND u.is_bot = FALSE'}
-                ) AS ranked
-                WHERE user_id = $[user_id];`,
-                {
-                    guild_id: guildMember.guild.id,
-                    user_id: guildMember.id,
-                    column
-                }
-            );
-        }
-        catch (e) {
-            Log.error(`Getting ranked alive '${column}' for guild member ${Format.member(guildMember)}: ${e}`);
-            throw e;
-        }
-    }
-
     async _getRankedAliveForeign(guild: Guild, limit: number, tableName: pgPromise.TableName, column: string): Promise<any[]> {
         try {
             return await this.#db.any(
@@ -127,42 +66,6 @@ export class GuildMemberRepository {
             Log.error(`Getting foreign ranked alive '${tableName}.${rankedColumn}' with additional columns '${columns.join()}' for guild member ${Format.member(guildMember)}: ${e}`);
             throw e;
         }
-    }
-
-    getRankedMessages(guild: Guild, limit: number): Promise<{ message_count: string; user_id: string; rank: string }[]> {
-        return this._getRankedUsers(guild, limit, 'message_count');
-    }
-
-    getMessagesFor(guildMember: GuildMember): Promise<{ message_count: string; }> {
-        return this._getMemberAttribute(guildMember, 'message_count');
-    }
-
-    getRankedMessagesFor(guildMember: GuildMember): Promise<{ message_count: string; rank: string }> {
-        return this._getRankedAliveFor(guildMember, 'message_count');
-    }
-
-    getRankedWords(guild: Guild, limit: number): Promise<{ word_count: string; user_id: string; rank: string }[]> {
-        return this._getRankedUsers(guild, limit, 'word_count');
-    }
-
-    getWordsFor(guildMember: GuildMember): Promise<{ word_count: string; }> {
-        return this._getMemberAttribute(guildMember, 'word_count');
-    }
-
-    getRankedWordsFor(guildMember: GuildMember): Promise<{ word_count: string; rank: string }> {
-        return this._getRankedAliveFor(guildMember, 'word_count');
-    }
-
-    getRankedMinutes(guild: Guild, limit: number): Promise<{ minute_count: string; user_id: string; rank: string }[]> {
-        return this._getRankedUsers(guild, limit, 'minute_count');
-    }
-
-    getMinutesFor(guildMember: GuildMember): Promise<{ minute_count: string }> {
-        return this._getMemberAttribute(guildMember, 'minute_count');
-    }
-
-    getRankedMinutesFor(guildMember: GuildMember): Promise<{ minute_count: string; rank: string }> {
-        return this._getRankedAliveFor(guildMember, 'minute_count');
     }
 
     getRankedForeignStat(guild: Guild, limit: number, schema: string, table: string, column: string): Promise<any[]> {

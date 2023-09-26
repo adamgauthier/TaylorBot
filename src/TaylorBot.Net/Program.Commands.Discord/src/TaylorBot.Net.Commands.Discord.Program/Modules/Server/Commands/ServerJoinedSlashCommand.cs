@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Humanizer;
+using Humanizer.Localisation;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -63,7 +64,7 @@ public class ServerJoinedSlashCommand : ISlashCommand<ServerJoinedSlashCommand.O
                 .WithDescription(
                     $"""
                     {guildUser.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
-                    This was roughly **{sinceCreation.Humanize(culture: TaylorBotCulture.Culture)}** after the server was created 📆
+                    This was roughly **{sinceCreation.Humanize(maxUnit: TimeUnit.Year, culture: TaylorBotCulture.Culture)}** after the server was created 📆
 
                     Check out </server timeline:1137547317549998130> for a history of who joined first! 📃
                     """);
