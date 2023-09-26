@@ -32,17 +32,9 @@ class SetAttributeCommand extends Command {
     async run(commandContext: CommandMessageContext, { attribute, value }: { attribute: UserAttribute; value: string }): Promise<void> {
         const { registry } = commandContext.client.master;
 
-        if (attribute.id === 'lastfm') {
-            await commandContext.client.sendEmbedError(
-                commandContext.message.channel,
-                `This command has been removed. Please use \`${commandContext.messageContext.prefix}lastfm set ${value}\` instead.`
-            );
-        }
-        else {
-            const cachedCommand = registry.commands.resolve(`set${attribute.id}`)!;
+        const cachedCommand = registry.commands.resolve(`set${attribute.id}`)!;
 
-            await CommandsWatcher.runCommand(commandContext.messageContext, cachedCommand, ` ${value}`);
-        }
+        await CommandsWatcher.runCommand(commandContext.messageContext, cachedCommand, ` ${value}`);
     }
 }
 

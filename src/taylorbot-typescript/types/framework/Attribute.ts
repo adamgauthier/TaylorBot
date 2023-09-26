@@ -9,11 +9,7 @@ class AttributeArgumentType extends WordArgumentType {
         return 'attribute';
     }
 
-    parse(val: string, { client }: CommandMessageContext, arg: CommandArgumentInfo): MemberAttribute | UserAttribute | { id: 'lastfm'; canSet: true; list: null } {
-        if (val.toLowerCase() === 'fm' || val.toLowerCase() === 'lastfm') {
-            return { id: 'lastfm', canSet: true, list: null };
-        }
-
+    parse(val: string, { client }: CommandMessageContext, arg: CommandArgumentInfo): MemberAttribute | UserAttribute {
         const attribute = client.master.registry.attributes.resolve(val);
 
         if (!attribute)

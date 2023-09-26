@@ -20,7 +20,6 @@ export class AttributeRegistry extends Map<string, string | MemberAttribute | Us
         ];
 
         const fileAttributesNotInDatabase = attributes.map(a => ({ id: a.id }))
-            .concat({ id: 'lastfm' })
             .filter(
                 attribute => !databaseAttributes.some(da => da.attribute_id === attribute.id)
             );

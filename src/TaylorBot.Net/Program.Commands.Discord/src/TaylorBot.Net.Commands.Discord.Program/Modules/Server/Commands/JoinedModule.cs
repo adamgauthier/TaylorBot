@@ -43,7 +43,7 @@ public class JoinedModule : TaylorBotModule
     [Command("rankjoined")]
     [Alias("rank joined")]
     [Summary("This command has been moved to </server timeline:1137547317549998130>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> SetAgeAsync(
+    public async Task<RuntimeResult> RankJoinedAsync(
         [Remainder]
         string? _ = null
     )

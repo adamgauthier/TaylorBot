@@ -2,6 +2,7 @@
 using Discord.Commands;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TaylorBot.Net.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
@@ -159,5 +160,83 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
                 DiscordNetContextMapper.MapToRunContext(Context)
             ));
         }
+    }
+}
+
+
+[Name("Last.fm old 🎶")]
+public class LastFmDeprecatedModule : TaylorBotModule
+{
+    private readonly ICommandRunner _commandRunner;
+
+    public LastFmDeprecatedModule(ICommandRunner commandRunner)
+    {
+        _commandRunner = commandRunner;
+    }
+
+    [Command("setlastfm")]
+    [Alias("setfm")]
+    [Summary("This command has been moved to </lastfm set:922354806574678086>. Please use it instead! 😊")]
+    public async Task<RuntimeResult> SetFmAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </lastfm set:922354806574678086> 👈
+                Please use it instead! 😊
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await _commandRunner.RunAsync(command, context);
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("clearlastfm")]
+    [Alias("clearfm")]
+    [Summary("This command has been moved to </lastfm clear:922354806574678086>. Please use it instead! 😊")]
+    public async Task<RuntimeResult> ClearFmAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </lastfm clear:922354806574678086> 👈
+                Please use it instead! 😊
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await _commandRunner.RunAsync(command, context);
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("lastfmcollage")]
+    [Alias("fmcollage", "fmc")]
+    [Summary("This command has been moved to </lastfm collage:922354806574678086>. Please use it instead! 😊")]
+    public async Task<RuntimeResult> FmcAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </lastfm collage:922354806574678086> 👈
+                Please use it instead! 😊
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await _commandRunner.RunAsync(command, context);
+
+        return new TaylorBotResult(result, context);
     }
 }

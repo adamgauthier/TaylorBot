@@ -17,7 +17,7 @@ class ListableAttributeArgumentType extends WordArgumentType {
         if (typeof attribute.list == 'string')
             throw new ArgumentParsingError(`This command has been removed. Please use ${attribute.list} instead.`);
 
-        if (attribute.list === null || attribute.id === 'lastfm')
+        if (attribute.list === null)
             throw new ArgumentParsingError(`Attribute '${val}' can't be listed.`);
 
         return attribute;

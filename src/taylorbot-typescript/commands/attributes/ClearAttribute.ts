@@ -25,18 +25,10 @@ class ClearAttributeCommand extends Command {
     async run(commandContext: CommandMessageContext, { attribute }: { attribute: SettableUserAttribute }): Promise<void> {
         const { client, message } = commandContext;
 
-        if (attribute.id === 'lastfm') {
-            await commandContext.client.sendEmbedError(
-                commandContext.message.channel,
-                `This command has been removed. Please use </lastfm clear:922354806574678086> instead.`
-            );
-        }
-        else {
-            await client.sendEmbed(
-                message.channel,
-                await attribute.clearCommand(commandContext)
-            );
-        }
+        await client.sendEmbed(
+            message.channel,
+            await attribute.clearCommand(commandContext)
+        );
     }
 }
 
