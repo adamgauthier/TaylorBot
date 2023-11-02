@@ -40,6 +40,45 @@
           "options": []
         }
       ]
+    },
+    {
+      "name": "bae",
+      "description": "Set and see your friends' bae",
+      "type": 2,
+      "options": [
+        {
+          "name": "show",
+          "description": "Show the bae of a user",
+          "type": 1,
+          "options": [
+            {
+              "name": "user",
+              "description": "The user to see the bae for, default you",
+              "type": 6,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "set",
+          "description": "Register your bae for others to see",
+          "type": 1,
+          "options": [
+            {
+              "name": "bae",
+              "description": "Your bae",
+              "type": 3,
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "clear",
+          "description": "Clears your registered bae",
+          "type": 1,
+          "options": []
+        }
+      ]
     }
   ]
 }

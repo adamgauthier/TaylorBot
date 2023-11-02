@@ -55,7 +55,7 @@ public class FavoriteSongsShowSlashCommand : ISlashCommand<FavoriteSongsShowSlas
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s favorite songs list is not set. 🚫
-                    They need to use {context?.MentionCommand("favorite songs set") ?? "/favorite songs set"} to set it first.
+                    They need to use {context?.MentionCommand("favorite songs set") ?? "</favorite songs set:1169468169140838502>"} to set it first.
                     """));
             }
         }
@@ -109,7 +109,7 @@ public class FavoriteSongsSetSlashCommand : ISlashCommand<FavoriteSongsSetSlashC
                 return EmbedFactory.CreateSuccess(
                     $"""
                     Your favorite songs list has been set successfully. ✅
-                    Others can now use {context?.MentionCommand("favorite songs show") ?? "/favorite songs show"} to see your favorite songs. 🎵
+                    Others can now use {context?.MentionCommand("favorite songs show") ?? "</favorite songs show:1169468169140838502>"} to see your favorite songs. 🎵
                     """);
             }
         }

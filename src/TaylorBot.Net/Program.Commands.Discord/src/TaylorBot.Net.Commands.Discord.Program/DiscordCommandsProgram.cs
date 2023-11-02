@@ -281,6 +281,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<FavoriteSongsShowSlashCommand>()
             .AddSlashCommand<FavoriteSongsSetSlashCommand>()
             .AddSlashCommand<FavoriteSongsClearSlashCommand>()
+            .AddTransient<IBaeRepository, BaePostgresRepository>()
+            .AddSlashCommand<FavoriteBaeShowSlashCommand>()
+            .AddSlashCommand<FavoriteBaeSetSlashCommand>()
+            .AddSlashCommand<FavoriteBaeClearSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
