@@ -50,7 +50,8 @@ public class CommandExecutedHandler
 
             if (result.IsSuccess)
             {
-                switch (((TaylorBotResult)result).Result)
+                var innerResult = ((TaylorBotResult)result).Result;
+                switch (innerResult)
                 {
                     case EmbedResult embedResult:
                         // Check for slash command-like errors and use message reply
@@ -120,7 +121,7 @@ public class CommandExecutedHandler
                         break;
 
                     default:
-                        throw new InvalidOperationException($"Unexpected command success result: {result.GetType()}");
+                        throw new InvalidOperationException($"Unexpected command success result: {innerResult.GetType()}");
                 }
                 if (optCommandInfo.IsSpecified)
                     _commandUsageRepository.QueueIncrementSuccessfulUseCount(optCommandInfo.Value.Aliases[0]);

@@ -23,6 +23,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
@@ -263,6 +265,7 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IWeatherClient, PirateWeatherClient>()
             .AddTransient<WeatherCommand>()
             .AddSlashCommand<WeatherSlashCommand>()
+            .AddTransient<TextAttributePostgresRepository>()
             .AddTransient<IGenderRepository, GenderPostgresRepository>()
             .AddSlashCommand<GenderShowSlashCommand>()
             .AddSlashCommand<GenderSetSlashCommand>()
@@ -274,6 +277,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ServerMessagesSlashCommand>()
             .AddSlashCommand<ServerMinutesSlashCommand>()
             .AddSlashCommand<ServerLeaderboardSlashCommand>()
+            .AddTransient<IFavoriteSongsRepository, FavoriteSongsPostgresRepository>()
+            .AddSlashCommand<FavoriteSongsShowSlashCommand>()
+            .AddSlashCommand<FavoriteSongsSetSlashCommand>()
+            .AddSlashCommand<FavoriteSongsClearSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

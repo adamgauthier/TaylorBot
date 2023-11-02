@@ -294,6 +294,9 @@ public class SlashCommandHandler
 
                     var fakeGuildUser = A.Fake<IGuildUser>(o => o.Strict());
                     A.CallTo(() => fakeGuildUser.Id).Returns(new SnowflakeId(interaction.Guild.Member.user.id).Id);
+                    A.CallTo(() => fakeGuildUser.IsBot).Returns(false);
+                    A.CallTo(() => fakeGuildUser.AvatarId).Returns(interaction.Guild.Member.user.avatar!);
+                    A.CallTo(() => fakeGuildUser.GuildAvatarId).Returns(interaction.Guild.Member.avatar!);
                     A.CallTo(() => fakeGuildUser.Guild).Returns(guild);
                     A.CallTo(() => fakeGuildUser.GuildId).Returns(guild.Id);
                     A.CallTo(() => fakeGuildUser.Username).Returns(interaction.Guild.Member.user.username);
@@ -307,6 +310,8 @@ public class SlashCommandHandler
                 {
                     user = A.Fake<IUser>(o => o.Strict());
                     A.CallTo(() => user.Id).Returns(new SnowflakeId(interaction.UserData!.id).Id);
+                    A.CallTo(() => user.IsBot).Returns(false);
+                    A.CallTo(() => user.AvatarId).Returns(interaction.UserData!.avatar!);
                     A.CallTo(() => user.Username).Returns(interaction.UserData!.username);
                     A.CallTo(() => user.Discriminator).Returns(interaction.UserData!.discriminator);
                     A.CallTo(() => user.Mention).Returns(MentionUtils.MentionUser(user.Id));

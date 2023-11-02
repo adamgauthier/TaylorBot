@@ -1,0 +1,45 @@
+{
+  "name": "favorite",
+  "description": "Set and see your friends' favorite things",
+  "options": [
+    {
+      "name": "songs",
+      "description": "Set and see your friends' favorite songs",
+      "type": 2,
+      "options": [
+        {
+          "name": "show",
+          "description": "Show the favorite songs of a user",
+          "type": 1,
+          "options": [
+            {
+              "name": "user",
+              "description": "The user to see the songs for, default you",
+              "type": 6,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "set",
+          "description": "Register your favorite songs for others to see",
+          "type": 1,
+          "options": [
+            {
+              "name": "songs",
+              "description": "Your favorite songs, put a comma between each song",
+              "type": 3,
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "clear",
+          "description": "Clears your registered favorite songs",
+          "type": 1,
+          "options": []
+        }
+      ]
+    }
+  ]
+}

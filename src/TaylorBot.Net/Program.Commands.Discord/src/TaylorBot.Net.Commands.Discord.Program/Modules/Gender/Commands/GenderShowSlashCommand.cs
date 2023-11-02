@@ -29,12 +29,16 @@ public class GenderShowSlashCommand : ISlashCommand<GenderShowSlashCommand.Optio
             if (gender != null)
             {
                 var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(user)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(
                         $"""
-                        {user.Username}'s gender is **{gender}**. 🆔
+                        {user.Mention}'s gender is **{gender}**. 🆔
                         """);
+
+                if (context == null)
+                {
+                    embed.WithUserAsAuthor(user);
+                }
 
                 return new EmbedResult(embed.Build());
             }
