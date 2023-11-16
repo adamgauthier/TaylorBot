@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using System;
@@ -60,7 +61,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton(provider =>
             {
                 var options = provider.GetRequiredService<IOptionsMonitor<RedisConnectionOptions>>().CurrentValue;
-                return ConnectionMultiplexer.Connect($"{options.Host}:{options.Port},password={options.Password}");
+                return ConnectionMultiplexer.Connect($"{options.Host}:{options.Port},password={options.Password}", o => o.LoggerFactory = provider.GetRequiredService<ILoggerFactory>());
             });
     }
 }

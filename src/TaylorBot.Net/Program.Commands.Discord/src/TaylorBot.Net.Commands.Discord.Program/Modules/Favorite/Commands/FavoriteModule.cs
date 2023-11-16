@@ -8,21 +8,12 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 [Name("Favorite")]
-public class FavoriteModule : TaylorBotModule
+public class FavoriteModule(
+    ICommandRunner commandRunner,
+    FavoriteSongsShowSlashCommand favoriteSongsShowCommand,
+    FavoriteSongsSetSlashCommand favoriteSongsSetCommand,
+    FavoriteBaeShowSlashCommand favoriteBaeShowCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly FavoriteSongsShowSlashCommand _favoriteSongsShowCommand;
-    private readonly FavoriteSongsSetSlashCommand _favoriteSongsSetCommand;
-    private readonly FavoriteBaeShowSlashCommand _favoriteBaeShowCommand;
-
-    public FavoriteModule(ICommandRunner commandRunner, FavoriteSongsShowSlashCommand favoriteSongsShowCommand, FavoriteSongsSetSlashCommand favoriteSongsSetCommand, FavoriteBaeShowSlashCommand favoriteBaeShowCommand)
-    {
-        _commandRunner = commandRunner;
-        _favoriteSongsShowCommand = favoriteSongsShowCommand;
-        _favoriteSongsSetCommand = favoriteSongsSetCommand;
-        _favoriteBaeShowCommand = favoriteBaeShowCommand;
-    }
-
     [Command("fav")]
     [Alias("favsongs", "favoritesongs")]
     [Summary("Show the favorite songs of a user")]
@@ -35,8 +26,8 @@ public class FavoriteModule : TaylorBotModule
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _favoriteSongsShowCommand.Show(u),
+        var result = await commandRunner.RunAsync(
+            favoriteSongsShowCommand.Show(u),
             context
         );
 
@@ -52,8 +43,8 @@ public class FavoriteModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _favoriteSongsSetCommand.Set(Context.User, text, null),
+        var result = await commandRunner.RunAsync(
+            favoriteSongsSetCommand.Set(Context.User, text, null),
             context
         );
 
@@ -77,7 +68,7 @@ public class FavoriteModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -93,8 +84,8 @@ public class FavoriteModule : TaylorBotModule
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _favoriteBaeShowCommand.Show(u),
+        var result = await commandRunner.RunAsync(
+            favoriteBaeShowCommand.Show(u),
             context
         );
 
@@ -117,7 +108,7 @@ public class FavoriteModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -138,7 +129,7 @@ public class FavoriteModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

@@ -71,7 +71,7 @@ public class GooglePlacesClient : ILocationClient
         }
         catch (Exception e)
         {
-            _logger.LogWarning("Unexpected exception when querying Google Places API", e);
+            _logger.LogWarning(e, "Unexpected exception when querying Google Places API");
             return new LocationGenericErrorResult();
         }
     }
@@ -113,7 +113,7 @@ public class GooglePlacesClient : ILocationClient
         }
         catch (Exception e)
         {
-            _logger.LogWarning("Unexpected exception when querying Google Maps API", e);
+            _logger.LogWarning(e, "Unexpected exception when querying Google Maps API");
             return new TimeZoneGenericErrorResult();
         }
     }

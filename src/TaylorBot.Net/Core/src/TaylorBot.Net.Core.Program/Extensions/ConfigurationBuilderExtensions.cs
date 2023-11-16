@@ -1,29 +1,28 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace TaylorBot.Net.Core.Program.Extensions
+namespace TaylorBot.Net.Core.Program.Extensions;
+
+public static class ConfigurationBuilderExtensions
 {
-    public static class ConfigurationBuilderExtensions
+    public static IConfigurationBuilder AddTaylorBotApplication(this IConfigurationBuilder builder, IHostEnvironment environment)
     {
-        public static IConfigurationBuilder AddTaylorBotApplication(this IConfigurationBuilder builder, IHostEnvironment environment)
-        {
-            return builder
-                .AddJsonFile(path: "Settings/discord.json", optional: false, reloadOnChange: true)
-                .AddJsonFile(path: $"Settings/discord.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-        }
+        return builder
+            .AddJsonFile(path: "Settings/discord.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: $"Settings/discord.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    }
 
-        public static IConfigurationBuilder AddDatabaseConnection(this IConfigurationBuilder builder, IHostEnvironment environment)
-        {
-            return builder
-                .AddJsonFile(path: "Settings/databaseConnection.json", optional: false, reloadOnChange: true)
-                .AddJsonFile(path: $"Settings/databaseConnection.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-        }
+    public static IConfigurationBuilder AddDatabaseConnection(this IConfigurationBuilder builder, IHostEnvironment environment)
+    {
+        return builder
+            .AddJsonFile(path: "Settings/databaseConnection.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: $"Settings/databaseConnection.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    }
 
-        public static IConfigurationBuilder AddRedisConnection(this IConfigurationBuilder builder, IHostEnvironment environment)
-        {
-            return builder
-                .AddJsonFile(path: "Settings/redisConnection.json", optional: false, reloadOnChange: true)
-                .AddJsonFile(path: $"Settings/redisConnection.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
-        }
+    public static IConfigurationBuilder AddRedisConnection(this IConfigurationBuilder builder, IHostEnvironment environment)
+    {
+        return builder
+            .AddJsonFile(path: "Settings/redisConnection.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: $"Settings/redisConnection.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
     }
 }

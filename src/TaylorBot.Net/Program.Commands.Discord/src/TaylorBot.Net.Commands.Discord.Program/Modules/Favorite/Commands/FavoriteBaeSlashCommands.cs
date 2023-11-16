@@ -15,18 +15,11 @@ public interface IBaeRepository
     ValueTask ClearBaeAsync(IUser user);
 }
 
-public class FavoriteBaeShowSlashCommand : ISlashCommand<FavoriteBaeShowSlashCommand.Options>
+public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae show");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly IBaeRepository _baeRepository;
-
-    public FavoriteBaeShowSlashCommand(IBaeRepository favoriteBaeRepository)
-    {
-        _baeRepository = favoriteBaeRepository;
-    }
 
     public static Embed BuildDisplayEmbed(IUser user, string favoriteBae)
     {
@@ -42,7 +35,7 @@ public class FavoriteBaeShowSlashCommand : ISlashCommand<FavoriteBaeShowSlashCom
         new(Info.Name),
         async () =>
         {
-            var favoriteBae = await _baeRepository.GetBaeAsync(user);
+            var favoriteBae = await baeRepository.GetBaeAsync(user);
 
             if (favoriteBae != null)
             {
@@ -66,18 +59,11 @@ public class FavoriteBaeShowSlashCommand : ISlashCommand<FavoriteBaeShowSlashCom
     }
 }
 
-public class FavoriteBaeSetSlashCommand : ISlashCommand<FavoriteBaeSetSlashCommand.Options>
+public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae set");
 
     public record Options(ParsedString bae);
-
-    private readonly IBaeRepository _baeRepository;
-
-    public FavoriteBaeSetSlashCommand(IBaeRepository favoriteBaeRepository)
-    {
-        _baeRepository = favoriteBaeRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -94,7 +80,7 @@ public class FavoriteBaeSetSlashCommand : ISlashCommand<FavoriteBaeSetSlashComma
 
                 async ValueTask<Embed> SetAsync(string favoriteBae)
                 {
-                    await _baeRepository.SetBaeAsync(context.User, options.bae.Value);
+                    await baeRepository.SetBaeAsync(context.User, options.bae.Value);
 
                     return EmbedFactory.CreateSuccess(
                         $"""
@@ -108,16 +94,9 @@ public class FavoriteBaeSetSlashCommand : ISlashCommand<FavoriteBaeSetSlashComma
     }
 }
 
-public class FavoriteBaeClearSlashCommand : ISlashCommand<NoOptions>
+public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae clear");
-
-    private readonly IBaeRepository _baeRepository;
-
-    public FavoriteBaeClearSlashCommand(IBaeRepository favoriteBaeRepository)
-    {
-        _baeRepository = favoriteBaeRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -125,7 +104,7 @@ public class FavoriteBaeClearSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _baeRepository.ClearBaeAsync(context.User);
+                await baeRepository.ClearBaeAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
