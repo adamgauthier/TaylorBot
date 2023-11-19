@@ -79,6 +79,45 @@
           "options": []
         }
       ]
+    },
+    {
+      "name": "obsession",
+      "description": "Set and see your friends' obsession",
+      "type": 2,
+      "options": [
+        {
+          "name": "show",
+          "description": "Show a user's obsession",
+          "type": 1,
+          "options": [
+            {
+              "name": "user",
+              "description": "The user to see the obsession for, default you",
+              "type": 6,
+              "required": false
+            }
+          ]
+        },
+        {
+          "name": "set",
+          "description": "Register your obsession for others to see",
+          "type": 1,
+          "options": [
+            {
+              "name": "obsession",
+              "description": "A link to a picture of your obsession",
+              "type": 3,
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "clear",
+          "description": "Clears your registered obsession",
+          "type": 1,
+          "options": []
+        }
+      ]
     }
   ]
 }

@@ -16,18 +16,11 @@ public interface IFavoriteSongsRepository
     ValueTask ClearFavoriteSongsAsync(IUser user);
 }
 
-public class FavoriteSongsShowSlashCommand : ISlashCommand<FavoriteSongsShowSlashCommand.Options>
+public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs show");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly IFavoriteSongsRepository _favoriteSongsRepository;
-
-    public FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSongsRepository)
-    {
-        _favoriteSongsRepository = favoriteSongsRepository;
-    }
 
     public static Embed BuildDisplayEmbed(IUser user, string favoriteSongs)
     {
@@ -43,7 +36,7 @@ public class FavoriteSongsShowSlashCommand : ISlashCommand<FavoriteSongsShowSlas
         new(Info.Name),
         async () =>
         {
-            var favoriteSongs = await _favoriteSongsRepository.GetFavoriteSongsAsync(user);
+            var favoriteSongs = await favoriteSongsRepository.GetFavoriteSongsAsync(user);
 
             if (favoriteSongs != null)
             {
@@ -67,18 +60,11 @@ public class FavoriteSongsShowSlashCommand : ISlashCommand<FavoriteSongsShowSlas
     }
 }
 
-public class FavoriteSongsSetSlashCommand : ISlashCommand<FavoriteSongsSetSlashCommand.Options>
+public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs set");
 
     public record Options(ParsedString songs);
-
-    private readonly IFavoriteSongsRepository _favoriteSongsRepository;
-
-    public FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongsRepository)
-    {
-        _favoriteSongsRepository = favoriteSongsRepository;
-    }
 
     public Command Set(IUser user, string favoriteSongs, RunContext? context = null) => new(
         new(Info.Name),
@@ -104,7 +90,7 @@ public class FavoriteSongsSetSlashCommand : ISlashCommand<FavoriteSongsSetSlashC
 
             async ValueTask<Embed> SetAsync(string favoriteSongs)
             {
-                await _favoriteSongsRepository.SetFavoriteSongsAsync(user, favoriteSongs);
+                await favoriteSongsRepository.SetFavoriteSongsAsync(user, favoriteSongs);
 
                 return EmbedFactory.CreateSuccess(
                     $"""
@@ -121,16 +107,9 @@ public class FavoriteSongsSetSlashCommand : ISlashCommand<FavoriteSongsSetSlashC
     }
 }
 
-public class FavoriteSongsClearSlashCommand : ISlashCommand<NoOptions>
+public class FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs clear");
-
-    private readonly IFavoriteSongsRepository _favoriteSongsRepository;
-
-    public FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSongsRepository)
-    {
-        _favoriteSongsRepository = favoriteSongsRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -138,7 +117,7 @@ public class FavoriteSongsClearSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _favoriteSongsRepository.ClearFavoriteSongsAsync(context.User);
+                await favoriteSongsRepository.ClearFavoriteSongsAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""

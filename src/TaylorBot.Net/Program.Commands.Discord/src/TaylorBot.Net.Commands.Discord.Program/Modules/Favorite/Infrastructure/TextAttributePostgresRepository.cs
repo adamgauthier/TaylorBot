@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 
-public class TextAttributePostgresRepository
+public class TextAttributePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public TextAttributePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<string?> GetAttributeAsync(IUser user, string attributeId)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<string>(
             """
@@ -33,7 +26,7 @@ public class TextAttributePostgresRepository
 
     public async ValueTask SetAttributeAsync(IUser user, string attributeId, string attributeValue)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """
@@ -53,7 +46,7 @@ public class TextAttributePostgresRepository
 
     public async ValueTask ClearAttributeAsync(IUser user, string attributeId)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "DELETE FROM attributes.text_attributes WHERE user_id = @UserId AND attribute_id = @AttributeId;",
