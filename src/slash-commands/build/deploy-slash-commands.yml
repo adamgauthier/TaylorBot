@@ -13,18 +13,50 @@ steps:
     $files = Get-ChildItem -File ${{ parameters.slashCommandsDir }}
     Write-Output "Processing $($files.Count) slash command file(s)"
 
-    $merged = $files | % { $_ | Get-Content | ConvertFrom-Json } | ConvertTo-Json -Depth 100
+    $jsonArray = @()
+    foreach ($file in $files) {
+      $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
+      $jsonArray += $jsonContent
+    }
+    $merged = ConvertTo-Json -Depth 100 $jsonArray
 
     $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/commands"
+    Write-Output "Publishing to $url"
 
     $response = Invoke-WebRequest -Uri $url `
-      -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.2.0)' `
+      -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.3.0)' `
       -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
       -Method 'PUT' `
       -ContentType 'application/json' `
       -Body $merged
 
     Write-Output "$url ($($response.StatusCode))"
+
+    # Request per subdirectory (guild)
+    foreach ($subDir in (Get-ChildItem -Directory ${{ parameters.slashCommandsDir }} | Where-Object { $_.Name -ne "build" })) {
+      $files = Get-ChildItem -File -Path $subDir.FullName
+      Write-Output "Processing $($files.Count) slash command file(s)"
+
+      $jsonArray = @()
+      foreach ($file in $files) {
+        $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
+        $jsonArray += $jsonContent
+      }
+      $merged = ConvertTo-Json -Depth 100 $jsonArray
+
+      $guildId = $subDir.Name
+      $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/guilds/$guildId/commands"
+      Write-Output "Publishing $($files.Count) to $url"
+
+      $response = Invoke-WebRequest -Uri $url `
+          -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.3.0)' `
+          -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
+          -Method 'PUT' `
+          -ContentType 'application/json' `
+          -Body $merged
+
+      Write-Output "$url ($($response.StatusCode))"
+    }
   displayName: 'Push all slash commands'
   env:
     BOT_TOKEN: ${{ parameters.botToken }}

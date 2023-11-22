@@ -11,7 +11,7 @@ using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Commands.PostExecution;
 
-public class InteractionResponseClient
+public class InteractionResponseClient(ILogger<InteractionResponseClient> logger, Lazy<ITaylorBotClient> taylorBotClient, HttpClient httpClient)
 {
     private const byte ChannelMessageWithSourceInteractionResponseType = 4;
     private const byte DeferredChannelMessageWithSourceInteractionResponseType = 5;
@@ -99,20 +99,9 @@ public class InteractionResponseClient
     private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
     private enum InteractionTextInputStyle { Short = 1, Paragraph = 2 }
 
-    private readonly ILogger<InteractionResponseClient> _logger;
-    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
-    private readonly HttpClient _httpClient;
-
-    public InteractionResponseClient(ILogger<InteractionResponseClient> logger, Lazy<ITaylorBotClient> taylorBotClient, HttpClient httpClient)
-    {
-        _logger = logger;
-        _taylorBotClient = taylorBotClient;
-        _httpClient = httpClient;
-    }
-
     public async ValueTask SendImmediateResponseAsync(ApplicationCommand interaction, MessageResponse message)
     {
-        var response = await _httpClient.PostAsync(
+        var response = await httpClient.PostAsync(
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
             JsonContent.Create(new InteractionResponse(ChannelMessageWithSourceInteractionResponseType, ToInteractionData(message)))
         );
@@ -132,7 +121,7 @@ public class InteractionResponseClient
 
     private async ValueTask SendAckResponseWithLoadingMessageAsync(string id, string token, bool isEphemeral)
     {
-        var response = await _httpClient.PostAsync(
+        var response = await httpClient.PostAsync(
             $"interactions/{id}/{token}/callback",
             JsonContent.Create(new InteractionResponse(DeferredChannelMessageWithSourceInteractionResponseType, isEphemeral ? new(flags: 64) : null))
         );
@@ -142,7 +131,7 @@ public class InteractionResponseClient
 
     public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(ButtonComponent interaction)
     {
-        var response = await _httpClient.PostAsync(
+        var response = await httpClient.PostAsync(
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
             JsonContent.Create(new InteractionResponse(ComponentDeferredUpdateMessageInteractionResponseType, null))
         );
@@ -171,7 +160,7 @@ public class InteractionResponseClient
             new(custom_id: createModal.Id, title: createModal.Title, components: components)
         );
 
-        var response = await _httpClient.PostAsync(
+        var response = await httpClient.PostAsync(
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
             JsonContent.Create(interactionResponse)
         );
@@ -284,7 +273,7 @@ public class InteractionResponseClient
 
     public async ValueTask SendFollowupResponseAsync(string token, MessageResponse message)
     {
-        var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
+        var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
         var jsonContent = JsonContent.Create(ToInteractionData(message));
 
@@ -292,7 +281,7 @@ public class InteractionResponseClient
             CreateContentWithAttachments(message.Content.Attachments, jsonContent) :
             jsonContent;
 
-        var response = await _httpClient.PostAsync(
+        var response = await httpClient.PostAsync(
             $"webhooks/{applicationInfo.Id}/{token}",
             httpContent
         );
@@ -307,11 +296,11 @@ public class InteractionResponseClient
 
     private async ValueTask EditOriginalResponseAsync(string token, MessageResponse message)
     {
-        var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
+        var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
         using var content = JsonContent.Create(ToInteractionData(message));
 
-        var response = await _httpClient.PatchAsync(
+        var response = await httpClient.PatchAsync(
             $"webhooks/{applicationInfo.Id}/{token}/messages/@original",
             content
         );
@@ -321,9 +310,9 @@ public class InteractionResponseClient
 
     public async ValueTask DeleteOriginalResponseAsync(ButtonComponent component)
     {
-        var applicationInfo = await _taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
+        var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
-        var response = await _httpClient.DeleteAsync(
+        var response = await httpClient.DeleteAsync(
             $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original"
         );
 
@@ -337,11 +326,11 @@ public class InteractionResponseClient
             try
             {
                 var body = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Error response from Discord ({StatusCode}): {Body}", response.StatusCode, body);
+                logger.LogError("Error response from Discord ({StatusCode}): {Body}", response.StatusCode, body);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Unhandled error when parsing error body ({StatusCode}):", response.StatusCode);
+                logger.LogWarning(e, "Unhandled error when parsing error body ({StatusCode}):", response.StatusCode);
             }
 
             response.EnsureSuccessStatusCode();

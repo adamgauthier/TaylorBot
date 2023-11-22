@@ -9,20 +9,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
 
-public class ImgurSlashCommand : ISlashCommand<ImgurSlashCommand.Options>
+public class ImgurSlashCommand(IRateLimiter rateLimiter, ImgurClient imgurClient) : ISlashCommand<ImgurSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("imgur");
 
     public record Options(ParsedOptionalAttachment file, ParsedOptionalString link);
-
-    private readonly IRateLimiter _rateLimiter;
-    private readonly ImgurClient _imgurClient;
-
-    public ImgurSlashCommand(IRateLimiter rateLimiter, ImgurClient imgurClient)
-    {
-        _rateLimiter = rateLimiter;
-        _imgurClient = imgurClient;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -43,11 +34,11 @@ public class ImgurSlashCommand : ISlashCommand<ImgurSlashCommand.Options>
 
                 var url = options.file.Value?.url ?? options.link.Value ?? throw new InvalidOperationException();
 
-                var rateLimitResult = await _rateLimiter.VerifyDailyLimitAsync(context.User, "imgur-upload");
+                var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(context.User, "imgur-upload");
                 if (rateLimitResult != null)
                     return rateLimitResult;
 
-                var result = await _imgurClient.UploadAsync(url);
+                var result = await imgurClient.UploadAsync(url);
 
                 switch (result)
                 {

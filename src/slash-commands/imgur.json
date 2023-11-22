@@ -1,6 +1,6 @@
 {
   "name": "imgur",
-  "description": "Upload images to image hosting service Imgur",
+  "description": "Upload images to image hosting service Imgur (choose file or link)",
   "options": [
     {
       "name": "file",

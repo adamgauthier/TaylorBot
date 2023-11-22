@@ -5,6 +5,7 @@ import { RandomModule } from '../../modules/random/RandomModule';
 import RpsMove = require('../../modules/points/RpsMove');
 import { CommandMessageContext } from '../CommandMessageContext';
 import { HexColorString } from 'discord.js';
+import moment = require('moment');
 
 class RockPaperScissorsCommand extends Command {
     constructor() {
@@ -32,7 +33,12 @@ class RockPaperScissorsCommand extends Command {
 
         const opponentMove = await RandomModule.randomInArray(Object.values(RpsMove));
         const winner = this.findWinner(move, opponentMove);
-        const winReward = 1;
+
+        const windowStart = moment.utc('2023-11-22T00:00:00Z').subtract(6, 'hours');
+        const windowEnd = moment.utc('2023-11-23T00:00:00Z').add(6, 'hours');
+        const isAnniversary = message.guildId === '115332333745340416' && moment.utc().isBetween(windowStart, windowEnd);
+
+        const winReward = isAnniversary ? 2 : 1;
 
         let color: HexColorString;
         let resultMessage;

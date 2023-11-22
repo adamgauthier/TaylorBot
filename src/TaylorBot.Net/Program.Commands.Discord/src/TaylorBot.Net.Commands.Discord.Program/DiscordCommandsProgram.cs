@@ -59,6 +59,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Signature.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
@@ -289,6 +290,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<FavoriteObsessionShowSlashCommand>()
             .AddSlashCommand<FavoriteObsessionSetSlashCommand>()
             .AddSlashCommand<FavoriteObsessionClearSlashCommand>()
+            .ConfigureRequired<SignatureOptions>(config, "Signature")
+            .AddSlashCommand<SignatureSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

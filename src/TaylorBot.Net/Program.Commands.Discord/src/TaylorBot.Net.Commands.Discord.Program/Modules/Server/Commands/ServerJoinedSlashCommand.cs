@@ -25,26 +25,19 @@ public interface IServerJoinedRepository
     Task<IList<JoinedTimelineEntry>> GetTimelineAsync(IGuild guild);
 }
 
-public class ServerJoinedSlashCommand : ISlashCommand<ServerJoinedSlashCommand.Options>
+public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<ServerJoinedSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server joined");
 
     public record Options(ParsedUserOrAuthor user);
 
-    private readonly IServerJoinedRepository _serverJoinedRepository;
-
-    public ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedRepository)
-    {
-        _serverJoinedRepository = serverJoinedRepository;
-    }
-
     private async Task<ServerJoined> GetServerJoinedAsync(IGuildUser guildUser)
     {
-        var joined = await _serverJoinedRepository.GetRankedJoinedAsync(guildUser);
+        var joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);
         if (joined.first_joined_at == null && guildUser.JoinedAt is not null)
         {
-            await _serverJoinedRepository.FixMissingJoinedDateAsync(guildUser);
-            joined = await _serverJoinedRepository.GetRankedJoinedAsync(guildUser);
+            await serverJoinedRepository.FixMissingJoinedDateAsync(guildUser);
+            joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);
         }
         return joined;
     }

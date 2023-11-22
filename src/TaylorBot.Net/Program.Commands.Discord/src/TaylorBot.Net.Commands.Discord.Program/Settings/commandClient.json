@@ -48,6 +48,11 @@
         "FriendlyName": "Uploading to Imgur",
         "MaxUsesForUser": 5,
         "MaxUsesForPlusUser": 15
+      },
+      "submit-signature": {
+        "FriendlyName": "Submitting a signature",
+        "MaxUsesForUser": 5,
+        "MaxUsesForPlusUser": 10
       }
     }
   }

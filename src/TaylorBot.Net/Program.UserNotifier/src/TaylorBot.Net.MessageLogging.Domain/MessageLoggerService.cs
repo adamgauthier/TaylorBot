@@ -21,19 +21,8 @@ public interface ICachedMessageRepository
     ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId);
 }
 
-public class MessageLoggerService
+public class MessageLoggerService(MessageLogChannelFinder messageLogChannelFinder, MessageLogEmbedFactory messageLogEmbedFactory, ICachedMessageRepository cachedMessageRepository)
 {
-    private readonly MessageLogChannelFinder _messageLogChannelFinder;
-    private readonly MessageLogEmbedFactory _messageLogEmbedFactory;
-    private readonly ICachedMessageRepository _cachedMessageRepository;
-
-    public MessageLoggerService(MessageLogChannelFinder messageLogChannelFinder, MessageLogEmbedFactory messageLogEmbedFactory, ICachedMessageRepository cachedMessageRepository)
-    {
-        _messageLogChannelFinder = messageLogChannelFinder;
-        _messageLogEmbedFactory = messageLogEmbedFactory;
-        _cachedMessageRepository = cachedMessageRepository;
-    }
-
     private async ValueTask<ICachedMessageData?> GetCachedMessageDataAsync(Cacheable<IMessage, ulong> cachedMessage)
     {
         if (cachedMessage.Value != null)
@@ -42,7 +31,7 @@ public class MessageLoggerService
         }
         else
         {
-            var messageData = await _cachedMessageRepository.GetMessageDataAsync(new(cachedMessage.Id));
+            var messageData = await cachedMessageRepository.GetMessageDataAsync(new(cachedMessage.Id));
             return messageData;
         }
     }
@@ -51,11 +40,11 @@ public class MessageLoggerService
     {
         if (channel is ITextChannel textChannel)
         {
-            var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+            var logTextChannel = await messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
             if (logTextChannel != null)
             {
-                await logTextChannel.Resolved.SendMessageAsync(embed: _messageLogEmbedFactory.CreateReactionRemoved(cachedMessage.Id, textChannel, reaction));
+                await logTextChannel.Resolved.SendMessageAsync(embed: messageLogEmbedFactory.CreateReactionRemoved(cachedMessage.Id, textChannel, reaction));
             }
         }
     }
@@ -64,13 +53,13 @@ public class MessageLoggerService
     {
         if (channel is ITextChannel textChannel)
         {
-            var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+            var logTextChannel = await messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
             if (logTextChannel != null)
             {
                 CachedMessage message = new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage));
 
-                await logTextChannel.Resolved.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageDeleted(message, textChannel));
+                await logTextChannel.Resolved.SendMessageAsync(embed: messageLogEmbedFactory.CreateMessageDeleted(message, textChannel));
             }
         }
     }
@@ -79,7 +68,7 @@ public class MessageLoggerService
     {
         if (channel is ITextChannel textChannel)
         {
-            var logTextChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+            var logTextChannel = await messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
             if (logTextChannel != null)
             {
@@ -89,7 +78,7 @@ public class MessageLoggerService
                     messages.Add(new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage)));
                 }
 
-                var embeds = _messageLogEmbedFactory.CreateMessageBulkDeleted(messages, textChannel);
+                var embeds = messageLogEmbedFactory.CreateMessageBulkDeleted(messages, textChannel);
 
                 foreach (var chunk in embeds.Chunk(10))
                 {
@@ -105,7 +94,7 @@ public class MessageLoggerService
         {
             if (!newMessage.Author.IsBot)
             {
-                var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
+                var editedLogChannel = await messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
                 if (editedLogChannel != null)
                 {
                     var isEmbedOnlyEdit = oldMessage.HasValue && oldMessage.Value.Content == newMessage.Content && newMessage.Embeds.Count != oldMessage.Value.Embeds.Count;
@@ -114,14 +103,14 @@ public class MessageLoggerService
                     {
                         CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
 
-                        await editedLogChannel.Resolved.SendMessageAsync(embed: _messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+                        await editedLogChannel.Resolved.SendMessageAsync(embed: messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
                     }
 
                     await CacheMessageAsync(newMessage, editedLogChannel);
                 }
                 else
                 {
-                    var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+                    var deletedLogChannel = await messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
                     if (deletedLogChannel != null)
                     {
                         await CacheMessageAsync(newMessage, deletedLogChannel);
@@ -130,7 +119,7 @@ public class MessageLoggerService
             }
             else
             {
-                var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+                var deletedLogChannel = await messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
                 if (deletedLogChannel != null)
                 {
                     await CacheMessageAsync(newMessage, deletedLogChannel);
@@ -142,7 +131,7 @@ public class MessageLoggerService
 
     public async Task OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketMessage message)
     {
-        var deletedLogChannel = await _messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
+        var deletedLogChannel = await messageLogChannelFinder.FindDeletedLogChannelAsync(textChannel.Guild);
 
         if (deletedLogChannel != null)
         {
@@ -152,7 +141,7 @@ public class MessageLoggerService
         {
             if (!message.Author.IsBot)
             {
-                var editedLogChannel = await _messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
+                var editedLogChannel = await messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
                 if (editedLogChannel != null)
                 {
                     await CacheMessageAsync(message, editedLogChannel);
@@ -165,12 +154,12 @@ public class MessageLoggerService
     {
         var author = newMessage.Author;
 
-        await _cachedMessageRepository.SaveMessageAsync(
+        await cachedMessageRepository.SaveMessageAsync(
             new(newMessage.Id),
             foundChannel.Channel.CacheExpiry ?? TimeSpan.FromMinutes(10),
             new(
                 AuthorTag: $"{author.Username}{author.DiscrimSuffix()}",
-                AuthorId: newMessage.Author.Id.ToString(),
+                AuthorId: $"{author.Id}",
                 SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
                 Content: newMessage is IUserMessage userMessage ? userMessage.Content : null,
                 ReplyingToId: newMessage.Reference?.MessageId.IsSpecified == true && newMessage.Reference.ChannelId == newMessage.Channel.Id

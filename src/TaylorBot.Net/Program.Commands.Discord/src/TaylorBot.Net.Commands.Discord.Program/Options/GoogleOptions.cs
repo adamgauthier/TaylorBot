@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Options
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Options;
+
+public class GoogleOptions
 {
-    public class GoogleOptions
-    {
-        public string GoogleApiKey { get; set; } = null!;
-    }
+    public string GoogleApiKey { get; set; } = null!;
 }
