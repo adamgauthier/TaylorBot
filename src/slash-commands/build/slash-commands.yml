@@ -51,6 +51,7 @@ stages:
                 slashCommandsDir: $(Pipeline.Workspace)/$(artifactName)
                 applicationId: $(taylorbot_beta_application_id)
                 botToken: $(taylorbot_beta_token_secret)
+                guildCommandsGuildId: '437399881343041536'
 
 - stage: deploy
   displayName: 'TaylorBot'
