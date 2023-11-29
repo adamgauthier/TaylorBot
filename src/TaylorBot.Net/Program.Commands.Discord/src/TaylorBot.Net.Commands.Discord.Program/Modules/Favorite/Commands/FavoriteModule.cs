@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Embed;

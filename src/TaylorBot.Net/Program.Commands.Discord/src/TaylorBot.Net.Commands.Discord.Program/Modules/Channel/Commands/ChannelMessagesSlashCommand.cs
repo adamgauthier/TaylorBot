@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;

@@ -1,6 +1,4 @@
 ﻿using Discord.Commands;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands

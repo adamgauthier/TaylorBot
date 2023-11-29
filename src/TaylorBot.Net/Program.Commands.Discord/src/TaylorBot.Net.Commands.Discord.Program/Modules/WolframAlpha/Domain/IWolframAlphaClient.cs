@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using static TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain.WolframAlphaResult;
+﻿using static TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain.WolframAlphaResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
 

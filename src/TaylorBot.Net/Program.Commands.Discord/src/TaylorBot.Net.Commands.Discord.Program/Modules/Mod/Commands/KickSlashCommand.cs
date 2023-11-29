@@ -1,10 +1,7 @@
 ﻿using Discord;
 using Discord.Net;
 using Humanizer;
-using System;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;

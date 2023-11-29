@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain
 {
     public record LastFmGenericErrorResult(string? Error) : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult;
 

@@ -1,9 +1,5 @@
 ﻿using Discord;
 using FakeItEasy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Snowflake;
 

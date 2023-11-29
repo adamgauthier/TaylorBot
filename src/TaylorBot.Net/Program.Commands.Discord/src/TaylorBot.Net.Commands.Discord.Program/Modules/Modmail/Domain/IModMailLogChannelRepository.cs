@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;

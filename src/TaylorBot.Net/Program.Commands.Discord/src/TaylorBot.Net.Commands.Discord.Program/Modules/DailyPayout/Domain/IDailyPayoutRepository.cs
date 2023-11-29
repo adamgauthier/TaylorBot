@@ -1,8 +1,5 @@
 ﻿using Discord;
 using OperationResult;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain

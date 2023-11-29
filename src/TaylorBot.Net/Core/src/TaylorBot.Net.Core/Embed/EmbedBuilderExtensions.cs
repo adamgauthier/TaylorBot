@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
 

@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Humanizer;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.User;

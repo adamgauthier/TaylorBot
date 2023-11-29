@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using TaylorBot.Net.Core.Client;
+﻿using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Core.Program.Events;
 

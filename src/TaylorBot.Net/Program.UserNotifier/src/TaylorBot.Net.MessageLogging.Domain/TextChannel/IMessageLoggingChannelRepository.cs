@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.MessageLogging.Domain.TextChannel;

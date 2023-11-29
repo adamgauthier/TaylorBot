@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain

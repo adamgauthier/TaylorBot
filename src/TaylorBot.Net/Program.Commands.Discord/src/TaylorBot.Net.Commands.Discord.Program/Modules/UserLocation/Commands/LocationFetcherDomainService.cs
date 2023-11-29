@@ -1,7 +1,5 @@
 ﻿using Discord;
 using OperationResult;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Embed;
 using static OperationResult.Helpers;
 

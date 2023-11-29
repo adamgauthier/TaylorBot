@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.TumblrNotifier.Domain.Options
+﻿namespace TaylorBot.Net.TumblrNotifier.Domain.Options
 {
     public class TumblrNotifierOptions
     {

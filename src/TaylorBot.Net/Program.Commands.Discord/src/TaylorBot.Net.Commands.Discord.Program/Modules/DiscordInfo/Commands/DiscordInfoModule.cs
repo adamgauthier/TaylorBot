@@ -2,9 +2,6 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Humanizer;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;

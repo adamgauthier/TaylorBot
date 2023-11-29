@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TaylorBot.Net.QuickStart.Domain.Options
+﻿namespace TaylorBot.Net.QuickStart.Domain.Options
 {
     public class QuickStartEmbedOptions
     {

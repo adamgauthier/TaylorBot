@@ -1,6 +1,5 @@
 ﻿using OperationResult;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Commands.Parsers;

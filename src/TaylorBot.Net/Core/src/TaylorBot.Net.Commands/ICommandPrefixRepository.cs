@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Guild;

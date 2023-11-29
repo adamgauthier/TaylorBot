@@ -1,6 +1,5 @@
 ﻿using Discord;
 using System.Globalization;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;

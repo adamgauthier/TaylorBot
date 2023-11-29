@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Preconditions;
+﻿namespace TaylorBot.Net.Commands.Preconditions;
 
 public class InGuildPrecondition : ICommandPrecondition
 {

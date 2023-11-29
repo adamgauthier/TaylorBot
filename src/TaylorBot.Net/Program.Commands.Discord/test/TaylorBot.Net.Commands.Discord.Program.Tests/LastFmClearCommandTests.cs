@@ -1,7 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Core.Colors;

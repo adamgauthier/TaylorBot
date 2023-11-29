@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Core.Program.Events
+﻿namespace TaylorBot.Net.Core.Program.Events
 {
     public interface IAllReadyHandler
     {

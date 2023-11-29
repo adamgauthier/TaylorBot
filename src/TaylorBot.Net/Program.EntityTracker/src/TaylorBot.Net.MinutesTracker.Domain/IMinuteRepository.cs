@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.MinutesTracker.Domain
+﻿namespace TaylorBot.Net.MinutesTracker.Domain
 {
     public interface IMinuteRepository
     {

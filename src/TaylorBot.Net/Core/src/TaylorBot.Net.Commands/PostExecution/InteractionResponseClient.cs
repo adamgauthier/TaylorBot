@@ -1,12 +1,7 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Commands.PostExecution;

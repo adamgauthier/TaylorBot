@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Discord.Net;
 using Microsoft.Extensions.Options;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers.Users;

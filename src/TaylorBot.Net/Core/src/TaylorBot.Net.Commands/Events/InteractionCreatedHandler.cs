@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;

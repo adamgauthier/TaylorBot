@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers.Users;

@@ -1,5 +1,4 @@
 ﻿using Discord.WebSocket;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.MessageLogging.Domain;
 

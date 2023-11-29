@@ -2,9 +2,6 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;

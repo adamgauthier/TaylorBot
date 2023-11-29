@@ -2,11 +2,7 @@
 using Discord.WebSocket;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;

@@ -2,8 +2,6 @@
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
 using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.Core.Client;

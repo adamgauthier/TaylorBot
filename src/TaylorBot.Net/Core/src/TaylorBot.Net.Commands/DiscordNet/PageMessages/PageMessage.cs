@@ -1,10 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Timers;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Core.Logging;
 
@@ -28,34 +24,23 @@ public class PageMessage
     }
 }
 
-public class SentPageMessage
+public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessageOptions options)
 {
     private static readonly Emoji PreviousEmoji = new("◀");
     private static readonly Emoji NextEmoji = new("▶");
     private static readonly Emoji CancelEmoji = new("❌");
-
-    private readonly IUser _commandUser;
-    private readonly IUserMessage _message;
-    private readonly PageMessageOptions _options;
-
+    private readonly IUserMessage _message = message;
     private DateTimeOffset? _lastInteractionAt = null;
     private Timer? _unsubscribeTimer = null;
-
-    public SentPageMessage(IUser commandUser, IUserMessage message, PageMessageOptions options)
-    {
-        _commandUser = commandUser;
-        _message = message;
-        _options = options;
-    }
 
     public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
     {
         var emotes = new List<Emoji>();
-        if (_options.Renderer.HasMultiplePages)
+        if (options.Renderer.HasMultiplePages)
         {
             emotes.AddRange(new[] { PreviousEmoji, NextEmoji });
         }
-        if (_options.Cancellable)
+        if (options.Cancellable)
         {
             emotes.Add(CancelEmoji);
         }
@@ -64,52 +49,49 @@ public class SentPageMessage
         {
             pageMessageReactionsHandler.OnReact += OnReactAsync;
 
-            _unsubscribeTimer = new Timer(interval: TimeSpan.FromSeconds(30).TotalMilliseconds);
-            _unsubscribeTimer.Elapsed += (source, arguments) =>
-            {
-                if (source != null &&
-                    (_lastInteractionAt == null ||
-                    (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30))
-                {
-                    pageMessageReactionsHandler.OnReact -= OnReactAsync;
-                    ((Timer)source).Stop();
-                }
-            };
-
             try
             {
                 await _message.AddReactionsAsync(emotes.ToArray());
             }
             catch
             {
-                logger.LogWarning($"Could not add reactions for page message {_message.FormatLog()} by {_commandUser.FormatLog()}.");
+                logger.LogWarning("Could not add reactions for page message {Message} by {User}.", _message.FormatLog(), commandUser.FormatLog());
             }
             finally
             {
-                _unsubscribeTimer.Start();
+                _unsubscribeTimer = new Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+                void TimerCallback(object? state)
+                {
+                    if (_lastInteractionAt == null ||
+                        (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30)
+                    {
+                        pageMessageReactionsHandler.OnReact -= OnReactAsync;
+                        _unsubscribeTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+                    }
+                }
             }
         }
     }
 
     private async Task OnReactAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
     {
-        if (message.Id == _message.Id && reaction.UserId == _commandUser.Id)
+        if (message.Id == _message.Id && reaction.UserId == commandUser.Id)
         {
             if (reaction.Emote.Equals(PreviousEmoji))
             {
                 _lastInteractionAt = DateTimeOffset.Now;
                 await _message.ModifyAsync(m =>
-                    m.Embed = _options.Renderer.RenderNext()
+                    m.Embed = options.Renderer.RenderNext()
                 );
             }
             else if (reaction.Emote.Equals(NextEmoji))
             {
                 _lastInteractionAt = DateTimeOffset.Now;
                 await _message.ModifyAsync(m =>
-                    m.Embed = _options.Renderer.RenderPrevious()
+                    m.Embed = options.Renderer.RenderPrevious()
                 );
             }
-            else if (reaction.Emote.Equals(CancelEmoji) && _options.Cancellable)
+            else if (reaction.Emote.Equals(CancelEmoji) && options.Cancellable)
             {
                 await _message.DeleteAsync();
             }

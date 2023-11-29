@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Reminder.Domain.DiscordEmbed;

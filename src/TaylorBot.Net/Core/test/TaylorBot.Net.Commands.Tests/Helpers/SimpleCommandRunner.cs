@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Tests.Helpers
+﻿namespace TaylorBot.Net.Commands.Tests.Helpers
 {
     public class SimpleCommandRunner : ICommandRunner
     {

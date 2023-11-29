@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
 
 public interface IImgurResult { }
 public record UploadSuccess(string Url) : IImgurResult

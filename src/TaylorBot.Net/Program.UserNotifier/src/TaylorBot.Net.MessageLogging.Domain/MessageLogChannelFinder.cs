@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 
 namespace TaylorBot.Net.MessageLogging.Domain;

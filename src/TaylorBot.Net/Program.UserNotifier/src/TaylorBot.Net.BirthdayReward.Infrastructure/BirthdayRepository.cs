@@ -1,7 +1,4 @@
 ﻿using Dapper;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;

@@ -2,9 +2,6 @@
 using Discord.Commands;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;

@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Collections.Generic;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Core.Colors;

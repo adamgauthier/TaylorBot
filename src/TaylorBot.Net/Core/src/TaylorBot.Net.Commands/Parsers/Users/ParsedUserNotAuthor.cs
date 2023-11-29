@@ -1,7 +1,6 @@
 ﻿using Discord;
 using OperationResult;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Reddit;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
 using TaylorBot.Net.BirthdayReward.Domain.Options;

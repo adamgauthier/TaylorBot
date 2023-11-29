@@ -1,8 +1,5 @@
 ﻿using Dapper;
 using DontPanic.TumblrSharp.Client;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.TumblrNotifier.Domain;

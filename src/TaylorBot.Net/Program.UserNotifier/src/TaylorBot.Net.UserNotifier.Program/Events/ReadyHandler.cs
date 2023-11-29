@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using TaylorBot.Net.BirthdayReward.Domain;
+﻿using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.PatreonSync.Domain;

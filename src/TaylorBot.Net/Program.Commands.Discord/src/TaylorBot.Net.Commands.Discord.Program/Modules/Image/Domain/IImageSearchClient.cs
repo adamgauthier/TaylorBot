@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 
 public interface IImageSearchResult { }
 

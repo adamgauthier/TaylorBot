@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Core.Program.Events
 {

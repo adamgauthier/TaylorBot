@@ -1,7 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 

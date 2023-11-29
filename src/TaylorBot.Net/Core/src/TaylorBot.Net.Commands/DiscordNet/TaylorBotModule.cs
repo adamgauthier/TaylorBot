@@ -1,6 +1,4 @@
 ﻿using Discord.Commands;
-using System;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.DiscordNet
 {

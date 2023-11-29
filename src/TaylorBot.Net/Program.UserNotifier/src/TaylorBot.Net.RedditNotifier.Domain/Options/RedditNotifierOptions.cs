@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.RedditNotifier.Domain.Options
+﻿namespace TaylorBot.Net.RedditNotifier.Domain.Options
 {
     public class RedditNotifierOptions
     {

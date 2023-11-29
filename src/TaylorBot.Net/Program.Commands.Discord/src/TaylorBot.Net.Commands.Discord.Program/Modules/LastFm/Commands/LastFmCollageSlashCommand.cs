@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Net.Http;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;

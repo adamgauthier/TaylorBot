@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Program.Events;
 

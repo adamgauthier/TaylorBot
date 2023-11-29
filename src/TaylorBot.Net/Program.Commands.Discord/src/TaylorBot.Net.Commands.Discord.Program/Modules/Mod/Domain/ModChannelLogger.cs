@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.PostExecution
+﻿namespace TaylorBot.Net.Commands.PostExecution
 {
     public interface ICommandUsageRepository
     {

@@ -1,7 +1,5 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using Xunit;
 

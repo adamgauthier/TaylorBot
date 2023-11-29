@@ -2,8 +2,6 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
 

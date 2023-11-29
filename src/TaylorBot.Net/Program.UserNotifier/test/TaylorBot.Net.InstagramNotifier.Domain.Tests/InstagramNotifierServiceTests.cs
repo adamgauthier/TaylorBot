@@ -1,8 +1,6 @@
 ﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.InstagramNotifier.Domain.DiscordEmbed;

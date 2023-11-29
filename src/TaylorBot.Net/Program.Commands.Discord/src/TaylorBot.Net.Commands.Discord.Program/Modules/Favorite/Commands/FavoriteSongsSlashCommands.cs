@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;

@@ -1,8 +1,5 @@
 ﻿using Discord;
 using Humanizer;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;

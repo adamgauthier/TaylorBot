@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TaylorBot.Net.Commands.Options
+﻿namespace TaylorBot.Net.Commands.Options
 {
     public class CommandApplicationOptions
     {

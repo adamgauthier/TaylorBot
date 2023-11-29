@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands
+﻿namespace TaylorBot.Net.Commands
 {
     public interface ICommandPrecondition
     {

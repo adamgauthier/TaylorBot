@@ -1,7 +1,5 @@
 ﻿using Discord;
 using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;

@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Tasks;

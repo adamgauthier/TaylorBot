@@ -2,9 +2,6 @@
 using Discord.Commands;
 using FakeItEasy;
 using FluentAssertions;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;

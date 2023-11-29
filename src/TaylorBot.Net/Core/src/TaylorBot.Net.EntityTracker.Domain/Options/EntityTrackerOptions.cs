@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.EntityTracker.Domain.Options
+﻿namespace TaylorBot.Net.EntityTracker.Domain.Options
 {
     public record EntityTrackerOptions
     {

@@ -1,5 +1,4 @@
 ﻿using Discord.Commands;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.InstagramNotifier.Domain
+﻿namespace TaylorBot.Net.InstagramNotifier.Domain
 {
     public class InstagramPost
     {

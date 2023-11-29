@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.PatreonSync.Domain;
 

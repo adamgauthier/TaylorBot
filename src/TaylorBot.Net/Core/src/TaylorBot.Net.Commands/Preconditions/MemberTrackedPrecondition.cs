@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.Preconditions;

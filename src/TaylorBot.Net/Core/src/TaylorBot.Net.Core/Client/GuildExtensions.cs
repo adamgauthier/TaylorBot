@@ -1,5 +1,4 @@
 ﻿using Discord.WebSocket;
-using System;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Core.Client

@@ -1,5 +1,4 @@
-﻿using System;
-using TaylorBot.Net.Commands.Types;
+﻿using TaylorBot.Net.Commands.Types;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands
 {

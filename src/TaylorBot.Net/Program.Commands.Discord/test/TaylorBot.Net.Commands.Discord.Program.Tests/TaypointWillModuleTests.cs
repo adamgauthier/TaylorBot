@@ -2,9 +2,6 @@
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;

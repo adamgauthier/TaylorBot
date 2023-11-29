@@ -1,5 +1,4 @@
-﻿using System;
-using TaylorBot.Net.Core.Snowflake;
+﻿using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.YoutubeNotifier.Domain
 {

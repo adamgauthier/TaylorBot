@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.InstagramNotifier.Domain.Options
+﻿namespace TaylorBot.Net.InstagramNotifier.Domain.Options
 {
     public class InstagramNotifierOptions
     {

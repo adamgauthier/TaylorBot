@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using Discord.WebSocket;
 using TaylorBot.Net.Core.Program.Events;
-using Discord.WebSocket;
-using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events
 {

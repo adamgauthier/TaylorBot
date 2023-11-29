@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace TaylorBot.Net.Commands.DiscordNet;
+﻿namespace TaylorBot.Net.Commands.DiscordNet;
 
 public static class DiscordNetContextMapper
 {

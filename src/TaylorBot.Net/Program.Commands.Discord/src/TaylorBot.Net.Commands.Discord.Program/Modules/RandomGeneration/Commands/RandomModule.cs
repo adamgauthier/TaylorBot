@@ -1,9 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Humanizer;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;

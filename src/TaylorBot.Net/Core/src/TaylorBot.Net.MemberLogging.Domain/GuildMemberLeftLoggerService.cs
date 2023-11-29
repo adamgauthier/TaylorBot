@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
 namespace TaylorBot.Net.MemberLogging.Domain

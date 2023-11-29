@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using TaylorBot.Net.EntityTracker.Domain.TextChannel;
+﻿using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Preconditions
 {

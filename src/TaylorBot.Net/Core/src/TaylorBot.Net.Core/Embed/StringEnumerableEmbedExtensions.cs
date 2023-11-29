@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace TaylorBot.Net.Core.Embed
 {

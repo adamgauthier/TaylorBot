@@ -2,9 +2,6 @@
 using DontPanic.TumblrSharp.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.TumblrNotifier.Domain.Options;

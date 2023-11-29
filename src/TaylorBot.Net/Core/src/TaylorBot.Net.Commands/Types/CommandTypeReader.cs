@@ -1,7 +1,5 @@
 ﻿using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Types
 {

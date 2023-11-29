@@ -1,5 +1,4 @@
 ﻿using Humanizer;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;

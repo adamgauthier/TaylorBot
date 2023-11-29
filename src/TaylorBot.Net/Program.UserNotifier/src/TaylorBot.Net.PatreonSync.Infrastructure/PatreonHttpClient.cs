@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using TaylorBot.Net.Core.Infrastructure.Extensions;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.PatreonSync.Domain;

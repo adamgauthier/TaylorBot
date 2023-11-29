@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Infrastructure;
 

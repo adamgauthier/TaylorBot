@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Extensions;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Parsers;
 using Xunit;
 

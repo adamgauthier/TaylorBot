@@ -1,10 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Infrastructure;

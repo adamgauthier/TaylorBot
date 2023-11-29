@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System.Linq;
 using TaylorBot.Net.Core.Embed;
 using Xunit;
 

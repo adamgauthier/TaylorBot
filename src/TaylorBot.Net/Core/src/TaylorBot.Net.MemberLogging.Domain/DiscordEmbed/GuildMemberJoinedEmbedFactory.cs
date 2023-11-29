@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Microsoft.Extensions.Options;
-using System;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Strings;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.BirthdayReward.Domain.Options
+﻿namespace TaylorBot.Net.BirthdayReward.Domain.Options
 {
     public class BirthdayRewardNotifierOptions
     {

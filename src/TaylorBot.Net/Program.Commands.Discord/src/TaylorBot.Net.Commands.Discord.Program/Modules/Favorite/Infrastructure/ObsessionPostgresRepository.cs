@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;

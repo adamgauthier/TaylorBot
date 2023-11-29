@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using TaylorBot.Net.Core.Snowflake;
+﻿using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.InstagramNotifier.Domain
 {

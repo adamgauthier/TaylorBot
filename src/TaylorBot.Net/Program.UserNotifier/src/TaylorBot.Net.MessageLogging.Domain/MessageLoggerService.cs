@@ -1,9 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.MessageLogging.Domain.DiscordEmbed;

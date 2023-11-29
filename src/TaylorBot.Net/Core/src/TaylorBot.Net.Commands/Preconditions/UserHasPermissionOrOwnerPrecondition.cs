@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions

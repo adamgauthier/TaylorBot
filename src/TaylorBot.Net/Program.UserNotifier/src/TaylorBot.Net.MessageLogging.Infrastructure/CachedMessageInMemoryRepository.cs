@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using TaylorBot.Net.Core.Snowflake;
+﻿using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain;
 
 namespace TaylorBot.Net.MessageLogging.Infrastructure;

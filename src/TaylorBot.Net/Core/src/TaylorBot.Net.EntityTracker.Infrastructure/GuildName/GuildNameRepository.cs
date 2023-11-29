@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.EntityTracker.Domain.GuildName;
 

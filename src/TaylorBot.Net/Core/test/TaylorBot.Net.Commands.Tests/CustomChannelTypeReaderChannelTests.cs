@@ -2,8 +2,6 @@
 using Discord.Commands;
 using FakeItEasy;
 using FluentAssertions;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using Xunit;

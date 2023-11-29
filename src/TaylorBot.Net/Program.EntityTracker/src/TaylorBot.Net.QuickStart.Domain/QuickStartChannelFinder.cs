@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.QuickStart.Domain
 {

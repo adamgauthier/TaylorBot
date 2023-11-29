@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using Discord;
 using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
 

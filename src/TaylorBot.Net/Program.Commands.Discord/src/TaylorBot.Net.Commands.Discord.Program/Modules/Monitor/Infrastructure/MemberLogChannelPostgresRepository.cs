@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;

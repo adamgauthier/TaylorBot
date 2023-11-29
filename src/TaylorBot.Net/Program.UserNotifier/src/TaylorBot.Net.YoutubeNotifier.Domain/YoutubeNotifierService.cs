@@ -1,9 +1,6 @@
 ﻿using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.YoutubeNotifier.Domain.Options;

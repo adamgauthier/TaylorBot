@@ -2,7 +2,6 @@
 using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;

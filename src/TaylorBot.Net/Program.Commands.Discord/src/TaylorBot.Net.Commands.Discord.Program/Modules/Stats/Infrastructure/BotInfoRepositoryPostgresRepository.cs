@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 

@@ -1,6 +1,4 @@
 ﻿using DontPanic.TumblrSharp.Client;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.TumblrNotifier.Domain
 {

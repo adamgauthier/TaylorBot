@@ -1,10 +1,7 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;

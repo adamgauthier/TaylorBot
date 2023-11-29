@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System;
 using System.Reflection;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers

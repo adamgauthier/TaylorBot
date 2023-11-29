@@ -1,7 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;

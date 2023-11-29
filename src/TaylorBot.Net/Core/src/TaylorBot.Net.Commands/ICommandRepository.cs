@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands
+﻿namespace TaylorBot.Net.Commands
 {
     public interface ICommandRepository
     {

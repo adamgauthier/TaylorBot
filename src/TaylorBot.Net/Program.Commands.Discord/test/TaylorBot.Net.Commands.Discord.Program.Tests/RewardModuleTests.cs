@@ -1,8 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;

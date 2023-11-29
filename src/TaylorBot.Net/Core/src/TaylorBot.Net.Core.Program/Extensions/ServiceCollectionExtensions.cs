@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.PatreonSync.Domain.Options
+﻿namespace TaylorBot.Net.PatreonSync.Domain.Options
 {
     public class PatreonSyncOptions
     {

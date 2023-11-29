@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using TaylorBot.Net.InstagramNotifier.Domain;
 
 namespace TaylorBot.Net.InstagramNotifier.Infrastructure

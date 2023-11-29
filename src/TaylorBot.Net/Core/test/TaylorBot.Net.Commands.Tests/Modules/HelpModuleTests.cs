@@ -3,8 +3,6 @@ using Discord.Commands;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;

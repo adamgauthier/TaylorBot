@@ -1,7 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain
 {

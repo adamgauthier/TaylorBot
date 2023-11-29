@@ -1,7 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace TaylorBot.Net.QuickStart.Domain.Tests

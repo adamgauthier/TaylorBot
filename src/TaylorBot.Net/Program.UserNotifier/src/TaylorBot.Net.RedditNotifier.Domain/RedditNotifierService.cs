@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reddit;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.RedditNotifier.Domain.Options;

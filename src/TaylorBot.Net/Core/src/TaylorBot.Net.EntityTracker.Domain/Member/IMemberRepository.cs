@@ -1,6 +1,4 @@
 ﻿using Discord;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.EntityTracker.Domain.Member;

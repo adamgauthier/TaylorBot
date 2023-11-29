@@ -1,10 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.Net;
-using System;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.DiscordNet;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.Reminder.Domain.Options
+﻿namespace TaylorBot.Net.Reminder.Domain.Options
 {
     public class ReminderNotifierOptions
     {

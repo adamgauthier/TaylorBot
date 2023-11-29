@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Humanizer;
-using System.Linq;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
 

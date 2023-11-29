@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
 using Humanizer;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;

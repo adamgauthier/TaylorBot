@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TaylorBot.Net.Core.Client;
+﻿namespace TaylorBot.Net.Core.Client;
 
 public record Interaction(
     string id,

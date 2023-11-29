@@ -1,8 +1,5 @@
 ﻿using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure;

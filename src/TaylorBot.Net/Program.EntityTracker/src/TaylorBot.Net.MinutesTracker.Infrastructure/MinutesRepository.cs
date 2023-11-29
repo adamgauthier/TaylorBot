@@ -1,6 +1,4 @@
 ﻿using Dapper;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MinutesTracker.Domain;
 

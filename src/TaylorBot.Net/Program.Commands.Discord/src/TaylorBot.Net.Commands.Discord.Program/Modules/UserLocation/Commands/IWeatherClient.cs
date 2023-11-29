@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands
 {
     public interface IForecastResult { }
     public record CurrentForecast(string Summary, double TemperatureCelsius, double WindSpeed, double Humidity, long Time, string? IconUrl) : IForecastResult;

@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Net.Http;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure

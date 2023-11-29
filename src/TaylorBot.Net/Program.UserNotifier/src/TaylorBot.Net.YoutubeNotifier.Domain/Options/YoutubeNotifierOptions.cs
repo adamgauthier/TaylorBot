@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.YoutubeNotifier.Domain.Options
+﻿namespace TaylorBot.Net.YoutubeNotifier.Domain.Options
 {
     public class YoutubeNotifierOptions
     {

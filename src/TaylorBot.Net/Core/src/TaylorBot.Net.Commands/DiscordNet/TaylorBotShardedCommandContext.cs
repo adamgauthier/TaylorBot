@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 

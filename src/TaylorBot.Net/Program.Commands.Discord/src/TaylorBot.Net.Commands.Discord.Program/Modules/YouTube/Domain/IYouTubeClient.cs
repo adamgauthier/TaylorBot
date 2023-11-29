@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain
 {
     public interface IYouTubeSearchResult { }
     public record SuccessfulSearch(IReadOnlyList<string> VideoUrls) : IYouTubeSearchResult;

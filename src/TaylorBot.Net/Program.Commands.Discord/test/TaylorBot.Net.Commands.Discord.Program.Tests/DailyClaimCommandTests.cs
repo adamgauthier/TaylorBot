@@ -2,7 +2,6 @@
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;

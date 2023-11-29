@@ -37,7 +37,7 @@ steps:
     Write-Output "$url ($($response.StatusCode))"
 
     # Guild-specific commands
-    if ([string]::IsNullOrEmpty(${{ parameters.guildCommandsGuildId }})) {
+    if ([string]::IsNullOrEmpty($env:GUILD_COMMANDS_GUILD_ID)) {
       foreach ($subDir in (Get-ChildItem -Directory ${{ parameters.slashCommandsDir }} | Where-Object { $_.Name -ne "build" })) {
         $files = Get-ChildItem -File -Path $subDir.FullName
         Write-Output "Processing $($files.Count) slash command file(s)"
@@ -64,7 +64,7 @@ steps:
       }
     }
     else {
-      Write-Output "Publishing all guild commands to ${{ parameters.guildCommandsGuildId }}"
+      Write-Output "Publishing all guild commands to ${env:GUILD_COMMANDS_GUILD_ID}"
       $guildDirs = Get-ChildItem -Directory ${{ parameters.slashCommandsDir }} | Where-Object { $_.Name -ne "build" }
 
       $guildCommandsArray = @()
@@ -79,7 +79,7 @@ steps:
 
       $merged = ConvertTo-Json -Depth 100 $guildCommandsArray
 
-      $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/guilds/${{ parameters.guildCommandsGuildId }}/commands"
+      $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/guilds/${env:GUILD_COMMANDS_GUILD_ID}/commands"
       Write-Output "Publishing to $url"
 
       $guildResponse = Invoke-WebRequest -Uri $url `
@@ -94,3 +94,4 @@ steps:
   displayName: 'Push all slash commands'
   env:
     BOT_TOKEN: ${{ parameters.botToken }}
+    GUILD_COMMANDS_GUILD_ID: ${{ parameters.guildCommandsGuildId }}

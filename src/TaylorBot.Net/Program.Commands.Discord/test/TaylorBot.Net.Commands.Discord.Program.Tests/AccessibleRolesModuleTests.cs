@@ -2,9 +2,7 @@
 using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;

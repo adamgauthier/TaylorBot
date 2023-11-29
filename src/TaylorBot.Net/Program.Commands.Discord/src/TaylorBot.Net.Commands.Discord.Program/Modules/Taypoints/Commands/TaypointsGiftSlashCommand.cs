@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Humanizer;
 using System.Globalization;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;

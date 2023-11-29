@@ -1,8 +1,6 @@
 ﻿using Discord;
 using StackExchange.Redis;
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 
 namespace TaylorBot.Net.MessageLogging.Infrastructure;

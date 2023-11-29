@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
+﻿namespace TaylorBot.Net.EntityTracker.Infrastructure.Member
 {
     public class MemberAddedOrUpdatedDto
     {

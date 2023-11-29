@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Reminder.Domain
+﻿namespace TaylorBot.Net.Reminder.Domain
 {
     public interface IReminderRepository
     {

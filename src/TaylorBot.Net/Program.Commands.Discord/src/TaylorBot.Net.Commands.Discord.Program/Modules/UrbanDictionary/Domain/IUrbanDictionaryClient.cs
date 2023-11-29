@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using static TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain.UrbanDictionaryResult;
+﻿using static TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain.UrbanDictionaryResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
 

@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.EntityTracker.Domain;

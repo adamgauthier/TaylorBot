@@ -1,8 +1,5 @@
 ﻿using Discord;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using Xunit;
 

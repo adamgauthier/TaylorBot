@@ -1,6 +1,5 @@
 ﻿using Discord;
 using System.Reflection;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.DiscordNet;
 
 namespace TaylorBot.Net.Commands.Preconditions

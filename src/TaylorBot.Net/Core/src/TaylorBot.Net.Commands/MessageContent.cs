@@ -1,7 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace TaylorBot.Net.Commands;
 

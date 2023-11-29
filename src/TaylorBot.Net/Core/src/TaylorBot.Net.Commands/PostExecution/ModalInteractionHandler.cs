@@ -1,8 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using static TaylorBot.Net.Commands.PostExecution.ModalSubmit;
 

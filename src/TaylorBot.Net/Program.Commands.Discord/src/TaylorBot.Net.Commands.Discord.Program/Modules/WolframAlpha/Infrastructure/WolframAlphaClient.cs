@@ -1,11 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using static TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain.WolframAlphaResult;

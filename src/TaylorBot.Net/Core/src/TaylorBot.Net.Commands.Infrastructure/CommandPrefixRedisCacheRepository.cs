@@ -1,6 +1,5 @@
 ﻿using Discord;
 using StackExchange.Redis;
-using System.Threading.Tasks;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 

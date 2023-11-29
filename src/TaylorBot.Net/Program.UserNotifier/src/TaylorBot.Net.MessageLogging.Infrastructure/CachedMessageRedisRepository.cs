@@ -1,7 +1,5 @@
 ﻿using StackExchange.Redis;
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.MessageLogging.Domain;
 

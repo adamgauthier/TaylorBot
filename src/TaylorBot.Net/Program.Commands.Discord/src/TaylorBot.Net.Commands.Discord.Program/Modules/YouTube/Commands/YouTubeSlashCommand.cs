@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
+﻿using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;

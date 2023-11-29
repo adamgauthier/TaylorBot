@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
 {
     public record MessagePriority(DateTimeOffset From, DateTimeOffset To);
 

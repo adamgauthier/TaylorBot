@@ -1,5 +1,4 @@
 ﻿using Humanizer;
-using System;
 using System.Globalization;
 
 namespace TaylorBot.Net.Core.Time;

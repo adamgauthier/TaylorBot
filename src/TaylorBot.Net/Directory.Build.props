@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Features>strict</Features>
     <!-- Private feed for custom packages -->
     <!-- <RestoreAdditionalProjectSources>https://pkgs.dev.azure.com/louistio/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json</RestoreAdditionalProjectSources> -->

@@ -1,8 +1,6 @@
 ﻿using OperationResult;
-using System;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Core.Client;

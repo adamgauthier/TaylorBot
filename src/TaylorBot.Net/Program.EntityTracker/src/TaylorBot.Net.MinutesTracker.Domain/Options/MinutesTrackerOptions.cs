@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaylorBot.Net.MinutesTracker.Domain.Options
+﻿namespace TaylorBot.Net.MinutesTracker.Domain.Options
 {
     public class MinutesTrackerOptions
     {

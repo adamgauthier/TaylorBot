@@ -1,5 +1,4 @@
-﻿using System;
-using TaylorBot.Net.Core.Snowflake;
+﻿using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Reminder.Domain

@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.DiscordNet;

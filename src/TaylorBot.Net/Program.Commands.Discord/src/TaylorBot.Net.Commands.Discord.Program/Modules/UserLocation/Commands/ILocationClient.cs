@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
 public interface ILocationResult { }
 public record LocationFoundResult(Location Location) : ILocationResult;

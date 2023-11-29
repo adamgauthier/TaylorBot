@@ -2,7 +2,6 @@
 using Humanizer;
 using Microsoft.Extensions.Options;
 using Reddit.Controllers;
-using System.Linq;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
@@ -13,7 +12,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed
     {
         private static readonly string[] DOMAINS_TO_USE_URL_AS_THUMBNAIL = new[] { "i.redd.it", "i.imgur.com" };
 
-        private IOptionsMonitor<RedditNotifierOptions> optionsMonitor;
+        private readonly IOptionsMonitor<RedditNotifierOptions> optionsMonitor;
 
         public RedditPostToEmbedMapper(IOptionsMonitor<RedditNotifierOptions> optionsMonitor)
         {

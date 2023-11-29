@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using static TaylorBot.Net.Commands.MessageResult;
+﻿using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.PageMessages;
 

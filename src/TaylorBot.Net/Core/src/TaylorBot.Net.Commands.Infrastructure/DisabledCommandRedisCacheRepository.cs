@@ -1,5 +1,4 @@
 ﻿using StackExchange.Redis;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Preconditions;
 
 namespace TaylorBot.Net.Commands.Infrastructure

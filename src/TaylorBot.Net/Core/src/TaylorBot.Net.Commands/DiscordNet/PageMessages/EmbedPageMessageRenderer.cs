@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System;
 
 namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
 

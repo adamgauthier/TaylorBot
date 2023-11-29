@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Humanizer;
-using System;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;

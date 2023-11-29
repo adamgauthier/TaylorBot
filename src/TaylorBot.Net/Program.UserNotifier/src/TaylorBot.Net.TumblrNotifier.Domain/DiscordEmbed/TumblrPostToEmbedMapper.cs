@@ -2,7 +2,6 @@
 using DontPanic.TumblrSharp.Client;
 using Humanizer;
 using Microsoft.Extensions.Options;
-using System.Linq;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.TumblrNotifier.Domain.Options;
 
@@ -10,7 +9,7 @@ namespace TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed
 {
     public class TumblrPostToEmbedMapper
     {
-        private IOptionsMonitor<TumblrNotifierOptions> optionsMonitor;
+        private readonly IOptionsMonitor<TumblrNotifierOptions> optionsMonitor;
 
         public TumblrPostToEmbedMapper(IOptionsMonitor<TumblrNotifierOptions> optionsMonitor)
         {

@@ -1,7 +1,4 @@
 ﻿using Discord;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;

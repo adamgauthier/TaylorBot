@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Microsoft.Extensions.Options;
-using System;
 using System.Globalization;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;
 

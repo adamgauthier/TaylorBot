@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
