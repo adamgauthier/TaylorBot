@@ -292,6 +292,7 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<FavoriteObsessionClearSlashCommand>()
             .ConfigureRequired<SignatureOptions>(config, "Signature")
             .AddSlashCommand<SignatureSlashCommand>()
+            .AddSlashCommand<OwnerDownloadAvatarsSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

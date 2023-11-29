@@ -100,6 +100,19 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "downloadavatars",
+      "description": "Download avatars for given users",
+      "type": 1,
+      "options": [
+        {
+          "name": "userids",
+          "description": "Comma-separated list of user ids to download avatars for",
+          "type": 3,
+          "required": true
+        }
+      ]
     }
   ]
 }

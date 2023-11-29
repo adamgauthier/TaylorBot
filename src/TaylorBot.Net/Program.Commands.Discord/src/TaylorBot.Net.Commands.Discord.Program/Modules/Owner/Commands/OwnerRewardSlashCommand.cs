@@ -13,7 +13,7 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerRewardSlashCommand : ISlashCommand<OwnerRewardSlashCommand.Options>
+public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepository) : ISlashCommand<OwnerRewardSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("owner reward");
 
@@ -30,20 +30,13 @@ public class OwnerRewardSlashCommand : ISlashCommand<OwnerRewardSlashCommand.Opt
         ParsedOptionalUser user9
     );
 
-    private readonly ITaypointRewardRepository _taypointRepository;
-
-    public OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepository)
-    {
-        _taypointRepository = taypointRepository;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(new Command(
             new(Info.Name),
             async () =>
             {
-                List<IUser> users = new() { options.user1.User };
+                List<IUser> users = [options.user1.User];
                 foreach (var optional in new[] {
                     options.user2.User,
                     options.user3.User,
@@ -63,7 +56,7 @@ public class OwnerRewardSlashCommand : ISlashCommand<OwnerRewardSlashCommand.Opt
 
                 var amount = options.amount.Value;
 
-                var rewardedUsers = await _taypointRepository.RewardUsersAsync(users, amount);
+                var rewardedUsers = await taypointRepository.RewardUsersAsync(users, amount);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     string.Join('\n', new[] {
