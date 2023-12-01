@@ -13,7 +13,7 @@ public class PageMessageResultBuilder
     {
         _options = options;
 
-        _buttons = new();
+        _buttons = [];
 
         if (_options.Renderer.HasMultiplePages)
         {

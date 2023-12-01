@@ -1,21 +1,13 @@
 ﻿using Discord;
 
-namespace TaylorBot.Net.Commands.DiscordNet.PageMessages
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
+
+public class DescriptionPageEditor(IReadOnlyList<string> pages) : IEmbedPageEditor
 {
-    public class DescriptionPageEditor : IEmbedPageEditor
+    public int PageCount => pages.Count;
+
+    public EmbedBuilder Edit(EmbedBuilder embed, int currentPage)
     {
-        private readonly IReadOnlyList<string> _pages;
-
-        public int PageCount => _pages.Count;
-
-        public DescriptionPageEditor(IReadOnlyList<string> pages)
-        {
-            _pages = pages;
-        }
-
-        public EmbedBuilder Edit(EmbedBuilder embed, int currentPage)
-        {
-            return embed.WithDescription(_pages[currentPage - 1]);
-        }
+        return embed.WithDescription(pages[currentPage - 1]);
     }
 }

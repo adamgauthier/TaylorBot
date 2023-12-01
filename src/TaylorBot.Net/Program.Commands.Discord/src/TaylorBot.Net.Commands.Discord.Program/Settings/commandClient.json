@@ -25,8 +25,12 @@
         "MaxUsesForPlusUser": 20
       },
       "youtube-search": {
-        "FriendlyName": "Searching YouTube",
-        "MaxUsesForUser": 7
+        "FriendlyName": "Searching YouTube (slash command)",
+        "MaxUsesForUser": 8
+      },
+      "youtube-search-legacy": {
+        "FriendlyName": "Searching YouTube (prefix command)",
+        "MaxUsesForUser": 2
       },
       "horoscope": {
         "FriendlyName": "Fetching an horoscope",

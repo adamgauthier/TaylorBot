@@ -8,28 +8,19 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
 
-public class UrbanDictionaryCommand
+public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient, IRateLimiter rateLimiter)
 {
     public static readonly CommandMetadata Metadata = new("urbandictionary", "Knowledge ❓", new[] { "urban" });
-
-    private readonly IUrbanDictionaryClient _urbanDictionaryClient;
-    private readonly IRateLimiter _rateLimiter;
-
-    public UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient, IRateLimiter rateLimiter)
-    {
-        _urbanDictionaryClient = urbanDictionaryClient;
-        _rateLimiter = rateLimiter;
-    }
 
     public Command Search(IUser author, string query, bool isLegacyCommand = false) => new(
         Metadata,
         async () =>
         {
-            var rateLimitResult = await _rateLimiter.VerifyDailyLimitAsync(author, isLegacyCommand ? "urbandictionary-search-legacy" : "urbandictionary-search");
+            var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(author, isLegacyCommand ? "urbandictionary-search-legacy" : "urbandictionary-search");
             if (rateLimitResult != null)
                 return rateLimitResult;
 
-            var result = await _urbanDictionaryClient.SearchAsync(query);
+            var result = await urbanDictionaryClient.SearchAsync(query);
 
             switch (result)
             {
@@ -44,8 +35,7 @@ public class UrbanDictionaryCommand
                     else
                     {
                         EmbedBuilder BuildBaseEmbed() =>
-                            new EmbedBuilder()
-                                .WithUserAsAuthor(author);
+                            new EmbedBuilder().WithUserAsAuthor(author);
 
                         return new PageMessageResult(new PageMessage(new(
                             new EmbedPageMessageRenderer(new UrbanDictionaryEditor(searchResult), BuildBaseEmbed),
@@ -54,10 +44,12 @@ public class UrbanDictionaryCommand
                     }
 
                 case GenericUrbanError error:
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                        "UrbanDictionary returned an unexpected error. 😢",
-                        "The site might be down. Try again later!"
-                    })));
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        """                        
+                        UrbanDictionary returned an unexpected error. 😢
+                        The site might be down. Try again later!
+                        """
+                    ));
 
                 default:
                     throw new InvalidOperationException(result.GetType().Name);
@@ -66,23 +58,16 @@ public class UrbanDictionaryCommand
     );
 }
 
-public class UrbanDictionarySlashCommand : ISlashCommand<UrbanDictionarySlashCommand.Options>
+public class UrbanDictionarySlashCommand(UrbanDictionaryCommand urbanDictionaryCommand) : ISlashCommand<UrbanDictionarySlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("urbandictionary");
 
     public record Options(ParsedString search);
 
-    private readonly UrbanDictionaryCommand _urbanDictionaryCommand;
-
-    public UrbanDictionarySlashCommand(UrbanDictionaryCommand urbanDictionaryCommand)
-    {
-        _urbanDictionaryCommand = urbanDictionaryCommand;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            _urbanDictionaryCommand.Search(
+            urbanDictionaryCommand.Search(
                 context.User,
                 options.search.Value
             )

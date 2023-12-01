@@ -8,40 +8,39 @@ public interface IEmbedPageEditor
     EmbedBuilder Edit(EmbedBuilder embed, int currentPage);
 }
 
-public class EmbedPageMessageRenderer
+public interface IPageMessageRenderer
+{
+    bool HasMultiplePages { get; }
+    MessageContent RenderNext();
+    MessageContent RenderPrevious();
+    MessageContent Render();
+}
+
+public class EmbedPageMessageRenderer(IEmbedPageEditor editor, Func<EmbedBuilder> baseEmbedBuilder) : IPageMessageRenderer
 {
     private int _currentPage = 1;
 
-    private readonly IEmbedPageEditor _editor;
-    private readonly Func<EmbedBuilder> _baseEmbedBuilder;
+    public bool HasMultiplePages => editor.PageCount > 1;
 
-    public bool HasMultiplePages => _editor.PageCount > 1;
-
-    public EmbedPageMessageRenderer(IEmbedPageEditor editor, Func<EmbedBuilder> baseEmbedBuilder)
+    public MessageContent RenderNext()
     {
-        _editor = editor;
-        _baseEmbedBuilder = baseEmbedBuilder;
-    }
-
-    public Embed RenderNext()
-    {
-        _currentPage = _currentPage + 1 > _editor.PageCount ? 1 : _currentPage + 1;
+        _currentPage = _currentPage + 1 > editor.PageCount ? 1 : _currentPage + 1;
         return Render();
     }
 
-    public Embed RenderPrevious()
+    public MessageContent RenderPrevious()
     {
-        _currentPage = _currentPage - 1 == 0 ? _editor.PageCount : _currentPage - 1;
+        _currentPage = _currentPage - 1 == 0 ? editor.PageCount : _currentPage - 1;
         return Render();
     }
 
-    public Embed Render()
+    public MessageContent Render()
     {
-        var edited = _editor.Edit(_baseEmbedBuilder(), _currentPage);
+        var edited = editor.Edit(baseEmbedBuilder(), _currentPage);
 
-        if (edited.Footer == null && _editor.PageCount > 0)
-            edited.WithFooter($"Page {_currentPage}/{_editor.PageCount}");
+        if (edited.Footer == null && editor.PageCount > 0)
+            edited.WithFooter($"Page {_currentPage}/{editor.PageCount}");
 
-        return edited.Build();
+        return new(edited.Build());
     }
 }

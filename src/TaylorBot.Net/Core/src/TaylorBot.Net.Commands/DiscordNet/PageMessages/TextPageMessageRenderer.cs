@@ -1,12 +1,8 @@
-﻿namespace TaylorBot.Net.Commands.PageMessages;
+﻿using TaylorBot.Net.Commands.PageMessages;
 
-public interface IMessageEditor
-{
-    int PageCount { get; }
-    MessageContent Edit(int currentPage);
-}
+namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
 
-public class PageMessageResultRenderer(IMessageEditor editor)
+public class TextPageMessageRenderer(MessageTextEditor editor) : IPageMessageRenderer
 {
     private int _currentPage = 1;
 

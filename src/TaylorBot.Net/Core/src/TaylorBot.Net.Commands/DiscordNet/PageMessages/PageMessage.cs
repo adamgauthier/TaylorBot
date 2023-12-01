@@ -6,21 +6,17 @@ using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
 
-public record PageMessageOptions(EmbedPageMessageRenderer Renderer, bool Cancellable = false);
+public record PageMessageOptions(IPageMessageRenderer Renderer, bool Cancellable = false);
 
-public class PageMessage
+public class PageMessage(PageMessageOptions options)
 {
-    private readonly PageMessageOptions _options;
-
-    public PageMessage(PageMessageOptions options)
-    {
-        _options = options;
-    }
-
     public async ValueTask<SentPageMessage> SendAsync(IUser commandUser, IMessageChannel channel)
     {
-        var message = await channel.SendMessageAsync(embed: _options.Renderer.Render());
-        return new SentPageMessage(commandUser, message, _options);
+        var rendered = options.Renderer.Render();
+        var message = await channel.SendMessageAsync(
+            text: string.IsNullOrWhiteSpace(rendered.Content) ? null : rendered.Content,
+            embed: rendered.Embeds.Count > 0 ? rendered.Embeds[0] : null);
+        return new SentPageMessage(commandUser, message, options);
     }
 }
 
@@ -59,7 +55,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessag
             }
             finally
             {
-                _unsubscribeTimer = new Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+                _unsubscribeTimer = new Timer(TimerCallback, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
                 void TimerCallback(object? state)
                 {
                     if (_lastInteractionAt == null ||
@@ -81,15 +77,33 @@ public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessag
             {
                 _lastInteractionAt = DateTimeOffset.Now;
                 await _message.ModifyAsync(m =>
-                    m.Embed = options.Renderer.RenderNext()
-                );
+                {
+                    var next = options.Renderer.RenderNext();
+                    if (!string.IsNullOrWhiteSpace(next.Content))
+                    {
+                        m.Content = next.Content;
+                    }
+                    if (next.Embeds.Count > 0)
+                    {
+                        m.Embed = next.Embeds[0];
+                    }
+                });
             }
             else if (reaction.Emote.Equals(NextEmoji))
             {
                 _lastInteractionAt = DateTimeOffset.Now;
                 await _message.ModifyAsync(m =>
-                    m.Embed = options.Renderer.RenderPrevious()
-                );
+                {
+                    var previous = options.Renderer.RenderPrevious();
+                    if (!string.IsNullOrWhiteSpace(previous.Content))
+                    {
+                        m.Content = previous.Content;
+                    }
+                    if (previous.Embeds.Count > 0)
+                    {
+                        m.Embed = previous.Embeds[0];
+                    }
+                });
             }
             else if (reaction.Emote.Equals(CancelEmoji) && options.Cancellable)
             {
