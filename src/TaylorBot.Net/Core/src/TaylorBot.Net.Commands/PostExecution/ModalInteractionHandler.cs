@@ -23,7 +23,7 @@ public class ModalInteractionHandler
     private readonly ILogger<ModalInteractionHandler> _logger;
     private readonly InteractionResponseClient _interactionResponseClient;
 
-    private readonly Dictionary<string, ModalCallback> _callbacks = new();
+    private readonly Dictionary<string, ModalCallback> _callbacks = [];
 
     public ModalInteractionHandler(ILogger<ModalInteractionHandler> logger, InteractionResponseClient interactionResponseClient)
     {

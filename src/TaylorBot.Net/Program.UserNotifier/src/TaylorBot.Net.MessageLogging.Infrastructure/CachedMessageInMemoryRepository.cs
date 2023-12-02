@@ -5,7 +5,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure;
 
 public class CachedMessageInMemoryRepository : ICachedMessageRepository
 {
-    private readonly Dictionary<ulong, TaylorBotCachedMessageData> _cachedMessages = new();
+    private readonly Dictionary<ulong, TaylorBotCachedMessageData> _cachedMessages = [];
 
     public ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId)
     {

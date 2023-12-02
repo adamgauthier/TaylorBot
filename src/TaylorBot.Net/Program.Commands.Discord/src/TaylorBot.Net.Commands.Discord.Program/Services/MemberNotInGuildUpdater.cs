@@ -29,7 +29,7 @@ public class MemberNotInGuildUpdater
 
     private async Task UpdateMembersWhoLeft(IGuild guild, IList<SnowflakeId> userIds)
     {
-        List<SnowflakeId> membersNotInGuild = new();
+        List<SnowflakeId> membersNotInGuild = [];
 
         foreach (var userId in userIds)
         {

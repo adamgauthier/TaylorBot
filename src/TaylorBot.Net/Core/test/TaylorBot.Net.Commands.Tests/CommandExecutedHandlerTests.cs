@@ -10,40 +10,39 @@ using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Username;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests
+namespace TaylorBot.Net.Commands.Types.Tests;
+
+public class CommandExecutedHandlerTests
 {
-    public class CommandExecutedHandlerTests
+    private readonly ILogger<CommandExecutedHandler> _logger = A.Fake<ILogger<CommandExecutedHandler>>(o => o.Strict());
+    private readonly IOngoingCommandRepository _ongoingCommandRepository = A.Fake<IOngoingCommandRepository>(o => o.Strict());
+    private readonly ICommandUsageRepository _commandUsageRepository = A.Fake<ICommandUsageRepository>(o => o.Strict());
+    private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
+    private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
+    private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition = new(
+        A.Fake<IIgnoredUserRepository>(o => o.Strict()),
+        new UsernameTrackerDomainService(A.Fake<ILogger<UsernameTrackerDomainService>>(o => o.Strict()), A.Fake<IUsernameRepository>(o => o.Strict()))
+    );
+
+    private readonly CommandExecutedHandler _commandExecutedHandler;
+
+    public CommandExecutedHandlerTests()
     {
-        private readonly ILogger<CommandExecutedHandler> _logger = A.Fake<ILogger<CommandExecutedHandler>>(o => o.Strict());
-        private readonly IOngoingCommandRepository _ongoingCommandRepository = A.Fake<IOngoingCommandRepository>(o => o.Strict());
-        private readonly ICommandUsageRepository _commandUsageRepository = A.Fake<ICommandUsageRepository>(o => o.Strict());
-        private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
-        private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
-        private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition = new(
-            A.Fake<IIgnoredUserRepository>(o => o.Strict()),
-            new UsernameTrackerDomainService(A.Fake<ILogger<UsernameTrackerDomainService>>(o => o.Strict()), A.Fake<IUsernameRepository>(o => o.Strict()))
+        _commandExecutedHandler = new(
+            _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition
         );
+    }
 
-        private readonly CommandExecutedHandler _commandExecutedHandler;
+    [Fact]
+    public async Task OnCommandExecutedAsync_WhenUnknownCommand_ThenNoLog()
+    {
+        var commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+        A.CallTo(() => commandContext.RunContext).Returns(null);
+        var result = A.Fake<IResult>(o => o.Strict());
+        A.CallTo(() => result.Error).Returns(CommandError.UnknownCommand);
 
-        public CommandExecutedHandlerTests()
-        {
-            _commandExecutedHandler = new(
-                _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition
-            );
-        }
+        await _commandExecutedHandler.OnCommandExecutedAsync(Optional.Create<CommandInfo>(), commandContext, result);
 
-        [Fact]
-        public async Task OnCommandExecutedAsync_WhenUnknownCommand_ThenNoLog()
-        {
-            var commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
-            A.CallTo(() => commandContext.RunContext).Returns(null);
-            var result = A.Fake<IResult>(o => o.Strict());
-            A.CallTo(() => result.Error).Returns(CommandError.UnknownCommand);
-
-            await _commandExecutedHandler.OnCommandExecutedAsync(Optional.Create<CommandInfo>(), commandContext, result);
-
-            A.CallTo(_logger).Where(call => call.Method.Name == nameof(ILogger.Log)).MustNotHaveHappened();
-        }
+        A.CallTo(_logger).Where(call => call.Method.Name == nameof(ILogger.Log)).MustNotHaveHappened();
     }
 }

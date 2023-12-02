@@ -4,39 +4,38 @@ using System.Text.Json;
 using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Parsers.Channels
+namespace TaylorBot.Net.Commands.Parsers.Channels;
+
+public record ParsedTextChannelOrCurrent(ITextChannel Channel);
+
+public class TextChannelOrCurrentParser : IOptionParser<ParsedTextChannelOrCurrent>
 {
-    public record ParsedTextChannelOrCurrent(ITextChannel Channel);
+    private readonly ITaylorBotClient _taylorBotClient;
 
-    public class TextChannelOrCurrentParser : IOptionParser<ParsedTextChannelOrCurrent>
+    public TextChannelOrCurrentParser(ITaylorBotClient taylorBotClient)
     {
-        private readonly ITaylorBotClient _taylorBotClient;
+        _taylorBotClient = taylorBotClient;
+    }
 
-        public TextChannelOrCurrentParser(ITaylorBotClient taylorBotClient)
+    public async ValueTask<Result<ParsedTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    {
+        if (optionValue.HasValue)
         {
-            _taylorBotClient = taylorBotClient;
+            var channel = await _taylorBotClient.ResolveRequiredChannelAsync(new(optionValue.Value.GetString()!));
+            if (channel is not ITextChannel text)
+            {
+                return Error(new ParsingFailed($"Channel '{channel.Name}' is not a text channel."));
+            }
+            return new ParsedTextChannelOrCurrent(text);
         }
-
-        public async ValueTask<Result<ParsedTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+        else
         {
-            if (optionValue.HasValue)
+            var channel = await _taylorBotClient.ResolveRequiredChannelAsync(new(context.Channel.Id));
+            if (channel is not ITextChannel text)
             {
-                var channel = await _taylorBotClient.ResolveRequiredChannelAsync(new(optionValue.Value.GetString()!));
-                if (channel is not ITextChannel text)
-                {
-                    return Error(new ParsingFailed($"Channel '{channel.Name}' is not a text channel."));
-                }
-                return new ParsedTextChannelOrCurrent(text);
+                return Error(new ParsingFailed($"The current channel {channel.Name} is not part of a server."));
             }
-            else
-            {
-                var channel = await _taylorBotClient.ResolveRequiredChannelAsync(new(context.Channel.Id));
-                if (channel is not ITextChannel text)
-                {
-                    return Error(new ParsingFailed($"The current channel {channel.Name} is not part of a server."));
-                }
-                return new ParsedTextChannelOrCurrent(text);
-            }
+            return new ParsedTextChannelOrCurrent(text);
         }
     }
 }

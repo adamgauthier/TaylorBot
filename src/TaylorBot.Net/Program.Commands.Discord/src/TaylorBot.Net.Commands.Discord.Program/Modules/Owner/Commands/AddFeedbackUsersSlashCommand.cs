@@ -50,10 +50,10 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
 
                 logger.LogDebug("Processing {Count} eligible users to add them to feedback.", members.Count);
 
-                List<IGuildUser> roleAdded = new();
-                List<MemberDto> unresolvedGuildMember = new();
-                List<IGuildUser> alreadyHaveRole = new();
-                List<MemberDto> unexpectedError = new();
+                List<IGuildUser> roleAdded = [];
+                List<MemberDto> unresolvedGuildMember = [];
+                List<IGuildUser> alreadyHaveRole = [];
+                List<MemberDto> unexpectedError = [];
 
                 foreach (var member in members)
                 {

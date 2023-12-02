@@ -1,9 +1,8 @@
 ﻿using Discord;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
+
+public interface IZodiacSignRepository
 {
-    public interface IZodiacSignRepository
-    {
-        ValueTask<string?> GetZodiacForUserAsync(IUser user);
-    }
+    ValueTask<string?> GetZodiacForUserAsync(IUser user);
 }

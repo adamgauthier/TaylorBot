@@ -51,27 +51,27 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
 
     private class Poll
     {
-        private static readonly List<string> Icons = new()
-        {
+        private static readonly List<string> Icons =
+        [
             "1️⃣",
             "2️⃣",
             "3️⃣",
             "4️⃣"
-        };
-        private static readonly List<string> WinningIcons = new()
-        {
+        ];
+        private static readonly List<string> WinningIcons =
+        [
             "🥇",
             "🥈",
             "🥉",
             "🎀"
-        };
+        ];
         private record Option(short Id, string Name, string Icon);
 
         private readonly TimeSpan _duration;
         private readonly DateTimeOffset _startedAt;
         private readonly DateTimeOffset _endsAt;
         private readonly string _title;
-        private readonly List<Option> _options = new();
+        private readonly List<Option> _options = [];
         private readonly ConcurrentDictionary<string, short> _voters = new();
 
         private DateTimeOffset? _endedAt = null;
@@ -92,7 +92,7 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
 
         public MessageResult CreateResult()
         {
-            List<ButtonResult> buttons = new();
+            List<ButtonResult> buttons = [];
 
             foreach (var option in _options)
             {
@@ -184,7 +184,7 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
         public Embed CreateEmbed()
         {
             var voters = _voters.ToList();
-            Dictionary<short, HashSet<string>> votesByOption = new();
+            Dictionary<short, HashSet<string>> votesByOption = [];
 
             foreach (var vote in voters)
             {
@@ -194,7 +194,7 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
                 }
                 else
                 {
-                    votesByOption[vote.Value] = new() { vote.Key };
+                    votesByOption[vote.Value] = [vote.Key];
                 }
             }
 

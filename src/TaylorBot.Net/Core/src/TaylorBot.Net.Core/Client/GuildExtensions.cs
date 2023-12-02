@@ -1,18 +1,17 @@
 ﻿using Discord.WebSocket;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.Core.Client
+namespace TaylorBot.Net.Core.Client;
+
+public static class GuildExtensions
 {
-    public static class GuildExtensions
+    public static SocketTextChannel GetRequiredTextChannel(this SocketGuild socketGuild, SnowflakeId id)
     {
-        public static SocketTextChannel GetRequiredTextChannel(this SocketGuild socketGuild, SnowflakeId id)
+        var channel = socketGuild.GetTextChannel(id.Id);
+        if (channel == null)
         {
-            var channel = socketGuild.GetTextChannel(id.Id);
-            if (channel == null)
-            {
-                throw new ArgumentException($"Could not resolve Text Channel ID {id}.");
-            }
-            return channel;
+            throw new ArgumentException($"Could not resolve Text Channel ID {id}.");
         }
+        return channel;
     }
 }

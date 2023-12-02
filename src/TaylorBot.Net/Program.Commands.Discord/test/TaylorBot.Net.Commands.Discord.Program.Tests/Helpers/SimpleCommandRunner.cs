@@ -1,10 +1,9 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+
+public class SimpleCommandRunner : ICommandRunner
 {
-    public class SimpleCommandRunner : ICommandRunner
+    public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)
     {
-        public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)
-        {
-            return await command.RunAsync();
-        }
+        return await command.RunAsync();
     }
 }

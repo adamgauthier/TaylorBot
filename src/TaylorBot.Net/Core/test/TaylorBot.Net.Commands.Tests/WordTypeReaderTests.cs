@@ -4,39 +4,38 @@ using FluentAssertions;
 using TaylorBot.Net.Commands.DiscordNet;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests
+namespace TaylorBot.Net.Commands.Types.Tests;
+
+public class WordTypeReaderTests
 {
-    public class WordTypeReaderTests
+    private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
+    private readonly IServiceProvider _serviceProvider = A.Fake<IServiceProvider>(o => o.Strict());
+
+    private readonly WordTypeReader _wordTypeReader = new();
+
+    [Fact]
+    public async Task ReadAsync_WhenInputContainsSpace_ThenReturnsParseFailed()
     {
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
-        private readonly IServiceProvider _serviceProvider = A.Fake<IServiceProvider>(o => o.Strict());
+        var result = await _wordTypeReader.ReadAsync(_commandContext, "taylor swift", _serviceProvider);
 
-        private readonly WordTypeReader _wordTypeReader = new WordTypeReader();
+        result.Error.Should().Be(CommandError.ParseFailed);
+    }
 
-        [Fact]
-        public async Task ReadAsync_WhenInputContainsSpace_ThenReturnsParseFailed()
-        {
-            var result = await _wordTypeReader.ReadAsync(_commandContext, "taylor swift", _serviceProvider);
+    [Fact]
+    public async Task ReadAsync_WhenInputContainsNewLine_ThenReturnsParseFailed()
+    {
+        var result = await _wordTypeReader.ReadAsync(_commandContext, "taylor\nswift", _serviceProvider);
 
-            result.Error.Should().Be(CommandError.ParseFailed);
-        }
+        result.Error.Should().Be(CommandError.ParseFailed);
+    }
 
-        [Fact]
-        public async Task ReadAsync_WhenInputContainsNewLine_ThenReturnsParseFailed()
-        {
-            var result = await _wordTypeReader.ReadAsync(_commandContext, "taylor\nswift", _serviceProvider);
+    [Fact]
+    public async Task ReadAsync_WhenValidInput_ThenReturnsWordWithInput()
+    {
+        var input = "tay";
 
-            result.Error.Should().Be(CommandError.ParseFailed);
-        }
+        var result = (Word)(await _wordTypeReader.ReadAsync(_commandContext, input, _serviceProvider)).Values.Single().Value;
 
-        [Fact]
-        public async Task ReadAsync_WhenValidInput_ThenReturnsWordWithInput()
-        {
-            var input = "tay";
-
-            var result = (Word)(await _wordTypeReader.ReadAsync(_commandContext, input, _serviceProvider)).Values.Single().Value;
-
-            result.Value.Should().Be(input);
-        }
+        result.Value.Should().Be(input);
     }
 }

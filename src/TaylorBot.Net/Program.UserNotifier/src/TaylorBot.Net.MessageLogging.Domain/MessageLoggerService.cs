@@ -68,7 +68,7 @@ public class MessageLoggerService(MessageLogChannelFinder messageLogChannelFinde
 
             if (logTextChannel != null)
             {
-                List<CachedMessage> messages = new();
+                List<CachedMessage> messages = [];
                 foreach (var cachedMessage in cachedMessages)
                 {
                     messages.Add(new(new(cachedMessage.Id), await GetCachedMessageDataAsync(cachedMessage)));

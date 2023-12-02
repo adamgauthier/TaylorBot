@@ -2,46 +2,45 @@
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
 
-namespace TaylorBot.Net.MinutesTracker.Domain
+namespace TaylorBot.Net.MinutesTracker.Domain;
+
+public class MinutesTrackerDomainService
 {
-    public class MinutesTrackerDomainService
+    private readonly ILogger<MinutesTrackerDomainService> _logger;
+    private readonly IOptionsMonitor<MinutesTrackerOptions> _optionsMonitor;
+    private readonly IMinuteRepository _minuteRepository;
+
+    public MinutesTrackerDomainService(
+        ILogger<MinutesTrackerDomainService> logger,
+        IOptionsMonitor<MinutesTrackerOptions> optionsMonitor,
+        IMinuteRepository minuteRepository)
     {
-        private readonly ILogger<MinutesTrackerDomainService> _logger;
-        private readonly IOptionsMonitor<MinutesTrackerOptions> _optionsMonitor;
-        private readonly IMinuteRepository _minuteRepository;
+        _logger = logger;
+        _optionsMonitor = optionsMonitor;
+        _minuteRepository = minuteRepository;
+    }
 
-        public MinutesTrackerDomainService(
-            ILogger<MinutesTrackerDomainService> logger,
-            IOptionsMonitor<MinutesTrackerOptions> optionsMonitor,
-            IMinuteRepository minuteRepository)
+    public async Task StartMinutesAdderAsync()
+    {
+        while (true)
         {
-            _logger = logger;
-            _optionsMonitor = optionsMonitor;
-            _minuteRepository = minuteRepository;
-        }
+            var options = _optionsMonitor.CurrentValue;
 
-        public async Task StartMinutesAdderAsync()
-        {
-            while (true)
+            try
             {
-                var options = _optionsMonitor.CurrentValue;
-
-                try
-                {
-                    await _minuteRepository.AddMinutesToActiveMembersAsync(
-                        minutesToAdd: options.MinutesToAdd,
-                        minimumTimeSpanSinceLastSpoke: options.MinimumTimeSpanSinceLastSpoke,
-                        minutesRequiredForReward: options.MinutesRequiredForReward,
-                        pointsReward: options.PointsReward
-                    );
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception, "Exception occurred when attempting to add minutes to active members.");
-                }
-
-                await Task.Delay(options.TimeSpanBetweenMinutesAdding);
+                await _minuteRepository.AddMinutesToActiveMembersAsync(
+                    minutesToAdd: options.MinutesToAdd,
+                    minimumTimeSpanSinceLastSpoke: options.MinimumTimeSpanSinceLastSpoke,
+                    minutesRequiredForReward: options.MinutesRequiredForReward,
+                    pointsReward: options.PointsReward
+                );
             }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Exception occurred when attempting to add minutes to active members.");
+            }
+
+            await Task.Delay(options.TimeSpanBetweenMinutesAdding);
         }
     }
 }

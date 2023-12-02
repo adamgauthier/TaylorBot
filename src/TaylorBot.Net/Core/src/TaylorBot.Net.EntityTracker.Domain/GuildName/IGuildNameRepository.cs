@@ -1,9 +1,8 @@
 ﻿using Discord;
 
-namespace TaylorBot.Net.EntityTracker.Domain.GuildName
+namespace TaylorBot.Net.EntityTracker.Domain.GuildName;
+
+public interface IGuildNameRepository
 {
-    public interface IGuildNameRepository
-    {
-        ValueTask AddNewGuildNameAsync(IGuild guild);
-    }
+    ValueTask AddNewGuildNameAsync(IGuild guild);
 }

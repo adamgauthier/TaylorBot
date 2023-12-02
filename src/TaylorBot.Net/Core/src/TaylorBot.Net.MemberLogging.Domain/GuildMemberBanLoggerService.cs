@@ -1,35 +1,34 @@
 ﻿using Discord;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
-namespace TaylorBot.Net.MemberLogging.Domain
+namespace TaylorBot.Net.MemberLogging.Domain;
+
+public class GuildMemberBanLoggerService
 {
-    public class GuildMemberBanLoggerService
+    private readonly MemberLogChannelFinder memberLogChannelFinder;
+    private readonly GuildMemberBanEmbedFactory guildMemberBanEmbedFactory;
+
+    public GuildMemberBanLoggerService(
+        MemberLogChannelFinder memberLogChannelFinder,
+        GuildMemberBanEmbedFactory guildMemberBanEmbedFactory)
     {
-        private readonly MemberLogChannelFinder memberLogChannelFinder;
-        private readonly GuildMemberBanEmbedFactory guildMemberBanEmbedFactory;
+        this.memberLogChannelFinder = memberLogChannelFinder;
+        this.guildMemberBanEmbedFactory = guildMemberBanEmbedFactory;
+    }
 
-        public GuildMemberBanLoggerService(
-            MemberLogChannelFinder memberLogChannelFinder,
-            GuildMemberBanEmbedFactory guildMemberBanEmbedFactory)
-        {
-            this.memberLogChannelFinder = memberLogChannelFinder;
-            this.guildMemberBanEmbedFactory = guildMemberBanEmbedFactory;
-        }
+    public async Task OnGuildMemberBannedAsync(IUser user, IGuild guild)
+    {
+        var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guild);
 
-        public async Task OnGuildMemberBannedAsync(IUser user, IGuild guild)
-        {
-            var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guild);
+        if (logTextChannel != null)
+            await logTextChannel.SendMessageAsync(embed: guildMemberBanEmbedFactory.CreateMemberBanned(user));
+    }
 
-            if (logTextChannel != null)
-                await logTextChannel.SendMessageAsync(embed: guildMemberBanEmbedFactory.CreateMemberBanned(user));
-        }
+    public async Task OnGuildMemberUnbannedAsync(IUser user, IGuild guild)
+    {
+        var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guild);
 
-        public async Task OnGuildMemberUnbannedAsync(IUser user, IGuild guild)
-        {
-            var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guild);
-
-            if (logTextChannel != null)
-                await logTextChannel.SendMessageAsync(embed: guildMemberBanEmbedFactory.CreateMemberUnbanned(user));
-        }
+        if (logTextChannel != null)
+            await logTextChannel.SendMessageAsync(embed: guildMemberBanEmbedFactory.CreateMemberUnbanned(user));
     }
 }

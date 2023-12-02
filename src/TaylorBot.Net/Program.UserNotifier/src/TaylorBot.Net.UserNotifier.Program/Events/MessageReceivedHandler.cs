@@ -2,23 +2,22 @@
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.MessageLogging.Domain;
 
-namespace TaylorBot.Net.UserNotifier.Program.Events
+namespace TaylorBot.Net.UserNotifier.Program.Events;
+
+public class MessageReceivedHandler : IMessageReceivedHandler
 {
-    public class MessageReceivedHandler : IMessageReceivedHandler
+    private readonly MessageLoggerService _messageDeletedLoggerService;
+
+    public MessageReceivedHandler(MessageLoggerService messageDeletedLoggerService)
     {
-        private readonly MessageLoggerService _messageDeletedLoggerService;
+        _messageDeletedLoggerService = messageDeletedLoggerService;
+    }
 
-        public MessageReceivedHandler(MessageLoggerService messageDeletedLoggerService)
+    public async Task MessageReceivedAsync(SocketMessage message)
+    {
+        if (message.Channel is SocketTextChannel textChannel)
         {
-            _messageDeletedLoggerService = messageDeletedLoggerService;
-        }
-
-        public async Task MessageReceivedAsync(SocketMessage message)
-        {
-            if (message.Channel is SocketTextChannel textChannel)
-            {
-                await _messageDeletedLoggerService.OnGuildUserMessageReceivedAsync(textChannel, message);
-            }
+            await _messageDeletedLoggerService.OnGuildUserMessageReceivedAsync(textChannel, message);
         }
     }
 }

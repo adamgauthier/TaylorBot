@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Options
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Options;
+
+public class ImageOptions
 {
-    public class ImageOptions
-    {
-        public string GoogleCustomSearchEngineId { get; set; } = null!;
-    }
+    public string GoogleCustomSearchEngineId { get; set; } = null!;
 }

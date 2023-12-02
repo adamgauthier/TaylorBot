@@ -406,7 +406,7 @@ public class SlashCommandHandler
         if (optionWithoutMatch != null)
             throw new InvalidOperationException($"Found no parameter mapping in '{command.OptionType}' for option '{optionWithoutMatch.name}'.");
 
-        List<object?> args = new();
+        List<object?> args = [];
 
         foreach (var constructorParameter in constructorParameters)
         {

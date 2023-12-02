@@ -22,14 +22,14 @@ public class EntityTrackerDomainService
     private readonly IMemberRepository _memberRepository;
     private readonly GuildTrackerDomainService _guildTrackerDomainService;
 
-    private readonly AsyncEvent<Func<IGuildUser, Task>> guildMemberFirstJoinedEvent = new AsyncEvent<Func<IGuildUser, Task>>();
+    private readonly AsyncEvent<Func<IGuildUser, Task>> guildMemberFirstJoinedEvent = new();
     public event Func<IGuildUser, Task> GuildMemberFirstJoinedEvent
     {
         add { guildMemberFirstJoinedEvent.Add(value); }
         remove { guildMemberFirstJoinedEvent.Remove(value); }
     }
 
-    private readonly AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>> guildMemberRejoinedEvent = new AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>>();
+    private readonly AsyncEvent<Func<IGuildUser, DateTimeOffset, Task>> guildMemberRejoinedEvent = new();
     public event Func<IGuildUser, DateTimeOffset, Task> GuildMemberRejoinedEvent
     {
         add { guildMemberRejoinedEvent.Add(value); }

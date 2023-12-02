@@ -1,16 +1,15 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace TaylorBot.Net.MessagesTracker.Domain
+namespace TaylorBot.Net.MessagesTracker.Domain;
+
+public class WordCounter
 {
-    public class WordCounter
+    private readonly Regex regex = new(@"\s+");
+
+    public int CountWords(string input)
     {
-        private readonly Regex regex = new Regex(@"\s+");
+        var matchesCount = regex.Matches(input).Count;
 
-        public int CountWords(string input)
-        {
-            var matchesCount = regex.Matches(input).Count;
-
-            return matchesCount != 0 ? matchesCount + 1 : 1;
-        }
+        return matchesCount != 0 ? matchesCount + 1 : 1;
     }
 }

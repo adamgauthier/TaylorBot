@@ -1,9 +1,8 @@
 ﻿using Discord.WebSocket;
 
-namespace TaylorBot.Net.Core.Program.Events
+namespace TaylorBot.Net.Core.Program.Events;
+
+public interface ITextChannelCreatedHandler
 {
-    public interface ITextChannelCreatedHandler
-    {
-        Task TextChannelCreatedAsync(SocketTextChannel textChannel);
-    }
+    Task TextChannelCreatedAsync(SocketTextChannel textChannel);
 }

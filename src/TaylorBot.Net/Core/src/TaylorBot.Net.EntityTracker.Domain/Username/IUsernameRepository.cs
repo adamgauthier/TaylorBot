@@ -1,9 +1,8 @@
 ﻿using Discord;
 
-namespace TaylorBot.Net.EntityTracker.Domain.Username
+namespace TaylorBot.Net.EntityTracker.Domain.Username;
+
+public interface IUsernameRepository
 {
-    public interface IUsernameRepository
-    {
-        ValueTask AddNewUsernameAsync(IUser user);
-    }
+    ValueTask AddNewUsernameAsync(IUser user);
 }

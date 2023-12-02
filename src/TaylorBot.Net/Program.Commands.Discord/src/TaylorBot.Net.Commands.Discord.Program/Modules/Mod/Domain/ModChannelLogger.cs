@@ -4,72 +4,71 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
+
+public interface IModChannelLogger
 {
-    public interface IModChannelLogger
+    ValueTask<ITextChannel?> GetModLogAsync(IGuild guild);
+    ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed);
+    Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
+}
+
+public class ModChannelLogger : IModChannelLogger
+{
+    private readonly ILogger<ModChannelLogger> _logger;
+    private readonly IModLogChannelRepository _modLogChannelRepository;
+
+    public ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRepository modLogChannelRepository)
     {
-        ValueTask<ITextChannel?> GetModLogAsync(IGuild guild);
-        ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed);
-        Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
+        _logger = logger;
+        _modLogChannelRepository = modLogChannelRepository;
     }
 
-    public class ModChannelLogger : IModChannelLogger
+    public async ValueTask<ITextChannel?> GetModLogAsync(IGuild guild)
     {
-        private readonly ILogger<ModChannelLogger> _logger;
-        private readonly IModLogChannelRepository _modLogChannelRepository;
-
-        public ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRepository modLogChannelRepository)
+        var modLog = await _modLogChannelRepository.GetModLogForGuildAsync(guild);
+        if (modLog != null)
         {
-            _logger = logger;
-            _modLogChannelRepository = modLogChannelRepository;
+            var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
+            return channel;
         }
+        return null;
+    }
 
-        public async ValueTask<ITextChannel?> GetModLogAsync(IGuild guild)
+    public async ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
+    {
+        var channel = await GetModLogAsync(guild);
+
+        if (channel != null)
         {
-            var modLog = await _modLogChannelRepository.GetModLogForGuildAsync(guild);
-            if (modLog != null)
+            try
             {
-                var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
-                return channel;
+                var baseEmbed = new EmbedBuilder()
+                    .AddField("Moderator", moderator.FormatTagAndMention(), inline: true)
+                    .AddField("User", user.FormatTagAndMention(), inline: true)
+                    .WithCurrentTimestamp();
+
+                await channel.SendMessageAsync(embed: buildEmbed(baseEmbed).Build());
+
+                return true;
             }
-            return null;
-        }
-
-        public async ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
-        {
-            var channel = await GetModLogAsync(guild);
-
-            if (channel != null)
+            catch (Exception e)
             {
-                try
-                {
-                    var baseEmbed = new EmbedBuilder()
-                        .AddField("Moderator", moderator.FormatTagAndMention(), inline: true)
-                        .AddField("User", user.FormatTagAndMention(), inline: true)
-                        .WithCurrentTimestamp();
-
-                    await channel.SendMessageAsync(embed: buildEmbed(baseEmbed).Build());
-
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
-                }
+                _logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
             }
-
-            return false;
         }
 
-        public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
-        {
-            return wasLogged ?
-                EmbedFactory.CreateSuccess(successMessage) :
-                EmbedFactory.CreateWarning(string.Join('\n', new[] {
-                    successMessage,
-                    "However, I was not able to log this action in your moderation log channel.",
-                    $"Make sure you set it up with {context.MentionCommand("mod log set")} and TaylorBot has access to it."
-                }));
-        }
+        return false;
+    }
+
+    public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
+    {
+        return wasLogged ?
+            EmbedFactory.CreateSuccess(successMessage) :
+            EmbedFactory.CreateWarning(string.Join('\n', new[] {
+                successMessage,
+                "However, I was not able to log this action in your moderation log channel.",
+                $"Make sure you set it up with {context.MentionCommand("mod log set")} and TaylorBot has access to it."
+            }));
     }
 }

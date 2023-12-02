@@ -16,7 +16,7 @@ public class MessageComponentHandler
     private readonly ILogger<MessageComponentHandler> _logger;
     private readonly InteractionResponseClient _interactionResponseClient;
 
-    private readonly Dictionary<string, Func<ButtonComponent, ValueTask>> _callbacks = new();
+    private readonly Dictionary<string, Func<ButtonComponent, ValueTask>> _callbacks = [];
 
     public MessageComponentHandler(ILogger<MessageComponentHandler> logger, InteractionResponseClient interactionResponseClient)
     {

@@ -1,32 +1,31 @@
 ﻿using Discord;
 
-namespace TaylorBot.Net.Commands.Types
+namespace TaylorBot.Net.Commands.Types;
+
+public interface IUserArgument<T> where T : class, IUser
 {
-    public interface IUserArgument<T> where T : class, IUser
+    ulong UserId { get; }
+    ValueTask<T> GetTrackedUserAsync();
+}
+
+public class UserArgument<T> : IUserArgument<T>, IMentionedUser<T>, IMentionedUserNotAuthor<T>, IMentionedUserNotAuthorOrClient<T>
+    where T : class, IUser
+{
+    private readonly T _user;
+    private readonly IUserTracker _userTracker;
+
+    public UserArgument(T user, IUserTracker userTracker)
     {
-        ulong UserId { get; }
-        ValueTask<T> GetTrackedUserAsync();
+        _user = user;
+        _userTracker = userTracker;
     }
 
-    public class UserArgument<T> : IUserArgument<T>, IMentionedUser<T>, IMentionedUserNotAuthor<T>, IMentionedUserNotAuthorOrClient<T>
-        where T : class, IUser
+    public ulong UserId => _user.Id;
+
+    public async ValueTask<T> GetTrackedUserAsync()
     {
-        private readonly T _user;
-        private readonly IUserTracker _userTracker;
+        await _userTracker.TrackUserFromArgumentAsync(_user);
 
-        public UserArgument(T user, IUserTracker userTracker)
-        {
-            _user = user;
-            _userTracker = userTracker;
-        }
-
-        public ulong UserId => _user.Id;
-
-        public async ValueTask<T> GetTrackedUserAsync()
-        {
-            await _userTracker.TrackUserFromArgumentAsync(_user);
-
-            return _user;
-        }
+        return _user;
     }
 }

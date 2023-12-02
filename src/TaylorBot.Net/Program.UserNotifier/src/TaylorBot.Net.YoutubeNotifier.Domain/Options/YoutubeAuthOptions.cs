@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.YoutubeNotifier.Domain.Options
+﻿namespace TaylorBot.Net.YoutubeNotifier.Domain.Options;
+
+public class YoutubeAuthOptions
 {
-    public class YoutubeAuthOptions
-    {
-        public string ApiKey { get; set; } = null!;
-    }
+    public string ApiKey { get; set; } = null!;
 }

@@ -1,25 +1,24 @@
-﻿namespace TaylorBot.Net.Core.Tasks
-{
-    public class OnceRunner
-    {
-        private readonly object lockObject = new object();
-        private bool isHandled = false;
+﻿namespace TaylorBot.Net.Core.Tasks;
 
-        public bool AllowOnce()
+public class OnceRunner
+{
+    private readonly object lockObject = new();
+    private bool isHandled = false;
+
+    public bool AllowOnce()
+    {
+        if (!isHandled)
         {
-            if (!isHandled)
+            lock (lockObject)
             {
-                lock (lockObject)
+                if (!isHandled)
                 {
-                    if (!isHandled)
-                    {
-                        isHandled = true;
-                        return true;
-                    }
+                    isHandled = true;
+                    return true;
                 }
             }
-
-            return false;
         }
+
+        return false;
     }
 }

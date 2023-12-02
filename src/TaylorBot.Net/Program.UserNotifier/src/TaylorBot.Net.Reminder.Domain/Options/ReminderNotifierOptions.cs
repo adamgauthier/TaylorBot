@@ -1,8 +1,7 @@
-﻿namespace TaylorBot.Net.Reminder.Domain.Options
+﻿namespace TaylorBot.Net.Reminder.Domain.Options;
+
+public class ReminderNotifierOptions
 {
-    public class ReminderNotifierOptions
-    {
-        public TimeSpan TimeSpanBetweenReminderChecks { get; set; }
-        public TimeSpan TimeSpanBetweenMessages { get; set; }
-    }
+    public TimeSpan TimeSpanBetweenReminderChecks { get; set; }
+    public TimeSpan TimeSpanBetweenMessages { get; set; }
 }

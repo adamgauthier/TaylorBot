@@ -37,7 +37,7 @@ public class GoogleCustomSearchClient : IImageSearchClient
                 Title: i.Title,
                 PageUrl: i.Image.ContextLink,
                 ImageUrl: i.FileFormat == "image/svg+xml" ? i.Image.ThumbnailLink : i.Link
-            )).ToList() ?? new List<ImageResult>();
+            ))?.ToList() ?? [];
 
             return new SuccessfulSearch(results, response.SearchInformation.FormattedTotalResults, response.SearchInformation.FormattedSearchTime);
         }

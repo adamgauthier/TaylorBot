@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
+
+public interface IBotInfoRepository
 {
-    public interface IBotInfoRepository
-    {
-        ValueTask<string> GetProductVersionAsync();
-    }
+    ValueTask<string> GetProductVersionAsync();
 }

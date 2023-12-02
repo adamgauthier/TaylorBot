@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.Commands.Infrastructure.Options
+﻿namespace TaylorBot.Net.Commands.Infrastructure.Options;
+
+public class CommandClientOptions
 {
-    public class CommandClientOptions
-    {
-        public bool UseRedisCache { get; set; }
-    }
+    public bool UseRedisCache { get; set; }
 }

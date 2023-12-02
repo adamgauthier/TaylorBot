@@ -7,33 +7,32 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests
+namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+
+public class FrameworkModuleTests
 {
-    public class FrameworkModuleTests
+    private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IGuild _commandGuild = A.Fake<IGuild>(o => o.Strict());
+    private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly ICommandPrefixRepository _commandPrefixRepository = A.Fake<ICommandPrefixRepository>(o => o.Strict());
+    private readonly FrameworkModule _frameworkModule;
+
+    public FrameworkModuleTests()
     {
-        private readonly IUser _commandUser = A.Fake<IUser>();
-        private readonly IGuild _commandGuild = A.Fake<IGuild>(o => o.Strict());
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
-        private readonly ICommandPrefixRepository _commandPrefixRepository = A.Fake<ICommandPrefixRepository>(o => o.Strict());
-        private readonly FrameworkModule _frameworkModule;
+        _frameworkModule = new FrameworkModule(new SimpleCommandRunner(), _commandPrefixRepository);
+        _frameworkModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
+        A.CallTo(() => _commandContext.User).Returns(_commandUser);
+    }
 
-        public FrameworkModuleTests()
-        {
-            _frameworkModule = new FrameworkModule(new SimpleCommandRunner(), _commandPrefixRepository);
-            _frameworkModule.SetContext(_commandContext);
-            A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
-            A.CallTo(() => _commandContext.User).Returns(_commandUser);
-        }
+    [Fact]
+    public async Task PrefixAsync_ThenReturnsEmbedWithNewPrefix()
+    {
+        var newPrefix = ".";
+        A.CallTo(() => _commandPrefixRepository.ChangeGuildPrefixAsync(_commandGuild, newPrefix)).Returns(default);
 
-        [Fact]
-        public async Task PrefixAsync_ThenReturnsEmbedWithNewPrefix()
-        {
-            var newPrefix = ".";
-            A.CallTo(() => _commandPrefixRepository.ChangeGuildPrefixAsync(_commandGuild, newPrefix)).Returns(default);
+        var result = (await _frameworkModule.PrefixAsync(new Word(newPrefix))).GetResult<EmbedResult>();
 
-            var result = (await _frameworkModule.PrefixAsync(new Word(newPrefix))).GetResult<EmbedResult>();
-
-            result.Embed.Description.Should().Contain(newPrefix);
-        }
+        result.Embed.Description.Should().Contain(newPrefix);
     }
 }

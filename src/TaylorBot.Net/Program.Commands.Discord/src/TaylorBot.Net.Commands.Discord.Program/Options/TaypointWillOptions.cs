@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Options
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Options;
+
+public class TaypointWillOptions
 {
-    public class TaypointWillOptions
-    {
-        public uint DaysOfInactivityBeforeWillCanBeClaimed { get; set; }
-    }
+    public uint DaysOfInactivityBeforeWillCanBeClaimed { get; set; }
 }

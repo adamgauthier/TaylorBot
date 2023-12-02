@@ -1,10 +1,9 @@
-﻿namespace TaylorBot.Net.TumblrNotifier.Domain.Options
+﻿namespace TaylorBot.Net.TumblrNotifier.Domain.Options;
+
+public class TumblrAuthOptions
 {
-    public class TumblrAuthOptions
-    {
-        public string ConsumerKey { get; set; } = null!;
-        public string ConsumerSecret { get; set; } = null!;
-        public string Token { get; set; } = null!;
-        public string TokenSecret { get; set; } = null!;
-    }
+    public string ConsumerKey { get; set; } = null!;
+    public string ConsumerSecret { get; set; } = null!;
+    public string Token { get; set; } = null!;
+    public string TokenSecret { get; set; } = null!;
 }

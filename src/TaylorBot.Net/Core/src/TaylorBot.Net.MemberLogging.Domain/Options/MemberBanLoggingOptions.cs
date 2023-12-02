@@ -1,8 +1,7 @@
-﻿namespace TaylorBot.Net.MemberLogging.Domain.Options
+﻿namespace TaylorBot.Net.MemberLogging.Domain.Options;
+
+public class MemberBanLoggingOptions
 {
-    public class MemberBanLoggingOptions
-    {
-        public string MemberBannedEmbedColorHex { get; set; } = null!;
-        public string MemberUnbannedEmbedColorHex { get; set; } = null!;
-    }
+    public string MemberBannedEmbedColorHex { get; set; } = null!;
+    public string MemberUnbannedEmbedColorHex { get; set; } = null!;
 }

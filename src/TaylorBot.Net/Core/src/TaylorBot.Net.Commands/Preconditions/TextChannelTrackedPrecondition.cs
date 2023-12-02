@@ -1,25 +1,24 @@
 ﻿using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
-namespace TaylorBot.Net.Commands.Preconditions
+namespace TaylorBot.Net.Commands.Preconditions;
+
+public class TextChannelTrackedPrecondition : ICommandPrecondition
 {
-    public class TextChannelTrackedPrecondition : ICommandPrecondition
+    private readonly ISpamChannelRepository _spamChannelRepository;
+
+    public TextChannelTrackedPrecondition(ISpamChannelRepository spamChannelRepository)
     {
-        private readonly ISpamChannelRepository _spamChannelRepository;
+        _spamChannelRepository = spamChannelRepository;
+    }
 
-        public TextChannelTrackedPrecondition(ISpamChannelRepository spamChannelRepository)
+    public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
+    {
+        if (context.Guild != null)
         {
-            _spamChannelRepository = spamChannelRepository;
+            var textChannel = context.Channel.CreateLegacyTextChannel(context.Guild);
+            await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
         }
 
-        public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
-        {
-            if (context.Guild != null)
-            {
-                var textChannel = context.Channel.CreateLegacyTextChannel(context.Guild);
-                await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
-            }
-
-            return new PreconditionPassed();
-        }
+        return new PreconditionPassed();
     }
 }

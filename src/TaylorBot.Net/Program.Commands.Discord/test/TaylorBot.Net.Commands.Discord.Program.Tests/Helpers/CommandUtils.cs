@@ -1,18 +1,17 @@
 ﻿using Discord;
 using FakeItEasy;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers
+namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+
+public class CommandUtils
 {
-    public class CommandUtils
+    public static IRateLimiter UnlimitedRateLimiter
     {
-        public static IRateLimiter UnlimitedRateLimiter
+        get
         {
-            get
-            {
-                var rateLimiter = A.Fake<IRateLimiter>(o => o.Strict());
-                A.CallTo(() => rateLimiter.VerifyDailyLimitAsync(A<IUser>.Ignored, A<string>.Ignored)).Returns(null);
-                return rateLimiter;
-            }
+            var rateLimiter = A.Fake<IRateLimiter>(o => o.Strict());
+            A.CallTo(() => rateLimiter.VerifyDailyLimitAsync(A<IUser>.Ignored, A<string>.Ignored)).Returns(null);
+            return rateLimiter;
         }
     }
 }

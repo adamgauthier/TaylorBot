@@ -1,11 +1,10 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
+
+public record MessagePriority(DateTimeOffset From, DateTimeOffset To);
+
+public record MessageOfTheDay(string Message, MessagePriority? MessagePriority);
+
+public interface IMessageOfTheDayRepository
 {
-    public record MessagePriority(DateTimeOffset From, DateTimeOffset To);
-
-    public record MessageOfTheDay(string Message, MessagePriority? MessagePriority);
-
-    public interface IMessageOfTheDayRepository
-    {
-        ValueTask<IReadOnlyList<MessageOfTheDay>> GetAllMessagesAsync();
-    }
+    ValueTask<IReadOnlyList<MessageOfTheDay>> GetAllMessagesAsync();
 }

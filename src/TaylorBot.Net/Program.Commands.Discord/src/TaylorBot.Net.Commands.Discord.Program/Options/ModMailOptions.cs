@@ -1,8 +1,7 @@
-﻿namespace TaylorBot.Net.Commands.Discord.Program.Options
+﻿namespace TaylorBot.Net.Commands.Discord.Program.Options;
+
+public class ModMailOptions
 {
-    public class ModMailOptions
-    {
-        public string ReceivedLogEmbedFooterIconUrl { get; set; } = null!;
-        public string SentLogEmbedFooterIconUrl { get; set; } = null!;
-    }
+    public string ReceivedLogEmbedFooterIconUrl { get; set; } = null!;
+    public string SentLogEmbedFooterIconUrl { get; set; } = null!;
 }

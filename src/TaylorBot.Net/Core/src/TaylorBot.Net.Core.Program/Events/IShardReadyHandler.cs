@@ -1,9 +1,8 @@
 ﻿using Discord.WebSocket;
 
-namespace TaylorBot.Net.Core.Program.Events
+namespace TaylorBot.Net.Core.Program.Events;
+
+public interface IShardReadyHandler
 {
-    public interface IShardReadyHandler
-    {
-        Task ShardReadyAsync(DiscordSocketClient shardClient);
-    }
+    Task ShardReadyAsync(DiscordSocketClient shardClient);
 }

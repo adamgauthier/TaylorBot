@@ -1,9 +1,8 @@
 ﻿using Discord.WebSocket;
 
-namespace TaylorBot.Net.Core.Program.Events
+namespace TaylorBot.Net.Core.Program.Events;
+
+public interface IJoinedGuildHandler
 {
-    public interface IJoinedGuildHandler
-    {
-        Task JoinedGuildAsync(SocketGuild guild);
-    }
+    Task JoinedGuildAsync(SocketGuild guild);
 }

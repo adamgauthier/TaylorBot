@@ -1,7 +1,6 @@
-﻿namespace TaylorBot.Net.MemberLogging.Domain.Options
+﻿namespace TaylorBot.Net.MemberLogging.Domain.Options;
+
+public class MemberLeftLoggingOptions
 {
-    public class MemberLeftLoggingOptions
-    {
-        public string MemberLeftEmbedColorHex { get; set; } = null!;
-    }
+    public string MemberLeftEmbedColorHex { get; set; } = null!;
 }

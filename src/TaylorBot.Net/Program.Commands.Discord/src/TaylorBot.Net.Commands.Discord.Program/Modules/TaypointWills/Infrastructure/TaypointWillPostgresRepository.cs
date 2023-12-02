@@ -4,55 +4,55 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
+
+public class TaypointWillPostgresRepository : ITaypointWillRepository
 {
-    public class TaypointWillPostgresRepository : ITaypointWillRepository
+    private readonly PostgresConnectionFactory _postgresConnectionFactory;
+
+    public TaypointWillPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
     {
-        private readonly PostgresConnectionFactory _postgresConnectionFactory;
+        _postgresConnectionFactory = postgresConnectionFactory;
+    }
 
-        public TaypointWillPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-        {
-            _postgresConnectionFactory = postgresConnectionFactory;
-        }
+    private class WillGetDto
+    {
+        public string beneficiary_user_id { get; set; } = null!;
+        public string username { get; set; } = null!;
+    }
 
-        private class WillGetDto
-        {
-            public string beneficiary_user_id { get; set; } = null!;
-            public string username { get; set; } = null!;
-        }
+    public async ValueTask<Will?> GetWillAsync(IUser owner)
+    {
+        await using var connection = _postgresConnectionFactory.CreateConnection();
 
-        public async ValueTask<Will?> GetWillAsync(IUser owner)
-        {
-            await using var connection = _postgresConnectionFactory.CreateConnection();
-
-            var willDto = await connection.QuerySingleOrDefaultAsync<WillGetDto?>(
-                @"SELECT beneficiary_user_id, username
+        var willDto = await connection.QuerySingleOrDefaultAsync<WillGetDto?>(
+            @"SELECT beneficiary_user_id, username
                 FROM users.taypoint_wills INNER JOIN users.users ON taypoint_wills.beneficiary_user_id = users.user_id
                 WHERE owner_user_id = @UserId;",
-                new
-                {
-                    UserId = owner.Id.ToString()
-                }
-            );
+            new
+            {
+                UserId = owner.Id.ToString()
+            }
+        );
 
-            return willDto != null ? new Will(
-                BeneficiaryUserId: new SnowflakeId(willDto.beneficiary_user_id),
-                BeneficiaryUsername: willDto.username
-            ) : null;
-        }
+        return willDto != null ? new Will(
+            BeneficiaryUserId: new SnowflakeId(willDto.beneficiary_user_id),
+            BeneficiaryUsername: willDto.username
+        ) : null;
+    }
 
-        private class WillAddDto
-        {
-            public string beneficiary_user_id { get; set; } = null!;
-            public string username { get; set; } = null!;
-        }
+    private class WillAddDto
+    {
+        public string beneficiary_user_id { get; set; } = null!;
+        public string username { get; set; } = null!;
+    }
 
-        public async ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary)
-        {
-            await using var connection = _postgresConnectionFactory.CreateConnection();
+    public async ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary)
+    {
+        await using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var willAddDto = await connection.QuerySingleAsync<WillAddDto>(
-                @"WITH insert_will AS (
+        var willAddDto = await connection.QuerySingleAsync<WillAddDto>(
+            @"WITH insert_will AS (
                     INSERT INTO users.taypoint_wills (owner_user_id, beneficiary_user_id) VALUES (@OwnerId, @BeneficiaryId)
                     ON CONFLICT (owner_user_id) DO UPDATE SET
                         owner_user_id = users.taypoint_wills.owner_user_id
@@ -61,38 +61,38 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
                 SELECT beneficiary_user_id, username
                 FROM users.users, insert_will
                 WHERE user_id = insert_will.beneficiary_user_id;",
-                new
-                {
-                    OwnerId = owner.Id.ToString(),
-                    BeneficiaryId = beneficiary.Id.ToString()
-                }
+            new
+            {
+                OwnerId = owner.Id.ToString(),
+                BeneficiaryId = beneficiary.Id.ToString()
+            }
+        );
+
+        if (willAddDto.beneficiary_user_id == beneficiary.Id.ToString())
+        {
+            return new WillAddedResult();
+        }
+        else
+        {
+            return new WillNotAddedResult(
+                CurrentBeneficiaryId: new SnowflakeId(willAddDto.beneficiary_user_id),
+                CurrentBeneficiaryUsername: willAddDto.username
             );
-
-            if (willAddDto.beneficiary_user_id == beneficiary.Id.ToString())
-            {
-                return new WillAddedResult();
-            }
-            else
-            {
-                return new WillNotAddedResult(
-                    CurrentBeneficiaryId: new SnowflakeId(willAddDto.beneficiary_user_id),
-                    CurrentBeneficiaryUsername: willAddDto.username
-                );
-            }
         }
+    }
 
-        private class WillRemoveDto
-        {
-            public string beneficiary_user_id { get; set; } = null!;
-            public string username { get; set; } = null!;
-        }
+    private class WillRemoveDto
+    {
+        public string beneficiary_user_id { get; set; } = null!;
+        public string username { get; set; } = null!;
+    }
 
-        public async ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner)
-        {
-            await using var connection = _postgresConnectionFactory.CreateConnection();
+    public async ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner)
+    {
+        await using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var willRemoveDto = await connection.QuerySingleOrDefaultAsync<WillRemoveDto>(
-                @"WITH delete_will AS (
+        var willRemoveDto = await connection.QuerySingleOrDefaultAsync<WillRemoveDto>(
+            @"WITH delete_will AS (
                     DELETE FROM users.taypoint_wills
                     WHERE owner_user_id = @OwnerId
                     RETURNING beneficiary_user_id
@@ -100,38 +100,38 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
                 SELECT beneficiary_user_id, username
                 FROM users.users, delete_will
                 WHERE user_id = delete_will.beneficiary_user_id;",
-                new
-                {
-                    OwnerId = owner.Id.ToString()
-                }
+            new
+            {
+                OwnerId = owner.Id.ToString()
+            }
+        );
+
+        if (willRemoveDto == null)
+        {
+            return new WillNotRemovedResult();
+        }
+        else
+        {
+            return new WillRemovedResult(
+                RemovedBeneficiaryId: new SnowflakeId(willRemoveDto.beneficiary_user_id),
+                RemovedBeneficiaryUsername: willRemoveDto.username
             );
-
-            if (willRemoveDto == null)
-            {
-                return new WillNotRemovedResult();
-            }
-            else
-            {
-                return new WillRemovedResult(
-                    RemovedBeneficiaryId: new SnowflakeId(willRemoveDto.beneficiary_user_id),
-                    RemovedBeneficiaryUsername: willRemoveDto.username
-                );
-            }
         }
+    }
 
-        private class WillWithBeneficiaryDto
-        {
-            public string user_id { get; set; } = null!;
-            public DateTimeOffset max_last_spoke_at { get; set; }
-            public string owner_username { get; set; } = null!;
-        }
+    private class WillWithBeneficiaryDto
+    {
+        public string user_id { get; set; } = null!;
+        public DateTimeOffset max_last_spoke_at { get; set; }
+        public string owner_username { get; set; } = null!;
+    }
 
-        public async ValueTask<IReadOnlyCollection<WillOwner>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
-        {
-            await using var connection = _postgresConnectionFactory.CreateConnection();
+    public async ValueTask<IReadOnlyCollection<WillOwner>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
+    {
+        await using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var willDtos = await connection.QueryAsync<WillWithBeneficiaryDto>(
-                @"SELECT DISTINCT ON (user_id) user_id, last_spoke_at AS max_last_spoke_at, owner_username
+        var willDtos = await connection.QueryAsync<WillWithBeneficiaryDto>(
+            @"SELECT DISTINCT ON (user_id) user_id, last_spoke_at AS max_last_spoke_at, owner_username
                 FROM guilds.guild_members INNER JOIN (
                     SELECT owner_user_id, username AS owner_username
                     FROM users.taypoint_wills INNER JOIN users.users ON taypoint_wills.owner_user_id = users.user_id
@@ -139,33 +139,33 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
                 ) AS wills ON guild_members.user_id = wills.owner_user_id
                 WHERE last_spoke_at IS NOT NULL AND user_id = owner_user_id
                 ORDER BY user_id, last_spoke_at DESC;",
-                new
-                {
-                    UserId = beneficiary.Id.ToString()
-                }
-            );
+            new
+            {
+                UserId = beneficiary.Id.ToString()
+            }
+        );
 
-            return willDtos.Select(w => new WillOwner(
-                OwnerUserId: new SnowflakeId(w.user_id),
-                OwnerUsername: w.owner_username,
-                OwnerLatestSpokeAt: w.max_last_spoke_at
-            )).ToList();
-        }
+        return willDtos.Select(w => new WillOwner(
+            OwnerUserId: new SnowflakeId(w.user_id),
+            OwnerUsername: w.owner_username,
+            OwnerLatestSpokeAt: w.max_last_spoke_at
+        )).ToList();
+    }
 
-        private class TransferDto
-        {
-            public string user_id { get; set; } = null!;
-            public string username { get; set; } = null!;
-            public long taypoint_count { get; set; }
-            public long original_taypoint_count { get; set; }
-        }
+    private class TransferDto
+    {
+        public string user_id { get; set; } = null!;
+        public string username { get; set; } = null!;
+        public long taypoint_count { get; set; }
+        public long original_taypoint_count { get; set; }
+    }
 
-        public async ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser)
-        {
-            await using var connection = _postgresConnectionFactory.CreateConnection();
+    public async ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser)
+    {
+        await using var connection = _postgresConnectionFactory.CreateConnection();
 
-            var transferDtos = await connection.QueryAsync<TransferDto>(
-                @"WITH
+        var transferDtos = await connection.QueryAsync<TransferDto>(
+            @"WITH
                 old_u AS (
                     SELECT user_id, taypoint_count FROM users.users
                     WHERE user_id = @ReceiverId OR user_id = ANY(@FromUserIds) FOR UPDATE
@@ -183,34 +183,33 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
                 FROM old_u, sum_gifters
                 WHERE u.user_id = old_u.user_id
                 RETURNING u.user_id, u.username, u.taypoint_count, old_u.taypoint_count AS original_taypoint_count;",
-                new
-                {
-                    ReceiverId = toUser.Id.ToString(),
-                    FromUserIds = fromUserIds.Select(u => u.Id.ToString()).ToList()
-                }
-            );
+            new
+            {
+                ReceiverId = toUser.Id.ToString(),
+                FromUserIds = fromUserIds.Select(u => u.Id.ToString()).ToList()
+            }
+        );
 
-            return transferDtos.Select(t => new Transfer(
-                UserId: new SnowflakeId(t.user_id),
-                Username: t.username,
-                TaypointCount: t.taypoint_count,
-                OriginalTaypointCount: t.original_taypoint_count
-            )).ToList();
-        }
+        return transferDtos.Select(t => new Transfer(
+            UserId: new SnowflakeId(t.user_id),
+            Username: t.username,
+            TaypointCount: t.taypoint_count,
+            OriginalTaypointCount: t.original_taypoint_count
+        )).ToList();
+    }
 
-        public async ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
-        {
-            await using var connection = _postgresConnectionFactory.CreateConnection();
+    public async ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
+    {
+        await using var connection = _postgresConnectionFactory.CreateConnection();
 
-            await connection.ExecuteAsync(
-                @"DELETE FROM users.taypoint_wills
+        await connection.ExecuteAsync(
+            @"DELETE FROM users.taypoint_wills
                 WHERE beneficiary_user_id = @BeneficiaryUserId AND owner_user_id = ANY(@OwnerUserIds);",
-                new
-                {
-                    BeneficiaryUserId = beneficiary.Id.ToString(),
-                    OwnerUserIds = ownerUserIds.Select(u => u.Id.ToString()).ToList()
-                }
-            );
-        }
+            new
+            {
+                BeneficiaryUserId = beneficiary.Id.ToString(),
+                OwnerUserIds = ownerUserIds.Select(u => u.Id.ToString()).ToList()
+            }
+        );
     }
 }

@@ -6,82 +6,81 @@ using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Reminder.Domain.DiscordEmbed;
 using TaylorBot.Net.Reminder.Domain.Options;
 
-namespace TaylorBot.Net.Reminder.Domain
+namespace TaylorBot.Net.Reminder.Domain;
+
+public class ReminderNotifierDomainService
 {
-    public class ReminderNotifierDomainService
+    private readonly ILogger<ReminderNotifierDomainService> _logger;
+    private readonly IOptionsMonitor<ReminderNotifierOptions> _optionsMonitor;
+    private readonly IReminderRepository _reminderRepository;
+    private readonly ReminderEmbedFactory _reminderEmbedFactory;
+    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
+
+    public ReminderNotifierDomainService(
+        ILogger<ReminderNotifierDomainService> logger,
+        IOptionsMonitor<ReminderNotifierOptions> optionsMonitor,
+        IReminderRepository reminderRepository,
+        ReminderEmbedFactory reminderEmbedFactory,
+        Lazy<ITaylorBotClient> taylorBotClient
+    )
     {
-        private readonly ILogger<ReminderNotifierDomainService> _logger;
-        private readonly IOptionsMonitor<ReminderNotifierOptions> _optionsMonitor;
-        private readonly IReminderRepository _reminderRepository;
-        private readonly ReminderEmbedFactory _reminderEmbedFactory;
-        private readonly Lazy<ITaylorBotClient> _taylorBotClient;
+        _logger = logger;
+        _optionsMonitor = optionsMonitor;
+        _reminderRepository = reminderRepository;
+        _reminderEmbedFactory = reminderEmbedFactory;
+        _taylorBotClient = taylorBotClient;
+    }
 
-        public ReminderNotifierDomainService(
-            ILogger<ReminderNotifierDomainService> logger,
-            IOptionsMonitor<ReminderNotifierOptions> optionsMonitor,
-            IReminderRepository reminderRepository,
-            ReminderEmbedFactory reminderEmbedFactory,
-            Lazy<ITaylorBotClient> taylorBotClient
-        )
+    public async Task StartCheckingRemindersAsync()
+    {
+        while (true)
         {
-            _logger = logger;
-            _optionsMonitor = optionsMonitor;
-            _reminderRepository = reminderRepository;
-            _reminderEmbedFactory = reminderEmbedFactory;
-            _taylorBotClient = taylorBotClient;
-        }
-
-        public async Task StartCheckingRemindersAsync()
-        {
-            while (true)
+            try
             {
-                try
-                {
-                    await RemindUsersAsync();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, $"Unhandled exception in {nameof(RemindUsersAsync)}.");
-                }
-
-                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks);
+                await RemindUsersAsync();
             }
-        }
-
-        public async ValueTask RemindUsersAsync()
-        {
-            foreach (var reminder in await _reminderRepository.GetExpiredRemindersAsync())
+            catch (Exception e)
             {
+                _logger.LogError(e, $"Unhandled exception in {nameof(RemindUsersAsync)}.");
+            }
+
+            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks);
+        }
+    }
+
+    public async ValueTask RemindUsersAsync()
+    {
+        foreach (var reminder in await _reminderRepository.GetExpiredRemindersAsync())
+        {
+            try
+            {
+                _logger.LogDebug($"Reminding {reminder}.");
+                var user = await _taylorBotClient.Value.ResolveRequiredUserAsync(reminder.UserId);
                 try
                 {
-                    _logger.LogDebug($"Reminding {reminder}.");
-                    var user = await _taylorBotClient.Value.ResolveRequiredUserAsync(reminder.UserId);
-                    try
+                    await user.SendMessageAsync(embed: _reminderEmbedFactory.Create(reminder));
+                    _logger.LogDebug($"Reminded {user.FormatLog()} with {reminder}.");
+                    await _reminderRepository.RemoveReminderAsync(reminder);
+                }
+                catch (Discord.Net.HttpException httpException)
+                {
+                    if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                     {
-                        await user.SendMessageAsync(embed: _reminderEmbedFactory.Create(reminder));
-                        _logger.LogDebug($"Reminded {user.FormatLog()} with {reminder}.");
+                        _logger.LogWarning($"Could not remind {user.FormatLog()} with {reminder} because they can't receive DMs.");
                         await _reminderRepository.RemoveReminderAsync(reminder);
                     }
-                    catch (Discord.Net.HttpException httpException)
+                    else
                     {
-                        if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
-                        {
-                            _logger.LogWarning($"Could not remind {user.FormatLog()} with {reminder} because they can't receive DMs.");
-                            await _reminderRepository.RemoveReminderAsync(reminder);
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        throw;
                     }
                 }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception, $"Exception occurred when attempting to notify {reminder}.");
-                }
-
-                await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
             }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, $"Exception occurred when attempting to notify {reminder}.");
+            }
+
+            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
         }
     }
 }

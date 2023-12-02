@@ -1,10 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
 
-namespace TaylorBot.Net.Core.Program.Events
+namespace TaylorBot.Net.Core.Program.Events;
+
+public interface IMessageUpdatedHandler
 {
-    public interface IMessageUpdatedHandler
-    {
-        ValueTask MessageUpdatedAsync(Cacheable<IMessage, ulong> oldMessage, SocketMessage newMessage, ISocketMessageChannel channel);
-    }
+    ValueTask MessageUpdatedAsync(Cacheable<IMessage, ulong> oldMessage, SocketMessage newMessage, ISocketMessageChannel channel);
 }

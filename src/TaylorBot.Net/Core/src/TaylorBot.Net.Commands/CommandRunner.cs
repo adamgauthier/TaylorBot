@@ -63,7 +63,7 @@ public class CommandRunner : ICommandRunner
         UserNoOngoingCommandPrecondition userNoOngoingCommand
     )
     {
-        _preconditions = new() { notDisabled, notGuildDisabled, notGuildChannelDisabled, userNotIgnored, memberTracked, textChannelTracked, userNoOngoingCommand };
+        _preconditions = [notDisabled, notGuildDisabled, notGuildChannelDisabled, userNotIgnored, memberTracked, textChannelTracked, userNoOngoingCommand];
     }
 
     public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)

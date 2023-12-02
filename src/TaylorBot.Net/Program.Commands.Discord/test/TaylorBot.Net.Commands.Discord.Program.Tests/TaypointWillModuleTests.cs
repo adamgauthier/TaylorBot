@@ -12,141 +12,140 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Snowflake;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests
+namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+
+public class TaypointWillModuleTests
 {
-    public class TaypointWillModuleTests
+    private const string AUsername = "TaylorSwift13";
+
+    private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IOptionsMonitor<TaypointWillOptions> _options = A.Fake<IOptionsMonitor<TaypointWillOptions>>(o => o.Strict());
+    private readonly ITaypointWillRepository _taypointWillRepository = A.Fake<ITaypointWillRepository>(o => o.Strict());
+    private readonly TaypointWillModule _taypointWillModule;
+
+    public TaypointWillModuleTests()
     {
-        private const string AUsername = "TaylorSwift13";
+        A.CallTo(() => _commandContext.User).Returns(_commandUser);
+        _taypointWillModule = new TaypointWillModule(new SimpleCommandRunner(), _options, _taypointWillRepository);
+        _taypointWillModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
+    }
 
-        private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
-        private readonly IUser _commandUser = A.Fake<IUser>();
-        private readonly IOptionsMonitor<TaypointWillOptions> _options = A.Fake<IOptionsMonitor<TaypointWillOptions>>(o => o.Strict());
-        private readonly ITaypointWillRepository _taypointWillRepository = A.Fake<ITaypointWillRepository>(o => o.Strict());
-        private readonly TaypointWillModule _taypointWillModule;
+    [Fact]
+    public async Task GetAsync_WhenWillDoesntExist_ThenReturnsEmbedWithNoBeneficiary()
+    {
+        var user = A.Fake<IUser>();
+        A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(null);
+        var userArgument = A.Fake<IUserArgument<IUser>>();
+        A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-        public TaypointWillModuleTests()
-        {
-            A.CallTo(() => _commandContext.User).Returns(_commandUser);
-            _taypointWillModule = new TaypointWillModule(new SimpleCommandRunner(), _options, _taypointWillRepository);
-            _taypointWillModule.SetContext(_commandContext);
-            A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
-        }
+        var result = (await _taypointWillModule.GetAsync(userArgument)).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task GetAsync_WhenWillDoesntExist_ThenReturnsEmbedWithNoBeneficiary()
-        {
-            var user = A.Fake<IUser>();
-            A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(null);
-            var userArgument = A.Fake<IUserArgument<IUser>>();
-            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
+        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        result.Embed.Description.Should().Contain("no beneficiary");
+    }
 
-            var result = (await _taypointWillModule.GetAsync(userArgument)).GetResult<EmbedResult>();
+    [Fact]
+    public async Task GetAsync_WhenWillExists_ThenReturnsEmbedWithBeneficiaryMention()
+    {
+        const uint InactiveDaysForClaim = 20;
+        A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
+        var beneficiaryId = new SnowflakeId("1");
+        var user = A.Fake<IUser>();
+        A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(new Will(beneficiaryId, AUsername));
+        var userArgument = A.Fake<IUserArgument<IUser>>();
+        A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
-            result.Embed.Description.Should().Contain("no beneficiary");
-        }
+        var result = (await _taypointWillModule.GetAsync(userArgument)).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task GetAsync_WhenWillExists_ThenReturnsEmbedWithBeneficiaryMention()
-        {
-            const uint InactiveDaysForClaim = 20;
-            A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
-            var beneficiaryId = new SnowflakeId("1");
-            var user = A.Fake<IUser>();
-            A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(new Will(beneficiaryId, AUsername));
-            var userArgument = A.Fake<IUserArgument<IUser>>();
-            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
+        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+        result.Embed.Description.Should().Contain(MentionUtils.MentionUser(beneficiaryId.Id));
+    }
 
-            var result = (await _taypointWillModule.GetAsync(userArgument)).GetResult<EmbedResult>();
+    [Fact]
+    public async Task AddAsync_WhenWillNotAdded_ThenReturnsErrorEmbed()
+    {
+        var user = A.Fake<IUser>();
+        A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillNotAddedResult(new SnowflakeId("1"), AUsername));
+        var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
+        A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
-            result.Embed.Description.Should().Contain(MentionUtils.MentionUser(beneficiaryId.Id));
-        }
+        var result = (await _taypointWillModule.AddAsync(userArgument)).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task AddAsync_WhenWillNotAdded_ThenReturnsErrorEmbed()
-        {
-            var user = A.Fake<IUser>();
-            A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillNotAddedResult(new SnowflakeId("1"), AUsername));
-            var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
-            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
+        result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+    }
 
-            var result = (await _taypointWillModule.AddAsync(userArgument)).GetResult<EmbedResult>();
+    [Fact]
+    public async Task AddAsync_WhenWillAdded_ThenReturnsSuccessEmbed()
+    {
+        A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = 10 });
+        var user = A.Fake<IUser>();
+        A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillAddedResult());
+        var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
+        A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
-        }
+        var result = (await _taypointWillModule.AddAsync(userArgument)).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task AddAsync_WhenWillAdded_ThenReturnsSuccessEmbed()
-        {
-            A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = 10 });
-            var user = A.Fake<IUser>();
-            A.CallTo(() => _taypointWillRepository.AddWillAsync(_commandUser, user)).Returns(new WillAddedResult());
-            var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>();
-            A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
+        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+    }
 
-            var result = (await _taypointWillModule.AddAsync(userArgument)).GetResult<EmbedResult>();
+    [Fact]
+    public async Task ClearAsync_WhenWillNotRemoved_ThenReturnsErrorEmbed()
+    {
+        A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillNotRemovedResult());
 
-            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
-        }
+        var result = (await _taypointWillModule.ClearAsync()).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task ClearAsync_WhenWillNotRemoved_ThenReturnsErrorEmbed()
-        {
-            A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillNotRemovedResult());
+        result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+    }
 
-            var result = (await _taypointWillModule.ClearAsync()).GetResult<EmbedResult>();
+    [Fact]
+    public async Task ClearAsync_WhenWillRemoved_ThenReturnsSuccessEmbed()
+    {
+        A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1), AUsername));
 
-            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
-        }
+        var result = (await _taypointWillModule.ClearAsync()).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task ClearAsync_WhenWillRemoved_ThenReturnsSuccessEmbed()
-        {
-            A.CallTo(() => _taypointWillRepository.RemoveWillWithOwnerAsync(_commandUser)).Returns(new WillRemovedResult(new SnowflakeId(1), AUsername));
+        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
+    }
 
-            var result = (await _taypointWillModule.ClearAsync()).GetResult<EmbedResult>();
+    [Fact]
+    public async Task ClaimAsync_WhenWillWith1DayAfterInactivityThreshold_ThenReturnsErrorEmbed()
+    {
+        const uint InactiveDaysForClaim = 20;
+        A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
+        var oneDayAfterThreshold = DateTimeOffset.Now.AddDays((-InactiveDaysForClaim) + 1);
+        A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
+            OwnerUserId: new("1"), OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayAfterThreshold
+        )});
 
-            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
-        }
+        var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task ClaimAsync_WhenWillWith1DayAfterInactivityThreshold_ThenReturnsErrorEmbed()
-        {
-            const uint InactiveDaysForClaim = 20;
-            A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
-            var oneDayAfterThreshold = DateTimeOffset.Now.AddDays((-InactiveDaysForClaim) + 1);
-            A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
-                OwnerUserId: new("1"), OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayAfterThreshold
-            )});
+        result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
+    }
 
-            var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
+    [Fact]
+    public async Task ClaimAsync_WhenWillWithInactiveOwner_ThenReturnsSuccessEmbed()
+    {
+        var willOwnerId = new SnowflakeId(1);
+        var commandUserId = new SnowflakeId(2);
+        A.CallTo(() => _commandUser.Id).Returns(commandUserId.Id);
+        const uint InactiveDaysForClaim = 20;
+        A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
+        var oneDayBeforeThreshold = DateTimeOffset.Now.AddDays(-(InactiveDaysForClaim + 1));
+        A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
+            OwnerUserId: willOwnerId, OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayBeforeThreshold
+        )});
+        var ownerUserIds = new[] { willOwnerId };
+        A.CallTo(() => _taypointWillRepository.TransferAllPointsAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(new[] {
+            new Transfer(willOwnerId, AUsername, TaypointCount: 0, OriginalTaypointCount: 100),
+            new Transfer(commandUserId, AUsername, TaypointCount: 100, OriginalTaypointCount: 0)
+        });
+        A.CallTo(() => _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
 
-            result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
-        }
+        var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
 
-        [Fact]
-        public async Task ClaimAsync_WhenWillWithInactiveOwner_ThenReturnsSuccessEmbed()
-        {
-            var willOwnerId = new SnowflakeId(1);
-            var commandUserId = new SnowflakeId(2);
-            A.CallTo(() => _commandUser.Id).Returns(commandUserId.Id);
-            const uint InactiveDaysForClaim = 20;
-            A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
-            var oneDayBeforeThreshold = DateTimeOffset.Now.AddDays(-(InactiveDaysForClaim + 1));
-            A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
-                OwnerUserId: willOwnerId, OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayBeforeThreshold
-            )});
-            var ownerUserIds = new[] { willOwnerId };
-            A.CallTo(() => _taypointWillRepository.TransferAllPointsAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(new[] {
-                new Transfer(willOwnerId, AUsername, TaypointCount: 0, OriginalTaypointCount: 100),
-                new Transfer(commandUserId, AUsername, TaypointCount: 100, OriginalTaypointCount: 0)
-            });
-            A.CallTo(() => _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
-
-            var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
-
-            result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
-        }
+        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
     }
 }

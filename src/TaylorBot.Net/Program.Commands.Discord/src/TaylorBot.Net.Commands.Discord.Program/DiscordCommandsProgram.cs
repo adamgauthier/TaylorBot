@@ -239,6 +239,7 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<WolframAlphaSlashCommand>()
             .AddSlashCommand<ImgurSlashCommand>()
             .ConfigureRequired<ImgurOptions>(config, "Imgur")
+            .AddSingleton<IValidateOptions<ImgurOptions>, ImgurOptionsValidator>()
             .AddTransient<ITaypointBalanceRepository, TaypointBalancePostgresRepository>()
             .AddTransient<MemberNotInGuildUpdater>()
             .AddSlashCommand<TaypointsBalanceSlashCommand>()
@@ -297,7 +298,6 @@ var host = Host.CreateDefaultBuilder()
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
         {
             var options = provider.GetRequiredService<IOptionsMonitor<ImgurOptions>>().CurrentValue;
-            ArgumentException.ThrowIfNullOrEmpty(options.ClientId);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", options.ClientId);
         });
     })

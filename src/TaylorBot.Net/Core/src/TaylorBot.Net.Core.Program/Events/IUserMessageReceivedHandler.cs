@@ -1,9 +1,8 @@
 ﻿using Discord.WebSocket;
 
-namespace TaylorBot.Net.Core.Program.Events
+namespace TaylorBot.Net.Core.Program.Events;
+
+public interface IUserMessageReceivedHandler
 {
-    public interface IUserMessageReceivedHandler
-    {
-        Task UserMessageReceivedAsync(SocketUserMessage userMessage);
-    }
+    Task UserMessageReceivedAsync(SocketUserMessage userMessage);
 }
