@@ -5,25 +5,22 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 
-public class TaypointTransferPostgresRepository : ITaypointTransferRepository
+public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointTransferRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public TaypointTransferPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
+    public async ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IUser to, ITaypointAmount amount)
     {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
-    public async ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IUser to, int taypointCount)
-    {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
+        var removeInfo = amount is AbsoluteTaypointAmount absolute
+            ? new { ToRemove = "@AmountParam", AmountParam = absolute.Amount }
+            : new { ToRemove = "FLOOR(taypoint_count / @AmountParam)::bigint", AmountParam = (long)((RelativeTaypointAmount)amount).Proportion };
+
         var removedTaypoint = await connection.QuerySingleAsync<RemoveTaypointDto>(
-            """
+            $"""
             UPDATE users.users AS u
-            SET taypoint_count = GREATEST(0, taypoint_count - @PointsToRemove)
+            SET taypoint_count = GREATEST(0, taypoint_count - {removeInfo.ToRemove})
             FROM (
                 SELECT user_id, taypoint_count AS original_count
                 FROM users.users WHERE user_id = @SenderId FOR UPDATE
@@ -33,7 +30,7 @@ public class TaypointTransferPostgresRepository : ITaypointTransferRepository
             """,
             new
             {
-                PointsToRemove = taypointCount,
+                AmountParam = removeInfo.AmountParam,
                 SenderId = $"{from.Id}",
             }
         );
@@ -46,7 +43,7 @@ public class TaypointTransferPostgresRepository : ITaypointTransferRepository
                 "UPDATE users.users SET taypoint_count = taypoint_count + @PointsToGift WHERE user_id = @ReceiverId RETURNING taypoint_count;",
                 new
                 {
-                    PointsToGift = taypointCount,
+                    PointsToGift = removedTaypoint.gifted_count,
                     ReceiverId = $"{to.Id}",
                 }
             );
@@ -58,4 +55,3 @@ public class TaypointTransferPostgresRepository : ITaypointTransferRepository
 
     private record RemoveTaypointDto(long original_count, long gifted_count);
 }
-

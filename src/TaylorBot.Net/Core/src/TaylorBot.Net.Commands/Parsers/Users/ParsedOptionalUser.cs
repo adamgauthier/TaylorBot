@@ -8,20 +8,13 @@ namespace TaylorBot.Net.Commands.Parsers.Users;
 
 public record ParsedOptionalUser(IUser? User);
 
-public class OptionalUserParser : IOptionParser<ParsedOptionalUser>
+public class OptionalUserParser(UserParser userParser) : IOptionParser<ParsedOptionalUser>
 {
-    private readonly UserParser _userParser;
-
-    public OptionalUserParser(UserParser userParser)
-    {
-        _userParser = userParser;
-    }
-
     public async ValueTask<Result<ParsedOptionalUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         if (optionValue.HasValue)
         {
-            var parsed = await _userParser.ParseAsync(context, optionValue, resolved);
+            var parsed = await userParser.ParseAsync(context, optionValue, resolved);
             if (parsed)
             {
                 return new ParsedOptionalUser(parsed.Value.User);

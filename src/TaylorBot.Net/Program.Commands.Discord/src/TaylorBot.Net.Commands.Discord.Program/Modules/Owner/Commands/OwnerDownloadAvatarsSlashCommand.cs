@@ -78,7 +78,7 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
         var guildUser = await client.ResolveGuildUserAsync(guild, userId);
         if (guildUser != null)
         {
-            var url = guildUser.GetGuildAvatarUrlOrDefault();
+            var url = guildUser.GetGuildAvatarUrlOrDefault(size: 2048);
             BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "avatars");
 
             var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
@@ -98,10 +98,5 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
             unresolvedGuildMember.Add(userId);
             await Task.Delay(TimeSpan.FromMilliseconds(250));
         }
-    }
-
-    private record MemberDto
-    {
-        public string user_id { get; set; } = null!;
     }
 }

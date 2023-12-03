@@ -27,9 +27,8 @@
       "options": [
         {
           "name": "amount",
-          "description": "The amount of taypoints you want to give",
-          "type": 4,
-          "min_value": 1,
+          "description": "The amount of taypoints you want to give ('all', 'half', etc. are supported)",
+          "type": 3,
           "required": true
         },
         {

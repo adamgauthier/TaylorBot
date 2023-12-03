@@ -8,18 +8,11 @@ namespace TaylorBot.Net.Commands.Parsers.Users;
 
 public record ParsedMemberNotAuthorAndBot(IGuildUser Member);
 
-public class MemberNotAuthorAndBotParser : IOptionParser<ParsedMemberNotAuthorAndBot>
+public class MemberNotAuthorAndBotParser(MemberNotAuthorParser memberNotAuthorParser) : IOptionParser<ParsedMemberNotAuthorAndBot>
 {
-    private readonly MemberNotAuthorParser _memberNotAuthorParser;
-
-    public MemberNotAuthorAndBotParser(MemberNotAuthorParser memberNotAuthorParser)
-    {
-        _memberNotAuthorParser = memberNotAuthorParser;
-    }
-
     public async ValueTask<Result<ParsedMemberNotAuthorAndBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        var parsedMember = await _memberNotAuthorParser.ParseAsync(context, optionValue, resolved);
+        var parsedMember = await memberNotAuthorParser.ParseAsync(context, optionValue, resolved);
         if (parsedMember)
         {
             return !parsedMember.Value.Member.IsBot ?

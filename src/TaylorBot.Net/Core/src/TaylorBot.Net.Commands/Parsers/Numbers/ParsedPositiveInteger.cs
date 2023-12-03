@@ -7,18 +7,11 @@ namespace TaylorBot.Net.Commands.Parsers.Numbers;
 
 public record ParsedPositiveInteger(int Value);
 
-public class PositiveIntegerParser : IOptionParser<ParsedPositiveInteger>
+public class PositiveIntegerParser(IntegerParser integerParser) : IOptionParser<ParsedPositiveInteger>
 {
-    private readonly IntegerParser _integerParser;
-
-    public PositiveIntegerParser(IntegerParser integerParser)
-    {
-        _integerParser = integerParser;
-    }
-
     public async ValueTask<Result<ParsedPositiveInteger, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        var parsed = await _integerParser.ParseAsync(context, optionValue, resolved);
+        var parsed = await integerParser.ParseAsync(context, optionValue, resolved);
 
         if (parsed)
         {

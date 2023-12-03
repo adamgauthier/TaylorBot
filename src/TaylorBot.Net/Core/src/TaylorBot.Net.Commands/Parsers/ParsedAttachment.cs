@@ -7,18 +7,11 @@ namespace TaylorBot.Net.Commands.Parsers;
 
 public record ParsedAttachment(Interaction.Attachment Value);
 
-public class AttachmentParser : IOptionParser<ParsedAttachment>
+public class AttachmentParser(OptionalAttachmentParser optionalAttachmentParser) : IOptionParser<ParsedAttachment>
 {
-    private readonly OptionalAttachmentParser _optionalAttachmentParser;
-
-    public AttachmentParser(OptionalAttachmentParser optionalAttachmentParser)
-    {
-        _optionalAttachmentParser = optionalAttachmentParser;
-    }
-
     public async ValueTask<Result<ParsedAttachment, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        var parsedAttachment = await _optionalAttachmentParser.ParseAsync(context, optionValue, resolved);
+        var parsedAttachment = await optionalAttachmentParser.ParseAsync(context, optionValue, resolved);
         if (parsedAttachment)
         {
             if (parsedAttachment.Value.Value == null)

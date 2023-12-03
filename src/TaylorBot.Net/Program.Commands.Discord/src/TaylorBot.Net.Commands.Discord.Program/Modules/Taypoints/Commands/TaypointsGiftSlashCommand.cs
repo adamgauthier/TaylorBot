@@ -1,8 +1,6 @@
 ﻿using Discord;
 using Humanizer;
-using System.Globalization;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
-using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -11,20 +9,11 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsGiftSlashCommand : ISlashCommand<TaypointsGiftSlashCommand.Options>
+public class TaypointsGiftSlashCommand(ITaypointTransferRepository taypointTransferRepository) : ISlashCommand<TaypointsGiftSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints gift");
 
-    public record Options(ParsedPositiveInteger amount, ParsedUserNotAuthor user);
-
-    private readonly ITaypointTransferRepository _taypointTransferRepository;
-    private readonly ITaypointBalanceRepository _taypointBalanceRepository;
-
-    public TaypointsGiftSlashCommand(ITaypointTransferRepository taypointTransferRepository, ITaypointBalanceRepository taypointBalanceRepository)
-    {
-        _taypointTransferRepository = taypointTransferRepository;
-        _taypointBalanceRepository = taypointBalanceRepository;
-    }
+    public record Options(ITaypointAmount amount, ParsedUserNotAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -34,22 +23,16 @@ public class TaypointsGiftSlashCommand : ISlashCommand<TaypointsGiftSlashCommand
             {
                 var from = context.User;
                 var to = options.user.User;
-                var amount = options.amount.Value;
-
-                var balance = await _taypointBalanceRepository.GetBalanceAsync(from);
-
-                if (amount > balance.TaypointCount)
-                {
-                    return new EmbedResult(EmbedFactory.CreateError(
-                        $"You can't spend {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)}, you only have {balance.TaypointCount.ToString(TaylorBotFormats.BoldReadable)}. 😕"));
-                }
+                var amount = options.amount;
 
                 if (to.IsBot)
                 {
+                    var amountText = FormatAmount(amount);
+
                     return MessageResult.CreatePrompt(
                         new(EmbedFactory.CreateWarning(
                             $"""
-                            Are you sure you want to transfer {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)} to a bot? ⚠️
+                            Are you sure you want to transfer {amountText} to a bot? ⚠️
                             Bots can **NOT** transfer taypoints back. **Your taypoints will be lost!** 🥶
                             """)),
                         confirm: () => TransferAsync(from, to, amount)
@@ -57,18 +40,22 @@ public class TaypointsGiftSlashCommand : ISlashCommand<TaypointsGiftSlashCommand
                 }
                 else
                 {
-                    var percent = balance.TaypointCount != 0 ? (double)amount / balance.TaypointCount : 0;
+                    var shouldConfirm = amount is AbsoluteTaypointAmount absolute
+                        ? absolute.Balance >= 1_000 && GetPercent(absolute) >= 0.50
+                        : ((RelativeTaypointAmount)amount).Proportion <= 2;
 
-                    if (balance.TaypointCount >= 1_000 && percent >= 0.50)
+                    if (shouldConfirm)
                     {
-                        percent.ToString("0%", CultureInfo.InvariantCulture);
+                        var amountText = FormatAmount(amount);
+                        var promptText = amount is AbsoluteTaypointAmount absolute2
+                            ? $"""
+                              Are you sure you want to transfer {amountText}? ⚠️
+                              This represents **{GetPercent(absolute2):0%}** of your balance of {absolute2.Balance.ToString(TaylorBotFormats.BoldReadable)} 💰
+                              """
+                            : $"Are you sure you want to transfer {amountText}? ⚠️";
 
                         return MessageResult.CreatePrompt(
-                            new(EmbedFactory.CreateWarning(
-                                $"""
-                                Are you sure you want to transfer {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)}? ⚠️
-                                This represents **{percent:0%}** of your balance of {balance.TaypointCount.ToString(TaylorBotFormats.BoldReadable)} 💰
-                                """)),
+                            new(EmbedFactory.CreateWarning(promptText)),
                             confirm: () => TransferAsync(from, to, amount)
                         );
                     }
@@ -84,9 +71,33 @@ public class TaypointsGiftSlashCommand : ISlashCommand<TaypointsGiftSlashCommand
         ));
     }
 
-    private async ValueTask<MessageContent> TransferAsync(IUser from, IUser to, int amount)
+    private static double GetPercent(AbsoluteTaypointAmount absolute)
     {
-        var transferResult = await _taypointTransferRepository.TransferTaypointsAsync(from, to, amount);
+        return absolute.Balance != 0 ? (double)absolute.Amount / absolute.Balance : 0;
+    }
+
+    private static string FormatAmount(ITaypointAmount amount)
+    {
+        return amount is AbsoluteTaypointAmount absolute
+            ? "taypoint".ToQuantity(absolute.Amount, TaylorBotFormats.BoldReadable)
+            : FormatRelativeAmount((RelativeTaypointAmount)amount);
+    }
+
+    private static string FormatRelativeAmount(RelativeTaypointAmount amount)
+    {
+        return amount.Proportion switch
+        {
+            1 => "all your taypoints",
+            2 => "half of your taypoints",
+            3 => "a third of your taypoints",
+            4 => "a fourth of your taypoints",
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    private async ValueTask<MessageContent> TransferAsync(IUser from, IUser to, ITaypointAmount amount)
+    {
+        var transferResult = await taypointTransferRepository.TransferTaypointsAsync(from, to, amount);
 
         return new MessageContent(EmbedFactory.CreateSuccess(
             $"""

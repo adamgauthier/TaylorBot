@@ -8,18 +8,11 @@ namespace TaylorBot.Net.Commands.Parsers.Channels;
 
 public record ParsedNonThreadTextChannelOrCurrent(ITextChannel Channel);
 
-public class NonThreadTextChannellOrCurrentParser : IOptionParser<ParsedNonThreadTextChannelOrCurrent>
+public class NonThreadTextChannellOrCurrentParser(TextChannelOrCurrentParser textChannelOrCurrentParser) : IOptionParser<ParsedNonThreadTextChannelOrCurrent>
 {
-    private readonly TextChannelOrCurrentParser _textChannelOrCurrentParser;
-
-    public NonThreadTextChannellOrCurrentParser(TextChannelOrCurrentParser textChannelOrCurrentParser)
-    {
-        _textChannelOrCurrentParser = textChannelOrCurrentParser;
-    }
-
     public async ValueTask<Result<ParsedNonThreadTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        var parsed = await _textChannelOrCurrentParser.ParseAsync(context, optionValue, resolved);
+        var parsed = await textChannelOrCurrentParser.ParseAsync(context, optionValue, resolved);
 
         if (parsed)
         {

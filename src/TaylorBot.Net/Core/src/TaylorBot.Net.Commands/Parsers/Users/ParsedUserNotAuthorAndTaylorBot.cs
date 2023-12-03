@@ -8,18 +8,11 @@ namespace TaylorBot.Net.Commands.Parsers.Users;
 
 public record ParsedUserNotAuthorAndTaylorBot(IUser User);
 
-public class UserNotAuthorAndTaylorBotParser : IOptionParser<ParsedUserNotAuthorAndTaylorBot>
+public class UserNotAuthorAndTaylorBotParser(UserNotAuthorParser userNotAuthorParser) : IOptionParser<ParsedUserNotAuthorAndTaylorBot>
 {
-    private readonly UserNotAuthorParser _userNotAuthorParser;
-
-    public UserNotAuthorAndTaylorBotParser(UserNotAuthorParser userNotAuthorParser)
-    {
-        _userNotAuthorParser = userNotAuthorParser;
-    }
-
     public async ValueTask<Result<ParsedUserNotAuthorAndTaylorBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        var parsedUser = await _userNotAuthorParser.ParseAsync(context, optionValue, resolved);
+        var parsedUser = await userNotAuthorParser.ParseAsync(context, optionValue, resolved);
         if (parsedUser)
         {
             return parsedUser.Value.User.Id != context.BotUser.Id ?

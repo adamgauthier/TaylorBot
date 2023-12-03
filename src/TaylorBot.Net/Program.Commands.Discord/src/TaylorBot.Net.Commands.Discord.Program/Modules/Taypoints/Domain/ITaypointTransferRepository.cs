@@ -6,6 +6,6 @@ public record TransferResult(long OriginalCount, long GiftedCount, long Receiver
 
 public interface ITaypointTransferRepository
 {
-    ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IUser to, int taypointCount);
+    ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IUser to, ITaypointAmount amount);
 }
 

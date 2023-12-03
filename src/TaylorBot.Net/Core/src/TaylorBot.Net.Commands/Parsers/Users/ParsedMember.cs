@@ -10,17 +10,8 @@ namespace TaylorBot.Net.Commands.Parsers.Users;
 
 public record ParsedMember(IGuildUser Member);
 
-public class MemberParser : IOptionParser<ParsedMember>
+public class MemberParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker) : IOptionParser<ParsedMember>
 {
-    private readonly ITaylorBotClient _taylorBotClient;
-    private readonly IUserTracker _userTracker;
-
-    public MemberParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker)
-    {
-        _taylorBotClient = taylorBotClient;
-        _userTracker = userTracker;
-    }
-
     public async ValueTask<Result<ParsedMember, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         if (!optionValue.HasValue)
@@ -33,15 +24,15 @@ public class MemberParser : IOptionParser<ParsedMember>
         }
 
         var member = context.WasAcknowledged
-            ? await _taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!))
-            : await _taylorBotClient.ResolveGuildUserAsync(new SnowflakeId(context.Guild.Id), new(optionValue.Value.GetString()!));
+            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!))
+            : await taylorBotClient.ResolveGuildUserAsync(new SnowflakeId(context.Guild.Id), new(optionValue.Value.GetString()!));
 
         if (member == null)
         {
             return Error(new ParsingFailed($"Did not find member in the current server ({context.Guild.Name})."));
         }
 
-        await _userTracker.TrackUserFromArgumentAsync(member);
+        await userTracker.TrackUserFromArgumentAsync(member);
 
         return new ParsedMember(member);
     }
