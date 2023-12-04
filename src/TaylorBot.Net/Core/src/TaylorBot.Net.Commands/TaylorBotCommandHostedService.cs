@@ -44,7 +44,7 @@ public class TaylorBotCommandHostedService : IHostedService
         commandService.AddTypeReader<IMentionedUser<IUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IUser>>());
         commandService.AddTypeReader<IMentionedUser<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserTypeReader<IGuildUser>>());
         commandService.AddTypeReader<IMentionedUserNotAuthor<IUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IUser>>());
-        commandService.AddTypeReader<IReadOnlyCollection<IMentionedUserNotAuthor<IUser>>>(_serviceProvider.GetRequiredService<MentionedUsersNotAuthorTypeReader<IUser>>());
+        commandService.AddTypeReader<IReadOnlyList<IMentionedUserNotAuthor<IUser>>>(_serviceProvider.GetRequiredService<MentionedUsersNotAuthorTypeReader<IUser>>());
         commandService.AddTypeReader<IMentionedUserNotAuthor<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
         commandService.AddTypeReader<IMentionedUserNotAuthorOrClient<IGuildUser>>(_serviceProvider.GetRequiredService<MentionedUserNotAuthorOrClientTypeReader<IGuildUser>>());
         commandService.AddTypeReader<RoleArgument<IRole>>(_serviceProvider.GetRequiredService<CustomRoleTypeReader<IRole>>());

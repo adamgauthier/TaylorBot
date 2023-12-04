@@ -5,15 +5,8 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 
-public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
+public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointBalanceRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public TaypointBalancePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class TaypointBalanceDto
     {
         public long taypoint_count { get; set; }
@@ -21,7 +14,7 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
 
     public async ValueTask<TaypointBalance> GetBalanceAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var balance = await connection.QuerySingleAsync<TaypointBalanceDto>(
             "SELECT taypoint_count FROM users.users WHERE user_id = @UserId;",
@@ -42,7 +35,7 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
 
     public async ValueTask<TaypointBalance> GetBalanceWithRankAsync(IGuildUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var balance = await connection.QuerySingleAsync<TaypointBalanceWithRankDto>(
             """
@@ -73,7 +66,7 @@ public class TaypointBalancePostgresRepository : ITaypointBalanceRepository
 
     public async ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<LeaderboardEntryDto>(
             """

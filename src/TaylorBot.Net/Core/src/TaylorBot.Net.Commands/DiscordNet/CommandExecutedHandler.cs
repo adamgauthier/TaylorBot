@@ -11,39 +11,22 @@ using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
-public class CommandExecutedHandler
-{
-    private readonly ILogger<CommandExecutedHandler> _logger;
-    private readonly IOngoingCommandRepository _ongoingCommandRepository;
-    private readonly ICommandUsageRepository _commandUsageRepository;
-    private readonly IIgnoredUserRepository _ignoredUserRepository;
-    private readonly PageMessageReactionsHandler _pageMessageReactionsHandler;
-    private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition;
-
-    public CommandExecutedHandler(
-        ILogger<CommandExecutedHandler> logger,
-        IOngoingCommandRepository ongoingCommandRepository,
-        ICommandUsageRepository commandUsageRepository,
-        IIgnoredUserRepository ignoredUserRepository,
-        PageMessageReactionsHandler pageMessageReactionsHandler,
-        UserNotIgnoredPrecondition userNotIgnoredPrecondition
+public class CommandExecutedHandler(
+    ILogger<CommandExecutedHandler> logger,
+    IOngoingCommandRepository ongoingCommandRepository,
+    ICommandUsageRepository commandUsageRepository,
+    IIgnoredUserRepository ignoredUserRepository,
+    PageMessageReactionsHandler pageMessageReactionsHandler,
+    UserNotIgnoredPrecondition userNotIgnoredPrecondition
     )
-    {
-        _logger = logger;
-        _ongoingCommandRepository = ongoingCommandRepository;
-        _commandUsageRepository = commandUsageRepository;
-        _ignoredUserRepository = ignoredUserRepository;
-        _pageMessageReactionsHandler = pageMessageReactionsHandler;
-        _userNotIgnoredPrecondition = userNotIgnoredPrecondition;
-    }
-
+{
     public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
     {
         var commandContext = (ITaylorBotCommandContext)context;
 
         if (result.Error != CommandError.UnknownCommand)
         {
-            _logger.LogInformation($"{context.User.FormatLog()} used '{context.Message.Content.Replace("\n", "\\n")}' in {context.Channel.FormatLog()}");
+            logger.LogInformation($"{context.User.FormatLog()} used '{context.Message.Content.Replace("\n", "\\n")}' in {context.Channel.FormatLog()}");
 
             if (result.IsSuccess)
             {
@@ -68,7 +51,7 @@ public class CommandExecutedHandler
 
                     case PageMessageResult pageResult:
                         var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Channel);
-                        await sentPageMessage.SendReactionsAsync(_pageMessageReactionsHandler, _logger);
+                        await sentPageMessage.SendReactionsAsync(pageMessageReactionsHandler, logger);
                         break;
 
                     case RateLimitedResult rateLimited:
@@ -91,7 +74,7 @@ public class CommandExecutedHandler
                                 .Append($"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**")
                                 .ToArray();
 
-                            await _ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
+                            await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
                         }
 
                         await context.Channel.SendMessageAsync(
@@ -104,7 +87,7 @@ public class CommandExecutedHandler
                         break;
 
                     case PreconditionFailed failed:
-                        _logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
+                        logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
                         if (!failed.UserReason.HideInPrefixCommands)
                         {
                             await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
@@ -121,7 +104,7 @@ public class CommandExecutedHandler
                         throw new InvalidOperationException($"Unexpected command success result: {innerResult.GetType()}");
                 }
                 if (optCommandInfo.IsSpecified)
-                    _commandUsageRepository.QueueIncrementSuccessfulUseCount(optCommandInfo.Value.Aliases[0]);
+                    commandUsageRepository.QueueIncrementSuccessfulUseCount(optCommandInfo.Value.Aliases[0]);
             }
             else
             {
@@ -131,11 +114,11 @@ public class CommandExecutedHandler
                         switch (result.Error)
                         {
                             case CommandError.Exception:
-                                _logger.LogError(executeResult.Exception, "Unhandled exception in command:");
+                                logger.LogError(executeResult.Exception, "Unhandled exception in command:");
                                 break;
 
                             default:
-                                _logger.LogError(executeResult.Exception, $"Unhandled error in command - {result.Error}, {result.ErrorReason}:");
+                                logger.LogError(executeResult.Exception, $"Unhandled error in command - {result.Error}, {result.ErrorReason}:");
                                 break;
                         }
                         await context.Channel.SendMessageAsync(
@@ -144,12 +127,12 @@ public class CommandExecutedHandler
                             embed: CreateUnknownErrorEmbed()
                         );
                         if (optCommandInfo.IsSpecified)
-                            _commandUsageRepository.QueueIncrementUnhandledErrorCount(optCommandInfo.Value.Aliases[0]);
+                            commandUsageRepository.QueueIncrementUnhandledErrorCount(optCommandInfo.Value.Aliases[0]);
                         break;
 
                     case ParseResult parseResult:
                         // Preconditions have not been executed, we must make sure the user is not ignored.
-                        var runResult = await _userNotIgnoredPrecondition.CanRunAsync(
+                        var runResult = await userNotIgnoredPrecondition.CanRunAsync(
                             new Command(DiscordNetContextMapper.MapToCommandMetadata(commandContext), () => new()),
                             DiscordNetContextMapper.MapToRunContext(commandContext)
                         );
@@ -168,12 +151,12 @@ public class CommandExecutedHandler
                         }
                         else
                         {
-                            _logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
+                            logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
                         }
                         break;
 
                     default:
-                        _logger.LogError($"Unhandled error in command - {result.Error}, {result.ErrorReason}");
+                        logger.LogError($"Unhandled error in command - {result.Error}, {result.ErrorReason}");
                         await context.Channel.SendMessageAsync(
                             messageReference: new(context.Message.Id),
                             allowedMentions: new AllowedMentions { MentionRepliedUser = false },
@@ -186,7 +169,7 @@ public class CommandExecutedHandler
 
         if (commandContext.RunContext?.OnGoing.OnGoingCommandAddedToPool != null)
         {
-            await _ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
+            await ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
         }
     }
 

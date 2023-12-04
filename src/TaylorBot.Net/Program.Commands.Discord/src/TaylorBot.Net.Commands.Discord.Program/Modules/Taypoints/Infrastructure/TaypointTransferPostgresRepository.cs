@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructur
 
 public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointTransferRepository
 {
-    public async ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IUser to, ITaypointAmount amount)
+    public async ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IReadOnlyList<IUser> to, ITaypointAmount amount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -35,23 +35,33 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
             }
         );
 
-        long receiverNewCount = 0;
+        var baseGiftCount = removedTaypoint.gifted_count / to.Count;
+        List<RecipientUser> recipientUsers = [
+            // First recipient gets all the unevenly divided points
+            new(to[0], baseGiftCount + removedTaypoint.gifted_count % to.Count),
+            .. to.Skip(1).Select(user => new RecipientUser(user, baseGiftCount))
+        ];
 
-        if (removedTaypoint.gifted_count > 0)
+        List<TransferResult.Recipient> recipients = [];
+
+        foreach (var recipient in recipientUsers.Where(r => r.Amount > 0))
         {
-            receiverNewCount = await connection.QuerySingleAsync<long>(
+            var newCount = await connection.QuerySingleAsync<long>(
                 "UPDATE users.users SET taypoint_count = taypoint_count + @PointsToGift WHERE user_id = @ReceiverId RETURNING taypoint_count;",
                 new
                 {
-                    PointsToGift = removedTaypoint.gifted_count,
-                    ReceiverId = $"{to.Id}",
+                    PointsToGift = recipient.Amount,
+                    ReceiverId = $"{recipient.User.Id}",
                 }
             );
+            recipients.Add(new($"{recipient.User.Id}", recipient.Amount, newCount));
         }
 
         transaction.Commit();
-        return new TransferResult(removedTaypoint.original_count, removedTaypoint.gifted_count, receiverNewCount);
+        return new TransferResult(removedTaypoint.original_count, removedTaypoint.gifted_count, recipients);
     }
 
     private record RemoveTaypointDto(long original_count, long gifted_count);
+
+    private record RecipientUser(IUser User, long Amount);
 }

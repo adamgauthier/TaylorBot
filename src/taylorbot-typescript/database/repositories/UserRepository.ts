@@ -2,7 +2,6 @@ import { Log } from '../../tools/Logger';
 import { Format } from '../../modules/discord/DiscordFormatter';
 import * as pgPromise from 'pg-promise';
 import { User } from 'discord.js';
-import { TaypointAmount } from '../../modules/points/TaypointAmount';
 
 export class UserRepository {
     readonly #db: pgPromise.IDatabase<unknown>;
@@ -30,58 +29,6 @@ export class UserRepository {
         }
         catch (e) {
             Log.error(`Getting has enough taypoint count ${taypointCount} for user ${Format.user(user)}: ${e}`);
-            throw e;
-        }
-    }
-
-    async transferTaypointCount(userFrom: User, usersTo: User[], amount: TaypointAmount): Promise<{
-        usersToGift: { user: User; giftedCount: number }[];
-        gifted_count: string;
-        original_count: string;
-    }> {
-        try {
-            return await this.#db.tx(async t => {
-                const toRemove = amount.isRelative ?
-                    { query: 'FLOOR(taypoint_count / $[points_divisor])::bigint', params: { points_divisor: amount.divisor } } :
-                    { query: '$[points_to_gift]', params: { points_to_gift: amount.count } };
-
-                const { original_count, gifted_count } = await t.one(
-                    `UPDATE users.users AS u
-                    SET taypoint_count = GREATEST(0, taypoint_count - ${toRemove.query})
-                    FROM (
-                        SELECT user_id, taypoint_count AS original_count
-                        FROM users.users WHERE user_id = $[gifter_id] FOR UPDATE
-                    ) AS old_u
-                    WHERE u.user_id = old_u.user_id
-                    RETURNING old_u.original_count, (old_u.original_count - u.taypoint_count) AS gifted_count;`,
-                    {
-                        ...toRemove.params,
-                        gifter_id: userFrom.id
-                    }
-                );
-
-                const baseGiftCount = Math.floor(gifted_count / usersTo.length);
-                const [firstUser, ...others] = usersTo;
-                const usersToGift = [
-                    { user: firstUser, giftedCount: baseGiftCount + gifted_count % usersTo.length },
-                    ...others.map(user => ({ user, giftedCount: baseGiftCount }))
-                ];
-
-                for (const userTo of usersToGift.filter(({ giftedCount }) => giftedCount > 0)) {
-                    await t.none(
-                        'UPDATE users.users SET taypoint_count = taypoint_count + $[points_to_gift] WHERE user_id = $[receiver_id];',
-                        {
-                            points_to_gift: userTo.giftedCount,
-                            receiver_id: userTo.user.id
-                        }
-                    );
-                }
-
-                return { gifted_count, usersToGift, original_count };
-            });
-        }
-        catch (e) {
-            Log.error(`Transferring ${amount} taypoint amount from ${Format.user(userFrom)} to ${usersTo.map(u => Format.user(u)).join()}: ${e}`);
             throw e;
         }
     }

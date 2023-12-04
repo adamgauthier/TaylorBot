@@ -7,17 +7,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
 [Name("Taypoints 🪙")]
-public class TaypointsModule : TaylorBotModule
+public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlashCommand balanceCommand, TaypointsGiftSlashCommand giftCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly TaypointsBalanceSlashCommand _taypointsBalanceCommand;
-
-    public TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlashCommand taypointsBalanceCommand)
-    {
-        _commandRunner = commandRunner;
-        _taypointsBalanceCommand = taypointsBalanceCommand;
-    }
-
     [Command("taypoints")]
     [Alias("points")]
     [Summary("Show the current taypoint balance of a user")]
@@ -32,8 +23,8 @@ public class TaypointsModule : TaylorBotModule
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _taypointsBalanceCommand.Balance(u, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            balanceCommand.Balance(u, isLegacyCommand: true),
             context
         );
 
@@ -57,7 +48,34 @@ public class TaypointsModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("gift")]
+    [Alias("give")]
+    [Summary("Gifts a specified amount of taypoints to pinged users.")]
+    public async Task<RuntimeResult> GiftAsync(
+        [Summary("How much of your taypoints do you want to gift?")]
+        string amount,
+        [Summary("What users would you like to gift taypoints to (must be mentioned)?")]
+        [Remainder]
+        IReadOnlyList<IMentionedUserNotAuthor<IUser>> users
+    )
+    {
+        List<IUser> trackedUsers = [];
+        foreach (var user in users)
+        {
+            trackedUsers.Add(await user.GetTrackedUserAsync());
+        }
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+
+        var result = await commandRunner.RunAsync(
+            giftCommand.Gift(context, Context.User, trackedUsers, amount: null, amountString: amount),
+            context
+        );
 
         return new TaylorBotResult(result, context);
     }

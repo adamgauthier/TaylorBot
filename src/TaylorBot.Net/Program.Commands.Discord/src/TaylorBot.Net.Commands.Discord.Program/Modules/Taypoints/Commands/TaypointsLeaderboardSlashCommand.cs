@@ -13,18 +13,9 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsLeaderboardSlashCommand : ISlashCommand<NoOptions>
+public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypointBalanceRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints leaderboard");
-
-    private readonly ITaypointBalanceRepository _taypointBalanceRepository;
-    private readonly MemberNotInGuildUpdater _memberNotInGuildUpdater;
-
-    public TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypointBalanceRepository, MemberNotInGuildUpdater memberNotInGuildUpdater)
-    {
-        _taypointBalanceRepository = taypointBalanceRepository;
-        _memberNotInGuildUpdater = memberNotInGuildUpdater;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -33,9 +24,9 @@ public class TaypointsLeaderboardSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var leaderboard = await _taypointBalanceRepository.GetLeaderboardAsync(guild);
+                var leaderboard = await taypointBalanceRepository.GetLeaderboardAsync(guild);
 
-                _memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                     nameof(TaypointsLeaderboardSlashCommand),
                     guild,
                     leaderboard.Select(e => e.UserId).ToList());

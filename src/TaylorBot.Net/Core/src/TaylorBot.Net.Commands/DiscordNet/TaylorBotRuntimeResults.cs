@@ -2,14 +2,8 @@
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
-public class TaylorBotResult : RuntimeResult
+public class TaylorBotResult(ICommandResult result, RunContext context) : RuntimeResult(error: null, reason: null)
 {
-    public ICommandResult Result { get; }
-    public RunContext Context { get; }
-
-    public TaylorBotResult(ICommandResult result, RunContext context) : base(error: null, reason: null)
-    {
-        Result = result;
-        Context = context;
-    }
+    public ICommandResult Result { get; } = result;
+    public RunContext Context { get; } = context;
 }
