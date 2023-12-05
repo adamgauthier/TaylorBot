@@ -9,16 +9,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerPopulationSlashCommand : ISlashCommand<NoOptions>
+public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server population");
-
-    private readonly IServerStatsRepository _serverStatsRepository;
-
-    public ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepository)
-    {
-        _serverStatsRepository = serverStatsRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -27,8 +20,8 @@ public class ServerPopulationSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var ageStats = await _serverStatsRepository.GetAgeStatsInGuildAsync(guild);
-                GenderStats genderStats = await _serverStatsRepository.GetGenderStatsInGuildAsync(guild);
+                var ageStats = await serverStatsRepository.GetAgeStatsInGuildAsync(guild);
+                GenderStats genderStats = await serverStatsRepository.GetGenderStatsInGuildAsync(guild);
 
                 string FormatPercent(long count) => ((decimal)count / genderStats.TotalCount).ToString("0.0%", CultureInfo.InvariantCulture);
 

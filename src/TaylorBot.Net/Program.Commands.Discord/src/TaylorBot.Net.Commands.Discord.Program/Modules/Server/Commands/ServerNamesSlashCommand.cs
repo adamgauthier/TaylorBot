@@ -9,16 +9,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerNamesSlashCommand : ISlashCommand<NoOptions>
+public class ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server names");
-
-    private readonly IGuildNamesRepository _guildNamesRepository;
-
-    public ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository)
-    {
-        _guildNamesRepository = guildNamesRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -28,7 +21,7 @@ public class ServerNamesSlashCommand : ISlashCommand<NoOptions>
             {
                 var guild = context.Guild!;
 
-                var guildNames = await _guildNamesRepository.GetHistoryAsync(guild, 75);
+                var guildNames = await guildNamesRepository.GetHistoryAsync(guild, 75);
 
                 var guildNamesAsLines = guildNames.Select(n => $"{n.ChangedAt:MMMM dd, yyyy}: {n.GuildName}");
 

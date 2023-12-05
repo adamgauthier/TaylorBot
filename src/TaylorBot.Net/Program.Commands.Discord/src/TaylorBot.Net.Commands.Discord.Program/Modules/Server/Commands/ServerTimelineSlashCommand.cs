@@ -12,16 +12,9 @@ using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerTimelineSlashCommand : ISlashCommand<NoOptions>
+public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server timeline");
-
-    private readonly IServerJoinedRepository _serverJoinedRepository;
-
-    public ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepository)
-    {
-        _serverJoinedRepository = serverJoinedRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -30,7 +23,7 @@ public class ServerTimelineSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var timeline = await _serverJoinedRepository.GetTimelineAsync(guild);
+                var timeline = await serverJoinedRepository.GetTimelineAsync(guild);
 
                 var pages = timeline.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
                     $"{((DateTimeOffset)entry.first_joined_at).FormatLongDate()}: {entry.username.MdUserLink(entry.user_id)} is {((int)entry.rank).Ordinalize(TaylorBotCulture.Culture)} to join"

@@ -7,19 +7,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 [Name("Activity 📚")]
-public class ActivityModule : TaylorBotModule
+public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCommand serverMessagesCommand, ServerMinutesSlashCommand serverMinutesCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly ServerMessagesSlashCommand _serverMessagesCommand;
-    private readonly ServerMinutesSlashCommand _serverMinutesCommand;
-
-    public ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCommand serverMessagesCommand, ServerMinutesSlashCommand serverMinutesCommand)
-    {
-        _commandRunner = commandRunner;
-        _serverMessagesCommand = serverMessagesCommand;
-        _serverMinutesCommand = serverMinutesCommand;
-    }
-
     [Command("messages")]
     [Summary("Show the message count of a server member")]
     public async Task<RuntimeResult> MessagesAsync(
@@ -33,8 +22,8 @@ public class ActivityModule : TaylorBotModule
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _serverMessagesCommand.Messages(u, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            serverMessagesCommand.Messages(u, isLegacyCommand: true),
             context
         );
 
@@ -58,7 +47,7 @@ public class ActivityModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -76,8 +65,8 @@ public class ActivityModule : TaylorBotModule
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _serverMinutesCommand.Minutes(u, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            serverMinutesCommand.Minutes(u, isLegacyCommand: true),
             context
         );
 
@@ -101,7 +90,7 @@ public class ActivityModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

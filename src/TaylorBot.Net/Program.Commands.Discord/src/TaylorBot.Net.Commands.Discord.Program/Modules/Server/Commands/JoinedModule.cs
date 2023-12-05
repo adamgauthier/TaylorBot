@@ -7,17 +7,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 [Name("Joined 🚪")]
-public class JoinedModule : TaylorBotModule
+public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand serverJoinedCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly ServerJoinedSlashCommand _serverJoinedCommand;
-
-    public JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand serverJoinedCommand)
-    {
-        _commandRunner = commandRunner;
-        _serverJoinedCommand = serverJoinedCommand;
-    }
-
     [Command("joined")]
     [Summary("Show the first recorded joined date of a server member")]
     public async Task<RuntimeResult> JoinedAsync(
@@ -31,8 +22,8 @@ public class JoinedModule : TaylorBotModule
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _serverJoinedCommand.Joined(u, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            serverJoinedCommand.Joined(u, isLegacyCommand: true),
             context
         );
 
@@ -56,7 +47,7 @@ public class JoinedModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

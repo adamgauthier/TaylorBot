@@ -11,18 +11,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerLeaderboardSlashCommand : ISlashCommand<ServerLeaderboardSlashCommand.Options>
+public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessageRepository) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server leaderboard");
 
     public record Options(ParsedString @for);
-
-    private readonly IServerActivityRepository _serverMessageRepository;
-
-    public ServerLeaderboardSlashCommand(IServerActivityRepository serverMessageRepository)
-    {
-        _serverMessageRepository = serverMessageRepository;
-    }
 
     private record LeaderboardData(string Title, List<string> Pages);
 
@@ -63,7 +56,7 @@ public class ServerLeaderboardSlashCommand : ISlashCommand<ServerLeaderboardSlas
         {
             case "messages":
                 {
-                    var leaderboard = await _serverMessageRepository.GetMessageLeaderboardAsync(guild);
+                    var leaderboard = await serverMessageRepository.GetMessageLeaderboardAsync(guild);
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
                         $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: **~{"message".ToQuantity(entry.message_count, $"{TaylorBotFormats.Readable}**")}"
@@ -74,7 +67,7 @@ public class ServerLeaderboardSlashCommand : ISlashCommand<ServerLeaderboardSlas
 
             case "minutes":
                 {
-                    var leaderboard = await _serverMessageRepository.GetMinuteLeaderboardAsync(guild);
+                    var leaderboard = await serverMessageRepository.GetMinuteLeaderboardAsync(guild);
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
                         $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: {"minute".ToQuantity(entry.minute_count, TaylorBotFormats.BoldReadable)}"

@@ -23,27 +23,21 @@ public interface IServerActivityRepository
     Task<IList<MessageLeaderboardEntry>> GetMessageLeaderboardAsync(IGuild guild);
     Task<int> GetMinutesAsync(IGuildUser guildUser);
     Task<IList<MinuteLeaderboardEntry>> GetMinuteLeaderboardAsync(IGuild guild);
+    Task<int?> GetOldMinutesAsync(IUser user);
 }
 
-public class ServerMessagesSlashCommand : ISlashCommand<ServerMessagesSlashCommand.Options>
+public class ServerMessagesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMessagesSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server messages");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly IServerActivityRepository _serverActivityRepository;
-
-    public ServerMessagesSlashCommand(IServerActivityRepository serverActivityRepository)
-    {
-        _serverActivityRepository = serverActivityRepository;
-    }
 
     public Command Messages(IUser user, bool isLegacyCommand) => new(
         new("messages"),
         async () =>
         {
             var guildUser = (IGuildUser)user;
-            var messages = await _serverActivityRepository.GetMessagesAsync(guildUser);
+            var messages = await serverActivityRepository.GetMessagesAsync(guildUser);
             var wordAverage = (double)messages.word_count / messages.message_count;
 
             var embed = new EmbedBuilder()
@@ -75,25 +69,28 @@ public class ServerMessagesSlashCommand : ISlashCommand<ServerMessagesSlashComma
     }
 }
 
-public class ServerMinutesSlashCommand : ISlashCommand<ServerMinutesSlashCommand.Options>
+public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMinutesSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server minutes");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly IServerActivityRepository _serverActivityRepository;
-
-    public ServerMinutesSlashCommand(IServerActivityRepository serverActivityRepository)
-    {
-        _serverActivityRepository = serverActivityRepository;
-    }
 
     public Command Minutes(IUser user, bool isLegacyCommand) => new(
         new("minutes"),
         async () =>
         {
             var guildUser = (IGuildUser)user;
-            var minutes = await _serverActivityRepository.GetMinutesAsync(guildUser);
+            var minutes = await serverActivityRepository.GetMinutesAsync(guildUser);
+
+            var bottomText = "Check out </server leaderboard:1137547317549998130> to see the most active server members! 📃";
+            if (guildUser.GuildId == 115332333745340416)
+            {
+                var oldMinutes = await serverActivityRepository.GetOldMinutesAsync(guildUser);
+                if (oldMinutes != null)
+                {
+                    bottomText = $"Before **December 25th 2015**, minutes used to be counted based on online status. Under that system, this user had {"minute".ToQuantity(oldMinutes.Value, TaylorBotFormats.BoldReadable)}. 🧓";
+                }
+            }
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
@@ -102,7 +99,7 @@ public class ServerMinutesSlashCommand : ISlashCommand<ServerMinutesSlashCommand
                     {guildUser.Mention} has been active for {"minute".ToQuantity(minutes, TaylorBotFormats.BoldReadable)} in this server. ⏳
                     This is roughly equivalent to **{TimeSpan.FromMinutes(minutes).Humanize(maxUnit: TimeUnit.Month, culture: TaylorBotCulture.Culture)}** of activity.
 
-                    Check out </server leaderboard:1137547317549998130> to see the most active server members! 📃            
+                    {bottomText}
                     """);
 
             if (isLegacyCommand)

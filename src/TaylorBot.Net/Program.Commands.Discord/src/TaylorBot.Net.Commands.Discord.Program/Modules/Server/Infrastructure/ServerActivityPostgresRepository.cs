@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
 
-public class ServerActivityPostgresRepository : IServerActivityRepository
+public class ServerActivityPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IServerActivityRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ServerActivityPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async Task<ServerMessages> GetMessagesAsync(IGuildUser guildUser)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<ServerMessages>(
             """
@@ -35,7 +28,7 @@ public class ServerActivityPostgresRepository : IServerActivityRepository
 
     public async Task<IList<MessageLeaderboardEntry>> GetMessageLeaderboardAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<MessageLeaderboardEntry>(
             """
@@ -55,7 +48,7 @@ public class ServerActivityPostgresRepository : IServerActivityRepository
 
     public async Task<int> GetMinutesAsync(IGuildUser guildUser)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<int>(
             """
@@ -74,7 +67,7 @@ public class ServerActivityPostgresRepository : IServerActivityRepository
 
     public async Task<IList<MinuteLeaderboardEntry>> GetMinuteLeaderboardAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<MinuteLeaderboardEntry>(
             """
@@ -90,5 +83,21 @@ public class ServerActivityPostgresRepository : IServerActivityRepository
         );
 
         return entries.ToList();
+    }
+
+    public async Task<int?> GetOldMinutesAsync(IUser user)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        return await connection.QuerySingleOrDefaultAsync<int?>(
+            """
+            SELECT integer_value FROM attributes.integer_attributes
+            WHERE attribute_id = 'oldminutes' AND user_id = @UserId;
+            """,
+            new
+            {
+                UserId = $"{user.Id}",
+            }
+        );
     }
 }
