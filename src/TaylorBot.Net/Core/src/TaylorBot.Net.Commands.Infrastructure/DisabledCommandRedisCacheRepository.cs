@@ -3,27 +3,18 @@ using TaylorBot.Net.Commands.Preconditions;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class DisabledCommandRedisCacheRepository : IDisabledCommandRepository
+public class DisabledCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, DisabledCommandPostgresRepository disabledCommandPostgresRepository) : IDisabledCommandRepository
 {
     private static readonly string Key = "disabled-command-messages";
 
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-    private readonly DisabledCommandPostgresRepository _disabledCommandPostgresRepository;
-
-    public DisabledCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, DisabledCommandPostgresRepository disabledCommandPostgresRepository)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-        _disabledCommandPostgresRepository = disabledCommandPostgresRepository;
-    }
-
     public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandMetadata command)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var message = await redis.HashGetAsync(Key, command.Name);
 
         if (message.IsNull)
         {
-            var disabledMessage = await _disabledCommandPostgresRepository.InsertOrGetCommandDisabledMessageAsync(command);
+            var disabledMessage = await disabledCommandPostgresRepository.InsertOrGetCommandDisabledMessageAsync(command);
             await redis.HashSetAsync(Key, command.Name, disabledMessage);
             return disabledMessage;
         }
@@ -33,17 +24,17 @@ public class DisabledCommandRedisCacheRepository : IDisabledCommandRepository
 
     public async ValueTask EnableGloballyAsync(string commandName)
     {
-        await _disabledCommandPostgresRepository.EnableGloballyAsync(commandName);
+        await disabledCommandPostgresRepository.EnableGloballyAsync(commandName);
 
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         await redis.HashSetAsync(Key, commandName, string.Empty);
     }
 
     public async ValueTask<string> DisableGloballyAsync(string commandName, string disabledMessage)
     {
-        var storedMessage = await _disabledCommandPostgresRepository.DisableGloballyAsync(commandName, disabledMessage);
+        var storedMessage = await disabledCommandPostgresRepository.DisableGloballyAsync(commandName, disabledMessage);
 
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         await redis.HashSetAsync(Key, commandName, storedMessage);
 
         return storedMessage;

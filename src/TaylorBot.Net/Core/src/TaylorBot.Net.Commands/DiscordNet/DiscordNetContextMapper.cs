@@ -23,6 +23,6 @@ public static class DiscordNetContextMapper
     {
         var commandInfo = context.CommandInfos.OrderByDescending(c => c.Priority).FirstOrDefault();
 
-        return new(commandInfo?.Aliases[0]!, commandInfo?.Module.Name, commandInfo?.Aliases);
+        return new(commandInfo?.Aliases[0]!, commandInfo?.Module.Name, commandInfo?.Aliases?.ToList());
     }
 }

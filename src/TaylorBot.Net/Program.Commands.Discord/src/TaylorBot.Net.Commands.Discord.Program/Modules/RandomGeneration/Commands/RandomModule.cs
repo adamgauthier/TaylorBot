@@ -24,17 +24,8 @@ public class CryptoSecureRandom : ICryptoSecureRandom
 }
 
 [Name("Random 🎲")]
-public class RandomModule : TaylorBotModule
+public class RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryptoSecureRandom) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly ICryptoSecureRandom _cryptoSecureRandom;
-
-    public RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryptoSecureRandom)
-    {
-        _commandRunner = commandRunner;
-        _cryptoSecureRandom = cryptoSecureRandom;
-    }
-
     [Command("dice")]
     [Summary("Rolls a dice with the specified amount of faces.")]
     public async Task<RuntimeResult> DiceAsync(
@@ -45,7 +36,7 @@ public class RandomModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), () =>
         {
-            var randomNumber = _cryptoSecureRandom.GetRandomInt32(0, faces.Parsed) + 1;
+            var randomNumber = cryptoSecureRandom.GetRandomInt32(0, faces.Parsed) + 1;
 
             return new(new EmbedResult(new EmbedBuilder()
                 .WithUserAsAuthor(Context.User)
@@ -56,7 +47,7 @@ public class RandomModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -71,8 +62,8 @@ public class RandomModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            new ChooseCommand(_cryptoSecureRandom).Choose(options, Context.User),
+        var result = await commandRunner.RunAsync(
+            new ChooseCommand(cryptoSecureRandom).Choose(options, Context.User),
             context
         );
 

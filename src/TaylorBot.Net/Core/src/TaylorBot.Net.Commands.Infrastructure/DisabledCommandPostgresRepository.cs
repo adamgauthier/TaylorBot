@@ -4,18 +4,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class DisabledCommandPostgresRepository : IDisabledCommandRepository
+public class DisabledCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IDisabledCommandRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public DisabledCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandMetadata command)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<string>(
             """
@@ -36,7 +29,7 @@ public class DisabledCommandPostgresRepository : IDisabledCommandRepository
 
     public async ValueTask EnableGloballyAsync(string commandName)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "UPDATE commands.commands SET disabled_message = '' WHERE name = @CommandName;",
@@ -49,7 +42,7 @@ public class DisabledCommandPostgresRepository : IDisabledCommandRepository
 
     public async ValueTask<string> DisableGloballyAsync(string commandName, string disabledMessage)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<string>(
             """

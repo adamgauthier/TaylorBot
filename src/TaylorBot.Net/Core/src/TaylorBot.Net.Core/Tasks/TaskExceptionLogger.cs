@@ -2,15 +2,8 @@
 
 namespace TaylorBot.Net.Core.Tasks;
 
-public class TaskExceptionLogger
+public class TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
 {
-    public ILogger<TaskExceptionLogger> _logger;
-
-    public TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
-    {
-        _logger = logger;
-    }
-
     public async ValueTask LogOnError(ValueTask valueTask, string taskName)
     {
         try
@@ -19,7 +12,7 @@ public class TaskExceptionLogger
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Unhandled exception in {TaskName}", taskName);
+            logger.LogError(exception, "Unhandled exception in {TaskName}", taskName);
             throw;
         }
     }
@@ -32,7 +25,7 @@ public class TaskExceptionLogger
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Unhandled exception in {TaskName}", taskName);
+            logger.LogError(exception, "Unhandled exception in {TaskName}", taskName);
             throw;
         }
     }

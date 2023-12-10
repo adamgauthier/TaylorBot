@@ -11,18 +11,11 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsBalanceSlashCommand : ISlashCommand<TaypointsBalanceSlashCommand.Options>
+public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBalanceRepository) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly ITaypointBalanceRepository _taypointBalanceRepository;
-
-    public TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBalanceRepository)
-    {
-        _taypointBalanceRepository = taypointBalanceRepository;
-    }
 
     public Command Balance(IUser user, bool isLegacyCommand) => new(
         new("taypoints", "Taypoints 🪙", new[] { "points" }),
@@ -32,11 +25,11 @@ public class TaypointsBalanceSlashCommand : ISlashCommand<TaypointsBalanceSlashC
             if (!user.IsBot && user is IGuildUser guildUser && guildUser.Guild is SocketGuild guild &&
                 guild.MemberCount is > 0 and < 10_000)
             {
-                balance = await _taypointBalanceRepository.GetBalanceWithRankAsync(guildUser);
+                balance = await taypointBalanceRepository.GetBalanceWithRankAsync(guildUser);
             }
             else
             {
-                balance = await _taypointBalanceRepository.GetBalanceAsync(user);
+                balance = await taypointBalanceRepository.GetBalanceAsync(user);
             }
 
             EmbedBuilder embed = new();

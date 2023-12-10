@@ -7,17 +7,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
 [Name("Gender")]
-public class GenderModule : TaylorBotModule
+public class GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand genderShowCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly GenderShowSlashCommand _genderShowCommand;
-
-    public GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand genderShowCommand)
-    {
-        _commandRunner = commandRunner;
-        _genderShowCommand = genderShowCommand;
-    }
-
     [Command("gender")]
     [Summary("Show the gender of a user")]
     public async Task<RuntimeResult> ShowGenderAsync(
@@ -29,8 +20,8 @@ public class GenderModule : TaylorBotModule
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _genderShowCommand.Show(u),
+        var result = await commandRunner.RunAsync(
+            genderShowCommand.Show(u),
             context
         );
 
@@ -42,7 +33,7 @@ public class GenderModule : TaylorBotModule
     [Summary("This command has been moved to </gender set:1150180971224764510>. Please use it instead! 😊")]
     public async Task<RuntimeResult> SetGenderAsync(
         [Remainder]
-        string? text = null
+        string? _ = null
     )
     {
         var command = new Command(
@@ -54,7 +45,7 @@ public class GenderModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -64,7 +55,7 @@ public class GenderModule : TaylorBotModule
     [Summary("This command has been moved to </gender clear:1150180971224764510>. Please use it instead! 😊")]
     public async Task<RuntimeResult> ClearGenderAsync(
         [Remainder]
-        string? text = null
+        string? _ = null
     )
     {
         var command = new Command(
@@ -76,7 +67,7 @@ public class GenderModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

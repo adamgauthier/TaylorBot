@@ -23,7 +23,7 @@ public class TextChannelOrCurrentParser(ITaylorBotClient taylorBotClient) : IOpt
         }
         else
         {
-            var channel = await taylorBotClient.ResolveRequiredChannelAsync(new(context.Channel.Id));
+            var channel = await taylorBotClient.ResolveRequiredChannelAsync(context.Channel.Id);
             if (channel is not ITextChannel text)
             {
                 return Error(new ParsingFailed($"The current channel {channel.Name} is not part of a server."));

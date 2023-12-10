@@ -14,18 +14,11 @@ public class RateLimitInMemoryRepository : IRateLimitRepository
     }
 }
 
-public class RateLimitRedisCacheRepository : IRateLimitRepository
+public class RateLimitRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer) : IRateLimitRepository
 {
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-
-    public RateLimitRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-    }
-
     public async ValueTask<long> IncrementUsageAsync(string key)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var dailyUseCount = await redis.StringIncrementAsync(key);
         await redis.KeyExpireAsync(key, TimeSpan.FromHours(25));
         return dailyUseCount;

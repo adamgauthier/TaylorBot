@@ -26,6 +26,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
@@ -85,6 +87,7 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Extensions;
 using TaylorBot.Net.Commands.Infrastructure;
+using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -102,7 +105,10 @@ var host = Host.CreateDefaultBuilder()
             .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true)
             .AddJsonFile(path: "Settings/dailyPayout.json", optional: false, reloadOnChange: true)
             .AddJsonFile(path: "Settings/lastFm.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: "Settings/modMail.json", optional: false, reloadOnChange: true);
+            .AddJsonFile(path: "Settings/modMail.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: "Settings/heist.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(path: $"Settings/heist.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            ;
 
         appConfig.AddEnvironmentVariables("TaylorBot_");
     })
@@ -294,6 +300,19 @@ var host = Host.CreateDefaultBuilder()
             .ConfigureRequired<SignatureOptions>(config, "Signature")
             .AddSlashCommand<SignatureSlashCommand>()
             .AddSlashCommand<OwnerDownloadAvatarsSlashCommand>()
+            .ConfigureRequired<HeistOptions>(config, "Heist")
+            .AddSingleton<IValidateOptions<HeistOptions>, HeistOptionsValidator>()
+            .AddTransient<IHeistStatsRepository, HeistStatsPostgresRepository>()
+            .AddSingleton<HeistInMemoryRepository>()
+            .AddTransient<HeistRedisRepository>()
+            .AddTransient(provider =>
+            {
+                var options = provider.GetRequiredService<IOptionsMonitor<CommandClientOptions>>().CurrentValue;
+                return options.UseRedisCache ?
+                    provider.GetRequiredService<HeistRedisRepository>() :
+                    (IHeistRepository)provider.GetRequiredService<HeistInMemoryRepository>();
+            })
+            .AddSlashCommand<HeistSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

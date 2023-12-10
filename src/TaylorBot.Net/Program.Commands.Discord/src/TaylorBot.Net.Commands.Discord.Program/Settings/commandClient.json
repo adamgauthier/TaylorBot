@@ -57,6 +57,10 @@
         "FriendlyName": "Submitting a signature",
         "MaxUsesForUser": 5,
         "MaxUsesForPlusUser": 10
+      },
+      "heist": {
+        "FriendlyName": "Entering a heist",
+        "MaxUsesForUser": 150
       }
     }
   }

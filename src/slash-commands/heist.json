@@ -1,0 +1,19 @@
+{
+  "name": "heist",
+  "description": "Get a group together and attempt to heist a taypoint bank",
+  "options": [
+    {
+      "name": "play",
+      "description": "Start or join a heist in the current channel",
+      "type": 1,
+      "options": [
+        {
+          "name": "amount",
+          "description": "The amount of taypoints to invest into heist equipment (the more you invest, the more you win)",
+          "type": 3,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

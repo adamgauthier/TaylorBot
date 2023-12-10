@@ -8,22 +8,11 @@ using TaylorBot.Net.Core.Globalization;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayHoroscopeSlashCommand : ISlashCommand<BirthdayHoroscopeSlashCommand.Options>
+public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSignRepository zodiacSignRepository, IHoroscopeClient horoscopeClient) : ISlashCommand<BirthdayHoroscopeSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday horoscope");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly IRateLimiter _rateLimiter;
-    private readonly IZodiacSignRepository _zodiacSignRepository;
-    private readonly IHoroscopeClient _horoscopeClient;
-
-    public BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSignRepository zodiacSignRepository, IHoroscopeClient horoscopeClient)
-    {
-        _rateLimiter = rateLimiter;
-        _zodiacSignRepository = zodiacSignRepository;
-        _horoscopeClient = horoscopeClient;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -33,11 +22,11 @@ public class BirthdayHoroscopeSlashCommand : ISlashCommand<BirthdayHoroscopeSlas
             {
                 var user = options.user.User;
 
-                var rateLimitResult = await _rateLimiter.VerifyDailyLimitAsync(context.User, "horoscope");
+                var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(context.User, "horoscope");
                 if (rateLimitResult != null)
                     return rateLimitResult;
 
-                var zodiac = await _zodiacSignRepository.GetZodiacForUserAsync(user);
+                var zodiac = await zodiacSignRepository.GetZodiacForUserAsync(user);
 
                 if (zodiac == null)
                 {
@@ -48,7 +37,7 @@ public class BirthdayHoroscopeSlashCommand : ISlashCommand<BirthdayHoroscopeSlas
                         """));
                 }
 
-                var horoscopeResult = await _horoscopeClient.GetHoroscopeAsync(zodiac);
+                var horoscopeResult = await horoscopeClient.GetHoroscopeAsync(zodiac);
 
                 switch (horoscopeResult)
                 {

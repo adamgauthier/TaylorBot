@@ -4,20 +4,13 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class CommandPrefixPostgresRepository : ICommandPrefixRepository
+public class CommandPrefixPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ICommandPrefixRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public CommandPrefixPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record PrefixDto(string prefix, bool was_inserted, bool guild_name_changed, string? previous_guild_name);
 
     public async ValueTask<CommandPrefix> GetOrInsertGuildPrefixAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var dto = await connection.QuerySingleAsync<PrefixDto>(
             """
@@ -39,7 +32,7 @@ public class CommandPrefixPostgresRepository : ICommandPrefixRepository
 
     public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "UPDATE guilds.guilds SET prefix = @Prefix WHERE guild_id = @GuildId;",

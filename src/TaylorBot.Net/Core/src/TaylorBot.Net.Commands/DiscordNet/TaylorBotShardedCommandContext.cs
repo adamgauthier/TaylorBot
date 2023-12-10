@@ -13,17 +13,12 @@ public interface ITaylorBotCommandContext : ICommandContext
     string GetUsage(CommandInfo commandInfo);
 }
 
-public class TaylorBotShardedCommandContext : ShardedCommandContext, ITaylorBotCommandContext
+public class TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : ShardedCommandContext(client, msg), ITaylorBotCommandContext
 {
-    public string CommandPrefix { get; }
+    public string CommandPrefix { get; } = commandPrefix;
     public IList<CommandInfo> CommandInfos { get; set; } = new List<CommandInfo>();
     public RunContext? RunContext { get; set; }
     public ISelfUser CurrentUser => Client.CurrentUser;
-
-    public TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : base(client, msg)
-    {
-        CommandPrefix = commandPrefix;
-    }
 
     public string GetUsage(CommandInfo command)
     {

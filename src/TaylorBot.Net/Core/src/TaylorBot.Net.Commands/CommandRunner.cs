@@ -5,14 +5,14 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands;
 
-public record MessageChannel(string Id)
+public record MessageChannel(SnowflakeId Id)
 {
-    public string Mention => MentionUtils.MentionChannel(new SnowflakeId(Id).Id);
+    public string Mention => MentionUtils.MentionChannel(Id);
 
     public ITextChannel CreateLegacyTextChannel(IGuild guild)
     {
         var textChannel = A.Fake<ITextChannel>(o => o.Strict());
-        A.CallTo(() => textChannel.Id).Returns(new SnowflakeId(Id).Id);
+        A.CallTo(() => textChannel.Id).Returns(Id);
         A.CallTo(() => textChannel.GuildId).Returns(guild.Id);
         return textChannel;
     }

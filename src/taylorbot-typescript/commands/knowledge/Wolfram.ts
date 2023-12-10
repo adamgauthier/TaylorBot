@@ -9,7 +9,6 @@ class WolframCommand extends Command {
             group: 'Knowledge ❓',
             description: 'Search on Wolfram|Alpha!',
             examples: ['This command has been moved to </wolframalpha:1082193237210574910>. Use it instead!'],
-            maxDailyUseCount: 10,
 
             args: [
                 {

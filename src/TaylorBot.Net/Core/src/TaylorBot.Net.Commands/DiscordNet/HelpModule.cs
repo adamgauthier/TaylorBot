@@ -16,29 +16,14 @@ public class SharedCommands
 }
 
 [Name("Help")]
-public class HelpModule : TaylorBotModule
+public class HelpModule(
+    CommandService commands,
+    IDisabledCommandRepository disabledCommandRepository,
+    ICommandRepository commandRepository,
+    IOptionsMonitor<CommandApplicationOptions> commandApplicationOptions,
+    ICommandRunner commandRunner
+    ) : TaylorBotModule
 {
-    private readonly CommandService _commands;
-    private readonly IDisabledCommandRepository _disabledCommandRepository;
-    private readonly ICommandRepository _commandRepository;
-    private readonly IOptionsMonitor<CommandApplicationOptions> _commandApplicationOptions;
-    private readonly ICommandRunner _commandRunner;
-
-    public HelpModule(
-        CommandService commands,
-        IDisabledCommandRepository disabledCommandRepository,
-        ICommandRepository commandRepository,
-        IOptionsMonitor<CommandApplicationOptions> commandApplicationOptions,
-        ICommandRunner commandRunner
-    )
-    {
-        _commands = commands;
-        _disabledCommandRepository = disabledCommandRepository;
-        _commandRepository = commandRepository;
-        _commandApplicationOptions = commandApplicationOptions;
-        _commandRunner = commandRunner;
-    }
-
     [Command(SharedCommands.Help)]
     [Summary("Lists help and information for a module's commands.")]
     public async Task<RuntimeResult> HelpAsync(
@@ -49,8 +34,8 @@ public class HelpModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var module = moduleOrCommand == null ? _commands.Modules.Single(m => m.Name == "Help") :
-                _commands.Modules.FirstOrDefault(m =>
+            var module = moduleOrCommand == null ? commands.Modules.Single(m => m.Name == "Help") :
+                commands.Modules.FirstOrDefault(m =>
                      m.Name.Replace("Module", "").ToLowerInvariant() == moduleOrCommand.ToLowerInvariant() ||
                      m.Commands.Any(c => c.Aliases.Select(a => a.ToLowerInvariant()).Contains(moduleOrCommand.ToLowerInvariant()))
                 );
@@ -86,7 +71,7 @@ public class HelpModule : TaylorBotModule
 
                 foreach (var command in module.Commands)
                 {
-                    await _disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(new(command.Aliases[0]));
+                    await disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(new(command.Aliases[0]));
 
                     var alias = command.Aliases[0];
                     if (alias.Contains(' '))
@@ -104,7 +89,7 @@ public class HelpModule : TaylorBotModule
             }
             else
             {
-                var commands = await _commandRepository.GetAllCommandsAsync();
+                var commands = await commandRepository.GetAllCommandsAsync();
                 var featuredModules = new[] {
                     "Random 🎲",
                     "DiscordInfo 💬",
@@ -131,7 +116,7 @@ public class HelpModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -148,7 +133,7 @@ public class HelpModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                if (component != _commandApplicationOptions.CurrentValue.ApplicationName)
+                if (component != commandApplicationOptions.CurrentValue.ApplicationName)
                     return new EmptyResult();
 
                 var embed = new EmbedBuilder()
@@ -173,7 +158,7 @@ public class HelpModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

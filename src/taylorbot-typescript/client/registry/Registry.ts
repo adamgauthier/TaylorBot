@@ -11,7 +11,6 @@ import { AttributeRegistry } from './AttributeRegistry';
 import { ChannelCommandRegistry } from './ChannelCommandRegistry';
 import { CooldownRegistry } from './CooldownRegistry';
 import { OnGoingCommandRegistry } from './OnGoingCommandRegistry';
-import { HeistRegistry } from './HeistRegistry';
 import { DatabaseDriver } from '../../database/DatabaseDriver';
 import { RedisDriver } from '../../caching/RedisDriver';
 
@@ -28,7 +27,6 @@ export class Registry {
     channelCommands: ChannelCommandRegistry;
     cooldowns: CooldownRegistry;
     onGoingCommands: OnGoingCommandRegistry;
-    heists: HeistRegistry;
     redis: RedisDriver;
 
     constructor(database: DatabaseDriver, redis: RedisDriver) {
@@ -45,7 +43,6 @@ export class Registry {
         this.channelCommands = new ChannelCommandRegistry(database, redis);
         this.cooldowns = new CooldownRegistry(redis);
         this.onGoingCommands = new OnGoingCommandRegistry(redis);
-        this.heists = new HeistRegistry(redis);
     }
 
     async load(): Promise<void> {

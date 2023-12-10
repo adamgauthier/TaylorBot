@@ -10,7 +10,7 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdaySetSlashCommand : ISlashCommand<BirthdaySetSlashCommand.Options>
+public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger) : ISlashCommand<BirthdaySetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday set", IsPrivateResponse: true);
 
@@ -18,14 +18,6 @@ public class BirthdaySetSlashCommand : ISlashCommand<BirthdaySetSlashCommand.Opt
 
     private const int MinAge = 13;
     private const int MaxAge = 115;
-    private readonly IBirthdayRepository _birthdayRepository;
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-
-    public BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger)
-    {
-        _birthdayRepository = birthdayRepository;
-        _taskExceptionLogger = taskExceptionLogger;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -49,15 +41,15 @@ public class BirthdaySetSlashCommand : ISlashCommand<BirthdaySetSlashCommand.Opt
                         return new EmbedResult(EmbedFactory.CreateError($"Age must be lower or equal to {MaxAge} years old."));
                     }
 
-                    _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(
-                        AgeCalculator.TryAddAgeRolesAsync(_birthdayRepository, context.User, age),
+                    _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                        AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, context.User, age),
                         nameof(AgeCalculator.TryAddAgeRolesAsync))
                     );
                 }
 
                 var isPrivate = options.privately.Value ?? false;
 
-                await _birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));
+                await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));
 
                 var embed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
