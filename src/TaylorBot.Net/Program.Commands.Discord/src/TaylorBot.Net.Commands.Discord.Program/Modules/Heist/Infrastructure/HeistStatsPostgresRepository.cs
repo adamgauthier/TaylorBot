@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -132,6 +133,43 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
 
         transaction.Commit();
         return results;
+    }
+
+    public async Task<HeistProfile?> GetProfileAsync(IUser user)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        return await connection.QuerySingleOrDefaultAsync<HeistProfile?>(
+            """            
+            SELECT heist_win_count, heist_win_amount, heist_lose_count, heist_lose_amount
+            FROM users.heist_stats
+            WHERE user_id = @UserId;
+            """,
+            new
+            {
+                UserId = $"{user.Id}",
+            }
+        );
+    }
+
+    public async Task<IList<HeistLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        return (await connection.QueryAsync<HeistLeaderboardEntry>(
+            """
+            SELECT gm.user_id, u.username, hs.heist_win_count, rank() OVER (ORDER BY heist_win_count DESC) AS rank
+            FROM guilds.guild_members AS gm
+            JOIN users.heist_stats AS hs ON hs.user_id = gm.user_id
+            JOIN users.users AS u ON u.user_id = gm.user_id
+            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
+            LIMIT 100;
+            """,
+            new
+            {
+                GuildId = $"{guild.Id}",
+            }
+        )).ToList();
     }
 }
 

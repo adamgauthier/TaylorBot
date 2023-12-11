@@ -14,6 +14,24 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "profile",
+      "description": "Show a heist player's track record",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the profile for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show the current server's heist leaderboard",
+      "type": 1
     }
   ]
 }

@@ -312,7 +312,9 @@ var host = Host.CreateDefaultBuilder()
                     provider.GetRequiredService<HeistRedisRepository>() :
                     (IHeistRepository)provider.GetRequiredService<HeistInMemoryRepository>();
             })
-            .AddSlashCommand<HeistSlashCommand>()
+            .AddSlashCommand<HeistPlaySlashCommand>()
+            .AddSlashCommand<HeistProfileSlashCommand>()
+            .AddSlashCommand<HeistLeaderboardSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

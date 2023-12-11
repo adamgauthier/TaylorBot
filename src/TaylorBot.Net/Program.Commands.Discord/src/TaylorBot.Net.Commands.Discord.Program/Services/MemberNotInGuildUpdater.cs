@@ -6,22 +6,11 @@ using TaylorBot.Net.EntityTracker.Domain.Member;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
-public class MemberNotInGuildUpdater
+public class MemberNotInGuildUpdater(ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, TaskExceptionLogger taskExceptionLogger)
 {
-    private readonly ITaylorBotClient _taylorBotClient;
-    private readonly IMemberRepository _memberRepository;
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-
-    public MemberNotInGuildUpdater(ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, TaskExceptionLogger taskExceptionLogger)
-    {
-        _taylorBotClient = taylorBotClient;
-        _memberRepository = memberRepository;
-        _taskExceptionLogger = taskExceptionLogger;
-    }
-
     public void UpdateMembersWhoLeftInBackground(string taskName, IGuild guild, IList<SnowflakeId> userIds)
     {
-        _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(
+        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
             async () => await UpdateMembersWhoLeft(guild, userIds),
             taskName
         ));
@@ -33,7 +22,7 @@ public class MemberNotInGuildUpdater
 
         foreach (var userId in userIds)
         {
-            var guildUser = await _taylorBotClient.ResolveGuildUserAsync(guild, userId);
+            var guildUser = await taylorBotClient.ResolveGuildUserAsync(guild, userId);
             if (guildUser == null)
             {
                 membersNotInGuild.Add(userId);
@@ -41,6 +30,6 @@ public class MemberNotInGuildUpdater
             await Task.Delay(TimeSpan.FromMilliseconds(100));
         }
 
-        await _memberRepository.UpdateMembersNotInGuildAsync(guild, membersNotInGuild);
+        await memberRepository.UpdateMembersNotInGuildAsync(guild, membersNotInGuild);
     }
 }

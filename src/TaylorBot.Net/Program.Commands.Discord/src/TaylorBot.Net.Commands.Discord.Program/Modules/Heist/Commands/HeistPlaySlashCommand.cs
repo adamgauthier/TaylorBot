@@ -15,14 +15,14 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class HeistSlashCommand(
+public class HeistPlaySlashCommand(
     TaskExceptionLogger taskExceptionLogger,
     IOptionsMonitor<HeistOptions> options,
     IRateLimiter rateLimiter,
     IHeistRepository heistRepository,
     IHeistStatsRepository heistStatsRepository,
     TaypointAmountParser amountParser,
-    ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<HeistSlashCommand.Options>
+    ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<HeistPlaySlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("heist play");
 
@@ -66,7 +66,7 @@ public class HeistSlashCommand(
                         var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithDescription(
                             $"""
                             Heist started by {author.Mention}! The more people, the higher the rewards! 🤑
-                            To join, use {(amountString != null ? "**/heist play**" : context.MentionCommand("heist play"))} and invest points into the heist! 🕵️‍
+                            To join, use {(amountString != null ? "</heist play:1183612687935078512>" : context.MentionCommand("heist play"))} and invest points into the heist! 🕵️‍
                             The heist begins in **{delay.Humanize()}**. ⏰
                             """);
 

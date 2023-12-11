@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Humanizer;
-using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
@@ -9,13 +9,14 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("daily leaderboard");
+    public ISlashCommandInfo Info => new MessageCommandInfo("heist leaderboard");
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -24,21 +25,21 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
             async () =>
             {
                 var guild = context.Guild!;
-                var leaderboard = await dailyPayoutRepository.GetLeaderboardAsync(guild);
+                var leaderboard = await heistStatsRepository.GetLeaderboardAsync(guild);
 
                 memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(DailyLeaderboardSlashCommand),
+                    nameof(HeistLeaderboardSlashCommand),
                     guild,
-                    leaderboard.Select(e => e.UserId).ToList());
+                    leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                    entry => $"{entry.Rank}. {entry.Username.MdUserLink(entry.UserId)}: {"day".ToQuantity(entry.CurrentDailyStreak, TaylorBotFormats.BoldReadable)}"
+                    entry => $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.heist_win_count, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithGuildAsAuthor(guild)
-                    .WithTitle("Daily Streak Leaderboard 📅");
+                    .WithTitle("Heist Wins Leaderboard 💼");
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(
@@ -47,8 +48,8 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
                         hasPageFooter: true,
                         emptyText:
                         $"""
-                        No daily streaks in this server.
-                        Members need to use {context.MentionCommand("daily claim")}! 😊
+                        No heists played by members of this server.
+                        Members need to use {context.MentionCommand("heist play")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();

@@ -5,20 +5,13 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
-public class LocationPostgresRepository : ILocationRepository
+public class LocationPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ILocationRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public LocationPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record LocationDto(string latitude, string longitude, string formatted_address, string timezone_id);
 
     public async ValueTask<StoredLocation?> GetLocationAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var location = await connection.QuerySingleOrDefaultAsync<LocationDto?>(
             """
@@ -43,7 +36,7 @@ public class LocationPostgresRepository : ILocationRepository
 
     public async ValueTask SetLocationAsync(IUser user, StoredLocation location)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """
@@ -68,7 +61,7 @@ public class LocationPostgresRepository : ILocationRepository
 
     public async ValueTask ClearLocationAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "DELETE FROM attributes.location_attributes WHERE user_id = @UserId;",

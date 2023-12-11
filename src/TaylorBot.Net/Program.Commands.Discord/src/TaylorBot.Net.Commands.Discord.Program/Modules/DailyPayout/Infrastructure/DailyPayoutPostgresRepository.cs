@@ -9,17 +9,8 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 
-public class DailyPayoutPostgresRepository : IDailyPayoutRepository
+public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, IOptionsMonitor<DailyPayoutOptions> options) : IDailyPayoutRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-    private readonly IOptionsMonitor<DailyPayoutOptions> _options;
-
-    public DailyPayoutPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, IOptionsMonitor<DailyPayoutOptions> options)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-        _options = options;
-    }
-
     private class CanRedeemDto
     {
         public bool can_redeem { get; set; }
@@ -28,7 +19,7 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
 
     public async ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var canRedeem = await connection.QuerySingleOrDefaultAsync<CanRedeemDto>(
             """
@@ -63,9 +54,9 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
 
     public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount)
     {
-        var options = _options.CurrentValue;
+        var settings = options.CurrentValue;
 
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
@@ -98,9 +89,9 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
             new
             {
                 UserId = user.Id.ToString(),
-                DaysForBonus = (long)options.DaysForBonus,
-                BaseBonus = (long)options.BaseBonusAmount,
-                BonusMultiplier = (long)options.IncreasingBonusModifier
+                DaysForBonus = (long)settings.DaysForBonus,
+                BaseBonus = (long)settings.BaseBonusAmount,
+                BonusMultiplier = (long)settings.IncreasingBonusModifier
             }
         );
 
@@ -120,7 +111,7 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
                 BonusAmount: redeem.bonus_reward,
                 TotalTaypointCount: taypointAdd.taypoint_count,
                 CurrentDailyStreak: redeem.streak_count,
-                DaysForBonus: options.DaysForBonus
+                DaysForBonus: settings.DaysForBonus
             );
         }
         else
@@ -138,7 +129,7 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
 
     public async ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var streakInfo = await connection.QuerySingleOrDefaultAsync<StreakInfoDto?>(
             """
@@ -170,7 +161,7 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
 
     public async ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
@@ -240,7 +231,7 @@ public class DailyPayoutPostgresRepository : IDailyPayoutRepository
 
     public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<LeaderboardEntryDto>(
             """
