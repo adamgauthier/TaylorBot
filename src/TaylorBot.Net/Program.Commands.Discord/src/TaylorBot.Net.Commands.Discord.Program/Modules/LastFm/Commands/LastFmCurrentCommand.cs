@@ -10,40 +10,27 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmCurrentCommand
+public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient)
 {
     public static readonly CommandMetadata Metadata = new("lastfm current", "Last.fm 🎶", new[] { "fm", "np" });
-
-    private readonly IOptionsMonitor<LastFmOptions> _options;
-    private readonly LastFmEmbedFactory _lastFmEmbedFactory;
-    private readonly ILastFmUsernameRepository _lastFmUsernameRepository;
-    private readonly ILastFmClient _lastFmClient;
-
-    public LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient)
-    {
-        _options = options;
-        _lastFmEmbedFactory = lastFmEmbedFactory;
-        _lastFmUsernameRepository = lastFmUsernameRepository;
-        _lastFmClient = lastFmClient;
-    }
 
     public Command Current(IUser user) => new(
         Metadata,
         async () =>
         {
-            var lastFmUsername = await _lastFmUsernameRepository.GetLastFmUsernameAsync(user);
+            var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return _lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user);
+                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user);
 
-            var result = await _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username);
+            var result = await lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username);
 
             switch (result)
             {
                 case MostRecentScrobbleResult success:
                     if (success.MostRecentTrack != null)
                     {
-                        var embed = _lastFmEmbedFactory.CreateBaseLastFmEmbed(lastFmUsername, user);
+                        var embed = lastFmEmbedFactory.CreateBaseLastFmEmbed(lastFmUsername, user);
 
                         var mostRecentTrack = success.MostRecentTrack;
 
@@ -59,13 +46,13 @@ public class LastFmCurrentCommand
                             .WithFooter(text: string.Join(" | ", new[] {
                                 mostRecentTrack.IsNowPlaying ? "Now Playing" : "Most Recent Track",
                                 $"Total Scrobbles: {success.TotalScrobbles}"
-                            }), iconUrl: _options.CurrentValue.LastFmEmbedFooterIconUrl)
+                            }), iconUrl: options.CurrentValue.LastFmEmbedFooterIconUrl)
                             .Build()
                         );
                     }
                     else
                     {
-                        return _lastFmEmbedFactory.CreateLastFmNoScrobbleErrorEmbedResult(lastFmUsername, user, LastFmPeriod.Overall);
+                        return lastFmEmbedFactory.CreateLastFmNoScrobbleErrorEmbedResult(lastFmUsername, user, LastFmPeriod.Overall);
                     }
 
                 case LastFmLogInRequiredErrorResult _:
@@ -75,7 +62,7 @@ public class LastFmCurrentCommand
                     })));
 
                 case LastFmGenericErrorResult errorResult:
-                    return _lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
+                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
 
                 default: throw new NotImplementedException();
             }
@@ -83,23 +70,16 @@ public class LastFmCurrentCommand
     );
 }
 
-public class LastFmCurrentSlashCommand : ISlashCommand<LastFmCurrentSlashCommand.Options>
+public class LastFmCurrentSlashCommand(LastFmCurrentCommand lastFmCurrentCommand) : ISlashCommand<LastFmCurrentSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm current");
 
     public record Options(ParsedUserOrAuthor user);
 
-    private readonly LastFmCurrentCommand _lastFmCurrentCommand;
-
-    public LastFmCurrentSlashCommand(LastFmCurrentCommand lastFmCurrentCommand)
-    {
-        _lastFmCurrentCommand = lastFmCurrentCommand;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            _lastFmCurrentCommand.Current(options.user.User)
+            lastFmCurrentCommand.Current(options.user.User)
         );
     }
 }

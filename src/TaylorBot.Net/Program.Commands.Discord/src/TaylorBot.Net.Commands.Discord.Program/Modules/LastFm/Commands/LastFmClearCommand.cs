@@ -6,22 +6,15 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmClearCommand
+public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameRepository)
 {
     public static readonly CommandMetadata Metadata = new("lastfm clear", "Last.fm 🎶", new[] { "fm clear", "np clear" });
-
-    private readonly ILastFmUsernameRepository _lastFmUsernameRepository;
-
-    public LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameRepository)
-    {
-        _lastFmUsernameRepository = lastFmUsernameRepository;
-    }
 
     public Command Clear(IUser user, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {
-            await _lastFmUsernameRepository.ClearLastFmUsernameAsync(user);
+            await lastFmUsernameRepository.ClearLastFmUsernameAsync(user);
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
@@ -40,21 +33,14 @@ public class LastFmClearCommand
     );
 }
 
-public class LastFmClearSlashCommand : ISlashCommand<NoOptions>
+public class LastFmClearSlashCommand(LastFmClearCommand lastFmClearCommand) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm clear");
-
-    private readonly LastFmClearCommand _lastFmClearCommand;
-
-    public LastFmClearSlashCommand(LastFmClearCommand lastFmClearCommand)
-    {
-        _lastFmClearCommand = lastFmClearCommand;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
         return new(
-            _lastFmClearCommand.Clear(context.User, isLegacyCommand: false)
+            lastFmClearCommand.Clear(context.User, isLegacyCommand: false)
         );
     }
 }

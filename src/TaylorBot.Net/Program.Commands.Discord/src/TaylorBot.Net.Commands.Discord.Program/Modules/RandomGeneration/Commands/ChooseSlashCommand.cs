@@ -3,6 +3,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 

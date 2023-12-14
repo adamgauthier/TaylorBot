@@ -1,27 +1,14 @@
 ﻿using Discord;
 using Discord.Commands;
 using Humanizer;
-using System.Security.Cryptography;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
-
-public interface ICryptoSecureRandom
-{
-    int GetRandomInt32(int fromInclusive, int toExclusive);
-    T GetRandomElement<T>(IReadOnlyList<T> list);
-}
-
-public class CryptoSecureRandom : ICryptoSecureRandom
-{
-    public int GetRandomInt32(int fromInclusive, int toExclusive) => RandomNumberGenerator.GetInt32(fromInclusive, toExclusive);
-
-    public T GetRandomElement<T>(IReadOnlyList<T> list) => list[RandomNumberGenerator.GetInt32(0, list.Count)];
-}
 
 [Name("Random 🎲")]
 public class RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryptoSecureRandom) : TaylorBotModule

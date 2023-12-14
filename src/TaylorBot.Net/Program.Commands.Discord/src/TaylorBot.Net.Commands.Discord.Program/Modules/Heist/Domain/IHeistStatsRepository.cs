@@ -15,4 +15,3 @@ public interface IHeistStatsRepository
     Task<List<HeistResult>> LoseHeistAsync(IList<HeistPlayer> players);
     Task<IList<HeistLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
 }
-

@@ -2,23 +2,13 @@
 using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
 [Name("Location 🌍")]
-public class LocationModule : TaylorBotModule
+public class LocationModule(ICommandRunner commandRunner, WeatherCommand weatherCommand, LocationShowCommand locationShowCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly WeatherCommand _weatherCommand;
-    private readonly LocationShowCommand _locationShowCommand;
-
-    public LocationModule(ICommandRunner commandRunner, WeatherCommand weatherCommand, LocationShowCommand locationShowCommand)
-    {
-        _commandRunner = commandRunner;
-        _weatherCommand = weatherCommand;
-        _locationShowCommand = locationShowCommand;
-    }
-
     [Command("weather")]
     [Summary("Gets current weather forecast for a user's location. Icons by Dr. Lex.")]
     public async Task<RuntimeResult> WeatherAsync(
@@ -33,8 +23,8 @@ public class LocationModule : TaylorBotModule
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
-        var result = await _commandRunner.RunAsync(
-            _weatherCommand.Weather(context.User, u, locationOverride: null, Context.CommandPrefix),
+        var result = await commandRunner.RunAsync(
+            weatherCommand.Weather(context.User, u, locationOverride: null),
             context
         );
 
@@ -56,10 +46,31 @@ public class LocationModule : TaylorBotModule
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
-        var result = await _commandRunner.RunAsync(
-            _locationShowCommand.Location(u),
+        var result = await commandRunner.RunAsync(
+            locationShowCommand.Location(u),
             context
         );
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("weatherat")]
+    [Summary("This command has been moved to </location weather:1141925890448691270>. Please use it instead with the **location** option! 😊")]
+    public async Task<RuntimeResult> RpsWinsAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </location weather:1141925890448691270> 👈
+                Please use it instead with the **location** option! 😊
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

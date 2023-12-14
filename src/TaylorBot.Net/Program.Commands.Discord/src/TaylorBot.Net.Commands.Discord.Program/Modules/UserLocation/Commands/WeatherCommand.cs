@@ -7,24 +7,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class WeatherCommand
+public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locationRepository, IWeatherClient weatherClient, LocationFetcherDomainService locationFetcherDomainService)
 {
     public static readonly CommandMetadata Metadata = new("location weather", "Location 🌍");
 
-    private readonly IRateLimiter _rateLimiter;
-    private readonly ILocationRepository _locationRepository;
-    private readonly IWeatherClient _weatherClient;
-    private readonly LocationFetcherDomainService _locationFetcherDomainService;
-
-    public WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locationRepository, IWeatherClient weatherClient, LocationFetcherDomainService locationFetcherDomainService)
-    {
-        _rateLimiter = rateLimiter;
-        _locationRepository = locationRepository;
-        _weatherClient = weatherClient;
-        _locationFetcherDomainService = locationFetcherDomainService;
-    }
-
-    public Command Weather(IUser author, IUser user, string? locationOverride, string commandPrefix, RunContext? context = null) => new(
+    public Command Weather(IUser author, IUser user, string? locationOverride, RunContext? context = null) => new(
         Metadata,
         async () =>
         {
@@ -32,7 +19,7 @@ public class WeatherCommand
 
             if (locationOverride != null)
             {
-                var foundLocation = await _locationFetcherDomainService.GetLocationAsync(author, locationOverride);
+                var foundLocation = await locationFetcherDomainService.GetLocationAsync(author, locationOverride);
                 if (foundLocation)
                 {
                     location = foundLocation.Value;
@@ -44,7 +31,7 @@ public class WeatherCommand
             }
             else
             {
-                var storedLocation = await _locationRepository.GetLocationAsync(user);
+                var storedLocation = await locationRepository.GetLocationAsync(user);
                 if (storedLocation == null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
@@ -57,11 +44,11 @@ public class WeatherCommand
                 location = storedLocation.Location;
             }
 
-            var weatherRateLimit = await _rateLimiter.VerifyDailyLimitAsync(author, "weather-report");
+            var weatherRateLimit = await rateLimiter.VerifyDailyLimitAsync(author, "weather-report");
             if (weatherRateLimit != null)
                 return weatherRateLimit;
 
-            var result = await _weatherClient.GetCurrentForecastAsync(location.Latitude, location.Longitude);
+            var result = await weatherClient.GetCurrentForecastAsync(location.Latitude, location.Longitude);
 
             switch (result)
             {
@@ -106,23 +93,16 @@ public class WeatherCommand
     }
 }
 
-public class WeatherSlashCommand : ISlashCommand<WeatherSlashCommand.Options>
+public class WeatherSlashCommand(WeatherCommand weatherCommand) : ISlashCommand<WeatherSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location weather");
 
     public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
 
-    private readonly WeatherCommand _weatherCommand;
-
-    public WeatherSlashCommand(WeatherCommand weatherCommand)
-    {
-        _weatherCommand = weatherCommand;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            _weatherCommand.Weather(context.User, options.user.User, options.location.Value, context.CommandPrefix, context)
+            weatherCommand.Weather(context.User, options.user.User, options.location.Value, context)
         );
     }
 }

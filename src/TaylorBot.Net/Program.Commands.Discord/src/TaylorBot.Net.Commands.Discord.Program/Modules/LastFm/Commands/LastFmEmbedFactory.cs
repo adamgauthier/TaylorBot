@@ -7,21 +7,14 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmEmbedFactory
+public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMapper)
 {
-    private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper;
-
-    public LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMapper)
-    {
-        _lastFmPeriodStringMapper = lastFmPeriodStringMapper;
-    }
-
     public EmbedResult CreateLastFmNoScrobbleErrorEmbedResult(LastFmUsername lastFmUsername, IUser user, LastFmPeriod period)
     {
         return new(CreateBaseLastFmEmbed(lastFmUsername, user)
             .WithColor(TaylorBotColors.ErrorColor)
             .WithDescription(string.Join('\n', new[] {
-                $"This account does not have any scrobbles for period '{_lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}'. 🔍",
+                $"This account does not have any scrobbles for period '{lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}'. 🔍",
                 "Start listening to a song and scrobble it to Last.fm so it shows up here!"
             }))
         .Build());

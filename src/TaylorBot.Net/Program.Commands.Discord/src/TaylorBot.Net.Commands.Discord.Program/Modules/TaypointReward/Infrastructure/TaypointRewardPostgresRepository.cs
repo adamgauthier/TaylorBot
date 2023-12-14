@@ -6,15 +6,8 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastructure;
 
-public class TaypointRewardPostgresRepository : ITaypointRewardRepository
+public class TaypointRewardPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointRewardRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public TaypointRewardPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class RewardedUserDto
     {
         public string user_id { get; set; } = null!;
@@ -23,17 +16,19 @@ public class TaypointRewardPostgresRepository : ITaypointRewardRepository
 
     public async ValueTask<IReadOnlyCollection<RewardedUserResult>> RewardUsersAsync(IReadOnlyCollection<IUser> users, int taypointCount)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var results = await connection.QueryAsync<RewardedUserDto>(
-            @"UPDATE users.users
-                SET taypoint_count = taypoint_count + @PointsToAdd
-                WHERE user_id = ANY(@UserIds)
-                RETURNING user_id, taypoint_count;",
+            """
+            UPDATE users.users
+            SET taypoint_count = taypoint_count + @PointsToAdd
+            WHERE user_id = ANY(@UserIds)
+            RETURNING user_id, taypoint_count;
+            """,
             new
             {
                 PointsToAdd = taypointCount,
-                UserIds = users.Select(u => u.Id.ToString()).ToList()
+                UserIds = users.Select(u => $"{u.Id}").ToList(),
             }
         );
 

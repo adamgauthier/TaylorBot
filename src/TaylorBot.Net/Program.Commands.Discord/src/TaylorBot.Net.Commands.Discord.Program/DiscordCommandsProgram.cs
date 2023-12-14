@@ -57,6 +57,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
@@ -91,6 +92,7 @@ using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program.Extensions;
+using TaylorBot.Net.Core.Random;
 
 var host = Host.CreateDefaultBuilder()
     .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
@@ -314,6 +316,11 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<HeistPlaySlashCommand>()
             .AddSlashCommand<HeistProfileSlashCommand>()
             .AddSlashCommand<HeistLeaderboardSlashCommand>()
+            .AddTransient<IRpsStatsRepository, RpsStatsPostgresRepository>()
+            .AddSlashCommand<RpsProfileSlashCommand>()
+            .AddOptionParser<OptionalRpsShapeParser>()
+            .AddSlashCommand<RpsPlaySlashCommand>()
+            .AddSlashCommand<RpsLeaderboardSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

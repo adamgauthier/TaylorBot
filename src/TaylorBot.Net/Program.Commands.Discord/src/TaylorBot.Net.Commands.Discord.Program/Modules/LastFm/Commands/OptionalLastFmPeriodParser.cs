@@ -40,6 +40,8 @@ public class LastFmPeriodStringMapper
 
 public class OptionalLastFmPeriodParser : IOptionParser<LastFmPeriod?>
 {
+    private static readonly string[] Suggestions = ["7day", "1month", "3month", "6month", "12month", "all"];
+
     public static Result<LastFmPeriod, ParsingFailed> Parse(string input)
     {
         return input.Trim().ToLowerInvariant() switch
@@ -63,7 +65,7 @@ public class OptionalLastFmPeriodParser : IOptionParser<LastFmPeriod?>
               LastFmPeriod.Overall
             ),
             _ => Error(new ParsingFailed(
-              $"Could not parse '{input}' into a valid Last.fm period. Use one of these: {string.Join(',', new[] { "7day", "1month", "3month", "6month", "12month", "all" }.Select(p => $"`{p}`"))}."
+              $"Could not parse '{input}' into a valid Last.fm period. Use one of these: {string.Join(',', Suggestions.Select(p => $"`{p}`"))}."
             )),
         };
     }

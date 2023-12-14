@@ -7,18 +7,11 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
-public class DailyStreakSlashCommand : ISlashCommand<DailyStreakSlashCommand.Options>
+public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepository) : ISlashCommand<DailyStreakSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("daily streak");
 
     public record Options(ParsedUserOrAuthor user);
-
-    private readonly IDailyPayoutRepository _dailyPayoutRepository;
-
-    public DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepository)
-    {
-        _dailyPayoutRepository = dailyPayoutRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -26,21 +19,23 @@ public class DailyStreakSlashCommand : ISlashCommand<DailyStreakSlashCommand.Opt
             new(Info.Name),
             async () =>
             {
-                var streakInfo = await _dailyPayoutRepository.GetStreakInfoAsync(options.user.User);
+                var streakInfo = await dailyPayoutRepository.GetStreakInfoAsync(options.user.User);
 
                 if (!streakInfo.HasValue)
                 {
-                    return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
-                        $"{options.user.User.Mention} has never claimed their daily reward! ❌",
-                        $"Use {context.MentionCommand("daily claim")} to claim your daily reward!"
-                    })));
+                    return new EmbedResult(EmbedFactory.CreateSuccess(
+                        $"""
+                        {options.user.User.Mention} has never claimed their daily reward! ❌
+                        Use {context.MentionCommand("daily claim")} to claim your daily reward!
+                        """));
                 }
                 else if (streakInfo.Value.MaxStreak > streakInfo.Value.CurrentStreak)
                 {
-                    return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
-                        $"{options.user.User.Mention}'s current streak is {"day".ToQuantity(streakInfo.Value.CurrentStreak, TaylorBotFormats.BoldReadable)}! ⭐",
-                        $"Their highest streak ever is {"day".ToQuantity(streakInfo.Value.MaxStreak, TaylorBotFormats.BoldReadable)}! 🥇",
-                    })));
+                    return new EmbedResult(EmbedFactory.CreateSuccess(
+                        $"""
+                        {options.user.User.Mention}'s current streak is {"day".ToQuantity(streakInfo.Value.CurrentStreak, TaylorBotFormats.BoldReadable)}! ⭐
+                        Their highest streak ever is {"day".ToQuantity(streakInfo.Value.MaxStreak, TaylorBotFormats.BoldReadable)}! 🥇
+                        """));
                 }
                 else
                 {

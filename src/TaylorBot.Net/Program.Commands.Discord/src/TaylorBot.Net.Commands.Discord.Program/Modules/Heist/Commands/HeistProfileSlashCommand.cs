@@ -37,7 +37,8 @@ public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository
                     .AddField("Heist Profits",
                         $"""                        
                         **{(profits >= 0 ? "🟢 +" : "🔴 —")}{"taypoint".ToQuantity(Math.Abs(profits), TaylorBotFormats.Readable)}**
-                        Won {"taypoint".ToQuantity(profile.heist_win_amount, TaylorBotFormats.BoldReadable)} 📈 / Lost {"taypoint".ToQuantity(profile.heist_lose_amount, TaylorBotFormats.BoldReadable)} 📉
+                        Won {"taypoint".ToQuantity(profile.heist_win_amount, TaylorBotFormats.BoldReadable)} 📈
+                        Lost {"taypoint".ToQuantity(profile.heist_lose_amount, TaylorBotFormats.BoldReadable)} 📉
                         """)
                     .Build());
             }

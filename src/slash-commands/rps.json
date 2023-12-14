@@ -1,0 +1,51 @@
+{
+  "name": "rps",
+  "description": "Play rock paper scissors with TaylorBot",
+  "options": [
+    {
+      "name": "play",
+      "description": "Play rock paper scissors with TaylorBot",
+      "type": 1,
+      "options": [
+        {
+          "name": "option",
+          "description": "The shape you want to play",
+          "type": 3,
+          "required": true,
+          "choices": [
+            {
+              "name": "Rock",
+              "value": "rock"
+            },
+            {
+              "name": "Paper",
+              "value": "paper"
+            },
+            {
+              "name": "Scissors",
+              "value": "scissors"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "description": "Show a rps player's track record",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the profile for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show the current server's rps leaderboard",
+      "type": 1
+    }
+  ]
+}

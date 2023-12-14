@@ -6,22 +6,15 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmSetCommand
+public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository)
 {
     public static readonly CommandMetadata Metadata = new("lastfm set", "Last.fm 🎶", new[] { "fm set", "np set" });
-
-    private readonly ILastFmUsernameRepository _lastFmUsernameRepository;
-
-    public LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository)
-    {
-        _lastFmUsernameRepository = lastFmUsernameRepository;
-    }
 
     public Command Set(IUser user, LastFmUsername lastFmUsername, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {
-            await _lastFmUsernameRepository.SetLastFmUsernameAsync(user, lastFmUsername);
+            await lastFmUsernameRepository.SetLastFmUsernameAsync(user, lastFmUsername);
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
@@ -41,23 +34,16 @@ public class LastFmSetCommand
     );
 }
 
-public class LastFmSetSlashCommand : ISlashCommand<LastFmSetSlashCommand.Options>
+public class LastFmSetSlashCommand(LastFmSetCommand lastFmSetCommand) : ISlashCommand<LastFmSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm set");
 
     public record Options(LastFmUsername username);
 
-    private readonly LastFmSetCommand _lastFmSetCommand;
-
-    public LastFmSetSlashCommand(LastFmSetCommand lastFmSetCommand)
-    {
-        _lastFmSetCommand = lastFmSetCommand;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            _lastFmSetCommand.Set(context.User, options.username, isLegacyCommand: false)
+            lastFmSetCommand.Set(context.User, options.username, isLegacyCommand: false)
         );
     }
 }

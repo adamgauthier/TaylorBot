@@ -61,6 +61,10 @@
       "heist": {
         "FriendlyName": "Entering a heist",
         "MaxUsesForUser": 150
+      },
+      "rps": {
+        "FriendlyName": "Playing rock paper scissors",
+        "MaxUsesForUser": 6000
       }
     }
   }

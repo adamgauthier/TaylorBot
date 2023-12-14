@@ -11,36 +11,16 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 [Name("Last.fm 🎶")]
 [Group("lastfm")]
 [Alias("fm", "np")]
-public class LastFmModule : TaylorBotModule
+public class LastFmModule(
+    ICommandRunner commandRunner,
+    LastFmCurrentCommand lastFmCurrentCommand,
+    LastFmSetCommand lastFmSetCommand,
+    LastFmClearCommand lastFmClearCommand,
+    LastFmTracksCommand lastFmTracksCommand,
+    LastFmAlbumsCommand lastFmAlbumsCommand,
+    LastFmArtistsCommand lastFmArtistsCommand
+    ) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly LastFmCurrentCommand _lastFmCurrentCommand;
-    private readonly LastFmSetCommand _lastFmSetCommand;
-    private readonly LastFmClearCommand _lastFmClearCommand;
-    private readonly LastFmTracksCommand _lastFmTracksCommand;
-    private readonly LastFmAlbumsCommand _lastFmAlbumsCommand;
-    private readonly LastFmArtistsCommand _lastFmArtistsCommand;
-
-    public LastFmModule(
-        ICommandRunner commandRunner,
-        LastFmCurrentCommand lastFmCurrentCommand,
-        LastFmSetCommand lastFmSetCommand,
-        LastFmClearCommand lastFmClearCommand,
-        LastFmTracksCommand lastFmTracksCommand,
-        LastFmAlbumsCommand lastFmAlbumsCommand,
-        LastFmArtistsCommand lastFmArtistsCommand,
-        LastFmEmbedFactory lastFmEmbedFactory
-    )
-    {
-        _commandRunner = commandRunner;
-        _lastFmCurrentCommand = lastFmCurrentCommand;
-        _lastFmSetCommand = lastFmSetCommand;
-        _lastFmClearCommand = lastFmClearCommand;
-        _lastFmTracksCommand = lastFmTracksCommand;
-        _lastFmAlbumsCommand = lastFmAlbumsCommand;
-        _lastFmArtistsCommand = lastFmArtistsCommand;
-    }
-
     [Priority(-1)]
     [Command]
     [Summary("Displays the currently playing or most recently played track for a user's Last.fm profile.")]
@@ -51,8 +31,8 @@ public class LastFmModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _lastFmCurrentCommand.Current(user == null ? Context.User : await user.GetTrackedUserAsync()),
+        var result = await commandRunner.RunAsync(
+            lastFmCurrentCommand.Current(user == null ? Context.User : await user.GetTrackedUserAsync()),
             context
         );
 
@@ -67,8 +47,8 @@ public class LastFmModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _lastFmSetCommand.Set(context.User, lastFmUsername, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            lastFmSetCommand.Set(context.User, lastFmUsername, isLegacyCommand: true),
             context
         );
 
@@ -80,8 +60,8 @@ public class LastFmModule : TaylorBotModule
     public async Task<RuntimeResult> ClearAsync()
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _lastFmClearCommand.Clear(context.User, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            lastFmClearCommand.Clear(context.User, isLegacyCommand: true),
             context
         );
 
@@ -99,8 +79,8 @@ public class LastFmModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _lastFmArtistsCommand.Artists(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            lastFmArtistsCommand.Artists(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
             context
         );
 
@@ -118,8 +98,8 @@ public class LastFmModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _lastFmTracksCommand.Tracks(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            lastFmTracksCommand.Tracks(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
             context
         );
 
@@ -137,8 +117,8 @@ public class LastFmModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _lastFmAlbumsCommand.Albums(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            lastFmAlbumsCommand.Albums(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
             context
         );
 
@@ -150,7 +130,7 @@ public class LastFmModule : TaylorBotModule
     [Summary("This command has been moved to </lastfm collage:922354806574678086>, please use it instead.")]
     public Task<RuntimeResult> CollageAsync(
         [Remainder]
-        string any = ""
+        string? _ = null
     )
     {
         return Task.FromResult<RuntimeResult>(new TaylorBotResult(
@@ -176,16 +156,16 @@ public class LastFmDeprecatedModule : TaylorBotModule
     [Summary("This command has been moved to </lastfm set:922354806574678086>. Please use it instead! 😊")]
     public async Task<RuntimeResult> SetFmAsync(
         [Remainder]
-    string? _ = null
+        string? _ = null
     )
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-            This command has been moved to 👉 </lastfm set:922354806574678086> 👈
-            Please use it instead! 😊
-            """))));
+                This command has been moved to 👉 </lastfm set:922354806574678086> 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await _commandRunner.RunAsync(command, context);
@@ -198,16 +178,16 @@ public class LastFmDeprecatedModule : TaylorBotModule
     [Summary("This command has been moved to </lastfm clear:922354806574678086>. Please use it instead! 😊")]
     public async Task<RuntimeResult> ClearFmAsync(
         [Remainder]
-    string? _ = null
+        string? _ = null
     )
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-            This command has been moved to 👉 </lastfm clear:922354806574678086> 👈
-            Please use it instead! 😊
-            """))));
+                This command has been moved to 👉 </lastfm clear:922354806574678086> 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await _commandRunner.RunAsync(command, context);
@@ -220,16 +200,16 @@ public class LastFmDeprecatedModule : TaylorBotModule
     [Summary("This command has been moved to </lastfm collage:922354806574678086>. Please use it instead! 😊")]
     public async Task<RuntimeResult> FmcAsync(
         [Remainder]
-    string? _ = null
+        string? _ = null
     )
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-            This command has been moved to 👉 </lastfm collage:922354806574678086> 👈
-            Please use it instead! 😊
-            """))));
+                This command has been moved to 👉 </lastfm collage:922354806574678086> 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await _commandRunner.RunAsync(command, context);

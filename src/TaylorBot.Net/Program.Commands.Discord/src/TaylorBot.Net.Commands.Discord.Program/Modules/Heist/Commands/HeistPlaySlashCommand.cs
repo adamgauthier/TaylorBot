@@ -3,7 +3,6 @@ using Humanizer;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.PostExecution;
@@ -11,6 +10,7 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Random;
 using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;

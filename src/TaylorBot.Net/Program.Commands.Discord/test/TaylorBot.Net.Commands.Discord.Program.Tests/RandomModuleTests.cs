@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
+using TaylorBot.Net.Core.Random;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;

@@ -172,4 +172,3 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
         )).ToList();
     }
 }
-
