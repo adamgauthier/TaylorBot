@@ -1,7 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
-using System.Collections.Immutable;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -13,17 +12,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
 public class DiscordInfoModuleTests
 {
-    private readonly PresenceFactory _presenceFactory = new();
-
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly ChannelTypeStringMapper _channelTypeStringMapper = new();
-    private readonly UserStatusStringMapper _userStatusStringMapper = new();
     private readonly IUserTracker _userTracker = A.Fake<IUserTracker>(o => o.Strict());
     private readonly DiscordInfoModule _discordInfoModule;
 
     public DiscordInfoModuleTests()
     {
-        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _userStatusStringMapper, _channelTypeStringMapper, _userTracker);
+        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _channelTypeStringMapper, _userTracker);
         _discordInfoModule.SetContext(_commandContext);
     }
 
@@ -39,35 +35,6 @@ public class DiscordInfoModuleTests
         var result = (await _discordInfoModule.AvatarAsync(userArgument)).GetResult<EmbedResult>();
 
         result.Embed.Image!.Value.Url.Should().StartWith("https://cdn.discordapp.com/avatars/");
-    }
-
-    [Fact]
-    public async Task StatusAsync_WhenNoActivity_ThenReturnsOnlineStatusEmbed()
-    {
-        const UserStatus AUserStatus = UserStatus.DoNotDisturb;
-        var user = A.Fake<IUser>();
-        A.CallTo(() => user.Activities).Returns(ImmutableList<IActivity>.Empty);
-        A.CallTo(() => user.Status).Returns(AUserStatus);
-        var userArgument = A.Fake<IUserArgument<IUser>>();
-        A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
-
-        var result = (await _discordInfoModule.StatusAsync(userArgument)).GetResult<EmbedResult>();
-
-        result.Embed.Description.Should().Be(_userStatusStringMapper.MapStatusToString(AUserStatus));
-    }
-
-    [Fact]
-    public async Task StatusAsync_WhenCustomStatusActivity_ThenReturnsCustomStatusEmbed()
-    {
-        const string ACustomStatus = "the end of a decade but the start of an age";
-        var user = A.Fake<IUser>();
-        A.CallTo(() => user.Activities).Returns(new List<IActivity> { _presenceFactory.CreateCustomStatus(ACustomStatus) }.ToImmutableList());
-        var userArgument = A.Fake<IUserArgument<IUser>>();
-        A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
-
-        var result = (await _discordInfoModule.StatusAsync(userArgument)).GetResult<EmbedResult>();
-
-        result.Embed.Description.Should().Contain(ACustomStatus);
     }
 
     [Fact]

@@ -9,29 +9,15 @@ using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
-using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 [Name("DiscordInfo 💬")]
-public class DiscordInfoModule : TaylorBotModule
+public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMapper channelTypeStringMapper, IUserTracker userTracker) : TaylorBotModule
 {
     private static readonly Random _random = new();
-
-    private readonly ICommandRunner _commandRunner;
-    private readonly UserStatusStringMapper _userStatusStringMapper;
-    private readonly ChannelTypeStringMapper _channelTypeStringMapper;
-    private readonly IUserTracker _userTracker;
-
-    public DiscordInfoModule(ICommandRunner commandRunner, UserStatusStringMapper userStatusStringMapper, ChannelTypeStringMapper channelTypeStringMapper, IUserTracker userTracker)
-    {
-        _commandRunner = commandRunner;
-        _userStatusStringMapper = userStatusStringMapper;
-        _channelTypeStringMapper = channelTypeStringMapper;
-        _userTracker = userTracker;
-    }
 
     [Command("avatar")]
     [Alias("av", "avi")]
@@ -47,91 +33,12 @@ public class DiscordInfoModule : TaylorBotModule
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
+        var result = await commandRunner.RunAsync(
             new AvatarCommand().Avatar(u, AvatarType.Guild, "Use </avatar:832103922709692436> instead! 😊"),
             context
         );
 
         return new TaylorBotResult(result, context);
-    }
-
-    [Command("status")]
-    [Summary("Displays the status of a user.")]
-    public async Task<RuntimeResult> StatusAsync(
-        [Summary("What user would you like to see the status of?")]
-        [Remainder]
-        IUserArgument<IUser>? user = null
-    )
-    {
-        var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-        {
-            var u = user == null ?
-                Context.User :
-                await user.GetTrackedUserAsync();
-
-            var embed = new EmbedBuilder()
-                .WithUserAsAuthor(u)
-                .WithColor(GetColorFromStatus(u.Status));
-
-            if (u.Activities.Count == 0)
-            {
-                embed
-                    .WithTitle("Status")
-                    .WithDescription(_userStatusStringMapper.MapStatusToString(u.Status));
-            }
-            else
-            {
-                var firstActivity = u.Activities.First();
-                switch (firstActivity)
-                {
-                    case CustomStatusGame customStatus:
-                        embed
-                            .WithTitle("Custom Status")
-                            .WithDescription($"{(customStatus.Emote != null ? $"{customStatus.Emote} " : string.Empty)}{customStatus.State}");
-                        break;
-
-                    case SpotifyGame spotifyGame:
-                        embed
-                            .WithTitle("Listening on Spotify")
-                            .WithThumbnailUrl(spotifyGame.AlbumArtUrl)
-                            .WithDescription(string.Join('\n', new[] {
-                                spotifyGame.TrackTitle.DiscordMdLink(spotifyGame.TrackUrl),
-                                $"by {string.Join(", ", spotifyGame.Artists.Select(a => $"**{a}**"))}",
-                                $"on **{spotifyGame.AlbumTitle}**"
-                            }));
-                        break;
-
-                    case Game game:
-                        embed
-                            .WithTitle("Playing")
-                            .WithDescription(game.Name);
-                        break;
-
-                    default:
-                        embed.WithDescription(firstActivity.Name);
-                        break;
-                }
-            }
-
-            return new EmbedResult(embed.Build());
-        });
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
-
-    private static Color GetColorFromStatus(UserStatus userStatus)
-    {
-        return userStatus switch
-        {
-            UserStatus.Offline or UserStatus.Invisible => new Color(116, 127, 141),
-            UserStatus.Online => new Color(67, 181, 129),
-            UserStatus.Idle or UserStatus.AFK => new Color(250, 166, 26),
-            UserStatus.DoNotDisturb => new Color(240, 71, 71),
-            _ => throw new ArgumentOutOfRangeException(nameof(userStatus)),
-        };
     }
 
     [Command("userinfo")]
@@ -176,7 +83,7 @@ public class DiscordInfoModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -188,7 +95,7 @@ public class DiscordInfoModule : TaylorBotModule
     {
         var cachedUsers = await Context.Guild.GetUsersAsync(CacheMode.CacheOnly);
         var randomUser = cachedUsers.ElementAt(_random.Next(cachedUsers.Count));
-        return await UserInfoAsync(new UserArgument<IGuildUser>(randomUser, _userTracker));
+        return await UserInfoAsync(new UserArgument<IGuildUser>(randomUser, userTracker));
     }
 
     [Command("roleinfo")]
@@ -241,7 +148,7 @@ public class DiscordInfoModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -262,7 +169,7 @@ public class DiscordInfoModule : TaylorBotModule
             var embed = new EmbedBuilder()
                 .WithAuthor(c is ITextChannel t && t.IsNsfw ? $"{c.Name} 🔞" : c.Name)
                 .AddField("Id", $"`{c.Id}`", inline: true)
-                .AddField("Type", _channelTypeStringMapper.MapChannelToTypeString(c), inline: true)
+                .AddField("Type", channelTypeStringMapper.MapChannelToTypeString(c), inline: true)
                 .AddField("Created", c.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
             if (channel is INestedChannel nested && nested.CategoryId.HasValue)
@@ -298,7 +205,7 @@ public class DiscordInfoModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -358,7 +265,7 @@ public class DiscordInfoModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
