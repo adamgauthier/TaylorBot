@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
 public record RpsProfile(int rps_win_count, int rps_draw_count, int rps_lose_count);
 
-public record RpsLeaderboardEntry(string user_id, string username, long rps_win_count, long rank);
+public record RpsLeaderboardEntry(string user_id, string username, int rps_win_count, long rank);
 
 public interface IRpsStatsRepository
 {

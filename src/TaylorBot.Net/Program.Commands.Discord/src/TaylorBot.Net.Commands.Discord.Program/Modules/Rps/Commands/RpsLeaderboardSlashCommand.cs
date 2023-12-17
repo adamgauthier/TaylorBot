@@ -38,7 +38,7 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithGuildAsAuthor(guild)
-                    .WithTitle("Rps Wins Leaderboard 🪨");
+                    .WithTitle("Rps Wins Leaderboard ✂️");
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(
