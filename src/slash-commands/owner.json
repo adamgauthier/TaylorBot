@@ -1,6 +1,7 @@
 {
   "name": "owner",
   "description": "Special commands restricted to the bot owner",
+  "default_member_permissions": "0",
   "options": [
     {
       "name": "ignore",
@@ -110,6 +111,19 @@
           "name": "userids",
           "description": "Comma-separated list of user ids to download avatars for",
           "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rewardyearbook",
+      "description": "Reward active users for the year",
+      "type": 1,
+      "options": [
+        {
+          "name": "count",
+          "description": "The number of members to reward",
+          "type": 4,
           "required": true
         }
       ]

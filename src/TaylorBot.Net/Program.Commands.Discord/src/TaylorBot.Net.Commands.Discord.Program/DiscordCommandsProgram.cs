@@ -321,6 +321,7 @@ var host = Host.CreateDefaultBuilder()
             .AddOptionParser<OptionalRpsShapeParser>()
             .AddSlashCommand<RpsPlaySlashCommand>()
             .AddSlashCommand<RpsLeaderboardSlashCommand>()
+            .AddSlashCommand<OwnerRewardYearbookActiveMembersSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
