@@ -13,19 +13,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 [Name("TaylorBot Plus 💎")]
 [Group("plus")]
 [Alias("support", "patreon", "donate")]
-public class PlusModule : TaylorBotModule
+public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusRepository, IPlusUserRepository plusUserRepository) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IPlusRepository _plusRepository;
-    private readonly IPlusUserRepository _plusUserRepository;
-
-    public PlusModule(ICommandRunner commandRunner, IPlusRepository plusRepository, IPlusUserRepository plusUserRepository)
-    {
-        _commandRunner = commandRunner;
-        _plusRepository = plusRepository;
-        _plusUserRepository = plusUserRepository;
-    }
-
     [Priority(-1)]
     [Command]
     [Summary("Gets basic information about your TaylorBot Plus membership.")]
@@ -35,7 +24,7 @@ public class PlusModule : TaylorBotModule
         {
             var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
-            var plusUser = await _plusUserRepository.GetPlusUserAsync(Context.User);
+            var plusUser = await plusUserRepository.GetPlusUserAsync(Context.User);
 
             if (plusUser != null)
             {
@@ -43,14 +32,15 @@ public class PlusModule : TaylorBotModule
                 {
                     embed
                         .WithColor(TaylorBotColors.DiamondBlueColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"You are currently a **TaylorBot Plus** member. 💎",
-                            $"Thank you for supporting {"TaylorBot on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}! ♥",
-                            $"If you have any questions, join the TaylorBot server listed on the Patreon. 😊",
-                        }))
+                        .WithDescription(
+                            $"""
+                            You are currently a **TaylorBot Plus** member. 💎
+                            Thank you for supporting {"TaylorBot on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}! ♥
+                            If you have any questions, join the TaylorBot server listed on the Patreon. 😊
+                            """)
                         .AddField("Plus Servers", Context.Channel is ITextChannel ?
                             "Your plus servers are hidden for privacy reasons, type `plus` in TaylorBot DMs to see them! 🕵" :
-                            plusUser.ActivePlusGuilds.Any() ?
+                            plusUser.ActivePlusGuilds.Count != 0 ?
                                 string.Join('\n',
                                     new[] { $"These servers benefit from **TaylorBot Plus** features thanks to you! You can add more with `plus add`, up to **{plusUser.MaxPlusGuilds}**:" }
                                     .Concat(plusUser.ActivePlusGuilds.Select(name => $"- {name}"))
@@ -62,10 +52,11 @@ public class PlusModule : TaylorBotModule
                 {
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"You are currently not part of **TaylorBot Plus**, but you have been in the past! 😮",
-                            $"Thank you for previously supporting {"TaylorBot on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}, I hope to see you back one day! ♥"
-                        }));
+                        .WithDescription(
+                            $"""
+                            You are currently not part of **TaylorBot Plus**, but you have been in the past! 😮
+                            Thank you for previously supporting {"TaylorBot on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}, I hope to see you back one day! ♥
+                            """);
                 }
             }
             else
@@ -75,23 +66,24 @@ public class PlusModule : TaylorBotModule
                     .WithTitle("Support TaylorBot 🥺")
                     .WithUrl("https://www.patreon.com/taylorbot")
                     .WithThumbnailUrl("https://i.imgur.com/55CptF4.jpg")
-                    .WithDescription(string.Join('\n', new[] {
-                        $"You are currently not part of **TaylorBot Plus**. 🚫",
-                        $"TaylorBot is free for everyone thanks to the community members that {"support me on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}. ♥",
-                        $"If you choose to pledge to the Patreon, you'll also get access to TaylorBot Plus features and points. 😱",
-                    }));
+                    .WithDescription(
+                        $"""
+                        You are currently not part of **TaylorBot Plus**. 🚫
+                        TaylorBot is free for everyone thanks to the community members that {"support me on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}. ♥
+                        If you choose to pledge to the Patreon, you'll also get access to TaylorBot Plus features and points. 😱
+                        """);
             }
 
             if (Context.Guild != null)
             {
-                var isPlus = await _plusRepository.IsActivePlusGuildAsync(Context.Guild);
+                var isPlus = await plusRepository.IsActivePlusGuildAsync(Context.Guild);
 
                 var text = isPlus ?
                     $"'{Context.Guild.Name}' is a **TaylorBot Plus** server. ✅" :
-                    string.Join('\n', new[] {
-                        $"'{Context.Guild.Name}' is not a **TaylorBot Plus** server. ❌",
-                        $"Members with a plus membership can add it using `{Context.CommandPrefix}plus add`."
-                    });
+                    $"""
+                    '{Context.Guild.Name}' is not a **TaylorBot Plus** server. ❌
+                    Members with a plus membership can add it using `{Context.CommandPrefix}plus add`.
+                    """;
 
                 embed.AddField("This Server", text);
             }
@@ -100,7 +92,7 @@ public class PlusModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -113,7 +105,7 @@ public class PlusModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var plusUser = (await _plusUserRepository.GetPlusUserAsync(Context.User))!;
+                var plusUser = (await plusUserRepository.GetPlusUserAsync(Context.User))!;
 
                 var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
@@ -121,34 +113,36 @@ public class PlusModule : TaylorBotModule
                 {
                     embed
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            "Unfortunately you can't add more **TaylorBot Plus** servers with your current membership. 😕",
-                            $"Use `{Context.CommandPrefix}plus` to see your plus servers and maybe remove some with `{Context.CommandPrefix}plus remove`."
-                        }));
+                        .WithDescription(
+                            $"""
+                            Unfortunately you can't add more **TaylorBot Plus** servers with your current membership. 😕
+                            Use `{Context.CommandPrefix}plus` to see your plus servers and maybe remove some with `{Context.CommandPrefix}plus remove`
+                            """);
                 }
                 else
                 {
-                    await _plusUserRepository.AddPlusGuildAsync(Context.User, Context.Guild);
+                    await plusUserRepository.AddPlusGuildAsync(Context.User, Context.Guild);
 
                     embed
                         .WithColor(TaylorBotColors.DiamondBlueColor)
                         .WithThumbnailUrl(Context.Guild.IconUrl)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Successfully added {Context.Guild.Name} to your plus servers. 😊",
-                            $"It should now have access to **TaylorBot Plus** features. 💎"
-                        }));
+                        .WithDescription(
+                            $"""
+                            Successfully added {Context.Guild.Name} to your plus servers. 😊
+                            It should now have access to **TaylorBot Plus** features. 💎
+                            """);
                 }
 
                 return new EmbedResult(embed.Build());
             },
             Preconditions: new ICommandPrecondition[] {
                 new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusUser)
+                new PlusPrecondition(plusRepository, PlusRequirement.PlusUser)
             }
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -161,26 +155,71 @@ public class PlusModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                await _plusUserRepository.DisablePlusGuildAsync(Context.User, Context.Guild);
+                await plusUserRepository.DisablePlusGuildAsync(Context.User, Context.Guild);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithUserAsAuthor(Context.User)
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Successfully removed {Context.Guild.Name} from your plus servers. 😊",
-                        $"This server will lose access to **TaylorBot Plus** features, use `{Context.CommandPrefix}plus add` if you change your mind."
-                    }))
+                    .WithDescription(
+                        $"""
+                        Successfully removed {Context.Guild.Name} from your plus servers. 😊
+                        This server will lose access to **TaylorBot Plus** features, use `{Context.CommandPrefix}plus add` if you change your mind.
+                        """)
                     .Build()
                 );
             },
             Preconditions: new ICommandPrecondition[] {
                 new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusUser)
+                new PlusPrecondition(plusRepository, PlusRequirement.PlusUser)
             }
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("addsupporterserver")]
+    [Alias("ass")]
+    [Summary("This command has been moved to `plus add`. Please use it instead! 😊")]
+    public async Task<RuntimeResult> AddSupporterServerAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 `plus add` 👈
+                Please use it instead! 😊
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await commandRunner.RunAsync(command, context);
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("removesupporterserver")]
+    [Alias("rss")]
+    [Summary("This command has been moved to `plus remove`. Please use it instead! 😊")]
+    public async Task<RuntimeResult> RemoveSupporterServerAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 `plus remove` 👈
+                Please use it instead! 😊
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

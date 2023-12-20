@@ -9,7 +9,7 @@ using TaylorBot.Net.Core.Globalization;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
-public class RemindAddSlashCommand : ISlashCommand<RemindAddSlashCommand.Options>
+public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlusRepository plusRepository) : ISlashCommand<RemindAddSlashCommand.Options>
 {
     private const uint MinMinutes = 1;
     private const uint MaxDays = 365;
@@ -19,15 +19,6 @@ public class RemindAddSlashCommand : ISlashCommand<RemindAddSlashCommand.Options
     public ISlashCommandInfo Info => new MessageCommandInfo("remind add");
 
     public record Options(ParsedTimeSpan time, ParsedString text);
-
-    private readonly IReminderRepository _reminderRepository;
-    private readonly IPlusRepository _plusRepository;
-
-    public RemindAddSlashCommand(IReminderRepository reminderRepository, IPlusRepository plusRepository)
-    {
-        _reminderRepository = reminderRepository;
-        _plusRepository = plusRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -58,9 +49,9 @@ public class RemindAddSlashCommand : ISlashCommand<RemindAddSlashCommand.Options
                     ));
                 }
 
-                var maxReminders = await _plusRepository.IsActivePlusUserAsync(context.User) ? MaxRemindersPlus : MaxRemindersNonPlus;
+                var maxReminders = await plusRepository.IsActivePlusUserAsync(context.User) ? MaxRemindersPlus : MaxRemindersNonPlus;
 
-                if (await _reminderRepository.GetReminderCountAsync(context.User) >= maxReminders)
+                if (await reminderRepository.GetReminderCountAsync(context.User) >= maxReminders)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(string.Join("\n", new[] {
                         $"Sorry, you can't have more than {maxReminders} set at the same time. 😕",
@@ -71,7 +62,7 @@ public class RemindAddSlashCommand : ISlashCommand<RemindAddSlashCommand.Options
 
                 var remindAt = DateTimeOffset.Now + fromNow;
 
-                await _reminderRepository.AddReminderAsync(context.User, remindAt, options.text.Value);
+                await reminderRepository.AddReminderAsync(context.User, remindAt, options.text.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"Okay, I will remind you in about **{fromNow.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"

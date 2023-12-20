@@ -8,18 +8,11 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class ModLogSetSlashCommand : ISlashCommand<ModLogSetSlashCommand.Options>
+public class ModLogSetSlashCommand(IModLogChannelRepository modLogChannelRepository) : ISlashCommand<ModLogSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod log set");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly IModLogChannelRepository _modLogChannelRepository;
-
-    public ModLogSetSlashCommand(IModLogChannelRepository modLogChannelRepository)
-    {
-        _modLogChannelRepository = modLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -27,14 +20,15 @@ public class ModLogSetSlashCommand : ISlashCommand<ModLogSetSlashCommand.Options
             new(Info.Name),
             async () =>
             {
-                await _modLogChannelRepository.AddOrUpdateModLogAsync(options.channel.Channel);
+                await modLogChannelRepository.AddOrUpdateModLogAsync(options.channel.Channel);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Ok, I will now log moderation command usage in {options.channel.Channel.Mention}. ✅",
-                        $"Use {context.MentionCommand("mod log stop")} to undo this action."
-                    }))
+                    .WithDescription(
+                        $"""
+                        Ok, I will now log moderation command usage in {options.channel.Channel.Mention}. ✅
+                        Use {context.MentionCommand("mod log stop")} to undo this action.
+                        """)
                 .Build());
             },
             Preconditions: new ICommandPrecondition[] {
@@ -45,16 +39,9 @@ public class ModLogSetSlashCommand : ISlashCommand<ModLogSetSlashCommand.Options
     }
 }
 
-public class ModLogStopSlashCommand : ISlashCommand<NoOptions>
+public class ModLogStopSlashCommand(IModLogChannelRepository modLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod log stop");
-
-    private readonly IModLogChannelRepository _modLogChannelRepository;
-
-    public ModLogStopSlashCommand(IModLogChannelRepository modLogChannelRepository)
-    {
-        _modLogChannelRepository = modLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -62,14 +49,15 @@ public class ModLogStopSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _modLogChannelRepository.RemoveModLogAsync(context.Guild!);
+                await modLogChannelRepository.RemoveModLogAsync(context.Guild!);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        "Ok, I will stop logging moderation command usage in this server. ✅",
-                        $"Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel."
-                    }))
+                    .WithDescription(
+                        $"""
+                        Ok, I will stop logging moderation command usage in this server. ✅
+                        Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel.
+                        """)
                 .Build());
             },
             Preconditions: new ICommandPrecondition[] {
@@ -80,16 +68,9 @@ public class ModLogStopSlashCommand : ISlashCommand<NoOptions>
     }
 }
 
-public class ModLogShowSlashCommand : ISlashCommand<NoOptions>
+public class ModLogShowSlashCommand(IModLogChannelRepository modLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod log show");
-
-    private readonly IModLogChannelRepository _modLogChannelRepository;
-
-    public ModLogShowSlashCommand(IModLogChannelRepository modLogChannelRepository)
-    {
-        _modLogChannelRepository = modLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -98,7 +79,7 @@ public class ModLogShowSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var modLog = await _modLogChannelRepository.GetModLogForGuildAsync(guild);
+                var modLog = await modLogChannelRepository.GetModLogForGuildAsync(guild);
 
                 var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
 
@@ -107,25 +88,28 @@ public class ModLogShowSlashCommand : ISlashCommand<NoOptions>
                     var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed.WithDescription(string.Join('\n', new[] {
-                            $"This server is configured to log moderation command usage in {channel.Mention}. ✅",
-                            $"Use {context.MentionCommand("mod log stop")} to stop logging moderation command usage in this server."
-                        }));
+                        embed.WithDescription(
+                            $"""
+                            This server is configured to log moderation command usage in {channel.Mention}. ✅
+                            Use {context.MentionCommand("mod log stop")} to stop logging moderation command usage in this server.
+                            """);
                     }
                     else
                     {
-                        embed.WithDescription(string.Join('\n', new[] {
-                            "I can't find the previously configured moderation command usage logging channel in this server. ❌",
-                            $"Was it deleted? Use {context.MentionCommand("mod log set")} to log moderation command usage in another channel."
-                        }));
+                        embed.WithDescription(
+                            $"""
+                            I can't find the previously configured moderation command usage logging channel in this server. ❌
+                            Was it deleted? Use {context.MentionCommand("mod log set")} to log moderation command usage in another channel.
+                            """);
                     }
                 }
                 else
                 {
-                    embed.WithDescription(string.Join('\n', new[] {
-                        "There is no moderation command usage logging configured in this server. ❌",
-                        $"Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel."
-                    }));
+                    embed.WithDescription(
+                        $"""
+                        There is no moderation command usage logging configured in this server. ❌",
+                        "Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel.
+                        """);
                 }
 
                 return new EmbedResult(embed.Build());

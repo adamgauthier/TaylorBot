@@ -1,7 +1,6 @@
 {
   "name": "owner",
   "description": "Special commands restricted to the bot owner",
-  "default_member_permissions": "0",
   "options": [
     {
       "name": "ignore",

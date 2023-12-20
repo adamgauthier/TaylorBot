@@ -6,20 +6,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
 
-public class WolframAlphaSlashCommand : ISlashCommand<WolframAlphaSlashCommand.Options>
+public class WolframAlphaSlashCommand(IRateLimiter rateLimiter, IWolframAlphaClient wolframAlphaClient) : ISlashCommand<WolframAlphaSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("wolframalpha");
 
     public record Options(ParsedString question);
-
-    private readonly IRateLimiter _rateLimiter;
-    private readonly IWolframAlphaClient _wolframAlphaClient;
-
-    public WolframAlphaSlashCommand(IRateLimiter rateLimiter, IWolframAlphaClient wolframAlphaClient)
-    {
-        _rateLimiter = rateLimiter;
-        _wolframAlphaClient = wolframAlphaClient;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -27,11 +18,11 @@ public class WolframAlphaSlashCommand : ISlashCommand<WolframAlphaSlashCommand.O
             new(Info.Name),
             async () =>
             {
-                var rateLimitResult = await _rateLimiter.VerifyDailyLimitAsync(context.User, "wolframalpha-query");
+                var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(context.User, "wolframalpha-query");
                 if (rateLimitResult != null)
                     return rateLimitResult;
 
-                var result = await _wolframAlphaClient.QueryAsync(options.question.Value);
+                var result = await wolframAlphaClient.QueryAsync(options.question.Value);
 
                 switch (result)
                 {

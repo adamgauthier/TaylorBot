@@ -25,7 +25,7 @@ public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCom
     }
 
     [Command("rpswins")]
-    [Summary("This command has been moved to **/rps profile**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </rps profile:1185806478435680387>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RpsWinsAsync(
         [Remainder]
         string? _ = null
@@ -35,7 +35,7 @@ public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCom
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/rps profile** 👈
+                This command has been moved to 👉 </rps profile:1185806478435680387> 👈
                 Please use it instead! 😊
                 """))));
 
@@ -47,7 +47,7 @@ public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCom
 
     [Command("rankrpswins")]
     [Alias("rank rpswins")]
-    [Summary("This command has been moved to **/rps leaderboard**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </rps leaderboard:1185806478435680387>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RankRpsWinsAsync(
         [Remainder]
         string? _ = null
@@ -57,7 +57,7 @@ public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCom
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/rps leaderboard** 👈
+                This command has been moved to 👉 </rps leaderboard:1185806478435680387> 👈
                 Please use it instead! 😊
                 """))));
 

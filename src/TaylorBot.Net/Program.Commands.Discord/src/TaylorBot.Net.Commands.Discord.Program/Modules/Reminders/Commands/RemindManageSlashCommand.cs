@@ -8,16 +8,9 @@ using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
-public class RemindManageSlashCommand : ISlashCommand<NoOptions>
+public class RemindManageSlashCommand(IReminderRepository reminderRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("remind manage", IsPrivateResponse: true);
-
-    private readonly IReminderRepository _reminderRepository;
-
-    public RemindManageSlashCommand(IReminderRepository reminderRepository)
-    {
-        _reminderRepository = reminderRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -25,7 +18,7 @@ public class RemindManageSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                var reminders = await _reminderRepository.GetRemindersAsync(context.User);
+                var reminders = await reminderRepository.GetRemindersAsync(context.User);
 
                 var reminderViews = reminders.Select((reminder, i) => new
                 {
@@ -36,16 +29,16 @@ public class RemindManageSlashCommand : ISlashCommand<NoOptions>
 
                 var content = reminderViews.Count > 0 ?
                     string.Join("\n", reminderViews.Select(r => $"**{r.UserFacingId}:** {r.Summary}")) :
-                    string.Join("\n", new[] {
-                        "You don't have any reminders. 😶",
-                        $"Add one with {context.MentionCommand("remind add")}."
-                    });
+                    $"""
+                    You don't have any reminders. 😶
+                    Add one with {context.MentionCommand("remind add")}.
+                    """;
 
                 var clearButtons = reminderViews.Select(r => new ButtonResult(
                     new Button(Id: $"{r.UserFacingId}-clear", ButtonStyle.Danger, Label: $"Clear #{r.UserFacingId}", Emoji: "🗑"),
                     async (_) =>
                     {
-                        await _reminderRepository.ClearReminderAsync(r.Domain);
+                        await reminderRepository.ClearReminderAsync(r.Domain);
                         return new UpdateMessage(new(new(EmbedFactory.CreateSuccess($"Reminder {r.UserFacingId} has been cleared. 👍"))));
                     }
                 ));
@@ -54,7 +47,7 @@ public class RemindManageSlashCommand : ISlashCommand<NoOptions>
                     new Button(Id: "clearall", ButtonStyle.Danger, Label: "Clear all", Emoji: "🗑"),
                     async (_) =>
                     {
-                        await _reminderRepository.ClearAllRemindersAsync(context.User);
+                        await reminderRepository.ClearAllRemindersAsync(context.User);
                         return new UpdateMessage(new(new(EmbedFactory.CreateSuccess("All your reminders have been cleared. 👍"))));
                     }
                 );

@@ -15,18 +15,11 @@ public interface IChannelMessageCountRepository
     Task<MessageCount> GetMessageCountAsync(ITextChannel channel);
 }
 
-public class ChannelMessagesSlashCommand : ISlashCommand<ChannelMessagesSlashCommand.Options>
+public class ChannelMessagesSlashCommand(IChannelMessageCountRepository channelMessageCountRepository) : ISlashCommand<ChannelMessagesSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("channel messages");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly IChannelMessageCountRepository _channelMessageCountRepository;
-
-    public ChannelMessagesSlashCommand(IChannelMessageCountRepository channelMessageCountRepository)
-    {
-        _channelMessageCountRepository = channelMessageCountRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -36,7 +29,7 @@ public class ChannelMessagesSlashCommand : ISlashCommand<ChannelMessagesSlashCom
             {
                 var channel = options.channel.Channel;
 
-                var result = await _channelMessageCountRepository.GetMessageCountAsync(channel);
+                var result = await channelMessageCountRepository.GetMessageCountAsync(channel);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithGuildAsAuthor(channel.Guild)
