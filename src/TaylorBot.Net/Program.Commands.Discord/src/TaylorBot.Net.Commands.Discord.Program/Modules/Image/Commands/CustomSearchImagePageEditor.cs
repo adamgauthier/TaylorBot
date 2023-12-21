@@ -5,22 +5,15 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
-public class CustomSearchImagePageEditor : IEmbedPageEditor
+public class CustomSearchImagePageEditor(IReadOnlyList<ImageResult> pages) : IEmbedPageEditor
 {
-    private readonly IReadOnlyList<ImageResult> _pages;
-
-    public int PageCount => _pages.Count;
-
-    public CustomSearchImagePageEditor(IReadOnlyList<ImageResult> pages)
-    {
-        _pages = pages;
-    }
+    public int PageCount => pages.Count;
 
     public EmbedBuilder Edit(EmbedBuilder embed, int currentPage)
     {
         if (PageCount > 0)
         {
-            var page = _pages[currentPage - 1];
+            var page = pages[currentPage - 1];
 
             if (Uri.IsWellFormedUriString(page.PageUrl, UriKind.Absolute))
                 embed.WithUrl(page.PageUrl);

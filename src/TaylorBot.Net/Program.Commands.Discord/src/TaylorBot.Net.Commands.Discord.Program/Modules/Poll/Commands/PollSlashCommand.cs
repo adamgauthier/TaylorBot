@@ -2,6 +2,7 @@
 using Humanizer;
 using System.Collections.Concurrent;
 using System.Globalization;
+using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
@@ -11,13 +12,13 @@ using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 
-public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
+public class PollSlashCommand : ISlashCommand<NoOptions>
 {
+    public static readonly Color PollColor = new(84, 160, 255);
+
     public ISlashCommandInfo Info => new ModalCommandInfo("poll");
 
-    public record Options();
-
-    public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {
         return new(new Command(
             new(Info.Name),
@@ -210,7 +211,7 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
             string displayedOptions = string.Join('\n', GetDisplayedOptions(options));
 
             return new EmbedBuilder()
-                .WithColor(new(84, 160, 255))
+                .WithColor(PollColor)
                 .WithDescription(
                     $"""
                     ## {_title}
@@ -248,7 +249,7 @@ public class PollSlashCommand : ISlashCommand<PollSlashCommand.Options>
             }
             else
             {
-                return options.Select(o => $"### {o.Icon} {o.Displayed}");
+                return options.Select(o => $"### {o.Icon} {o.Displayed}");
             }
         }
     }

@@ -15,17 +15,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Command
 [Name("Roles 🆔")]
 [Group("roles")]
 [Alias("role", "gr")]
-public class AccessibleRolesModule : TaylorBotModule
+public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRoleRepository accessibleRoleRepository) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IAccessibleRoleRepository _accessibleRoleRepository;
-
-    public AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRoleRepository accessibleRoleRepository)
-    {
-        _commandRunner = commandRunner;
-        _accessibleRoleRepository = accessibleRoleRepository;
-    }
-
     [Priority(-1)]
     [Command]
     [Summary("Assigns you a role that set to accessible in this server.")]
@@ -46,7 +37,7 @@ public class AccessibleRolesModule : TaylorBotModule
                 {
                     if (!member.RoleIds.Contains(role.Role.Id))
                     {
-                        var accessibleRole = await _accessibleRoleRepository.GetAccessibleRoleAsync(role.Role);
+                        var accessibleRole = await accessibleRoleRepository.GetAccessibleRoleAsync(role.Role);
                         if (accessibleRole != null)
                         {
                             var groupInfo = accessibleRole.Group != null ?
@@ -116,7 +107,7 @@ public class AccessibleRolesModule : TaylorBotModule
                 }
                 else
                 {
-                    var accessibleRoles = (await _accessibleRoleRepository.GetAccessibleRolesAsync(Context.Guild))
+                    var accessibleRoles = (await accessibleRoleRepository.GetAccessibleRolesAsync(Context.Guild))
                         .Where(ar => Context.Guild.Roles.Any(r => r.Id == ar.RoleId.Id))
                         .ToList();
 
@@ -159,7 +150,7 @@ public class AccessibleRolesModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -181,7 +172,7 @@ public class AccessibleRolesModule : TaylorBotModule
 
                 if (member.RoleIds.Contains(role.Role.Id))
                 {
-                    if (await _accessibleRoleRepository.IsRoleAccessibleAsync(role.Role))
+                    if (await accessibleRoleRepository.IsRoleAccessibleAsync(role.Role))
                     {
                         await member.RemoveRoleAsync(role.Role, new RequestOptions
                         {
@@ -221,7 +212,7 @@ public class AccessibleRolesModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -238,7 +229,7 @@ public class AccessibleRolesModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                await _accessibleRoleRepository.AddAccessibleRoleAsync(role.Role);
+                await accessibleRoleRepository.AddAccessibleRoleAsync(role.Role);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithUserAsAuthor(Context.User)
@@ -257,7 +248,7 @@ public class AccessibleRolesModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -274,7 +265,7 @@ public class AccessibleRolesModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                await _accessibleRoleRepository.RemoveAccessibleRoleAsync(role.Role);
+                await accessibleRoleRepository.RemoveAccessibleRoleAsync(role.Role);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithUserAsAuthor(Context.User)
@@ -293,7 +284,7 @@ public class AccessibleRolesModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -316,7 +307,7 @@ public class AccessibleRolesModule : TaylorBotModule
 
                 if (group.Name == "clear")
                 {
-                    await _accessibleRoleRepository.ClearGroupFromAccessibleRoleAsync(role.Role);
+                    await accessibleRoleRepository.ClearGroupFromAccessibleRoleAsync(role.Role);
 
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
@@ -327,7 +318,7 @@ public class AccessibleRolesModule : TaylorBotModule
                 }
                 else
                 {
-                    await _accessibleRoleRepository.AddOrUpdateAccessibleRoleWithGroupAsync(role.Role, group);
+                    await accessibleRoleRepository.AddOrUpdateAccessibleRoleWithGroupAsync(role.Role, group);
 
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
@@ -347,7 +338,7 @@ public class AccessibleRolesModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

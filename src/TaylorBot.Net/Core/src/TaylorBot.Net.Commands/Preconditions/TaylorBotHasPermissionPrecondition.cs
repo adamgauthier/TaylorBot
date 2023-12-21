@@ -3,20 +3,16 @@ using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public class TaylorBotHasPermissionPrecondition : ICommandPrecondition
+public class TaylorBotHasPermissionPrecondition(GuildPermission permission) : ICommandPrecondition
 {
     private readonly PermissionStringMapper _permissionStringMapper = new();
 
-    public GuildPermission GuildPermission { get; }
-
-    public TaylorBotHasPermissionPrecondition(GuildPermission permission)
-    {
-        GuildPermission = permission;
-    }
+    public GuildPermission GuildPermission { get; } = permission;
 
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
-        var botGuildUser = await context.Guild!.GetCurrentUserAsync();
+        var guild = context.Guild ?? throw new NotImplementedException();
+        var botGuildUser = await guild.GetCurrentUserAsync();
         if (botGuildUser.GuildPermissions.Has(GuildPermission) || botGuildUser.Guild.OwnerId == botGuildUser.Id)
         {
             return new PreconditionPassed();
@@ -28,10 +24,11 @@ public class TaylorBotHasPermissionPrecondition : ICommandPrecondition
 
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} requires the bot to have permission {permissionName}",
-                UserReason: new(string.Join('\n', new[] {
-                    $"TaylorBot can't use `{command.Metadata.Name}` because I don't have the '{permissionUIName}' permission in this server.",
-                    $"Add the '{permissionUIName}' permission to my role in the server settings."
-                }))
+                UserReason: new(
+                    $"""
+                    TaylorBot can't use `{command.Metadata.Name}` because I don't have the '{permissionUIName}' permission in this server.
+                    Add the '{permissionUIName}' permission to my role in the server settings.
+                    """)
             );
         }
     }

@@ -6,21 +6,8 @@ using TaylorBot.Net.Commands.Preconditions;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
 [Name("Media 📷")]
-public class MediaModule : TaylorBotModule
+public class MediaModule(ICommandRunner commandRunner, IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IPlusRepository _plusRepository;
-    private readonly IRateLimiter _rateLimiter;
-    private readonly IImageSearchClient _imageSearchClient;
-
-    public MediaModule(ICommandRunner commandRunner, IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient)
-    {
-        _commandRunner = commandRunner;
-        _plusRepository = plusRepository;
-        _rateLimiter = rateLimiter;
-        _imageSearchClient = imageSearchClient;
-    }
-
     [Command("image")]
     [Alias("imagen")]
     [Summary("Searches images based on the search text provided.")]
@@ -30,8 +17,8 @@ public class MediaModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var command = new ImageCommand(_plusRepository, _rateLimiter, _imageSearchClient);
-        var result = await _commandRunner.RunAsync(
+        var command = new ImageCommand(plusRepository, rateLimiter, imageSearchClient);
+        var result = await commandRunner.RunAsync(
             command.Image(Context.User, text, isLegacyCommand: true),
             context
         );

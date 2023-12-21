@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
 
-public record PageMessageOptions(IPageMessageRenderer Renderer, bool Cancellable = false);
+public record PageMessageOptions(IPageMessageRenderer Renderer, bool Cancellable = false, List<Emoji>? AdditionalReacts = null);
 
 public class PageMessage(PageMessageOptions options)
 {
@@ -20,49 +20,57 @@ public class PageMessage(PageMessageOptions options)
     }
 }
 
-public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessageOptions options)
+public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMessageOptions options)
 {
     private static readonly Emoji PreviousEmoji = new("◀");
     private static readonly Emoji NextEmoji = new("▶");
     private static readonly Emoji CancelEmoji = new("❌");
-    private readonly IUserMessage _message = message;
+
     private DateTimeOffset? _lastInteractionAt = null;
     private Timer? _unsubscribeTimer = null;
 
     public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
     {
-        var emotes = new List<Emoji>();
+        var interactiveEmotes = new List<Emoji>();
         if (options.Renderer.HasMultiplePages)
         {
-            emotes.AddRange(new[] { PreviousEmoji, NextEmoji });
+            interactiveEmotes.AddRange(new[] { PreviousEmoji, NextEmoji });
         }
         if (options.Cancellable)
         {
-            emotes.Add(CancelEmoji);
+            interactiveEmotes.Add(CancelEmoji);
         }
 
-        if (emotes.Count > 0)
+        var allEmotes = interactiveEmotes.Concat(options.AdditionalReacts ?? []).ToList();
+
+        if (allEmotes.Count > 0)
         {
-            pageMessageReactionsHandler.OnReact += OnReactAsync;
+            if (interactiveEmotes.Count > 0)
+            {
+                pageMessageReactionsHandler.OnReact += OnReactAsync;
+            }
 
             try
             {
-                await _message.AddReactionsAsync(emotes.ToArray());
+                await sentMessage.AddReactionsAsync(allEmotes);
             }
             catch
             {
-                logger.LogWarning("Could not add reactions for page message {Message} by {User}.", _message.FormatLog(), commandUser.FormatLog());
+                logger.LogWarning("Could not add reactions for page message {Message} by {User}.", sentMessage.FormatLog(), commandUser.FormatLog());
             }
             finally
             {
-                _unsubscribeTimer = new Timer(TimerCallback, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
-                void TimerCallback(object? state)
+                if (interactiveEmotes.Count > 0)
                 {
-                    if (_lastInteractionAt == null ||
-                        (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30)
+                    _unsubscribeTimer = new Timer(TimerCallback, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+                    void TimerCallback(object? state)
                     {
-                        pageMessageReactionsHandler.OnReact -= OnReactAsync;
-                        _unsubscribeTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+                        if (_lastInteractionAt == null ||
+                            (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30)
+                        {
+                            pageMessageReactionsHandler.OnReact -= OnReactAsync;
+                            _unsubscribeTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+                        }
                     }
                 }
             }
@@ -71,12 +79,12 @@ public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessag
 
     private async Task OnReactAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
     {
-        if (message.Id == _message.Id && reaction.UserId == commandUser.Id)
+        if (message.Id == sentMessage.Id && reaction.UserId == commandUser.Id)
         {
             if (reaction.Emote.Equals(PreviousEmoji))
             {
                 _lastInteractionAt = DateTimeOffset.Now;
-                await _message.ModifyAsync(m =>
+                await sentMessage.ModifyAsync(m =>
                 {
                     var next = options.Renderer.RenderNext();
                     if (!string.IsNullOrWhiteSpace(next.Content))
@@ -92,7 +100,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessag
             else if (reaction.Emote.Equals(NextEmoji))
             {
                 _lastInteractionAt = DateTimeOffset.Now;
-                await _message.ModifyAsync(m =>
+                await sentMessage.ModifyAsync(m =>
                 {
                     var previous = options.Renderer.RenderPrevious();
                     if (!string.IsNullOrWhiteSpace(previous.Content))
@@ -107,7 +115,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage message, PageMessag
             }
             else if (reaction.Emote.Equals(CancelEmoji) && options.Cancellable)
             {
-                await _message.DeleteAsync();
+                await sentMessage.DeleteAsync();
             }
         }
     }
