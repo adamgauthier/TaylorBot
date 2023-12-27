@@ -47,7 +47,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<IReactionRemovedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
             .AddTransient<CommandExecutedHandler>()
             .AddTransient<CommandServiceLogger>()
-            .AddTransient<IRateLimiter, RateLimiter>()
+            .AddTransient<IRateLimiter, CommandRateLimiter>()
             .AddTransient<IUserTracker, UserTracker>()
             .AddTransient<MentionedUserTypeReader<IUser>>()
             .AddTransient<CustomUserTypeReader<IUser>>()

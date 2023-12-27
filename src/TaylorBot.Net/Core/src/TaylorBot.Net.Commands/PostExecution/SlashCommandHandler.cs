@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OperationResult;
 using System.Text.Json;
+using System.Threading.RateLimiting;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
@@ -404,6 +405,9 @@ public class SlashCommandHandler(
                 .Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } })
                 .ToList();
 
+            RateLimiter followUpLimiter = new ConcurrencyLimiter(
+                new ConcurrencyLimiterOptions { PermitLimit = 1, QueueLimit = 100 });
+
             foreach (var button in buttons)
             {
                 messageComponentHandler.AddCallback(button.Button.Id, async component =>
@@ -425,8 +429,22 @@ public class SlashCommandHandler(
                                     await interactionResponseClient.EditOriginalResponseAsync(component, new(update.Content, buttons.Select(b => b.Button).ToList()));
                                     if (update.Response != null)
                                     {
-                                        await interactionResponseClient.SendFollowupResponseAsync(component,
-                                            new(update.Response.Message.Content, IsPrivate: update.Response.IsPrivate));
+                                        using var lease = await followUpLimiter.AcquireAsync();
+                                        if (lease.IsAcquired)
+                                        {
+                                            // Throttle to avoid Discord rate limit
+                                            await Task.Delay(TimeSpan.FromMilliseconds(250));
+
+                                            try
+                                            {
+                                                await interactionResponseClient.SendFollowupResponseAsync(component,
+                                                    new(update.Response.Message.Content, IsPrivate: update.Response.IsPrivate));
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                logger.LogError(e, "Unhandled exception trying to send followup response to button {ButtonId} action:", button.Button.Id);
+                                            }
+                                        }
                                     }
                                     break;
 
@@ -457,6 +475,7 @@ public class SlashCommandHandler(
             {
                 await Task.Delay(m.Buttons.ListenToClicksFor ?? TimeSpan.FromMinutes(10));
                 RemoveCallbacks(buttons);
+                followUpLimiter.Dispose();
 
                 var result = m.Buttons.OnEnded != null ? await m.Buttons.OnEnded() : null;
                 MessageResponse updated = result != null ? new(result.Content) : new(m.Content, Array.Empty<Button>());

@@ -16,7 +16,7 @@ public interface IRateLimiter
     ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action);
 }
 
-public class RateLimiter(IOptionsMonitor<CommandApplicationOptions> options, IRateLimitRepository rateLimitRepository, IPlusRepository plusRepository) : IRateLimiter
+public class CommandRateLimiter(IOptionsMonitor<CommandApplicationOptions> options, IRateLimitRepository rateLimitRepository, IPlusRepository plusRepository) : IRateLimiter
 {
     public async ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action)
     {
