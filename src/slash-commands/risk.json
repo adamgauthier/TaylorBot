@@ -1,0 +1,37 @@
+{
+  "name": "risk",
+  "description": "Risk some of your taypoints to get more",
+  "options": [
+    {
+      "name": "play",
+      "description": "Risk some of your taypoints in an investment opportunity (50% odds of 2x profits)",
+      "type": 1,
+      "options": [
+        {
+          "name": "amount",
+          "description": "The amount of taypoints to risk",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "description": "Show a risk player's track record",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the profile for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show the current server's risk leaderboard",
+      "type": 1
+    }
+  ]
+}

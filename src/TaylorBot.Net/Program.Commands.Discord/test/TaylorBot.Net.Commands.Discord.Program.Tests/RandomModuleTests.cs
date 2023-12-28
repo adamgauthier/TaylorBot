@@ -29,11 +29,11 @@ public class RandomModuleTests
     {
         const int FaceCount = 6;
         const int Roll = 2;
-        A.CallTo(() => _cryptoSecureRandom.GetRandomInt32(0, FaceCount)).Returns(Roll - 1);
+        A.CallTo(() => _cryptoSecureRandom.GetInt32(1, FaceCount)).Returns(Roll);
 
         var result = (await _randomModule.DiceAsync(new PositiveInt32(FaceCount))).GetResult<EmbedResult>();
 
-        result.Embed.Description.Should().Contain(Roll.ToString());
+        result.Embed.Description.Should().Contain($"{Roll}");
     }
 
     [Fact]

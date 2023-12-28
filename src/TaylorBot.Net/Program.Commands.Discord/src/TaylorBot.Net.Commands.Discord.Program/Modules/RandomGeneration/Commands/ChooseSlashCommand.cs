@@ -7,16 +7,9 @@ using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 
-public class ChooseCommand
+public class ChooseCommand(ICryptoSecureRandom cryptoSecureRandom)
 {
     public static readonly CommandMetadata Metadata = new("choose", "Random 🎲");
-
-    private readonly ICryptoSecureRandom _cryptoSecureRandom;
-
-    public ChooseCommand(ICryptoSecureRandom cryptoSecureRandom)
-    {
-        _cryptoSecureRandom = cryptoSecureRandom;
-    }
 
     public Command Choose(string options, IUser? author = null) => new(
         Metadata,
@@ -24,7 +17,7 @@ public class ChooseCommand
         {
             var parsedOptions = options.Split(',').Select(o => o.Trim()).Where(o => !string.IsNullOrWhiteSpace(o)).ToList();
 
-            var randomOption = _cryptoSecureRandom.GetRandomElement(parsedOptions);
+            var randomOption = cryptoSecureRandom.GetRandomElement(parsedOptions);
 
             var description = new List<string> { randomOption };
             var embed = new EmbedBuilder();
@@ -45,21 +38,14 @@ public class ChooseCommand
     );
 }
 
-public class ChooseSlashCommand : ISlashCommand<ChooseSlashCommand.Options>
+public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<ChooseSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo(ChooseCommand.Metadata.Name);
 
     public record Options(ParsedString options);
 
-    private readonly ICryptoSecureRandom _cryptoSecureRandom;
-
-    public ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom)
-    {
-        _cryptoSecureRandom = cryptoSecureRandom;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(new ChooseCommand(_cryptoSecureRandom).Choose(options.options.Value));
+        return new(new ChooseCommand(cryptoSecureRandom).Choose(options.options.Value));
     }
 }

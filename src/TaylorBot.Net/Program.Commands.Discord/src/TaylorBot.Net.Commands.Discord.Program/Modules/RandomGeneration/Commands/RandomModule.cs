@@ -23,7 +23,7 @@ public class RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryp
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), () =>
         {
-            var randomNumber = cryptoSecureRandom.GetRandomInt32(0, faces.Parsed) + 1;
+            var randomNumber = cryptoSecureRandom.GetInt32(1, faces.Parsed);
 
             return new(new EmbedResult(new EmbedBuilder()
                 .WithUserAsAuthor(Context.User)

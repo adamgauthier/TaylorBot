@@ -57,6 +57,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Domain;
@@ -131,6 +133,7 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IDailyPayoutRepository, DailyPayoutPostgresRepository>()
             .AddTransient<IMessageOfTheDayRepository, MessageOfTheDayPostgresRepository>()
             .AddTransient<ICryptoSecureRandom, CryptoSecureRandom>()
+            .AddTransient<IPseudoRandom, PseudoRandom>()
             .AddTransient<IServerStatsRepository, ServerStatsRepositoryPostgresRepository>()
             .AddTransient<ILastFmUsernameRepository, LastFmUsernamePostgresRepository>()
             .ConfigureRequired<LastFmOptions>(config, "LastFm")
@@ -322,6 +325,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<RpsPlaySlashCommand>()
             .AddSlashCommand<RpsLeaderboardSlashCommand>()
             .AddSlashCommand<OwnerRewardYearbookActiveMembersSlashCommand>()
+            .AddTransient<IRiskStatsRepository, RiskStatsPostgresRepository>()
+            .AddSlashCommand<RiskPlaySlashCommand>()
+            .AddSlashCommand<RiskProfileSlashCommand>()
+            .AddSlashCommand<RiskLeaderboardSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

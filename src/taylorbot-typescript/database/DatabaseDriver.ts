@@ -21,7 +21,6 @@ import { TextChannelRepository } from './repositories/TextChannelRepository';
 import { AttributeRepository } from './repositories/AttributeRepository';
 import { TextAttributeRepository } from './repositories/TextAttributeRepository';
 import { RollStatsRepository } from './repositories/RollStatsRepository';
-import { GambleStatsRepository } from './repositories/GambleStatsRepository';
 import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
 import { EnvUtil } from '../modules/util/EnvUtil';
 
@@ -46,7 +45,6 @@ export class DatabaseDriver {
     readonly attributes: AttributeRepository;
     readonly textAttributes: TextAttributeRepository;
     readonly rollStats: RollStatsRepository;
-    readonly gambleStats: GambleStatsRepository;
     readonly channelCommands: ChannelCommandRepository;
 
     constructor() {
@@ -77,7 +75,6 @@ export class DatabaseDriver {
         this.attributes = new AttributeRepository(db, helpers);
         this.textAttributes = new TextAttributeRepository(db);
         this.rollStats = new RollStatsRepository(db, usersDAO);
-        this.gambleStats = new GambleStatsRepository(db, usersDAO);
         this.channelCommands = new ChannelCommandRepository(db);
     }
 }

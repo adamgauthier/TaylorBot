@@ -22,7 +22,8 @@ public class HeistPlaySlashCommand(
     IHeistRepository heistRepository,
     IHeistStatsRepository heistStatsRepository,
     TaypointAmountParser amountParser,
-    ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<HeistPlaySlashCommand.Options>
+    ICryptoSecureRandom cryptoSecureRandom,
+    IPseudoRandom pseudoRandom) : ISlashCommand<HeistPlaySlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("heist play");
 
@@ -128,14 +129,14 @@ public class HeistPlaySlashCommand(
         var heisters = await heistRepository.EndHeistAsync(guild);
         var bank = GetBank(heisters.Count);
 
-        var roll = cryptoSecureRandom.GetRandomInt32(1, 101);
+        var roll = cryptoSecureRandom.GetInt32(1, 100);
         var won = roll >= bank.minimumRollForSuccess;
 
         var results = won
             ? await heistStatsRepository.WinHeistAsync(heisters, bank.payoutMultiplier)
             : await heistStatsRepository.LoseHeistAsync(heisters);
 
-        var randomPlayer = cryptoSecureRandom.GetRandomElement(results);
+        var randomPlayer = pseudoRandom.GetRandomElement(results);
 
         var description =
             $"""
@@ -182,7 +183,7 @@ public class HeistPlaySlashCommand(
     ];
 
     private string GetFailureReason(string userId) =>
-        cryptoSecureRandom.GetRandomElement(FailureReasons).Replace("{user}", $"<@{userId}>");
+        pseudoRandom.GetRandomElement(FailureReasons).Replace("{user}", $"<@{userId}>");
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
