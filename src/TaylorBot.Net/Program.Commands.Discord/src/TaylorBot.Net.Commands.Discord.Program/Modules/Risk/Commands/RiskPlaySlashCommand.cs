@@ -77,7 +77,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
                         $"""
                         {embed.Description}
 
-                        This command is moving to 👉 **/risk play** 👈 please use it instead 😊
+                        This command is moving to 👉 </risk play:1190786063136993431> 👈 please use it instead 😊
                         """);
 
             }

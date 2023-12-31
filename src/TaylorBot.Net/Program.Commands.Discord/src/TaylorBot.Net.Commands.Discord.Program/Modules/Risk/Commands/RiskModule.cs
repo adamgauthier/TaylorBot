@@ -28,7 +28,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
 
     [Command("gamblewins")]
     [Alias("gwins", "gambleprofits", "gprofits", "gamblefails", "gfails", "gamblelosses", "glosses")]
-    [Summary("This command has been moved to **/risk profile**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </risk profile:1190786063136993431>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RiskWinsAsync(
         [Remainder]
         string? _ = null
@@ -38,7 +38,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/risk profile** 👈
+                This command has been moved to 👉 </risk profile:1190786063136993431> 👈
                 Please use it instead! 😊
                 """))));
 
@@ -50,7 +50,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
 
     [Command("rankgamblewins")]
     [Alias("rank gamblewins", "rank gwins", "rankgwins")]
-    [Summary("This command has been moved to **/risk leaderboard**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </risk leaderboard:1190786063136993431>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RankHeistWinsAsync(
         [Remainder]
         string? _ = null
@@ -60,7 +60,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/risk leaderboard** 👈
+                This command has been moved to 👉 </risk leaderboard:1190786063136993431> 👈
                 Please use it instead! 😊
                 """))));
 
