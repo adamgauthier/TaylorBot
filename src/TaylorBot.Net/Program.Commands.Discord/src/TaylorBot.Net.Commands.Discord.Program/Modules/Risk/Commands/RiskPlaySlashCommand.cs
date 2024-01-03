@@ -56,14 +56,15 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 
             var reason = pseudoRandom.GetRandomElement(won ? WinReasons : LoseReasons);
 
-            var balance = $"{"taypoint".ToQuantity(result.invested_count, TaylorBotFormats.BoldReadable)} (**{GetPercent(originalCount, result.invested_count):0%}** of your balance)";
+            var balance = $"{"taypoint".ToQuantity(result.invested_count, TaylorBotFormats.Readable)} ({GetPercent(originalCount, result.invested_count):0%} of your balance)";
 
             var embed = new EmbedBuilder()
                 .WithColor(won ? TaylorBotColors.SuccessColor : TaylorBotColors.ErrorColor)
                 .WithDescription(
                     $"""
-                    ### Investment Opportunity
-                    {reason.Opportunity.Replace("{balance}", balance)} 💵
+                    ### Opportunity
+                    {reason.Opportunity}
+                    You invest: **{balance} 💵**
                     ### Outcome
                     {reason.Outcome} {(won ? "💰" : "💸")}
                     Your balance: {originalCount.ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(result.final_count, TaylorBotFormats.BoldReadable)} {(won ? "📈" : "📉")}
@@ -95,67 +96,37 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 
     private static readonly Reason[] WinReasons = [
         new(
-            """
-            A member from your favorite finance Discord server tells you about **a secret underground stock exchange** with exclusive investment opportunities 🔮
-            Skeptical but curious, you decide to participate by investing {balance}
-            """,
-            "To your surprise, the stocks soar, resulting in 2x profits"),
+            "A member from your favorite finance Discord server tells you about a secret underground stock exchange with exclusive investment opportunities 🔮",
+            "To your surprise, the stocks soar!"),
         new(
-            """
-            A mysterious woman in an alley offers you a chance to invest in an **unknown startup with promises of cutting-edge AI technology** 🤖
-            Despite the secrecy, you decide to take the risk and invest {balance}
-            """,
-            "It pays off as the startup becomes a tech giant, yielding 2x returns"),
+            "A mysterious woman in an alley offers you a chance to invest in an unknown startup with promises of cutting-edge AI technology 🤖",
+            "It pays off as the startup becomes a tech giant!"),
         new(
-            """
-            While browsing a community board, you find a post discussing a **new decentralized cryptocurrency** 🪙
-            Intrigued by financial freedom, you invest {balance}
-            """,
-            "The cryptocurrency gains widespread adoption, leading to 2x profits"),
+            "While browsing a community board, you find a post discussing a new decentralized cryptocurrency 🪙",
+            "The cryptocurrency gains widespread adoption!"),
         new(
-            """
-            A charismatic guy in a bar shares information about an **upcoming virtual reality gaming platform** 🥽
-            Intrigued by immersive gaming experiences, you invest {balance}
-            """,
-            "The platform becomes a massive success, resulting in 2x profits"),
+            "A charismatic guy in a bar shares information about an upcoming virtual reality gaming platform 🥽",
+            "The platform becomes a massive success!"),
         new(
-            """
-            An anonymous message in a chat room hints at a hidden opportunity to invest in **a futuristic energy project** ⚡
-            Despite the lack of details, you take a chance and invest {balance}
-            """,
-            "The project turns out to be a groundbreaking success, securing you 2x gains"),
+            "An anonymous message in a chat room hints at a hidden opportunity to invest in a futuristic energy project ⚡",
+            "The project turns out to be a groundbreaking success!"),
     ];
 
     private static readonly Reason[] LoseReasons = [
         new(
-            """
-            As you stroll through an online marketplace, an anonymous user sends you a message claiming to have **insider information on a groundbreaking stock** 😱
-            Tempted by the promise of quick riches, you invest {balance}
-            """,
-            "It was a **pump-and-dump scheme**, leaving you with worthless shares"),
+            "As you stroll through an online marketplace, an anonymous user sends you a message claiming to have insider information on a groundbreaking stock 😱",
+            "It was a pump-and-dump scheme, leaving you with worthless shares"),
         new(
-            """
-            At a finance convention, a charismatic man invites you to invest in a **new cryptocurrency promising unprecedented returns** 🪙
-            Intrigued by digital wealth, you invest {balance}
-            """,
+            "At a finance convention, a charismatic man invites you to invest in a new cryptocurrency promising unprecedented returns 🪙",
             "You wake up the next day and find the cryptocurrency has collapsed"),
         new(
-            """
-            A mysterious email lands in your inbox, offering a chance to invest in a **startup developing revolutionary health supplements** 💊
-            Enticed by a potential health breakthrough, you invest {balance}
-            """,
+            "A mysterious email lands in your inbox, offering a chance to invest in a startup developing revolutionary health supplements 💊",
             "The company was a front for an elaborate pyramid scheme"),
         new(
-            """
-            During a business conference, an enthusiastic entrepreneur pitches a **real estate property in a rapidly developing city** 🏚️
-            Eager for a slice of the property market, you invest {balance}
-            """,
+            "During a business conference, an enthusiastic entrepreneur pitches a real estate property in a rapidly developing city 🏚️",
             "The property suddenly collapses, and your investment vanishes"),
         new(
-            """
-            While exploring a forum, you come across a post about a **rare artifact with the potential to skyrocket in value** 🏺
-            Excited by the lucrative collectible, you invest {balance}
-            """,
+            "While exploring a forum, you come across a post about a rare artifact with the potential to skyrocket in value 🏺",
             "The market quickly saturates and the artifact's value plummets"),
     ];
 

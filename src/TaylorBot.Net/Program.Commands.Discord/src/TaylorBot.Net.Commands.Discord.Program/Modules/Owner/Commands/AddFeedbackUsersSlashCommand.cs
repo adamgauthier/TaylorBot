@@ -23,6 +23,7 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
     public record Options(ParsedOptionalBoolean whatif);
 
     private const long FeedbackRoleId = 482738450722848809;
+    private static readonly int CommandTimeout = (int)TimeSpan.FromMinutes(2).TotalSeconds;
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -30,7 +31,7 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
             new(Info.Name),
             async () =>
             {
-                var whatIf = options.whatif.Value ?? true;
+                var whatIf = options.whatif.Value ?? false;
                 var stopwatch = Stopwatch.StartNew();
                 var guild = context.Guild?.Id == 115332333745340416 ? context.Guild : throw new InvalidOperationException("Unexpected guild.");
 
@@ -45,7 +46,8 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
                     AND minute_count > 1300
                     AND first_joined_at <= (CURRENT_TIMESTAMP - INTERVAL '30 day')
                     AND last_spoke_at >= (CURRENT_TIMESTAMP - INTERVAL '365 day')
-                    """
+                    """,
+                    commandTimeout: CommandTimeout
                 )).ToList();
 
                 logger.LogDebug("Processing {Count} eligible users to add them to feedback.", members.Count);

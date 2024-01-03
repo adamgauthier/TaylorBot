@@ -4,12 +4,12 @@
   "options": [
     {
       "name": "play",
-      "description": "Risk some of your taypoints in an investment opportunity (50% odds of 2x profits)",
+      "description": "Risk some of your taypoints in an investment opportunity (50% chance to win)",
       "type": 1,
       "options": [
         {
           "name": "amount",
-          "description": "The amount of taypoints to risk",
+          "description": "The taypoints to risk (you will win or lose that amount)",
           "type": 3,
           "required": true
         }
