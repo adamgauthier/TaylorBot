@@ -4,7 +4,7 @@
   "options": [
     {
       "name": "play",
-      "description": "Risk some of your taypoints in an investment opportunity (50% chance to win)",
+      "description": "Risk some of your taypoints in an investment opportunity",
       "type": 1,
       "options": [
         {
@@ -12,6 +12,26 @@
           "description": "The taypoints to risk (you will win or lose that amount)",
           "type": 3,
           "required": true
+        },
+        {
+          "name": "level",
+          "description": "The level of risk (higher risk, higher reward), default Low",
+          "type": 3,
+          "required": false,
+          "choices": [
+            {
+              "name": "Low Risk (50% chance to win)",
+              "value": "low"
+            },
+            {
+              "name": "Moderate Risk (25% chance to win)",
+              "value": "moderate"
+            },
+            {
+              "name": "High Risk (10% chance to win)",
+              "value": "high"
+            }
+          ]
         }
       ]
     },

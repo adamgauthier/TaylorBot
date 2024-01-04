@@ -9,13 +9,21 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Infrastructure;
 
 public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IRiskStatsRepository
 {
-    public async Task<RiskResult> WinAsync(IUser user, ITaypointAmount amount)
+    public async Task<RiskResult> WinAsync(IUser user, ITaypointAmount amount, RiskLevel level)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
         using var transaction = connection.BeginTransaction();
 
-        var transfer = await RiskPostgresUtil.WinRiskAsync(payoutMultiplier: "1", connection, user.Id, amount);
+        var payoutMultiplier = level switch
+        {
+            RiskLevel.Low => "1",
+            RiskLevel.Moderate => "3",
+            RiskLevel.High => "9",
+            _ => throw new NotImplementedException(),
+        };
+
+        var transfer = await RiskPostgresUtil.WinRiskAsync(payoutMultiplier, connection, user.Id, amount);
 
         await connection.ExecuteAsync(
             """

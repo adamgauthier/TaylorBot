@@ -141,7 +141,7 @@ public class HeistPlaySlashCommand(
         var description =
             $"""
             ### {(won ? "The heist was a success!" : "The heist was a failure!")}
-            The **{results.Count}** person crew heads to the **{bank.bankName}**.
+            The **{results.Count}** person crew heads to the **{bank.bankName}**
             {(won ? $"All thanks to <@{randomPlayer.UserId}>, the heist went perfectly. 💯" : $"The cops busted the crew because {GetFailureReason(randomPlayer.UserId)}. 👮")}
             {string.Join('\n', results.Select(r =>
                 $"<@{r.UserId}> Invested {"taypoint".ToQuantity(r.InvestedCount, TaylorBotFormats.BoldReadable)}{(won ? $", made a profit of {r.ProfitCount.ToString(TaylorBotFormats.BoldReadable)}" : "")}, now has {r.FinalCount.ToString(TaylorBotFormats.Readable)}. {(won ? "💰" : "💸")}"))}

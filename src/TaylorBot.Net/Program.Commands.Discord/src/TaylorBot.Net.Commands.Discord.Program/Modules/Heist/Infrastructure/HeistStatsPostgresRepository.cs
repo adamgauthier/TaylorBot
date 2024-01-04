@@ -8,10 +8,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
 
 public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IHeistStatsRepository
 {
-    public record TaypointTransferDto(long invested_count, long final_count, long profit_count);
-
-    private record TaypointUpdateInfo(string Query, long AmountParam);
-
     public async Task<List<HeistResult>> WinHeistAsync(IList<HeistPlayer> players, string payoutMultiplier)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();

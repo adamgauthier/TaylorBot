@@ -9,17 +9,34 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskCommand) : TaylorBotModule
 {
     [Command("gamble")]
-    [Alias("supergamble", "sgamble")]
-    [Summary("Get a group together and attempt to heist a taypoint bank")]
+    [Summary("Risk some of your taypoints in an investment opportunity (50% chance to win)")]
     public async Task<RuntimeResult> RiskAsync(
-        [Summary("How much of your taypoints do you want to invest into heist equipment?")]
+        [Summary("How much of your taypoints do you want to invest into this risk?")]
         [Remainder]
         string amount
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            riskCommand.Play(context, Context.User, amount: null, amountString: amount),
+            riskCommand.Play(context, Context.User, RiskLevel.Low, amount: null, amountString: amount),
+            context
+        );
+
+        return new TaylorBotResult(result, context);
+    }
+
+    [Command("supergamble")]
+    [Alias("sgamble")]
+    [Summary("Risk some of your taypoints in an investment opportunity (10% chance to win)")]
+    public async Task<RuntimeResult> SuperRiskAsync(
+        [Summary("How much of your taypoints do you want to invest into this risk?")]
+        [Remainder]
+        string amount
+    )
+    {
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await commandRunner.RunAsync(
+            riskCommand.Play(context, Context.User, RiskLevel.High, amount: null, amountString: amount),
             context
         );
 

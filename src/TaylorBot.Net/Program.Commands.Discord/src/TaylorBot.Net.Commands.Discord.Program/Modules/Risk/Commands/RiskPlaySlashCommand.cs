@@ -18,7 +18,7 @@ public record RiskLeaderboardEntry(string user_id, string username, long gamble_
 public interface IRiskStatsRepository
 {
     Task<RiskProfile?> GetProfileAsync(IUser user);
-    Task<RiskResult> WinAsync(IUser user, ITaypointAmount amount);
+    Task<RiskResult> WinAsync(IUser user, ITaypointAmount amount, RiskLevel level);
     Task<RiskResult> LoseAsync(IUser user, ITaypointAmount amount);
     Task<IList<RiskLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
 }
@@ -27,9 +27,9 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("risk play");
 
-    public record Options(ITaypointAmount amount);
+    public record Options(ITaypointAmount amount, RiskLevel? level);
 
-    public Command Play(RunContext context, IUser author, ITaypointAmount? amount, string? amountString = null) => new(
+    public Command Play(RunContext context, IUser author, RiskLevel? level, ITaypointAmount? amount, string? amountString = null) => new(
         new(Info.Name),
         async () =>
         {
@@ -44,46 +44,42 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
             }
             ArgumentNullException.ThrowIfNull(amount);
 
-            var won = cryptoSecureRandom.GetInt32(0, 1) == 1;
+            level ??= RiskLevel.Low;
+
+            int winThreshold = level switch
+            {
+                RiskLevel.Low => 51,
+                RiskLevel.Moderate => 76,
+                RiskLevel.High => 91,
+                _ => throw new NotImplementedException(),
+            };
+
+            var randomNumber = cryptoSecureRandom.GetInt32(1, 100);
+
+            var won = randomNumber >= winThreshold;
 
             var result = won
-                ? await riskStatsRepository.WinAsync(author, amount)
+                ? await riskStatsRepository.WinAsync(author, amount, level.Value)
                 : await riskStatsRepository.LoseAsync(author, amount);
 
-            var originalCount = won
-                ? result.final_count - result.invested_count
-                : result.final_count + result.invested_count;
+            var originalCount = result.final_count - result.profit_count;
 
             var reason = pseudoRandom.GetRandomElement(won ? WinReasons : LoseReasons);
-
-            var balance = $"{"taypoint".ToQuantity(result.invested_count, TaylorBotFormats.Readable)} ({GetPercent(originalCount, result.invested_count):0%} of your balance)";
 
             var embed = new EmbedBuilder()
                 .WithColor(won ? TaylorBotColors.SuccessColor : TaylorBotColors.ErrorColor)
                 .WithDescription(
                     $"""
-                    ### Opportunity
+                    ### Opportunity ({level} Risk)
                     {reason.Opportunity}
-                    You invest: **{balance} 💵**
+                    You invest: **{"taypoint".ToQuantity(result.invested_count, TaylorBotFormats.Readable)} ({GetPercent(originalCount, result.invested_count):0%} of balance)** 💵
                     ### Outcome
+                    **{(result.profit_count >= 0 ? "🟢 +" : "🔴 —")}{"taypoint".ToQuantity(Math.Abs(result.profit_count), TaylorBotFormats.Readable)}**
                     {reason.Outcome} {(won ? "💰" : "💸")}
                     Your balance: {originalCount.ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(result.final_count, TaylorBotFormats.BoldReadable)} {(won ? "📈" : "📉")}
                     """);
 
-            if (amountString != null)
-            {
-                embed
-                    .WithUserAsAuthor(author)
-                    .WithDescription(
-                        $"""
-                        {embed.Description}
-
-                        This command is moving to 👉 </risk play:1190786063136993431> 👈 please use it instead 😊
-                        """);
-
-            }
-
-            return new EmbedResult(embed.Build());
+            return new EmbedResult(embed.Build(), PrefixCommandReply: true);
         }
     );
 
@@ -100,7 +96,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
             "To your surprise, the stocks soar!"),
         new(
             "A mysterious woman in an alley offers you a chance to invest in an unknown startup with promises of cutting-edge AI technology 🤖",
-            "It pays off as the startup becomes a tech giant!"),
+            "The startup becomes a tech giant!"),
         new(
             "While browsing a community board, you find a post discussing a new decentralized cryptocurrency 🪙",
             "The cryptocurrency gains widespread adoption!"),
@@ -109,7 +105,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
             "The platform becomes a massive success!"),
         new(
             "An anonymous message in a chat room hints at a hidden opportunity to invest in a futuristic energy project ⚡",
-            "The project turns out to be a groundbreaking success!"),
+            "The project is a groundbreaking success!"),
     ];
 
     private static readonly Reason[] LoseReasons = [
@@ -132,6 +128,6 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Play(context, context.User, options.amount));
+        return new(Play(context, context.User, options.level, options.amount));
     }
 }

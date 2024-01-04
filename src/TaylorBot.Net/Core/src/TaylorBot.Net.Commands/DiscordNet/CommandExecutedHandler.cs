@@ -35,7 +35,8 @@ public class CommandExecutedHandler(
                 {
                     case EmbedResult embedResult:
                         // Check for slash command-like errors and use message reply
-                        if (embedResult.Embed.Color == TaylorBotColors.ErrorColor && !embedResult.Embed.Author.HasValue)
+                        if ((embedResult.Embed.Color == TaylorBotColors.ErrorColor && !embedResult.Embed.Author.HasValue)
+                            || embedResult.PrefixCommandReply)
                         {
                             await context.Channel.SendMessageAsync(
                                 embed: embedResult.Embed,

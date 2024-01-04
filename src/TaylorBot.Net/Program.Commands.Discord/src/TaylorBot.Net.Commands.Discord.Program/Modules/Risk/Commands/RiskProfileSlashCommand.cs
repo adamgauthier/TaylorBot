@@ -34,7 +34,7 @@ public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) :
                     .WithThumbnailUrl(user.GetAvatarUrlOrDefault())
                     .AddField("Risks Won", $"{(hasPositiveRecord ? "🟢" : "🔴")} **{winRate:0%}** out of {"total risk".ToQuantity(totalRiskPlayed, TaylorBotFormats.BoldReadable)} played")
                     .AddField("Risk Profits",
-                        $"""                        
+                        $"""
                         **{(profits >= 0 ? "🟢 +" : "🔴 —")}{"taypoint".ToQuantity(Math.Abs(profits), TaylorBotFormats.Readable)}**
                         Won {"taypoint".ToQuantity(profile.gamble_win_amount, TaylorBotFormats.BoldReadable)} 📈
                         Lost {"taypoint".ToQuantity(profile.gamble_lose_amount, TaylorBotFormats.BoldReadable)} 📉
