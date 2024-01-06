@@ -20,7 +20,6 @@ export class CommandRegistry {
     async loadAll(): Promise<void> {
         const commands = [
             ...(await CommandLoader.loadAll()),
-            ...(await AttributeLoader.loadMemberAttributeCommands()),
             ...(await AttributeLoader.loadUserAttributeCommands())
         ];
 

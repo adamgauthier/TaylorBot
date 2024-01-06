@@ -1,7 +1,8 @@
 ﻿using Dapper;
 using Discord;
 using Npgsql;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Infrastructure;
@@ -11,7 +12,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
     private static async Task AddRpsStatsAsync(NpgsqlConnection connection, IUser user, int winCount, int drawCount, int loseCount)
     {
         await connection.ExecuteAsync(
-            $"""
+            """
             INSERT INTO users.rps_stats (user_id, rps_win_count, rps_draw_count, rps_lose_count)
             VALUES (@UserId, @WinCount, @DrawCount, @LoseCount)
             ON CONFLICT (user_id) DO UPDATE SET
@@ -38,19 +39,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
 
         await AddRpsStatsAsync(connection, user, winCount: 1, 0, 0);
 
-        await connection.ExecuteAsync(
-            """
-            UPDATE users.users
-            SET taypoint_count = taypoint_count + @PointsToAdd
-            WHERE user_id = @UserId
-            RETURNING taypoint_count;
-            """,
-            new
-            {
-                PointsToAdd = taypointReward,
-                UserId = $"{user.Id}",
-            }
-        );
+        await TaypointPostgresUtil.AddTaypointsAsync(connection, user.Id, taypointReward);
 
         transaction.Commit();
     }

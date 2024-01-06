@@ -65,6 +65,10 @@
       "rps": {
         "FriendlyName": "Playing rock paper scissors",
         "MaxUsesForUser": 6000
+      },
+      "roll": {
+        "FriendlyName": "Playing roll",
+        "MaxUsesForUser": 1989
       }
     }
   }

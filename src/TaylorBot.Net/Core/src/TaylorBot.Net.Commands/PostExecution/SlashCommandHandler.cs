@@ -191,17 +191,21 @@ public class SlashCommandHandler(
 
                     if (rateLimited.Uses < rateLimited.Limit + 6)
                     {
-                        baseDescriptionLines = baseDescriptionLines
-                            .Append("**Stop trying to perform this action or all your commands will be ignored.**")
-                            .ToArray();
+                        baseDescriptionLines =
+                        [
+                            .. baseDescriptionLines,
+                            "**Stop trying to perform this action or all your commands will be ignored.**"
+                        ];
                     }
                     else
                     {
                         var ignoreTime = TimeSpan.FromDays(5);
 
-                        baseDescriptionLines = baseDescriptionLines
-                            .Append($"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**")
-                            .ToArray();
+                        baseDescriptionLines =
+                        [
+                            .. baseDescriptionLines,
+                            $"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**",
+                        ];
 
                         await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
                     }

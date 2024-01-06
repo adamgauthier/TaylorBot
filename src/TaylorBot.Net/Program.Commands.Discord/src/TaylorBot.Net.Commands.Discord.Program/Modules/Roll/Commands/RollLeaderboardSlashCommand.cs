@@ -11,11 +11,11 @@ using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
 
-public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("rps leaderboard");
+    public ISlashCommandInfo Info => new MessageCommandInfo("roll leaderboard");
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -24,21 +24,21 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
             async () =>
             {
                 var guild = context.Guild!;
-                var leaderboard = await rpsStatsRepository.GetLeaderboardAsync(guild);
+                var leaderboard = await rollStatsRepository.GetLeaderboardAsync(guild);
 
                 memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(RpsLeaderboardSlashCommand),
+                    nameof(RollLeaderboardSlashCommand),
                     guild,
                     leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                    entry => $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.rps_win_count, TaylorBotFormats.BoldReadable)}"
+                    entry => $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: {"perfect roll".ToQuantity(entry.perfect_roll_count, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithGuildAsAuthor(guild)
-                    .WithTitle("Rps Wins Leaderboard ✂️");
+                    .WithTitle("Roll Leaderboard 🍀");
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(
@@ -47,8 +47,8 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
                         hasPageFooter: true,
                         emptyText:
                         $"""
-                        No rps played by members of this server.
-                        Members need to use {context.MentionCommand("rps play")}! 😊
+                        No roll played by members of this server.
+                        Members need to use {context.MentionCommand("roll play")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();

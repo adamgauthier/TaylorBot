@@ -59,6 +59,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Domain;
@@ -330,6 +333,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<RiskPlaySlashCommand>()
             .AddSlashCommand<RiskProfileSlashCommand>()
             .AddSlashCommand<RiskLeaderboardSlashCommand>()
+            .AddTransient<IRollStatsRepository, RollStatsPostgresRepository>()
+            .AddSlashCommand<RollPlaySlashCommand>()
+            .AddSlashCommand<RollProfileSlashCommand>()
+            .AddSlashCommand<RollLeaderboardSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

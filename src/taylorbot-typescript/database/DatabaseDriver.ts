@@ -6,8 +6,6 @@ const pgp = pgPromise({
 
 import PostgreSQLConfig = require('../config/postgresql.json');
 
-import { UserDAO } from './dao/UserDAO';
-
 import { GuildRepository } from './repositories/GuildRepository';
 import { UserRepository } from './repositories/UserRepository';
 import { GuildMemberRepository } from './repositories/GuildMemberRepository';
@@ -20,7 +18,6 @@ import { RoleGroupRepository } from './repositories/RoleGroupRepository';
 import { TextChannelRepository } from './repositories/TextChannelRepository';
 import { AttributeRepository } from './repositories/AttributeRepository';
 import { TextAttributeRepository } from './repositories/TextAttributeRepository';
-import { RollStatsRepository } from './repositories/RollStatsRepository';
 import { ChannelCommandRepository } from './repositories/ChannelCommandRepository';
 import { EnvUtil } from '../modules/util/EnvUtil';
 
@@ -44,7 +41,6 @@ export class DatabaseDriver {
     readonly textChannels: TextChannelRepository;
     readonly attributes: AttributeRepository;
     readonly textAttributes: TextAttributeRepository;
-    readonly rollStats: RollStatsRepository;
     readonly channelCommands: ChannelCommandRepository;
 
     constructor() {
@@ -60,11 +56,9 @@ export class DatabaseDriver {
         });
         const helpers = pgp.helpers;
 
-        const usersDAO = new UserDAO();
-
         this.guilds = new GuildRepository(db);
         this.users = new UserRepository(db);
-        this.guildMembers = new GuildMemberRepository(db, helpers);
+        this.guildMembers = new GuildMemberRepository(db);
         this.usernames = new UsernameRepository(db);
         this.guildNames = new GuildNameRepository(db);
         this.guildCommands = new GuildCommandRepository(db);
@@ -74,7 +68,6 @@ export class DatabaseDriver {
         this.textChannels = new TextChannelRepository(db);
         this.attributes = new AttributeRepository(db, helpers);
         this.textAttributes = new TextAttributeRepository(db);
-        this.rollStats = new RollStatsRepository(db, usersDAO);
         this.channelCommands = new ChannelCommandRepository(db);
     }
 }

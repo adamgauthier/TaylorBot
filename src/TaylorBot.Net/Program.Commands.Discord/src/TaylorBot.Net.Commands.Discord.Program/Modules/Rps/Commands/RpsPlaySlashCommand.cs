@@ -1,12 +1,13 @@
 ﻿using Discord;
 using Humanizer;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Random;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
 public record RpsProfile(int rps_win_count, int rps_draw_count, int rps_lose_count);
 

@@ -1,10 +1,9 @@
 import { AttributeLoader } from '../../attributes/AttributeLoader.js';
 import { Log } from '../../tools/Logger';
 import { DatabaseDriver } from '../../database/DatabaseDriver.js';
-import { MemberAttribute } from '../../attributes/MemberAttribute.js';
 import { UserAttribute } from '../../attributes/UserAttribute.js';
 
-export class AttributeRegistry extends Map<string, string | MemberAttribute | UserAttribute> {
+export class AttributeRegistry extends Map<string, string | UserAttribute> {
     #database: DatabaseDriver;
     constructor(database: DatabaseDriver) {
         super();
@@ -14,10 +13,7 @@ export class AttributeRegistry extends Map<string, string | MemberAttribute | Us
     async loadAll(): Promise<void> {
         const databaseAttributes = await this.#database.attributes.getAll();
 
-        const attributes = [
-            ...(await AttributeLoader.loadMemberAttributes()),
-            ...(await AttributeLoader.loadUserAttributes())
-        ];
+        const attributes = await AttributeLoader.loadUserAttributes();
 
         const fileAttributesNotInDatabase = attributes.map(a => ({ id: a.id }))
             .filter(
@@ -37,7 +33,7 @@ export class AttributeRegistry extends Map<string, string | MemberAttribute | Us
         attributes.forEach(c => this.cacheAttribute(c));
     }
 
-    cacheAttribute(attribute: MemberAttribute | UserAttribute): void {
+    cacheAttribute(attribute: UserAttribute): void {
         const key = attribute.id.toLowerCase();
 
         if (this.has(key))
@@ -55,7 +51,7 @@ export class AttributeRegistry extends Map<string, string | MemberAttribute | Us
         }
     }
 
-    getAttribute(id: string): MemberAttribute | UserAttribute {
+    getAttribute(id: string): UserAttribute {
         const attribute = this.get(id);
 
         if (!attribute)
@@ -67,7 +63,7 @@ export class AttributeRegistry extends Map<string, string | MemberAttribute | Us
         return attribute;
     }
 
-    resolve(attributeName: string): MemberAttribute | UserAttribute | undefined {
+    resolve(attributeName: string): UserAttribute | undefined {
         const attribute = this.get(attributeName.toLowerCase());
 
         if (typeof (attribute) === 'string') {

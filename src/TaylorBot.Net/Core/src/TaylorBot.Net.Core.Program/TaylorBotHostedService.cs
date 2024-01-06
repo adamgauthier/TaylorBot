@@ -9,21 +9,12 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Core.Program;
 
-public class TaylorBotHostedService : IHostedService
+public class TaylorBotHostedService(IServiceProvider services) : IHostedService
 {
     private const GatewayIntents IntentMessageContent = (GatewayIntents)(1 << 15);
-
-    private readonly IServiceProvider _services;
-    private readonly ILogger<TaylorBotHostedService> _logger;
-    private readonly TaskExceptionLogger _taskExceptionLogger;
+    private readonly ILogger<TaylorBotHostedService> _logger = services.GetRequiredService<ILogger<TaylorBotHostedService>>();
+    private readonly TaskExceptionLogger _taskExceptionLogger = services.GetRequiredService<TaskExceptionLogger>();
     private ITaylorBotClient? _client;
-
-    public TaylorBotHostedService(IServiceProvider services)
-    {
-        _services = services;
-        _logger = services.GetRequiredService<ILogger<TaylorBotHostedService>>();
-        _taskExceptionLogger = services.GetRequiredService<TaskExceptionLogger>();
-    }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -39,9 +30,9 @@ public class TaylorBotHostedService : IHostedService
         var intents = registrars.SelectMany(r => r.Intents).Distinct().ToList();
         var flaggedIntents = (GatewayIntents)(object)intents.Cast<int>().Aggregate(0, (acc, intent) => acc |= intent);
 
-        _services.GetRequiredService<DiscordSocketConfig>().GatewayIntents = flaggedIntents;
+        services.GetRequiredService<DiscordSocketConfig>().GatewayIntents = flaggedIntents;
 
-        _client = _services.GetRequiredService<ITaylorBotClient>();
+        _client = services.GetRequiredService<ITaylorBotClient>();
 
         foreach (var registrar in registrars)
         {
@@ -65,27 +56,19 @@ public class TaylorBotHostedService : IHostedService
         }
     }
 
-    private class EventHandlerRegistrar
+    private class EventHandlerRegistrar(Action<ITaylorBotClient> register, GatewayIntents[]? intents = null)
     {
-        private readonly Action<ITaylorBotClient> _register;
-
-        public GatewayIntents[] Intents { get; }
-
-        public EventHandlerRegistrar(Action<ITaylorBotClient> register, GatewayIntents[]? intents = null)
-        {
-            _register = register;
-            Intents = intents ?? Array.Empty<GatewayIntents>();
-        }
+        public GatewayIntents[] Intents { get; } = intents ?? [];
 
         public void RegisterEventHandler(ITaylorBotClient taylorBotClient)
         {
-            _register(taylorBotClient);
+            register(taylorBotClient);
         }
     }
 
     private IEnumerable<EventHandlerRegistrar> GetBaseRegistrars()
     {
-        var shardReadyHandler = _services.GetService<IShardReadyHandler>();
+        var shardReadyHandler = services.GetService<IShardReadyHandler>();
         if (shardReadyHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -95,10 +78,10 @@ public class TaylorBotHostedService : IHostedService
                         await shardReadyHandler.ShardReadyAsync(socketClient),
                         nameof(IShardReadyHandler)
                     );
-            }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMembers });
+            }, [GatewayIntents.Guilds, GatewayIntents.GuildMembers]);
         }
 
-        var allReadyHandler = _services.GetService<IAllReadyHandler>();
+        var allReadyHandler = services.GetService<IAllReadyHandler>();
         if (allReadyHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -108,10 +91,10 @@ public class TaylorBotHostedService : IHostedService
                         await allReadyHandler.AllShardsReadyAsync(),
                         nameof(IAllReadyHandler)
                     );
-            }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMembers });
+            }, [GatewayIntents.Guilds, GatewayIntents.GuildMembers]);
         }
 
-        var interactionHandler = _services.GetService<IInteractionCreatedHandler>();
+        var interactionHandler = services.GetService<IInteractionCreatedHandler>();
         if (interactionHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -121,13 +104,13 @@ public class TaylorBotHostedService : IHostedService
                         await interactionHandler.InteractionCreatedAsync(interaction),
                         nameof(IInteractionCreatedHandler)
                     );
-            }, new[] { GatewayIntents.Guilds, GatewayIntents.GuildMembers });
+            }, [GatewayIntents.Guilds, GatewayIntents.GuildMembers]);
         }
     }
 
     private IEnumerable<EventHandlerRegistrar> GetMessageRegistrars()
     {
-        var messageReceivedHandler = _services.GetService<IMessageReceivedHandler>();
+        var messageReceivedHandler = services.GetService<IMessageReceivedHandler>();
         if (messageReceivedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -139,10 +122,10 @@ public class TaylorBotHostedService : IHostedService
                         nameof(IMessageReceivedHandler)
                     );
                 };
-            }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+            }, [IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages]);
         }
 
-        var userMessageReceivedHandler = _services.GetService<IUserMessageReceivedHandler>();
+        var userMessageReceivedHandler = services.GetService<IUserMessageReceivedHandler>();
         if (userMessageReceivedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -157,10 +140,10 @@ public class TaylorBotHostedService : IHostedService
                         );
                     }
                 };
-            }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+            }, [IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages]);
         }
 
-        var messageDeletedHandler = _services.GetService<IMessageDeletedHandler>();
+        var messageDeletedHandler = services.GetService<IMessageDeletedHandler>();
         if (messageDeletedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -172,11 +155,11 @@ public class TaylorBotHostedService : IHostedService
                         nameof(IMessageDeletedHandler)
                     );
                 };
-            }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+            }, [IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages]);
 
         }
 
-        var messageBulkDeletedHandler = _services.GetService<IMessageBulkDeletedHandler>();
+        var messageBulkDeletedHandler = services.GetService<IMessageBulkDeletedHandler>();
         if (messageBulkDeletedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -188,10 +171,10 @@ public class TaylorBotHostedService : IHostedService
                         nameof(IMessageBulkDeletedHandler)
                     );
                 };
-            }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+            }, [IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages]);
         }
 
-        var messageUpdatedHandler = _services.GetService<IMessageUpdatedHandler>();
+        var messageUpdatedHandler = services.GetService<IMessageUpdatedHandler>();
         if (messageUpdatedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -203,13 +186,13 @@ public class TaylorBotHostedService : IHostedService
                         nameof(IMessageUpdatedHandler)
                     );
                 };
-            }, new[] { IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages });
+            }, [IntentMessageContent, GatewayIntents.Guilds, GatewayIntents.GuildMessages, GatewayIntents.DirectMessages]);
         }
     }
 
     private IEnumerable<EventHandlerRegistrar> GetReactionsRegistrars()
     {
-        var reactionAddedHandler = _services.GetService<IReactionAddedHandler>();
+        var reactionAddedHandler = services.GetService<IReactionAddedHandler>();
         if (reactionAddedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -219,10 +202,10 @@ public class TaylorBotHostedService : IHostedService
                         await reactionAddedHandler.ReactionAddedAsync(message, channel, reaction),
                         nameof(IReactionAddedHandler)
                     );
-            }, new[] { GatewayIntents.GuildMessageReactions, GatewayIntents.DirectMessageReactions });
+            }, [GatewayIntents.GuildMessageReactions, GatewayIntents.DirectMessageReactions]);
         }
 
-        var reactionRemovedHandler = _services.GetService<IReactionRemovedHandler>();
+        var reactionRemovedHandler = services.GetService<IReactionRemovedHandler>();
         if (reactionRemovedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -232,13 +215,13 @@ public class TaylorBotHostedService : IHostedService
                         await reactionRemovedHandler.ReactionRemovedAsync(message, channel, reaction),
                         nameof(IReactionRemovedHandler)
                     );
-            }, new[] { GatewayIntents.GuildMessageReactions, GatewayIntents.DirectMessageReactions });
+            }, [GatewayIntents.GuildMessageReactions, GatewayIntents.DirectMessageReactions]);
         }
     }
 
     private IEnumerable<EventHandlerRegistrar> GetGuildsRegistrars()
     {
-        foreach (var joinedGuildHandler in _services.GetServices<IJoinedGuildHandler>())
+        foreach (var joinedGuildHandler in services.GetServices<IJoinedGuildHandler>())
         {
             yield return new EventHandlerRegistrar((client) =>
             {
@@ -247,10 +230,10 @@ public class TaylorBotHostedService : IHostedService
                         await joinedGuildHandler.JoinedGuildAsync(guild),
                         nameof(IJoinedGuildHandler)
                     );
-            }, new[] { GatewayIntents.Guilds });
+            }, [GatewayIntents.Guilds]);
         }
 
-        var guildUpdatedHandler = _services.GetService<IGuildUpdatedHandler>();
+        var guildUpdatedHandler = services.GetService<IGuildUpdatedHandler>();
         if (guildUpdatedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -260,10 +243,10 @@ public class TaylorBotHostedService : IHostedService
                         await guildUpdatedHandler.GuildUpdatedAsync(oldGuild, newGuild),
                         nameof(IGuildUpdatedHandler)
                     );
-            }, new[] { GatewayIntents.Guilds });
+            }, [GatewayIntents.Guilds]);
         }
 
-        var textChannelCreatedHandler = _services.GetService<ITextChannelCreatedHandler>();
+        var textChannelCreatedHandler = services.GetService<ITextChannelCreatedHandler>();
         if (textChannelCreatedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -278,13 +261,13 @@ public class TaylorBotHostedService : IHostedService
                         );
                     }
                 };
-            }, new[] { GatewayIntents.Guilds });
+            }, [GatewayIntents.Guilds]);
         }
     }
 
     private IEnumerable<EventHandlerRegistrar> GetGuildMembersRegistrars()
     {
-        var userUpdatedHandler = _services.GetService<IUserUpdatedHandler>();
+        var userUpdatedHandler = services.GetService<IUserUpdatedHandler>();
         if (userUpdatedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -294,10 +277,10 @@ public class TaylorBotHostedService : IHostedService
                         await userUpdatedHandler.UserUpdatedAsync(oldUser, newUser),
                         nameof(IUserUpdatedHandler)
                     );
-            }, new[] { GatewayIntents.GuildMembers });
+            }, [GatewayIntents.GuildMembers]);
         }
 
-        var guildUserJoinedHandler = _services.GetService<IGuildUserJoinedHandler>();
+        var guildUserJoinedHandler = services.GetService<IGuildUserJoinedHandler>();
         if (guildUserJoinedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -307,10 +290,10 @@ public class TaylorBotHostedService : IHostedService
                         await guildUserJoinedHandler.GuildUserJoinedAsync(guildUser),
                         nameof(IGuildUserJoinedHandler)
                     );
-            }, new[] { GatewayIntents.GuildMembers });
+            }, [GatewayIntents.GuildMembers]);
         }
 
-        var guildUserLeftHandler = _services.GetService<IGuildUserLeftHandler>();
+        var guildUserLeftHandler = services.GetService<IGuildUserLeftHandler>();
         if (guildUserLeftHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -322,13 +305,13 @@ public class TaylorBotHostedService : IHostedService
                         nameof(IGuildUserLeftHandler)
                     );
                 };
-            }, new[] { GatewayIntents.GuildMembers });
+            }, [GatewayIntents.GuildMembers]);
         }
     }
 
     private IEnumerable<EventHandlerRegistrar> GetGuildBansRegistrars()
     {
-        var guildUserBannedHandler = _services.GetService<IGuildUserBannedHandler>();
+        var guildUserBannedHandler = services.GetService<IGuildUserBannedHandler>();
         if (guildUserBannedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -338,10 +321,10 @@ public class TaylorBotHostedService : IHostedService
                         await guildUserBannedHandler.GuildUserBannedAsync(user, guild),
                         nameof(IGuildUserBannedHandler)
                     );
-            }, new[] { GatewayIntents.GuildBans });
+            }, [GatewayIntents.GuildBans]);
         }
 
-        var guildUserUnbannedHandler = _services.GetService<IGuildUserUnbannedHandler>();
+        var guildUserUnbannedHandler = services.GetService<IGuildUserUnbannedHandler>();
         if (guildUserUnbannedHandler != null)
         {
             yield return new EventHandlerRegistrar((client) =>
@@ -351,7 +334,7 @@ public class TaylorBotHostedService : IHostedService
                         await guildUserUnbannedHandler.GuildUserUnbannedAsync(user, guild),
                         nameof(IGuildUserUnbannedHandler)
                     );
-            }, new[] { GatewayIntents.GuildBans });
+            }, [GatewayIntents.GuildBans]);
         }
     }
 }
