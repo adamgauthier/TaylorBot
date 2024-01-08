@@ -4,7 +4,7 @@ This repository is the home of the source code to TaylorBot, a multi-purpose Dis
 
 ## Components
 
-TaylorBot is made up of multiple components, which are mostly built and run using [Docker](https://www.docker.com/) containers, connected through the use of a Docker network. This architecture allows most features to remain online while another component is being updated or is having issues. The use of containers means you can run all components locally regardless of your OS environment, assuming you have Docker installed on your machine.
+TaylorBot is made up of multiple components, which are mostly built and run using [Docker](https://www.docker.com/) containers, connected through the use of a Docker network. This architecture allows most features to remain online while a component is experiencing downtime. The use of containers means you can run all components locally regardless of your OS environment, assuming you have Docker installed on your machine.
 
 ### postgres
 
@@ -12,7 +12,7 @@ TaylorBot is made up of multiple components, which are mostly built and run usin
 
 ### redis-commands
 
-[taylorbot-redis-commands](./src/linux-infrastructure/redis/redis-commands) is a [Redis](https://redis.io/) server used as a cache for select heavily fetched data from `taylorbot-postgres`. Caching avoids frequent round-trips to the database, which could significantly impact performance as multiple requests are needed for every used command.
+[taylorbot-redis-commands](./src/linux-infrastructure/redis/redis-commands) is a [Redis](https://redis.io/) server used as a cache for heavily fetched data from `taylorbot-postgres`. Caching avoids frequent round-trips to the database, which could significantly impact performance.
 
 ### entity-tracker
 
@@ -25,10 +25,6 @@ TaylorBot is made up of multiple components, which are mostly built and run usin
 ### commands-discord
 
 [taylorbot-commands-discord](./src/TaylorBot.Net) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are responding to interactions (slash commands) and legacy prefixed commands.
-
-### commands-attributes
-
-[taylorbot-commands-attributes](./src/taylorbot-typescript) is a [Node.js](https://nodejs.org/) application based on [discord.js](https://github.com/discordjs/discord.js). Its main responsibility is responding to legacy prefixed commands. It used to be the only component and has slowly reduced in size as more and more features are moved to the .NET components.
 
 ### linux-infrastructure
 
