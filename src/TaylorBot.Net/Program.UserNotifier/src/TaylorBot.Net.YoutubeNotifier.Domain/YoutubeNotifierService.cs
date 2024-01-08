@@ -7,32 +7,15 @@ using TaylorBot.Net.YoutubeNotifier.Domain.Options;
 
 namespace TaylorBot.Net.YoutubeNotifier.Domain;
 
-public class YoutubeNotifierService
-{
-    private readonly ILogger<YoutubeNotifierService> _logger;
-    private readonly IOptionsMonitor<YoutubeNotifierOptions> _optionsMonitor;
-    private readonly IYoutubeCheckerRepository _youtubeCheckerRepository;
-    private readonly YouTubeService _youtubeService;
-    private readonly YoutubePostToEmbedMapper _youtubePostToEmbedMapper;
-    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
-
-    public YoutubeNotifierService(
-        ILogger<YoutubeNotifierService> logger,
-        IOptionsMonitor<YoutubeNotifierOptions> optionsMonitor,
-        IYoutubeCheckerRepository youtubeCheckerRepository,
-        YouTubeService youtubeService,
-        YoutubePostToEmbedMapper youtubePostToEmbedMapper,
-        Lazy<ITaylorBotClient> taylorBotClient
+public class YoutubeNotifierService(
+    ILogger<YoutubeNotifierService> logger,
+    IOptionsMonitor<YoutubeNotifierOptions> optionsMonitor,
+    IYoutubeCheckerRepository youtubeCheckerRepository,
+    YouTubeService youtubeService,
+    YoutubePostToEmbedMapper youtubePostToEmbedMapper,
+    Lazy<ITaylorBotClient> taylorBotClient
     )
-    {
-        _logger = logger;
-        _optionsMonitor = optionsMonitor;
-        _youtubeCheckerRepository = youtubeCheckerRepository;
-        _youtubeService = youtubeService;
-        _youtubePostToEmbedMapper = youtubePostToEmbedMapper;
-        _taylorBotClient = taylorBotClient;
-    }
-
+{
     public async Task StartCheckingYoutubesAsync()
     {
         while (true)
@@ -43,26 +26,26 @@ public class YoutubeNotifierService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in {nameof(CheckAllYoutubesAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(CheckAllYoutubesAsync)}.");
             }
-            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
 
     public async ValueTask CheckAllYoutubesAsync()
     {
-        foreach (var youtubeChecker in await _youtubeCheckerRepository.GetYoutubeCheckersAsync())
+        foreach (var youtubeChecker in await youtubeCheckerRepository.GetYoutubeCheckersAsync())
         {
             try
             {
-                var channel = _taylorBotClient.Value.ResolveRequiredGuild(youtubeChecker.GuildId).GetRequiredTextChannel(youtubeChecker.ChannelId);
+                var channel = taylorBotClient.Value.ResolveRequiredGuild(youtubeChecker.GuildId).GetRequiredTextChannel(youtubeChecker.ChannelId);
 
-                var request = _youtubeService.PlaylistItems.List(part: "snippet");
+                var request = youtubeService.PlaylistItems.List(part: "snippet");
                 request.PlaylistId = youtubeChecker.PlaylistId;
                 var response = await request.ExecuteAsync();
                 var newestPost = response.Items.First().Snippet;
 
-                _logger.LogTrace($"Checking if Youtube post '{newestPost.ResourceId.VideoId}' for {youtubeChecker} is new.");
+                logger.LogTrace($"Checking if Youtube post '{newestPost.ResourceId.VideoId}' for {youtubeChecker} is new.");
 
                 if (youtubeChecker.LastVideoId == null || (
                     newestPost.ResourceId.VideoId != youtubeChecker.LastVideoId &&
@@ -70,17 +53,17 @@ public class YoutubeNotifierService
                     newestPost.PublishedAt.Value > youtubeChecker.LastPublishedAt.Value)
                 ))
                 {
-                    _logger.LogDebug($"Found new Youtube post for {youtubeChecker}: '{newestPost.ResourceId.VideoId}'.");
-                    await channel.SendMessageAsync(embed: _youtubePostToEmbedMapper.ToEmbed(newestPost));
-                    await _youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
+                    logger.LogDebug($"Found new Youtube post for {youtubeChecker}: '{newestPost.ResourceId.VideoId}'.");
+                    await channel.SendMessageAsync(embed: youtubePostToEmbedMapper.ToEmbed(newestPost));
+                    await youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"Exception occurred when checking {youtubeChecker}.");
+                logger.LogError(exception, $"Exception occurred when checking {youtubeChecker}.");
             }
 
-            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
 }

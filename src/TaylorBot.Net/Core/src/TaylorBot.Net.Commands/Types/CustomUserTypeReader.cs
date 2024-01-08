@@ -8,28 +8,13 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Types;
 
-public class CustomUserTypeReader<T> : TypeReader
+public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTypeReader, IUserTracker userTracker) : TypeReader
     where T : class, IUser
 {
-    private readonly MentionedUserTypeReader<T> _mentionedUserTypeReader;
-    private readonly IUserTracker _userTracker;
-
-    public CustomUserTypeReader(MentionedUserTypeReader<T> mentionedUserTypeReader, IUserTracker userTracker)
+    private class UserVal<U>(IUserArgument<U> userArgument, float score) where U : class, IUser
     {
-        _mentionedUserTypeReader = mentionedUserTypeReader;
-        _userTracker = userTracker;
-    }
-
-    private class UserVal<U> where U : class, IUser
-    {
-        public IUserArgument<U> UserArgument { get; }
-        public float Score { get; }
-
-        public UserVal(IUserArgument<U> userArgument, float score)
-        {
-            UserArgument = userArgument;
-            Score = score;
-        }
+        public IUserArgument<U> UserArgument { get; } = userArgument;
+        public float Score { get; } = score;
     }
 
     private void AddResultIfTypeMatches(Dictionary<ulong, UserVal<T>> results, IUser user, float score)
@@ -41,7 +26,7 @@ public class CustomUserTypeReader<T> : TypeReader
                 if (score > currentVal.Score)
                 {
                     results[casted.Id] = new UserVal<T>(
-                        new UserArgument<T>(casted, _userTracker),
+                        new UserArgument<T>(casted, userTracker),
                         score
                     );
                 }
@@ -49,7 +34,7 @@ public class CustomUserTypeReader<T> : TypeReader
             else
             {
                 results.Add(casted.Id, new UserVal<T>(
-                    new UserArgument<T>(casted, _userTracker),
+                    new UserArgument<T>(casted, userTracker),
                     score
                 ));
             }
@@ -68,7 +53,7 @@ public class CustomUserTypeReader<T> : TypeReader
 
 
         // By Mention (1.0)
-        var mentionned = await _mentionedUserTypeReader.ReadAsync(context, input, services);
+        var mentionned = await mentionedUserTypeReader.ReadAsync(context, input, services);
         if (mentionned.Values != null)
         {
             var result = (IUserArgument<T>)mentionned.BestMatch;

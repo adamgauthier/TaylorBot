@@ -5,17 +5,8 @@ using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events;
 
-public class GuildUserLeftHandler : IGuildUserLeftHandler
+public class GuildUserLeftHandler(TaskExceptionLogger taskExceptionLogger, EntityTrackerDomainService entityTrackerDomainService) : IGuildUserLeftHandler
 {
-    private readonly TaskExceptionLogger taskExceptionLogger;
-    private readonly EntityTrackerDomainService entityTrackerDomainService;
-
-    public GuildUserLeftHandler(TaskExceptionLogger taskExceptionLogger, EntityTrackerDomainService entityTrackerDomainService)
-    {
-        this.taskExceptionLogger = taskExceptionLogger;
-        this.entityTrackerDomainService = entityTrackerDomainService;
-    }
-
     public Task GuildUserLeftAsync(SocketGuild guild, SocketUser user)
     {
         Task.Run(async () => await taskExceptionLogger.LogOnError(

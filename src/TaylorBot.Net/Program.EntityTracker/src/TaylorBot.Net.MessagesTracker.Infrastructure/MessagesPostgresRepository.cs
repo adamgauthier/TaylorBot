@@ -6,23 +6,14 @@ using TaylorBot.Net.MessagesTracker.Domain;
 
 namespace TaylorBot.Net.MessagesTracker.Infrastructure;
 
-public class MessagesPostgresRepository : IMessageRepository
+public class MessagesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ConnectionMultiplexer connectionMultiplexer) : IMessageRepository
 {
     private const string MessageCountIncrementsHashKey = "member-message-count-increments";
     private const string WordCountIncrementsHashKey = "member-word-count-increments";
 
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-
-    public MessagesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ConnectionMultiplexer connectionMultiplexer)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-        _connectionMultiplexer = connectionMultiplexer;
-    }
-
     public async ValueTask QueueAddMessagesAndWordsAsync(IGuildUser guildUser, long messageCountToAdd, long wordCountToAdd)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var transaction = redis.CreateTransaction();
         var hashKey = $"guild:{guildUser.GuildId}:user:{guildUser.Id}";
 
@@ -36,7 +27,7 @@ public class MessagesPostgresRepository : IMessageRepository
 
     public async ValueTask PersistQueuedMessagesAndWordsAsync()
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
 
         var messageTempKey = $"{MessageCountIncrementsHashKey}:{Guid.NewGuid():N}";
         var messageRenameSucceeded = await TryRenameKeyAsync(redis, MessageCountIncrementsHashKey, messageTempKey);
@@ -67,7 +58,7 @@ public class MessagesPostgresRepository : IMessageRepository
 
             foreach (var entry in grouped)
             {
-                await using var connection = _postgresConnectionFactory.CreateConnection();
+                await using var connection = postgresConnectionFactory.CreateConnection();
 
                 await connection.ExecuteAsync(
                     @"UPDATE guilds.guild_members SET

@@ -6,15 +6,8 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
 
-public class TaypointWillPostgresRepository : ITaypointWillRepository
+public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointWillRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public TaypointWillPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class WillGetDto
     {
         public string beneficiary_user_id { get; set; } = null!;
@@ -23,7 +16,7 @@ public class TaypointWillPostgresRepository : ITaypointWillRepository
 
     public async ValueTask<Will?> GetWillAsync(IUser owner)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var willDto = await connection.QuerySingleOrDefaultAsync<WillGetDto?>(
             @"SELECT beneficiary_user_id, username
@@ -49,7 +42,7 @@ public class TaypointWillPostgresRepository : ITaypointWillRepository
 
     public async ValueTask<IWillAddResult> AddWillAsync(IUser owner, IUser beneficiary)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var willAddDto = await connection.QuerySingleAsync<WillAddDto>(
             @"WITH insert_will AS (
@@ -89,7 +82,7 @@ public class TaypointWillPostgresRepository : ITaypointWillRepository
 
     public async ValueTask<IWillRemoveResult> RemoveWillWithOwnerAsync(IUser owner)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var willRemoveDto = await connection.QuerySingleOrDefaultAsync<WillRemoveDto>(
             @"WITH delete_will AS (
@@ -128,7 +121,7 @@ public class TaypointWillPostgresRepository : ITaypointWillRepository
 
     public async ValueTask<IReadOnlyCollection<WillOwner>> GetWillsWithBeneficiaryAsync(IUser beneficiary)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var willDtos = await connection.QueryAsync<WillWithBeneficiaryDto>(
             @"SELECT DISTINCT ON (user_id) user_id, last_spoke_at AS max_last_spoke_at, owner_username
@@ -162,7 +155,7 @@ public class TaypointWillPostgresRepository : ITaypointWillRepository
 
     public async ValueTask<IReadOnlyCollection<Transfer>> TransferAllPointsAsync(IReadOnlyCollection<SnowflakeId> fromUserIds, IUser toUser)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var transferDtos = await connection.QueryAsync<TransferDto>(
             @"WITH
@@ -200,7 +193,7 @@ public class TaypointWillPostgresRepository : ITaypointWillRepository
 
     public async ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"DELETE FROM users.taypoint_wills

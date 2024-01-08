@@ -2,22 +2,13 @@
 
 namespace TaylorBot.Net.YoutubeNotifier.Domain;
 
-public class YoutubeChecker
+public class YoutubeChecker(SnowflakeId guildId, SnowflakeId channelId, string playlistId, string? lastVideoId, DateTimeOffset? lastPublishedAt)
 {
-    public SnowflakeId GuildId { get; }
-    public SnowflakeId ChannelId { get; }
-    public string PlaylistId { get; }
-    public string? LastVideoId { get; }
-    public DateTimeOffset? LastPublishedAt { get; }
-
-    public YoutubeChecker(SnowflakeId guildId, SnowflakeId channelId, string playlistId, string? lastVideoId, DateTimeOffset? lastPublishedAt)
-    {
-        GuildId = guildId;
-        ChannelId = channelId;
-        PlaylistId = playlistId;
-        LastVideoId = lastVideoId;
-        LastPublishedAt = lastPublishedAt;
-    }
+    public SnowflakeId GuildId { get; } = guildId;
+    public SnowflakeId ChannelId { get; } = channelId;
+    public string PlaylistId { get; } = playlistId;
+    public string? LastVideoId { get; } = lastVideoId;
+    public DateTimeOffset? LastPublishedAt { get; } = lastPublishedAt;
 
     public override string ToString()
     {

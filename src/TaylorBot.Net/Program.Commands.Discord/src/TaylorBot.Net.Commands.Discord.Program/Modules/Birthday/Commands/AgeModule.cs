@@ -7,17 +7,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
 [Name("Age")]
-public class AgeModule : TaylorBotModule
+public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand birthdayShowCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly BirthdayShowSlashCommand _birthdayShowCommand;
-
-    public AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand birthdayShowCommand)
-    {
-        _commandRunner = commandRunner;
-        _birthdayShowCommand = birthdayShowCommand;
-    }
-
     [Command("age")]
     [Summary("This command has been moved to 👉 </birthday age:1016938623880400907> 👈 Please use it instead! 😊")]
     public async Task<RuntimeResult> ShowAgeAsync(
@@ -34,7 +25,7 @@ public class AgeModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -57,7 +48,7 @@ public class AgeModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -78,7 +69,7 @@ public class AgeModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -97,8 +88,8 @@ public class AgeModule : TaylorBotModule
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _birthdayShowCommand.Birthday(u, context.CreatedAt, context: null),
+        var result = await commandRunner.RunAsync(
+            birthdayShowCommand.Birthday(u, context.CreatedAt, context: null),
             context
         );
 
@@ -122,7 +113,7 @@ public class AgeModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -144,7 +135,7 @@ public class AgeModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

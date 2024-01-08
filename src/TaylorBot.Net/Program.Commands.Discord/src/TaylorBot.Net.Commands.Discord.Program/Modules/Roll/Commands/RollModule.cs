@@ -25,7 +25,7 @@ public class RollModule(ICommandRunner commandRunner, RollPlaySlashCommand playC
 
     [Command("rolls")]
     [Alias("perfectrolls", "prolls", "1989rolls")]
-    [Summary("This command has been moved to **/roll profile**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </roll profile:1193385578343968838>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RollsAsync(
         [Remainder]
         string? _ = null
@@ -35,7 +35,7 @@ public class RollModule(ICommandRunner commandRunner, RollPlaySlashCommand playC
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/roll profile** 👈
+                This command has been moved to 👉 </roll profile:1193385578343968838> 👈
                 Please use it instead! 😊
                 """))));
 
@@ -47,7 +47,7 @@ public class RollModule(ICommandRunner commandRunner, RollPlaySlashCommand playC
 
     [Command("rankrolls")]
     [Alias("rank rolls", "rankperfectrolls", "rank perfectrolls", "rankprolls", "rank prolls", "rank1989rolls", "rank 1989rolls")]
-    [Summary("This command has been moved to **/roll leaderboard**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </roll leaderboard:1193385578343968838>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RankRollsAsync(
         [Remainder]
         string? _ = null
@@ -57,7 +57,7 @@ public class RollModule(ICommandRunner commandRunner, RollPlaySlashCommand playC
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/roll leaderboard** 👈
+                This command has been moved to 👉 </roll leaderboard:1193385578343968838> 👈
                 Please use it instead! 😊
                 """))));
 

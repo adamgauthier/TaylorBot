@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class IgnoredUserPostgresRepository : IIgnoredUserRepository
+public class IgnoredUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IIgnoredUserRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public IgnoredUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var userAddedOrUpdatedDto = await connection.QuerySingleAsync<UserAddedOrUpdatedDto>(
             """
@@ -54,7 +47,7 @@ public class IgnoredUserPostgresRepository : IIgnoredUserRepository
 
     public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE users.users SET ignore_until = @IgnoreUntil WHERE user_id = @UserId;",

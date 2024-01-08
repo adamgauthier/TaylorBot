@@ -5,15 +5,8 @@ using TaylorBot.Net.MessageLogging.Domain.TextChannel;
 
 namespace TaylorBot.Net.MessageLogging.Infrastructure;
 
-public class MessageLoggingChannelPostgresRepository : IMessageLoggingChannelRepository
+public class MessageLoggingChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IMessageLoggingChannelRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public MessageLoggingChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class DeletedLogChannelDto
     {
         public string deleted_log_channel_id { get; set; } = null!;
@@ -24,7 +17,7 @@ public class MessageLoggingChannelPostgresRepository : IMessageLoggingChannelRep
 
     public async ValueTask<MessageLogChannel?> GetDeletedLogsChannelForGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<DeletedLogChannelDto?>(
             """
@@ -55,7 +48,7 @@ public class MessageLoggingChannelPostgresRepository : IMessageLoggingChannelRep
 
     public async ValueTask<MessageLogChannel?> GetEditedLogsChannelForGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<EditedLogChannelDto?>(
             """

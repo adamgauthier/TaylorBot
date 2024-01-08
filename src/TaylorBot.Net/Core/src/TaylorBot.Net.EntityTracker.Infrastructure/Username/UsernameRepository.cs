@@ -5,18 +5,11 @@ using TaylorBot.Net.EntityTracker.Domain.Username;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.Username;
 
-public class UsernameRepository : IUsernameRepository
+public class UsernameRepository(PostgresConnectionFactory postgresConnectionFactory) : IUsernameRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public UsernameRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask AddNewUsernameAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "INSERT INTO users.usernames (user_id, username) VALUES (@UserId, @Username);",

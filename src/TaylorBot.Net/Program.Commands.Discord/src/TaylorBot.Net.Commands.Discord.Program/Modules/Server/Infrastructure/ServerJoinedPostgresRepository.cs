@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
 
-public class ServerJoinedPostgresRepository : IServerJoinedRepository
+public class ServerJoinedPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IServerJoinedRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ServerJoinedPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async Task<ServerJoined> GetRankedJoinedAsync(IGuildUser guildUser)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<ServerJoined>(
             """
@@ -35,7 +28,7 @@ public class ServerJoinedPostgresRepository : IServerJoinedRepository
 
     public async Task FixMissingJoinedDateAsync(IGuildUser guildUser)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """
@@ -53,7 +46,7 @@ public class ServerJoinedPostgresRepository : IServerJoinedRepository
 
     public async Task<IList<JoinedTimelineEntry>> GetTimelineAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<JoinedTimelineEntry>(
             """

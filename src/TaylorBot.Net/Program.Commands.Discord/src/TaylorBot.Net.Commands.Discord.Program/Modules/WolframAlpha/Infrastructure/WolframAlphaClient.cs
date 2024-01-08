@@ -8,23 +8,15 @@ using static TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain.
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Infrastructure;
 
-public class WolframAlphaClient : IWolframAlphaClient
+public class WolframAlphaClient(ILogger<WolframAlphaClient> logger, IOptionsMonitor<WolframAlphaOptions> options) : IWolframAlphaClient
 {
-    private readonly ILogger<WolframAlphaClient> _logger;
-    private readonly IOptionsMonitor<WolframAlphaOptions> _options;
     private readonly HttpClient _httpClient = new();
-
-    public WolframAlphaClient(ILogger<WolframAlphaClient> logger, IOptionsMonitor<WolframAlphaOptions> options)
-    {
-        _logger = logger;
-        _options = options;
-    }
 
     public async ValueTask<IWolframAlphaResult> QueryAsync(string query)
     {
         var queryString = new[] {
             $"input={query}",
-            $"appid={_options.CurrentValue.AppId}",
+            $"appid={options.CurrentValue.AppId}",
             $"output=json",
             $"ip=192.168.1.1",
             $"podindex=1,2"
@@ -54,7 +46,7 @@ public class WolframAlphaClient : IWolframAlphaClient
                 else
                 {
                     queryResult.TryGetProperty("error", out var error);
-                    _logger.LogWarning("Error response from WolframAlpha: {Error}", error);
+                    logger.LogWarning("Error response from WolframAlpha: {Error}", error);
                     return new WolframAlphaFailed();
                 }
             }
@@ -63,19 +55,19 @@ public class WolframAlphaClient : IWolframAlphaClient
                 try
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning("Error response from WolframAlpha ({StatusCode}): {Body}", response.StatusCode, body);
+                    logger.LogWarning("Error response from WolframAlpha ({StatusCode}): {Body}", response.StatusCode, body);
                     return new GenericWolframAlphaError();
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Unhandled error when parsing JSON in WolframAlpha error response ({StatusCode}):", response.StatusCode);
+                    logger.LogWarning(e, "Unhandled error when parsing JSON in WolframAlpha error response ({StatusCode}):", response.StatusCode);
                     return new GenericWolframAlphaError();
                 }
             }
         }
         catch (Exception e)
         {
-            _logger.LogWarning(e, "Unhandled error in WolframAlpha API:");
+            logger.LogWarning(e, "Unhandled error in WolframAlpha API:");
             return new GenericWolframAlphaError();
         }
     }

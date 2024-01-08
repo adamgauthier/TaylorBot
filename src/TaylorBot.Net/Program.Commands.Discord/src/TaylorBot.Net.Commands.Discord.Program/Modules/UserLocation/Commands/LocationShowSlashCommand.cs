@@ -6,22 +6,15 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationShowCommand
+public class LocationShowCommand(ILocationRepository locationRepository)
 {
     public static readonly CommandMetadata Metadata = new("location show", "Location 🌍");
-
-    private readonly ILocationRepository _locationRepository;
-
-    public LocationShowCommand(ILocationRepository locationRepository)
-    {
-        _locationRepository = locationRepository;
-    }
 
     public Command Location(IUser user, RunContext? context = null) => new(
         Metadata,
         async () =>
         {
-            var location = await _locationRepository.GetLocationAsync(user);
+            var location = await locationRepository.GetLocationAsync(user);
 
             if (location != null)
             {
@@ -52,38 +45,24 @@ public class LocationShowCommand
     );
 }
 
-public class LocationShowSlashCommand : ISlashCommand<LocationShowSlashCommand.Options>
+public class LocationShowSlashCommand(LocationShowCommand locationShowCommand) : ISlashCommand<LocationShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location show");
 
     public record Options(ParsedUserOrAuthor user);
 
-    private readonly LocationShowCommand _locationShowCommand;
-
-    public LocationShowSlashCommand(LocationShowCommand locationShowCommand)
-    {
-        _locationShowCommand = locationShowCommand;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(_locationShowCommand.Location(options.user.User, context));
+        return new(locationShowCommand.Location(options.user.User, context));
     }
 }
 
-public class LocationTimeSlashCommand : ISlashCommand<LocationShowSlashCommand.Options>
+public class LocationTimeSlashCommand(LocationShowCommand locationShowCommand) : ISlashCommand<LocationShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location time");
 
-    private readonly LocationShowCommand _locationShowCommand;
-
-    public LocationTimeSlashCommand(LocationShowCommand locationShowCommand)
-    {
-        _locationShowCommand = locationShowCommand;
-    }
-
     public ValueTask<Command> GetCommandAsync(RunContext context, LocationShowSlashCommand.Options options)
     {
-        return new(_locationShowCommand.Location(options.user.User, context));
+        return new(locationShowCommand.Location(options.user.User, context));
     }
 }

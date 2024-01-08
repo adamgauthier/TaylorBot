@@ -17,8 +17,7 @@ public class CommandExecutedHandler(
     ICommandUsageRepository commandUsageRepository,
     IIgnoredUserRepository ignoredUserRepository,
     PageMessageReactionsHandler pageMessageReactionsHandler,
-    UserNotIgnoredPrecondition userNotIgnoredPrecondition
-    )
+    UserNotIgnoredPrecondition userNotIgnoredPrecondition)
 {
     public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
     {

@@ -10,26 +10,17 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayShowSlashCommand : ISlashCommand<BirthdayShowSlashCommand.Options>
+public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger) : ISlashCommand<BirthdayShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday show");
 
     public record Options(ParsedUserOrAuthor user);
 
-    private readonly IBirthdayRepository _birthdayRepository;
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-
-    public BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger)
-    {
-        _birthdayRepository = birthdayRepository;
-        _taskExceptionLogger = taskExceptionLogger;
-    }
-
     public Command Birthday(IUser user, DateTimeOffset createdAt, RunContext? context) => new(
         new(Info.Name),
         async () =>
         {
-            var birthday = await _birthdayRepository.GetBirthdayAsync(user);
+            var birthday = await birthdayRepository.GetBirthdayAsync(user);
 
             if (birthday != null)
             {
@@ -37,8 +28,8 @@ public class BirthdayShowSlashCommand : ISlashCommand<BirthdayShowSlashCommand.O
                 {
                     var age = AgeCalculator.GetCurrentAge(createdAt, birthday.Date);
 
-                    _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(
-                        AgeCalculator.TryAddAgeRolesAsync(_birthdayRepository, user, age),
+                    _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                        AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, user, age),
                         nameof(AgeCalculator.TryAddAgeRolesAsync))
                     );
                 }

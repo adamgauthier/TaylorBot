@@ -3,17 +3,12 @@ using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public class UserHasPermissionOrOwnerPrecondition : ICommandPrecondition
+public class UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permissions) : ICommandPrecondition
 {
     private readonly PermissionStringMapper _permissionStringMapper = new();
     private readonly TaylorBotOwnerPrecondition _taylorBotOwnerPrecondition = new();
 
-    public GuildPermission[] GuildPermissions { get; }
-
-    public UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permissions)
-    {
-        GuildPermissions = permissions;
-    }
+    public GuildPermission[] GuildPermissions { get; } = permissions;
 
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {

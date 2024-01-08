@@ -7,15 +7,8 @@ using TaylorBot.Net.TumblrNotifier.Domain.Options;
 
 namespace TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed;
 
-public class TumblrPostToEmbedMapper
+public class TumblrPostToEmbedMapper(IOptionsMonitor<TumblrNotifierOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<TumblrNotifierOptions> optionsMonitor;
-
-    public TumblrPostToEmbedMapper(IOptionsMonitor<TumblrNotifierOptions> optionsMonitor)
-    {
-        this.optionsMonitor = optionsMonitor;
-    }
-
     public Embed ToEmbed(BasePost post, BlogInfo blog)
     {
         var options = optionsMonitor.CurrentValue;

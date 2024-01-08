@@ -10,26 +10,13 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
 
-public class InflatableLastFmClient : ILastFmClient
+public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOptionsMonitor<LastFmOptions> options, LastfmClient client, LastFmPeriodStringMapper lastFmPeriodStringMapper) : ILastFmClient
 {
     private readonly HttpClient _httpClient = new();
 
-    private readonly ILogger<InflatableLastFmClient> _logger;
-    private readonly IOptionsMonitor<LastFmOptions> _options;
-    private readonly LastfmClient _client;
-    private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper;
-
-    public InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOptionsMonitor<LastFmOptions> options, LastfmClient client, LastFmPeriodStringMapper lastFmPeriodStringMapper)
-    {
-        _logger = logger;
-        _options = options;
-        _client = client;
-        _lastFmPeriodStringMapper = lastFmPeriodStringMapper;
-    }
-
     public async ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername)
     {
-        var response = await _client.User.GetRecentScrobbles(
+        var response = await client.User.GetRecentScrobbles(
             username: lastFmUsername,
             count: 1
         );
@@ -75,7 +62,7 @@ public class InflatableLastFmClient : ILastFmClient
 
     public async ValueTask<ITopArtistsResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period)
     {
-        var response = await _client.User.GetTopArtists(
+        var response = await client.User.GetTopArtists(
             username: lastFmUsername,
             span: MapPeriodToTimeSpan(period),
             pagenumber: 1,
@@ -103,8 +90,8 @@ public class InflatableLastFmClient : ILastFmClient
         var queryString = new[] {
             "method=user.gettoptracks",
             $"user={lastFmUsername}",
-            $"api_key={_options.CurrentValue.LastFmApiKey}",
-            $"period={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
+            $"api_key={options.CurrentValue.LastFmApiKey}",
+            $"period={lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
             "format=json",
             "page=1",
             "limit=10"
@@ -136,7 +123,7 @@ public class InflatableLastFmClient : ILastFmClient
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
+                logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
                 return new LastFmGenericErrorResult(null);
             }
         }
@@ -147,8 +134,8 @@ public class InflatableLastFmClient : ILastFmClient
         var queryString = new[] {
             "method=user.gettopalbums",
             $"user={lastFmUsername}",
-            $"api_key={_options.CurrentValue.LastFmApiKey}",
-            $"period={_lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
+            $"api_key={options.CurrentValue.LastFmApiKey}",
+            $"period={lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period)}",
             "format=json",
             "page=1",
             "limit=10"
@@ -188,7 +175,7 @@ public class InflatableLastFmClient : ILastFmClient
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
+                logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
                 return new LastFmGenericErrorResult(null);
             }
         }

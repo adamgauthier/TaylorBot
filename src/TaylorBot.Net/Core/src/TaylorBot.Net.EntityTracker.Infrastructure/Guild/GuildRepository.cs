@@ -5,20 +5,13 @@ using TaylorBot.Net.EntityTracker.Domain.Guild;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild;
 
-public class GuildRepository : IGuildRepository
+public class GuildRepository(PostgresConnectionFactory postgresConnectionFactory) : IGuildRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public GuildRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record GuildAddedOrUpdatedDto(bool was_inserted, bool guild_name_changed, string? previous_guild_name);
 
     public async ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var guildAddedOrUpdatedDto = await connection.QuerySingleAsync<GuildAddedOrUpdatedDto>(
             """

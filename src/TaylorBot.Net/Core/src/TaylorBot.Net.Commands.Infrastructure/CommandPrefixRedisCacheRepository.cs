@@ -3,28 +3,19 @@ using StackExchange.Redis;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class CommandPrefixRedisCacheRepository : ICommandPrefixRepository
+public class CommandPrefixRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, CommandPrefixPostgresRepository commandPrefixPostgresRepository) : ICommandPrefixRepository
 {
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-    private readonly CommandPrefixPostgresRepository _commandPrefixPostgresRepository;
-
-    public CommandPrefixRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, CommandPrefixPostgresRepository commandPrefixPostgresRepository)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-        _commandPrefixPostgresRepository = commandPrefixPostgresRepository;
-    }
-
     private static string GetPrefixKey(IGuild guild) => $"prefix:guild:{guild.Id}";
 
     public async ValueTask<CommandPrefix> GetOrInsertGuildPrefixAsync(IGuild guild)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetPrefixKey(guild);
         var cachedPrefix = await redis.StringGetAsync(key);
 
         if (!cachedPrefix.HasValue)
         {
-            var result = await _commandPrefixPostgresRepository.GetOrInsertGuildPrefixAsync(guild);
+            var result = await commandPrefixPostgresRepository.GetOrInsertGuildPrefixAsync(guild);
             await redis.StringSetAsync(key, result.Prefix);
             return result;
         }
@@ -34,9 +25,9 @@ public class CommandPrefixRedisCacheRepository : ICommandPrefixRepository
 
     public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)
     {
-        await _commandPrefixPostgresRepository.ChangeGuildPrefixAsync(guild, prefix);
+        await commandPrefixPostgresRepository.ChangeGuildPrefixAsync(guild, prefix);
 
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         await redis.StringSetAsync(GetPrefixKey(guild), prefix);
     }
 }

@@ -6,22 +6,11 @@ using TaylorBot.Net.EntityTracker.Domain.GuildName;
 
 namespace TaylorBot.Net.EntityTracker.Domain;
 
-public class GuildTrackerDomainService
+public class GuildTrackerDomainService(ILogger<GuildTrackerDomainService> logger, IGuildRepository guildRepository, IGuildNameRepository guildNameRepository)
 {
-    private readonly ILogger<GuildTrackerDomainService> _logger;
-    private readonly IGuildRepository _guildRepository;
-    private readonly IGuildNameRepository _guildNameRepository;
-
-    public GuildTrackerDomainService(ILogger<GuildTrackerDomainService> logger, IGuildRepository guildRepository, IGuildNameRepository guildNameRepository)
-    {
-        _logger = logger;
-        _guildRepository = guildRepository;
-        _guildNameRepository = guildNameRepository;
-    }
-
     public async ValueTask TrackGuildAndNameAsync(IGuild guild)
     {
-        var guildAddedResult = await _guildRepository.AddGuildIfNotAddedAsync(guild);
+        var guildAddedResult = await guildRepository.AddGuildIfNotAddedAsync(guild);
 
         await TrackGuildNameAsync(guild, guildAddedResult);
     }
@@ -30,13 +19,13 @@ public class GuildTrackerDomainService
     {
         if (guildAddedResult.WasAdded)
         {
-            _logger.LogInformation("Added new guild {Guild}.", guild.FormatLog());
-            await _guildNameRepository.AddNewGuildNameAsync(guild);
+            logger.LogInformation("Added new guild {Guild}.", guild.FormatLog());
+            await guildNameRepository.AddNewGuildNameAsync(guild);
         }
         else if (guildAddedResult.WasGuildNameChanged)
         {
-            await _guildNameRepository.AddNewGuildNameAsync(guild);
-            _logger.LogInformation(
+            await guildNameRepository.AddNewGuildNameAsync(guild);
+            logger.LogInformation(
                 "Added new guild name for {Guild}{PreviousNameText}.",
                 guild.FormatLog(),
                 guildAddedResult.PreviousGuildName != null ? $", previously was '{guildAddedResult.PreviousGuildName}'" : "");

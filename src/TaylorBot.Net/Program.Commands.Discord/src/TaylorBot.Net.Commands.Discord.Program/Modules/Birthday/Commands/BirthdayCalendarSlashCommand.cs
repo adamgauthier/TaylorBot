@@ -11,16 +11,9 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayCalendarSlashCommand : ISlashCommand<NoOptions>
+public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday calendar");
-
-    private readonly IBirthdayRepository _birthdayRepository;
-
-    public BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository)
-    {
-        _birthdayRepository = birthdayRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -29,7 +22,7 @@ public class BirthdayCalendarSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var calendar = await _birthdayRepository.GetBirthdayCalendarAsync(guild);
+                var calendar = await birthdayRepository.GetBirthdayCalendarAsync(guild);
 
                 var pages = calendar.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.Username.MdUserLink(entry.UserId)} - {entry.NextBirthday.ToString("MMMM d", TaylorBotCulture.Culture)}"

@@ -16,19 +16,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands;
 
 [Name("Jail 👮")]
 [Group("jail")]
-public class JailModule : TaylorBotModule
+public class JailModule(ICommandRunner commandRunner, IJailRepository jailRepository, IModChannelLogger modChannelLogger) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IJailRepository _jailRepository;
-    private readonly IModChannelLogger _modChannelLogger;
-
-    public JailModule(ICommandRunner commandRunner, IJailRepository jailRepository, IModChannelLogger modChannelLogger)
-    {
-        _commandRunner = commandRunner;
-        _jailRepository = jailRepository;
-        _modChannelLogger = modChannelLogger;
-    }
-
     [Priority(-1)]
     [Command]
     [Summary("Jails a user in this server by giving them the jail role.")]
@@ -81,12 +70,12 @@ public class JailModule : TaylorBotModule
                             }
                         }
 
-                        var wasLogged = await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
+                        var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
                             .WithColor(new(95, 107, 120))
                             .WithFooter("User jailed")
                         );
 
-                        return new EmbedResult(_modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
+                        return new EmbedResult(modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
 
                     default: throw new NotImplementedException();
                 }
@@ -98,7 +87,7 @@ public class JailModule : TaylorBotModule
             }
         );
 
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -162,12 +151,12 @@ public class JailModule : TaylorBotModule
                             }
                         }
 
-                        var wasLogged = await _modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
+                        var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
                             .WithColor(new(119, 136, 153))
                             .WithFooter("User freed")
                         );
 
-                        return new EmbedResult(_modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
+                        return new EmbedResult(modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
 
                     default: throw new NotImplementedException();
                 }
@@ -179,7 +168,7 @@ public class JailModule : TaylorBotModule
             }
         );
 
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -196,7 +185,7 @@ public class JailModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                await _jailRepository.SetJailRoleAsync(Context.Guild, role.Role);
+                await jailRepository.SetJailRoleAsync(Context.Guild, role.Role);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithUserAsAuthor(Context.User)
@@ -214,7 +203,7 @@ public class JailModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -228,7 +217,7 @@ public class JailModule : TaylorBotModule
 
     private async ValueTask<IGuildJailRoleResult> GetGuildJailRoleAsync()
     {
-        var jailRole = await _jailRepository.GetJailRoleAsync(Context.Guild);
+        var jailRole = await jailRepository.GetJailRoleAsync(Context.Guild);
 
         if (jailRole == null)
         {

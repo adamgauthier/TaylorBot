@@ -7,18 +7,11 @@ public interface IDisabledCommandRepository
     ValueTask<string> DisableGloballyAsync(string commandName, string disabledMessage);
 }
 
-public class NotDisabledPrecondition : ICommandPrecondition
+public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandRepository) : ICommandPrecondition
 {
-    private readonly IDisabledCommandRepository _disabledCommandRepository;
-
-    public NotDisabledPrecondition(IDisabledCommandRepository disabledCommandRepository)
-    {
-        _disabledCommandRepository = disabledCommandRepository;
-    }
-
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
-        var disabledMessage = await _disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(command.Metadata);
+        var disabledMessage = await disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(command.Metadata);
 
         return disabledMessage != string.Empty ?
             new PreconditionFailed(

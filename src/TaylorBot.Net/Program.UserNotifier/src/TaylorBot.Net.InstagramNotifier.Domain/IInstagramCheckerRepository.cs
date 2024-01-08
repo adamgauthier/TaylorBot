@@ -8,22 +8,13 @@ public interface IInstagramCheckerRepository
     ValueTask UpdateLastPostAsync(InstagramChecker instagramChecker, InstagramPost instagramPost);
 }
 
-public class InstagramChecker
+public class InstagramChecker(SnowflakeId guildId, SnowflakeId channelId, string instagramUsername, string? lastPostCode, DateTimeOffset lastPostTakenAt)
 {
-    public SnowflakeId GuildId { get; }
-    public SnowflakeId ChannelId { get; }
-    public string InstagramUsername { get; }
-    public string? LastPostCode { get; }
-    public DateTimeOffset LastPostTakenAt { get; }
-
-    public InstagramChecker(SnowflakeId guildId, SnowflakeId channelId, string instagramUsername, string? lastPostCode, DateTimeOffset lastPostTakenAt)
-    {
-        GuildId = guildId;
-        ChannelId = channelId;
-        InstagramUsername = instagramUsername;
-        LastPostCode = lastPostCode;
-        LastPostTakenAt = lastPostTakenAt;
-    }
+    public SnowflakeId GuildId { get; } = guildId;
+    public SnowflakeId ChannelId { get; } = channelId;
+    public string InstagramUsername { get; } = instagramUsername;
+    public string? LastPostCode { get; } = lastPostCode;
+    public DateTimeOffset LastPostTakenAt { get; } = lastPostTakenAt;
 
     public override string ToString()
     {

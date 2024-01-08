@@ -4,16 +4,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationClearSlashCommand : ISlashCommand<NoOptions>
+public class LocationClearSlashCommand(ILocationRepository locationRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location clear");
-
-    private readonly ILocationRepository _locationRepository;
-
-    public LocationClearSlashCommand(ILocationRepository locationRepository)
-    {
-        _locationRepository = locationRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -21,7 +14,7 @@ public class LocationClearSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _locationRepository.ClearLocationAsync(context.User);
+                await locationRepository.ClearLocationAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""

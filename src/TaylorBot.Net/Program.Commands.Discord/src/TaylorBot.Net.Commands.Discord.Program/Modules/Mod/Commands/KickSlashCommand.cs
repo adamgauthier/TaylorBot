@@ -14,20 +14,13 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class KickSlashCommand : ISlashCommand<KickSlashCommand.Options>
+public class KickSlashCommand(IModChannelLogger modChannelLogger) : ISlashCommand<KickSlashCommand.Options>
 {
     private const int MaxAuditLogReasonSize = 512;
 
     public ISlashCommandInfo Info => new MessageCommandInfo("kick", IsPrivateResponse: true);
 
     public record Options(ParsedMemberNotAuthorAndTaylorBot member, ParsedOptionalString reason);
-
-    private readonly IModChannelLogger _modChannelLogger;
-
-    public KickSlashCommand(IModChannelLogger modChannelLogger)
-    {
-        _modChannelLogger = modChannelLogger;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -76,7 +69,7 @@ public class KickSlashCommand : ISlashCommand<KickSlashCommand.Options>
                             }));
                         }
 
-                        var wasLogged = await _modChannelLogger.TrySendModLogAsync(member.Guild, author, member, logEmbed =>
+                        var wasLogged = await modChannelLogger.TrySendModLogAsync(member.Guild, author, member, logEmbed =>
                         {
                             if (!string.IsNullOrEmpty(options.reason.Value))
                                 logEmbed.AddField("Reason", options.reason.Value);
@@ -86,7 +79,7 @@ public class KickSlashCommand : ISlashCommand<KickSlashCommand.Options>
                                 .WithFooter("User kicked");
                         });
 
-                        return _modChannelLogger.CreateResultEmbed(context, wasLogged, $"{member.FormatTagAndMention()} was successfully kicked. 👢");
+                        return modChannelLogger.CreateResultEmbed(context, wasLogged, $"{member.FormatTagAndMention()} was successfully kicked. 👢");
                     }
                 }
                 else

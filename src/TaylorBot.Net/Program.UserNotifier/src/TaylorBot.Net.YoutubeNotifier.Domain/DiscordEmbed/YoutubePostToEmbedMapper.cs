@@ -7,18 +7,11 @@ using TaylorBot.Net.YoutubeNotifier.Domain.Options;
 
 namespace TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed;
 
-public class YoutubePostToEmbedMapper
+public class YoutubePostToEmbedMapper(IOptionsMonitor<YoutubeNotifierOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<YoutubeNotifierOptions> _optionsMonitor;
-
-    public YoutubePostToEmbedMapper(IOptionsMonitor<YoutubeNotifierOptions> optionsMonitor)
-    {
-        _optionsMonitor = optionsMonitor;
-    }
-
     public Embed ToEmbed(PlaylistItemSnippet post)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
 
         var builder = new EmbedBuilder()
             .WithTitle(post.Title.Truncate(65))

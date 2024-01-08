@@ -8,15 +8,8 @@ using TaylorBot.Net.MemberLogging.Domain.Options;
 
 namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
-public class GuildMemberJoinedEmbedFactory
+public class GuildMemberJoinedEmbedFactory(IOptionsMonitor<MemberLoggingOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<MemberLoggingOptions> optionsMonitor;
-
-    public GuildMemberJoinedEmbedFactory(IOptionsMonitor<MemberLoggingOptions> optionsMonitor)
-    {
-        this.optionsMonitor = optionsMonitor;
-    }
-
     private EmbedBuilder CreateBaseEmbed(IGuildUser guildUser)
     {
         var avatarUrl = guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl();

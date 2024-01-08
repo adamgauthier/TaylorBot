@@ -11,18 +11,9 @@ public record ButtonComponent(
     string UserId
 ) : IInteraction;
 
-public class MessageComponentHandler
+public class MessageComponentHandler(ILogger<MessageComponentHandler> logger, InteractionResponseClient interactionResponseClient)
 {
-    private readonly ILogger<MessageComponentHandler> _logger;
-    private readonly InteractionResponseClient _interactionResponseClient;
-
     private readonly Dictionary<string, Func<ButtonComponent, ValueTask>> _callbacks = [];
-
-    public MessageComponentHandler(ILogger<MessageComponentHandler> logger, InteractionResponseClient interactionResponseClient)
-    {
-        _logger = logger;
-        _interactionResponseClient = interactionResponseClient;
-    }
 
     public async ValueTask HandleAsync(Interaction interaction)
     {
@@ -39,18 +30,18 @@ public class MessageComponentHandler
 
                 if (_callbacks.TryGetValue(button.CustomId, out var callback))
                 {
-                    await _interactionResponseClient.SendComponentAckResponseWithoutLoadingMessageAsync(button);
+                    await interactionResponseClient.SendComponentAckResponseWithoutLoadingMessageAsync(button);
 
                     await callback(button);
                 }
                 else
                 {
-                    _logger.LogWarning("Button component without callback: {Interaction}", interaction);
+                    logger.LogWarning("Button component without callback: {Interaction}", interaction);
                 }
                 break;
 
             default:
-                _logger.LogWarning("Unknown component type: {Interaction}", interaction);
+                logger.LogWarning("Unknown component type: {Interaction}", interaction);
                 break;
         }
     }

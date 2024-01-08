@@ -12,17 +12,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Command
 [Name("Usernames 🏷️")]
 [Group("usernames")]
 [Alias("names")]
-public class UsernamesModule : TaylorBotModule
+public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepository usernameHistoryRepository) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IUsernameHistoryRepository _usernameHistoryRepository;
-
-    public UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepository usernameHistoryRepository)
-    {
-        _commandRunner = commandRunner;
-        _usernameHistoryRepository = usernameHistoryRepository;
-    }
-
     [Priority(-1)]
     [Command]
     [Summary("Gets a list of previous usernames for a user.")]
@@ -41,7 +32,7 @@ public class UsernamesModule : TaylorBotModule
             EmbedBuilder BuildBaseEmbed() =>
                 new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(u);
 
-            if (await _usernameHistoryRepository.IsUsernameHistoryHiddenFor(u))
+            if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(u))
             {
                 return new EmbedResult(BuildBaseEmbed()
                     .WithDescription(string.Join('\n', new[] {
@@ -52,7 +43,7 @@ public class UsernamesModule : TaylorBotModule
             }
             else
             {
-                var usernames = await _usernameHistoryRepository.GetUsernameHistoryFor(u, 75);
+                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(u, 75);
 
                 var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt:MMMM dd, yyyy}: {u.Username}");
 
@@ -68,7 +59,7 @@ public class UsernamesModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -79,7 +70,7 @@ public class UsernamesModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            await _usernameHistoryRepository.HideUsernameHistoryFor(Context.User);
+            await usernameHistoryRepository.HideUsernameHistoryFor(Context.User);
 
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
@@ -92,7 +83,7 @@ public class UsernamesModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -103,7 +94,7 @@ public class UsernamesModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            await _usernameHistoryRepository.UnhideUsernameHistoryFor(Context.User);
+            await usernameHistoryRepository.UnhideUsernameHistoryFor(Context.User);
 
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
@@ -116,7 +107,7 @@ public class UsernamesModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

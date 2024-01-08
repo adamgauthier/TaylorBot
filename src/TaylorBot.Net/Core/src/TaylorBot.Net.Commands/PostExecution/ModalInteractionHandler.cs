@@ -18,18 +18,9 @@ public record ModalSubmit(
 
 public record ModalCallback(Func<ModalSubmit, ValueTask> SubmitAsync, bool IsPrivateResponse);
 
-public class ModalInteractionHandler
+public class ModalInteractionHandler(ILogger<ModalInteractionHandler> logger, InteractionResponseClient interactionResponseClient)
 {
-    private readonly ILogger<ModalInteractionHandler> _logger;
-    private readonly InteractionResponseClient _interactionResponseClient;
-
     private readonly Dictionary<string, ModalCallback> _callbacks = [];
-
-    public ModalInteractionHandler(ILogger<ModalInteractionHandler> logger, InteractionResponseClient interactionResponseClient)
-    {
-        _logger = logger;
-        _interactionResponseClient = interactionResponseClient;
-    }
 
     public async ValueTask HandleAsync(Interaction interaction)
     {
@@ -44,13 +35,13 @@ public class ModalInteractionHandler
 
         if (_callbacks.TryGetValue(submit.CustomId, out var callback))
         {
-            await _interactionResponseClient.SendAckResponseWithLoadingMessageAsync(submit, callback.IsPrivateResponse);
+            await interactionResponseClient.SendAckResponseWithLoadingMessageAsync(submit, callback.IsPrivateResponse);
 
             await callback.SubmitAsync(submit);
         }
         else
         {
-            _logger.LogWarning("Modal create without callback: {Interaction}", interaction);
+            logger.LogWarning("Modal create without callback: {Interaction}", interaction);
         }
     }
 

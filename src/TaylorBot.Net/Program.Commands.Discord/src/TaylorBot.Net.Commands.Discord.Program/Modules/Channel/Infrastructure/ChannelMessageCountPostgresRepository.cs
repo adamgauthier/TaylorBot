@@ -5,20 +5,13 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Channel.Infrastructure;
 
-public class ChannelMessageCountPostgresRepository : IChannelMessageCountRepository
+public class ChannelMessageCountPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IChannelMessageCountRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ChannelMessageCountPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record CountDto(long message_count, bool is_spam);
 
     public async Task<MessageCount> GetMessageCountAsync(ITextChannel channel)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var count = await connection.QuerySingleAsync<CountDto>(
             """

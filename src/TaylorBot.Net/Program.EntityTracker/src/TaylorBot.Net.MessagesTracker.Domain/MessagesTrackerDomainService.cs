@@ -25,46 +25,27 @@ public interface IMessageRepository
     ValueTask PersistQueuedMessagesAndWordsAsync();
 }
 
-public class MessagesTrackerDomainService
-{
-    private readonly ILogger<MessagesTrackerDomainService> _logger;
-    private readonly IOptionsMonitor<MessagesTrackerOptions> _messagesTrackerOptions;
-    private readonly ISpamChannelRepository _spamChannelRepository;
-    private readonly ITextChannelMessageCountRepository _textChannelMessageCountRepository;
-    private readonly IGuildUserLastSpokeRepository _guildUserLastSpokeRepository;
-    private readonly IMessageRepository _messageRepository;
-    private readonly WordCounter _wordCounter;
-
-    public MessagesTrackerDomainService(
-        ILogger<MessagesTrackerDomainService> logger,
-        IOptionsMonitor<MessagesTrackerOptions> messagesTrackerOptions,
-        ISpamChannelRepository spamChannelRepository,
-        ITextChannelMessageCountRepository textChannelMessageCountRepository,
-        IGuildUserLastSpokeRepository guildUserLastSpokeRepository,
-        IMessageRepository messageRepository,
-        WordCounter wordCounter
+public class MessagesTrackerDomainService(
+    ILogger<MessagesTrackerDomainService> logger,
+    IOptionsMonitor<MessagesTrackerOptions> messagesTrackerOptions,
+    ISpamChannelRepository spamChannelRepository,
+    ITextChannelMessageCountRepository textChannelMessageCountRepository,
+    IGuildUserLastSpokeRepository guildUserLastSpokeRepository,
+    IMessageRepository messageRepository,
+    WordCounter wordCounter
     )
-    {
-        _logger = logger;
-        _messagesTrackerOptions = messagesTrackerOptions;
-        _spamChannelRepository = spamChannelRepository;
-        _textChannelMessageCountRepository = textChannelMessageCountRepository;
-        _guildUserLastSpokeRepository = guildUserLastSpokeRepository;
-        _messageRepository = messageRepository;
-        _wordCounter = wordCounter;
-    }
-
+{
     public async ValueTask OnGuildUserMessageReceivedAsync(SocketTextChannel textChannel, SocketGuildUser guildUser, SocketUserMessage message)
     {
-        var isSpam = await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
+        var isSpam = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
 
         if (!isSpam)
         {
-            await _messageRepository.QueueAddMessagesAndWordsAsync(guildUser, 1, _wordCounter.CountWords(message.Content));
+            await messageRepository.QueueAddMessagesAndWordsAsync(guildUser, 1, wordCounter.CountWords(message.Content));
         }
 
-        await _guildUserLastSpokeRepository.QueueUpdateLastSpokeAsync(guildUser, message.Timestamp);
-        await _textChannelMessageCountRepository.QueueIncrementMessageCountAsync(textChannel);
+        await guildUserLastSpokeRepository.QueueUpdateLastSpokeAsync(guildUser, message.Timestamp);
+        await textChannelMessageCountRepository.QueueIncrementMessageCountAsync(textChannel);
     }
 
     public async Task StartPersistingTextChannelMessageCountAsync()
@@ -73,14 +54,14 @@ public class MessagesTrackerDomainService
         {
             try
             {
-                await _textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync();
+                await textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in {nameof(_textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync)}.");
             }
 
-            await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);
+            await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);
         }
     }
 
@@ -90,14 +71,14 @@ public class MessagesTrackerDomainService
         {
             try
             {
-                await _messageRepository.PersistQueuedMessagesAndWordsAsync();
+                await messageRepository.PersistQueuedMessagesAndWordsAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in {nameof(_messageRepository.PersistQueuedMessagesAndWordsAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(messageRepository.PersistQueuedMessagesAndWordsAsync)}.");
             }
 
-            await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingMemberMessagesAndWords);
+            await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingMemberMessagesAndWords);
         }
     }
 
@@ -107,14 +88,14 @@ public class MessagesTrackerDomainService
         {
             try
             {
-                await _guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync();
+                await guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in {nameof(_guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync)}.");
             }
 
-            await Task.Delay(_messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingLastSpoke);
+            await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingLastSpoke);
         }
     }
 }

@@ -8,20 +8,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
-public class MonitorEditedSetSlashCommand : ISlashCommand<MonitorEditedSetSlashCommand.Options>
+public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor edited set");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly IPlusRepository _plusRepository;
-    private readonly IEditedLogChannelRepository _editedLogChannelRepository;
-
-    public MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEditedLogChannelRepository editedLogChannelRepository)
-    {
-        _plusRepository = plusRepository;
-        _editedLogChannelRepository = editedLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -39,7 +30,7 @@ public class MonitorEditedSetSlashCommand : ISlashCommand<MonitorEditedSetSlashC
                     confirm: async () =>
                     {
                         var channel = options.channel.Channel;
-                        await _editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
+                        await editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
 
                         return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                             $"Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚",
@@ -50,23 +41,16 @@ public class MonitorEditedSetSlashCommand : ISlashCommand<MonitorEditedSetSlashC
             },
             Preconditions: new ICommandPrecondition[] {
                 new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
+                new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             }
         ));
     }
 }
 
-public class MonitorEditedShowSlashCommand : ISlashCommand<NoOptions>
+public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor edited show");
-
-    private readonly IEditedLogChannelRepository _editedLogChannelRepository;
-
-    public MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLogChannelRepository)
-    {
-        _editedLogChannelRepository = editedLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -75,7 +59,7 @@ public class MonitorEditedShowSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var log = await _editedLogChannelRepository.GetEditedLogForGuildAsync(guild);
+                var log = await editedLogChannelRepository.GetEditedLogForGuildAsync(guild);
 
                 Embed? embed = null;
 
@@ -115,16 +99,9 @@ public class MonitorEditedShowSlashCommand : ISlashCommand<NoOptions>
     }
 }
 
-public class MonitorEditedStopSlashCommand : ISlashCommand<NoOptions>
+public class MonitorEditedStopSlashCommand(IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor edited stop");
-
-    private readonly IEditedLogChannelRepository _editedLogChannelRepository;
-
-    public MonitorEditedStopSlashCommand(IEditedLogChannelRepository editedLogChannelRepository)
-    {
-        _editedLogChannelRepository = editedLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -132,7 +109,7 @@ public class MonitorEditedStopSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _editedLogChannelRepository.RemoveEditedLogAsync(context.Guild!);
+                await editedLogChannelRepository.RemoveEditedLogAsync(context.Guild!);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                     "Ok, I will stop logging edited messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚",

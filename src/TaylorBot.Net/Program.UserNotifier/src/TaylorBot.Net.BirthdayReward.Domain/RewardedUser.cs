@@ -3,16 +3,10 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.BirthdayReward.Domain;
 
-public class RewardedUser
+public class RewardedUser(SnowflakeId userId, long rewardedPoints)
 {
-    public SnowflakeId UserId { get; }
-    public long PointsAfterReward { get; }
-
-    public RewardedUser(SnowflakeId userId, long rewardedPoints)
-    {
-        UserId = userId;
-        PointsAfterReward = rewardedPoints;
-    }
+    public SnowflakeId UserId { get; } = userId;
+    public long PointsAfterReward { get; } = rewardedPoints;
 
     public override string ToString()
     {

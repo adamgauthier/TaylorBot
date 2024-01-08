@@ -5,18 +5,11 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
 
-public class SpamChannelPostgresRepository : ISpamChannelRepository
+public class SpamChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ISpamChannelRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public SpamChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(ITextChannel channel)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<bool>(
             """
@@ -35,7 +28,7 @@ public class SpamChannelPostgresRepository : ISpamChannelRepository
 
     private async ValueTask UpsertSpamChannelAsync(ITextChannel channel, bool isSpam)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """

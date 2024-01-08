@@ -6,22 +6,13 @@ using TaylorBot.Net.MessageLogging.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class ReactionRemovedHandler : IReactionRemovedHandler
+public class ReactionRemovedHandler(TaskExceptionLogger taskExceptionLogger, MessageLoggerService messageDeletedLoggerService) : IReactionRemovedHandler
 {
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-    private readonly MessageLoggerService _messageDeletedLoggerService;
-
-    public ReactionRemovedHandler(TaskExceptionLogger taskExceptionLogger, MessageLoggerService messageDeletedLoggerService)
-    {
-        _taskExceptionLogger = taskExceptionLogger;
-        _messageDeletedLoggerService = messageDeletedLoggerService;
-    }
-
     public ValueTask ReactionRemovedAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
     {
-        _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(
-            _messageDeletedLoggerService.OnReactionRemovedAsync(message, await channel.GetOrDownloadAsync(), reaction),
-            nameof(_messageDeletedLoggerService.OnReactionRemovedAsync)
+        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+            messageDeletedLoggerService.OnReactionRemovedAsync(message, await channel.GetOrDownloadAsync(), reaction),
+            nameof(messageDeletedLoggerService.OnReactionRemovedAsync)
         ));
         return default;
     }

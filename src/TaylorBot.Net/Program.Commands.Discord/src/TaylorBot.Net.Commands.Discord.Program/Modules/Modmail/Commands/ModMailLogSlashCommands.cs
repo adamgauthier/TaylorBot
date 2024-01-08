@@ -8,18 +8,11 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailLogSetSlashCommand : ISlashCommand<ModMailLogSetSlashCommand.Options>
+public class ModMailLogSetSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository) : ISlashCommand<ModMailLogSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail log-set");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly IModMailLogChannelRepository _modMailLogChannelRepository;
-
-    public ModMailLogSetSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository)
-    {
-        _modMailLogChannelRepository = modMailLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -27,7 +20,7 @@ public class ModMailLogSetSlashCommand : ISlashCommand<ModMailLogSetSlashCommand
             new(Info.Name),
             async () =>
             {
-                await _modMailLogChannelRepository.AddOrUpdateModMailLogAsync(options.channel.Channel);
+                await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(options.channel.Channel);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -45,16 +38,9 @@ public class ModMailLogSetSlashCommand : ISlashCommand<ModMailLogSetSlashCommand
     }
 }
 
-public class ModMailLogStopSlashCommand : ISlashCommand<NoOptions>
+public class ModMailLogStopSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail log-stop");
-
-    private readonly IModMailLogChannelRepository _modMailLogChannelRepository;
-
-    public ModMailLogStopSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository)
-    {
-        _modMailLogChannelRepository = modMailLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -62,7 +48,7 @@ public class ModMailLogStopSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _modMailLogChannelRepository.RemoveModMailLogAsync(context.Guild!);
+                await modMailLogChannelRepository.RemoveModMailLogAsync(context.Guild!);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -80,16 +66,9 @@ public class ModMailLogStopSlashCommand : ISlashCommand<NoOptions>
     }
 }
 
-public class ModMailLogShowSlashCommand : ISlashCommand<NoOptions>
+public class ModMailLogShowSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail log-show");
-
-    private readonly IModMailLogChannelRepository _modMailLogChannelRepository;
-
-    public ModMailLogShowSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository)
-    {
-        _modMailLogChannelRepository = modMailLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -98,7 +77,7 @@ public class ModMailLogShowSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var modLog = await _modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
+                var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
 
                 var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
 

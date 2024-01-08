@@ -10,21 +10,14 @@ public interface IDisabledGuildChannelCommandRepository
     ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName);
 }
 
-public class NotGuildChannelDisabledPrecondition : ICommandPrecondition
+public class NotGuildChannelDisabledPrecondition(IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository) : ICommandPrecondition
 {
-    private readonly IDisabledGuildChannelCommandRepository _disabledGuildChannelCommandRepository;
-
-    public NotGuildChannelDisabledPrecondition(IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository)
-    {
-        _disabledGuildChannelCommandRepository = disabledGuildChannelCommandRepository;
-    }
-
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.Guild == null)
             return new PreconditionPassed();
 
-        var isDisabled = await _disabledGuildChannelCommandRepository.IsGuildChannelCommandDisabledAsync(context.Channel, context.Guild, command.Metadata);
+        var isDisabled = await disabledGuildChannelCommandRepository.IsGuildChannelCommandDisabledAsync(context.Channel, context.Guild, command.Metadata);
 
         var canRun = await new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageChannels).CanRunAsync(command, context);
 

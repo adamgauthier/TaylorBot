@@ -15,45 +15,32 @@ public interface IDisabledGuildCommandRepository
     ValueTask DisableInAsync(IGuild guild, string commandName);
 }
 
-public class DisabledGuildCommandDomainService
+public class DisabledGuildCommandDomainService(
+    TaskExceptionLogger taskExceptionLogger,
+    IDisabledGuildCommandRepository disabledGuildCommandRepository,
+    GuildTrackerDomainService guildTrackerDomainService,
+    Lazy<ITaylorBotClient> taylorBotClient)
 {
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-    private readonly IDisabledGuildCommandRepository _disabledGuildCommandRepository;
-    private readonly GuildTrackerDomainService _guildTrackerDomainService;
-    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
-
-    public DisabledGuildCommandDomainService(
-        TaskExceptionLogger taskExceptionLogger,
-        IDisabledGuildCommandRepository disabledGuildCommandRepository,
-        GuildTrackerDomainService guildTrackerDomainService,
-        Lazy<ITaylorBotClient> taylorBotClient)
-    {
-        _taskExceptionLogger = taskExceptionLogger;
-        _disabledGuildCommandRepository = disabledGuildCommandRepository;
-        _guildTrackerDomainService = guildTrackerDomainService;
-        _taylorBotClient = taylorBotClient;
-    }
-
     public async Task<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command, RunContext context)
     {
-        var result = await _disabledGuildCommandRepository.IsGuildCommandDisabledAsync(guild, command);
+        var result = await disabledGuildCommandRepository.IsGuildCommandDisabledAsync(guild, command);
         if (!result.WasCacheHit)
         {
             // Take advantage of the cache miss to track guild name changes in the background
-            _ = _taskExceptionLogger.LogOnError(
+            _ = taskExceptionLogger.LogOnError(
                 async () =>
                 {
                     if (context.IsFakeGuild)
                     {
-                        var realGuild = _taylorBotClient.Value.ResolveRequiredGuild(guild.Id);
-                        await _guildTrackerDomainService.TrackGuildAndNameAsync(realGuild);
+                        var realGuild = taylorBotClient.Value.ResolveRequiredGuild(guild.Id);
+                        await guildTrackerDomainService.TrackGuildAndNameAsync(realGuild);
                     }
                     else
                     {
-                        await _guildTrackerDomainService.TrackGuildAndNameAsync(guild);
+                        await guildTrackerDomainService.TrackGuildAndNameAsync(guild);
                     }
                 },
-                nameof(_guildTrackerDomainService.TrackGuildAndNameAsync)
+                nameof(guildTrackerDomainService.TrackGuildAndNameAsync)
             );
 
         }
@@ -61,21 +48,14 @@ public class DisabledGuildCommandDomainService
     }
 }
 
-public class NotGuildDisabledPrecondition : ICommandPrecondition
+public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService) : ICommandPrecondition
 {
-    private readonly DisabledGuildCommandDomainService _disabledGuildCommandDomainService;
-
-    public NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService)
-    {
-        _disabledGuildCommandDomainService = disabledGuildCommandDomainService;
-    }
-
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.Guild == null)
             return new PreconditionPassed();
 
-        var isDisabled = await _disabledGuildCommandDomainService.IsGuildCommandDisabledAsync(context.Guild, command.Metadata, context);
+        var isDisabled = await disabledGuildCommandDomainService.IsGuildCommandDisabledAsync(context.Guild, command.Metadata, context);
 
         var canRun = await new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild).CanRunAsync(command, context);
 

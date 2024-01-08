@@ -6,32 +6,15 @@ using TaylorBot.Net.InstagramNotifier.Domain.Options;
 
 namespace TaylorBot.Net.InstagramNotifier.Domain;
 
-public class InstagramNotifierService
-{
-    private readonly ILogger<InstagramNotifierService> _logger;
-    private readonly IOptionsMonitor<InstagramNotifierOptions> _optionsMonitor;
-    private readonly IInstagramCheckerRepository _instagramCheckerRepository;
-    private readonly IInstagramClient _instagramClient;
-    private readonly InstagramPostToEmbedMapper _instagramPostToEmbedMapper;
-    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
-
-    public InstagramNotifierService(
-        ILogger<InstagramNotifierService> logger,
-        IOptionsMonitor<InstagramNotifierOptions> optionsMonitor,
-        IInstagramCheckerRepository instagramCheckerRepository,
-        IInstagramClient instagramClient,
-        InstagramPostToEmbedMapper instagramPostToEmbedMapper,
-        Lazy<ITaylorBotClient> taylorBotClient
+public class InstagramNotifierService(
+    ILogger<InstagramNotifierService> logger,
+    IOptionsMonitor<InstagramNotifierOptions> optionsMonitor,
+    IInstagramCheckerRepository instagramCheckerRepository,
+    IInstagramClient instagramClient,
+    InstagramPostToEmbedMapper instagramPostToEmbedMapper,
+    Lazy<ITaylorBotClient> taylorBotClient
     )
-    {
-        _logger = logger;
-        _optionsMonitor = optionsMonitor;
-        _instagramCheckerRepository = instagramCheckerRepository;
-        _instagramClient = instagramClient;
-        _instagramPostToEmbedMapper = instagramPostToEmbedMapper;
-        _taylorBotClient = taylorBotClient;
-    }
-
+{
     public async Task StartCheckingInstagramsAsync()
     {
         while (true)
@@ -42,35 +25,35 @@ public class InstagramNotifierService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in {nameof(CheckAllInstagramsAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(CheckAllInstagramsAsync)}.");
             }
-            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
 
     public async ValueTask CheckAllInstagramsAsync()
     {
-        foreach (var instagramChecker in await _instagramCheckerRepository.GetInstagramCheckersAsync())
+        foreach (var instagramChecker in await instagramCheckerRepository.GetInstagramCheckersAsync())
         {
             try
             {
-                var channel = _taylorBotClient.Value.ResolveRequiredGuild(instagramChecker.GuildId).GetRequiredTextChannel(instagramChecker.ChannelId);
+                var channel = taylorBotClient.Value.ResolveRequiredGuild(instagramChecker.GuildId).GetRequiredTextChannel(instagramChecker.ChannelId);
 
-                var newestPost = await _instagramClient.GetLatestPostAsync(instagramChecker.InstagramUsername);
+                var newestPost = await instagramClient.GetLatestPostAsync(instagramChecker.InstagramUsername);
 
                 if (newestPost.ShortCode != instagramChecker.LastPostCode && newestPost.TakenAt > instagramChecker.LastPostTakenAt)
                 {
-                    _logger.LogDebug($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}.");
-                    await channel.SendMessageAsync(embed: _instagramPostToEmbedMapper.ToEmbed(newestPost));
-                    await _instagramCheckerRepository.UpdateLastPostAsync(instagramChecker, newestPost);
+                    logger.LogDebug($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}.");
+                    await channel.SendMessageAsync(embed: instagramPostToEmbedMapper.ToEmbed(newestPost));
+                    await instagramCheckerRepository.UpdateLastPostAsync(instagramChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"Exception occurred when checking {instagramChecker}.");
+                logger.LogError(exception, $"Exception occurred when checking {instagramChecker}.");
             }
 
-            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
 }

@@ -7,16 +7,9 @@ public interface IUserAddedResult
     string? PreviousUsername { get; }
 }
 
-public class UserAddedResult : IUserAddedResult
+public class UserAddedResult(bool wasAdded, bool wasUsernameChanged, string? previousUsername) : IUserAddedResult
 {
-    public bool WasAdded { get; }
-    public bool WasUsernameChanged { get; }
-    public string? PreviousUsername { get; }
-
-    public UserAddedResult(bool wasAdded, bool wasUsernameChanged, string? previousUsername)
-    {
-        WasAdded = wasAdded;
-        WasUsernameChanged = wasUsernameChanged;
-        PreviousUsername = previousUsername;
-    }
+    public bool WasAdded { get; } = wasAdded;
+    public bool WasUsernameChanged { get; } = wasUsernameChanged;
+    public string? PreviousUsername { get; } = previousUsername;
 }

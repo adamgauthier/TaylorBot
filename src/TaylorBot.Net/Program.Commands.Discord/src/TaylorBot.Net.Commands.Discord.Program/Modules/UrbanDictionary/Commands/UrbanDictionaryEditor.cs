@@ -8,16 +8,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
 
-public class UrbanDictionaryEditor : IMessageEditor, IEmbedPageEditor
+public class UrbanDictionaryEditor(UrbanDictionaryResult searchResult) : IMessageEditor, IEmbedPageEditor
 {
-    private readonly UrbanDictionaryResult _searchResult;
-
-    public int PageCount => _searchResult.Definitions.Count;
-
-    public UrbanDictionaryEditor(UrbanDictionaryResult searchResult)
-    {
-        _searchResult = searchResult;
-    }
+    public int PageCount => searchResult.Definitions.Count;
 
     public MessageContent Edit(int currentPage)
     {
@@ -38,7 +31,7 @@ public class UrbanDictionaryEditor : IMessageEditor, IEmbedPageEditor
 
         if (PageCount > 0)
         {
-            var page = _searchResult.Definitions[currentPage - 1];
+            var page = searchResult.Definitions[currentPage - 1];
 
             var description = page.Definition.Truncate(EmbedBuilder.MaxDescriptionLength);
 

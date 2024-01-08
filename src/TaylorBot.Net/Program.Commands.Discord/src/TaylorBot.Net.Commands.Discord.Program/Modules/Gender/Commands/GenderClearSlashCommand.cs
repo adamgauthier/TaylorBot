@@ -4,16 +4,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderClearSlashCommand : ISlashCommand<NoOptions>
+public class GenderClearSlashCommand(IGenderRepository genderRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("gender clear");
-
-    private readonly IGenderRepository _genderRepository;
-
-    public GenderClearSlashCommand(IGenderRepository genderRepository)
-    {
-        _genderRepository = genderRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -21,7 +14,7 @@ public class GenderClearSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _genderRepository.ClearGenderAsync(context.User);
+                await genderRepository.ClearGenderAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""

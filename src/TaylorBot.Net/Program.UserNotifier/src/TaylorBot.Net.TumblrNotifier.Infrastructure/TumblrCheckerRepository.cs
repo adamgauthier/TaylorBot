@@ -6,15 +6,8 @@ using TaylorBot.Net.TumblrNotifier.Domain;
 
 namespace TaylorBot.Net.TumblrNotifier.Infrastructure;
 
-public class TumblrCheckerRepository : ITumblrCheckerRepository
+public class TumblrCheckerRepository(PostgresConnectionFactory postgresConnectionFactory) : ITumblrCheckerRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public TumblrCheckerRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class TumblrCheckerDto
     {
         public string guild_id { get; set; } = null!;
@@ -25,7 +18,7 @@ public class TumblrCheckerRepository : ITumblrCheckerRepository
 
     public async ValueTask<IReadOnlyCollection<TumblrChecker>> GetTumblrCheckersAsync()
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var checkers = await connection.QueryAsync<TumblrCheckerDto>(
             "SELECT guild_id, channel_id, tumblr_user, last_link FROM checkers.tumblr_checker;"
@@ -41,7 +34,7 @@ public class TumblrCheckerRepository : ITumblrCheckerRepository
 
     public async ValueTask UpdateLastPostAsync(TumblrChecker tumblrChecker, BasePost tumblrPost)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE checkers.tumblr_checker SET last_link = @LastLink

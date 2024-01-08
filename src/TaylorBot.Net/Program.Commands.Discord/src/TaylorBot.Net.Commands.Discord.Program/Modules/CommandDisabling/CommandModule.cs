@@ -10,18 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling;
 [Name("Command")]
 [Group("command")]
 [Alias("c")]
-public class CommandModule : TaylorBotModule
+public class CommandModule(ICommandRunner commandRunner, IDisabledCommandRepository disabledCommandRepository) : TaylorBotModule
 {
     private static readonly string[] GuardedModuleNames = new[] { "framework", "command" };
-
-    private readonly ICommandRunner _commandRunner;
-    private readonly IDisabledCommandRepository _disabledCommandRepository;
-
-    public CommandModule(ICommandRunner commandRunner, IDisabledCommandRepository disabledCommandRepository)
-    {
-        _commandRunner = commandRunner;
-        _disabledCommandRepository = disabledCommandRepository;
-    }
 
     [Command("enable-global")]
     [Summary("Enables a command globally.")]
@@ -35,7 +26,7 @@ public class CommandModule : TaylorBotModule
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                await _disabledCommandRepository.EnableGloballyAsync(command.Name);
+                await disabledCommandRepository.EnableGloballyAsync(command.Name);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithUserAsAuthor(Context.User)
@@ -47,7 +38,7 @@ public class CommandModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(enableCommand, context);
+        var result = await commandRunner.RunAsync(enableCommand, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -76,7 +67,7 @@ public class CommandModule : TaylorBotModule
                     .Build());
                 }
 
-                var disabledMessage = await _disabledCommandRepository.DisableGloballyAsync(command.Name, message);
+                var disabledMessage = await disabledCommandRepository.DisableGloballyAsync(command.Name, message);
 
                 return new EmbedResult(embed
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -87,7 +78,7 @@ public class CommandModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(disableCommand, context);
+        var result = await commandRunner.RunAsync(disableCommand, context);
 
         return new TaylorBotResult(result, context);
     }

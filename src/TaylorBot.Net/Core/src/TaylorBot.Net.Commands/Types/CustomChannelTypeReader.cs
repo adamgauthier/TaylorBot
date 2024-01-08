@@ -8,16 +8,10 @@ namespace TaylorBot.Net.Commands.Types;
 public class CustomChannelTypeReader<T> : TypeReader
     where T : class, IChannel
 {
-    private class ChannelVal<U> where U : class, IChannel
+    private class ChannelVal<U>(IChannelArgument<U> channel, float score) where U : class, IChannel
     {
-        public IChannelArgument<U> Channel { get; }
-        public float Score { get; }
-
-        public ChannelVal(IChannelArgument<U> channel, float score)
-        {
-            Channel = channel;
-            Score = score;
-        }
+        public IChannelArgument<U> Channel { get; } = channel;
+        public float Score { get; } = score;
     }
 
     private void AddResultIfTypeMatches(Dictionary<ulong, ChannelVal<T>> results, IChannel channel, float score)

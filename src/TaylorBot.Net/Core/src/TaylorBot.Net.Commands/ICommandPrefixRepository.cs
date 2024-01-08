@@ -13,29 +13,18 @@ public interface ICommandPrefixRepository
     ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix);
 }
 
-public class CommandPrefixDomainService
+public class CommandPrefixDomainService(TaskExceptionLogger taskExceptionLogger, ICommandPrefixRepository commandPrefixRepository, GuildTrackerDomainService guildTrackerDomainService)
 {
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-    private readonly ICommandPrefixRepository _commandPrefixRepository;
-    private readonly GuildTrackerDomainService _guildTrackerDomainService;
-
-    public CommandPrefixDomainService(TaskExceptionLogger taskExceptionLogger, ICommandPrefixRepository commandPrefixRepository, GuildTrackerDomainService guildTrackerDomainService)
-    {
-        _taskExceptionLogger = taskExceptionLogger;
-        _commandPrefixRepository = commandPrefixRepository;
-        _guildTrackerDomainService = guildTrackerDomainService;
-    }
-
     public async Task<string> GetPrefixAsync(IGuild? guild)
     {
         if (guild != null)
         {
-            var result = await _commandPrefixRepository.GetOrInsertGuildPrefixAsync(guild);
+            var result = await commandPrefixRepository.GetOrInsertGuildPrefixAsync(guild);
             if (result.GuildAdded.WasAdded || result.GuildAdded.WasGuildNameChanged)
             {
-                _ = _taskExceptionLogger.LogOnError(
-                    async () => await _guildTrackerDomainService.TrackGuildNameAsync(guild, result.GuildAdded),
-                    nameof(_guildTrackerDomainService.TrackGuildNameAsync)
+                _ = taskExceptionLogger.LogOnError(
+                    async () => await guildTrackerDomainService.TrackGuildNameAsync(guild, result.GuildAdded),
+                    nameof(guildTrackerDomainService.TrackGuildNameAsync)
                 );
             }
             return result.Prefix;

@@ -6,29 +6,20 @@ using TaylorBot.Net.MessagesTracker.Domain;
 
 namespace TaylorBot.Net.MessagesTracker.Infrastructure;
 
-public class TextChannelMessageCountPostgresRepository : ITextChannelMessageCountRepository
+public class TextChannelMessageCountPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ConnectionMultiplexer connectionMultiplexer) : ITextChannelMessageCountRepository
 {
     private const string MessageCountIncrementsHashKey = "channel-message-count-increments";
 
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-
-    public TextChannelMessageCountPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ConnectionMultiplexer connectionMultiplexer)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-        _connectionMultiplexer = connectionMultiplexer;
-    }
-
     public async ValueTask QueueIncrementMessageCountAsync(ITextChannel channel)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
 
         await redis.HashIncrementAsync(MessageCountIncrementsHashKey, $"guild:{channel.GuildId}:channel:{channel.Id}");
     }
 
     public async ValueTask PersistQueuedMessageCountIncrementsAsync()
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
 
         var tempKey = $"{MessageCountIncrementsHashKey}:{Guid.NewGuid():N}";
         var renameSucceeded = await TryRenameKeyAsync(redis, MessageCountIncrementsHashKey, tempKey);
@@ -44,7 +35,7 @@ public class TextChannelMessageCountPostgresRepository : ITextChannelMessageCoun
                 var channelId = nameParts[3];
                 var increment = (long)entry.Value;
 
-                await using var connection = _postgresConnectionFactory.CreateConnection();
+                await using var connection = postgresConnectionFactory.CreateConnection();
 
                 await connection.ExecuteAsync(
                     @"UPDATE guilds.text_channels

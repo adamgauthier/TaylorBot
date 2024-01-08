@@ -6,29 +6,18 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 
-public class ModMailChannelLogger
+public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMailLogChannelRepository modMailLogChannelRepository, IModChannelLogger modChannelLogger)
 {
-    private readonly ILogger<ModMailChannelLogger> _logger;
-    private readonly IModMailLogChannelRepository _modMailLogChannelRepository;
-    private readonly IModChannelLogger _modChannelLogger;
-
-    public ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMailLogChannelRepository modMailLogChannelRepository, IModChannelLogger modChannelLogger)
-    {
-        _logger = logger;
-        _modMailLogChannelRepository = modMailLogChannelRepository;
-        _modChannelLogger = modChannelLogger;
-    }
-
     public async ValueTask<ITextChannel?> GetModMailLogAsync(IGuild guild)
     {
-        var modLog = await _modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
+        var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
         if (modLog != null)
         {
             var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
             return channel;
         }
 
-        return await _modChannelLogger.GetModLogAsync(guild);
+        return await modChannelLogger.GetModLogAsync(guild);
     }
 
     public async ValueTask<bool> TrySendModMailLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
@@ -50,7 +39,7 @@ public class ModMailChannelLogger
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Error when sending mod mail log in {Channel}:", channel.FormatLog());
+                logger.LogWarning(e, "Error when sending mod mail log in {Channel}:", channel.FormatLog());
             }
         }
 
@@ -59,6 +48,6 @@ public class ModMailChannelLogger
 
     public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
     {
-        return _modChannelLogger.CreateResultEmbed(context, wasLogged, successMessage);
+        return modChannelLogger.CreateResultEmbed(context, wasLogged, successMessage);
     }
 }

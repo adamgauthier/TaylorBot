@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class MemberPostgresRepository : IMemberTrackingRepository
+public class MemberPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IMemberTrackingRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public MemberPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var experience = await connection.QuerySingleAsync<long>(
             """

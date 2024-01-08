@@ -6,16 +6,9 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayClearSlashCommand : ISlashCommand<NoOptions>
+public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday clear");
-
-    private readonly IBirthdayRepository _birthdayRepository;
-
-    public BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository)
-    {
-        _birthdayRepository = birthdayRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -23,7 +16,7 @@ public class BirthdayClearSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _birthdayRepository.ClearBirthdayAsync(context.User);
+                await birthdayRepository.ClearBirthdayAsync(context.User);
 
                 var embed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)

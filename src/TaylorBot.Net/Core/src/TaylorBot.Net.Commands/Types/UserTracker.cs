@@ -11,33 +11,20 @@ public interface IUserTracker
     ValueTask TrackUserFromArgumentAsync(IUser user);
 }
 
-public class UserTracker : IUserTracker
+public class UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, IMemberTrackingRepository memberRepository) : IUserTracker
 {
-    private readonly ILogger<UserTracker> _logger;
-    private readonly IIgnoredUserRepository _ignoredUserRepository;
-    private readonly UsernameTrackerDomainService _usernameTrackerDomainService;
-    private readonly IMemberTrackingRepository _memberRepository;
-
-    public UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, IMemberTrackingRepository memberRepository)
-    {
-        _logger = logger;
-        _ignoredUserRepository = ignoredUserRepository;
-        _usernameTrackerDomainService = usernameTrackerDomainService;
-        _memberRepository = memberRepository;
-    }
-
     public async ValueTask TrackUserFromArgumentAsync(IUser user)
     {
-        var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user, user.IsBot);
-        await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, getUserIgnoreUntilResult);
+        var getUserIgnoreUntilResult = await ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user, user.IsBot);
+        await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, getUserIgnoreUntilResult);
 
         if (user is IGuildUser guildUser)
         {
-            var memberAdded = await _memberRepository.AddOrUpdateMemberAsync(guildUser, lastSpokeAt: null);
+            var memberAdded = await memberRepository.AddOrUpdateMemberAsync(guildUser, lastSpokeAt: null);
 
             if (memberAdded)
             {
-                _logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
+                logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
             }
         }
     }

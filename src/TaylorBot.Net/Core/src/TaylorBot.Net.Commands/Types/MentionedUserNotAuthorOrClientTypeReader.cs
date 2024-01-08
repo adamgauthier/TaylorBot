@@ -6,19 +6,12 @@ namespace TaylorBot.Net.Commands.Types;
 
 public interface IMentionedUserNotAuthorOrClient<T> : IUserArgument<T> where T : class, IUser { }
 
-public class MentionedUserNotAuthorOrClientTypeReader<T> : TypeReader
+public class MentionedUserNotAuthorOrClientTypeReader<T>(MentionedUserNotAuthorTypeReader<T> mentionedUserNotAuthorTypeReader) : TypeReader
     where T : class, IUser
 {
-    private readonly MentionedUserNotAuthorTypeReader<T> _mentionedUserNotAuthorTypeReader;
-
-    public MentionedUserNotAuthorOrClientTypeReader(MentionedUserNotAuthorTypeReader<T> mentionedUserNotAuthorTypeReader)
-    {
-        _mentionedUserNotAuthorTypeReader = mentionedUserNotAuthorTypeReader;
-    }
-
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
-        var result = await _mentionedUserNotAuthorTypeReader.ReadAsync(context, input, services);
+        var result = await mentionedUserNotAuthorTypeReader.ReadAsync(context, input, services);
         if (result.Values != null)
         {
             var mentioned = (IUserArgument<T>)result.BestMatch;

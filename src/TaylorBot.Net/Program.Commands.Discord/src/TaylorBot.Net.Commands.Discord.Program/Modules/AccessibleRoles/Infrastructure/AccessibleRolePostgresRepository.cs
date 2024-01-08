@@ -6,18 +6,11 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
 
-public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
+public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IAccessibleRoleRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public AccessibleRolePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<bool> IsRoleAccessibleAsync(IRole role)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<bool>(
             @"SELECT EXISTS(
@@ -44,7 +37,7 @@ public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
 
     public async ValueTask<AccessibleRoleWithGroup?> GetAccessibleRoleAsync(IRole role)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var accessibleRole = await connection.QuerySingleOrDefaultAsync<GetSingleAccessibleRoleDto?>(
             @"SELECT group_name FROM guilds.guild_accessible_roles
@@ -95,7 +88,7 @@ public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
 
     public async ValueTask<IReadOnlyCollection<AccessibleRole>> GetAccessibleRolesAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var roles = await connection.QueryAsync<AccessibleRoleDto>(
             @"SELECT role_id, group_name FROM guilds.guild_accessible_roles
@@ -114,7 +107,7 @@ public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
 
     public async ValueTask AddAccessibleRoleAsync(IRole role)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible)
@@ -131,7 +124,7 @@ public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
 
     public async ValueTask AddOrUpdateAccessibleRoleWithGroupAsync(IRole role, AccessibleGroupName groupName)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible, group_name)
@@ -149,7 +142,7 @@ public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
 
     public async ValueTask RemoveAccessibleRoleAsync(IRole role)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE guilds.guild_accessible_roles
@@ -165,7 +158,7 @@ public class AccessibleRolePostgresRepository : IAccessibleRoleRepository
 
     public async ValueTask ClearGroupFromAccessibleRoleAsync(IRole role)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE guilds.guild_accessible_roles

@@ -4,15 +4,8 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 
-public class BotInfoRepositoryPostgresRepository : IBotInfoRepository
+public class BotInfoRepositoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IBotInfoRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public BotInfoRepositoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class ProductVersionDto
     {
         public string info_value { get; set; } = null!;
@@ -20,7 +13,7 @@ public class BotInfoRepositoryPostgresRepository : IBotInfoRepository
 
     public async ValueTask<string> GetProductVersionAsync()
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var productVersionDto = await connection.QuerySingleAsync<ProductVersionDto>(
             "SELECT info_value FROM configuration.application_info WHERE info_key = 'product_version';"

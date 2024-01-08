@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class PlusPostgresRepository : IPlusRepository
+public class PlusPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IPlusRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public PlusPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<bool> IsActivePlusUserAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<bool>(
             @"SELECT EXISTS(
@@ -31,7 +24,7 @@ public class PlusPostgresRepository : IPlusRepository
 
     public async ValueTask<bool> IsActivePlusGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<bool>(
             @"SELECT EXISTS(

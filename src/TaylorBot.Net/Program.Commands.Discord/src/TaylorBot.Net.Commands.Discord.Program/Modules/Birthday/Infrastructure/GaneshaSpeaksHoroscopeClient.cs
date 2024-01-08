@@ -4,22 +4,13 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
-public class GaneshaSpeaksHoroscopeClient : IHoroscopeClient
+public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient httpClient) : IHoroscopeClient
 {
     private static readonly Regex HoroscopeRegex = new("<p id=\"horo_content\">(.*)<\\/p>");
 
-    private readonly ILogger<GaneshaSpeaksHoroscopeClient> _logger;
-    private readonly HttpClient _httpClient;
-
-    public GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient httpClient)
-    {
-        _logger = logger;
-        _httpClient = httpClient;
-    }
-
     public async ValueTask<IHoroscopeResult> GetHoroscopeAsync(string zodiacSign)
     {
-        var response = await _httpClient.GetAsync($"https://www.ganeshaspeaks.com/horoscopes/daily-horoscope/{zodiacSign}/");
+        var response = await httpClient.GetAsync($"https://www.ganeshaspeaks.com/horoscopes/daily-horoscope/{zodiacSign}/");
 
         if (response.IsSuccessStatusCode)
         {
@@ -36,7 +27,7 @@ public class GaneshaSpeaksHoroscopeClient : IHoroscopeClient
         }
         else
         {
-            _logger.LogWarning("Unexpected status code when fetching from GaneshaSpeaks ({StatusCode}).", response.StatusCode);
+            logger.LogWarning("Unexpected status code when fetching from GaneshaSpeaks ({StatusCode}).", response.StatusCode);
             return new GaneshaSpeaksGenericErrorResult(response.StatusCode.ToString());
         }
     }

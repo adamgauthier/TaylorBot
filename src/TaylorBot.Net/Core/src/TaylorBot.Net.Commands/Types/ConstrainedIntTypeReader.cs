@@ -13,33 +13,24 @@ public interface IConstrainedIntFactory
     IConstrainedInt Create(int value);
 }
 
-public class ConstrainedIntTypeReader<T> : TypeReader
+public class ConstrainedIntTypeReader<T>(int minimumInclusive, int? maximumInclusive = null) : TypeReader
     where T : IConstrainedIntFactory
 {
-    private readonly int _minimumInclusive;
-    private readonly int? _maximumInclusive;
-
-    public ConstrainedIntTypeReader(int minimumInclusive, int? maximumInclusive = null)
-    {
-        _minimumInclusive = minimumInclusive;
-        _maximumInclusive = maximumInclusive;
-    }
-
     public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
         if (int.TryParse(input, out var parsed))
         {
-            if (parsed < _minimumInclusive)
+            if (parsed < minimumInclusive)
             {
                 return Task.FromResult(TypeReaderResult.FromError(
-                    CommandError.ParseFailed, $"Number '{input}' must be equal to or greater than {_minimumInclusive}."
+                    CommandError.ParseFailed, $"Number '{input}' must be equal to or greater than {minimumInclusive}."
                 ));
             }
 
-            if (_maximumInclusive.HasValue && parsed > _maximumInclusive.Value)
+            if (maximumInclusive.HasValue && parsed > maximumInclusive.Value)
             {
                 return Task.FromResult(TypeReaderResult.FromError(
-                    CommandError.ParseFailed, $"Number '{input}' must be equal to or less than {_maximumInclusive}."
+                    CommandError.ParseFailed, $"Number '{input}' must be equal to or less than {maximumInclusive}."
                 ));
             }
 

@@ -4,17 +4,8 @@ using TaylorBot.Net.Commands.Preconditions;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class IgnoredUserRedisCacheRepository : IIgnoredUserRepository
+public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, IgnoredUserPostgresRepository ignoredUserPostgresRepository) : IIgnoredUserRepository
 {
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-    private readonly IgnoredUserPostgresRepository _ignoredUserPostgresRepository;
-
-    public IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, IgnoredUserPostgresRepository ignoredUserPostgresRepository)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-        _ignoredUserPostgresRepository = ignoredUserPostgresRepository;
-    }
-
     private static string GetKey(IUser user) => $"ignore-until:user:{user.Id}";
 
     private static async ValueTask CacheAsync(IDatabase redis, string key, DateTimeOffset ignoreUntil)
@@ -28,13 +19,13 @@ public class IgnoredUserRedisCacheRepository : IIgnoredUserRepository
 
     public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(user);
         var cachedIgnoreUntil = await redis.StringGetAsync(key);
 
         if (!cachedIgnoreUntil.HasValue)
         {
-            var getUserIgnoreUntilResult = await _ignoredUserPostgresRepository.InsertOrGetUserIgnoreUntilAsync(user, isBot);
+            var getUserIgnoreUntilResult = await ignoredUserPostgresRepository.InsertOrGetUserIgnoreUntilAsync(user, isBot);
             await CacheAsync(redis, key, getUserIgnoreUntilResult.IgnoreUntil);
             return getUserIgnoreUntilResult;
         }
@@ -49,9 +40,9 @@ public class IgnoredUserRedisCacheRepository : IIgnoredUserRepository
 
     public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
     {
-        await _ignoredUserPostgresRepository.IgnoreUntilAsync(user, until);
+        await ignoredUserPostgresRepository.IgnoreUntilAsync(user, until);
 
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(user);
         await CacheAsync(redis, key, until);
     }

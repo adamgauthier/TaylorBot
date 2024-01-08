@@ -13,20 +13,11 @@ public interface IModChannelLogger
     Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
 }
 
-public class ModChannelLogger : IModChannelLogger
+public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRepository modLogChannelRepository) : IModChannelLogger
 {
-    private readonly ILogger<ModChannelLogger> _logger;
-    private readonly IModLogChannelRepository _modLogChannelRepository;
-
-    public ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRepository modLogChannelRepository)
-    {
-        _logger = logger;
-        _modLogChannelRepository = modLogChannelRepository;
-    }
-
     public async ValueTask<ITextChannel?> GetModLogAsync(IGuild guild)
     {
-        var modLog = await _modLogChannelRepository.GetModLogForGuildAsync(guild);
+        var modLog = await modLogChannelRepository.GetModLogForGuildAsync(guild);
         if (modLog != null)
         {
             var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
@@ -54,7 +45,7 @@ public class ModChannelLogger : IModChannelLogger
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
+                logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
             }
         }
 

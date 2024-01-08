@@ -4,18 +4,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderSetSlashCommand : ISlashCommand<GenderSetSlashCommand.Options>
+public class GenderSetSlashCommand(IGenderRepository genderRepository) : ISlashCommand<GenderSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("gender set");
 
     public record Options(ParsedString gender);
-
-    private readonly IGenderRepository _genderRepository;
-
-    public GenderSetSlashCommand(IGenderRepository genderRepository)
-    {
-        _genderRepository = genderRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -23,7 +16,7 @@ public class GenderSetSlashCommand : ISlashCommand<GenderSetSlashCommand.Options
             new(Info.Name),
             async () =>
             {
-                await _genderRepository.SetGenderAsync(context.User, options.gender.Value);
+                await genderRepository.SetGenderAsync(context.User, options.gender.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""

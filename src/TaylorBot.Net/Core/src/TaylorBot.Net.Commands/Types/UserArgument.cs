@@ -8,24 +8,15 @@ public interface IUserArgument<T> where T : class, IUser
     ValueTask<T> GetTrackedUserAsync();
 }
 
-public class UserArgument<T> : IUserArgument<T>, IMentionedUser<T>, IMentionedUserNotAuthor<T>, IMentionedUserNotAuthorOrClient<T>
+public class UserArgument<T>(T user, IUserTracker userTracker) : IUserArgument<T>, IMentionedUser<T>, IMentionedUserNotAuthor<T>, IMentionedUserNotAuthorOrClient<T>
     where T : class, IUser
 {
-    private readonly T _user;
-    private readonly IUserTracker _userTracker;
-
-    public UserArgument(T user, IUserTracker userTracker)
-    {
-        _user = user;
-        _userTracker = userTracker;
-    }
-
-    public ulong UserId => _user.Id;
+    public ulong UserId => user.Id;
 
     public async ValueTask<T> GetTrackedUserAsync()
     {
-        await _userTracker.TrackUserFromArgumentAsync(_user);
+        await userTracker.TrackUserFromArgumentAsync(user);
 
-        return _user;
+        return user;
     }
 }

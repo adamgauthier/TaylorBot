@@ -6,20 +6,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 
-public class CommandServerDisableSlashCommand : ISlashCommand<CommandServerDisableSlashCommand.Options>
+public class CommandServerDisableSlashCommand(ICommandRepository commandRepository, IDisabledGuildCommandRepository disabledGuildCommandRepository) : ISlashCommand<CommandServerDisableSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("command server-disable");
 
     public record Options(ParsedString command);
-
-    private readonly ICommandRepository _commandRepository;
-    private readonly IDisabledGuildCommandRepository _disabledGuildCommandRepository;
-
-    public CommandServerDisableSlashCommand(ICommandRepository commandRepository, IDisabledGuildCommandRepository disabledGuildCommandRepository)
-    {
-        _commandRepository = commandRepository;
-        _disabledGuildCommandRepository = disabledGuildCommandRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -29,7 +20,7 @@ public class CommandServerDisableSlashCommand : ISlashCommand<CommandServerDisab
             {
                 var guild = context.Guild!;
                 var name = options.command.Value.Trim().ToLowerInvariant();
-                var command = await _commandRepository.FindCommandByAliasAsync(name);
+                var command = await commandRepository.FindCommandByAliasAsync(name);
 
                 if (command == null)
                 {
@@ -46,7 +37,7 @@ public class CommandServerDisableSlashCommand : ISlashCommand<CommandServerDisab
                     return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
                 }
 
-                await _disabledGuildCommandRepository.DisableInAsync(guild, command.Name);
+                await disabledGuildCommandRepository.DisableInAsync(guild, command.Name);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in '{guild.Name}'. ✅"));
             },
@@ -58,20 +49,11 @@ public class CommandServerDisableSlashCommand : ISlashCommand<CommandServerDisab
     }
 }
 
-public class CommandServerEnableSlashCommand : ISlashCommand<CommandServerEnableSlashCommand.Options>
+public class CommandServerEnableSlashCommand(ICommandRepository commandRepository, IDisabledGuildCommandRepository disabledGuildCommandRepository) : ISlashCommand<CommandServerEnableSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("command server-enable");
 
     public record Options(ParsedString command);
-
-    private readonly ICommandRepository _commandRepository;
-    private readonly IDisabledGuildCommandRepository _disabledGuildCommandRepository;
-
-    public CommandServerEnableSlashCommand(ICommandRepository commandRepository, IDisabledGuildCommandRepository disabledGuildCommandRepository)
-    {
-        _commandRepository = commandRepository;
-        _disabledGuildCommandRepository = disabledGuildCommandRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -81,14 +63,14 @@ public class CommandServerEnableSlashCommand : ISlashCommand<CommandServerEnable
             {
                 var guild = context.Guild!;
                 var name = options.command.Value.Trim().ToLowerInvariant();
-                var command = await _commandRepository.FindCommandByAliasAsync(name);
+                var command = await commandRepository.FindCommandByAliasAsync(name);
 
                 if (command == null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
                 }
 
-                await _disabledGuildCommandRepository.EnableInAsync(guild, command.Name);
+                await disabledGuildCommandRepository.EnableInAsync(guild, command.Name);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in '{guild.Name}'. ✅"));
             },

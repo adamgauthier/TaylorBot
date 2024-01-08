@@ -8,16 +8,9 @@ namespace TaylorBot.Net.Commands.Types;
 
 public interface IMentionedUser<T> : IUserArgument<T> where T : class, IUser { }
 
-public class MentionedUserTypeReader<T> : TypeReader
+public class MentionedUserTypeReader<T>(IUserTracker userTracker) : TypeReader
     where T : class, IUser
 {
-    private readonly IUserTracker _userTracker;
-
-    public MentionedUserTypeReader(IUserTracker userTracker)
-    {
-        _userTracker = userTracker;
-    }
-
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
         if (MentionUtils.TryParseUser(input, out var id))
@@ -29,7 +22,7 @@ public class MentionedUserTypeReader<T> : TypeReader
             if (user == null)
                 return TypeReaderResult.FromError(CommandError.ParseFailed, $"Could not find user '{input}'.");
 
-            return TypeReaderResult.FromSuccess(new UserArgument<T>(user, _userTracker));
+            return TypeReaderResult.FromSuccess(new UserArgument<T>(user, userTracker));
         }
         else
         {

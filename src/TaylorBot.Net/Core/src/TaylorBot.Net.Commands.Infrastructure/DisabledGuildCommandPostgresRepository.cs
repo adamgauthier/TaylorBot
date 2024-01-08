@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class DisabledGuildCommandPostgresRepository : IDisabledGuildCommandRepository
+public class DisabledGuildCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IDisabledGuildCommandRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public DisabledGuildCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask DisableInAsync(IGuild guild, string commandName)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """
@@ -35,7 +28,7 @@ public class DisabledGuildCommandPostgresRepository : IDisabledGuildCommandRepos
 
     public async ValueTask EnableInAsync(IGuild guild, string commandName)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "UPDATE guilds.guild_commands SET disabled = FALSE WHERE guild_id = @GuildId;",
@@ -49,7 +42,7 @@ public class DisabledGuildCommandPostgresRepository : IDisabledGuildCommandRepos
 
     public async ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var disabled = await connection.QuerySingleOrDefaultAsync<bool>(
             """

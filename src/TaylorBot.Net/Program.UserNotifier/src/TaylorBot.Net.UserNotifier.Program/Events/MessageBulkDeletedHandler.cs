@@ -5,22 +5,13 @@ using TaylorBot.Net.MessageLogging.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class MessageBulkDeletedHandler : IMessageBulkDeletedHandler
+public class MessageBulkDeletedHandler(TaskExceptionLogger taskExceptionLogger, MessageLoggerService messageDeletedLoggerService) : IMessageBulkDeletedHandler
 {
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-    private readonly MessageLoggerService _messageDeletedLoggerService;
-
-    public MessageBulkDeletedHandler(TaskExceptionLogger taskExceptionLogger, MessageLoggerService messageDeletedLoggerService)
-    {
-        _taskExceptionLogger = taskExceptionLogger;
-        _messageDeletedLoggerService = messageDeletedLoggerService;
-    }
-
     public ValueTask MessageBulkDeletedAsync(IReadOnlyCollection<Cacheable<IMessage, ulong>> cachedMessages, Cacheable<IMessageChannel, ulong> channel)
     {
-        Task.Run(async () => await _taskExceptionLogger.LogOnError(
-            _messageDeletedLoggerService.OnMessageBulkDeletedAsync(cachedMessages, await channel.GetOrDownloadAsync()),
-            nameof(_messageDeletedLoggerService.OnMessageDeletedAsync)
+        Task.Run(async () => await taskExceptionLogger.LogOnError(
+            messageDeletedLoggerService.OnMessageBulkDeletedAsync(cachedMessages, await channel.GetOrDownloadAsync()),
+            nameof(messageDeletedLoggerService.OnMessageDeletedAsync)
         ));
         return default;
     }

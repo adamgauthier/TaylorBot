@@ -5,25 +5,16 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
 [Name("Daily Payout 👔")]
-public class DailyPayoutModule : TaylorBotModule
+public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand dailyClaimCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly DailyClaimCommand _dailyClaimCommand;
-
-    public DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand dailyClaimCommand)
-    {
-        _commandRunner = commandRunner;
-        _dailyClaimCommand = dailyClaimCommand;
-    }
-
     [Command("daily")]
     [Alias("dailypayout")]
     [Summary("Awards you with your daily amount of taypoints.")]
     public async Task<RuntimeResult> DailyAsync()
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _dailyClaimCommand.Claim(Context.User, Context.CommandPrefix, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            dailyClaimCommand.Claim(Context.User, Context.CommandPrefix, isLegacyCommand: true),
             context
         );
 
@@ -47,7 +38,7 @@ public class DailyPayoutModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -69,7 +60,7 @@ public class DailyPayoutModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

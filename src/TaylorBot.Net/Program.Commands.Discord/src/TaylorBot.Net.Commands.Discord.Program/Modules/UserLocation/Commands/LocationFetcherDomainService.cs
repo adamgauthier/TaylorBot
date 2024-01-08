@@ -5,24 +5,15 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationFetcherDomainService
+public class LocationFetcherDomainService(IRateLimiter rateLimiter, ILocationClient locationClient)
 {
-    private readonly IRateLimiter _rateLimiter;
-    private readonly ILocationClient _locationClient;
-
-    public LocationFetcherDomainService(IRateLimiter rateLimiter, ILocationClient locationClient)
-    {
-        _rateLimiter = rateLimiter;
-        _locationClient = locationClient;
-    }
-
     public async Task<Result<Location, ICommandResult>> GetLocationAsync(IUser author, string location)
     {
-        var placeRateLimit = await _rateLimiter.VerifyDailyLimitAsync(author, "google-places-search");
+        var placeRateLimit = await rateLimiter.VerifyDailyLimitAsync(author, "google-places-search");
         if (placeRateLimit != null)
             return Error((ICommandResult)placeRateLimit);
 
-        var locationResult = await _locationClient.GetLocationAsync(location);
+        var locationResult = await locationClient.GetLocationAsync(location);
         switch (locationResult)
         {
             case LocationGenericErrorResult _:

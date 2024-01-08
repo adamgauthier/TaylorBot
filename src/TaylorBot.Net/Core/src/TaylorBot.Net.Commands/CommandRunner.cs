@@ -49,22 +49,17 @@ public interface ICommandRunner
     ValueTask<ICommandResult> RunAsync(Command command, RunContext context);
 }
 
-public class CommandRunner : ICommandRunner
+public class CommandRunner(
+    NotDisabledPrecondition notDisabled,
+    NotGuildDisabledPrecondition notGuildDisabled,
+    NotGuildChannelDisabledPrecondition notGuildChannelDisabled,
+    UserNotIgnoredPrecondition userNotIgnored,
+    MemberTrackedPrecondition memberTracked,
+    TextChannelTrackedPrecondition textChannelTracked,
+    UserNoOngoingCommandPrecondition userNoOngoingCommand
+    ) : ICommandRunner
 {
-    private readonly List<ICommandPrecondition> _preconditions;
-
-    public CommandRunner(
-        NotDisabledPrecondition notDisabled,
-        NotGuildDisabledPrecondition notGuildDisabled,
-        NotGuildChannelDisabledPrecondition notGuildChannelDisabled,
-        UserNotIgnoredPrecondition userNotIgnored,
-        MemberTrackedPrecondition memberTracked,
-        TextChannelTrackedPrecondition textChannelTracked,
-        UserNoOngoingCommandPrecondition userNoOngoingCommand
-    )
-    {
-        _preconditions = [notDisabled, notGuildDisabled, notGuildChannelDisabled, userNotIgnored, memberTracked, textChannelTracked, userNoOngoingCommand];
-    }
+    private readonly List<ICommandPrecondition> _preconditions = [notDisabled, notGuildDisabled, notGuildChannelDisabled, userNotIgnored, memberTracked, textChannelTracked, userNoOngoingCommand];
 
     public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)
     {

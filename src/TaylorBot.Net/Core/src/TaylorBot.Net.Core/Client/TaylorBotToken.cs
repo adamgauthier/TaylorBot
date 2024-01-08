@@ -1,11 +1,6 @@
 ﻿namespace TaylorBot.Net.Core.Client;
 
-public class TaylorBotToken
+public class TaylorBotToken(string token)
 {
-    public string Token { get; }
-
-    public TaylorBotToken(string token)
-    {
-        Token = token;
-    }
+    public string Token { get; } = token;
 }

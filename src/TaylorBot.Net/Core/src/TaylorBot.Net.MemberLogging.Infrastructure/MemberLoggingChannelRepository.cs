@@ -6,15 +6,8 @@ using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 
 namespace TaylorBot.Net.MemberLogging.Infrastructure;
 
-public class MemberLoggingChannelRepository : IMemberLoggingChannelRepository
+public class MemberLoggingChannelRepository(PostgresConnectionFactory postgresConnectionFactory) : IMemberLoggingChannelRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public MemberLoggingChannelRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class LogChannelDto
     {
         public string member_log_channel_id { get; set; } = null!;
@@ -22,7 +15,7 @@ public class MemberLoggingChannelRepository : IMemberLoggingChannelRepository
 
     public async ValueTask<LogChannel?> GetLogChannelForGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
             @"SELECT member_log_channel_id FROM plus.member_log_channels

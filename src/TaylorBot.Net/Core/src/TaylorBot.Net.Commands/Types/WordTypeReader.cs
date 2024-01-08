@@ -3,14 +3,9 @@ using System.Text.RegularExpressions;
 
 namespace TaylorBot.Net.Commands.Types;
 
-public class Word
+public class Word(string value)
 {
-    public string Value { get; }
-
-    public Word(string value)
-    {
-        Value = value;
-    }
+    public string Value { get; } = value;
 }
 
 public class WordTypeReader : TypeReader

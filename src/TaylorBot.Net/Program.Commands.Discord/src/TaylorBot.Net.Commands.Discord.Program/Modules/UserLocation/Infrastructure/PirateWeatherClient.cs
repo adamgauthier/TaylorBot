@@ -7,23 +7,12 @@ using TaylorBot.Net.Core.Infrastructure.Extensions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
-public class PirateWeatherClient : IWeatherClient
+public class PirateWeatherClient(ILogger<PirateWeatherClient> logger, IOptionsMonitor<WeatherOptions> options, HttpClient httpClient) : IWeatherClient
 {
     private static readonly string ForecastQueryString = new Dictionary<string, string>() {
         { "exclude", "minutely,hourly,daily,alerts,flags" },
         { "units", "si" },
     }.ToUrlQueryString();
-
-    private readonly ILogger<PirateWeatherClient> _logger;
-    private readonly IOptionsMonitor<WeatherOptions> _options;
-    private readonly HttpClient _httpClient;
-
-    public PirateWeatherClient(ILogger<PirateWeatherClient> logger, IOptionsMonitor<WeatherOptions> options, HttpClient httpClient)
-    {
-        _logger = logger;
-        _options = options;
-        _httpClient = httpClient;
-    }
 
     private record ForecastApi(ForecastApi.Currently currently)
     {
@@ -32,7 +21,7 @@ public class PirateWeatherClient : IWeatherClient
 
     public async ValueTask<IForecastResult> GetCurrentForecastAsync(string latitude, string longitude)
     {
-        var response = await _httpClient.GetAsync($"https://api.pirateweather.net/forecast/{_options.CurrentValue.PirateWeatherApiKey}/{latitude},{longitude}?{ForecastQueryString}");
+        var response = await httpClient.GetAsync($"https://api.pirateweather.net/forecast/{options.CurrentValue.PirateWeatherApiKey}/{latitude},{longitude}?{ForecastQueryString}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -50,7 +39,7 @@ public class PirateWeatherClient : IWeatherClient
         }
         else
         {
-            _logger.LogWarning("Unexpected status code from Dark Sky API: {code}", response.StatusCode);
+            logger.LogWarning("Unexpected status code from Dark Sky API: {code}", response.StatusCode);
             return new WeatherGenericErrorResult();
         }
     }

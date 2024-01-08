@@ -5,15 +5,8 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
 
-public class PlusUserPostgresRepository : IPlusUserRepository
+public class PlusUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IPlusUserRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public PlusUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class PlusGuildDtoDto
     {
         public bool active { get; set; }
@@ -23,7 +16,7 @@ public class PlusUserPostgresRepository : IPlusUserRepository
 
     public async ValueTask<PlusUser?> GetPlusUserAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var plusGuilds = (await connection.QueryAsync<PlusGuildDtoDto>(
             @"SELECT active, max_plus_guilds, guild_name
@@ -48,7 +41,7 @@ public class PlusUserPostgresRepository : IPlusUserRepository
 
     public async ValueTask AddPlusGuildAsync(IUser user, IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO plus.plus_guilds (guild_id, plus_user_id, state)
@@ -65,7 +58,7 @@ public class PlusUserPostgresRepository : IPlusUserRepository
 
     public async ValueTask DisablePlusGuildAsync(IUser user, IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE plus.plus_guilds

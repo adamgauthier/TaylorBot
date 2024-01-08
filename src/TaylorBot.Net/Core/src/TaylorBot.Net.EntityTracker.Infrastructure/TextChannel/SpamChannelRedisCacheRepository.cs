@@ -4,17 +4,8 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
 
-public class SpamChannelRedisCacheRepository : ISpamChannelRepository
+public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, SpamChannelPostgresRepository spamChannelPostgresRepository) : ISpamChannelRepository
 {
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-    private readonly SpamChannelPostgresRepository _spamChannelPostgresRepository;
-
-    public SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, SpamChannelPostgresRepository spamChannelPostgresRepository)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-        _spamChannelPostgresRepository = spamChannelPostgresRepository;
-    }
-
     private static string GetKey(ITextChannel channel)
     {
         return $"spam-channel:guild:{channel.GuildId}:channel:{channel.Id}";
@@ -22,13 +13,13 @@ public class SpamChannelRedisCacheRepository : ISpamChannelRepository
 
     public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(ITextChannel channel)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(channel);
         var cachedSpamChannel = await redis.StringGetAsync(key);
 
         if (!cachedSpamChannel.HasValue)
         {
-            var isSpam = await _spamChannelPostgresRepository.InsertOrGetIsSpamChannelAsync(channel);
+            var isSpam = await spamChannelPostgresRepository.InsertOrGetIsSpamChannelAsync(channel);
             await redis.StringSetAsync(
                 key,
                 isSpam,
@@ -42,11 +33,11 @@ public class SpamChannelRedisCacheRepository : ISpamChannelRepository
 
     public async ValueTask AddSpamChannelAsync(ITextChannel channel)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(channel);
         var isSpam = true;
 
-        await _spamChannelPostgresRepository.AddSpamChannelAsync(channel);
+        await spamChannelPostgresRepository.AddSpamChannelAsync(channel);
 
         await redis.StringSetAsync(
             key,
@@ -57,11 +48,11 @@ public class SpamChannelRedisCacheRepository : ISpamChannelRepository
 
     public async ValueTask RemoveSpamChannelAsync(ITextChannel channel)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(channel);
         var isSpam = false;
 
-        await _spamChannelPostgresRepository.RemoveSpamChannelAsync(channel);
+        await spamChannelPostgresRepository.RemoveSpamChannelAsync(channel);
 
         await redis.StringSetAsync(
             key,

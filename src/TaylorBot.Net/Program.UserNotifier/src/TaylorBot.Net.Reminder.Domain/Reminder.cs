@@ -3,20 +3,12 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Reminder.Domain;
 
-public class Reminder
+public class Reminder(Guid reminderId, SnowflakeId userId, DateTimeOffset createdAt, string reminderText)
 {
-    public Guid ReminderId { get; }
-    public SnowflakeId UserId { get; }
-    public DateTimeOffset CreatedAt { get; }
-    public string ReminderText { get; }
-
-    public Reminder(Guid reminderId, SnowflakeId userId, DateTimeOffset createdAt, string reminderText)
-    {
-        ReminderId = reminderId;
-        UserId = userId;
-        CreatedAt = createdAt;
-        ReminderText = reminderText;
-    }
+    public Guid ReminderId { get; } = reminderId;
+    public SnowflakeId UserId { get; } = userId;
+    public DateTimeOffset CreatedAt { get; } = createdAt;
+    public string ReminderText { get; } = reminderText;
 
     public override string ToString()
     {

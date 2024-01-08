@@ -2,22 +2,13 @@
 
 namespace TaylorBot.Net.RedditNotifier.Domain;
 
-public class RedditChecker
+public class RedditChecker(SnowflakeId guildId, SnowflakeId channelId, string subredditName, string? lastPostId, DateTime? lastPostCreatedAt)
 {
-    public SnowflakeId GuildId { get; }
-    public SnowflakeId ChannelId { get; }
-    public string SubredditName { get; }
-    public string? LastPostId { get; }
-    public DateTime? LastPostCreatedAt { get; }
-
-    public RedditChecker(SnowflakeId guildId, SnowflakeId channelId, string subredditName, string? lastPostId, DateTime? lastPostCreatedAt)
-    {
-        GuildId = guildId;
-        ChannelId = channelId;
-        SubredditName = subredditName;
-        LastPostId = lastPostId;
-        LastPostCreatedAt = lastPostCreatedAt;
-    }
+    public SnowflakeId GuildId { get; } = guildId;
+    public SnowflakeId ChannelId { get; } = channelId;
+    public string SubredditName { get; } = subredditName;
+    public string? LastPostId { get; } = lastPostId;
+    public DateTime? LastPostCreatedAt { get; } = lastPostCreatedAt;
 
     public override string ToString()
     {

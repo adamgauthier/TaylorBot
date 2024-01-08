@@ -38,69 +38,54 @@ public interface IPlusRepository
     ValueTask<IUpdatePlusUserResult> AddOrUpdatePlusUserAsync(Patron patron);
 }
 
-public class PatreonSyncDomainService
-{
-    private readonly ILogger<PatreonSyncDomainService> _logger;
-    private readonly IOptionsMonitor<PatreonSyncOptions> _optionsMonitor;
-    private readonly IPatreonClient _patreonClient;
-    private readonly IPlusRepository _plusRepository;
-    private readonly Lazy<ITaylorBotClient> _taylorBotClient;
-
-    public PatreonSyncDomainService(
-        ILogger<PatreonSyncDomainService> logger,
-        IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
-        IPatreonClient patreonClient,
-        IPlusRepository plusRepository,
-        Lazy<ITaylorBotClient> taylorBotClient
+public class PatreonSyncDomainService(
+    ILogger<PatreonSyncDomainService> logger,
+    IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
+    IPatreonClient patreonClient,
+    IPlusRepository plusRepository,
+    Lazy<ITaylorBotClient> taylorBotClient
     )
-    {
-        _logger = logger;
-        _optionsMonitor = optionsMonitor;
-        _patreonClient = patreonClient;
-        _plusRepository = plusRepository;
-        _taylorBotClient = taylorBotClient;
-    }
-
+{
     public async Task StartSyncingPatreonSupportersAsync()
     {
         while (true)
         {
             try
             {
-                if (_optionsMonitor.CurrentValue.Enabled)
+                if (optionsMonitor.CurrentValue.Enabled)
                     await SyncPatreonSupportersAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Unhandled exception in {nameof(SyncPatreonSupportersAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(SyncPatreonSupportersAsync)}.");
             }
 
-            await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenSyncs);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenSyncs);
         }
     }
 
     private async ValueTask SyncPatreonSupportersAsync()
     {
-        _logger.LogInformation("Syncing Patreon supporters.");
+        logger.LogInformation("Syncing Patreon supporters.");
 
-        foreach (var patron in await _patreonClient.GetPatronsWithDiscordAccountAsync(_optionsMonitor.CurrentValue.CampaignId))
+        foreach (var patron in await patreonClient.GetPatronsWithDiscordAccountAsync(optionsMonitor.CurrentValue.CampaignId))
         {
             try
             {
-                var result = await _plusRepository.AddOrUpdatePlusUserAsync(patron);
+                var result = await plusRepository.AddOrUpdatePlusUserAsync(patron);
 
                 var embed = PatreonUpdateEmbedFactory.Create(result);
 
                 if (embed != null)
                 {
-                    var user = await _taylorBotClient.Value.ResolveRequiredUserAsync(patron.DiscordUserId);
+                    var user = await taylorBotClient.Value.ResolveRequiredUserAsync(patron.DiscordUserId);
                     await user.SendMessageAsync(embed: embed);
-                    await Task.Delay(_optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
+                    await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
                 }
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"Exception occurred when attempting to sync patron {patron}.");
+                logger.LogError(exception, $"Exception occurred when attempting to sync patron {patron}.");
             }
         }
     }

@@ -7,18 +7,11 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 
-public class ModSpamAddSlashCommand : ISlashCommand<ModSpamAddSlashCommand.Options>
+public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository) : ISlashCommand<ModSpamAddSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod spam add");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly ISpamChannelRepository _spamChannelRepository;
-
-    public ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository)
-    {
-        _spamChannelRepository = spamChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -27,7 +20,7 @@ public class ModSpamAddSlashCommand : ISlashCommand<ModSpamAddSlashCommand.Optio
             async () =>
             {
                 var channel = options.channel.Channel;
-                await _spamChannelRepository.AddSpamChannelAsync(channel);
+                await spamChannelRepository.AddSpamChannelAsync(channel);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
@@ -43,18 +36,11 @@ public class ModSpamAddSlashCommand : ISlashCommand<ModSpamAddSlashCommand.Optio
     }
 }
 
-public class ModSpamRemoveSlashCommand : ISlashCommand<ModSpamRemoveSlashCommand.Options>
+public class ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelRepository) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod spam remove");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly ISpamChannelRepository _spamChannelRepository;
-
-    public ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelRepository)
-    {
-        _spamChannelRepository = spamChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -63,7 +49,7 @@ public class ModSpamRemoveSlashCommand : ISlashCommand<ModSpamRemoveSlashCommand
             async () =>
             {
                 var channel = options.channel.Channel;
-                await _spamChannelRepository.RemoveSpamChannelAsync(channel);
+                await spamChannelRepository.RemoveSpamChannelAsync(channel);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""

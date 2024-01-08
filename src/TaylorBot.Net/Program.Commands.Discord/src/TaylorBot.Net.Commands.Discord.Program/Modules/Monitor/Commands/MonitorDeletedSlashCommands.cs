@@ -8,20 +8,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
-public class MonitorDeletedSetSlashCommand : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
+public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDeletedLogChannelRepository deletedLogChannelRepository) : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor deleted set");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly IPlusRepository _plusRepository;
-    private readonly IDeletedLogChannelRepository _deletedLogChannelRepository;
-
-    public MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDeletedLogChannelRepository deletedLogChannelRepository)
-    {
-        _plusRepository = plusRepository;
-        _deletedLogChannelRepository = deletedLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -38,7 +29,7 @@ public class MonitorDeletedSetSlashCommand : ISlashCommand<MonitorDeletedSetSlas
                     confirm: async () =>
                     {
                         var channel = options.channel.Channel;
-                        await _deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
+                        await deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
 
                         return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                             $"Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚",
@@ -49,23 +40,16 @@ public class MonitorDeletedSetSlashCommand : ISlashCommand<MonitorDeletedSetSlas
             },
             Preconditions: new ICommandPrecondition[] {
                 new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
+                new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             }
         ));
     }
 }
 
-public class MonitorDeletedShowSlashCommand : ISlashCommand<NoOptions>
+public class MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deletedLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor deleted show");
-
-    private readonly IDeletedLogChannelRepository _deletedLogChannelRepository;
-
-    public MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deletedLogChannelRepository)
-    {
-        _deletedLogChannelRepository = deletedLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -74,7 +58,7 @@ public class MonitorDeletedShowSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var log = await _deletedLogChannelRepository.GetDeletedLogForGuildAsync(guild);
+                var log = await deletedLogChannelRepository.GetDeletedLogForGuildAsync(guild);
 
                 Embed? embed = null;
 
@@ -114,16 +98,9 @@ public class MonitorDeletedShowSlashCommand : ISlashCommand<NoOptions>
     }
 }
 
-public class MonitorDeletedStopSlashCommand : ISlashCommand<NoOptions>
+public class MonitorDeletedStopSlashCommand(IDeletedLogChannelRepository deletedLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor deleted stop");
-
-    private readonly IDeletedLogChannelRepository _deletedLogChannelRepository;
-
-    public MonitorDeletedStopSlashCommand(IDeletedLogChannelRepository deletedLogChannelRepository)
-    {
-        _deletedLogChannelRepository = deletedLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -131,7 +108,7 @@ public class MonitorDeletedStopSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _deletedLogChannelRepository.RemoveDeletedLogAsync(context.Guild!);
+                await deletedLogChannelRepository.RemoveDeletedLogAsync(context.Guild!);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                     "Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚",

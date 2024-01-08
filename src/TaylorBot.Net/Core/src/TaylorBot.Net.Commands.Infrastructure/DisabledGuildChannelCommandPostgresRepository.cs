@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class DisabledGuildChannelCommandPostgresRepository : IDisabledGuildChannelCommandRepository
+public class DisabledGuildChannelCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IDisabledGuildChannelCommandRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public DisabledGuildChannelCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO guilds.channel_commands(guild_id, channel_id, command_id)
@@ -32,7 +25,7 @@ public class DisabledGuildChannelCommandPostgresRepository : IDisabledGuildChann
 
     public async ValueTask EnableInAsync(MessageChannel channel, IGuild guild, string commandName)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"DELETE FROM guilds.channel_commands
@@ -48,7 +41,7 @@ public class DisabledGuildChannelCommandPostgresRepository : IDisabledGuildChann
 
     public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var disabled = await connection.QuerySingleOrDefaultAsync<bool>(
             """

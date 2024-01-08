@@ -5,20 +5,13 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
 
-public class GuildNamesPostgresRepository : IGuildNamesRepository
+public class GuildNamesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IGuildNamesRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public GuildNamesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record GuildNameDto(string guild_name, DateTime changed_at);
 
     public async ValueTask<List<GuildNameEntry>> GetHistoryAsync(IGuild guild, int limit)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var serverNames = await connection.QueryAsync<GuildNameDto>(
             """

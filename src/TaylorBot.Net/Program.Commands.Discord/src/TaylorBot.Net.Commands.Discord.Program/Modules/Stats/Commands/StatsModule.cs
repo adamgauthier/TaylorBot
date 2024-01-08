@@ -9,17 +9,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Commands;
 
 [Name("Stats 📊")]
-public class StatsModule : TaylorBotModule
+public class StatsModule(ICommandRunner commandRunner, IBotInfoRepository botInfoRepository) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IBotInfoRepository _botInfoRepository;
-
-    public StatsModule(ICommandRunner commandRunner, IBotInfoRepository botInfoRepository)
-    {
-        _commandRunner = commandRunner;
-        _botInfoRepository = botInfoRepository;
-    }
-
     [Command("serverstats")]
     [Alias("sstats", "genderstats", "agestats")]
     [Summary("Gets age and gender stats for a server.")]
@@ -40,7 +31,7 @@ public class StatsModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -52,7 +43,7 @@ public class StatsModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var productVersion = await _botInfoRepository.GetProductVersionAsync();
+            var productVersion = await botInfoRepository.GetProductVersionAsync();
             var applicationInfo = await Context.Client.GetApplicationInfoAsync();
 
             return new EmbedResult(new EmbedBuilder()
@@ -66,7 +57,7 @@ public class StatsModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

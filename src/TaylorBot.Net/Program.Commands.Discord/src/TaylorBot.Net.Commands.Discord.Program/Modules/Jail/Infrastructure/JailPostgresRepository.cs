@@ -6,18 +6,11 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure;
 
-public class JailPostgresRepository : IJailRepository
+public class JailPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IJailRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public JailPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask SetJailRoleAsync(IGuild guild, IRole jailRole)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO guilds.jail_roles (guild_id, jail_role_id, set_at) VALUES (@GuildId, @JailRoleId, CURRENT_TIMESTAMP)
@@ -40,7 +33,7 @@ public class JailPostgresRepository : IJailRepository
 
     public async ValueTask<JailRole?> GetJailRoleAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var role = await connection.QuerySingleOrDefaultAsync<GetJailRoleDto>(
             @"SELECT jail_role_id FROM guilds.jail_roles WHERE guild_id = @GuildId;",

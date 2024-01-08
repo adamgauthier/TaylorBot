@@ -12,26 +12,18 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailMessageModsSlashCommand : ISlashCommand<ModMailMessageModsSlashCommand.Options>
+public class ModMailMessageModsSlashCommand(
+    ILogger<ModMailMessageModsSlashCommand> logger,
+    IOptionsMonitor<ModMailOptions> options,
+    IModMailBlockedUsersRepository modMailBlockedUsersRepository,
+    ModMailChannelLogger modMailChannelLogger) : ISlashCommand<ModMailMessageModsSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail message-mods", IsPrivateResponse: true);
 
     public record Options(ParsedString message);
 
     private static readonly Color EmbedColor = new(255, 255, 240);
-
-    private readonly ILogger<ModMailMessageModsSlashCommand> _logger;
-    private readonly IOptionsMonitor<ModMailOptions> _options;
-    private readonly IModMailBlockedUsersRepository _modMailBlockedUsersRepository;
-    private readonly ModMailChannelLogger _modMailChannelLogger;
-
-    public ModMailMessageModsSlashCommand(ILogger<ModMailMessageModsSlashCommand> logger, IOptionsMonitor<ModMailOptions> options, IModMailBlockedUsersRepository modMailBlockedUsersRepository, ModMailChannelLogger modMailChannelLogger)
-    {
-        _logger = logger;
-        _options = options;
-        _modMailBlockedUsersRepository = modMailBlockedUsersRepository;
-        _modMailChannelLogger = modMailChannelLogger;
-    }
+    private readonly IOptionsMonitor<ModMailOptions> _options = options;
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -57,13 +49,13 @@ public class ModMailMessageModsSlashCommand : ISlashCommand<ModMailMessageModsSl
 
                 async ValueTask<Embed> SendAsync()
                 {
-                    var isBlocked = await _modMailBlockedUsersRepository.IsBlockedAsync(guild, context.User);
+                    var isBlocked = await modMailBlockedUsersRepository.IsBlockedAsync(guild, context.User);
                     if (isBlocked)
                     {
                         return EmbedFactory.CreateError("Sorry, the moderation team has blocked you from sending mod mail. 😕");
                     }
 
-                    var channel = await _modMailChannelLogger.GetModMailLogAsync(guild);
+                    var channel = await modMailChannelLogger.GetModMailLogAsync(guild);
 
                     if (channel != null)
                     {
@@ -77,7 +69,7 @@ public class ModMailMessageModsSlashCommand : ISlashCommand<ModMailMessageModsSl
                         }
                         catch (Exception e)
                         {
-                            _logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
+                            logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
                         }
                     }
 

@@ -4,26 +4,17 @@ using System.Collections.Immutable;
 
 namespace TaylorBot.Net.Commands.Types;
 
-public class RoleNotEveryoneArgument<T> where T : class, IRole
+public class RoleNotEveryoneArgument<T>(T role) where T : class, IRole
 {
-    public T Role { get; }
-
-    public RoleNotEveryoneArgument(T role) => Role = role;
+    public T Role { get; } = role;
 }
 
-public class RoleNotEveryoneTypeReader<T> : TypeReader
+public class RoleNotEveryoneTypeReader<T>(CustomRoleTypeReader<T> customRoleTypeReader) : TypeReader
     where T : class, IRole
 {
-    private readonly CustomRoleTypeReader<T> _customRoleTypeReader;
-
-    public RoleNotEveryoneTypeReader(CustomRoleTypeReader<T> customRoleTypeReader)
-    {
-        _customRoleTypeReader = customRoleTypeReader;
-    }
-
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
-        var result = await _customRoleTypeReader.ReadAsync(context, input, services);
+        var result = await customRoleTypeReader.ReadAsync(context, input, services);
         if (result.Values != null)
         {
             var filteredValues = result.Values

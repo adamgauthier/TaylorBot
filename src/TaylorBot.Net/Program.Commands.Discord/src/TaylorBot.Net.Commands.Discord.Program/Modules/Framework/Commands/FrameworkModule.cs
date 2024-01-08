@@ -9,17 +9,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Framework.Commands;
 
 [Name("Framework")]
-public class FrameworkModule : TaylorBotModule
+public class FrameworkModule(ICommandRunner commandRunner, ICommandPrefixRepository commandPrefixRepository) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly ICommandPrefixRepository _commandPrefixRepository;
-
-    public FrameworkModule(ICommandRunner commandRunner, ICommandPrefixRepository commandPrefixRepository)
-    {
-        _commandRunner = commandRunner;
-        _commandPrefixRepository = commandPrefixRepository;
-    }
-
     [Command("prefix")]
     [Alias("setprefix")]
     [Summary("Gets or changes the command prefix for this server.")]
@@ -39,7 +30,7 @@ public class FrameworkModule : TaylorBotModule
 
                 if (prefix != null)
                 {
-                    await _commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
+                    await commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
                     embed
                         .WithDescription(string.Join('\n', new[] {
                             $"The command prefix for this server has been set to `{prefix.Value}`.",
@@ -64,7 +55,7 @@ public class FrameworkModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

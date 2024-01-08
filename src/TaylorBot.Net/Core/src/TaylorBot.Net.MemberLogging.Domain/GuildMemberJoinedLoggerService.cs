@@ -4,22 +4,11 @@ using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
 namespace TaylorBot.Net.MemberLogging.Domain;
 
-public class GuildMemberJoinedLoggerService
+public class GuildMemberJoinedLoggerService(
+    MemberLogChannelFinder memberLogChannelFinder,
+    TaskExceptionLogger taskExceptionLogger,
+    GuildMemberJoinedEmbedFactory guildMemberJoinedEmbedFactory)
 {
-    private readonly MemberLogChannelFinder memberLogChannelFinder;
-    private readonly TaskExceptionLogger taskExceptionLogger;
-    private readonly GuildMemberJoinedEmbedFactory guildMemberJoinedEmbedFactory;
-
-    public GuildMemberJoinedLoggerService(
-        MemberLogChannelFinder memberLogChannelFinder,
-        TaskExceptionLogger taskExceptionLogger,
-        GuildMemberJoinedEmbedFactory guildMemberJoinedEmbedFactory)
-    {
-        this.memberLogChannelFinder = memberLogChannelFinder;
-        this.taskExceptionLogger = taskExceptionLogger;
-        this.guildMemberJoinedEmbedFactory = guildMemberJoinedEmbedFactory;
-    }
-
     public Task OnGuildMemberFirstJoinedAsync(IGuildUser guildUser)
     {
         Task.Run(async () => await taskExceptionLogger.LogOnError(

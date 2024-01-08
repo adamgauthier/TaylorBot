@@ -5,18 +5,11 @@ namespace TaylorBot.Net.MessageLogging.Domain;
 
 public record FoundChannel(MessageLogChannel Channel, ITextChannel Resolved);
 
-public class MessageLogChannelFinder
+public class MessageLogChannelFinder(IMessageLoggingChannelRepository messageLoggingChannelRepository)
 {
-    private readonly IMessageLoggingChannelRepository _messageLoggingChannelRepository;
-
-    public MessageLogChannelFinder(IMessageLoggingChannelRepository messageLoggingChannelRepository)
-    {
-        _messageLoggingChannelRepository = messageLoggingChannelRepository;
-    }
-
     public async ValueTask<FoundChannel?> FindDeletedLogChannelAsync(IGuild guild)
     {
-        var logChannel = await _messageLoggingChannelRepository.GetDeletedLogsChannelForGuildAsync(guild);
+        var logChannel = await messageLoggingChannelRepository.GetDeletedLogsChannelForGuildAsync(guild);
         if (logChannel == null)
         {
             return null;
@@ -33,7 +26,7 @@ public class MessageLogChannelFinder
 
     public async ValueTask<FoundChannel?> FindEditedLogChannelAsync(IGuild guild)
     {
-        var logChannel = await _messageLoggingChannelRepository.GetEditedLogsChannelForGuildAsync(guild);
+        var logChannel = await messageLoggingChannelRepository.GetEditedLogsChannelForGuildAsync(guild);
         if (logChannel == null)
         {
             return null;

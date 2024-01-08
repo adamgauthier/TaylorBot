@@ -6,15 +6,8 @@ using TaylorBot.Net.MemberLogging.Domain.Options;
 
 namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
-public class GuildMemberBanEmbedFactory
+public class GuildMemberBanEmbedFactory(IOptionsMonitor<MemberBanLoggingOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<MemberBanLoggingOptions> optionsMonitor;
-
-    public GuildMemberBanEmbedFactory(IOptionsMonitor<MemberBanLoggingOptions> optionsMonitor)
-    {
-        this.optionsMonitor = optionsMonitor;
-    }
-
     public Embed CreateMemberBanned(IUser user)
     {
         var options = optionsMonitor.CurrentValue;

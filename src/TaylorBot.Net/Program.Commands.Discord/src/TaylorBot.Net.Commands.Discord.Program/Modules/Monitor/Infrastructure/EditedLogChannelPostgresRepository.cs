@@ -6,18 +6,11 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
 
-public class EditedLogChannelPostgresRepository : IEditedLogChannelRepository
+public class EditedLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IEditedLogChannelRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public EditedLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask AddOrUpdateEditedLogAsync(ITextChannel textChannel)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO plus.edited_log_channels (guild_id, edited_log_channel_id)
@@ -39,7 +32,7 @@ public class EditedLogChannelPostgresRepository : IEditedLogChannelRepository
 
     public async ValueTask<EditedLog?> GetEditedLogForGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
             @"SELECT edited_log_channel_id FROM plus.edited_log_channels
@@ -55,7 +48,7 @@ public class EditedLogChannelPostgresRepository : IEditedLogChannelRepository
 
     public async ValueTask RemoveEditedLogAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "DELETE FROM plus.edited_log_channels WHERE guild_id = @GuildId;",

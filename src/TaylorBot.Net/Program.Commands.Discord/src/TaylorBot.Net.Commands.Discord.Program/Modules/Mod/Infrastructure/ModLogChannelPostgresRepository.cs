@@ -6,18 +6,11 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
 
-public class ModLogChannelPostgresRepository : IModLogChannelRepository
+public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IModLogChannelRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ModLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask AddOrUpdateModLogAsync(ITextChannel textChannel)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO moderation.mod_log_channels (guild_id, channel_id)
@@ -34,7 +27,7 @@ public class ModLogChannelPostgresRepository : IModLogChannelRepository
 
     public async ValueTask RemoveModLogAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "DELETE FROM moderation.mod_log_channels WHERE guild_id = @GuildId;",
@@ -52,7 +45,7 @@ public class ModLogChannelPostgresRepository : IModLogChannelRepository
 
     public async ValueTask<ModLog?> GetModLogForGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
             @"SELECT channel_id FROM moderation.mod_log_channels

@@ -8,17 +8,8 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Knowledge.Commands;
 
 [Name("Knowledge ❓")]
-public class KnowledgeModule : TaylorBotModule
+public class KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryCommand urbanDictionaryCommand) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly UrbanDictionaryCommand _urbanDictionaryCommand;
-
-    public KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryCommand urbanDictionaryCommand)
-    {
-        _commandRunner = commandRunner;
-        _urbanDictionaryCommand = urbanDictionaryCommand;
-    }
-
     [Command("horoscope")]
     [Alias("hs")]
     [Summary("This command has been moved to </birthday horoscope:1016938623880400907>. Please use it instead! 😊")]
@@ -36,7 +27,7 @@ public class KnowledgeModule : TaylorBotModule
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -50,8 +41,8 @@ public class KnowledgeModule : TaylorBotModule
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(
-            _urbanDictionaryCommand.Search(Context.User, text, isLegacyCommand: true),
+        var result = await commandRunner.RunAsync(
+            urbanDictionaryCommand.Search(Context.User, text, isLegacyCommand: true),
             context
         );
 

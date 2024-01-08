@@ -12,20 +12,9 @@ using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
-public class DailyClaimCommand
+public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDailyPayoutRepository dailyPayoutRepository, IMessageOfTheDayRepository messageOfTheDayRepository)
 {
     public static readonly CommandMetadata Metadata = new("daily", "Daily Payout 👔", new[] { "dailypayout" });
-
-    private readonly IOptionsMonitor<DailyPayoutOptions> _options;
-    private readonly IDailyPayoutRepository _dailyPayoutRepository;
-    private readonly IMessageOfTheDayRepository _messageOfTheDayRepository;
-
-    public DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDailyPayoutRepository dailyPayoutRepository, IMessageOfTheDayRepository messageOfTheDayRepository)
-    {
-        _options = options;
-        _dailyPayoutRepository = dailyPayoutRepository;
-        _messageOfTheDayRepository = messageOfTheDayRepository;
-    }
 
     public Command Claim(IUser user, string commandPrefix, bool isLegacyCommand) => new(
         Metadata,
@@ -36,7 +25,7 @@ public class DailyClaimCommand
             if (isLegacyCommand)
                 embed.WithUserAsAuthor(user);
 
-            var canRedeem = await _dailyPayoutRepository.CanUserRedeemAsync(user);
+            var canRedeem = await dailyPayoutRepository.CanUserRedeemAsync(user);
 
             if (canRedeem is UserCantRedeem userCantRedeem)
             {
@@ -50,8 +39,8 @@ public class DailyClaimCommand
                 .Build());
             }
 
-            var payoutAmount = isLegacyCommand ? _options.CurrentValue.LegacyDailyPayoutAmount : _options.CurrentValue.DailyPayoutAmount;
-            var redeemResult = await _dailyPayoutRepository.RedeemDailyPayoutAsync(user, payoutAmount);
+            var payoutAmount = isLegacyCommand ? options.CurrentValue.LegacyDailyPayoutAmount : options.CurrentValue.DailyPayoutAmount;
+            var redeemResult = await dailyPayoutRepository.RedeemDailyPayoutAsync(user, payoutAmount);
 
             if (redeemResult == null)
             {
@@ -81,7 +70,7 @@ public class DailyClaimCommand
 
     private async Task<string> GetMessageOfTheDayAsync()
     {
-        var messages = await _messageOfTheDayRepository.GetAllMessagesAsync();
+        var messages = await messageOfTheDayRepository.GetAllMessagesAsync();
 
         var now = DateTimeOffset.UtcNow;
 
@@ -89,7 +78,7 @@ public class DailyClaimCommand
         var priorities = messagePriorities[true].ToList();
         var nonPriorities = messagePriorities[false].ToList();
 
-        var messagesToConsider = priorities.Any() ? priorities : nonPriorities;
+        var messagesToConsider = priorities.Count != 0 ? priorities : nonPriorities;
 
         var messageOfTheDay = messagesToConsider[now.DayOfYear % messagesToConsider.Count].Message;
 
@@ -97,21 +86,14 @@ public class DailyClaimCommand
     }
 }
 
-public class DailyClaimSlashCommand : ISlashCommand<NoOptions>
+public class DailyClaimSlashCommand(DailyClaimCommand dailyClaimCommand) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("daily claim");
-
-    private readonly DailyClaimCommand _dailyClaimCommand;
-
-    public DailyClaimSlashCommand(DailyClaimCommand dailyClaimCommand)
-    {
-        _dailyClaimCommand = dailyClaimCommand;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
         return new(
-            _dailyClaimCommand.Claim(context.User, context.CommandPrefix, isLegacyCommand: false)
+            dailyClaimCommand.Claim(context.User, context.CommandPrefix, isLegacyCommand: false)
         );
     }
 }

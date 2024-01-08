@@ -6,16 +6,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
-public class CustomSearchImageEditor : IMessageEditor
+public class CustomSearchImageEditor(SuccessfulSearch search) : IMessageEditor
 {
-    private readonly SuccessfulSearch _search;
-
-    public int PageCount => _search.Images.Count;
-
-    public CustomSearchImageEditor(SuccessfulSearch search)
-    {
-        _search = search;
-    }
+    public int PageCount => search.Images.Count;
 
     public MessageContent Edit(int currentPage)
     {
@@ -23,13 +16,13 @@ public class CustomSearchImageEditor : IMessageEditor
 
         if (PageCount > 0)
         {
-            var page = _search.Images[currentPage - 1];
+            var page = search.Images[currentPage - 1];
 
             embed.WithColor(TaylorBotColors.SuccessColor)
                 .WithTitle(page.Title)
                 .WithSafeUrl(page.PageUrl)
                 .WithImageUrl(page.ImageUrl)
-                .WithFooter($"{_search.ResultCount} results found in {_search.SearchTimeSeconds} seconds");
+                .WithFooter($"{search.ResultCount} results found in {search.SearchTimeSeconds} seconds");
         }
         else
         {

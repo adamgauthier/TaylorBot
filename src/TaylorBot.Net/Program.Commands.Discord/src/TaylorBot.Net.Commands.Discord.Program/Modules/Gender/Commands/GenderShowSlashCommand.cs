@@ -6,24 +6,17 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderShowSlashCommand : ISlashCommand<GenderShowSlashCommand.Options>
+public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlashCommand<GenderShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("gender show");
 
     public record Options(ParsedUserOrAuthor user);
 
-    private readonly IGenderRepository _genderRepository;
-
-    public GenderShowSlashCommand(IGenderRepository genderRepository)
-    {
-        _genderRepository = genderRepository;
-    }
-
     public Command Show(IUser user, RunContext? context = null) => new(
         new(Info.Name),
         async () =>
         {
-            var gender = await _genderRepository.GetGenderAsync(user);
+            var gender = await genderRepository.GetGenderAsync(user);
 
             if (gender != null)
             {

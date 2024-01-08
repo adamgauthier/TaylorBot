@@ -6,15 +6,8 @@ using TaylorBot.Net.RedditNotifier.Domain;
 
 namespace TaylorBot.Net.RedditNotifier.Infrastructure;
 
-public class RedditCheckerRepository : IRedditCheckerRepository
+public class RedditCheckerRepository(PostgresConnectionFactory postgresConnectionFactory) : IRedditCheckerRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public RedditCheckerRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class RedditCheckerDto
     {
         public string guild_id { get; set; } = null!;
@@ -26,7 +19,7 @@ public class RedditCheckerRepository : IRedditCheckerRepository
 
     public async ValueTask<IReadOnlyCollection<RedditChecker>> GetRedditCheckersAsync()
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var checkers = await connection.QueryAsync<RedditCheckerDto>(
             "SELECT guild_id, channel_id, subreddit, last_post_id, last_created FROM checkers.reddit_checker;"
@@ -43,7 +36,7 @@ public class RedditCheckerRepository : IRedditCheckerRepository
 
     public async ValueTask UpdateLastPostAsync(RedditChecker redditChecker, Post redditPost)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE checkers.reddit_checker SET last_post_id = @LastPostId, last_created = @LastCreated

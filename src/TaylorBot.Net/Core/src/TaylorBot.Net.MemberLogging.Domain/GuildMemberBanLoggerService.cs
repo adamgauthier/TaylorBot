@@ -3,19 +3,10 @@ using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
 namespace TaylorBot.Net.MemberLogging.Domain;
 
-public class GuildMemberBanLoggerService
+public class GuildMemberBanLoggerService(
+    MemberLogChannelFinder memberLogChannelFinder,
+    GuildMemberBanEmbedFactory guildMemberBanEmbedFactory)
 {
-    private readonly MemberLogChannelFinder memberLogChannelFinder;
-    private readonly GuildMemberBanEmbedFactory guildMemberBanEmbedFactory;
-
-    public GuildMemberBanLoggerService(
-        MemberLogChannelFinder memberLogChannelFinder,
-        GuildMemberBanEmbedFactory guildMemberBanEmbedFactory)
-    {
-        this.memberLogChannelFinder = memberLogChannelFinder;
-        this.guildMemberBanEmbedFactory = guildMemberBanEmbedFactory;
-    }
-
     public async Task OnGuildMemberBannedAsync(IUser user, IGuild guild)
     {
         var logTextChannel = await memberLogChannelFinder.FindLogChannelAsync(guild);

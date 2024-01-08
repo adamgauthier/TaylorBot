@@ -16,19 +16,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands;
 
 [Name("TaypointWill")]
 [Group("taypointwill")]
-public class TaypointWillModule : TaylorBotModule
+public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<TaypointWillOptions> options, ITaypointWillRepository taypointWillRepository) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-    private readonly IOptionsMonitor<TaypointWillOptions> _options;
-    private readonly ITaypointWillRepository _taypointWillRepository;
-
-    public TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<TaypointWillOptions> options, ITaypointWillRepository taypointWillRepository)
-    {
-        _commandRunner = commandRunner;
-        _options = options;
-        _taypointWillRepository = taypointWillRepository;
-    }
-
     [Priority(-1)]
     [Command]
     [Summary("Displays a user's taypoint will.")]
@@ -42,13 +31,13 @@ public class TaypointWillModule : TaylorBotModule
         {
             var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
-            var will = await _taypointWillRepository.GetWillAsync(owner: u);
+            var will = await taypointWillRepository.GetWillAsync(owner: u);
 
             var embed = new EmbedBuilder().WithUserAsAuthor(u);
 
             if (will != null)
             {
-                var days = _options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
+                var days = options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
                 var beneficiary = will.BeneficiaryUsername;
                 embed
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -72,7 +61,7 @@ public class TaypointWillModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -89,14 +78,14 @@ public class TaypointWillModule : TaylorBotModule
         {
             var user = await mentionedUser.GetTrackedUserAsync();
 
-            var result = await _taypointWillRepository.AddWillAsync(owner: Context.User, beneficiary: user);
+            var result = await taypointWillRepository.AddWillAsync(owner: Context.User, beneficiary: user);
 
             var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
             switch (result)
             {
                 case WillAddedResult _:
-                    var days = _options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
+                    var days = options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed;
                     var prefix = Context.CommandPrefix;
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
@@ -121,7 +110,7 @@ public class TaypointWillModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -132,7 +121,7 @@ public class TaypointWillModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var result = await _taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
+            var result = await taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
 
             var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
@@ -161,7 +150,7 @@ public class TaypointWillModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -172,9 +161,9 @@ public class TaypointWillModule : TaylorBotModule
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var wills = await _taypointWillRepository.GetWillsWithBeneficiaryAsync(Context.User);
+            var wills = await taypointWillRepository.GetWillsWithBeneficiaryAsync(Context.User);
 
-            var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.Now.AddDays(-_options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
+            var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.Now.AddDays(-options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
             var expiredWills = isInactive[true].ToList();
 
             var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
@@ -182,8 +171,8 @@ public class TaypointWillModule : TaylorBotModule
             if (expiredWills.Any())
             {
                 var ownerUserIds = expiredWills.Select(r => r.OwnerUserId).ToList();
-                var transfers = await _taypointWillRepository.TransferAllPointsAsync(ownerUserIds, Context.User);
-                await _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(ownerUserIds, Context.User);
+                var transfers = await taypointWillRepository.TransferAllPointsAsync(ownerUserIds, Context.User);
+                await taypointWillRepository.RemoveWillsWithBeneficiaryAsync(ownerUserIds, Context.User);
                 var transfersTo = transfers.ToLookup(t => t.UserId.Id == Context.User.Id);
                 var receiver = transfersTo[true].Single();
                 var gifters = transfersTo[false].ToList();
@@ -217,7 +206,7 @@ public class TaypointWillModule : TaylorBotModule
         });
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

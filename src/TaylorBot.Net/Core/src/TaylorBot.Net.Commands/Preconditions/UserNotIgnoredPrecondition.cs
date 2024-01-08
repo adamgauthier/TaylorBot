@@ -14,22 +14,13 @@ public interface IIgnoredUserRepository
     ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until);
 }
 
-public class UserNotIgnoredPrecondition : ICommandPrecondition
+public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService) : ICommandPrecondition
 {
-    private readonly IIgnoredUserRepository _ignoredUserRepository;
-    private readonly UsernameTrackerDomainService _usernameTrackerDomainService;
-
-    public UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService)
-    {
-        _ignoredUserRepository = ignoredUserRepository;
-        _usernameTrackerDomainService = usernameTrackerDomainService;
-    }
-
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
-        var getUserIgnoreUntilResult = await _ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(context.User, isBot: false);
+        var getUserIgnoreUntilResult = await ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(context.User, isBot: false);
 
-        await _usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
+        await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
 
         return DateTimeOffset.Now < getUserIgnoreUntilResult.IgnoreUntil ?
             new PreconditionFailed(

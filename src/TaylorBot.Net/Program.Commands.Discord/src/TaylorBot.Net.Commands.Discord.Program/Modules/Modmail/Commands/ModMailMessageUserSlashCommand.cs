@@ -11,22 +11,14 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailMessageUserSlashCommand : ISlashCommand<ModMailMessageUserSlashCommand.Options>
+public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> options) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new ModalCommandInfo("modmail message-user");
 
     public record Options(ParsedMemberNotAuthorAndBot user);
 
     private static readonly Color EmbedColor = new(255, 255, 240);
-
-    private readonly ModMailChannelLogger _modMailChannelLogger;
-    private readonly IOptionsMonitor<ModMailOptions> _options;
-
-    public ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> options)
-    {
-        _modMailChannelLogger = modMailChannelLogger;
-        _options = options;
-    }
+    private readonly IOptionsMonitor<ModMailOptions> _options = options;
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -75,7 +67,7 @@ public class ModMailMessageUserSlashCommand : ISlashCommand<ModMailMessageUserSl
                         }));
                     }
 
-                    var wasLogged = await _modMailChannelLogger.TrySendModMailLogAsync(user.Guild, context.User, user, logEmbed =>
+                    var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(user.Guild, context.User, user, logEmbed =>
                         logEmbed
                             .WithColor(EmbedColor)
                             .WithTitle("Message")
@@ -83,7 +75,7 @@ public class ModMailMessageUserSlashCommand : ISlashCommand<ModMailMessageUserSl
                             .WithFooter("Mod mail sent", iconUrl: _options.CurrentValue.SentLogEmbedFooterIconUrl)
                     );
 
-                    return _modMailChannelLogger.CreateResultEmbed(context, wasLogged, $"Message sent to {user.FormatTagAndMention()}. ✉");
+                    return modMailChannelLogger.CreateResultEmbed(context, wasLogged, $"Message sent to {user.FormatTagAndMention()}. ✉");
                 }
             },
             Preconditions: new ICommandPrecondition[] {

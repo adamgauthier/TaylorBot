@@ -5,17 +5,8 @@ using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events;
 
-public class TextChannelCreatedHandler : ITextChannelCreatedHandler
+public class TextChannelCreatedHandler(TaskExceptionLogger taskExceptionLogger, EntityTrackerDomainService entityTrackerDomainService) : ITextChannelCreatedHandler
 {
-    private readonly TaskExceptionLogger taskExceptionLogger;
-    private readonly EntityTrackerDomainService entityTrackerDomainService;
-
-    public TextChannelCreatedHandler(TaskExceptionLogger taskExceptionLogger, EntityTrackerDomainService entityTrackerDomainService)
-    {
-        this.taskExceptionLogger = taskExceptionLogger;
-        this.entityTrackerDomainService = entityTrackerDomainService;
-    }
-
     public Task TextChannelCreatedAsync(SocketTextChannel textChannel)
     {
         Task.Run(async () => await taskExceptionLogger.LogOnError(

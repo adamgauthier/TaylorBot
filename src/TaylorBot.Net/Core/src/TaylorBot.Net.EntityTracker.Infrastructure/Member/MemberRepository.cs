@@ -6,18 +6,11 @@ using TaylorBot.Net.EntityTracker.Domain.Member;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.Member;
 
-public class MemberRepository : IMemberRepository
+public class MemberRepository(PostgresConnectionFactory postgresConnectionFactory) : IMemberRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public MemberRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<bool> AddNewMemberAsync(IGuildUser member)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var result = await connection.QuerySingleOrDefaultAsync<bool>(
             """
@@ -38,7 +31,7 @@ public class MemberRepository : IMemberRepository
 
     public async ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var memberAddedOrUpdatedDto = await connection.QuerySingleAsync<MemberAddedOrUpdatedDto>(
             """
@@ -72,7 +65,7 @@ public class MemberRepository : IMemberRepository
 
     public async ValueTask UpdateMembersNotInGuildAsync(IGuild guild, IList<SnowflakeId> members)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """

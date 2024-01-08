@@ -11,22 +11,15 @@ public interface IOngoingCommandRepository
     ValueTask RemoveOngoingCommandAsync(IUser user, string pool);
 }
 
-public class UserNoOngoingCommandPrecondition : ICommandPrecondition
+public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingCommandRepository) : ICommandPrecondition
 {
-    private readonly IOngoingCommandRepository _ongoingCommandRepository;
-
-    public UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingCommandRepository)
-    {
-        _ongoingCommandRepository = ongoingCommandRepository;
-    }
-
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         var pool = command.Metadata.Name is SharedCommands.Help or SharedCommands.Diagnostic ?
             $"help.{Assembly.GetEntryAssembly()!.GetName().Name!.ToLowerInvariant()}" :
             string.Empty;
 
-        var hasAnyOngoingCommand = await _ongoingCommandRepository.HasAnyOngoingCommandAsync(context.User, pool);
+        var hasAnyOngoingCommand = await ongoingCommandRepository.HasAnyOngoingCommandAsync(context.User, pool);
 
         if (hasAnyOngoingCommand)
         {
@@ -37,7 +30,7 @@ public class UserNoOngoingCommandPrecondition : ICommandPrecondition
         }
         else
         {
-            await _ongoingCommandRepository.AddOngoingCommandAsync(context.User, pool);
+            await ongoingCommandRepository.AddOngoingCommandAsync(context.User, pool);
             context.OnGoing.OnGoingCommandAddedToPool = pool;
             return new PreconditionPassed();
         }

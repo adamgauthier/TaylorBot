@@ -2,21 +2,14 @@
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public class TextChannelTrackedPrecondition : ICommandPrecondition
+public class TextChannelTrackedPrecondition(ISpamChannelRepository spamChannelRepository) : ICommandPrecondition
 {
-    private readonly ISpamChannelRepository _spamChannelRepository;
-
-    public TextChannelTrackedPrecondition(ISpamChannelRepository spamChannelRepository)
-    {
-        _spamChannelRepository = spamChannelRepository;
-    }
-
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.Guild != null)
         {
             var textChannel = context.Channel.CreateLegacyTextChannel(context.Guild);
-            await _spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
+            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
         }
 
         return new PreconditionPassed();

@@ -5,15 +5,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Infrastructure;
 
-public class UrbanDictionaryClient : IUrbanDictionaryClient
+public class UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger) : IUrbanDictionaryClient
 {
-    private readonly ILogger<UrbanDictionaryClient> _logger;
     private readonly HttpClient _httpClient = new();
-
-    public UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger)
-    {
-        _logger = logger;
-    }
 
     public async ValueTask<IUrbanDictionaryResult> SearchAsync(string query)
     {
@@ -43,19 +37,19 @@ public class UrbanDictionaryClient : IUrbanDictionaryClient
                 try
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning("Error response from UrbanDictionary ({StatusCode}): {Body}", response.StatusCode, body);
+                    logger.LogWarning("Error response from UrbanDictionary ({StatusCode}): {Body}", response.StatusCode, body);
                     return new GenericUrbanError();
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Unhandled error when parsing JSON in UrbanDictionary error response ({StatusCode}):", response.StatusCode);
+                    logger.LogWarning(e, "Unhandled error when parsing JSON in UrbanDictionary error response ({StatusCode}):", response.StatusCode);
                     return new GenericUrbanError();
                 }
             }
         }
         catch (Exception e)
         {
-            _logger.LogWarning(e, "Unhandled error in UrbanDictionary API:");
+            logger.LogWarning(e, "Unhandled error in UrbanDictionary API:");
             return new GenericUrbanError();
         }
     }

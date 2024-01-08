@@ -6,18 +6,11 @@ using TaylorBot.Net.MemberLogging.Domain.Options;
 
 namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
-public class GuildMemberLeftEmbedFactory
+public class GuildMemberLeftEmbedFactory(IOptionsMonitor<MemberLeftLoggingOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<MemberLeftLoggingOptions> _optionsMonitor;
-
-    public GuildMemberLeftEmbedFactory(IOptionsMonitor<MemberLeftLoggingOptions> optionsMonitor)
-    {
-        _optionsMonitor = optionsMonitor;
-    }
-
     public Embed CreateMemberLeft(IUser user)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
         var avatarUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl();
 
         return new EmbedBuilder()

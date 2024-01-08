@@ -5,15 +5,8 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
 
-public class UsernameHistoryPostgresRepository : IUsernameHistoryRepository
+public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IUsernameHistoryRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public UsernameHistoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record UsernameDto(string username, DateTimeOffset changed_at)
     {
         public UsernameDto() : this(default!, default) { }
@@ -21,7 +14,7 @@ public class UsernameHistoryPostgresRepository : IUsernameHistoryRepository
 
     public async ValueTask<IReadOnlyList<IUsernameHistoryRepository.UsernameChange>> GetUsernameHistoryFor(IUser user, int count)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var usernames = await connection.QueryAsync<UsernameDto>(
             @"SELECT username, changed_at
@@ -44,7 +37,7 @@ public class UsernameHistoryPostgresRepository : IUsernameHistoryRepository
 
     public async ValueTask<bool> IsUsernameHistoryHiddenFor(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<bool>(
             @"SELECT is_hidden
@@ -59,7 +52,7 @@ public class UsernameHistoryPostgresRepository : IUsernameHistoryRepository
 
     public async ValueTask HideUsernameHistoryFor(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"INSERT INTO users.username_history_configuration (user_id, is_hidden) VALUES (@UserId, @IsHidden)
@@ -74,7 +67,7 @@ public class UsernameHistoryPostgresRepository : IUsernameHistoryRepository
 
     public async ValueTask UnhideUsernameHistoryFor(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE users.username_history_configuration

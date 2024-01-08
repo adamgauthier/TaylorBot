@@ -4,17 +4,8 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
 
-public class ImgurHttpClient : ImgurClient
+public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient httpClient) : ImgurClient
 {
-    private readonly ILogger<ImgurHttpClient> _logger;
-    private readonly HttpClient _httpClient;
-
-    public ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient httpClient)
-    {
-        _logger = logger;
-        _httpClient = httpClient;
-    }
-
     public async ValueTask<IImgurResult> UploadAsync(string url)
     {
         try
@@ -24,7 +15,7 @@ public class ImgurHttpClient : ImgurClient
                 { "image", url },
             });
 
-            var response = await _httpClient.PostAsync("https://api.imgur.com/3/image", content);
+            var response = await httpClient.PostAsync("https://api.imgur.com/3/image", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -37,7 +28,7 @@ public class ImgurHttpClient : ImgurClient
 
                     if (link == null)
                     {
-                        _logger.LogWarning("Error response from Imgur: {Response}", responseString);
+                        logger.LogWarning("Error response from Imgur: {Response}", responseString);
                         throw new InvalidOperationException("link property is null");
                     }
 
@@ -45,7 +36,7 @@ public class ImgurHttpClient : ImgurClient
                 }
                 else
                 {
-                    _logger.LogWarning("Error response from Imgur: {Response}", responseString);
+                    logger.LogWarning("Error response from Imgur: {Response}", responseString);
                     return new GenericImgurError();
                 }
             }
@@ -54,7 +45,7 @@ public class ImgurHttpClient : ImgurClient
                 try
                 {
                     var responseString = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning("Error response from Imgur ({StatusCode}): {Response}", response.StatusCode, responseString);
+                    logger.LogWarning("Error response from Imgur ({StatusCode}): {Response}", response.StatusCode, responseString);
 
                     var jsonDocument = JsonDocument.Parse(responseString);
                     var errorCode = jsonDocument.RootElement.GetProperty("data").GetProperty("error").GetProperty("code").GetInt32();
@@ -70,14 +61,14 @@ public class ImgurHttpClient : ImgurClient
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Unhandled error when parsing JSON in Imgur error response ({StatusCode}):", response.StatusCode);
+                    logger.LogWarning(e, "Unhandled error when parsing JSON in Imgur error response ({StatusCode}):", response.StatusCode);
                     return new GenericImgurError();
                 }
             }
         }
         catch (Exception e)
         {
-            _logger.LogWarning(e, "Unhandled error in Imgur API:");
+            logger.LogWarning(e, "Unhandled error in Imgur API:");
             return new GenericImgurError();
         }
     }

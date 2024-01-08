@@ -5,17 +5,8 @@ using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events;
 
-public class UsernameJoinedGuildHandler : IJoinedGuildHandler
+public class UsernameJoinedGuildHandler(EntityTrackerDomainService entityTrackerDomainService, TaskExceptionLogger taskExceptionLogger) : IJoinedGuildHandler
 {
-    private readonly EntityTrackerDomainService entityTrackerDomainService;
-    private readonly TaskExceptionLogger taskExceptionLogger;
-
-    public UsernameJoinedGuildHandler(EntityTrackerDomainService entityTrackerDomainService, TaskExceptionLogger taskExceptionLogger)
-    {
-        this.entityTrackerDomainService = entityTrackerDomainService;
-        this.taskExceptionLogger = taskExceptionLogger;
-    }
-
     public Task JoinedGuildAsync(SocketGuild guild)
     {
         Task.Run(async () => await taskExceptionLogger.LogOnError(

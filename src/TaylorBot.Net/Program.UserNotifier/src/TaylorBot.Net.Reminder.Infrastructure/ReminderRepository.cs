@@ -5,15 +5,8 @@ using TaylorBot.Net.Reminder.Domain;
 
 namespace TaylorBot.Net.Reminder.Infrastructure;
 
-public class ReminderRepository : IReminderRepository
+public class ReminderRepository(PostgresConnectionFactory postgresConnectionFactory) : IReminderRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ReminderRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class ReminderDto
     {
         public Guid reminder_id { get; set; }
@@ -24,7 +17,7 @@ public class ReminderRepository : IReminderRepository
 
     public async ValueTask<IReadOnlyCollection<Domain.Reminder>> GetExpiredRemindersAsync()
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var reminders = await connection.QueryAsync<ReminderDto>(
             "SELECT reminder_id, user_id, reminder_text, created_at FROM users.reminders WHERE CURRENT_TIMESTAMP > remind_at;"
@@ -40,7 +33,7 @@ public class ReminderRepository : IReminderRepository
 
     public async ValueTask RemoveReminderAsync(Domain.Reminder reminder)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"DELETE FROM users.reminders WHERE reminder_id = @ReminderId;",

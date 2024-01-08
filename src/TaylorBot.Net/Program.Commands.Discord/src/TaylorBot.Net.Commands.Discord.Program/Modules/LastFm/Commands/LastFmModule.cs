@@ -142,15 +142,8 @@ public class LastFmModule(
 
 
 [Name("Last.fm old 🎶")]
-public class LastFmDeprecatedModule : TaylorBotModule
+public class LastFmDeprecatedModule(ICommandRunner commandRunner) : TaylorBotModule
 {
-    private readonly ICommandRunner _commandRunner;
-
-    public LastFmDeprecatedModule(ICommandRunner commandRunner)
-    {
-        _commandRunner = commandRunner;
-    }
-
     [Command("setlastfm")]
     [Alias("setfm")]
     [Summary("This command has been moved to </lastfm set:922354806574678086>. Please use it instead! 😊")]
@@ -168,7 +161,7 @@ public class LastFmDeprecatedModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -190,7 +183,7 @@ public class LastFmDeprecatedModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -212,7 +205,7 @@ public class LastFmDeprecatedModule : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await _commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

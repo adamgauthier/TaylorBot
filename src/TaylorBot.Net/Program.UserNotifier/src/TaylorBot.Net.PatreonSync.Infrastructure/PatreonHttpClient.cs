@@ -5,20 +5,13 @@ using TaylorBot.Net.PatreonSync.Domain;
 
 namespace TaylorBot.Net.PatreonSync.Infrastructure;
 
-public class PatreonHttpClient : IPatreonClient
+public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
 {
     private static readonly string GetPatronsQueryString = new Dictionary<string, string>() {
         { "include", "user" },
         { "fields[member]", "email,full_name,last_charge_date,last_charge_status,lifetime_support_cents,currently_entitled_amount_cents,patron_status" },
         { "fields[user]", "social_connections" },
     }.ToUrlQueryString();
-
-    private readonly HttpClient _httpClient;
-
-    public PatreonHttpClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
 
     public async ValueTask<IReadOnlyCollection<Patron>> GetPatronsWithDiscordAccountAsync(uint campaignId)
     {
@@ -84,7 +77,7 @@ public class PatreonHttpClient : IPatreonClient
 
     private async ValueTask<MembersResult> FetchPatronsAsync(string url, MembersResult result)
     {
-        var response = await _httpClient.GetAsync(url);
+        var response = await httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();

@@ -5,26 +5,18 @@ using System.Globalization;
 
 namespace TaylorBot.Net.Commands.Types;
 
-public class RoleArgument<T> where T : class, IRole
+public class RoleArgument<T>(T role) where T : class, IRole
 {
-    public T Role { get; }
-
-    public RoleArgument(T role) => Role = role;
+    public T Role { get; } = role;
 }
 
 public class CustomRoleTypeReader<T> : TypeReader
     where T : class, IRole
 {
-    private class RoleVal<U> where U : class, IRole
+    private class RoleVal<U>(U role, float score) where U : class, IRole
     {
-        public U Role { get; }
-        public float Score { get; }
-
-        public RoleVal(U role, float score)
-        {
-            Role = role;
-            Score = score;
-        }
+        public U Role { get; } = role;
+        public float Score { get; } = score;
     }
 
     private void AddResultIfTypeMatches(Dictionary<ulong, RoleVal<T>> results, IRole role, float score)

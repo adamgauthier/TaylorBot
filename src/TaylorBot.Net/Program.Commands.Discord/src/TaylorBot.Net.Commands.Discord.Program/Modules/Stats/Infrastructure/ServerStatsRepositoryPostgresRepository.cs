@@ -5,15 +5,8 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 
-public class ServerStatsRepositoryPostgresRepository : IServerStatsRepository
+public class ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IServerStatsRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class AgeStatsDto
     {
         public decimal? age_average { get; set; }
@@ -22,7 +15,7 @@ public class ServerStatsRepositoryPostgresRepository : IServerStatsRepository
 
     public async ValueTask<AgeStats> GetAgeStatsInGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var ageStats = await connection.QuerySingleAsync<AgeStatsDto>(
             @"SELECT ROUND(AVG(human_age), 2) AS age_average, ROUND(MEDIAN(human_age), 2) AS age_median
@@ -54,7 +47,7 @@ public class ServerStatsRepositoryPostgresRepository : IServerStatsRepository
 
     public async ValueTask<GenderStats> GetGenderStatsInGuildAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var genderStats = await connection.QuerySingleAsync<GenderStatsDto>(
             @"SELECT

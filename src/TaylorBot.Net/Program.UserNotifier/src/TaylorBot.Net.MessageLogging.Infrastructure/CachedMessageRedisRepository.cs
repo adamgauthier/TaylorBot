@@ -5,15 +5,8 @@ using TaylorBot.Net.MessageLogging.Domain;
 
 namespace TaylorBot.Net.MessageLogging.Infrastructure;
 
-public class CachedMessageRedisRepository : ICachedMessageRepository
+public class CachedMessageRedisRepository(ConnectionMultiplexer connectionMultiplexer) : ICachedMessageRepository
 {
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-
-    public CachedMessageRedisRepository(ConnectionMultiplexer connectionMultiplexer)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-    }
-
     private static string GetKey(string id)
     {
         return $"message-content:{id}";
@@ -21,7 +14,7 @@ public class CachedMessageRedisRepository : ICachedMessageRepository
 
     public async ValueTask<TaylorBotCachedMessageData?> GetMessageDataAsync(SnowflakeId messageId)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(messageId.ToString());
         var cachedJson = (string?)await redis.StringGetAsync(key);
 
@@ -37,7 +30,7 @@ public class CachedMessageRedisRepository : ICachedMessageRepository
 
     public async ValueTask SaveMessageAsync(SnowflakeId messageId, TimeSpan expiry, TaylorBotCachedMessageData data)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(messageId.ToString());
         await redis.StringSetAsync(key, JsonSerializer.Serialize(data), expiry);
     }

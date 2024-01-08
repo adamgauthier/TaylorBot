@@ -5,18 +5,11 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
-public class ZodiacSignPostgresRepository : IZodiacSignRepository
+public class ZodiacSignPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IZodiacSignRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public ZodiacSignPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     public async ValueTask<string?> GetZodiacForUserAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<string?>(
             @"SELECT zodiac(birthday) FROM attributes.birthdays WHERE user_id = @UserId;",

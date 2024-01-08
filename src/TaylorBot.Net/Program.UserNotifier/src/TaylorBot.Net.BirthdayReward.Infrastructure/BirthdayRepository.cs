@@ -5,15 +5,8 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.BirthdayReward.Infrastructure;
 
-public class BirthdayRepository : IBirthdayRepository
+public class BirthdayRepository(PostgresConnectionFactory postgresConnectionFactory) : IBirthdayRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public BirthdayRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class EligibleUserDto
     {
         public string user_id { get; set; } = null!;
@@ -27,7 +20,7 @@ public class BirthdayRepository : IBirthdayRepository
 
     public async ValueTask<IReadOnlyCollection<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
         using var transaction = connection.BeginTransaction();
 

@@ -11,15 +11,8 @@ using TaylorBot.Net.MessageLogging.Domain.Options;
 
 namespace TaylorBot.Net.MessageLogging.Domain.DiscordEmbed;
 
-public class MessageLogEmbedFactory
+public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<MessageDeletedLoggingOptions> _optionsMonitor;
-
-    public MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions> optionsMonitor)
-    {
-        _optionsMonitor = optionsMonitor;
-    }
-
     private EmbedBuilder CreateBaseMessageDeleted(CachedMessage cachedMessage, ITextChannel channel)
     {
         var builder = new EmbedBuilder()
@@ -134,7 +127,7 @@ public class MessageLogEmbedFactory
 
     public Embed CreateMessageDeleted(CachedMessage cachedMessage, ITextChannel channel)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
 
         return CreateBaseMessageDeleted(cachedMessage, channel)
             .WithColor(DiscordColor.FromHexString(options.MessageDeletedEmbedColorHex))
@@ -145,7 +138,7 @@ public class MessageLogEmbedFactory
 
     public Embed CreateMessageEdited(CachedMessage cachedMessage, IMessage newMessage, ITextChannel channel)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
 
         var builder = new EmbedBuilder()
             .WithColor(DiscordColor.FromHexString(options.MessageEditedEmbedColorHex))
@@ -256,7 +249,7 @@ public class MessageLogEmbedFactory
 
     public IReadOnlyCollection<Embed> CreateMessageBulkDeleted(IReadOnlyCollection<CachedMessage> cachedMessages, ITextChannel channel)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
         var embedColor = DiscordColor.FromHexString(options.MessageBulkDeletedEmbedColorHex);
 
         var eventTime = DateTimeOffset.UtcNow;
@@ -292,7 +285,7 @@ public class MessageLogEmbedFactory
 
     public Embed CreateReactionRemoved(ulong messageId, ITextChannel channel, SocketReaction reaction)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
 
         var embed = new EmbedBuilder()
             .WithColor(DiscordColor.FromHexString(options.MessageReactionRemovedEmbedColorHex))

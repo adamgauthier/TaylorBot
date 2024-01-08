@@ -6,18 +6,11 @@ using TaylorBot.Net.InstagramNotifier.Domain.Options;
 
 namespace TaylorBot.Net.InstagramNotifier.Domain.DiscordEmbed;
 
-public class InstagramPostToEmbedMapper
+public class InstagramPostToEmbedMapper(IOptionsMonitor<InstagramNotifierOptions> optionsMonitor)
 {
-    private readonly IOptionsMonitor<InstagramNotifierOptions> _optionsMonitor;
-
-    public InstagramPostToEmbedMapper(IOptionsMonitor<InstagramNotifierOptions> optionsMonitor)
-    {
-        _optionsMonitor = optionsMonitor;
-    }
-
     public Embed ToEmbed(InstagramPost post)
     {
-        var options = _optionsMonitor.CurrentValue;
+        var options = optionsMonitor.CurrentValue;
 
         return new EmbedBuilder()
             .WithTitle(post.Caption != null ? post.Caption.Truncate(65) : "[No Caption]")

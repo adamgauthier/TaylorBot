@@ -13,15 +13,8 @@ public class LogModule : ModuleBase
 {
     [Name("Deleted Logs 🗑")]
     [Group("deleted")]
-    public class DeletedModule : TaylorBotModule
+    public class DeletedModule(ICommandRunner commandRunner) : TaylorBotModule
     {
-        private readonly ICommandRunner _commandRunner;
-
-        public DeletedModule(ICommandRunner commandRunner)
-        {
-            _commandRunner = commandRunner;
-        }
-
         [Priority(-1)]
         [Command]
         [Summary("This command has moved to </monitor deleted set:887146682146488390>.")]
@@ -44,7 +37,7 @@ public class LogModule : ModuleBase
             );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context);
+            var result = await commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -66,7 +59,7 @@ public class LogModule : ModuleBase
             );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context);
+            var result = await commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -74,15 +67,8 @@ public class LogModule : ModuleBase
 
     [Name("Member Logs 🧍")]
     [Group("member")]
-    public class MemberModule : TaylorBotModule
+    public class MemberModule(ICommandRunner commandRunner) : TaylorBotModule
     {
-        private readonly ICommandRunner _commandRunner;
-
-        public MemberModule(ICommandRunner commandRunner)
-        {
-            _commandRunner = commandRunner;
-        }
-
         [Priority(-1)]
         [Command]
         [Summary("This command has moved to </monitor members set:887146682146488390>.")]
@@ -105,7 +91,7 @@ public class LogModule : ModuleBase
             );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context);
+            var result = await commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }
@@ -127,7 +113,7 @@ public class LogModule : ModuleBase
             );
 
             var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await _commandRunner.RunAsync(command, context);
+            var result = await commandRunner.RunAsync(command, context);
 
             return new TaylorBotResult(result, context);
         }

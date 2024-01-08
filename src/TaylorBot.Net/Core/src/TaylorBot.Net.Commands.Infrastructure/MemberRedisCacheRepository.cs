@@ -4,26 +4,17 @@ using TaylorBot.Net.Commands.Preconditions;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class MemberRedisCacheRepository : IMemberTrackingRepository
+public class MemberRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, MemberPostgresRepository memberPostgresRepository) : IMemberTrackingRepository
 {
-    private readonly ConnectionMultiplexer _connectionMultiplexer;
-    private readonly MemberPostgresRepository _memberPostgresRepository;
-
-    public MemberRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, MemberPostgresRepository memberPostgresRepository)
-    {
-        _connectionMultiplexer = connectionMultiplexer;
-        _memberPostgresRepository = memberPostgresRepository;
-    }
-
     public async ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt)
     {
-        var redis = _connectionMultiplexer.GetDatabase();
+        var redis = connectionMultiplexer.GetDatabase();
         var key = $"command-user:guild:{member.GuildId}:user:{member.Id}";
         var cachedMember = await redis.StringGetAsync(key);
 
         if (!cachedMember.HasValue)
         {
-            var memberAdded = await _memberPostgresRepository.AddOrUpdateMemberAsync(member, lastSpokeAt);
+            var memberAdded = await memberPostgresRepository.AddOrUpdateMemberAsync(member, lastSpokeAt);
             await redis.StringSetAsync(
                 key,
                 true,

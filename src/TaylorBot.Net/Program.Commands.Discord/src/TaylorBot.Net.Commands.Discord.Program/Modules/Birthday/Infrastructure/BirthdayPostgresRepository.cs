@@ -5,20 +5,13 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
-public class BirthdayPostgresRepository : IBirthdayRepository
+public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IBirthdayRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public BirthdayPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private record BirthdayDto(DateOnly birthday, bool is_private);
 
     public async ValueTask<IBirthdayRepository.Birthday?> GetBirthdayAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var birthday = await connection.QuerySingleOrDefaultAsync<BirthdayDto?>(
             """
@@ -40,7 +33,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
 
     public async ValueTask ClearBirthdayAsync(IUser user)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             "DELETE FROM attributes.birthdays WHERE user_id = @UserId;",
@@ -53,7 +46,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
 
     public async ValueTask SetBirthdayAsync(IUser user, IBirthdayRepository.Birthday birthday)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             """
@@ -76,7 +69,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
 
     public async ValueTask<IList<IBirthdayRepository.BirthdayCalendarEntry>> GetBirthdayCalendarAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var entries = await connection.QueryAsync<CalendarEntryDto>(
             """
@@ -124,7 +117,7 @@ public class BirthdayPostgresRepository : IBirthdayRepository
 
     public async ValueTask<IList<IBirthdayRepository.AgeRole>> GetAgeRolesAsync(IGuild guild)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var ageRoles = await connection.QueryAsync<AgeRoleDto>(
             """

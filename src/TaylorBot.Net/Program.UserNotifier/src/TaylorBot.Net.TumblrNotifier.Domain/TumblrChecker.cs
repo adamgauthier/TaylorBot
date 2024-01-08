@@ -2,20 +2,12 @@
 
 namespace TaylorBot.Net.TumblrNotifier.Domain;
 
-public class TumblrChecker
+public class TumblrChecker(SnowflakeId guildId, SnowflakeId channelId, string blogName, string? lastPostShortUrl)
 {
-    public SnowflakeId GuildId { get; }
-    public SnowflakeId ChannelId { get; }
-    public string BlogName { get; }
-    public string? LastPostShortUrl { get; }
-
-    public TumblrChecker(SnowflakeId guildId, SnowflakeId channelId, string blogName, string? lastPostShortUrl)
-    {
-        GuildId = guildId;
-        ChannelId = channelId;
-        BlogName = blogName;
-        LastPostShortUrl = lastPostShortUrl;
-    }
+    public SnowflakeId GuildId { get; } = guildId;
+    public SnowflakeId ChannelId { get; } = channelId;
+    public string BlogName { get; } = blogName;
+    public string? LastPostShortUrl { get; } = lastPostShortUrl;
 
     public override string ToString()
     {

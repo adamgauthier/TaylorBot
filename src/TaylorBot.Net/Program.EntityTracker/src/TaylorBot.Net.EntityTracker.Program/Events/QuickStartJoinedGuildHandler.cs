@@ -5,21 +5,12 @@ using TaylorBot.Net.QuickStart.Domain;
 
 namespace TaylorBot.Net.EntityTracker.Program.Events;
 
-public class QuickStartJoinedGuildHandler : IJoinedGuildHandler
+public class QuickStartJoinedGuildHandler(QuickStartDomainService quickStartDomainService, TaskExceptionLogger taskExceptionLogger) : IJoinedGuildHandler
 {
-    private readonly QuickStartDomainService _quickStartDomainService;
-    private readonly TaskExceptionLogger _taskExceptionLogger;
-
-    public QuickStartJoinedGuildHandler(QuickStartDomainService quickStartDomainService, TaskExceptionLogger taskExceptionLogger)
-    {
-        _quickStartDomainService = quickStartDomainService;
-        _taskExceptionLogger = taskExceptionLogger;
-    }
-
     public Task JoinedGuildAsync(SocketGuild guild)
     {
-        _ = Task.Run(async () => await _taskExceptionLogger.LogOnError(
-            _quickStartDomainService.OnGuildJoinedAsync(guild),
+        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+            quickStartDomainService.OnGuildJoinedAsync(guild),
             nameof(QuickStartDomainService)
         ));
         return Task.CompletedTask;

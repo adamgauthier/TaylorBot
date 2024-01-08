@@ -5,15 +5,9 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
-public class CommandUsagePostgresRepository : ICommandUsageRepository
+public class CommandUsagePostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ICommandUsageRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
     private readonly ConcurrentDictionary<string, CommandUsage> _usageCache = new();
-
-    public CommandUsagePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
 
     public void QueueIncrementSuccessfulUseCount(string commandName)
     {
@@ -46,7 +40,7 @@ public class CommandUsagePostgresRepository : ICommandUsageRepository
 
     private async ValueTask UpdateUsageCountAsync(string commandName, CommandUsage commandUsage)
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
             @"UPDATE commands.commands SET

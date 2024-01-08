@@ -8,16 +8,9 @@ using TaylorBot.Net.RedditNotifier.Domain.Options;
 
 namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 
-public class RedditPostToEmbedMapper
+public class RedditPostToEmbedMapper(IOptionsMonitor<RedditNotifierOptions> optionsMonitor)
 {
     private static readonly string[] DOMAINS_TO_USE_URL_AS_THUMBNAIL = new[] { "i.redd.it", "i.imgur.com" };
-
-    private readonly IOptionsMonitor<RedditNotifierOptions> optionsMonitor;
-
-    public RedditPostToEmbedMapper(IOptionsMonitor<RedditNotifierOptions> optionsMonitor)
-    {
-        this.optionsMonitor = optionsMonitor;
-    }
 
     public Embed ToEmbed(Post post)
     {

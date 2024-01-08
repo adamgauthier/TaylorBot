@@ -4,15 +4,8 @@ using TaylorBot.Net.Core.Infrastructure;
 
 namespace TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 
-public class MessageOfTheDayPostgresRepository : IMessageOfTheDayRepository
+public class MessageOfTheDayPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IMessageOfTheDayRepository
 {
-    private readonly PostgresConnectionFactory _postgresConnectionFactory;
-
-    public MessageOfTheDayPostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
-    {
-        _postgresConnectionFactory = postgresConnectionFactory;
-    }
-
     private class MessageDto
     {
         public string message { get; set; } = null!;
@@ -22,7 +15,7 @@ public class MessageOfTheDayPostgresRepository : IMessageOfTheDayRepository
 
     public async ValueTask<IReadOnlyList<MessageOfTheDay>> GetAllMessagesAsync()
     {
-        await using var connection = _postgresConnectionFactory.CreateConnection();
+        await using var connection = postgresConnectionFactory.CreateConnection();
 
         var messages = await connection.QueryAsync<MessageDto>(
             "SELECT message, priority_from, priority_to FROM commands.messages_of_the_day ORDER BY added_at ASC;"

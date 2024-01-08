@@ -8,20 +8,11 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
-public class MonitorMembersSetSlashCommand : ISlashCommand<MonitorMembersSetSlashCommand.Options>
+public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemberLogChannelRepository memberLogChannelRepository) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor members set");
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
-
-    private readonly IPlusRepository _plusRepository;
-    private readonly IMemberLogChannelRepository _memberLogChannelRepository;
-
-    public MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemberLogChannelRepository memberLogChannelRepository)
-    {
-        _plusRepository = plusRepository;
-        _memberLogChannelRepository = memberLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -30,7 +21,7 @@ public class MonitorMembersSetSlashCommand : ISlashCommand<MonitorMembersSetSlas
             async () =>
             {
                 var channel = options.channel.Channel;
-                await _memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
+                await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                     $"Ok, I will now log member joins, leaves and bans in {channel.Mention}. 😊",
@@ -39,23 +30,16 @@ public class MonitorMembersSetSlashCommand : ISlashCommand<MonitorMembersSetSlas
             },
             Preconditions: new ICommandPrecondition[] {
                 new InGuildPrecondition(),
-                new PlusPrecondition(_plusRepository, PlusRequirement.PlusGuild),
+                new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             }
         ));
     }
 }
 
-public class MonitorMembersShowSlashCommand : ISlashCommand<NoOptions>
+public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor members show");
-
-    private readonly IMemberLogChannelRepository _memberLogChannelRepository;
-
-    public MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLogChannelRepository)
-    {
-        _memberLogChannelRepository = memberLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -64,7 +48,7 @@ public class MonitorMembersShowSlashCommand : ISlashCommand<NoOptions>
             async () =>
             {
                 var guild = context.Guild!;
-                var log = await _memberLogChannelRepository.GetMemberLogForGuildAsync(guild);
+                var log = await memberLogChannelRepository.GetMemberLogForGuildAsync(guild);
 
                 Embed? embed = null;
 
@@ -104,16 +88,9 @@ public class MonitorMembersShowSlashCommand : ISlashCommand<NoOptions>
     }
 }
 
-public class MonitorMembersStopSlashCommand : ISlashCommand<NoOptions>
+public class MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLogChannelRepository) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("monitor members stop");
-
-    private readonly IMemberLogChannelRepository _memberLogChannelRepository;
-
-    public MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLogChannelRepository)
-    {
-        _memberLogChannelRepository = memberLogChannelRepository;
-    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -121,7 +98,7 @@ public class MonitorMembersStopSlashCommand : ISlashCommand<NoOptions>
             new(Info.Name),
             async () =>
             {
-                await _memberLogChannelRepository.RemoveMemberLogAsync(context.Guild!);
+                await memberLogChannelRepository.RemoveMemberLogAsync(context.Guild!);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
                     "Ok, I will stop logging member events in this server. 😊",
