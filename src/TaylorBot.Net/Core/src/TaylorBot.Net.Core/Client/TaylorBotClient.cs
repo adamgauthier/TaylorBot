@@ -105,12 +105,12 @@ public class TaylorBotClient : ITaylorBotClient
 
     private Task ShardReadyAsync(DiscordSocketClient shardClient)
     {
-        _logger.LogInformation($"Shard Number {shardClient.ShardId} is ready! Serving {"guild".ToQuantity(shardClient.Guilds.Count)} out of {DiscordShardedClient.Guilds.Count}.");
+        _logger.LogInformation("Shard Number {ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}.", shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count);
 
         Interlocked.Increment(ref shardReadyCount);
         if (shardReadyCount >= DiscordShardedClient.Shards.Count)
         {
-            _logger.LogInformation($"All {"shard".ToQuantity(DiscordShardedClient.Shards.Count)} ready!");
+            _logger.LogInformation("All {ShardCountText} ready!", "shard".ToQuantity(DiscordShardedClient.Shards.Count));
             return _allShardsReadyEvent.InvokeAsync();
         }
 
@@ -119,13 +119,7 @@ public class TaylorBotClient : ITaylorBotClient
 
     public SocketGuild ResolveRequiredGuild(SnowflakeId id)
     {
-        var guild = DiscordShardedClient.GetGuild(id.Id);
-        if (guild == null)
-        {
-            throw new ArgumentException($"Could not resolve Guild ID {id}.");
-        }
-
-        return guild;
+        return DiscordShardedClient.GetGuild(id.Id) ?? throw new ArgumentException($"Could not resolve Guild ID {id}.");
     }
 
     public async ValueTask<IUser> ResolveRequiredUserAsync(SnowflakeId id)

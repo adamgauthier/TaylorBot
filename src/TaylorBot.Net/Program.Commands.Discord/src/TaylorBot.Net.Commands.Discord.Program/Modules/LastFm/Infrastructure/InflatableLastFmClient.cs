@@ -46,7 +46,7 @@ public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOpt
         }
     }
 
-    private LastStatsTimeSpan MapPeriodToTimeSpan(LastFmPeriod period)
+    private static LastStatsTimeSpan MapPeriodToTimeSpan(LastFmPeriod period)
     {
         return period switch
         {
@@ -123,7 +123,7 @@ public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOpt
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
+                logger.LogWarning(e, "Unhandled error when parsing json in Last.fm error response ({StatusCode}):", response.StatusCode);
                 return new LastFmGenericErrorResult(null);
             }
         }
@@ -175,7 +175,7 @@ public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOpt
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, $"Unhandled error when parsing json in Last.fm error response ({response.StatusCode}):");
+                logger.LogWarning(e, "Unhandled error when parsing json in Last.fm error response ({StatusCode}):", response.StatusCode);
                 return new LastFmGenericErrorResult(null);
             }
         }

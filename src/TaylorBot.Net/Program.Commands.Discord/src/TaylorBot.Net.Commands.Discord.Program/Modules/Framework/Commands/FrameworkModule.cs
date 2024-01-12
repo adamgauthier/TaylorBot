@@ -31,19 +31,19 @@ public class FrameworkModule(ICommandRunner commandRunner, ICommandPrefixReposit
                 if (prefix != null)
                 {
                     await commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
-                    embed
-                        .WithDescription(string.Join('\n', new[] {
-                            $"The command prefix for this server has been set to `{prefix.Value}`.",
-                            $"TaylorBot will now recognize commands starting with that prefix in this server, for example `{prefix.Value}help`."
-                        }));
+                    embed.WithDescription(
+                        $"""
+                        The command prefix for this server has been set to `{prefix.Value}`.
+                        TaylorBot will now recognize commands starting with that prefix in this server, for example `{prefix.Value}help`
+                        """);
                 }
                 else
                 {
-                    embed
-                        .WithDescription(string.Join('\n', new[] {
-                            $"The command prefix for this server is `{Context.CommandPrefix}`.",
-                            $"TaylorBot recognizes commands starting with that prefix in this server, for example `{Context.CommandPrefix}help`."
-                        }));
+                    embed.WithDescription(
+                        $"""
+                        The command prefix for this server is `{Context.CommandPrefix}`.
+                        TaylorBot recognizes commands starting with that prefix in this server, for example `{Context.CommandPrefix}help`.
+                        """);
                 }
 
                 return new EmbedResult(embed.Build());

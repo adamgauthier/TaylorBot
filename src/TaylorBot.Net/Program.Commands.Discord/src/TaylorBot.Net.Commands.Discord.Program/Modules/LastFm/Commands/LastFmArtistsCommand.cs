@@ -18,8 +18,7 @@ public class LastFmArtistsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFm
         Metadata,
         async () =>
         {
-            if (period == null)
-                period = LastFmPeriod.SevenDay;
+            period ??= LastFmPeriod.SevenDay;
 
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 

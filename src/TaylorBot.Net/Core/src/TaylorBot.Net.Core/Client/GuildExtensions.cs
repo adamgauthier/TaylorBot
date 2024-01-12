@@ -7,11 +7,6 @@ public static class GuildExtensions
 {
     public static SocketTextChannel GetRequiredTextChannel(this SocketGuild socketGuild, SnowflakeId id)
     {
-        var channel = socketGuild.GetTextChannel(id.Id);
-        if (channel == null)
-        {
-            throw new ArgumentException($"Could not resolve Text Channel ID {id}.");
-        }
-        return channel;
+        return socketGuild.GetTextChannel(id.Id) ?? throw new ArgumentException($"Could not resolve Text Channel ID {id}.");
     }
 }

@@ -8,13 +8,16 @@ public class Word(string value)
     public string Value { get; } = value;
 }
 
-public class WordTypeReader : TypeReader
+public partial class WordTypeReader : TypeReader
 {
-    public static Regex WhitespaceRegex = new(@"\s", RegexOptions.Compiled);
+    [GeneratedRegex(@"\s", RegexOptions.Compiled)]
+    private static partial Regex WhitespaceRegex();
+
+    private static readonly Regex Whitespace = WhitespaceRegex();
 
     public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
-        if (WhitespaceRegex.IsMatch(input))
+        if (Whitespace.IsMatch(input))
         {
             return Task.FromResult(TypeReaderResult.FromError(
                 CommandError.ParseFailed, "Input value can't contain spaces or line breaks."

@@ -69,7 +69,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
                 embed.AddField("Account Created", guildUser.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
 
-                if (guildUser.RoleIds.Any())
+                if (guildUser.RoleIds.Count != 0)
                 {
                     embed.AddField(
                         "Role".ToQuantity(guildUser.RoleIds.Count),
@@ -139,7 +139,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
                     .AddField("Mentionable", r.IsMentionable ? "✅" : "❌", inline: true)
                     .AddField("Created", r.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
                     .AddField("Members",
-                        $"**({members.Count}{(members.Any() ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
+                        $"**({members.Count}{(members.Count != 0 ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
                     );
 
                 return new EmbedResult(embed.Build());

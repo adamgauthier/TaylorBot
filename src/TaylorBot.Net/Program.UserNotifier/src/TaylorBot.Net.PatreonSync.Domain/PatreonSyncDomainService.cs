@@ -85,7 +85,7 @@ public class PatreonSyncDomainService(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when attempting to sync patron {patron}.");
+                logger.LogError(exception, "Exception occurred when attempting to sync patron {Patron}.", patron);
             }
         }
     }

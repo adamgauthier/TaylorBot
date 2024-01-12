@@ -55,7 +55,7 @@ public class EntityTrackerDomainService(
 
     public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
     {
-        logger.LogInformation($"Starting startup entity tracking sequence for shard {shardClient.ShardId}.");
+        logger.LogInformation("Starting startup entity tracking sequence for shard {ShardId}.", shardClient.ShardId);
 
         foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
         {
@@ -63,7 +63,7 @@ public class EntityTrackerDomainService(
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
         }
 
-        logger.LogInformation($"Completed startup entity tracking sequence for shard {shardClient.ShardId}.");
+        logger.LogInformation("Completed startup entity tracking sequence for shard {ShardId}.", shardClient.ShardId);
     }
 
     public async Task OnUserUpdatedAsync(SocketUser oldUser, SocketUser newUser)
@@ -94,7 +94,7 @@ public class EntityTrackerDomainService(
             var memberAdded = await memberRepository.AddNewMemberAsync(guildUser);
             if (memberAdded)
             {
-                logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
+                logger.LogInformation("Added new member {GuildUser}.", guildUser.FormatLog());
                 await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
             }
         }
@@ -121,6 +121,6 @@ public class EntityTrackerDomainService(
     public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
     {
         await spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
-        logger.LogInformation($"Added new text channel {textChannel.FormatLog()}.");
+        logger.LogInformation("Added new text channel {TextChannel}.", textChannel.FormatLog());
     }
 }

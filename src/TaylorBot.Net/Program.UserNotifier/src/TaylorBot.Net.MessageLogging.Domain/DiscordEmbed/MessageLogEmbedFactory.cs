@@ -43,7 +43,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                         builder.AddField("Activity", message.Activity.Type.ToString(), inline: true);
                     }
 
-                    if (message.Embeds.Any())
+                    if (message.Embeds.Count != 0)
                     {
                         builder.AddField("Embed Count", message.Embeds.Count, inline: true);
                     }
@@ -67,7 +67,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                         }
                     }
 
-                    if (message.Attachments.Any())
+                    if (message.Attachments.Count != 0)
                     {
                         builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => a.Filename.DiscordMdLink(a.ProxyUrl))));
                     }
@@ -219,10 +219,11 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
 
             builder
                 .WithTitle("Unknown Message Content Before Edit")
-                .WithDescription(string.Join('\n', new[] {
-                    "Unfortunately, I don't remember this message's content before the edit. 😕",
-                    "This is likely because the message is too old."
-                }));
+                .WithDescription(
+                    """
+                    Unfortunately, I don't remember this message's content before the edit. 😕
+                    This is likely because the message is too old.
+                    """);
 
             if (!string.IsNullOrEmpty(newMessage.Content))
             {

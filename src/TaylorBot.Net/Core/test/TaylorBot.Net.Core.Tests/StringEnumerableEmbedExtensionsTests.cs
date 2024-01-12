@@ -28,7 +28,7 @@ public class StringEnumerableEmbedExtensionsTests
         result.Should().Be(string.Join('\n', new[] { line1, line2, line3 }));
     }
 
-    private string CreateLine(char character, int length)
+    private static string CreateLine(char character, int length)
     {
         return string.Join(string.Empty, Enumerable.Repeat(character, length));
     }

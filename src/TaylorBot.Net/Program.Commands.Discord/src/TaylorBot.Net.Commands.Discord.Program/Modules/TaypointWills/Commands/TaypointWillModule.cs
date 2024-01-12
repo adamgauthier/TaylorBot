@@ -168,7 +168,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
 
             var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
 
-            if (expiredWills.Any())
+            if (expiredWills.Count != 0)
             {
                 var ownerUserIds = expiredWills.Select(r => r.OwnerUserId).ToList();
                 var transfers = await taypointWillRepository.TransferAllPointsAsync(ownerUserIds, Context.User);

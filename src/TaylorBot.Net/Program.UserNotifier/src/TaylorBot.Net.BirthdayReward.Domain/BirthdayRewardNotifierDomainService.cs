@@ -38,19 +38,19 @@ public class BirthdayRewardNotifierDomainService(
     public async ValueTask RewardBirthdaysAsync()
     {
         var rewardAmount = optionsMonitor.CurrentValue.RewardAmount;
-        logger.LogDebug($"Rewarding eligible users with {"birthday point".ToQuantity(rewardAmount)}.");
+        logger.LogDebug("Rewarding eligible users with {PointsCountText}.", "birthday point".ToQuantity(rewardAmount));
 
         foreach (var rewardedUser in await birthdayRepository.RewardEligibleUsersAsync(rewardAmount))
         {
             try
             {
-                logger.LogDebug($"Rewarded {"birthday point".ToQuantity(rewardAmount)} to {rewardedUser}.");
+                logger.LogDebug("Rewarded {PointsCountText} to {RewardedUser}.", "birthday point".ToQuantity(rewardAmount), rewardedUser);
                 var user = await taylorBotClient.Value.ResolveRequiredUserAsync(rewardedUser.UserId);
                 await user.SendMessageAsync(embed: birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when attempting to notify {rewardedUser} about their birthday reward.");
+                logger.LogError(exception, "Exception occurred when attempting to notify {RewardedUser} about their birthday reward.", rewardedUser);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);

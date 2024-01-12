@@ -66,14 +66,14 @@ public class JailModuleTests
         return jailRole;
     }
 
-    private IMentionedUserNotAuthorOrClient<IGuildUser> CreateMentionedUserNotClient(IGuildUser user)
+    private static IMentionedUserNotAuthorOrClient<IGuildUser> CreateMentionedUserNotClient(IGuildUser user)
     {
         var mentionedUser = A.Fake<IMentionedUserNotAuthorOrClient<IGuildUser>>(o => o.Strict());
         A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);
         return mentionedUser;
     }
 
-    private IMentionedUserNotAuthor<IGuildUser> CreateMentionedUser(IGuildUser user)
+    private static IMentionedUserNotAuthor<IGuildUser> CreateMentionedUser(IGuildUser user)
     {
         var mentionedUser = A.Fake<IMentionedUserNotAuthor<IGuildUser>>(o => o.Strict());
         A.CallTo(() => mentionedUser.GetTrackedUserAsync()).Returns(user);

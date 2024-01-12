@@ -34,7 +34,7 @@ public class QuickStartChannelFinderTests
         channel.Should().Be(generalChannel);
     }
 
-    private ITextChannel CreateAvailableChannel(string name, IGuildUser botUser, IRole everyone)
+    private static ITextChannel CreateAvailableChannel(string name, IGuildUser botUser, IRole everyone)
     {
         var channel = A.Fake<ITextChannel>(o => o.Strict());
         A.CallTo(() => channel.Name).Returns(name);

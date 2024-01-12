@@ -48,7 +48,7 @@ public class CustomRoleTypeReader<T> : TypeReader
             // By Name (0.5-0.8)
             foreach (var role in roles)
             {
-                if (role.Name.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (role.Name.Contains(input, StringComparison.OrdinalIgnoreCase))
                 {
                     if (string.Equals(input, role.Name, StringComparison.OrdinalIgnoreCase))
                     {

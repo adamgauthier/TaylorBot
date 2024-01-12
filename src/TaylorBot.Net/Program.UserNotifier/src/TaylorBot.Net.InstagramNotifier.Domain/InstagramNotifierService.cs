@@ -43,14 +43,14 @@ public class InstagramNotifierService(
 
                 if (newestPost.ShortCode != instagramChecker.LastPostCode && newestPost.TakenAt > instagramChecker.LastPostTakenAt)
                 {
-                    logger.LogDebug($"Found new Instagram post for {instagramChecker}: {newestPost.ShortCode}.");
+                    logger.LogDebug("Found new Instagram post for {InstagramChecker}: {ShortCode}.", instagramChecker, newestPost.ShortCode);
                     await channel.SendMessageAsync(embed: instagramPostToEmbedMapper.ToEmbed(newestPost));
                     await instagramCheckerRepository.UpdateLastPostAsync(instagramChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when checking {instagramChecker}.");
+                logger.LogError(exception, "Exception occurred when checking {InstagramChecker}.", instagramChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

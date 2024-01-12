@@ -48,7 +48,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                                 } :
                                 null;
 
-                            if (groupInfo != null && groupInfo.MemberRolesInSameGroup.Any())
+                            if (groupInfo != null && groupInfo.MemberRolesInSameGroup.Count != 0)
                             {
                                 embed
                                     .WithColor(TaylorBotColors.ErrorColor)
@@ -113,14 +113,14 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                     embed.WithColor(TaylorBotColors.SuccessColor);
 
-                    if (accessibleRoles.Any())
+                    if (accessibleRoles.Count != 0)
                     {
                         var ungrouped = accessibleRoles.Where(ar => ar.GroupName == null).ToList();
                         var grouped = accessibleRoles.Where(ar => ar.GroupName != null).GroupBy(ar => ar.GroupName);
 
                         embed.WithDescription($"Here are the accessible roles in this server, use `{Context.CommandPrefix}role role-name` to get one of them.");
 
-                        if (ungrouped.Any())
+                        if (ungrouped.Count != 0)
                         {
                             embed.AddField("no group", string.Join(", ", ungrouped.Select(r => MentionUtils.MentionRole(r.RoleId.Id))).Truncate(EmbedFieldBuilder.MaxFieldValueLength), inline: false);
                         }

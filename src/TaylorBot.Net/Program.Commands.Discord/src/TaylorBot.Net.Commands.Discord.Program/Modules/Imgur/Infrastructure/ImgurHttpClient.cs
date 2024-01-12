@@ -50,14 +50,11 @@ public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient httpCli
                     var jsonDocument = JsonDocument.Parse(responseString);
                     var errorCode = jsonDocument.RootElement.GetProperty("data").GetProperty("error").GetProperty("code").GetInt32();
 
-                    switch (errorCode)
+                    return errorCode switch
                     {
-                        case 1003:
-                            return new FileTypeInvalid();
-
-                        default:
-                            return new GenericImgurError();
-                    }
+                        1003 => new FileTypeInvalid(),
+                        _ => new GenericImgurError(),
+                    };
                 }
                 catch (Exception e)
                 {

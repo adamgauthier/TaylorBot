@@ -56,7 +56,7 @@ public class CustomChannelTypeReader<T> : TypeReader
         // By Name (0.6-0.8)
         foreach (var channel in channels)
         {
-            if (channel.Name.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
+            if (channel.Name.Contains(input, StringComparison.OrdinalIgnoreCase))
             {
                 if (string.Equals(input, channel.Name, StringComparison.OrdinalIgnoreCase))
                 {

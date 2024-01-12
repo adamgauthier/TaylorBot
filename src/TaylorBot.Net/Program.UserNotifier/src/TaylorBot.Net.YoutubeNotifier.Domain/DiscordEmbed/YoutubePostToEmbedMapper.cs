@@ -22,8 +22,8 @@ public class YoutubePostToEmbedMapper(IOptionsMonitor<YoutubeNotifierOptions> op
             .WithFooter(text: "YouTube", iconUrl: options.YoutubePostEmbedIconUrl)
             .WithColor(DiscordColor.FromHexString(options.YoutubePostEmbedColor));
 
-        if (post.PublishedAt.HasValue)
-            builder.WithTimestamp(post.PublishedAt.Value);
+        if (post.PublishedAtDateTimeOffset.HasValue)
+            builder.WithTimestamp(post.PublishedAtDateTimeOffset.Value);
 
         return builder.Build();
     }

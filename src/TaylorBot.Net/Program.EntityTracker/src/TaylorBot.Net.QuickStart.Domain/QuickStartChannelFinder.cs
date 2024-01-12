@@ -16,7 +16,7 @@ public class QuickStartChannelFinder
            currentUser.GetPermissions(channel).Has(ChannelPermission.SendMessages)
         ).ToList();
 
-        if (!availableChannels.Any())
+        if (availableChannels.Count == 0)
             return null;
 
         foreach (var name in new[] { "general", "main" })

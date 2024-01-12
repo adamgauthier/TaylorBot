@@ -46,23 +46,27 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
         var maxPlusGuilds = patron.CurrentlyEntitledAmountCents / 100L;
 
         var existingPlusUser = await connection.QuerySingleOrDefaultAsync<PlusUserDto?>(
-            @"SELECT rewarded_for_charge_at, max_plus_guilds, source FROM plus.plus_users
-                WHERE user_id = @UserId FOR UPDATE;",
+            """
+            SELECT rewarded_for_charge_at, max_plus_guilds, source FROM plus.plus_users
+            WHERE user_id = @UserId FOR UPDATE;
+            """,
             new
             {
-                UserId = userId
+                UserId = userId,
             }
         );
 
         if (existingPlusUser != null)
         {
             var plusGuilds = (await connection.QueryAsync<PlusGuildDto>(
-                @"SELECT guild_name, state
-                    FROM plus.plus_guilds INNER JOIN guilds.guilds ON plus.plus_guilds.guild_id = guilds.guilds.guild_id
-                    WHERE plus_user_id = @UserId;",
+                """
+                SELECT guild_name, state
+                FROM plus.plus_guilds INNER JOIN guilds.guilds ON plus.plus_guilds.guild_id = guilds.guilds.guild_id
+                WHERE plus_user_id = @UserId;
+                """,
                 new
                 {
-                    UserId = userId
+                    UserId = userId,
                 }
             )).ToList();
 
@@ -71,42 +75,48 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 patron.LastCharge.Date != existingPlusUser.rewarded_for_charge_at ?
                 patron.LastCharge.Date : null;
 
-            logger.LogDebug($"{logPrefix} Plus user already exists, updating with {nameof(patron.IsActive)}={patron.IsActive}, {nameof(maxPlusGuilds)}={maxPlusGuilds}, {nameof(rewardedForChargeAtUpdate)}={rewardedForChargeAtUpdate}.");
+            logger.LogDebug("{Prefix} Plus user already exists, updating with {Properties}.",
+                logPrefix, $"{nameof(patron.IsActive)}={patron.IsActive}, {nameof(maxPlusGuilds)}={maxPlusGuilds}, {nameof(rewardedForChargeAtUpdate)}={rewardedForChargeAtUpdate}");
 
             await connection.ExecuteAsync(
-                @"UPDATE plus.plus_users SET
-                        active = @Active,
-                        max_plus_guilds = @MaxPlusGuilds,
-                        source = 'patreon',
-                        rewarded_for_charge_at = (CASE
-                            WHEN @RewardedForChargeAt IS NULL
-                            THEN plus.plus_users.rewarded_for_charge_at
-                            ELSE @RewardedForChargeAt
-                        END),
-                        metadata = @Metadata
-                    WHERE user_id = @UserId;",
+                """
+                UPDATE plus.plus_users SET
+                    active = @Active,
+                    max_plus_guilds = @MaxPlusGuilds,
+                    source = 'patreon',
+                    rewarded_for_charge_at = (CASE
+                        WHEN @RewardedForChargeAt IS NULL
+                        THEN plus.plus_users.rewarded_for_charge_at
+                        ELSE @RewardedForChargeAt
+                    END),
+                    metadata = @Metadata
+                WHERE user_id = @UserId;
+                """,
                 new
                 {
                     UserId = userId,
                     Active = patron.IsActive,
                     MaxPlusGuilds = maxPlusGuilds,
                     RewardedForChargeAt = rewardedForChargeAtUpdate,
-                    Metadata = patron.Metadata
+                    Metadata = patron.Metadata,
                 }
             );
 
             if (rewardedForChargeAtUpdate != null)
             {
                 var rewardAmount = patron.CurrentlyEntitledAmountCents * 10;
-                logger.LogDebug($"{logPrefix} Rewarding {rewardAmount} points because {nameof(existingPlusUser.rewarded_for_charge_at)}={existingPlusUser.rewarded_for_charge_at}.");
+                logger.LogDebug("{Prefix} Rewarding {rewardAmount} points because {RewardedForChargeAt}.",
+                    logPrefix, rewardAmount, $"{nameof(existingPlusUser.rewarded_for_charge_at)}={existingPlusUser.rewarded_for_charge_at}");
 
                 var rewardedUser = await connection.QuerySingleAsync<RewardedUserDto>(
-                    @"UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd
-                            WHERE user_id = @UserId RETURNING taypoint_count;",
+                    """
+                    UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd
+                    WHERE user_id = @UserId RETURNING taypoint_count;
+                    """,
                     new
                     {
                         PointsToAdd = rewardAmount,
-                        UserId = userId
+                        UserId = userId,
                     }
                 );
 
@@ -117,14 +127,16 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 if (plusGuilds.Count(g => g.state == "enabled") > maxPlusGuilds)
                 {
                     var enabledPlusGuilds = plusGuilds.Where(g => g.state == "enabled").Select(g => g.guild_name).ToList();
-                    logger.LogDebug($"{logPrefix} Disabling plus guilds because enabled count is {enabledPlusGuilds.Count}.");
+                    logger.LogDebug("{Prefix} Disabling plus guilds because enabled count is {EnabledPlusGuildsCount}.", logPrefix, enabledPlusGuilds.Count);
 
                     await connection.ExecuteAsync(
-                        @"UPDATE plus.plus_guilds SET state = 'auto_disabled'
-                            WHERE plus_user_id = @UserId AND state = 'enabled';",
+                        """
+                        UPDATE plus.plus_guilds SET state = 'auto_disabled'
+                        WHERE plus_user_id = @UserId AND state = 'enabled';
+                        """,
                         new
                         {
-                            UserId = userId
+                            UserId = userId,
                         }
                     );
 
@@ -133,14 +145,16 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 else if (plusGuilds.Any(g => g.state == "auto_disabled") &&
                          plusGuilds.Count(g => g.state is "enabled" or "auto_disabled") <= maxPlusGuilds)
                 {
-                    logger.LogDebug($"{logPrefix} Enabling {plusGuilds.Count(g => g.state == "auto_disabled")} auto disabled plus guilds.");
+                    logger.LogDebug("{Prefix} Enabling {AutoDisabledGuildCount} auto disabled plus guilds.", logPrefix, plusGuilds.Count(g => g.state == "auto_disabled"));
 
                     await connection.ExecuteAsync(
-                        @"UPDATE plus.plus_guilds SET state = 'enabled'
-                            WHERE plus_user_id = @UserId AND state = 'auto_disabled';",
+                        """
+                        UPDATE plus.plus_guilds SET state = 'enabled'
+                        WHERE plus_user_id = @UserId AND state = 'auto_disabled';
+                        """,
                         new
                         {
-                            UserId = userId
+                            UserId = userId,
                         }
                     );
 
@@ -154,14 +168,16 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
             else if (plusGuilds.Any(g => g.state == "enabled"))
             {
                 var enabledPlusGuilds = plusGuilds.Where(g => g.state == "enabled").Select(g => g.guild_name).ToList();
-                logger.LogDebug($"{logPrefix} Disabling {enabledPlusGuilds.Count} plus guilds because patron isn't active.");
+                logger.LogDebug("{Prefix} Disabling {EnabledPlusGuildsCount} plus guilds because patron isn't active.", logPrefix, enabledPlusGuilds.Count);
 
                 await connection.ExecuteAsync(
-                    @"UPDATE plus.plus_guilds SET state = 'auto_disabled'
-                        WHERE plus_user_id = @UserId AND state = 'enabled';",
+                    """
+                    UPDATE plus.plus_guilds SET state = 'auto_disabled'
+                    WHERE plus_user_id = @UserId AND state = 'enabled';
+                    """,
                     new
                     {
-                        UserId = userId
+                        UserId = userId,
                     }
                 );
 
@@ -174,17 +190,20 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
         }
         else
         {
-            logger.LogDebug($"{logPrefix} Plus user doesn't exist, adding with {nameof(patron.IsActive)}={patron.IsActive}, {nameof(maxPlusGuilds)}={maxPlusGuilds}.");
+            logger.LogDebug("{Prefix} Plus user doesn't exist, adding with {Properties}.",
+                logPrefix, $"{nameof(patron.IsActive)}={patron.IsActive}, {nameof(maxPlusGuilds)}={maxPlusGuilds}");
 
             await connection.ExecuteAsync(
-                @"INSERT INTO plus.plus_users (user_id, active, max_plus_guilds, source, rewarded_for_charge_at, metadata)
-                    VALUES (@UserId, @Active, @MaxPlusGuilds, 'patreon', NULL, @Metadata);",
+                """
+                INSERT INTO plus.plus_users (user_id, active, max_plus_guilds, source, rewarded_for_charge_at, metadata)
+                VALUES (@UserId, @Active, @MaxPlusGuilds, 'patreon', NULL, @Metadata);
+                """,
                 new
                 {
                     UserId = userId,
                     Active = patron.IsActive,
                     MaxPlusGuilds = maxPlusGuilds,
-                    Metadata = patron.Metadata
+                    Metadata = patron.Metadata,
                 }
             );
 

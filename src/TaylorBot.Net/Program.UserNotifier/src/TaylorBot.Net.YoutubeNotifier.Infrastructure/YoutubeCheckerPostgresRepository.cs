@@ -6,16 +6,9 @@ using TaylorBot.Net.YoutubeNotifier.Domain;
 
 namespace TaylorBot.Net.YoutubeNotifier.Infrastructure;
 
-public class YoutubeCheckerRepository(PostgresConnectionFactory postgresConnectionFactory) : IYoutubeCheckerRepository
+public class YoutubeCheckerPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IYoutubeCheckerRepository
 {
-    private class YoutubeCheckerDto
-    {
-        public string guild_id { get; set; } = null!;
-        public string channel_id { get; set; } = null!;
-        public string playlist_id { get; set; } = null!;
-        public string? last_video_id { get; set; }
-        public DateTimeOffset? last_published_at { get; set; }
-    }
+    private record YoutubeCheckerDto(string guild_id, string channel_id, string playlist_id, string? last_video_id, DateTime? last_published_at);
 
     public async ValueTask<IReadOnlyCollection<YoutubeChecker>> GetYoutubeCheckersAsync()
     {
@@ -39,21 +32,23 @@ public class YoutubeCheckerRepository(PostgresConnectionFactory postgresConnecti
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"UPDATE checkers.youtube_checker SET
-                    last_video_id = @LastVideoId,
-                    last_published_at = CASE
-                        WHEN @LastPublishedAt IS NULL
-                        THEN last_published_at
-                        ELSE @LastPublishedAt
-                    END
-                WHERE playlist_id = @PlaylistId AND guild_id = @GuildId AND channel_id = @ChannelId;",
+            """
+            UPDATE checkers.youtube_checker SET
+                last_video_id = @LastVideoId,
+                last_published_at = CASE
+                    WHEN @LastPublishedAt IS NULL
+                    THEN last_published_at
+                    ELSE @LastPublishedAt
+                END
+            WHERE playlist_id = @PlaylistId AND guild_id = @GuildId AND channel_id = @ChannelId;
+            """,
             new
             {
                 PlaylistId = youtubeChecker.PlaylistId,
                 GuildId = youtubeChecker.GuildId.ToString(),
                 ChannelId = youtubeChecker.ChannelId.ToString(),
                 LastVideoId = youtubePost.ResourceId.VideoId,
-                LastPublishedAt = youtubePost.PublishedAt?.ToUniversalTime(),
+                LastPublishedAt = youtubePost.PublishedAtDateTimeOffset?.ToUniversalTime(),
             }
         );
     }

@@ -10,7 +10,7 @@ namespace TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 
 public class GuildMemberJoinedEmbedFactory(IOptionsMonitor<MemberLoggingOptions> optionsMonitor)
 {
-    private EmbedBuilder CreateBaseEmbed(IGuildUser guildUser)
+    private static EmbedBuilder CreateBaseEmbed(IGuildUser guildUser)
     {
         var avatarUrl = guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl();
         return new EmbedBuilder()

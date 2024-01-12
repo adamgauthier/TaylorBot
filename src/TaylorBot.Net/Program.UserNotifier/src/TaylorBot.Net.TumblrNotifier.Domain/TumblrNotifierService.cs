@@ -47,14 +47,14 @@ public class TumblrNotifierService(
 
                 if (newestPost.ShortUrl != tumblrChecker.LastPostShortUrl)
                 {
-                    logger.LogDebug($"Found new Tumblr post for {tumblrChecker}: {newestPost.ShortUrl}.");
+                    logger.LogDebug("Found new Tumblr post for {TumblrChecker}: {PostShortUrl}.", tumblrChecker, newestPost.ShortUrl);
                     await channel.SendMessageAsync(embed: tumblrPostToEmbedMapper.ToEmbed(newestPost, blog));
                     await tumblrCheckerRepository.UpdateLastPostAsync(tumblrChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when checking {tumblrChecker}.");
+                logger.LogError(exception, "Exception occurred when checking {TumblrChecker}.", tumblrChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

@@ -45,22 +45,22 @@ public class YoutubeNotifierService(
                 var response = await request.ExecuteAsync();
                 var newestPost = response.Items.First().Snippet;
 
-                logger.LogTrace($"Checking if Youtube post '{newestPost.ResourceId.VideoId}' for {youtubeChecker} is new.");
+                logger.LogTrace("Checking if Youtube post '{VideoId}' for {YoutubeChecker} is new.", newestPost.ResourceId.VideoId, youtubeChecker);
 
                 if (youtubeChecker.LastVideoId == null || (
                     newestPost.ResourceId.VideoId != youtubeChecker.LastVideoId &&
-                    (!newestPost.PublishedAt.HasValue || !youtubeChecker.LastPublishedAt.HasValue ||
-                    newestPost.PublishedAt.Value > youtubeChecker.LastPublishedAt.Value)
+                    (!newestPost.PublishedAtDateTimeOffset.HasValue || !youtubeChecker.LastPublishedAt.HasValue ||
+                    newestPost.PublishedAtDateTimeOffset.Value > youtubeChecker.LastPublishedAt.Value)
                 ))
                 {
-                    logger.LogDebug($"Found new Youtube post for {youtubeChecker}: '{newestPost.ResourceId.VideoId}'.");
+                    logger.LogDebug("Found new Youtube post for {YoutubeChecker}: '{VideoId}'.", youtubeChecker, newestPost.ResourceId.VideoId);
                     await channel.SendMessageAsync(embed: youtubePostToEmbedMapper.ToEmbed(newestPost));
                     await youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when checking {youtubeChecker}.");
+                logger.LogError(exception, "Exception occurred when checking {YoutubeChecker}.", youtubeChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

@@ -202,7 +202,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
                 return Array.Empty<InteractionResponse.Component>();
             }
 
-            return new[] {
+            return [
                 InteractionResponse.Component.CreateActionRow(response.Buttons.Select(b =>
                     InteractionResponse.Component.CreateButton(
                         style: (byte)ToInteractionStyle(b.Style),
@@ -211,7 +211,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
                         emoji: b.Emoji != null ? new(name: b.Emoji) : null
                     )
                 ).ToList())
-            };
+            ];
         }
         else
         {

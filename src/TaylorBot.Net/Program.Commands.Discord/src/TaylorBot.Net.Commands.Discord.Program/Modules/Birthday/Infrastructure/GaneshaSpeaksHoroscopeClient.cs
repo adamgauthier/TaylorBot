@@ -4,9 +4,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
-public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient httpClient) : IHoroscopeClient
+public partial class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient httpClient) : IHoroscopeClient
 {
-    private static readonly Regex HoroscopeRegex = new("<p id=\"horo_content\">(.*)<\\/p>");
+    private static readonly Regex HoroscopeContent = HoroscopeRegex();
 
     public async ValueTask<IHoroscopeResult> GetHoroscopeAsync(string zodiacSign)
     {
@@ -16,7 +16,7 @@ public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> 
         {
             var responseAsString = await response.Content.ReadAsStringAsync();
 
-            var horoscopeMatch = HoroscopeRegex.Match(responseAsString);
+            var horoscopeMatch = HoroscopeContent.Match(responseAsString);
 
             if (!horoscopeMatch.Success)
             {
@@ -31,4 +31,7 @@ public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> 
             return new GaneshaSpeaksGenericErrorResult(response.StatusCode.ToString());
         }
     }
+
+    [GeneratedRegex("<p id=\"horo_content\">(.*)<\\/p>")]
+    private static partial Regex HoroscopeRegex();
 }

@@ -8,10 +8,10 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmUsernameParser : IOptionParser<LastFmUsername>
+public partial class LastFmUsernameParser : IOptionParser<LastFmUsername>
 {
-    private static readonly Regex UsernameRegex = new(@"^[a-z0-9_-]{1,15}$", RegexOptions.IgnoreCase);
-    private static readonly Regex LinkRegex = new(@"^\/user\/([a-z0-9_-]{1,15})(\/.*)?$", RegexOptions.IgnoreCase);
+    private static readonly Regex UsernameRegex = Username();
+    private static readonly Regex LinkRegex = Link();
 
     public static Result<LastFmUsername, ParsingFailed> Parse(string input)
     {
@@ -61,4 +61,10 @@ public class LastFmUsernameParser : IOptionParser<LastFmUsername>
 
         return new(Parse(input));
     }
+
+    [GeneratedRegex(@"^[a-z0-9_-]{1,15}$", RegexOptions.IgnoreCase, "en-CA")]
+    private static partial Regex Username();
+
+    [GeneratedRegex(@"^\/user\/([a-z0-9_-]{1,15})(\/.*)?$", RegexOptions.IgnoreCase, "en-CA")]
+    private static partial Regex Link();
 }

@@ -10,7 +10,7 @@ namespace TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 
 public class RedditPostToEmbedMapper(IOptionsMonitor<RedditNotifierOptions> optionsMonitor)
 {
-    private static readonly string[] DOMAINS_TO_USE_URL_AS_THUMBNAIL = new[] { "i.redd.it", "i.imgur.com" };
+    private static readonly string[] DOMAINS_TO_USE_URL_AS_THUMBNAIL = ["i.redd.it", "i.imgur.com"];
 
     public Embed ToEmbed(Post post)
     {

@@ -38,7 +38,7 @@ public class TumblrPostToEmbedMapper(IOptionsMonitor<TumblrNotifierOptions> opti
             case PhotoPost photoPost:
                 if (!string.IsNullOrWhiteSpace(photoPost.Caption))
                     builder.WithDescription(photoPost.Caption.Truncate(EmbedBuilder.MaxDescriptionLength));
-                else if (photoPost.Tags.Any())
+                else if (photoPost.Tags.Length != 0)
                     builder.WithDescription(string.Join(" ", photoPost.Tags.Select(t => $"#{t}")).Truncate(EmbedBuilder.MaxDescriptionLength));
                 builder.WithThumbnailUrl(photoPost.Photo.OriginalSize.ImageUrl);
                 break;

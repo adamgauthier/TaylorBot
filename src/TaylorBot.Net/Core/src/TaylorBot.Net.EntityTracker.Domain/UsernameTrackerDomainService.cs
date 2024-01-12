@@ -12,13 +12,13 @@ public class UsernameTrackerDomainService(ILogger<UsernameTrackerDomainService> 
     {
         if (userAddedResult.WasAdded)
         {
-            logger.LogInformation($"Added new user {user.FormatLog()}.");
+            logger.LogInformation("Added new user {User}.", user.FormatLog());
             await usernameRepository.AddNewUsernameAsync(user);
         }
         else if (userAddedResult.WasUsernameChanged)
         {
             await usernameRepository.AddNewUsernameAsync(user);
-            logger.LogInformation($"Added new username for {user.FormatLog()}, previously was '{userAddedResult.PreviousUsername}'.");
+            logger.LogInformation("Added new username for {User}, previously was '{PreviousUsername}'.", user.FormatLog(), userAddedResult.PreviousUsername);
         }
     }
 }

@@ -45,14 +45,14 @@ public class RedditNotifierService(
                 if (redditChecker.LastPostId == null || !redditChecker.LastPostCreatedAt.HasValue ||
                     (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt.Value))
                 {
-                    logger.LogDebug($"Found new Reddit post for {redditChecker}: {newestPost.Id}.");
+                    logger.LogDebug("Found new Reddit post for {RedditChecker}: {PostId}.", redditChecker, newestPost.Id);
                     await channel.SendMessageAsync(embed: redditPostToEmbedMapper.ToEmbed(newestPost));
                     await redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when checking {redditChecker}.");
+                logger.LogError(exception, "Exception occurred when checking {RedditChecker}.", redditChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);

@@ -31,21 +31,23 @@ public class WolframAlphaSlashCommand(IRateLimiter rateLimiter, IWolframAlphaCli
                             .WithColor(255, 125, 0)
                             .WithTitle(queryResult.InputPod.PlainText)
                             .WithImageUrl(queryResult.OutputPod.ImageUrl)
-                            .WithFooter($"Wolfram|Alpha", iconUrl: "https://i.imgur.com/aHl1jlS.png")
+                            .WithFooter("Wolfram|Alpha", iconUrl: "https://i.imgur.com/aHl1jlS.png")
                         .Build());
 
                     case WolframAlphaFailed _:
-                        return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                            "WolframAlpha did not understand what you meant by:",
-                            $"> {options.question.Value}",
-                            "Try rephrasing your question! 😕"
-                        })));
+                        return new EmbedResult(EmbedFactory.CreateError(
+                            $"""
+                            WolframAlpha did not understand what you meant by:
+                            > {options.question.Value}
+                            Try rephrasing your question! 😕
+                            """));
 
                     case GenericWolframAlphaError _:
-                        return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
-                            "WolframAlpha returned an unexpected error. 😢",
-                            "The site might be down. Try again later!"
-                        })));
+                        return new EmbedResult(EmbedFactory.CreateError(
+                            """
+                            WolframAlpha returned an unexpected error. 😢
+                            The site might be down. Try again later!
+                            """));
 
                     default:
                         throw new InvalidOperationException(result.GetType().Name);

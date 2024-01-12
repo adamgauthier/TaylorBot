@@ -147,7 +147,7 @@ public class UserNotifierProgram
                     .AddTransient<RedditNotifierService>()
                     .AddTransient<RedditPostToEmbedMapper>()
                     .AddTransient<YouTubeService>()
-                    .AddTransient<IYoutubeCheckerRepository, YoutubeCheckerRepository>()
+                    .AddTransient<IYoutubeCheckerRepository, YoutubeCheckerPostgresRepository>()
                     .AddTransient<YoutubeNotifierService>()
                     .AddTransient<YoutubePostToEmbedMapper>()
                     .AddTransient<ITumblrCheckerRepository, TumblrCheckerRepository>()

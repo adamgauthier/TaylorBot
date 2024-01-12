@@ -39,19 +39,19 @@ public class ReminderNotifierDomainService(
         {
             try
             {
-                logger.LogDebug($"Reminding {reminder}.");
+                logger.LogDebug("Reminding {Reminder}.", reminder);
                 var user = await taylorBotClient.Value.ResolveRequiredUserAsync(reminder.UserId);
                 try
                 {
                     await user.SendMessageAsync(embed: reminderEmbedFactory.Create(reminder));
-                    logger.LogDebug($"Reminded {user.FormatLog()} with {reminder}.");
+                    logger.LogDebug("Reminded {User} with {Reminder}.", user.FormatLog(), reminder);
                     await reminderRepository.RemoveReminderAsync(reminder);
                 }
                 catch (Discord.Net.HttpException httpException)
                 {
                     if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                     {
-                        logger.LogWarning($"Could not remind {user.FormatLog()} with {reminder} because they can't receive DMs.");
+                        logger.LogWarning("Could not remind {User} with {Reminder} because they can't receive DMs.", user.FormatLog(), reminder);
                         await reminderRepository.RemoveReminderAsync(reminder);
                     }
                     else
@@ -62,7 +62,7 @@ public class ReminderNotifierDomainService(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, $"Exception occurred when attempting to notify {reminder}.");
+                logger.LogError(exception, "Exception occurred when attempting to notify {Reminder}.", reminder);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);

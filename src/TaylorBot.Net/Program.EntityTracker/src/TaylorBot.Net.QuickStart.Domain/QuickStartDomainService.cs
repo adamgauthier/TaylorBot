@@ -36,12 +36,12 @@ public class QuickStartDomainService(
         if (quickStartChannel != null)
         {
             await quickStartChannel.SendMessageAsync(embed: quickStartEmbed);
-            logger.LogInformation($"Sent Quick Start embed in {quickStartChannel.FormatLog()}.");
+            logger.LogInformation("Sent Quick Start embed in {QuickStartChannel}.", quickStartChannel.FormatLog());
         }
         else
         {
             await guild.Owner.SendMessageAsync(embed: quickStartEmbed);
-            logger.LogInformation($"Sent Quick Start embed to {guild.Owner.FormatLog()}.");
+            logger.LogInformation("Sent Quick Start embed to {GuildOwner}.", guild.Owner.FormatLog());
         }
     }
 }

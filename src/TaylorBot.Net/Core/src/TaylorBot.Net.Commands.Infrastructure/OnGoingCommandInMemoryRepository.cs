@@ -8,7 +8,7 @@ public class OnGoingCommandInMemoryRepository : IOngoingCommandRepository
 {
     private readonly IDictionary<string, long> ongoingCommands = new ConcurrentDictionary<string, long>();
 
-    private string GetKey(IUser user, string pool) => $"{user.Id}{pool}";
+    private static string GetKey(IUser user, string pool) => $"{user.Id}{pool}";
 
     public ValueTask AddOngoingCommandAsync(IUser user, string pool)
     {

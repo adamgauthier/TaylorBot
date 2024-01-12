@@ -104,7 +104,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
             await channelUsers
                 .ForEachAsync(u =>
                 {
-                    if (u.Username.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (u.Username.Contains(input, StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.Equals(input, u.Username, StringComparison.OrdinalIgnoreCase))
                         {
@@ -124,7 +124,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
 
             foreach (var guildUser in guildUsers)
             {
-                if (guildUser.Username.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (guildUser.Username.Contains(input, StringComparison.OrdinalIgnoreCase))
                 {
                     if (string.Equals(input, guildUser.Username, StringComparison.OrdinalIgnoreCase))
                     {
@@ -149,7 +149,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
                 .Where(u => u.Nickname != null)
                 .ForEachAsync(u =>
                 {
-                    if (u.Nickname.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (u.Nickname.Contains(input, StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.Equals(input, u.Nickname, StringComparison.OrdinalIgnoreCase))
                         {
@@ -168,7 +168,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
 
             foreach (var guildUser in guildUsers.Where(u => u.Nickname != null))
             {
-                if (guildUser.Nickname.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (guildUser.Nickname.Contains(input, StringComparison.OrdinalIgnoreCase))
                 {
                     if (string.Equals(input, guildUser.Nickname, StringComparison.OrdinalIgnoreCase))
                     {

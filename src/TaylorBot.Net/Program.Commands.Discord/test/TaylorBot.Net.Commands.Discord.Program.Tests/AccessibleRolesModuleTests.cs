@@ -190,7 +190,7 @@ public class AccessibleRolesModuleTests
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
     }
 
-    private IRole CreateFakeRole(ulong id, string name)
+    private static IRole CreateFakeRole(ulong id, string name)
     {
         var role = A.Fake<IRole>(o => o.Strict());
         A.CallTo(() => role.Id).Returns(id);

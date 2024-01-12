@@ -14,7 +14,6 @@ public class CustomChannelTypeReaderChannelTests
     private const ulong AnotherId = 1989;
     private const string AName = "general";
 
-    private readonly IGuild _guild = A.Fake<IGuild>(o => o.Strict());
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
     private readonly IServiceProvider _serviceProvider = A.Fake<IServiceProvider>(o => o.Strict());
 
@@ -57,11 +56,11 @@ public class CustomChannelTypeReaderChannelTests
         result.Error.Should().Be(CommandError.ObjectNotFound);
     }
 
-    private ITextChannel CreateFakeTextChannel(ulong id, string name)
+    private static ITextChannel CreateFakeTextChannel(ulong id, string name)
     {
         var channel = A.Fake<ITextChannel>(o => o.Strict());
         A.CallTo(() => channel.Id).Returns(id);
-        A.CallTo(() => channel.Name).Returns(AName);
+        A.CallTo(() => channel.Name).Returns(name);
         return channel;
     }
 }

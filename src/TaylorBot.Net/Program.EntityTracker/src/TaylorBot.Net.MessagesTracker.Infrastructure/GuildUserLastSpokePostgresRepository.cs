@@ -17,7 +17,7 @@ public class GuildUserLastSpokePostgresRepository(PostgresConnectionFactory post
 
         HashEntry entry = new($"guild:{guildUser.GuildId}:channel:{guildUser.Id}", lastSpokeAt.ToString("o"));
 
-        await redis.HashSetAsync(LastSpokeUpdatesHashKey, new[] { entry });
+        await redis.HashSetAsync(LastSpokeUpdatesHashKey, [entry]);
     }
 
     public async ValueTask PersistQueuedLastSpokeUpdatesAsync()

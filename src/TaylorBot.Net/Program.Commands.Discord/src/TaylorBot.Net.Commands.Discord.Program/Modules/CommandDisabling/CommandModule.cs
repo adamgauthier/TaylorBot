@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling;
 [Alias("c")]
 public class CommandModule(ICommandRunner commandRunner, IDisabledCommandRepository disabledCommandRepository) : TaylorBotModule
 {
-    private static readonly string[] GuardedModuleNames = new[] { "framework", "command" };
+    private static readonly string[] GuardedModuleNames = ["framework", "command"];
 
     [Command("enable-global")]
     [Summary("Enables a command globally.")]

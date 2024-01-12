@@ -2,13 +2,16 @@
 
 namespace TaylorBot.Net.MessagesTracker.Domain;
 
-public class WordCounter
+public partial class WordCounter
 {
-    private readonly Regex regex = new(@"\s+");
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex WhitespaceRegex();
+
+    private static readonly Regex Space = WhitespaceRegex();
 
     public int CountWords(string input)
     {
-        var matchesCount = regex.Matches(input).Count;
+        var matchesCount = Space.Matches(input).Count;
 
         return matchesCount != 0 ? matchesCount + 1 : 1;
     }
