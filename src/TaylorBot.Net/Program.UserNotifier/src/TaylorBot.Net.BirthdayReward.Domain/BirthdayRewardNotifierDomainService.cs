@@ -8,13 +8,17 @@ using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.BirthdayReward.Domain;
 
+public interface IBirthdayRepository
+{
+    ValueTask<List<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount);
+}
+
 public class BirthdayRewardNotifierDomainService(
     ILogger<BirthdayRewardNotifierDomainService> logger,
     IOptionsMonitor<BirthdayRewardNotifierOptions> optionsMonitor,
     IBirthdayRepository birthdayRepository,
     BirthdayRewardEmbedFactory birthdayRewardEmbedFactory,
-    Lazy<ITaylorBotClient> taylorBotClient
-    )
+    Lazy<ITaylorBotClient> taylorBotClient)
 {
     public async Task StartCheckingBirthdaysAsync()
     {

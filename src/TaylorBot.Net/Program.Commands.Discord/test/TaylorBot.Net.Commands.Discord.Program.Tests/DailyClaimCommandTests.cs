@@ -29,7 +29,7 @@ public class DailyClaimCommandTests
     [InlineData(2, 1, 2)]
     public async Task Claim_ThenReturnsEmbedWithNextBonus(uint daysForBonus, uint currentStreak, uint streakForNextBonus)
     {
-        A.CallTo(() => _messageOfTheDayRepository.GetAllMessagesAsync()).Returns(new[] { new MessageOfTheDay("Hello", null) });
+        A.CallTo(() => _messageOfTheDayRepository.GetAllMessagesAsync()).Returns([new MessageOfTheDay("Hello", null)]);
         A.CallTo(() => _dailyPayoutRepository.CanUserRedeemAsync(_commandUser)).Returns(new UserCanRedeem());
         A.CallTo(() => _dailyPayoutRepository.RedeemDailyPayoutAsync(_commandUser, 0)).Returns(new RedeemResult(
             BonusAmount: 0,

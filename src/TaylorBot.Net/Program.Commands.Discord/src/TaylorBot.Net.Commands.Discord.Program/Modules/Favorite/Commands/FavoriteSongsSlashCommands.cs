@@ -77,7 +77,7 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
                 var embed = FavoriteSongsShowSlashCommand.BuildDisplayEmbed(user, favoriteSongs);
 
                 return MessageResult.CreatePrompt(
-                    new(new[] { embed, EmbedFactory.CreateWarning("Are you sure you want to set your favorite songs list to the above?") }),
+                    new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your favorite songs list to the above?")]),
                     confirm: async () => new(await SetAsync(favoriteSongs))
                 );
             }

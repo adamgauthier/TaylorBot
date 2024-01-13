@@ -1,8 +1,7 @@
-﻿using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
+﻿using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
-using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
@@ -18,15 +17,11 @@ public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository) :
             {
                 await birthdayRepository.ClearBirthdayAsync(context.User);
 
-                var embed = new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(
-                        $"""
-                        Your birthday has been cleared. Calendar, horoscope, age and birthday taypoints will no longer work. ✅
-                        You can set it again with {context.MentionCommand("birthday set")}.
-                        """);
-
-                return new EmbedResult(embed.Build());
+                return new EmbedResult(EmbedFactory.CreateSuccess(
+                    $"""
+                    Your birthday has been cleared. Calendar, horoscope, age and birthday taypoints will no longer work. ✅
+                    You can set it again with {context.MentionCommand("birthday set")}.
+                    """));
             }
         ));
     }

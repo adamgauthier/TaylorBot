@@ -18,7 +18,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
         var plusInfo =
             $"""
             TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}.
-            Some more demanding features are exclusive to **TaylorBot Plus**, learn more by using `{context.CommandPrefix}plus`.
+            Some features are exclusive to **TaylorBot Plus**, learn more by using `{context.CommandPrefix}plus`.
             """;
 
         return requirement switch

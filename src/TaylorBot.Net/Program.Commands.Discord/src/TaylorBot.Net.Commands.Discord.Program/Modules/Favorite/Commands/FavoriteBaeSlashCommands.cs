@@ -73,7 +73,7 @@ public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCo
                 var embed = FavoriteBaeShowSlashCommand.BuildDisplayEmbed(context.User, options.bae.Value);
 
                 return new(MessageResult.CreatePrompt(
-                    new(new[] { embed, EmbedFactory.CreateWarning("Are you sure you want to set your bae to the above?") }),
+                    new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your bae to the above?")]),
                     confirm: async () => new(await SetAsync(options.bae.Value))
                 ));
 

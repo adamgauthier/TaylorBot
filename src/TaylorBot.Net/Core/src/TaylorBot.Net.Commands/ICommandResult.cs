@@ -35,10 +35,10 @@ public record MessageResult(MessageContent Content, ButtonConfig? Buttons = null
             return new UpdateMessage(new(content));
         }
 
-        return new MessageResult(initialContent, new(new[] {
+        return new MessageResult(initialContent, new([
             new ButtonResult(new("confirm", ButtonStyle.Success, Label: "Confirm"), Confirm),
             new ButtonResult(new("cancel", ButtonStyle.Danger, Label: "Cancel"), Cancel),
-        }));
+        ]));
     }
 
     public record ButtonConfig(IReadOnlyList<ButtonResult> Buttons, TimeSpan? ListenToClicksFor = null, Func<ValueTask<MessageResult>>? OnEnded = null);

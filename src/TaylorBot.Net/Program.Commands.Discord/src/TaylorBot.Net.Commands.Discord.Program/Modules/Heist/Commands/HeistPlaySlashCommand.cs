@@ -48,7 +48,7 @@ public class HeistPlaySlashCommand(
             if (rateLimitResult != null)
                 return rateLimitResult;
 
-            var delay = options.CurrentValue.TimeSpanBeforeHeistStarts;
+            var delay = options.CurrentValue.TimeSpanBeforeHeistStarts!.Value;
 
             var result = await heistRepository.EnterHeistAsync((IGuildUser)author, amount, delay);
             switch (result)

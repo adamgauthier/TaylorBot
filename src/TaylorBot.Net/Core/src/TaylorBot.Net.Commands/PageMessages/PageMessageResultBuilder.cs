@@ -27,7 +27,7 @@ public class PageMessageResultBuilder
                 NextAsync
             );
 
-            _buttons.AddRange(new[] { previousButton, nextButton });
+            _buttons.AddRange([previousButton, nextButton]);
         }
 
         if (_options.IsCancellable)

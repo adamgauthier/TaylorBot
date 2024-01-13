@@ -26,8 +26,8 @@ public class TaylorBotHasPermissionPrecondition(GuildPermission permission) : IC
                 PrivateReason: $"{command.Metadata.Name} requires the bot to have permission {permissionName}",
                 UserReason: new(
                     $"""
-                    TaylorBot can't use `{command.Metadata.Name}` because I don't have the '{permissionUIName}' permission in this server.
-                    Add the '{permissionUIName}' permission to my role in the server settings.
+                    TaylorBot can't use `{command.Metadata.Name}` because it needs the **{permissionUIName}** permission in this server.
+                    Add the '{permissionUIName}' permission to the TaylorBot role in server settings.
                     """)
             );
         }

@@ -30,7 +30,7 @@ public class CustomChannelTypeReaderChannelTests
         var guild = A.Fake<IGuild>(o => o.Strict());
         var channel = CreateFakeTextChannel(AnId, AName);
         A.CallTo(() => _commandContext.Guild).Returns(guild);
-        A.CallTo(() => guild.GetChannelsAsync(CacheMode.CacheOnly, null)).Returns(new[] { channel });
+        A.CallTo(() => guild.GetChannelsAsync(CacheMode.CacheOnly, null)).Returns([channel]);
         var guildUser = A.Fake<IGuildUser>(o => o.Strict());
         A.CallTo(() => _commandContext.User).Returns(guildUser);
         A.CallTo(() => guildUser.GetPermissions(channel)).Returns(ChannelPermissions.All(channel));
@@ -46,7 +46,7 @@ public class CustomChannelTypeReaderChannelTests
         var guild = A.Fake<IGuild>(o => o.Strict());
         var channel = CreateFakeTextChannel(AnId, AName);
         A.CallTo(() => _commandContext.Guild).Returns(guild);
-        A.CallTo(() => guild.GetChannelsAsync(CacheMode.CacheOnly, null)).Returns(new[] { channel });
+        A.CallTo(() => guild.GetChannelsAsync(CacheMode.CacheOnly, null)).Returns([channel]);
         var guildUser = A.Fake<IGuildUser>(o => o.Strict());
         A.CallTo(() => _commandContext.User).Returns(guildUser);
         A.CallTo(() => guildUser.GetPermissions(channel)).Returns(ChannelPermissions.All(channel));

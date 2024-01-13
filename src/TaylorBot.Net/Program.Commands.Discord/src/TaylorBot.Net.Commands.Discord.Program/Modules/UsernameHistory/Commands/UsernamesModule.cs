@@ -35,10 +35,11 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
             if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(u))
             {
                 return new EmbedResult(BuildBaseEmbed()
-                    .WithDescription(string.Join('\n', new[] {
-                        $"{u.Username}'s username history is private and can't be viewed.",
-                        $"Use `{Context.CommandPrefix}usernames public` or `{Context.CommandPrefix}usernames private` to change your username history privacy setting."
-                    }))
+                    .WithDescription(
+                        $"""
+                        {u.Username}'s username history is private and can't be viewed.
+                        Use `{Context.CommandPrefix}usernames public` or `{Context.CommandPrefix}usernames private` to change your username history privacy setting.
+                        """)
                 .Build());
             }
             else
@@ -75,10 +76,11 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithUserAsAuthor(Context.User)
-                .WithDescription(string.Join('\n', new[] {
-                    $"Your username history is now private, it **can't** be viewed with `{Context.CommandPrefix}usernames`.",
-                    $"Use `{Context.CommandPrefix}usernames public` to make it public."
-                }))
+                .WithDescription(
+                    $"""
+                    Your username history is now private, it **can't** be viewed with `{Context.CommandPrefix}usernames`.
+                    Use `{Context.CommandPrefix}usernames public` to make it public.
+                    """)
             .Build());
         });
 
@@ -99,10 +101,11 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithUserAsAuthor(Context.User)
-                .WithDescription(string.Join('\n', new[] {
-                    $"Your username history is now public, it **can** be viewed with `{Context.CommandPrefix}usernames`.",
-                    $"Use `{Context.CommandPrefix}usernames private` to make it private."
-                }))
+                .WithDescription(
+                    $"""
+                    Your username history is now public, it **can** be viewed with `{Context.CommandPrefix}usernames`.
+                    Use `{Context.CommandPrefix}usernames private` to make it private.
+                    """)
             .Build());
         });
 

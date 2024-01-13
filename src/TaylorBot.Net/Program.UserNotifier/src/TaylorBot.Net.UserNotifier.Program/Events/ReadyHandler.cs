@@ -10,9 +10,12 @@ public class ReadyHandler(
     SingletonTaskRunner birthdaySingletonTaskRunner,
     SingletonTaskRunner reminderSingletonTaskRunner,
     SingletonTaskRunner patreonSyncSingletonTaskRunner,
+    SingletonTaskRunner birthdayRoleAddSingletonTaskRunner,
+    SingletonTaskRunner birthdayRoleRemoveSingletonTaskRunner,
     BirthdayRewardNotifierDomainService birthdayRewardNotifierDomainService,
     ReminderNotifierDomainService reminderNotifierDomainService,
-    PatreonSyncDomainService patreonSyncDomainService
+    PatreonSyncDomainService patreonSyncDomainService,
+    BirthdayRoleDomainService birthdayRoleDomainService
     ) : IAllReadyHandler
 {
     public Task AllShardsReadyAsync()
@@ -30,6 +33,16 @@ public class ReadyHandler(
         _ = patreonSyncSingletonTaskRunner.StartTaskIfNotStarted(
             patreonSyncDomainService.StartSyncingPatreonSupportersAsync,
             nameof(PatreonSyncDomainService)
+        );
+
+        _ = birthdayRoleAddSingletonTaskRunner.StartTaskIfNotStarted(
+            birthdayRoleDomainService.StartAddingBirthdayRolesAsync,
+            nameof(birthdayRoleDomainService.StartAddingBirthdayRolesAsync)
+        );
+
+        _ = birthdayRoleRemoveSingletonTaskRunner.StartTaskIfNotStarted(
+            birthdayRoleDomainService.StartRemovingBirthdayRolesAsync,
+            nameof(birthdayRoleDomainService.StartRemovingBirthdayRolesAsync)
         );
 
         return Task.CompletedTask;

@@ -34,7 +34,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
                     .WithDescription($"Command `{command.Name}` has been enabled globally.")
                 .Build());
             },
-            Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            Preconditions: [new TaylorBotOwnerPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -74,7 +74,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
                     .WithDescription($"Command `{command.Name}` has been disabled globally with message '{disabledMessage}'.")
                 .Build());
             },
-            Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            Preconditions: [new TaylorBotOwnerPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

@@ -27,7 +27,7 @@ public class StatsModule(ICommandRunner commandRunner, IBotInfoRepository botInf
                     """
                 )));
             },
-            Preconditions: new[] { new InGuildPrecondition() }
+            Preconditions: [new InGuildPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

@@ -88,7 +88,7 @@ public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepo
             {
                 var embed = FavoriteObsessionShowSlashCommand.BuildDisplayEmbed(user, favoriteObsession);
                 return MessageResult.CreatePrompt(
-                    new(new[] { embed, EmbedFactory.CreateWarning("Are you sure you want to set your obsession to the above?") }),
+                    new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your obsession to the above?")]),
                     confirm: async () => new(await SetAsync(favoriteObsession))
                 );
             }

@@ -54,10 +54,11 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
                     {
                         var embed = new EmbedBuilder()
                             .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                "TaylorBot has reached its daily query limit for the underlying image search service. 😢",
-                                "You'll have to wait for the limit to reset. Try again tomorrow!"
-                            }));
+                            .WithDescription(
+                                """
+                                TaylorBot has reached its daily query limit for the underlying image search service. 😢
+                                You'll have to wait for the limit to reset. Try again tomorrow!
+                                """);
 
                         if (isLegacyCommand)
                             embed.WithUserAsAuthor(user);
@@ -69,10 +70,11 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
                     {
                         var embed = new EmbedBuilder()
                             .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                "The underlying image search service returned an unexpected error. 😢",
-                                "The site might be down. Try again later!"
-                            }));
+                            .WithDescription(
+                                """
+                                The underlying image search service returned an unexpected error. 😢
+                                The site might be down. Try again later!
+                                """);
 
                         if (isLegacyCommand)
                             embed.WithUserAsAuthor(user);
@@ -84,7 +86,7 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
                     throw new InvalidOperationException(searchResult.GetType().Name);
             }
         },
-        Preconditions: new[] { new PlusPrecondition(plusRepository, PlusRequirement.PlusUserOrGuild) }
+        Preconditions: [new PlusPrecondition(plusRepository, PlusRequirement.PlusUserOrGuild)]
     );
 }
 

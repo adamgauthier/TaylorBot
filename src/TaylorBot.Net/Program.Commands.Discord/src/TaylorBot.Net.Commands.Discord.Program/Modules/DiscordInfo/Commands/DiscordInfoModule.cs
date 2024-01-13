@@ -79,7 +79,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new[] { new InGuildPrecondition() }
+            Preconditions: [new InGuildPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -144,7 +144,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new[] { new InGuildPrecondition() }
+            Preconditions: [new InGuildPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -261,7 +261,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new[] { new InGuildPrecondition() }
+            Preconditions: [new InGuildPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

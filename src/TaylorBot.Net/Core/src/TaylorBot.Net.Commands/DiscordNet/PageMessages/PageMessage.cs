@@ -34,7 +34,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
         var interactiveEmotes = new List<Emoji>();
         if (options.Renderer.HasMultiplePages)
         {
-            interactiveEmotes.AddRange(new[] { PreviousEmoji, NextEmoji });
+            interactiveEmotes.AddRange([PreviousEmoji, NextEmoji]);
         }
         if (options.Cancellable)
         {

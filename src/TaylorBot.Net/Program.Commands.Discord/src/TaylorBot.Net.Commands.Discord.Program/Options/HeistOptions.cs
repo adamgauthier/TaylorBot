@@ -8,8 +8,9 @@ public class HeistOptions
     [Required]
     [MinLength(1)]
     public string Banks { get; set; } = null!;
+
     [Required]
-    public TimeSpan TimeSpanBeforeHeistStarts { get; set; }
+    public TimeSpan? TimeSpanBeforeHeistStarts { get; set; }
 }
 
 [OptionsValidator]

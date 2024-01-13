@@ -89,6 +89,12 @@
       "description": "Clears your registered birthday",
       "type": 1,
       "options": []
+    },
+    {
+      "name": "role",
+      "description": "Configure a role to be given to server members on their birthday",
+      "type": 1,
+      "options": []
     }
   ]
 }

@@ -25,48 +25,82 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Tas
             new(Info.Name),
             async () =>
             {
-                DateOnly birthday = new(options.year.Value ?? IBirthdayRepository.Birthday.NoYearValue, options.month.Value, options.day.Value);
-
-                if (birthday.Year != IBirthdayRepository.Birthday.NoYearValue)
-                {
-                    int age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday);
-
-                    if (age < MinAge)
-                    {
-                        return new EmbedResult(EmbedFactory.CreateError($"Age must be higher or equal to {MinAge} years old."));
-                    }
-
-                    if (age > MaxAge)
-                    {
-                        return new EmbedResult(EmbedFactory.CreateError($"Age must be lower or equal to {MaxAge} years old."));
-                    }
-
-                    _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                        AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, context.User, age),
-                        nameof(AgeCalculator.TryAddAgeRolesAsync))
-                    );
-                }
-
                 var isPrivate = options.privately.Value ?? false;
 
-                await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));
+                DateOnly birthday = new(options.year.Value ?? IBirthdayRepository.Birthday.NoYearValue, options.month.Value, options.day.Value);
 
-                var embed = new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}**. ✅",
-                        birthday.Year == IBirthdayRepository.Birthday.NoYearValue ?
-                            $"Please consider setting your birthday with the **year** option for {context.MentionCommand("birthday age")} to work. ❓" :
-                            $"You can now use {context.MentionCommand("birthday age")} to display your age. 🔢",
-                        isPrivate ?
-                            $"Since your birthday is private, it won't show up in {context.MentionCommand("birthday calendar")}. 🙈" :
-                            $"Your birthday will show up in {context.MentionCommand("birthday calendar")}. 📅",
-                        $"You can now use {context.MentionCommand("birthday horoscope")} to get your horoscope. ✨",
-                        "You will get taypoints on your birthday every year. 🎁",
-                    }));
+                var setBirthday = await birthdayRepository.GetBirthdayAsync(context.User);
 
-                return new EmbedResult(embed.Build());
+                if (setBirthday != null &&
+                    (setBirthday.Date.Month != birthday.Month || setBirthday.Date.Day != birthday.Day))
+                {
+                    return MessageResult.CreatePrompt(
+                        new(EmbedFactory.CreateWarning(
+                            $"""
+                            You are changing your existing birthday to a different day 🤔
+
+                            ⚠️ If you are doing this to get:
+                            - More than 1 **taypoint birthday gift** per year 🎁
+                            - **Birthday roles** for more than 1 day per year 🎂
+
+                            This will **NOT** work! 🚫
+                            TaylorBot only ever gives these **once a year**, regardless how many times you change your birthday ⛔
+                            You will lose access to these on your real birthday 😢
+
+                            Are you sure you want to change your birthday?
+                            """)),
+                        confirm: async () =>
+                            new MessageContent(await SetBirthdayAsync(context, isPrivate, birthday))
+                    );
+
+                }
+                else
+                {
+                    return new EmbedResult(await SetBirthdayAsync(context, isPrivate, birthday));
+                }
             }
         ));
+    }
+
+    private async ValueTask<Embed> SetBirthdayAsync(RunContext context, bool isPrivate, DateOnly birthday)
+    {
+        if (birthday.Year != IBirthdayRepository.Birthday.NoYearValue)
+        {
+            int age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday);
+
+            if (age < MinAge)
+            {
+                return EmbedFactory.CreateError($"Age must be higher or equal to {MinAge} years old.");
+            }
+
+            if (age > MaxAge)
+            {
+                return EmbedFactory.CreateError($"Age must be lower or equal to {MaxAge} years old.");
+            }
+
+            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, context.User, age),
+                nameof(AgeCalculator.TryAddAgeRolesAsync))
+            );
+        }
+
+        await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));
+
+        var embed = new EmbedBuilder()
+            .WithColor(TaylorBotColors.SuccessColor)
+            .WithDescription(
+                $"""
+                Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}** ✅
+                {(birthday.Year == IBirthdayRepository.Birthday.NoYearValue
+                    ? $"Consider setting your birthday with the **year** option for {context.MentionCommand("birthday age")} to work ❓"
+                    : $"You can now use {context.MentionCommand("birthday age")} to display your age 🔢")}
+                {(isPrivate
+                    ? $"Since your birthday is private, it won't show up in {context.MentionCommand("birthday calendar")} 🙈"
+                    : $"Your birthday will show up in {context.MentionCommand("birthday calendar")} 📅")}
+                You can now use {context.MentionCommand("birthday horoscope")} to get your horoscope ✨
+                You will get taypoints on your birthday every year 🎁
+                """);
+
+        return embed.Build();
     }
 }

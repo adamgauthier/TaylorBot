@@ -9,6 +9,7 @@ public interface IBirthdayRepository
     {
         public const int NoYearValue = 1804;
     }
+
     record BirthdayCalendarEntry(SnowflakeId UserId, string Username, DateOnly NextBirthday);
 
     record AgeRole(SnowflakeId RoleId, int MinimumAge);

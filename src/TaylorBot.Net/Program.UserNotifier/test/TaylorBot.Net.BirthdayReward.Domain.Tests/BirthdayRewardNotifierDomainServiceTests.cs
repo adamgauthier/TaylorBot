@@ -37,7 +37,7 @@ public class BirthdayRewardNotifierDomainServiceTests
         );
 
         A.CallTo(() => _options.CurrentValue).Returns(new BirthdayRewardNotifierOptions { RewardAmount = RewardAmount });
-        A.CallTo(() => _birthdayRepository.RewardEligibleUsersAsync(RewardAmount)).Returns(new[] { rewardedUser });
+        A.CallTo(() => _birthdayRepository.RewardEligibleUsersAsync(RewardAmount)).Returns([rewardedUser]);
         var exception = new ArgumentException();
         A.CallTo(() => _taylorBotClient.ResolveRequiredUserAsync(userId)).Throws(exception);
 

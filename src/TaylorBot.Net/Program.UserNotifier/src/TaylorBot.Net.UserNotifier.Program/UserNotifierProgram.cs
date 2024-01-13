@@ -74,7 +74,10 @@ public class UserNotifierProgram
                     .AddJsonFile(path: "Settings/redditNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/youtubeNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/tumblrNotifier.json", optional: false, reloadOnChange: true)
-                    .AddJsonFile(path: "Settings/instagramNotifier.json", optional: false, reloadOnChange: true);
+                    .AddJsonFile(path: "Settings/instagramNotifier.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: "Settings/birthdayRole.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: $"Settings/birthdayRole.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
+                    ;
 
                 appConfig.AddEnvironmentVariables("TaylorBot_");
             })
@@ -103,8 +106,12 @@ public class UserNotifierProgram
                     .AddTransient<IMessageReceivedHandler, MessageReceivedHandler>()
                     .AddTransient<IReactionRemovedHandler, ReactionRemovedHandler>()
                     .AddTransient<SingletonTaskRunner>()
-                    .AddTransient<IBirthdayRepository, BirthdayRepository>()
+                    .AddTransient<IBirthdayRepository, BirthdayPostgresRepository>()
                     .AddTransient<BirthdayRewardNotifierDomainService>()
+                    .ConfigureRequired<BirthdayRoleOptions>(config, "BirthdayRole")
+                    .AddSingleton<IValidateOptions<BirthdayRoleOptions>, BirthdayRoleOptionsValidator>()
+                    .AddTransient<IBirthdayRoleRepository, BirthdayRolePostgresRepository>()
+                    .AddTransient<BirthdayRoleDomainService>()
                     .AddTransient<BirthdayRewardEmbedFactory>()
                     .AddTransient<IReminderRepository, ReminderRepository>()
                     .AddTransient<ReminderNotifierDomainService>()
