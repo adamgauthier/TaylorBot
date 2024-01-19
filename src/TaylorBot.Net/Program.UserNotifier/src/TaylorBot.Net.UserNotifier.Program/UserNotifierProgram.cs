@@ -76,7 +76,7 @@ public class UserNotifierProgram
                     .AddJsonFile(path: "Settings/tumblrNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/instagramNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/birthdayRole.json", optional: false, reloadOnChange: true)
-                    .AddJsonFile(path: $"Settings/birthdayRole.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: $"Settings/birthdayRole.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                     ;
 
                 appConfig.AddEnvironmentVariables("TaylorBot_");
