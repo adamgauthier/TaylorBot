@@ -29,7 +29,7 @@ public class MemberParser(ITaylorBotClient taylorBotClient, IUserTracker userTra
 
         if (member == null)
         {
-            return Error(new ParsingFailed($"Did not find member in the current server ({context.Guild.Name})."));
+            return Error(new ParsingFailed("Did not find member in the current server."));
         }
 
         await userTracker.TrackUserFromArgumentAsync(member);

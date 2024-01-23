@@ -11,14 +11,13 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> options) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
+public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> modMailOptions) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new ModalCommandInfo("modmail message-user");
 
     public record Options(ParsedMemberNotAuthorAndBot user);
 
     private static readonly Color EmbedColor = new(255, 255, 240);
-    private readonly IOptionsMonitor<ModMailOptions> _options = options;
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -29,7 +28,7 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                 return new(new CreateModalResult(
                     Id: "modmail-message-user",
                     Title: "Send Mod Mail to User",
-                    TextInputs: new[] { new TextInput(Id: "messagecontent", TextInputStyle.Paragraph, Label: "Message to user") },
+                    TextInputs: [new TextInput(Id: "messagecontent", TextInputStyle.Paragraph, Label: "Message to user")],
                     SubmitAction: SubmitAsync,
                     IsPrivateResponse: true
                 ));
@@ -48,7 +47,7 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                     .Build();
 
                     return new(MessageResult.CreatePrompt(
-                        new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {user.FormatTagAndMention()}?") }),
+                        new([embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {user.FormatTagAndMention()}?")]),
                         confirm: async () => new(await SendAsync(user, embed))
                     ));
                 }
@@ -61,10 +60,11 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                     }
                     catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                     {
-                        return EmbedFactory.CreateError(string.Join('\n', new[] {
-                            $"I couldn't send this message to {user.FormatTagAndMention()} because their DM settings won't allow it. ❌",
-                            "The user must have 'Allow direct messages from server members' enabled and must not have TaylorBot blocked."
-                        }));
+                        return EmbedFactory.CreateError(
+                            $"""
+                            I couldn't send this message to {user.FormatTagAndMention()} because their DM settings won't allow it. ❌
+                            The user must have 'Allow direct messages from server members' enabled and must not have TaylorBot blocked.
+                            """);
                     }
 
                     var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(user.Guild, context.User, user, logEmbed =>
@@ -72,16 +72,16 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                             .WithColor(EmbedColor)
                             .WithTitle("Message")
                             .WithDescription(embed.Description)
-                            .WithFooter("Mod mail sent", iconUrl: _options.CurrentValue.SentLogEmbedFooterIconUrl)
+                            .WithFooter("Mod mail sent", iconUrl: modMailOptions.CurrentValue.SentLogEmbedFooterIconUrl)
                     );
 
-                    return modMailChannelLogger.CreateResultEmbed(context, wasLogged, $"Message sent to {user.FormatTagAndMention()}. ✉");
+                    return modMailChannelLogger.CreateResultEmbed(context, wasLogged, $"Message sent to {user.FormatTagAndMention()} ✉️");
                 }
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
-            }
+                new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers),
+            ]
         ));
     }
 }
