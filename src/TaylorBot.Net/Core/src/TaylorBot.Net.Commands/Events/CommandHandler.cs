@@ -33,8 +33,13 @@ public class CommandHandler(
         // Execute the command with the service provider for precondition checks
         await commandService.ExecuteAsync(
             context: new TaylorBotShardedCommandContext(
-                // Create activity lazily in case the command doesn't match any module
-                taylorBotClient.Value.DiscordShardedClient, userMessage, prefix, new(() => commandActivityFactory.Create())
+                taylorBotClient.Value.DiscordShardedClient, userMessage, prefix, new(() =>
+                {
+                    // Create activity lazily in case the command doesn't match any module
+                    var activity = commandActivityFactory.Create();
+                    activity.Type = CommandType.Prefix;
+                    return activity;
+                })
             ),
             argPos: argPos,
             services: serviceProvider,

@@ -4,6 +4,7 @@ using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Npgsql;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Instrumentation;
@@ -30,7 +31,10 @@ public static class ServiceCollectionExtensions
             .AddSingleton(instrumentation)
             .AddTransient<CommandActivityFactory>()
             .AddOpenTelemetry()
-            .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name))
+            .WithTracing(o => o
+                .AddNpgsql()
+                .AddSource(instrumentation.ActivitySource.Name)
+            )
             .UseAzureMonitor();
 
         services.AddHttpClient<InteractionResponseClient>((provider, client) =>
