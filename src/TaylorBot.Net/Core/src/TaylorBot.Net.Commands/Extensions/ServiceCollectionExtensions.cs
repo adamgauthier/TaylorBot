@@ -1,9 +1,12 @@
-﻿using Discord;
+﻿using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
+using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.Parsers.Numbers;
@@ -19,8 +22,17 @@ namespace TaylorBot.Net.Commands.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
+        var instrumentation = new TaylorBotInstrumentation(hostEnvironment.ApplicationName);
+
+        services
+            .AddSingleton(instrumentation)
+            .AddTransient<CommandActivityFactory>()
+            .AddOpenTelemetry()
+            .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name))
+            .UseAzureMonitor();
+
         services.AddHttpClient<InteractionResponseClient>((provider, client) =>
         {
             client.BaseAddress = new Uri("https://discord.com/api/v10/");
@@ -31,13 +43,12 @@ public static class ServiceCollectionExtensions
             .AddSingleton(services)
             .AddSingleton(provider => new CommandService(new CommandServiceConfig
             {
-                DefaultRunMode = RunMode.Async
+                DefaultRunMode = RunMode.Async,
             }))
             .AddTransient<CommandPrefixDomainService>()
             .AddTransient<DisabledGuildCommandDomainService>()
             .AddTransient<SingletonTaskRunner>()
             .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
-            .AddTransient<IAllReadyHandler, CommandHandler>()
             .AddTransient<SlashCommandHandler>()
             .AddSingleton<MessageComponentHandler>()
             .AddSingleton<ModalInteractionHandler>()

@@ -4,7 +4,7 @@ using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
-using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Username;
@@ -16,7 +16,6 @@ public class CommandExecutedHandlerTests
 {
     private readonly ILogger<CommandExecutedHandler> _logger = A.Fake<ILogger<CommandExecutedHandler>>(o => o.Strict());
     private readonly IOngoingCommandRepository _ongoingCommandRepository = A.Fake<IOngoingCommandRepository>(o => o.Strict());
-    private readonly ICommandUsageRepository _commandUsageRepository = A.Fake<ICommandUsageRepository>(o => o.Strict());
     private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
     private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
     private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition = new(
@@ -29,7 +28,7 @@ public class CommandExecutedHandlerTests
     public CommandExecutedHandlerTests()
     {
         _commandExecutedHandler = new(
-            _logger, _ongoingCommandRepository, _commandUsageRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition
+            _logger, _ongoingCommandRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition
         );
     }
 
@@ -38,6 +37,7 @@ public class CommandExecutedHandlerTests
     {
         var commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
         A.CallTo(() => commandContext.RunContext).Returns(null);
+        A.CallTo(() => commandContext.Activity).Returns(new(new CommandActivity(null)));
         var result = A.Fake<IResult>(o => o.Strict());
         A.CallTo(() => result.Error).Returns(CommandError.UnknownCommand);
 

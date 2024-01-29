@@ -58,11 +58,11 @@ public class PollModule(ICommandRunner commandRunner) : TaylorBotModule
                     AdditionalReacts: Choices.Take(allOptions.Length).ToList()
                 ))));
             },
-            Preconditions: new List<ICommandPrecondition>
-            {
+            Preconditions:
+            [
                 new InGuildPrecondition(),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.AddReactions),
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

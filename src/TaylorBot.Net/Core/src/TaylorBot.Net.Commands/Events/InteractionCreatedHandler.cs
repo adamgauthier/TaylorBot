@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
@@ -8,6 +9,7 @@ namespace TaylorBot.Net.Commands.Events;
 
 public class InteractionCreatedHandler(
     ILogger<InteractionCreatedHandler> logger,
+    CommandActivityFactory commandActivityFactory,
     SlashCommandHandler slashCommandHandler,
     MessageComponentHandler messageComponentHandler,
     ModalInteractionHandler modalInteractionHandler,
@@ -23,7 +25,21 @@ public class InteractionCreatedHandler(
         {
             case APPLICATION_COMMAND:
                 _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                    async () => await slashCommandHandler.HandleAsync(interaction),
+                    async () =>
+                    {
+                        using var activity = commandActivityFactory.Create();
+                        activity.Type = CommandType.Slash;
+
+                        try
+                        {
+                            await slashCommandHandler.HandleAsync(interaction, activity);
+                        }
+                        catch (Exception e)
+                        {
+                            activity.SetError(e);
+                            throw;
+                        }
+                    },
                     nameof(SlashCommandHandler)
                 ));
                 break;

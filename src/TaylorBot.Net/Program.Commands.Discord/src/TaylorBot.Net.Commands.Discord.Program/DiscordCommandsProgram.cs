@@ -124,7 +124,7 @@ var host = Host.CreateDefaultBuilder()
         var config = hostBuilderContext.Configuration;
         services
             .AddHostedService<TaylorBotCommandHostedService>()
-            .AddCommandApplication(config)
+            .AddCommandApplication(config, hostBuilderContext.HostingEnvironment)
             .AddCommandInfrastructure(config)
             .AddPostgresConnection(config)
             .AddRedisConnection(config)

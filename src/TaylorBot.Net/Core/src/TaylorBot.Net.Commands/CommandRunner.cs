@@ -1,5 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
+using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Snowflake;
 
@@ -28,6 +29,7 @@ public record RunContext(
     RunContext.CurrentCommandInfo CommandInfo,
     string CommandPrefix,
     RunContext.OnGoingState OnGoing,
+    CommandActivity Activity,
     bool WasAcknowledged = true,
     bool IsFakeGuild = false
 )
@@ -63,6 +65,11 @@ public class CommandRunner(
 
     public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)
     {
+        context.Activity.CommandName = command.Metadata.Name;
+        context.Activity.UserId = context.User.Id;
+        context.Activity.ChannelId = context.Channel.Id;
+        context.Activity.GuildId = context.Guild?.Id;
+
         foreach (var precondition in _preconditions.Concat(command.Preconditions ?? Array.Empty<ICommandPrecondition>()))
         {
             if (await precondition.CanRunAsync(command, context) is PreconditionFailed failed)

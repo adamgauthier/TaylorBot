@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OperationResult;
 using System.Text.Json;
 using System.Threading.RateLimiting;
+using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
@@ -50,10 +51,12 @@ public record ApplicationCommand(
     ApplicationCommandInteractionData Data,
     ApplicationCommand.GuildData? Guild,
     User? UserData,
-    string ChannelId
+    SnowflakeId ChannelId
 ) : IInteraction
 {
-    public record GuildData(string Id, GuildMember Member);
+    public SnowflakeId UserId => Guild?.Member.user.id ?? UserData!.id;
+
+    public record GuildData(SnowflakeId Id, GuildMember Member);
 }
 
 public class SlashCommandHandler(
@@ -61,40 +64,43 @@ public class SlashCommandHandler(
     Lazy<ITaylorBotClient> taylorBotClient,
     ICommandRunner commandRunner,
     IOngoingCommandRepository ongoingCommandRepository,
-    ICommandUsageRepository commandUsageRepository,
     IIgnoredUserRepository ignoredUserRepository,
     InteractionResponseClient interactionResponseClient,
     MessageComponentHandler messageComponentHandler,
     ModalInteractionHandler modalInteractionHandler,
     TaskExceptionLogger taskExceptionLogger,
     CommandPrefixDomainService commandPrefixDomainService,
-    IServiceProvider services
-    )
+    IServiceProvider services)
 {
     private readonly Lazy<IReadOnlyDictionary<string, ISlashCommand>> _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name));
     private readonly Lazy<IReadOnlyDictionary<Type, IOptionParser>> _optionParsers = new(() => services.GetServices<IOptionParser>().ToDictionary(c => c.OptionType));
 
-    public async ValueTask HandleAsync(Interaction interaction)
+    public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
-        await HandleApplicationCommand(new(
+        ApplicationCommand command = new(
             interaction.id,
             interaction.token,
             interaction.data!,
             interaction.member != null ? new(interaction.guild_id!, interaction.member) : null,
             interaction.user,
-            interaction.channel_id!
-        ));
+            new(interaction.channel_id!));
+
+        activity.UserId = command.UserId;
+        activity.ChannelId = command.ChannelId.Id;
+        activity.GuildId = command.Guild?.Id;
+
+        await HandleApplicationCommand(command, activity);
     }
 
-    private async ValueTask HandleApplicationCommand(ApplicationCommand interaction)
+    private async ValueTask HandleApplicationCommand(ApplicationCommand interaction, CommandActivity activity)
     {
         var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
 
         if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
         {
-            RunContext context = await CreateRunContextAsync(interaction, slashCommand);
+            RunContext context = await CreateRunContextAsync(interaction, slashCommand, activity);
 
-            var result = await RunCommandAsync(slashCommand, context, options, interaction.Data.resolved);
+            var result = await RunCommandAsync(slashCommand, context, options, interaction.Data.resolved, activity);
 
             if (context.OnGoing.OnGoingCommandAddedToPool != null)
             {
@@ -219,7 +225,7 @@ public class SlashCommandHandler(
         }
     }
 
-    private async Task<RunContext> CreateRunContextAsync(ApplicationCommand interaction, ISlashCommand slashCommand)
+    private async Task<RunContext> CreateRunContextAsync(ApplicationCommand interaction, ISlashCommand slashCommand, CommandActivity activity)
     {
         RunContext context;
 
@@ -230,7 +236,7 @@ public class SlashCommandHandler(
 
                 var author = interaction.Guild != null ?
                     (await taylorBotClient.Value.ResolveGuildUserAsync(
-                        new SnowflakeId(interaction.Guild.Id),
+                        interaction.Guild.Id,
                         new(interaction.Guild.Member.user.id)
                     ))! :
                     await taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
@@ -247,7 +253,8 @@ public class SlashCommandHandler(
                     taylorBotClient.Value.DiscordShardedClient.CurrentUser,
                     new(interaction.Data.id, interaction.Data.name),
                     oldPrefix,
-                    new()
+                    new(),
+                    activity
                 );
 
                 logger.LogInformation(
@@ -261,7 +268,7 @@ public class SlashCommandHandler(
                 if (interaction.Guild != null)
                 {
                     var guild = A.Fake<IGuild>(o => o.Strict());
-                    A.CallTo(() => guild.Id).Returns(new SnowflakeId(interaction.Guild.Id).Id);
+                    A.CallTo(() => guild.Id).Returns(interaction.Guild.Id.Id);
                     // Assuming GuildPermissions will cover use cases where this property is used
                     A.CallTo(() => guild.OwnerId).Returns(ulong.MaxValue);
 
@@ -300,6 +307,7 @@ public class SlashCommandHandler(
                     new(interaction.Data.id, interaction.Data.name),
                     string.Empty,
                     new(),
+                    activity,
                     WasAcknowledged: false,
                     IsFakeGuild: true
                 );
@@ -345,7 +353,7 @@ public class SlashCommandHandler(
         return (data.name, data.options);
     }
 
-    private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, IReadOnlyList<ApplicationCommandOption>? options, Resolved? resolved)
+    private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, IReadOnlyList<ApplicationCommandOption>? options, Resolved? resolved, CommandActivity activity)
     {
         try
         {
@@ -357,14 +365,12 @@ public class SlashCommandHandler(
 
             var result = await commandRunner.RunAsync(command, context);
 
-            commandUsageRepository.QueueIncrementSuccessfulUseCount(slashCommand.Info.Name);
-
             return result;
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unhandled exception in slash command '{CommandName}':", slashCommand.Info.Name);
-            commandUsageRepository.QueueIncrementUnhandledErrorCount(slashCommand.Info.Name);
+            activity.SetError(e);
             return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕"));
         }
     }
@@ -374,7 +380,7 @@ public class SlashCommandHandler(
         if (command.OptionType == typeof(NoOptions))
             return new NoOptions();
 
-        options ??= Array.Empty<ApplicationCommandOption>();
+        options ??= [];
 
         var constructorParameters = command.OptionType.GetConstructors().Single().GetParameters();
 

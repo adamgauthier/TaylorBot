@@ -1,11 +1,13 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using TaylorBot.Net.Commands.Instrumentation;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
 public interface ITaylorBotCommandContext : ICommandContext
 {
+    Lazy<CommandActivity> Activity { get; }
     string CommandPrefix { get; }
     IList<CommandInfo> CommandInfos { get; set; }
     RunContext? RunContext { get; set; }
@@ -13,8 +15,9 @@ public interface ITaylorBotCommandContext : ICommandContext
     string GetUsage(CommandInfo commandInfo);
 }
 
-public class TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix) : ShardedCommandContext(client, msg), ITaylorBotCommandContext
+public class TaylorBotShardedCommandContext(DiscordShardedClient client, SocketUserMessage msg, string commandPrefix, Lazy<CommandActivity> activity) : ShardedCommandContext(client, msg), ITaylorBotCommandContext
 {
+    public Lazy<CommandActivity> Activity { get; } = activity;
     public string CommandPrefix { get; } = commandPrefix;
     public IList<CommandInfo> CommandInfos { get; set; } = new List<CommandInfo>();
     public RunContext? RunContext { get; set; }

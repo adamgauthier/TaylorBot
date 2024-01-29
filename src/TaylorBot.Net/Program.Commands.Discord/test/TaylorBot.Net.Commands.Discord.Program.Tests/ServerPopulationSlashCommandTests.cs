@@ -18,7 +18,7 @@ public class ServerPopulationSlashCommandTests
     public ServerPopulationSlashCommandTests()
     {
         _command = new ServerPopulationSlashCommand(_serverStatsRepository);
-        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null!, _commandGuild, null!, null!, null!, null!, null!);
+        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null!, _commandGuild, null!, null!, null!, null!, null!, null!);
     }
 
     [Fact]

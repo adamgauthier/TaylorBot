@@ -3,9 +3,9 @@ using Discord.Commands;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Events;
-using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
 
@@ -14,7 +14,6 @@ namespace TaylorBot.Net.Commands.DiscordNet;
 public class CommandExecutedHandler(
     ILogger<CommandExecutedHandler> logger,
     IOngoingCommandRepository ongoingCommandRepository,
-    ICommandUsageRepository commandUsageRepository,
     IIgnoredUserRepository ignoredUserRepository,
     PageMessageReactionsHandler pageMessageReactionsHandler,
     UserNotIgnoredPrecondition userNotIgnoredPrecondition)
@@ -25,7 +24,7 @@ public class CommandExecutedHandler(
 
         if (result.Error != CommandError.UnknownCommand)
         {
-            logger.LogInformation($"{context.User.FormatLog()} used '{context.Message.Content.Replace("\n", "\\n")}' in {context.Channel.FormatLog()}");
+            logger.LogInformation("{User} used '{MessageContent}' in {Channel}", context.User.FormatLog(), context.Message.Content.Replace("\n", "\\n"), context.Channel.FormatLog());
 
             if (result.IsSuccess)
             {
@@ -87,7 +86,7 @@ public class CommandExecutedHandler(
                         break;
 
                     case PreconditionFailed failed:
-                        logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
+                        logger.LogInformation("{User} precondition failure: {PrivateReason}.", commandContext.User.FormatLog(), failed.PrivateReason);
                         if (!failed.UserReason.HideInPrefixCommands)
                         {
                             await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
@@ -103,8 +102,6 @@ public class CommandExecutedHandler(
                     default:
                         throw new InvalidOperationException($"Unexpected command success result: {innerResult.GetType()}");
                 }
-                if (optCommandInfo.IsSpecified)
-                    commandUsageRepository.QueueIncrementSuccessfulUseCount(optCommandInfo.Value.Aliases[0]);
             }
             else
             {
@@ -118,16 +115,16 @@ public class CommandExecutedHandler(
                                 break;
 
                             default:
-                                logger.LogError(executeResult.Exception, $"Unhandled error in command - {result.Error}, {result.ErrorReason}:");
+                                logger.LogError(executeResult.Exception, "Unhandled error in command - {Error}, {ErrorReason}:", result.Error, result.ErrorReason);
                                 break;
                         }
+                        commandContext.Activity.Value.SetError();
+
                         await context.Channel.SendMessageAsync(
                             messageReference: new(context.Message.Id),
                             allowedMentions: new AllowedMentions { MentionRepliedUser = false },
                             embed: CreateUnknownErrorEmbed()
                         );
-                        if (optCommandInfo.IsSpecified)
-                            commandUsageRepository.QueueIncrementUnhandledErrorCount(optCommandInfo.Value.Aliases[0]);
                         break;
 
                     case ParseResult parseResult:
@@ -139,24 +136,25 @@ public class CommandExecutedHandler(
 
                         if (runResult is not PreconditionFailed failed || !failed.UserReason.HideInPrefixCommands)
                         {
-                            await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
-                                .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription(string.Join('\n',
-                                    $"{context.User.Mention} Format: `{commandContext.GetUsage(optCommandInfo.Value)}`",
-                                    parseResult.ErrorParameter != null ?
-                                        $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}" :
-                                        parseResult.ErrorReason
-                                ))
-                            .Build());
+                            await context.Channel.SendMessageAsync(embed: EmbedFactory.CreateError(
+                                $"""
+                                {context.User.Mention} Format: `{commandContext.GetUsage(optCommandInfo.Value)}`
+                                {(parseResult.ErrorParameter != null
+                                    ? $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}"
+                                    : parseResult.ErrorReason)}
+                                """
+                            ));
                         }
                         else
                         {
-                            logger.LogInformation($"{commandContext.User.FormatLog()} precondition failure: {failed.PrivateReason}.");
+                            logger.LogInformation("{User} precondition failure: {PrivateReason}.", commandContext.User.FormatLog(), failed.PrivateReason);
                         }
                         break;
 
                     default:
-                        logger.LogError($"Unhandled error in command - {result.Error}, {result.ErrorReason}");
+                        logger.LogError("Unhandled error in command - {Error}, {ErrorReason}", result.Error, result.ErrorReason);
+                        commandContext.Activity.Value.SetError();
+
                         await context.Channel.SendMessageAsync(
                             messageReference: new(context.Message.Id),
                             allowedMentions: new AllowedMentions { MentionRepliedUser = false },
@@ -171,13 +169,15 @@ public class CommandExecutedHandler(
         {
             await ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
         }
+
+        if (commandContext.Activity.IsValueCreated)
+        {
+            commandContext.Activity.Value.Dispose();
+        }
     }
 
     private static Embed CreateUnknownErrorEmbed()
     {
-        return new EmbedBuilder()
-            .WithColor(TaylorBotColors.ErrorColor)
-            .WithDescription($"Oops, an unknown command error occurred. Sorry about that. 😕")
-        .Build();
+        return EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕");
     }
 }

@@ -13,7 +13,8 @@ public static class DiscordNetContextMapper
             context.CurrentUser,
             new(string.Empty, string.Empty),
             context.CommandPrefix,
-            new()
+            new(),
+            context.Activity.Value
         );
         context.RunContext = runContext;
         return runContext;
