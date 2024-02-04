@@ -3,16 +3,29 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Instrumentation;
 
-public class CommandActivityFactory(TaylorBotInstrumentation instrumentation)
-{
-    public CommandActivity Create() => new(instrumentation.ActivitySource.StartActivity("TaylorBotCommand"));
-}
-
 public enum CommandType
 {
     Unknown = 0,
     Slash,
     Prefix,
+}
+
+public class CommandActivityFactory(TaylorBotInstrumentation instrumentation)
+{
+    public CommandActivity Create(CommandType type)
+    {
+        var inner = instrumentation.ActivitySource.StartActivity("TaylorBotCommand", ActivityKind.Server);
+
+        // Commands are not http requests, but they are incoming user requests (through Discord WebSockets)
+        // By disguising the activity as an http request, we can benefit from Azure Monitor features that
+        // are built for incoming http requests (resultCode, pre-built charts/queries)
+        inner?.SetTag("http.request.method", "_OTHER");
+
+        return new(inner)
+        {
+            Type = type,
+        };
+    }
 }
 
 public sealed class CommandActivity(Activity? activity) : IDisposable
@@ -29,7 +42,10 @@ public sealed class CommandActivity(Activity? activity) : IDisposable
 
     public void SetError(Exception? e = null)
     {
-        activity?.SetStatus(ActivityStatusCode.Error, e?.GetType().Name);
+        var exceptionName = e?.GetType().Name;
+
+        activity?.SetStatus(ActivityStatusCode.Error, exceptionName);
+        activity?.SetTag("http.response.status_code", exceptionName);
     }
 
     private bool disposed;

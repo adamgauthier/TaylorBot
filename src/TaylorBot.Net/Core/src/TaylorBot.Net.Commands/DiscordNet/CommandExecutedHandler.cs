@@ -118,7 +118,7 @@ public class CommandExecutedHandler(
                                 logger.LogError(executeResult.Exception, "Unhandled error in command - {Error}, {ErrorReason}:", result.Error, result.ErrorReason);
                                 break;
                         }
-                        commandContext.Activity.Value.SetError();
+                        commandContext.Activity.Value.SetError(executeResult.Exception);
 
                         await context.Channel.SendMessageAsync(
                             messageReference: new(context.Message.Id),

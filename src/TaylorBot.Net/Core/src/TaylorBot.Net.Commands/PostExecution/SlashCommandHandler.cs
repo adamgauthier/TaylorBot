@@ -77,6 +77,8 @@ public class SlashCommandHandler(
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
+        activity.CommandName = interaction.data!.name;
+
         ApplicationCommand command = new(
             interaction.id,
             interaction.token,
@@ -95,6 +97,7 @@ public class SlashCommandHandler(
     private async ValueTask HandleApplicationCommand(ApplicationCommand interaction, CommandActivity activity)
     {
         var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
+        activity.CommandName = commandName;
 
         if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
         {

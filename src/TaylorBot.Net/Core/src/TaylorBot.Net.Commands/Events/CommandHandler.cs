@@ -36,9 +36,7 @@ public class CommandHandler(
                 taylorBotClient.Value.DiscordShardedClient, userMessage, prefix, new(() =>
                 {
                     // Create activity lazily in case the command doesn't match any module
-                    var activity = commandActivityFactory.Create();
-                    activity.Type = CommandType.Prefix;
-                    return activity;
+                    return commandActivityFactory.Create(CommandType.Prefix);
                 })
             ),
             argPos: argPos,

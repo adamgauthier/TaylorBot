@@ -27,9 +27,7 @@ public class InteractionCreatedHandler(
                 _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
                     async () =>
                     {
-                        using var activity = commandActivityFactory.Create();
-                        activity.Type = CommandType.Slash;
-
+                        using var activity = commandActivityFactory.Create(CommandType.Slash);
                         try
                         {
                             await slashCommandHandler.HandleAsync(interaction, activity);
