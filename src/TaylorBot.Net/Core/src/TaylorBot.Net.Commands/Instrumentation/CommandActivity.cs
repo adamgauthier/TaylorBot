@@ -20,6 +20,7 @@ public class CommandActivityFactory(TaylorBotInstrumentation instrumentation)
         // By disguising the activity as an http request, we can benefit from Azure Monitor features that
         // are built for incoming http requests (resultCode, pre-built charts/queries)
         inner?.SetTag("http.request.method", "_OTHER");
+        inner?.SetTag("http.response.status_code", "Success");
 
         return new(inner)
         {

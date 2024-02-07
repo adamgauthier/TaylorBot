@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0.100 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0.101 AS build
 WORKDIR /app
 
 ARG FEED_ACCESS_TOKEN
@@ -40,7 +40,7 @@ ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Releas
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/runtime:8.0.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.1 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.EntityTracker.Program.dll"]

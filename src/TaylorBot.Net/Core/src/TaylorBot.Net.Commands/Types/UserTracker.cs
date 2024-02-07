@@ -24,7 +24,7 @@ public class UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ign
 
             if (memberAdded)
             {
-                logger.LogInformation($"Added new member {guildUser.FormatLog()}.");
+                logger.LogInformation("Added new member {GuildUser}.", guildUser.FormatLog());
             }
         }
     }
