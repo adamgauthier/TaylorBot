@@ -14,7 +14,7 @@ public class PollModule(ICommandRunner commandRunner) : TaylorBotModule
     private readonly static List<Emoji> Choices = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"];
 
     [Command("poll")]
-    [Alias("reactpoll")]
+    [Alias("reactpoll", "rpoll")]
     [Summary("Creates a quick poll for a few options with reactions!")]
     public async Task<RuntimeResult> ReactPollAsync(
         [Summary("What are the options (comma separated) for your poll?")]

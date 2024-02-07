@@ -110,7 +110,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 
     private static readonly Reason[] LoseReasons = [
         new(
-            "As you stroll through an online marketplace, an anonymous user sends you a message claiming to have insider information on a groundbreaking stock 😱",
+            "As you stroll through an online marketplace, an anonymous user sends you a message claiming to have insider information on a groundbreaking stock 🤔",
             "It was a pump-and-dump scheme, leaving you with worthless shares"),
         new(
             "At a finance convention, a charismatic man invites you to invest in a new cryptocurrency promising unprecedented returns 🪙",
