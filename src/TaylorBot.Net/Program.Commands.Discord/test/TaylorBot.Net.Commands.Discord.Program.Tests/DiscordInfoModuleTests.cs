@@ -19,7 +19,7 @@ public class DiscordInfoModuleTests
 
     public DiscordInfoModuleTests()
     {
-        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _channelTypeStringMapper, _userTracker);
+        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _channelTypeStringMapper, _userTracker, new AvatarSlashCommand());
         _discordInfoModule.SetContext(_commandContext);
     }
 

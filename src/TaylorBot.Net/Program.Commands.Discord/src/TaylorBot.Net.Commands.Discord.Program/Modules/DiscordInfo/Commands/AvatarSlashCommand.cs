@@ -7,9 +7,13 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class AvatarCommand
+public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
 {
     public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", new[] { "av", "avi" });
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(Metadata.Name);
+
+    public record Options(ParsedUserOrAuthor user, AvatarType? type);
 
     public Command Avatar(IUser user, AvatarType? type, string? description = null) => new(
         Metadata,
@@ -31,21 +35,12 @@ public class AvatarCommand
             return new(new EmbedResult(embed.Build()));
         }
     );
-}
-
-public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
-{
-    public ISlashCommandInfo Info => new MessageCommandInfo(AvatarCommand.Metadata.Name);
-
-    public record Options(ParsedUserOrAuthor user, AvatarType? type);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(
-            new AvatarCommand().Avatar(
-                options.user.User,
-                options.type
-            )
-        );
+        return new(Avatar(
+            options.user.User,
+            options.type
+        ));
     }
 }

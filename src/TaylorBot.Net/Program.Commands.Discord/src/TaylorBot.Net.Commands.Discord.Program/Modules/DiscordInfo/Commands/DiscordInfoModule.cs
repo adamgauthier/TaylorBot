@@ -15,7 +15,7 @@ using TaylorBot.Net.Core.User;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 [Name("DiscordInfo 💬")]
-public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMapper channelTypeStringMapper, IUserTracker userTracker) : TaylorBotModule
+public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMapper channelTypeStringMapper, IUserTracker userTracker, AvatarSlashCommand avatarCommand) : TaylorBotModule
 {
     private static readonly Random _random = new();
 
@@ -34,7 +34,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            new AvatarCommand().Avatar(u, AvatarType.Guild, "Use </avatar:832103922709692436> instead! 😊"),
+            avatarCommand.Avatar(u, AvatarType.Guild, "Use </avatar:832103922709692436> instead! 😊"),
             context
         );
 

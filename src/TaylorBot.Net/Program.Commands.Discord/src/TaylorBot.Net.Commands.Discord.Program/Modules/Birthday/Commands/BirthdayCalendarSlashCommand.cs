@@ -1,5 +1,6 @@
 ﻿using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
@@ -11,7 +12,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository) : ISlashCommand<NoOptions>
+public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday calendar");
 
@@ -23,6 +24,11 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
             {
                 var guild = context.Guild!;
                 var calendar = await birthdayRepository.GetBirthdayCalendarAsync(guild);
+
+                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                    nameof(BirthdayCalendarSlashCommand),
+                    guild,
+                    calendar.Select(e => e.UserId).ToList());
 
                 var pages = calendar.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.Username.MdUserLink(entry.UserId)} - {entry.NextBirthday.ToString("MMMM d", TaylorBotCulture.Culture)}"
@@ -47,9 +53,7 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
-                new InGuildPrecondition(),
-            }
+            Preconditions: [new InGuildPrecondition()]
         ));
     }
 }

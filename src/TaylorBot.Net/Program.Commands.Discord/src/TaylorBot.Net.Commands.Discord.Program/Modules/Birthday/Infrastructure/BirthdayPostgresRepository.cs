@@ -81,7 +81,9 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             END
             AS next_birthday
             FROM
-            attributes.birthdays b INNER JOIN users.users u ON b.user_id = u.user_id,
+            attributes.birthdays b
+            INNER JOIN users.users u ON b.user_id = u.user_id
+            INNER JOIN guilds.guild_members gm ON gm.user_id = b.user_id AND gm.guild_id = @GuildId,
             make_date(
                 date_part('year', CURRENT_DATE)::int,
                 date_part('month', birthday)::int,
@@ -91,12 +93,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
                     ELSE date_part('day', birthday)::int
                 END
             ) AS normalized_birthday
-            WHERE is_private = FALSE
-            AND b.user_id IN (
-                SELECT user_id
-                FROM guilds.guild_members
-                WHERE guild_id = @GuildId AND alive = TRUE
-            )
+            WHERE is_private = FALSE AND gm.alive = TRUE
             ORDER BY next_birthday
             LIMIT 100;
             """,
