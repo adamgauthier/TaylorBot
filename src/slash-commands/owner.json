@@ -115,15 +115,39 @@
       ]
     },
     {
-      "name": "rewardyearbook",
-      "description": "Reward active users for the year",
+      "name": "enable-puzzle",
+      "description": "Enable Valentines puzzle",
       "type": 1,
       "options": [
         {
-          "name": "count",
-          "description": "The number of members to reward",
-          "type": 4,
-          "required": true
+          "name": "puzzle",
+          "description": "The album's puzzle you are enabling",
+          "type": 3,
+          "required": true,
+          "choices": [
+            {
+              "name": "Fearless Puzzle 💛",
+              "value": "fearless"
+            },
+            {
+              "name": "Speak Now Puzzle 💜",
+              "value": "speaknow"
+            },
+            {
+              "name": "Red Puzzle 💓",
+              "value": "red"
+            },
+            {
+              "name": "1989 Puzzle 💙",
+              "value": "1989"
+            }
+          ]
+        },
+        {
+          "name": "enable",
+          "description": "Whether to enable (true) or disable (false) the puzzle, default true",
+          "type": 5,
+          "required": false
         }
       ]
     }

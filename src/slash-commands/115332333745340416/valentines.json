@@ -1,0 +1,53 @@
+{
+  "name": "valentines",
+  "description": "Valentines Puzzle related commands",
+  "options": [
+    {
+      "name": "verify",
+      "description": "Verify your puzzle code",
+      "type": 1,
+      "options": [
+        {
+          "name": "puzzle",
+          "description": "The album's puzzle you are submitting a code for",
+          "type": 3,
+          "required": true,
+          "choices": [
+            {
+              "name": "Fearless Puzzle 💛",
+              "value": "fearless"
+            },
+            {
+              "name": "Speak Now Puzzle 💜",
+              "value": "speaknow"
+            },
+            {
+              "name": "Red Puzzle 💓",
+              "value": "red"
+            },
+            {
+              "name": "1989 Puzzle 💙",
+              "value": "1989"
+            }
+          ]
+        },
+        {
+          "name": "code",
+          "description": "The code (first letters of every puzzle song in order)",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "description": "List puzzles you have solved",
+      "type": 1
+    },
+    {
+      "name": "status",
+      "description": "List all puzzles and how many users solved them",
+      "type": 1
+    }
+  ]
+}

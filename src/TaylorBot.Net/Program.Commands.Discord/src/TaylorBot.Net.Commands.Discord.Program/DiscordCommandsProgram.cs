@@ -83,6 +83,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Valentines;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Infrastructure;
@@ -339,6 +340,10 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<RollPlaySlashCommand>()
             .AddSlashCommand<RollProfileSlashCommand>()
             .AddSlashCommand<RollLeaderboardSlashCommand>()
+            .AddSlashCommand<ValentinesVerifySlashCommand>()
+            .AddSlashCommand<ValentinesProfileSlashCommand>()
+            .AddSlashCommand<ValentinesEnableSlashCommand>()
+            .AddSlashCommand<ValentinesStatusSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>
