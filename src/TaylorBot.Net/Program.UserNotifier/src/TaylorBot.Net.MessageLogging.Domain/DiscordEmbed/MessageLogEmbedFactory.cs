@@ -67,9 +67,14 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                         }
                     }
 
-                    if (message.Attachments.Count != 0)
+                    if (message.Attachments.Count > 0)
                     {
-                        builder.AddField("Attachments", string.Join(" | ", message.Attachments.Select(a => a.Filename.DiscordMdLink(a.ProxyUrl))));
+                        builder.AddField("Attachments", string.Join(" ", message.Attachments.Select(a => a.ProxyUrl)));
+
+                        var previewAttachment = message.Attachments.FirstOrDefault(a => a.ContentType?.StartsWith("image") == true)
+                            ?? message.Attachments.First();
+
+                        builder.WithImageUrl(previewAttachment.ProxyUrl);
                     }
 
                     switch (message)
@@ -101,7 +106,9 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
 
                     if (taylorBot.AttachmentUrls?.Any() == true)
                     {
-                        builder.AddField("Attachments", string.Join(" | ", taylorBot.AttachmentUrls.Select(url => url[(url.LastIndexOf('/') + 1)..].DiscordMdLink(url))));
+                        builder
+                            .AddField("Attachments", string.Join(" ", taylorBot.AttachmentUrls))
+                            .WithImageUrl(taylorBot.AttachmentUrls[0]);
                     }
 
                     if (taylorBot.SystemMessageType.HasValue)

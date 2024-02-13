@@ -221,10 +221,10 @@ public class ValentinesStatusSlashCommand(PostgresConnectionFactory postgresConn
                     .WithTitle("Valentines Puzzle Global Status")
                     .WithDescription(
                         $"""
-                        💛 Fearless Puzzle: {(puzzleFearless != null ? $"**Solved by {"user".ToQuantity(puzzleFearless.found_by, TaylorBotFormats.Readable)}** 🕵️" : "**Unsolved** 🔮")}  
-                        💜 Speak Now Puzzle: {(puzzleSpeakNow != null ? $"**Solved by {"user".ToQuantity(puzzleSpeakNow.found_by, TaylorBotFormats.Readable)}** 🕵️" : "**Unsolved** 🔮")}
-                        💓 Red Puzzle: {(puzzleRed != null ? $"**Solved by {"user".ToQuantity(puzzleRed.found_by, TaylorBotFormats.Readable)}** 🕵️" : "**Unsolved** 🔮")}
-                        💙 1989 Puzzle: {(puzzle1989 != null ? $"**Solved by {"user".ToQuantity(puzzle1989.found_by, TaylorBotFormats.Readable)}** 🕵️" : "**Unsolved** 🔮")}
+                        💛 Fearless Puzzle: {(puzzleFearless != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzleFearless.found_by, TaylorBotFormats.Readable)}**" : "🔮 **Unsolved**")}
+                        💜 Speak Now Puzzle: {(puzzleSpeakNow != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzleSpeakNow.found_by, TaylorBotFormats.Readable)}**" : "🔮 **Unsolved**")}
+                        💓 Red Puzzle: {(puzzleRed != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzleRed.found_by, TaylorBotFormats.Readable)}** " : "🔮 **Unsolved**")}
+                        💙 1989 Puzzle: {(puzzle1989 != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzle1989.found_by, TaylorBotFormats.Readable)}** 🕵️" : "🔮 **Unsolved**")}
                         """)
                     .Build());
             }
