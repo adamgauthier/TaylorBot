@@ -59,7 +59,7 @@ public class CustomUserTypeReaderGuildUserTests
         A.CallTo(() => _commandContext.Guild).Returns(guild);
         var guildUser = CreateFakeGuildUser(AnId, AUsername, ANickname);
         var anotherGuildUser = CreateFakeGuildUser(AnotherId, AnotherUsername, AnotherNickname);
-        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser, anotherGuildUser });
+        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns([guildUser, anotherGuildUser]);
         A.CallTo(() => _channel.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>());
 
         var result = (UserArgument<IGuildUser>)(await _customUserTypeReader.ReadAsync(_commandContext, AUsername, _serviceProvider)).Values.Single().Value;
@@ -75,7 +75,7 @@ public class CustomUserTypeReaderGuildUserTests
         A.CallTo(() => _commandContext.Guild).Returns(guild);
         var guildUser = CreateFakeGuildUser(AnId, AUsername, ANickname);
         var anotherGuildUser = CreateFakeGuildUser(AnotherId, AnotherUsername, AnotherNickname);
-        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser, anotherGuildUser });
+        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns([guildUser, anotherGuildUser]);
         A.CallTo(() => _channel.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>());
 
         var result = (UserArgument<IGuildUser>)(await _customUserTypeReader.ReadAsync(_commandContext, AnotherNickname, _serviceProvider)).Values.Single().Value;
@@ -91,7 +91,7 @@ public class CustomUserTypeReaderGuildUserTests
         A.CallTo(() => _commandContext.Guild).Returns(guild);
         var guildUser = CreateFakeGuildUser(AnId, username: "ImATaylorFan89", nickname: "Tay");
         var anotherGuildUser = CreateFakeGuildUser(AnotherId, username: "TaylorSwift13", nickname: "Emelie");
-        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser, anotherGuildUser });
+        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns([guildUser, anotherGuildUser]);
         A.CallTo(() => _channel.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>());
 
         var result = (UserArgument<IGuildUser>)(await _customUserTypeReader.ReadAsync(_commandContext, "tay", _serviceProvider)).BestMatch;

@@ -27,9 +27,9 @@ public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepositor
                     $"Ignoring {options.user.User.FormatTagAndMention()} for **{options.time.Value.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
                 ));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new TaylorBotOwnerPrecondition()
-            }
+            ]
         ));
     }
 }

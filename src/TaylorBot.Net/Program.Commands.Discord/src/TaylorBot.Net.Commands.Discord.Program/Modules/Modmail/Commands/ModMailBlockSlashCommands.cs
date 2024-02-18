@@ -57,10 +57,10 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
                     You can undo this action with {context.MentionCommand("mod mail unblock")}.
                     """));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
-            }
+            ]
         ));
     }
 }
@@ -96,10 +96,10 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
                     You can block again with {context.MentionCommand("mod mail block")}.
                     """));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
-            }
+            ]
         ));
     }
 }

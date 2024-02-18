@@ -131,7 +131,7 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
                     }
                 );
             },
-            Preconditions: new ICommandPrecondition[] { new InGuildPrecondition() }
+            Preconditions: [new InGuildPrecondition()]
         ));
     }
 

@@ -22,15 +22,11 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlash
             {
                 var embed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
+                    .WithUserAsAuthor(user)
                     .WithDescription(
                         $"""
                         {user.Mention}'s gender is **{gender}**. 🆔
                         """);
-
-                if (context == null)
-                {
-                    embed.WithUserAsAuthor(user);
-                }
 
                 return new EmbedResult(embed.Build());
             }

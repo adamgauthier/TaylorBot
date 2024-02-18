@@ -28,7 +28,7 @@ public class LastFmArtistsCommandTests
         var lastFmUsername = new LastFmUsername("taylorswift");
         var artist = new TopArtist(Name: "Taylor Swift", ArtistUrl: new Uri("https://www.last.fm/music/Taylor+Swift"), PlayCount: 15);
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-        A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(new[] { artist }));
+        A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult([artist]));
 
         var result = (EmbedResult)await _lastFmArtistsCommand.Artists(period, _commandUser, isLegacyCommand: false).RunAsync();
 

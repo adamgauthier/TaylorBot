@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
@@ -36,16 +35,14 @@ public class HelpModule(
         {
             var module = moduleOrCommand == null ? commands.Modules.Single(m => m.Name == "Help") :
                 commands.Modules.FirstOrDefault(m =>
-                     m.Name.Replace("Module", "").ToLowerInvariant() == moduleOrCommand.ToLowerInvariant() ||
+                     m.Name.Replace("Module", "").Equals(moduleOrCommand, StringComparison.InvariantCultureIgnoreCase) ||
                      m.Commands.Any(c => c.Aliases.Select(a => a.ToLowerInvariant()).Contains(moduleOrCommand.ToLowerInvariant()))
                 );
 
             if (module == null)
                 return new EmptyResult();
 
-            var builder = new EmbedBuilder()
-                .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(Context.User);
+            var builder = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
 
             if (module.Name != "Help")
             {
@@ -55,7 +52,7 @@ public class HelpModule(
 
                 static string BuildDescription(ModuleInfo module)
                 {
-                    IEnumerable<string> descriptionLines = new[] { module.Summary };
+                    IEnumerable<string> descriptionLines = [module.Summary];
 
                     if (!string.IsNullOrEmpty(module.Remarks))
                         descriptionLines = descriptionLines.Append(module.Remarks);
@@ -138,7 +135,6 @@ public class HelpModule(
 
                 var embed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithUserAsAuthor(Context.CurrentUser)
                     .AddField("Guild Cache", (await Context.Client.GetGuildsAsync(CacheMode.CacheOnly)).Count, inline: true)
                     .AddField("DM Channels Cache", (await Context.Client.GetDMChannelsAsync(CacheMode.CacheOnly)).Count, inline: true);
 
@@ -154,7 +150,7 @@ public class HelpModule(
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            Preconditions: [new TaylorBotOwnerPrecondition()]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

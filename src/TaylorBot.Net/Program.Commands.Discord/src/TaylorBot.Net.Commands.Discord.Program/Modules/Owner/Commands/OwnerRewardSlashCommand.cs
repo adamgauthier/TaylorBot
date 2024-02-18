@@ -63,9 +63,9 @@ public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepositor
                     ))).Truncate(EmbedBuilder.MaxDescriptionLength)
                 ));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new TaylorBotOwnerPrecondition()
-            }
+            ]
         ));
     }
 }

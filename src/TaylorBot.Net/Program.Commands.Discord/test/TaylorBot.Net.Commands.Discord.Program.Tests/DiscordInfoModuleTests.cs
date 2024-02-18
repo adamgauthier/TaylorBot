@@ -58,7 +58,7 @@ public class DiscordInfoModuleTests
         var guildUser = A.Fake<IGuildUser>();
         A.CallTo(() => guildUser.Id).Returns(AnId);
         var guild = A.Fake<IGuild>();
-        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(new[] { guildUser });
+        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns([guildUser]);
         A.CallTo(() => _commandContext.Guild).Returns(guild);
         A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(guildUser)).Returns(default);
 
@@ -100,7 +100,7 @@ public class DiscordInfoModuleTests
         A.CallTo(() => guild.VoiceRegionId).Returns("us-east");
         var role = A.Fake<IRole>();
         A.CallTo(() => role.Mention).Returns("<@0>");
-        A.CallTo(() => guild.Roles).Returns(new[] { role });
+        A.CallTo(() => guild.Roles).Returns([role]);
         A.CallTo(() => _commandContext.Guild).Returns(guild);
 
         var result = (await _discordInfoModule.ServerInfoAsync()).GetResult<EmbedResult>();

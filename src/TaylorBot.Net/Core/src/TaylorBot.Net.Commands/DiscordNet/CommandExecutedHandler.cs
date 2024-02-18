@@ -4,7 +4,6 @@ using Humanizer;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Preconditions;
-using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
@@ -32,24 +31,15 @@ public class CommandExecutedHandler(
                 switch (innerResult)
                 {
                     case EmbedResult embedResult:
-                        // Check for slash command-like errors and use message reply
-                        if ((embedResult.Embed.Color == TaylorBotColors.ErrorColor && !embedResult.Embed.Author.HasValue)
-                            || embedResult.PrefixCommandReply)
-                        {
-                            await context.Channel.SendMessageAsync(
-                                embed: embedResult.Embed,
-                                messageReference: new(context.Message.Id),
-                                allowedMentions: new AllowedMentions { MentionRepliedUser = false }
-                            );
-                        }
-                        else
-                        {
-                            await context.Channel.SendMessageAsync(embed: embedResult.Embed);
-                        }
+                        await context.Channel.SendMessageAsync(
+                            messageReference: new(context.Message.Id),
+                            allowedMentions: new AllowedMentions { MentionRepliedUser = false },
+                            embed: embedResult.Embed
+                        );
                         break;
 
                     case PageMessageResult pageResult:
-                        var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Channel);
+                        var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Message);
                         await sentPageMessage.SendReactionsAsync(pageMessageReactionsHandler, logger);
                         break;
 
@@ -78,10 +68,8 @@ public class CommandExecutedHandler(
 
                         await context.Channel.SendMessageAsync(
                             messageReference: new(context.Message.Id),
-                            embed: new EmbedBuilder()
-                                .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription(string.Join('\n', baseDescriptionLines))
-                            .Build()
+                            allowedMentions: new AllowedMentions { MentionRepliedUser = false },
+                            embed: EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))
                         );
                         break;
 
@@ -89,10 +77,10 @@ public class CommandExecutedHandler(
                         logger.LogInformation("{User} precondition failure: {PrivateReason}.", commandContext.User.FormatLog(), failed.PrivateReason);
                         if (!failed.UserReason.HideInPrefixCommands)
                         {
-                            await context.Channel.SendMessageAsync(embed: new EmbedBuilder()
-                                .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription($"{context.User.Mention} {failed.UserReason.Reason}")
-                            .Build());
+                            await context.Channel.SendMessageAsync(
+                                messageReference: new(context.Message.Id),
+                                allowedMentions: new AllowedMentions { MentionRepliedUser = false },
+                                embed: EmbedFactory.CreateError($"{context.User.Mention} {failed.UserReason.Reason}"));
                         }
                         break;
 
@@ -136,13 +124,16 @@ public class CommandExecutedHandler(
 
                         if (runResult is not PreconditionFailed failed || !failed.UserReason.HideInPrefixCommands)
                         {
-                            await context.Channel.SendMessageAsync(embed: EmbedFactory.CreateError(
-                                $"""
-                                {context.User.Mention} Format: `{commandContext.GetUsage(optCommandInfo.Value)}`
-                                {(parseResult.ErrorParameter != null
-                                    ? $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}"
-                                    : parseResult.ErrorReason)}
-                                """
+                            await context.Channel.SendMessageAsync(
+                                messageReference: new(context.Message.Id),
+                                allowedMentions: new AllowedMentions { MentionRepliedUser = false },
+                                embed: EmbedFactory.CreateError(
+                                    $"""
+                                    {context.User.Mention} Format: `{commandContext.GetUsage(optCommandInfo.Value)}`
+                                    {(parseResult.ErrorParameter != null
+                                        ? $"`<{parseResult.ErrorParameter.Name}>`: {parseResult.ErrorReason}"
+                                        : parseResult.ErrorReason)}
+                                    """
                             ));
                         }
                         else

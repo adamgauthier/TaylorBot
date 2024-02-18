@@ -23,7 +23,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            serverMessagesCommand.Messages(u, isLegacyCommand: true),
+            serverMessagesCommand.Messages(u),
             context
         );
 
@@ -66,7 +66,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            serverMinutesCommand.Minutes(u, isLegacyCommand: true),
+            serverMinutesCommand.Minutes(u),
             context
         );
 

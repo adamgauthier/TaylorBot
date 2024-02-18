@@ -41,7 +41,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
+        A.CallTo(() => _commandUser.RoleIds).Returns([RoleId]);
 
         var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
@@ -81,9 +81,9 @@ public class AccessibleRolesModuleTests
         const ulong RoleId = 1989;
         const ulong AnotherRoleId = 1322;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(new[] { AnotherRoleId });
+        A.CallTo(() => _commandUser.RoleIds).Returns([AnotherRoleId]);
         A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(
-            Group: new AccessibleRoleGroup(Name: "regions", OtherRoles: new[] { new SnowflakeId(AnotherRoleId) })
+            Group: new AccessibleRoleGroup(Name: "regions", OtherRoles: [new SnowflakeId(AnotherRoleId)])
         ));
         A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
@@ -123,7 +123,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
+        A.CallTo(() => _commandUser.RoleIds).Returns([RoleId]);
         A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(false);
 
         var result = (await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
@@ -136,7 +136,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(new[] { RoleId });
+        A.CallTo(() => _commandUser.RoleIds).Returns([RoleId]);
         A.CallTo(() => _accessibleRoleRepository.IsRoleAccessibleAsync(role)).Returns(true);
         A.CallTo(() => _commandUser.RemoveRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 

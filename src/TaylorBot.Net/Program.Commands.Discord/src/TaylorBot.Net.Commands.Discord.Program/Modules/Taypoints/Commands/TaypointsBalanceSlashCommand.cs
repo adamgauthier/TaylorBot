@@ -18,7 +18,7 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
     public record Options(ParsedUserOrAuthor user);
 
     public Command Balance(IUser user, bool isLegacyCommand) => new(
-        new("taypoints", "Taypoints 🪙", new[] { "points" }),
+        new("taypoints", "Taypoints 🪙", ["points"]),
         async () =>
         {
             TaypointBalance balance;
@@ -34,11 +34,9 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 
             EmbedBuilder embed = new();
 
-            if (isLegacyCommand)
-                embed.WithUserAsAuthor(user);
-
             return new EmbedResult(embed
                 .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(user)
                 .WithDescription(
                     $"""
                     {user.Mention}'s balance is {"taypoint".ToQuantity(balance.TaypointCount, TaylorBotFormats.BoldReadable)} 🪙

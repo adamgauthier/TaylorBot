@@ -43,7 +43,7 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
                 {
                     case Horoscope horoscope:
                         return new EmbedResult(new EmbedBuilder()
-                            .WithUserAsAuthor(context.User)
+                            .WithUserAsAuthor(user)
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithTitle($"{zodiac} - {DateTime.UtcNow.ToString("dddd MMMM dd, yyyy", TaylorBotCulture.Culture)}")
                             .WithDescription(horoscope.Text)

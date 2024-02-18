@@ -24,16 +24,16 @@ public class ModMailLogSetSlashCommand(IModMailLogChannelRepository modMailLogCh
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
+                    .WithDescription(string.Join('\n', [
                         $"Ok, I will now log mod mail in {options.channel.Channel.Mention}. ✅",
                         $"Use {context.MentionCommand("mod log stop")} to undo this action."
-                    }))
+                    ]))
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -52,16 +52,16 @@ public class ModMailLogStopSlashCommand(IModMailLogChannelRepository modMailLogC
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
+                    .WithDescription(string.Join('\n', [
                         "Ok, I will stop logging mod mail in a different channel than your configured moderation log channel. ✅",
                         $"Use {context.MentionCommand("modmail log-set")} to change the mod mail log channel from the moderation log channel configured with {context.MentionCommand("mod log set")}."
-                    }))
+                    ]))
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -86,34 +86,34 @@ public class ModMailLogShowSlashCommand(IModMailLogChannelRepository modMailLogC
                     var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed.WithDescription(string.Join('\n', new[] {
+                        embed.WithDescription(string.Join('\n', [
                             $"This server is configured to log mod mail in {channel.Mention}. ✅",
                             $"Use {context.MentionCommand("modmail log-stop")} to stop logging mod mail in a different channel than the one configured with {context.MentionCommand("mod log set")}."
-                        }));
+                        ]));
                     }
                     else
                     {
-                        embed.WithDescription(string.Join('\n', new[] {
+                        embed.WithDescription(string.Join('\n', [
                             "I can't find the previously configured mod mail command usage logging channel in this server. ❌",
                             $"Was it deleted? Use {context.MentionCommand("modmail log-set")} to log mod mail in another channel."
-                        }));
+                        ]));
                     }
                 }
                 else
                 {
-                    embed.WithDescription(string.Join('\n', new[] {
+                    embed.WithDescription(string.Join('\n', [
                         "There is no mod mail specific logging channel configured in this server. ❌",
                         $"By default, mod mail logs will be sent in the moderation logging channel configured with {context.MentionCommand("mod log set")}.",
                         $"Use {context.MentionCommand("modmail log-set")} to log mod mail in a different channel."
-                    }));
+                    ]));
                 }
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }

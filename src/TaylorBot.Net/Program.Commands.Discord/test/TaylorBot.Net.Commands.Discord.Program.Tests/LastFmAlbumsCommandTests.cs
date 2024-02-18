@@ -36,7 +36,7 @@ public class LastFmAlbumsCommandTests
             ArtistUrl: new Uri("https://www.last.fm/music/Taylor+Swift")
         );
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-        A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(new[] { album }));
+        A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult([album]));
 
         var result = (EmbedResult)await _lastFmAlbumsCommand.Albums(period, _commandUser, isLegacyCommand: false).RunAsync();
 

@@ -31,10 +31,10 @@ public class ModLogSetSlashCommand(IModLogChannelRepository modLogChannelReposit
                         """)
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -60,10 +60,10 @@ public class ModLogStopSlashCommand(IModLogChannelRepository modLogChannelReposi
                         """)
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -114,10 +114,10 @@ public class ModLogShowSlashCommand(IModLogChannelRepository modLogChannelReposi
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }

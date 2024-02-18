@@ -53,9 +53,9 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

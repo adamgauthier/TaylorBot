@@ -45,9 +45,9 @@ public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepo
                         inline: true)
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

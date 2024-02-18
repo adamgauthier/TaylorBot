@@ -13,10 +13,10 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
     {
         return new(CreateBaseLastFmEmbed(lastFmUsername, user)
             .WithColor(TaylorBotColors.ErrorColor)
-            .WithDescription(string.Join('\n', new[] {
+            .WithDescription(string.Join('\n', [
                 $"This account does not have any scrobbles for period '{lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}'. 🔍",
                 "Start listening to a song and scrobble it to Last.fm so it shows up here!"
-            }))
+            ]))
         .Build());
     }
 
@@ -31,18 +31,18 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
 
     public EmbedResult CreateLastFmNotSetEmbedResult(IUser user)
     {
-        return new(EmbedFactory.CreateError(string.Join('\n', new[] {
+        return new(EmbedFactory.CreateError(string.Join('\n', [
             $"{user.Mention}'s Last.fm username is not set. 🚫",
             $"Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.",
             $"You can then link it to TaylorBot with </lastfm set:922354806574678086>."
-        })));
+        ])));
     }
 
     public EmbedResult CreateLastFmErrorEmbedResult(LastFmGenericErrorResult error)
     {
-        return new(EmbedFactory.CreateError(string.Join('\n', new[] {
+        return new(EmbedFactory.CreateError(string.Join('\n', [
             $"Last.fm returned an error. {(error.Error != null ? $"({error.Error}) " : string.Empty)}😢",
             "The site might be down. Try again later!"
-        })));
+        ])));
     }
 }

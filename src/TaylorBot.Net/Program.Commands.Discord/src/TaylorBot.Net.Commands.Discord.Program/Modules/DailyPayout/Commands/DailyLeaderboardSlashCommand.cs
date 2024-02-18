@@ -53,9 +53,9 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

@@ -55,9 +55,9 @@ public class ChannelMessagesSlashCommand(IChannelMessageCountRepository channelM
                         inline: true)
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

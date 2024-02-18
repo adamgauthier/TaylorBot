@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands;
 public interface ICommandResult { }
 
 
-public record EmbedResult(Embed Embed, bool PrefixCommandReply = false) : ICommandResult;
+public record EmbedResult(Embed Embed) : ICommandResult;
 
 public record EmptyResult() : ICommandResult;
 

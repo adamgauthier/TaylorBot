@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
 public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient, LastFmPeriodStringMapper lastFmPeriodStringMapper)
 {
-    public static readonly CommandMetadata Metadata = new("lastfm albums", "Last.fm 🎶", new[] { "fm albums", "np albums" });
+    public static readonly CommandMetadata Metadata = new("lastfm albums", "Last.fm 🎶", ["fm albums", "np albums"]);
 
     public Command Albums(LastFmPeriod? period, IUser user, bool isLegacyCommand) => new(
         Metadata,

@@ -50,7 +50,7 @@ public class LastFmCollageSlashCommand(ILastFmUsernameRepository lastFmUsernameR
                     .WithTitle($"Collage {size.Parsed}x{size.Parsed} | {lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
                     .WithImageUrl($"attachment://{filename}");
 
-                return new MessageResult(new(new[] { embed.Build() }, Attachments: new[] { new Attachment(collage, filename) }));
+                return new MessageResult(new([embed.Build()], Attachments: [new Attachment(collage, filename)]));
             }
         ));
     }

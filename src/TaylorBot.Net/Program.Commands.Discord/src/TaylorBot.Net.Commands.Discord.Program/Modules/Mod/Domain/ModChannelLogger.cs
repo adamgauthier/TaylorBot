@@ -56,10 +56,10 @@ public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRe
     {
         return wasLogged ?
             EmbedFactory.CreateSuccess(successMessage) :
-            EmbedFactory.CreateWarning(string.Join('\n', new[] {
+            EmbedFactory.CreateWarning(string.Join('\n', [
                 successMessage,
                 "However, I was not able to log this action in your moderation log channel.",
                 $"Make sure you set it up with {context.MentionCommand("mod log set")} and TaylorBot has access to it."
-            }));
+            ]));
     }
 }

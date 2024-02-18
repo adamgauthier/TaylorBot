@@ -8,7 +8,6 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
 
@@ -32,8 +31,7 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User);
+                var embed = new EmbedBuilder();
 
                 var guildJailRoleResult = await GetGuildJailRoleAsync();
 
@@ -58,10 +56,10 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                             {
                                 return new EmbedResult(embed
                                     .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(string.Join('\n', new[] {
+                                    .WithDescription(string.Join('\n', [
                                         $"Could not give jail role {guildJailRole.Role.Mention} to {user.Mention} due to missing permissions.",
                                         $"In server settings, make sure TaylorBot's role is higher in the list than {guildJailRole.Role.Mention}."
-                                    }))
+                                    ]))
                                 .Build());
                             }
                             else
@@ -80,11 +78,11 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                     default: throw new NotImplementedException();
                 }
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ModerateMembers),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var result = await commandRunner.RunAsync(command, context);
@@ -105,8 +103,7 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User);
+                var embed = new EmbedBuilder();
 
                 var guildJailRoleResult = await GetGuildJailRoleAsync();
 
@@ -139,10 +136,10 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                             {
                                 return new EmbedResult(embed
                                     .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(string.Join('\n', new[] {
+                                    .WithDescription(string.Join('\n', [
                                         $"Could not give jail role {guildJailRole.Role.Mention} to {user.Mention} due to missing permissions.",
                                         $"In server settings, make sure TaylorBot's role is higher in the list than {guildJailRole.Role.Mention}."
-                                    }))
+                                    ]))
                                 .Build());
                             }
                             else
@@ -161,11 +158,11 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                     default: throw new NotImplementedException();
                 }
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ModerateMembers),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var result = await commandRunner.RunAsync(command, context);
@@ -188,18 +185,17 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                 await jailRepository.SetJailRoleAsync(Context.Guild, role.Role);
 
                 return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
+                    .WithDescription(string.Join('\n', [
                         $"Role {role.Role.Mention} was successfully set as the jail role for this server.",
                         $"You can now use `{Context.CommandPrefix}jail @user` and they will receive {role.Role.Mention}."
-                    }))
+                    ]))
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -221,20 +217,20 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
 
         if (jailRole == null)
         {
-            return new GuildJailRoleErrorResult(string.Join('\n', new[] {
+            return new GuildJailRoleErrorResult(string.Join('\n', [
                 $"No jail role has been set for this server, you must set it up for this command to work.",
                 $"Create a role with limited permissions in server settings and use `{Context.CommandPrefix}jail set` to set it as the jail role."
-            }));
+            ]));
         }
 
         var guildJailRole = Context.Guild.GetRole(jailRole.RoleId.Id);
 
         if (guildJailRole == null)
         {
-            return new GuildJailRoleErrorResult(string.Join('\n', new[] {
+            return new GuildJailRoleErrorResult(string.Join('\n', [
                 "The previously set jail role could not be found. Was it deleted?",
                 $"Use `{Context.CommandPrefix}jail set` to set another one."
-            }));
+            ]));
         }
 
         return new GuildJailRoleResult(guildJailRole);

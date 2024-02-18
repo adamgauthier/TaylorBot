@@ -28,10 +28,10 @@ public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository
                     Use {context.MentionCommand("mod spam remove")} to revert and mark the channel as non-spam.
                     """));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild),
-            }
+            ]
         ));
     }
 }
@@ -57,10 +57,10 @@ public class ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelReposit
                     Use {context.MentionCommand("mod spam add")} to revert and mark the channel as spam.
                     """));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild),
-            }
+            ]
         ));
     }
 }

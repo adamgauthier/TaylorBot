@@ -12,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
 public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient)
 {
-    public static readonly CommandMetadata Metadata = new("lastfm current", "Last.fm 🎶", new[] { "fm", "np" });
+    public static readonly CommandMetadata Metadata = new("lastfm current", "Last.fm 🎶", ["fm", "np"]);
 
     public Command Current(IUser user) => new(
         Metadata,
@@ -43,10 +43,10 @@ public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFm
                             .WithColor(TaylorBotColors.SuccessColor)
                             .AddField("Artist", mostRecentTrack.Artist.Name.DiscordMdLink(mostRecentTrack.Artist.Url), inline: true)
                             .AddField("Track", mostRecentTrack.TrackName.DiscordMdLink(mostRecentTrack.TrackUrl), inline: true)
-                            .WithFooter(text: string.Join(" | ", new[] {
+                            .WithFooter(text: string.Join(" | ", [
                                 mostRecentTrack.IsNowPlaying ? "Now Playing" : "Most Recent Track",
                                 $"Total Scrobbles: {success.TotalScrobbles}"
-                            }), iconUrl: options.CurrentValue.LastFmEmbedFooterIconUrl)
+                            ]), iconUrl: options.CurrentValue.LastFmEmbedFooterIconUrl)
                             .Build()
                         );
                     }
@@ -56,10 +56,10 @@ public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFm
                     }
 
                 case LastFmLogInRequiredErrorResult _:
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', new[] {
+                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', [
                         "Last.fm says your recent tracks are not public. 😢",
                         $"Make sure 'Hide recent listening information' is off in your {"Last.fm privacy settings".DiscordMdLink("https://www.last.fm/settings/privacy")}!"
-                    })));
+                    ])));
 
                 case LastFmGenericErrorResult errorResult:
                     return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);

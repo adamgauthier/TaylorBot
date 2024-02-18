@@ -25,7 +25,7 @@ public class StringEnumerableEmbedExtensionsTests
             line6
         }.CreateEmbedDescriptionWithMaxAmountOfLines();
 
-        result.Should().Be(string.Join('\n', new[] { line1, line2, line3 }));
+        result.Should().Be(string.Join('\n', [line1, line2, line3]));
     }
 
     private static string CreateLine(char character, int length)

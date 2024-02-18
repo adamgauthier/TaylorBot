@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
 public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository)
 {
-    public static readonly CommandMetadata Metadata = new("lastfm set", "Last.fm 🎶", new[] { "fm set", "np set" });
+    public static readonly CommandMetadata Metadata = new("lastfm set", "Last.fm 🎶", ["fm set", "np set"]);
 
     public Command Set(IUser user, LastFmUsername lastFmUsername, bool isLegacyCommand) => new(
         Metadata,

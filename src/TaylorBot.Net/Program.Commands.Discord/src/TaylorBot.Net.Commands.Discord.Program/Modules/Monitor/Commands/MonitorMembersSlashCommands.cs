@@ -23,16 +23,16 @@ public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemb
                 var channel = options.channel.Channel;
                 await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', [
                     $"Ok, I will now log member joins, leaves and bans in {channel.Mention}. 😊",
                     $"Use {context.MentionCommand("monitor members stop")} to stop monitoring member events."
-                })));
+                ])));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -57,33 +57,33 @@ public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLo
                     var channel = (ITextChannel?)await guild.GetChannelAsync(log.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                        embed = EmbedFactory.CreateSuccess(string.Join('\n', [
                             $"This server is configured to log member joins, leaves and bans in {channel.Mention}. ✅",
                             $"Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server."
-                        }));
+                        ]));
                     }
                     else
                     {
-                        embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                        embed = EmbedFactory.CreateSuccess(string.Join('\n', [
                             "I can't find the previously configured member events logging channel in this server. ❌",
                             $"Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel."
-                        }));
+                        ]));
                     }
                 }
                 else
                 {
-                    embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                    embed = EmbedFactory.CreateSuccess(string.Join('\n', [
                         "Member events monitoring is not configured in this server. ❌",
                         $"Use {context.MentionCommand("monitor members set")} to log member events in a specific channel."
-                    }));
+                    ]));
                 }
 
                 return new EmbedResult(embed);
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -100,15 +100,15 @@ public class MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLo
             {
                 await memberLogChannelRepository.RemoveMemberLogAsync(context.Guild!);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', [
                     "Ok, I will stop logging member events in this server. 😊",
                     $"Use {context.MentionCommand("monitor members set")} to log member events in a specific channel."
-                })));
+                ])));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }

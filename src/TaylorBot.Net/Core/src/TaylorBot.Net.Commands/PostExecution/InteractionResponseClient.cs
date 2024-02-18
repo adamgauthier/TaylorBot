@@ -138,7 +138,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
     {
         // Text inputs fill an entire ActionRow
         var components = createModal.TextInputs.Select(t =>
-            InteractionResponse.Component.CreateActionRow(new[] {
+            InteractionResponse.Component.CreateActionRow([
                  InteractionResponse.Component.CreateTextInput(
                     custom_id: t.Id,
                     style: (byte)ToInteractionStyle(t.Style),
@@ -147,7 +147,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
                     max_length: t.MaxLength,
                     required: t.Required
                 )
-            })
+            ])
         ).ToList();
 
         InteractionResponse interactionResponse = new(

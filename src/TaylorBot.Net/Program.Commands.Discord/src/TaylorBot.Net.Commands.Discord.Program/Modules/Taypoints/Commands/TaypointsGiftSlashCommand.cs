@@ -76,9 +76,9 @@ public class TaypointsGiftSlashCommand(ITaypointTransferRepository taypointTrans
                 }
             }
         },
-        Preconditions: new ICommandPrecondition[] {
+        Preconditions: [
             new InGuildPrecondition(),
-        }
+        ]
     );
 
     private static double GetPercent(AbsoluteTaypointAmount absolute)

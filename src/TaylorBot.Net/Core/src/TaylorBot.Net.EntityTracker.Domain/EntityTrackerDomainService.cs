@@ -115,7 +115,7 @@ public class EntityTrackerDomainService(
 
     public async Task OnGuildUserLeftAsync(IGuild guild, IUser user)
     {
-        await memberRepository.UpdateMembersNotInGuildAsync(guild, new[] { new SnowflakeId(user.Id) });
+        await memberRepository.UpdateMembersNotInGuildAsync(guild, [new SnowflakeId(user.Id)]);
     }
 
     public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)

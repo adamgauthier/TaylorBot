@@ -53,9 +53,9 @@ public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepositor
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

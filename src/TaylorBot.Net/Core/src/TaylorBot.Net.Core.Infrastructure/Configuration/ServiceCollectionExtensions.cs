@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(applicationName);
         ArgumentNullException.ThrowIfNull(maxPoolSize);
 
-        var connectionString = string.Join(';', new[] {
+        var connectionString = string.Join(';', [
             $"Server={host}",
             $"Port={port}",
             $"Username={username}",
@@ -49,7 +49,7 @@ public static class ServiceCollectionExtensions
             $"Maximum Pool Size={maxPoolSize}",
             "SSL Mode=Prefer",
             "Trust Server Certificate=true",
-        });
+        ]);
         return connectionString;
     }
 

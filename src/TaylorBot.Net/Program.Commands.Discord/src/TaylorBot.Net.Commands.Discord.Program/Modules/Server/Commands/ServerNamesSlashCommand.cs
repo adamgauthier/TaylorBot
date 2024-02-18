@@ -43,9 +43,9 @@ public class ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository)
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition()
-            }
+            ]
         ));
     }
 }

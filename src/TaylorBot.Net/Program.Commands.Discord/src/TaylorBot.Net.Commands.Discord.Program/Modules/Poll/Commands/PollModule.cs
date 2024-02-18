@@ -1,12 +1,11 @@
 ﻿using Discord;
 using Discord.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 
 [Name("Poll ❓")]
 public class PollModule(ICommandRunner commandRunner) : TaylorBotModule
@@ -46,13 +45,12 @@ public class PollModule(ICommandRunner commandRunner) : TaylorBotModule
                 return new(new PageMessageResult(new PageMessage(new(
                     new SinglePageEmbedRenderer(new EmbedBuilder()
                         .WithColor(PollSlashCommand.PollColor)
-                        .WithUserAsAuthor(Context.User)
                         .WithDescription(
-                        $"""
-                        ## Poll in <#{Context.Channel.Id}>
-                        {string.Join('\n', allOptions.Select((option, index) =>
-                            $"### {Choices[index]} {option}"))}
-                        """)
+                            $"""
+                            ## Poll in <#{Context.Channel.Id}>
+                            {string.Join('\n', allOptions.Select((option, index) =>
+                                $"### {Choices[index]} {option}"))}
+                            """)
                         .WithFooter("React to vote!")
                     .Build()),
                     AdditionalReacts: Choices.Take(allOptions.Length).ToList()

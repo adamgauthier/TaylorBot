@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Command
 
 public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient, IRateLimiter rateLimiter)
 {
-    public static readonly CommandMetadata Metadata = new("urbandictionary", "Knowledge ❓", new[] { "urban" });
+    public static readonly CommandMetadata Metadata = new("urbandictionary", "Knowledge ❓", ["urban"]);
 
     public Command Search(IUser author, string query, bool isLegacyCommand = false) => new(
         Metadata,
@@ -34,8 +34,7 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
                     }
                     else
                     {
-                        EmbedBuilder BuildBaseEmbed() =>
-                            new EmbedBuilder().WithUserAsAuthor(author);
+                        EmbedBuilder BuildBaseEmbed() => new();
 
                         return new PageMessageResult(new PageMessage(new(
                             new EmbedPageMessageRenderer(new UrbanDictionaryEditor(searchResult), BuildBaseEmbed),

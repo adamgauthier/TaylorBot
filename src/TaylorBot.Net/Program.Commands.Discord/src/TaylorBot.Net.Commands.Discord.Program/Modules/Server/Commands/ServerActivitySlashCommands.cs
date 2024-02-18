@@ -32,7 +32,7 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Messages(IUser user, bool isLegacyCommand) => new(
+    public Command Messages(IUser user) => new(
         new("messages"),
         async () =>
         {
@@ -42,6 +42,7 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(guildUser)
                 .WithDescription(
                     $"""
                     {guildUser.Mention} sent **~{"message".ToQuantity(messages.message_count, TaylorBotFormats.Readable)}** in this server. 📚
@@ -53,19 +54,14 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
                     *Messages in channels marked as spam by moderators are not counted.*
                     """);
 
-            if (isLegacyCommand)
-            {
-                embed.WithUserAsAuthor(guildUser);
-            }
-
             return new EmbedResult(embed.Build());
         },
-        new ICommandPrecondition[] { new InGuildPrecondition() }
+        [new InGuildPrecondition()]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Messages(options.user.User, isLegacyCommand: false));
+        return new(Messages(options.user.User));
     }
 }
 
@@ -75,7 +71,7 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Minutes(IUser user, bool isLegacyCommand) => new(
+    public Command Minutes(IUser user) => new(
         new("minutes"),
         async () =>
         {
@@ -94,6 +90,7 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(guildUser)
                 .WithDescription(
                     $"""
                     {guildUser.Mention} has been active for {"minute".ToQuantity(minutes, TaylorBotFormats.BoldReadable)} in this server. ⏳
@@ -102,18 +99,13 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
                     {bottomText}
                     """);
 
-            if (isLegacyCommand)
-            {
-                embed.WithUserAsAuthor(guildUser);
-            }
-
             return new EmbedResult(embed.Build());
         },
-        new ICommandPrecondition[] { new InGuildPrecondition() }
+        [new InGuildPrecondition()]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Minutes(options.user.User, isLegacyCommand: false));
+        return new(Minutes(options.user.User));
     }
 }

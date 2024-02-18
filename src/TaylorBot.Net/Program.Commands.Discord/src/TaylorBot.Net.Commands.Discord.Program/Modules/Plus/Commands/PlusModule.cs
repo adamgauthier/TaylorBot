@@ -22,7 +22,7 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+            var embed = new EmbedBuilder();
 
             var plusUser = await plusUserRepository.GetPlusUserAsync(Context.User);
 
@@ -107,7 +107,7 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
             {
                 var plusUser = (await plusUserRepository.GetPlusUserAsync(Context.User))!;
 
-                var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+                var embed = new EmbedBuilder();
 
                 if (plusUser.ActivePlusGuilds.Count + 1 > plusUser.MaxPlusGuilds)
                 {
@@ -135,10 +135,10 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusUser)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -158,7 +158,6 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
                 await plusUserRepository.DisablePlusGuildAsync(Context.User, Context.Guild);
 
                 return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(
                         $"""
@@ -168,10 +167,10 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
                     .Build()
                 );
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusUser)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

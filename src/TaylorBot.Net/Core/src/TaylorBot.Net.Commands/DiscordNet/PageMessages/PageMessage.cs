@@ -10,13 +10,15 @@ public record PageMessageOptions(IPageMessageRenderer Renderer, bool Cancellable
 
 public class PageMessage(PageMessageOptions options)
 {
-    public async ValueTask<SentPageMessage> SendAsync(IUser commandUser, IMessageChannel channel)
+    public async ValueTask<SentPageMessage> SendAsync(IUser commandUser, IUserMessage message)
     {
         var rendered = options.Renderer.Render();
-        var message = await channel.SendMessageAsync(
+        var sent = await message.Channel.SendMessageAsync(
+            messageReference: new(message.Id),
+            allowedMentions: new AllowedMentions { MentionRepliedUser = false },
             text: string.IsNullOrWhiteSpace(rendered.Content) ? null : rendered.Content,
             embed: rendered.Embeds.Count > 0 ? rendered.Embeds[0] : null);
-        return new SentPageMessage(commandUser, message, options);
+        return new SentPageMessage(commandUser, sent, options);
     }
 }
 

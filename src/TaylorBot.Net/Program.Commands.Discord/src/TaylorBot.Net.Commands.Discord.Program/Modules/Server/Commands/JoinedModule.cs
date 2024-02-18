@@ -23,7 +23,7 @@ public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            serverJoinedCommand.Joined(u, isLegacyCommand: true),
+            serverJoinedCommand.Joined(u),
             context
         );
 

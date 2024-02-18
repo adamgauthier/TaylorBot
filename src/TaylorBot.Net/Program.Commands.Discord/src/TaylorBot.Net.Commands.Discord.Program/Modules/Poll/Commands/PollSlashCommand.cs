@@ -27,14 +27,14 @@ public class PollSlashCommand : ISlashCommand<NoOptions>
                 return new(new CreateModalResult(
                     Id: "poll-create",
                     Title: "Create a Poll",
-                    TextInputs: new[]
-                    {
+                    TextInputs:
+                    [
                         new TextInput(Id: "title", TextInputStyle.Short, Label: "Poll Title", MaxLength: 250),
                         new TextInput(Id: "option1", TextInputStyle.Short, Label: "Option 1", MaxLength: 150),
                         new TextInput(Id: "option2", TextInputStyle.Short, Label: "Option 2", MaxLength : 150),
                         new TextInput(Id: "option3", TextInputStyle.Short, Label: "Option 3 (if applicable)", Required: false, MaxLength: 150),
                         new TextInput(Id: "option4", TextInputStyle.Short, Label: "Option 4 (if applicable)", Required: false, MaxLength: 150)
-                    },
+                    ],
                     SubmitAction: submit =>
                     {
                         Poll poll = new(submit);
@@ -43,10 +43,10 @@ public class PollSlashCommand : ISlashCommand<NoOptions>
                     IsPrivateResponse: false
                 ));
             },
-            Preconditions: new ICommandPrecondition[]
-            {
+            Preconditions:
+            [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 

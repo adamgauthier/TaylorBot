@@ -11,7 +11,7 @@ public static class TaylorBotModuleExtensions
 
     public static void SetContext(this TaylorBotModule module, ITaylorBotCommandContext commandContext)
     {
-        SetContextMethod.Invoke(module, new object[] { commandContext });
+        SetContextMethod.Invoke(module, [commandContext]);
     }
 
     public static T GetResult<T>(this RuntimeResult result)

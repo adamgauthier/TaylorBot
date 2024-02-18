@@ -6,7 +6,6 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Time;
 
@@ -14,16 +13,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
 public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDailyPayoutRepository dailyPayoutRepository, IMessageOfTheDayRepository messageOfTheDayRepository)
 {
-    public static readonly CommandMetadata Metadata = new("daily", "Daily Payout 👔", new[] { "dailypayout" });
+    public static readonly CommandMetadata Metadata = new("daily", "Daily Payout 👔", ["dailypayout"]);
 
     public Command Claim(IUser user, string commandPrefix, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {
             var embed = new EmbedBuilder();
-
-            if (isLegacyCommand)
-                embed.WithUserAsAuthor(user);
 
             var canRedeem = await dailyPayoutRepository.CanUserRedeemAsync(user);
 

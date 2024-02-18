@@ -41,10 +41,10 @@ public class CommandServerDisableSlashCommand(ICommandRepository commandReposito
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in '{guild.Name}'. ✅"));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -74,10 +74,10 @@ public class CommandServerEnableSlashCommand(ICommandRepository commandRepositor
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in '{guild.Name}'. ✅"));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }

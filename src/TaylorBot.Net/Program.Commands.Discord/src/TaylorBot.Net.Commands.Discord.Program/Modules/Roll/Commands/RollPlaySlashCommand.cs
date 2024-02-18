@@ -65,7 +65,7 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
                         : $"You won {"taypoint".ToQuantity(reward, TaylorBotFormats.BoldReadable)}! 💰"
                     )}
                     """)
-                .Build(), PrefixCommandReply: true);
+                .Build());
         }
     );
 

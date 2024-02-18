@@ -71,11 +71,6 @@ public class HeistPlaySlashCommand(
                             The heist begins in **{delay.Humanize()}**. ⏰
                             """);
 
-                        if (amountString != null)
-                        {
-                            embed.WithUserAsAuthor(author);
-                        }
-
                         return new EmbedResult(embed.Build());
                     }
 
@@ -86,11 +81,6 @@ public class HeistPlaySlashCommand(
                             {author.Mention} joined the heist! 🕵️‍
                             Get more people to join and rob a bigger bank! 💵
                             """);
-
-                        if (amountString != null)
-                        {
-                            embed.WithUserAsAuthor(author);
-                        }
 
                         return new EmbedResult(embed.Build());
                     }
@@ -103,20 +93,15 @@ public class HeistPlaySlashCommand(
                             Get more people to join and rob a bigger bank! 💵
                             """);
 
-                        if (amountString != null)
-                        {
-                            embed.WithUserAsAuthor(author);
-                        }
-
                         return new EmbedResult(embed.Build());
                     }
 
                 default: throw new NotImplementedException();
             }
         },
-        Preconditions: new ICommandPrecondition[] {
+        Preconditions: [
             new InGuildPrecondition(),
-        }
+        ]
     );
 
     private async Task EndHeistAsync(RunContext context)

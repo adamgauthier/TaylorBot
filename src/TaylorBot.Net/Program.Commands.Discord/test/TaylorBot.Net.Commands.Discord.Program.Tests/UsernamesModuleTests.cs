@@ -13,6 +13,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 public class UsernamesModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IUserMessage _message = A.Fake<IUserMessage>();
     private readonly IMessageChannel _channel = A.Fake<IMessageChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IUsernameHistoryRepository _usernameHistoryRepository = A.Fake<IUsernameHistoryRepository>(o => o.Strict());
@@ -25,6 +26,7 @@ public class UsernamesModuleTests
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
+        A.CallTo(() => _message.Channel).Returns(_channel);
     }
 
     [Fact]
@@ -48,15 +50,15 @@ public class UsernamesModuleTests
         });
 
         var result = (await _usernamesModule.GetAsync()).GetResult<PageMessageResult>();
-        await result.PageMessage.SendAsync(_commandUser, _channel);
+        await result.PageMessage.SendAsync(_commandUser, _message);
 
         A.CallTo(() => _channel.SendMessageAsync(
             null,
             false,
             A<Embed>.That.Matches(e => e.Description.Contains(AUsername)),
             null,
-            null,
-            null,
+            A<AllowedMentions>.Ignored,
+            A<MessageReference>.Ignored,
             null,
             null,
             null,

@@ -11,7 +11,7 @@ using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Valentines;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 
 public static class Valentines
 {
@@ -224,7 +224,7 @@ public class ValentinesStatusSlashCommand(PostgresConnectionFactory postgresConn
                         💛 Fearless Puzzle: {(puzzleFearless != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzleFearless.found_by, TaylorBotFormats.Readable)}**" : "🔮 **Unsolved**")}
                         💜 Speak Now Puzzle: {(puzzleSpeakNow != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzleSpeakNow.found_by, TaylorBotFormats.Readable)}**" : "🔮 **Unsolved**")}
                         💓 Red Puzzle: {(puzzleRed != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzleRed.found_by, TaylorBotFormats.Readable)}** " : "🔮 **Unsolved**")}
-                        💙 1989 Puzzle: {(puzzle1989 != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzle1989.found_by, TaylorBotFormats.Readable)}** 🕵️" : "🔮 **Unsolved**")}
+                        💙 1989 Puzzle: {(puzzle1989 != null ? $"🕵️ **Solved by {"user".ToQuantity(puzzle1989.found_by, TaylorBotFormats.Readable)}**" : "🔮 **Unsolved**")}
                         """)
                     .Build());
             }

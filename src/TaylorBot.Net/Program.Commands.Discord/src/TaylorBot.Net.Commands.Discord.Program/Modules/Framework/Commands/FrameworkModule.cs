@@ -4,7 +4,6 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Framework.Commands;
 
@@ -24,9 +23,7 @@ public class FrameworkModule(ICommandRunner commandRunner, ICommandPrefixReposit
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
-                    .WithColor(TaylorBotColors.SuccessColor);
+                var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
 
                 if (prefix != null)
                 {
@@ -48,10 +45,10 @@ public class FrameworkModule(ICommandRunner commandRunner, ICommandPrefixReposit
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

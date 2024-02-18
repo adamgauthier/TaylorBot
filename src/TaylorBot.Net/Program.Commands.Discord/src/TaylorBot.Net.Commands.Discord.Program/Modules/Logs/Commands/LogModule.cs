@@ -3,7 +3,6 @@ using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands;
 
@@ -30,7 +29,6 @@ public class LogModule : ModuleBase
                 {
                     return new(new EmbedResult(new EmbedBuilder()
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithUserAsAuthor(Context.User)
                         .WithDescription("This command has moved to </monitor deleted set:887146682146488390>.")
                     .Build()));
                 }
@@ -52,7 +50,6 @@ public class LogModule : ModuleBase
                 {
                     return new(new EmbedResult(new EmbedBuilder()
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithUserAsAuthor(Context.User)
                         .WithDescription("This command has moved to </monitor deleted stop:887146682146488390>.")
                     .Build()));
                 }
@@ -84,7 +81,6 @@ public class LogModule : ModuleBase
                 {
                     return new(new EmbedResult(new EmbedBuilder()
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithUserAsAuthor(Context.User)
                         .WithDescription("This command has moved to </monitor members set:887146682146488390>.")
                     .Build()));
                 }
@@ -106,7 +102,6 @@ public class LogModule : ModuleBase
                 {
                     return new(new EmbedResult(new EmbedBuilder()
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithUserAsAuthor(Context.User)
                         .WithDescription("This command has moved to </monitor members stop:887146682146488390>.")
                     .Build()));
                 }

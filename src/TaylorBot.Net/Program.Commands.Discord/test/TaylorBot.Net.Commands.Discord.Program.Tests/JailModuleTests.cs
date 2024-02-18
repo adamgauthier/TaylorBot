@@ -114,7 +114,7 @@ public class JailModuleTests
         var jailRole = SetupValidJailRole();
         var user = A.Fake<IGuildUser>();
         A.CallTo(() => user.Mention).Returns(string.Empty);
-        A.CallTo(() => user.RoleIds).Returns(new[] { jailRole.Id });
+        A.CallTo(() => user.RoleIds).Returns([jailRole.Id]);
         A.CallTo(() => user.RemoveRoleAsync(jailRole, null)).Returns(Task.CompletedTask);
 
         var result = (await _jailModule.FreeAsync(CreateMentionedUser(user))).GetResult<EmbedResult>();

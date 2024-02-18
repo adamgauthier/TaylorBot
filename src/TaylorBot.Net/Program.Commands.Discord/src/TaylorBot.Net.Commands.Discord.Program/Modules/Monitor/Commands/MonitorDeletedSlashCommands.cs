@@ -21,28 +21,28 @@ public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDele
             () =>
             {
                 return new(MessageResult.CreatePrompt(
-                    new(EmbedFactory.CreateWarning(string.Join('\n', new[] {
+                    new(EmbedFactory.CreateWarning(string.Join('\n', [
                         $"You are configuring deleted message monitoring for this server. In doing so, you understand that:",
                         $"- TaylorBot will **save the content of all messages sent in the server for 10 minutes** to provide this feature.",
                         $"- Deleted messages that are older than this time window will be logged but the message content won't be available.",
-                    }))),
+                    ]))),
                     confirm: async () =>
                     {
                         var channel = options.channel.Channel;
                         await deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
 
-                        return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                        return new MessageContent(EmbedFactory.CreateSuccess(string.Join('\n', [
                             $"Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚",
                             $"Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages."
-                        })));
+                        ])));
                     }
                 ));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -67,33 +67,33 @@ public class MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deleted
                     var channel = (ITextChannel?)await guild.GetChannelAsync(log.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                        embed = EmbedFactory.CreateSuccess(string.Join('\n', [
                             $"This server is configured to log deleted messages in {channel.Mention}. ✅",
                             $"Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages in this server."
-                        }));
+                        ]));
                     }
                     else
                     {
-                        embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                        embed = EmbedFactory.CreateSuccess(string.Join('\n', [
                             "I can't find the previously configured deleted messages logging channel in this server. ❌",
                             $"Was it deleted? Use {context.MentionCommand("monitor deleted set")} to log deleted messages in another channel."
-                        }));
+                        ]));
                     }
                 }
                 else
                 {
-                    embed = EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                    embed = EmbedFactory.CreateSuccess(string.Join('\n', [
                         "Deleted message monitoring is not configured in this server. ❌",
                         $"Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel."
-                    }));
+                    ]));
                 }
 
                 return new EmbedResult(embed);
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }
@@ -110,15 +110,15 @@ public class MonitorDeletedStopSlashCommand(IDeletedLogChannelRepository deleted
             {
                 await deletedLogChannelRepository.RemoveDeletedLogAsync(context.Guild!);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', [
                     "Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚",
                     $"Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel."
-                })));
+                ])));
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            }
+            ]
         ));
     }
 }

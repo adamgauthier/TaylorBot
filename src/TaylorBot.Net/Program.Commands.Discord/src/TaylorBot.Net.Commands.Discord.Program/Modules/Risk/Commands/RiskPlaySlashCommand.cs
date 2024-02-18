@@ -79,7 +79,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
                     Your balance: {originalCount.ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(result.final_count, TaylorBotFormats.BoldReadable)} {(won ? "📈" : "📉")}
                     """);
 
-            return new EmbedResult(embed.Build(), PrefixCommandReply: true);
+            return new EmbedResult(embed.Build());
         }
     );
 

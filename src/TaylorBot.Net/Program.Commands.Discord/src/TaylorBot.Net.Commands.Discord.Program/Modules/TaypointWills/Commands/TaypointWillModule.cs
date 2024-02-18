@@ -41,20 +41,20 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
                 var beneficiary = will.BeneficiaryUsername;
                 embed
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
+                    .WithDescription(string.Join('\n', [
                         $"{u.Username}'s taypoint will has a beneficiary: {beneficiary} ({MentionUtils.MentionUser(will.BeneficiaryUserId.Id)}).",
                         $"If they are inactive for {"day".ToQuantity(days)} in all servers I'm in, {beneficiary} can claim all their taypoints with `{Context.CommandPrefix}taypointwill claim`.",
                         $"Use `{Context.CommandPrefix}taypointwill clear` to remove your beneficiary."
-                    }));
+                    ]));
             }
             else
             {
                 embed
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
+                    .WithDescription(string.Join('\n', [
                         $"{u.Username}'s taypoint will has no beneficiary. If they ever become inactive, their taypoints won't be used!",
                         $"Add a beneficiary to your taypoint will with `{Context.CommandPrefix}taypointwill add`!"
-                    }));
+                    ]));
             }
 
             return new EmbedResult(embed.Build());
@@ -80,7 +80,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
 
             var result = await taypointWillRepository.AddWillAsync(owner: Context.User, beneficiary: user);
 
-            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+            var embed = new EmbedBuilder();
 
             switch (result)
             {
@@ -89,20 +89,20 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
                     var prefix = Context.CommandPrefix;
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithDescription(string.Join('\n', new[] {
+                        .WithDescription(string.Join('\n', [
                             $"Successfully added {user.Username} ({user.Mention}) as beneficiary to your taypoint will.",
                             $"If you are inactive for {"day".ToQuantity(days)} in all servers I'm in, {user.Username} can claim **all your taypoints** with `{prefix}taypointwill claim`.",
                             $"If you change your mind at any time, you can use `{prefix}taypointwill clear` to remove them."
-                        }));
+                        ]));
                     break;
                 case WillNotAddedResult willNotAdded:
                     var formattedBeneficiary = $"{willNotAdded.CurrentBeneficiaryUsername} ({MentionUtils.MentionUser(willNotAdded.CurrentBeneficiaryId.Id)})";
                     embed
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription(string.Join('\n', new[] {
+                        .WithDescription(string.Join('\n', [
                             $"Can't add {user.Username} ({user.Mention}) to your taypoint will because it is set to {formattedBeneficiary}.",
                             $"If you want to change your beneficiary, you first need to use `{Context.CommandPrefix}taypointwill clear`.",
-                        }));
+                        ]));
                     break;
             }
 
@@ -123,7 +123,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
         {
             var result = await taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
 
-            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+            var embed = new EmbedBuilder();
 
             switch (result)
             {
@@ -131,18 +131,18 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
                     var formattedBeneficiary = $"{willRemoved.RemovedBeneficiaryUsername} ({MentionUtils.MentionUser(willRemoved.RemovedBeneficiaryId.Id)})";
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithDescription(string.Join('\n', new[] {
+                        .WithDescription(string.Join('\n', [
                         $"Your taypoint will with {formattedBeneficiary} has been cleared.",
                         $"You can add a beneficiary again with `{Context.CommandPrefix}taypointwill add`."
-                        }));
+                        ]));
                     break;
                 case WillNotRemovedResult _:
                     embed
                         .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription(string.Join('\n', new[] {
+                        .WithDescription(string.Join('\n', [
                         $"You don't have a taypoint will to clear.",
                         $"Start adding a beneficiary with `{Context.CommandPrefix}taypointwill add`."
-                        }));
+                        ]));
                     break;
             }
 
@@ -166,7 +166,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
             var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.Now.AddDays(-options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
             var expiredWills = isInactive[true].ToList();
 
-            var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+            var embed = new EmbedBuilder();
 
             if (expiredWills.Count != 0)
             {

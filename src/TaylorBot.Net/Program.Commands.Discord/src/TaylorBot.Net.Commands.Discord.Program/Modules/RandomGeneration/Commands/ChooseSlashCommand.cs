@@ -2,7 +2,6 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
@@ -24,8 +23,7 @@ public class ChooseCommand(ICryptoSecureRandom cryptoSecureRandom)
 
             if (author != null)
             {
-                embed.WithUserAsAuthor(author);
-                description.AddRange(new[] { "", "Use </choose:843563366751404063> instead! 😊" });
+                description.AddRange(["", "Use </choose:843563366751404063> instead! 😊"]);
             }
 
             embed

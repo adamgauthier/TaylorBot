@@ -14,6 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 public class MediaModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IUserMessage _message = A.Fake<IUserMessage>();
     private readonly IMessageChannel _channel = A.Fake<IMessageChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IPlusRepository _plusRepository = A.Fake<IPlusRepository>(o => o.Strict());
@@ -26,6 +27,7 @@ public class MediaModuleTests
         _mediaModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
+        A.CallTo(() => _message.Channel).Returns(_channel);
     }
 
     [Fact]
@@ -44,27 +46,27 @@ public class MediaModuleTests
     {
         const string Text = "taylor swift";
         A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new SuccessfulSearch(
-            Images: new ImageResult[] {
+            Images: [
                 new(
                     Title: "Taylor Swift - Wikipedia",
                     PageUrl: new("https://en.wikipedia.org/wiki/Taylor_Swift"),
                     ImageUrl: new("https://upload.wikimedia.org/wikipedia/commons/b/b5/191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.png")
                 )
-            },
+            ],
             ResultCount: "1",
             SearchTimeSeconds: "5"
         ));
 
         var result = (await _mediaModule.ImageAsync(Text)).GetResult<PageMessageResult>();
-        await result.PageMessage.SendAsync(_commandUser, _channel);
+        await result.PageMessage.SendAsync(_commandUser, _message);
 
         A.CallTo(() => _channel.SendMessageAsync(
             null,
             false,
             A<Embed>.That.Matches(e => e.Color == TaylorBotColors.SuccessColor),
             null,
-            null,
-            null,
+            A<AllowedMentions>.Ignored,
+            A<MessageReference>.Ignored,
             null,
             null,
             null,

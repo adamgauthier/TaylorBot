@@ -53,11 +53,11 @@ public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlus
 
                 if (await reminderRepository.GetReminderCountAsync(context.User) >= maxReminders)
                 {
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join("\n", new[] {
+                    return new EmbedResult(EmbedFactory.CreateError(string.Join("\n", [
                         $"Sorry, you can't have more than {maxReminders} set at the same time. 😕",
                         $"Use {context.MentionCommand("remind manage")} to clear some of your current reminders.",
                         $"By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}."
-                    })));
+                    ])));
                 }
 
                 var remindAt = DateTimeOffset.Now + fromNow;

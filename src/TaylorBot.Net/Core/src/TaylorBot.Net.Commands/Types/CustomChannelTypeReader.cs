@@ -43,7 +43,7 @@ public class CustomChannelTypeReader<T> : TypeReader
                     return false;
                 }
             }).ToList() :
-            (IReadOnlyCollection<IChannel>)new[] { context.Channel };
+            (IReadOnlyCollection<IChannel>)[context.Channel];
 
         // By Mention (1.0)
         if (MentionUtils.TryParseChannel(input, out var id) && channels.Any(c => c.Id == id))

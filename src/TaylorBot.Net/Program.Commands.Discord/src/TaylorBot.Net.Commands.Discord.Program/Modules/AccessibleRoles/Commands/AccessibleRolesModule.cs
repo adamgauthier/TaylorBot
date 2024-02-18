@@ -8,7 +8,6 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 
@@ -31,7 +30,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
             async () =>
             {
                 var member = (IGuildUser)Context.User;
-                var embed = new EmbedBuilder().WithUserAsAuthor(member);
+                var embed = new EmbedBuilder();
 
                 if (role != null)
                 {
@@ -52,11 +51,12 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                             {
                                 embed
                                     .WithColor(TaylorBotColors.ErrorColor)
-                                    .WithDescription(string.Join('\n', new[] {
-                                        $"Sorry, {role.Role.Mention} is part of the '{groupInfo.Group.Name}' group.",
-                                        $"You already have {MentionUtils.MentionRole(groupInfo.MemberRolesInSameGroup.First())} which is part of the same group.",
-                                        $"Use `{Context.CommandPrefix}role drop` to drop it!"
-                                    }));
+                                    .WithDescription(
+                                        $"""
+                                        Sorry, {role.Role.Mention} is part of the '{groupInfo.Group.Name}' group.
+                                        You already have {MentionUtils.MentionRole(groupInfo.MemberRolesInSameGroup.First())} which is part of the same group.
+                                        Use `{Context.CommandPrefix}role drop` to drop it!
+                                        """);
                             }
                             else
                             {
@@ -69,19 +69,21 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                                     embed
                                         .WithColor(TaylorBotColors.SuccessColor)
-                                        .WithDescription(string.Join('\n', new[] {
-                                            $"You now have {role.Role.Mention}. 😊",
-                                            $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
-                                        }));
+                                        .WithDescription(
+                                            $"""
+                                            You now have {role.Role.Mention}. 😊
+                                            Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!
+                                            """);
                                 }
                                 catch (HttpException exception) when (exception.HttpCode == HttpStatusCode.Forbidden)
                                 {
                                     embed
                                         .WithColor(TaylorBotColors.ErrorColor)
-                                        .WithDescription(string.Join('\n', new[] {
-                                            $"Sorry, Discord does not allow me to give you {role.Role.Mention}.",
-                                            $"Make sure my bot role is before {role.Role.Mention} in the roles order under server settings!"
-                                        }));
+                                        .WithDescription(
+                                            $"""
+                                            Sorry, Discord does not allow me to give you {role.Role.Mention}.
+                                            Make sure my bot role is before {role.Role.Mention} in the roles order under server settings!
+                                            """);
                                 }
                             }
                         }
@@ -89,20 +91,22 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                         {
                             embed
                                 .WithColor(TaylorBotColors.ErrorColor)
-                                .WithDescription(string.Join('\n', new[] {
-                                    $"Sorry, {role.Role.Mention} is not marked as accessible so I can't give it to you.",
-                                    $"Use `{Context.CommandPrefix}roles add {role.Role.Name}` to make it accessible to everyone!"
-                                }));
+                                .WithDescription(
+                                    $"""
+                                    Sorry, {role.Role.Mention} is not marked as accessible so I can't give it to you.
+                                    Use `{Context.CommandPrefix}roles add {role.Role.Name}` to make it accessible to everyone!
+                                    """);
                         }
                     }
                     else
                     {
                         embed
                             .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                $"You already have role {role.Role.Mention}.",
-                                $"Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!"
-                            }));
+                            .WithDescription(
+                                $"""
+                                You already have role {role.Role.Mention}.",
+                                Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!
+                                """);
                     }
                 }
                 else
@@ -132,21 +136,22 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                     }
                     else
                     {
-                        embed.WithDescription(string.Join('\n', new[] {
-                            $"There is currently no accessible role in this server.",
-                            $"Accessible roles are roles that everyone has access to using `{Context.CommandPrefix}role`.",
-                            $"Use `{Context.CommandPrefix}roles add role-name` to add one!"
-                        }));
+                        embed.WithDescription(
+                            $"""
+                            There is currently no accessible role in this server.
+                            Accessible roles are roles that everyone has access to using `{Context.CommandPrefix}role`.
+                            Use `{Context.CommandPrefix}roles add role-name` to add one!
+                            """);
                     }
 
                 }
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -168,7 +173,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
             async () =>
             {
                 var member = (IGuildUser)Context.User;
-                var embed = new EmbedBuilder().WithUserAsAuthor(member);
+                var embed = new EmbedBuilder();
 
                 if (member.RoleIds.Contains(role.Role.Id))
                 {
@@ -181,19 +186,21 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                         embed
                             .WithColor(TaylorBotColors.SuccessColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                $"Removed {role.Role.Mention} from your roles. 😊",
-                                $"Use `{Context.CommandPrefix}role {role.Role.Name}` to get it back!"
-                            }));
+                            .WithDescription(
+                                $"""
+                                Removed {role.Role.Mention} from your roles. 😊
+                                Use `{Context.CommandPrefix}role {role.Role.Name}` to get it back!
+                                """);
                     }
                     else
                     {
                         embed
                             .WithColor(TaylorBotColors.ErrorColor)
-                            .WithDescription(string.Join('\n', new[] {
-                                $"Sorry, {role.Role.Mention} is not accessible so you can't drop it.",
-                                $"Use `{Context.CommandPrefix}roles add {role.Role.Name}` to make it accessible to everyone!"
-                            }));
+                            .WithDescription(
+                                $"""
+                                Sorry, {role.Role.Mention} is not accessible so you can't drop it.
+                                Use `{Context.CommandPrefix}roles add {role.Role.Name}` to make it accessible to everyone!
+                                """);
                     }
                 }
                 else
@@ -205,10 +212,10 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -232,19 +239,19 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                 await accessibleRoleRepository.AddAccessibleRoleAsync(role.Role);
 
                 return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Successfully made {role.Role.Mention} accessible to everyone in the server. 😊",
-                        $"Use `{Context.CommandPrefix}role {role.Role.Name}` to get it!",
-                        $"Use `{Context.CommandPrefix}roles remove {role.Role.Name}` to make it inaccessible again!"
-                    }))
+                    .WithDescription(
+                        $"""
+                        Successfully made {role.Role.Mention} accessible to everyone in the server. 😊
+                        Use `{Context.CommandPrefix}role {role.Role.Name}` to get it!
+                        Use `{Context.CommandPrefix}roles remove {role.Role.Name}` to make it inaccessible again!
+                        """)
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -268,19 +275,19 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                 await accessibleRoleRepository.RemoveAccessibleRoleAsync(role.Role);
 
                 return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(string.Join('\n', new[] {
-                        $"Successfully made {role.Role.Mention} inaccessible to everyone in the server. 😊",
-                        $"This action did not remove the role from users who already had it.",
-                        $"Use `{Context.CommandPrefix}roles` to see remaining accessible roles!"
-                    }))
+                    .WithDescription(
+                        $"""
+                        Successfully made {role.Role.Mention} inaccessible to everyone in the server. 😊
+                        This action did not remove the role from users who already had it.
+                        Use `{Context.CommandPrefix}roles` to see remaining accessible roles!"
+                        """)
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -303,7 +310,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+                var embed = new EmbedBuilder();
 
                 if (group.Name == "clear")
                 {
@@ -311,10 +318,11 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Successfully removed {role.Role.Mention} from its group.",
-                            $"Use `{Context.CommandPrefix}roles` to see all accessible roles."
-                        }));
+                        .WithDescription(
+                            $"""
+                            Successfully removed {role.Role.Mention} from its group.
+                            Use `{Context.CommandPrefix}roles` to see all accessible roles.
+                            """);
                 }
                 else
                 {
@@ -322,19 +330,20 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                     embed
                         .WithColor(TaylorBotColors.SuccessColor)
-                        .WithDescription(string.Join('\n', new[] {
-                            $"Successfully put {role.Role.Mention} in the '{group.Name}' group.",
-                            $"Users can only get one accessible role of the same group when using `{Context.CommandPrefix}role`.",
-                            $"Use `{Context.CommandPrefix}roles group clear {role.Role.Name}` to remove it from the group."
-                        }));
+                        .WithDescription(
+                            $"""
+                            Successfully put {role.Role.Mention} in the '{group.Name}' group.
+                            Users can only get one accessible role of the same group when using `{Context.CommandPrefix}role`.
+                            Use `{Context.CommandPrefix}roles group clear {role.Role.Name}` to remove it from the group.
+                            """);
                 }
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles)
-            }
+            ]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

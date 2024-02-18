@@ -65,11 +65,11 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
                     .WithFooter($"Took {stopwatch.Elapsed.Humanize()}")
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[]
-            {
+            Preconditions:
+            [
                 new TaylorBotOwnerPrecondition(),
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 

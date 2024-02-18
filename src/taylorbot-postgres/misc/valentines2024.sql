@@ -31,21 +31,28 @@ CREATE TABLE valentines2024.config (
     PRIMARY KEY (config_key)
 );
 
-
+-- All puzzle solves in order
 SELECT * FROM valentines2024.puzzle_solves
 INNER JOIN valentines2024.codes ON valentines2024.codes.puzzle_id = valentines2024.puzzle_solves.puzzle_id
-ORDER BY solved_at;
+WHERE solved_at IS NOT NULL
+ORDER BY solved_at ASC;
 
-SELECT COUNT(*) AS total_puzzle_solves, COUNT(DISTINCT user_id) AS total_users FROM valentines2024.puzzle_solves;
+-- Total number of players and times solved
+SELECT SUM(attempt_count) AS total_attempts, COUNT(*) AS total_puzzle_solves, COUNT(DISTINCT user_id) AS total_users
+FROM valentines2024.puzzle_solves
+WHERE solved_at IS NOT NULL;
 
+-- All puzzles and who solved them first
 WITH TEMP AS
 (
     SELECT valentines2024.codes.puzzle_id, puzzle_code, user_id, username, solved_at,
     rank() OVER (PARTITION BY valentines2024.puzzle_solves.puzzle_id ORDER BY solved_at) AS RK
     FROM valentines2024.puzzle_solves INNER JOIN valentines2024.codes ON valentines2024.codes.puzzle_id = valentines2024.puzzle_solves.puzzle_id
+    WHERE solved_at IS NOT NULL
 )
 SELECT puzzle_code, puzzle_id, user_id, username, solved_at as found_at FROM TEMP WHERE RK=1 ORDER BY solved_at;
 
+-- Number of puzzles each user solved
 SELECT user_id, username, cnt AS puzzles_solved
 FROM (
     SELECT
@@ -56,16 +63,20 @@ FROM (
     FROM (
         SELECT user_id, username, COUNT(user_id) AS cnt
         FROM valentines2024.puzzle_solves
+        WHERE solved_at IS NOT NULL
         GROUP BY user_id, username) t
 ) s
 WHERE s.rn = 1
 ORDER BY cnt DESC;
 
+-- People who solved a specific puzzle in order
 SELECT * FROM valentines2024.puzzle_solves
 INNER JOIN valentines2024.codes ON valentines2024.puzzle_solves.puzzle_id = valentines2024.codes.puzzle_id
-WHERE puzzle_code = 'fearless';
+WHERE solved_at IS NOT NULL AND codes.puzzle_id = 'fearless'
+ORDER BY solved_at ASC;
 
-SELECT s.puzzle_id, puzzle_code, cnt AS found_by
+-- How many people solved each puzzle
+SELECT s.puzzle_id, cnt AS found_by
 FROM (
     SELECT
         puzzle_id,
@@ -74,6 +85,7 @@ FROM (
     FROM (
         SELECT puzzle_id, COUNT(puzzle_id) AS cnt
         FROM valentines2024.puzzle_solves
+        WHERE solved_at IS NOT NULL
         GROUP BY puzzle_id) t
 ) s INNER JOIN valentines2024.codes ON valentines2024.codes.puzzle_id = s.puzzle_id
 WHERE s.rn = 1

@@ -86,11 +86,11 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
                     .WithFooter($"Took {stopwatch.Elapsed.Humanize()}")
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[]
-            {
+            Preconditions:
+            [
                 new TaylorBotOwnerPrecondition(),
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 

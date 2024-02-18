@@ -62,10 +62,10 @@ public class ModMailMessageModsSlashCommand(
                         try
                         {
                             await channel.SendMessageAsync(embed: embed);
-                            return EmbedFactory.CreateSuccess(string.Join('\n', new[] {
+                            return EmbedFactory.CreateSuccess(string.Join('\n', [
                                 $"Message sent to the moderation team of '{guild.Name}'. ✉",
                                 "If you're expecting a response, **make sure you are able to send and receive DMs from TaylorBot**."
-                            }));
+                            ]));
                         }
                         catch (Exception e)
                         {
@@ -73,15 +73,15 @@ public class ModMailMessageModsSlashCommand(
                         }
                     }
 
-                    return EmbedFactory.CreateError(string.Join('\n', new[] {
+                    return EmbedFactory.CreateError(string.Join('\n', [
                         "I was not able to send the message to the moderation team. 😕",
                         $"Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it.",
-                    }));
+                    ]));
                 }
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition()
-            }
+            ]
         ));
     }
 }

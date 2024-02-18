@@ -104,11 +104,11 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
                     .WithFooter($"Took {stopwatch.Elapsed.Humanize()}")
                 .Build());
             },
-            Preconditions: new ICommandPrecondition[]
-            {
+            Preconditions:
+            [
                 new TaylorBotOwnerPrecondition(),
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 

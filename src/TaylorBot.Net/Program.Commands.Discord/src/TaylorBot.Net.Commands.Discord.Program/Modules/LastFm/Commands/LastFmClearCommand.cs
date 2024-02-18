@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
 public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameRepository)
 {
-    public static readonly CommandMetadata Metadata = new("lastfm clear", "Last.fm 🎶", new[] { "fm clear", "np clear" });
+    public static readonly CommandMetadata Metadata = new("lastfm clear", "Last.fm 🎶", ["fm clear", "np clear"]);
 
     public Command Clear(IUser user, bool isLegacyCommand) => new(
         Metadata,
@@ -18,10 +18,10 @@ public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameReposito
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithDescription(string.Join('\n', new[] {
+                .WithDescription(string.Join('\n', [
                     $"Your Last.fm username has been cleared. Last.fm commands will no longer work. ✅",
                     $"You can set it again with </lastfm set:922354806574678086>."
-                }));
+                ]));
 
             if (isLegacyCommand)
             {

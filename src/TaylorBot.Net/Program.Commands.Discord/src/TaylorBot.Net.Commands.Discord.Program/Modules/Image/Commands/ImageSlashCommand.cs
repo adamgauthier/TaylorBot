@@ -6,13 +6,12 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
 public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient)
 {
-    public static readonly CommandMetadata Metadata = new("image", "Media 📷", new[] { "imagen" });
+    public static readonly CommandMetadata Metadata = new("image", "Media 📷", ["imagen"]);
 
     public Command Image(IUser user, string text, bool isLegacyCommand) => new(
         Metadata,
@@ -33,7 +32,6 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
                     {
                         EmbedBuilder BuildBaseEmbed() =>
                             new EmbedBuilder()
-                                .WithUserAsAuthor(user)
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithDescription("Use </image:870731803739168860> instead! 😊");
 
@@ -60,9 +58,6 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
                                 You'll have to wait for the limit to reset. Try again tomorrow!
                                 """);
 
-                        if (isLegacyCommand)
-                            embed.WithUserAsAuthor(user);
-
                         return new EmbedResult(embed.Build());
                     }
 
@@ -75,9 +70,6 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
                                 The underlying image search service returned an unexpected error. 😢
                                 The site might be down. Try again later!
                                 """);
-
-                        if (isLegacyCommand)
-                            embed.WithUserAsAuthor(user);
 
                         return new EmbedResult(embed.Build());
                     }

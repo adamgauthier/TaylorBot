@@ -46,9 +46,9 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessa
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 

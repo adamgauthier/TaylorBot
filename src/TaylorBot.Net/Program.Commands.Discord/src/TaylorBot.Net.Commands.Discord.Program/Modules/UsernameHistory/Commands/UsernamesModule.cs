@@ -75,7 +75,6 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
 
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(Context.User)
                 .WithDescription(
                     $"""
                     Your username history is now private, it **can't** be viewed with `{Context.CommandPrefix}usernames`.
@@ -100,7 +99,6 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
 
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(Context.User)
                 .WithDescription(
                     $"""
                     Your username history is now public, it **can** be viewed with `{Context.CommandPrefix}usernames`.

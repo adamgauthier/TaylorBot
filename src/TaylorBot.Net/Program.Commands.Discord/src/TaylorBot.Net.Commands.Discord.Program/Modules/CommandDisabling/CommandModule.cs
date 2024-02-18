@@ -3,7 +3,6 @@ using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling;
 
@@ -29,7 +28,6 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
                 await disabledCommandRepository.EnableGloballyAsync(command.Name);
 
                 return new EmbedResult(new EmbedBuilder()
-                    .WithUserAsAuthor(Context.User)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription($"Command `{command.Name}` has been enabled globally.")
                 .Build());
@@ -57,7 +55,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder().WithUserAsAuthor(Context.User);
+                var embed = new EmbedBuilder();
 
                 if (GuardedModuleNames.Contains(command.ModuleName.ToLowerInvariant()))
                 {

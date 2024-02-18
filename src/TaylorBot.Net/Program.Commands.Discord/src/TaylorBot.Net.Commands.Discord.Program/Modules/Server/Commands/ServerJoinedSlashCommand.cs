@@ -39,7 +39,7 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
         return joined;
     }
 
-    public Command Joined(IUser user, bool isLegacyCommand) => new(
+    public Command Joined(IUser user) => new(
         new("joined"),
         async () =>
         {
@@ -51,6 +51,7 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
+                .WithUserAsAuthor(guildUser)
                 .WithDescription(
                     $"""
                     {guildUser.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
@@ -59,18 +60,13 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
                     Check out </server timeline:1137547317549998130> for a history of who joined first! 📃
                     """);
 
-            if (isLegacyCommand)
-            {
-                embed.WithUserAsAuthor(guildUser);
-            }
-
             return new EmbedResult(embed.Build());
         },
-        new ICommandPrecondition[] { new InGuildPrecondition() }
+        [new InGuildPrecondition()]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Joined(options.user.User, isLegacyCommand: false));
+        return new(Joined(options.user.User));
     }
 }

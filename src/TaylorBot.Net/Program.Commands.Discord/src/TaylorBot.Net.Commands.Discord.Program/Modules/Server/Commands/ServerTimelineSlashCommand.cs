@@ -44,9 +44,9 @@ public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepo
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

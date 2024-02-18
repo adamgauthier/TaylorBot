@@ -53,9 +53,9 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: new ICommandPrecondition[] {
+            Preconditions: [
                 new InGuildPrecondition(),
-            }
+            ]
         ));
     }
 }

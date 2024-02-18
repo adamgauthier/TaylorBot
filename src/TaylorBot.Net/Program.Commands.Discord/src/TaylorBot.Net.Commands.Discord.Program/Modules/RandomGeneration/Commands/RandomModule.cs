@@ -4,7 +4,6 @@ using Humanizer;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Random;
 
@@ -26,7 +25,6 @@ public class RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryp
             var randomNumber = cryptoSecureRandom.GetInt32(1, faces.Parsed);
 
             return new(new EmbedResult(new EmbedBuilder()
-                .WithUserAsAuthor(Context.User)
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithTitle($"Rolling a dice with {"face".ToQuantity(faces.Parsed, TaylorBotFormats.Readable)} 🎲")
                 .WithDescription($"You rolled {randomNumber.ToString(TaylorBotFormats.BoldReadable)}!")
