@@ -76,7 +76,7 @@ WHERE solved_at IS NOT NULL AND codes.puzzle_id = 'fearless'
 ORDER BY solved_at ASC;
 
 -- How many people solved each puzzle
-SELECT s.puzzle_id, cnt AS found_by
+SELECT s.puzzle_id, cnt AS solved_by
 FROM (
     SELECT
         puzzle_id,

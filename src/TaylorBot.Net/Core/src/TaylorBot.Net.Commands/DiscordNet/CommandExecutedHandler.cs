@@ -44,24 +44,29 @@ public class CommandExecutedHandler(
                         break;
 
                     case RateLimitedResult rateLimited:
-                        var baseDescriptionLines = new[] {
-                            $"You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕",
-                            $"This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
-                        };
+                        var description =
+                            $"""
+                            You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕
+                            This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**.
+                            """;
 
                         if (rateLimited.Uses < rateLimited.Limit + 6)
                         {
-                            baseDescriptionLines = baseDescriptionLines
-                                .Append("**Stop trying to perform this action or you will be ignored.**")
-                                .ToArray();
+                            description =
+                                $"""
+                                {description}
+                                **Stop trying to perform this action or you will be ignored.**
+                                """;
                         }
                         else
                         {
                             var ignoreTime = TimeSpan.FromDays(5);
 
-                            baseDescriptionLines = baseDescriptionLines
-                                .Append($"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**")
-                                .ToArray();
+                            description =
+                                $"""
+                                {description}
+                                You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**
+                                """;
 
                             await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
                         }
@@ -69,7 +74,7 @@ public class CommandExecutedHandler(
                         await context.Channel.SendMessageAsync(
                             messageReference: new(context.Message.Id),
                             allowedMentions: new AllowedMentions { MentionRepliedUser = false },
-                            embed: EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))
+                            embed: EmbedFactory.CreateError(description)
                         );
                         break;
 

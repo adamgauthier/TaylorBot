@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Npgsql;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MinutesTracker.Domain;
 
@@ -10,26 +11,37 @@ public class MinutesRepository(PostgresConnectionFactory postgresConnectionFacto
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
-        using var transaction = connection.BeginTransaction();
 
         await connection.ExecuteAsync(
-            @"UPDATE guilds.guild_members
-                SET minute_count = minute_count + @MinutesToAdd
-                WHERE last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke;",
+            """
+            UPDATE guilds.guild_members
+            SET minute_count = minute_count + @MinutesToAdd
+            WHERE last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke;
+            """,
             new
             {
                 MinutesToAdd = minutesToAdd,
                 MinimumTimeSpanSinceLastSpoke = minimumTimeSpanSinceLastSpoke
-            }
+            },
+            commandTimeout: (int)TimeSpan.FromSeconds(45).TotalSeconds
         );
 
+        await AddTaypointsAsync(minutesRequiredForReward, pointsReward, connection);
+    }
+
+    private static async Task AddTaypointsAsync(long minutesRequiredForReward, long pointsReward, NpgsqlConnection connection)
+    {
+        using var transaction = connection.BeginTransaction();
+
         await connection.ExecuteAsync(
-            @"UPDATE users.users SET
-                    taypoint_count = taypoint_count + @PointsReward
-                WHERE user_id IN (
-                    SELECT user_id FROM guilds.guild_members
-                    WHERE minute_count >= minutes_milestone + @MinutesRequiredForReward
-                );",
+            """
+            UPDATE users.users SET
+                taypoint_count = taypoint_count + @PointsReward
+            WHERE user_id IN (
+                SELECT user_id FROM guilds.guild_members
+                WHERE minute_count >= minutes_milestone + @MinutesRequiredForReward
+            );
+            """,
             new
             {
                 PointsReward = pointsReward,
@@ -38,10 +50,12 @@ public class MinutesRepository(PostgresConnectionFactory postgresConnectionFacto
         );
 
         await connection.ExecuteAsync(
-            @"UPDATE guilds.guild_members SET
-                    minutes_milestone = (minute_count - (minute_count % @MinutesRequiredForReward)),
-                    experience = experience + @PointsReward
-                WHERE minute_count >= minutes_milestone + @MinutesRequiredForReward;",
+            """
+            UPDATE guilds.guild_members SET
+                minutes_milestone = (minute_count - (minute_count % @MinutesRequiredForReward)),
+                experience = experience + @PointsReward
+            WHERE minute_count >= minutes_milestone + @MinutesRequiredForReward;
+            """,
             new
             {
                 PointsReward = pointsReward,
