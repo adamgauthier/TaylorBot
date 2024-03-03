@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using StackExchange.Redis;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Options;
@@ -14,6 +15,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddPostgresConnection(this IServiceCollection services, IConfiguration configuration)
     {
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+
+        services.AddOpenTelemetry().WithTracing(o => o.AddNpgsql());
 
         return services
             .AddNpgsqlDataSource(CreateConnectionString(configuration))

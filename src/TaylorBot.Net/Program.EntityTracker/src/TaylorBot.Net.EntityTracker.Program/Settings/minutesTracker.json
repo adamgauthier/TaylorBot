@@ -1,9 +1,5 @@
 ﻿{
   "MinutesTracker": {
-    "MinutesToAdd": 1,
-    "MinimumTimeSpanSinceLastSpoke": "0.00:10:00",
-    "MinutesRequiredForReward": 6,
-    "PointsReward": 1,
-    "TimeSpanBetweenMinutesAdding": "0.00:01:00"
+    "MinimumTimeSpanSinceLastSpoke": "0.00:10:00"
   }
 }

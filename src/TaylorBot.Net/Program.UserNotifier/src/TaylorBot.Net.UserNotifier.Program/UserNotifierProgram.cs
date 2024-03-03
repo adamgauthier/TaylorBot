@@ -86,7 +86,7 @@ public class UserNotifierProgram
                 var config = hostBuilderContext.Configuration;
                 services
                     .AddHostedService<TaylorBotHostedService>()
-                    .AddTaylorBotApplicationServices(config)
+                    .AddTaylorBotApplicationServices(config, hostBuilderContext.HostingEnvironment)
                     .AddPostgresConnection(config)
                     .AddRedisConnection(config)
                     .AddMessageLoggingInfrastructure(config)

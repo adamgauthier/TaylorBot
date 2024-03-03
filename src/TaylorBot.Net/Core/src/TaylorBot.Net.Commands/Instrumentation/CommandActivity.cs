@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using TaylorBot.Net.Core.Program.Instrumentation;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.Instrumentation;

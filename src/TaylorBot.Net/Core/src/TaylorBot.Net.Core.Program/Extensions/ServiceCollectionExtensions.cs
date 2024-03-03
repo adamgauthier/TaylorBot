@@ -1,11 +1,14 @@
-﻿using Discord;
+﻿using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;
+using TaylorBot.Net.Core.Program.Instrumentation;
 using TaylorBot.Net.Core.Program.Options;
 using TaylorBot.Net.Core.Tasks;
 
@@ -13,8 +16,16 @@ namespace TaylorBot.Net.Core.Program.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddTaylorBotApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddTaylorBotApplicationServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
+        var instrumentation = new TaylorBotInstrumentation(hostEnvironment.ApplicationName);
+
+        services
+            .AddSingleton(instrumentation)
+            .AddOpenTelemetry()
+            .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name))
+            .UseAzureMonitor();
+
         return services
             .ConfigureRequired<DiscordOptions>(configuration, "Discord")
             .AddTransient<ILogSeverityToLogLevelMapper, LogSeverityToLogLevelMapper>()

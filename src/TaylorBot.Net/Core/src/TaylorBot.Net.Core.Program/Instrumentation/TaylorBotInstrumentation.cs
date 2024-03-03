@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace TaylorBot.Net.Commands.Instrumentation;
+namespace TaylorBot.Net.Core.Program.Instrumentation;
 
 public sealed class TaylorBotInstrumentation(string activitySourceName) : IDisposable
 {

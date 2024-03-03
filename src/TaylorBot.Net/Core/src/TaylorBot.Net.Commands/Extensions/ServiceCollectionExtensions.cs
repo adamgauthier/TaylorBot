@@ -1,10 +1,8 @@
-﻿using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Npgsql;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Instrumentation;
@@ -25,26 +23,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
-        var instrumentation = new TaylorBotInstrumentation(hostEnvironment.ApplicationName);
-
-        services
-            .AddSingleton(instrumentation)
-            .AddTransient<CommandActivityFactory>()
-            .AddOpenTelemetry()
-            .WithTracing(o => o
-                .AddNpgsql()
-                .AddSource(instrumentation.ActivitySource.Name)
-            )
-            .UseAzureMonitor();
-
         services.AddHttpClient<InteractionResponseClient>((provider, client) =>
         {
             client.BaseAddress = new Uri("https://discord.com/api/v10/");
         });
 
         return services
-            .AddTaylorBotApplicationServices(configuration)
+            .AddTaylorBotApplicationServices(configuration, hostEnvironment)
             .AddSingleton(services)
+            .AddTransient<CommandActivityFactory>()
             .AddSingleton(provider => new CommandService(new CommandServiceConfig
             {
                 DefaultRunMode = RunMode.Async,

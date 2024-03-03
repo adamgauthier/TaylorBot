@@ -8,6 +8,8 @@
     <PackageReference Include="Dapper" Version="2.1.28" />
     <PackageReference Include="Npgsql" Version="8.0.2" />
     <PackageReference Include="Npgsql.DependencyInjection" Version="8.0.2" />
+    <PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.2" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.27" />
   </ItemGroup>
 
