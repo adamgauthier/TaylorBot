@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using OpenTelemetry.Resources;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;
@@ -24,7 +23,6 @@ public static class ServiceCollectionExtensions
         services
             .AddSingleton(instrumentation)
             .AddOpenTelemetry()
-            .ConfigureResource(b => b.AddAttributes([new KeyValuePair<string, object>("service.name", hostEnvironment.ApplicationName)]))
             .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name))
             .UseAzureMonitor();
 

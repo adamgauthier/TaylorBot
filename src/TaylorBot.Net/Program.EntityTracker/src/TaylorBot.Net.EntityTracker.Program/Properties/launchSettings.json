@@ -3,7 +3,8 @@
     "TaylorBot.Net.EntityTracker.Program": {
       "commandName": "Project",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
+        "DOTNET_ENVIRONMENT": "Development",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.namespace=TaylorBot.Net,service.name=EntityTracker"
       }
     }
   }
