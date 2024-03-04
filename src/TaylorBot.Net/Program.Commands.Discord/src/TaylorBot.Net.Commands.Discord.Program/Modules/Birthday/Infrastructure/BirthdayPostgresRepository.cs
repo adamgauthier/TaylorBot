@@ -73,27 +73,9 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
         var entries = await connection.QueryAsync<CalendarEntryDto>(
             """
-            SELECT b.user_id, u.username,
-            CASE
-                WHEN normalized_birthday < CURRENT_DATE
-                THEN (normalized_birthday + INTERVAL '1 YEAR')
-                ELSE normalized_birthday
-            END
-            AS next_birthday
-            FROM
-            attributes.birthdays b
-            INNER JOIN users.users u ON b.user_id = u.user_id
-            INNER JOIN guilds.guild_members gm ON gm.user_id = b.user_id AND gm.guild_id = @GuildId,
-            make_date(
-                date_part('year', CURRENT_DATE)::int,
-                date_part('month', birthday)::int,
-                CASE
-                    WHEN date_part('month', birthday)::int = 2 AND date_part('day', birthday)::int = 29
-                    THEN 28
-                    ELSE date_part('day', birthday)::int
-                END
-            ) AS normalized_birthday
-            WHERE is_private = FALSE AND gm.alive = TRUE
+            SELECT calendar.user_id, username, next_birthday
+            FROM attributes.birthday_calendar_6months calendar
+            JOIN guilds.guild_members AS gm ON calendar.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
             ORDER BY next_birthday
             LIMIT 100;
             """,

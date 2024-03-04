@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
 public class MemberNotInGuildUpdater(ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, TaskExceptionLogger taskExceptionLogger)
 {
-    public void UpdateMembersWhoLeftInBackground(string taskName, IGuild guild, IList<SnowflakeId> userIds)
+    public void UpdateMembersWhoLeftInBackground(string taskName, IGuild guild, IReadOnlyList<SnowflakeId> userIds)
     {
         _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
             async () => await UpdateMembersWhoLeft(guild, userIds),
@@ -16,7 +16,7 @@ public class MemberNotInGuildUpdater(ITaylorBotClient taylorBotClient, IMemberRe
         ));
     }
 
-    private async Task UpdateMembersWhoLeft(IGuild guild, IList<SnowflakeId> userIds)
+    private async Task UpdateMembersWhoLeft(IGuild guild, IReadOnlyList<SnowflakeId> userIds)
     {
         List<SnowflakeId> membersNotInGuild = [];
 

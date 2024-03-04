@@ -100,13 +100,23 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return (await connection.QueryAsync<HeistLeaderboardEntry>(
+            // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
+            // Then we join to filter out users that are not part of the guild and get the top 100
+            // Finally we join on users to get their latest username
             """
-            SELECT gm.user_id, u.username, hs.heist_win_count, rank() OVER (ORDER BY heist_win_count DESC) AS rank
-            FROM guilds.guild_members AS gm
-            JOIN users.heist_stats AS hs ON hs.user_id = gm.user_id
-            JOIN users.users AS u ON u.user_id = gm.user_id
-            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
-            LIMIT 100;
+            SELECT leaderboard.user_id, username, heist_win_count, rank FROM
+            (
+                SELECT heist_users.user_id, heist_win_count, rank() OVER (ORDER BY heist_win_count DESC) AS rank FROM
+                (
+                    SELECT user_id, heist_win_count
+                    FROM users.heist_stats
+                    WHERE heist_win_count > 0
+                ) heist_users
+                JOIN guilds.guild_members AS gm ON heist_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
+                ORDER BY heist_win_count DESC
+                LIMIT 100
+            ) leaderboard
+            JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,
             new
             {

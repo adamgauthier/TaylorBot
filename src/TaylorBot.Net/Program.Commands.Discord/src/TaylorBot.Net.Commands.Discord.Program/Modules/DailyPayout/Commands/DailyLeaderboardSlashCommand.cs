@@ -32,7 +32,7 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
                     leaderboard.Select(e => e.UserId).ToList());
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                    entry => $"{entry.Rank}. {entry.Username.MdUserLink(entry.UserId)}: {"day".ToQuantity(entry.CurrentDailyStreak, TaylorBotFormats.BoldReadable)}"
+                    entry => $"{entry.Rank}\\. {entry.Username.MdUserLink(entry.UserId)}: {"day".ToQuantity(entry.CurrentDailyStreak, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()

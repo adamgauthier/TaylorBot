@@ -46,8 +46,8 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                         hasPageFooter: true,
                         emptyText:
                             $"""
-                            No upcoming birthdays in this server.
-                            "Members need to use {context.MentionCommand("birthday set")}! 😊
+                            No upcoming birthdays in this server for the next 6 months.
+                            Members need to use {context.MentionCommand("birthday set")}! 😊
                             """
                     )),
                     IsCancellable: true

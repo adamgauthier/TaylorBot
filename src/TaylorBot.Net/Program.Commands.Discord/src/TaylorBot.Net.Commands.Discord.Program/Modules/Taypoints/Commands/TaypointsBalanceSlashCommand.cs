@@ -1,7 +1,7 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Humanizer;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
@@ -11,7 +11,7 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBalanceRepository) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
+public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBalanceRepository, TaypointGuildCacheUpdater taypointGuildCacheUpdater) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
 
@@ -21,20 +21,11 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
         new("taypoints", "Taypoints 🪙", ["points"]),
         async () =>
         {
-            TaypointBalance balance;
-            if (!user.IsBot && user is IGuildUser guildUser && guildUser.Guild is SocketGuild guild &&
-                guild.MemberCount is > 0 and < 10_000)
-            {
-                balance = await taypointBalanceRepository.GetBalanceWithRankAsync(guildUser);
-            }
-            else
-            {
-                balance = await taypointBalanceRepository.GetBalanceAsync(user);
-            }
+            var balance = await taypointBalanceRepository.GetBalanceAsync(user);
 
-            EmbedBuilder embed = new();
+            taypointGuildCacheUpdater.UpdateLastKnownPointCountInBackground(user, balance.TaypointCount);
 
-            return new EmbedResult(embed
+            return new EmbedResult(new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithUserAsAuthor(user)
                 .WithDescription(

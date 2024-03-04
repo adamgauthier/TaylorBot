@@ -13,7 +13,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessageRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
+public class ServerLeaderboardSlashCommand(IServerActivityRepository serverActivityRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server leaderboard");
 
@@ -58,7 +58,7 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessa
         {
             case "messages":
                 {
-                    var leaderboard = await serverMessageRepository.GetMessageLeaderboardAsync(guild);
+                    var leaderboard = await serverActivityRepository.GetMessageLeaderboardAsync(guild);
 
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(ServerLeaderboardSlashCommand),
@@ -66,7 +66,7 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessa
                         leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
-                        $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: **~{"message".ToQuantity(entry.message_count, $"{TaylorBotFormats.Readable}**")}"
+                        $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: **~{"message".ToQuantity(entry.message_count, $"{TaylorBotFormats.Readable}**")}"
                     ))).ToList();
 
                     return new LeaderboardData("Message Leaderboard 📚", pages);
@@ -74,7 +74,7 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessa
 
             case "minutes":
                 {
-                    var leaderboard = await serverMessageRepository.GetMinuteLeaderboardAsync(guild);
+                    var leaderboard = await serverActivityRepository.GetMinuteLeaderboardAsync(guild);
 
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(ServerLeaderboardSlashCommand),
@@ -82,7 +82,7 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverMessa
                         leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
-                        $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: {"minute".ToQuantity(entry.minute_count, TaylorBotFormats.BoldReadable)}"
+                        $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"minute".ToQuantity(entry.minute_count, TaylorBotFormats.BoldReadable)}"
                     ))).ToList();
 
                     return new LeaderboardData("Active Time Leaderboard ⏳", pages);

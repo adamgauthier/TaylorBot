@@ -67,7 +67,7 @@
     },
     {
       "name": "calendar",
-      "description": "Show a calendar of upcoming birthdays in the current server",
+      "description": "Show a calendar of upcoming birthdays (next 6 months) in the current server",
       "type": 1,
       "options": []
     },
@@ -86,7 +86,7 @@
     },
     {
       "name": "clear",
-      "description": "Clears your registered birthday",
+      "description": "Clear your registered birthday",
       "type": 1,
       "options": []
     },

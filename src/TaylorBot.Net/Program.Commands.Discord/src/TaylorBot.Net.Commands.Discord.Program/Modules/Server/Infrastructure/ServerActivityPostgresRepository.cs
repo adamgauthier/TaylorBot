@@ -33,8 +33,9 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
         var entries = await connection.QueryAsync<MessageLeaderboardEntry>(
             """
             SELECT gm.user_id, u.username, rank() OVER (ORDER BY message_count DESC) AS rank, message_count
-            FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
+            FROM guilds.guild_members gm
+            JOIN users.users u ON u.user_id = gm.user_id AND u.is_bot = FALSE
+            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND message_count > 0
             LIMIT 100;
             """,
             new
@@ -72,8 +73,9 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
         var entries = await connection.QueryAsync<MinuteLeaderboardEntry>(
             """
             SELECT gm.user_id, u.username, rank() OVER (ORDER BY minute_count DESC) AS rank, minute_count
-            FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
+            FROM guilds.guild_members gm
+            JOIN users.users u ON u.user_id = gm.user_id AND u.is_bot = FALSE
+            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND minute_count > 0
             LIMIT 100;
             """,
             new

@@ -32,7 +32,7 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
                     leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                    entry => $"{entry.rank}. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.gamble_win_count, TaylorBotFormats.BoldReadable)}"
+                    entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.gamble_win_count, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()

@@ -97,13 +97,23 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return (await connection.QueryAsync<RiskLeaderboardEntry>(
+            // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
+            // Then we join to filter out users that are not part of the guild and get the top 100
+            // Finally we join on users to get their latest username
             """
-            SELECT gm.user_id, u.username, gs.gamble_win_count, rank() OVER (ORDER BY gamble_win_count DESC) AS rank
-            FROM guilds.guild_members AS gm
-            JOIN users.gamble_stats AS gs ON gs.user_id = gm.user_id
-            JOIN users.users AS u ON u.user_id = gm.user_id
-            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
-            LIMIT 100;
+            SELECT leaderboard.user_id, username, gamble_win_count, rank FROM
+            (
+                SELECT risk_users.user_id, gamble_win_count, rank() OVER (ORDER BY gamble_win_count DESC) AS rank FROM
+                (
+                    SELECT user_id, gamble_win_count
+                    FROM users.gamble_stats
+                    WHERE gamble_win_count > 0
+                ) risk_users
+                JOIN guilds.guild_members AS gm ON risk_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
+                ORDER BY gamble_win_count DESC
+                LIMIT 100
+            ) leaderboard
+            JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,
             new
             {

@@ -7,10 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructur
 
 public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointBalanceRepository
 {
-    private class TaypointBalanceDto
-    {
-        public long taypoint_count { get; set; }
-    }
+    private record TaypointBalanceDto(long taypoint_count);
 
     public async ValueTask<TaypointBalance> GetBalanceAsync(IUser user)
     {
@@ -27,65 +24,66 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
         return new(balance.taypoint_count, null);
     }
 
-    private class TaypointBalanceWithRankDto
-    {
-        public long taypoint_count { get; set; }
-        public int rank { get; set; }
-    }
-
-    public async ValueTask<TaypointBalance> GetBalanceWithRankAsync(IGuildUser user)
+    public async ValueTask UpdateLastKnownPointCountAsync(IGuildUser guildUser, long updatedCount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        var balance = await connection.QuerySingleAsync<TaypointBalanceWithRankDto>(
+        await connection.ExecuteAsync(
             """
-            SELECT taypoint_count, rank FROM (
-                SELECT taypoint_count, gm.user_id, rank() OVER (ORDER BY taypoint_count DESC) AS rank
-                FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-                WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
-            ) AS ranked
-            WHERE user_id = @UserId;
+            UPDATE guilds.guild_members
+            SET last_known_taypoint_count = @TaypointCount
+            WHERE guild_id = @GuildId AND user_id = @UserId;
             """,
             new
             {
-                UserId = $"{user.Id}",
-                GuildId = $"{user.GuildId}",
+                GuildId = $"{guildUser.GuildId}",
+                UserId = $"{guildUser.Id}",
+                TaypointCount = updatedCount,
             }
         );
-
-        return new(balance.taypoint_count, balance.rank);
-    }
-
-    private class LeaderboardEntryDto
-    {
-        public string user_id { get; set; } = null!;
-        public string username { get; set; } = null!;
-        public long taypoint_count { get; set; }
-        public long rank { get; set; }
     }
 
     public async ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        var entries = await connection.QueryAsync<LeaderboardEntryDto>(
+        return (await connection.QueryAsync<TaypointLeaderboardEntry>(
+            // We use the cached last_known_taypoint_count for fast ordering (always NULL for bots)
+            // We also retrieve the actual taypoint_count for update later
             """
-            SELECT gm.user_id, u.username, taypoint_count, rank() OVER (ORDER BY taypoint_count DESC) AS rank
-            FROM guilds.guild_members AS gm JOIN users.users AS u ON u.user_id = gm.user_id
-            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
-            LIMIT 100;
+            SELECT leaderboard.user_id, username, last_known_taypoint_count, rank, taypoint_count FROM
+            (
+                SELECT user_id, last_known_taypoint_count, rank() OVER (ORDER BY last_known_taypoint_count DESC) AS rank
+                FROM guilds.guild_members
+                WHERE guild_id = @GuildId AND alive = TRUE AND last_known_taypoint_count IS NOT NULL
+                ORDER BY last_known_taypoint_count DESC
+                LIMIT 100
+            ) leaderboard
+            JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,
             new
             {
                 GuildId = $"{guild.Id}",
             }
-        );
-
-        return entries.Select(e => new TaypointLeaderboardEntry(
-            new(e.user_id),
-            e.username,
-            e.taypoint_count,
-            e.rank
         )).ToList();
+    }
+
+    public async ValueTask UpdateLastKnownPointCountsAsync(IGuild guild)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        await connection.ExecuteAsync(
+            """
+            UPDATE guilds.guild_members AS gm
+            SET last_known_taypoint_count = u.taypoint_count
+            FROM users.users AS u
+            WHERE gm.guild_id = @GuildId AND gm.user_id = u.user_id AND gm.alive = TRUE;
+            """,
+            new
+            {
+                GuildId = $"{guild.Id}",
+            },
+            commandTimeout: (int)TimeSpan.FromMinutes(1).TotalSeconds
+        );
     }
 }

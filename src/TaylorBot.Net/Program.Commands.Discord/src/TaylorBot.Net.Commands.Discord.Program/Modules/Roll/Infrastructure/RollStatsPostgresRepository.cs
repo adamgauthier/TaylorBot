@@ -31,13 +31,23 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return (await connection.QueryAsync<RollLeaderboardEntry>(
+            // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
+            // Then we join to filter out users that are not part of the guild and get the top 100
+            // Finally we join on users to get their latest username
             """
-            SELECT gm.user_id, u.username, rs.perfect_roll_count, rank() OVER (ORDER BY perfect_roll_count DESC) AS rank
-            FROM guilds.guild_members AS gm
-            JOIN users.roll_stats AS rs ON rs.user_id = gm.user_id
-            JOIN users.users AS u ON u.user_id = gm.user_id
-            WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND u.is_bot = FALSE
-            LIMIT 100;
+            SELECT leaderboard.user_id, username, perfect_roll_count, rank FROM
+            (
+                SELECT roll_users.user_id, perfect_roll_count, rank() OVER (ORDER BY perfect_roll_count DESC) AS rank FROM
+                (
+                    SELECT user_id, perfect_roll_count
+                    FROM users.roll_stats
+                    WHERE perfect_roll_count > 0
+                ) roll_users
+                JOIN guilds.guild_members AS gm ON roll_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
+                ORDER BY perfect_roll_count DESC
+                LIMIT 100
+            ) leaderboard
+            JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,
             new
             {

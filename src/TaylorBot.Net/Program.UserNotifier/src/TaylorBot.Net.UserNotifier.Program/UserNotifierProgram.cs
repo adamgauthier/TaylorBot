@@ -108,6 +108,8 @@ public class UserNotifierProgram
                     .AddTransient<SingletonTaskRunner>()
                     .AddTransient<IBirthdayRepository, BirthdayPostgresRepository>()
                     .AddTransient<BirthdayRewardNotifierDomainService>()
+                    .AddTransient<IBirthdayCalendarRepository, BirthdayCalendarPostgresRepository>()
+                    .AddTransient<BirthdayCalendarDomainService>()
                     .ConfigureRequired<BirthdayRoleOptions>(config, "BirthdayRole")
                     .AddSingleton<IValidateOptions<BirthdayRoleOptions>, BirthdayRoleOptionsValidator>()
                     .AddTransient<IBirthdayRoleRepository, BirthdayRolePostgresRepository>()
