@@ -26,7 +26,7 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server joined");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedMemberOrAuthor user);
 
     private async Task<ServerJoined> GetServerJoinedAsync(IGuildUser guildUser)
     {
@@ -67,6 +67,6 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Joined(options.user.User));
+        return new(Joined(options.user.Member));
     }
 }

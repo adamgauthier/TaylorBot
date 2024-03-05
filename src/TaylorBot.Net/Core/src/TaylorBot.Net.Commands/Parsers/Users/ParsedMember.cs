@@ -14,7 +14,8 @@ public class MemberParser(ITaylorBotClient taylorBotClient, IUserTracker userTra
 {
     public async ValueTask<Result<ParsedMember, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
-        if (!optionValue.HasValue)
+        var option = optionValue?.GetString();
+        if (option is null)
         {
             return Error(new ParsingFailed("Member option is required."));
         }
@@ -24,8 +25,8 @@ public class MemberParser(ITaylorBotClient taylorBotClient, IUserTracker userTra
         }
 
         var member = context.WasAcknowledged
-            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild, new(optionValue.Value.GetString()!))
-            : await taylorBotClient.ResolveGuildUserAsync(new SnowflakeId(context.Guild.Id), new(optionValue.Value.GetString()!));
+            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild, new(option))
+            : await taylorBotClient.ResolveGuildUserAsync(new SnowflakeId(context.Guild.Id), new(option));
 
         if (member == null)
         {

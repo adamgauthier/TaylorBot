@@ -30,7 +30,7 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server messages");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedMemberOrAuthor user);
 
     public Command Messages(IUser user) => new(
         new("messages"),
@@ -61,7 +61,7 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Messages(options.user.User));
+        return new(Messages(options.user.Member));
     }
 }
 
@@ -69,7 +69,7 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("server minutes");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedMemberOrAuthor user);
 
     public Command Minutes(IUser user) => new(
         new("minutes"),
@@ -106,6 +106,6 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Minutes(options.user.User));
+        return new(Minutes(options.user.Member));
     }
 }
