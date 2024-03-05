@@ -46,7 +46,7 @@ var host = Host.CreateDefaultBuilder()
         services
             .AddHostedService<TaylorBotHostedService>()
             .AddTaylorBotApplicationServices(config, hostBuilderContext.HostingEnvironment)
-            .AddPostgresConnection(config)
+            .AddPostgresConnection(config, withTracing: false)
             .AddRedisConnection(config)
             .AddEntityTrackerInfrastructure(config)
             .ConfigureRequired<QuickStartEmbedOptions>(config, "QuickStartEmbed")

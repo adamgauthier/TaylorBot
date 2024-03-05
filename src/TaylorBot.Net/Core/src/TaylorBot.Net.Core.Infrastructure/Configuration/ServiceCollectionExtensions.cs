@@ -12,11 +12,14 @@ namespace TaylorBot.Net.Core.Infrastructure.Configuration;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddPostgresConnection(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPostgresConnection(this IServiceCollection services, IConfiguration configuration, bool withTracing = true)
     {
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
 
-        services.AddOpenTelemetry().WithTracing(o => o.AddNpgsql());
+        if (withTracing)
+        {
+            services.AddOpenTelemetry().WithTracing(o => o.AddNpgsql());
+        }
 
         return services
             .AddNpgsqlDataSource(CreateConnectionString(configuration))
