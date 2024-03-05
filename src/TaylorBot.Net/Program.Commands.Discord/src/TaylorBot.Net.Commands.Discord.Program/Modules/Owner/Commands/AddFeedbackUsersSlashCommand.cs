@@ -8,9 +8,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
@@ -109,25 +107,6 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
                     });
 
                     await Task.Delay(TimeSpan.FromMilliseconds(100));
-
-                    // It may be considered spam to send the same DM to a lot of users at once...
-                    if (ShouldSendDM())
-                    {
-                        try
-                        {
-                            await guildUser.SendMessageAsync(embed: EmbedFactory.CreateSuccess(
-                                """
-                                You now meet the requirements for r/TaylorSwift Discord #feedback, a channel meant to get feedback from our community ⭐
-                                Make sure to read the guidelines on how to use the channel here: https://discord.com/channels/115332333745340416/1087004541322534993/1087045463959674991 😊
-                                """
-                            ));
-                            await Task.Delay(TimeSpan.FromMilliseconds(50));
-                        }
-                        catch (Exception exception)
-                        {
-                            logger.LogWarning(exception, "Exception occurred when attempting to DM {Member} about adding them to feedback:", guildUser.FormatLog());
-                        }
-                    }
                 }
 
                 roleAdded.Add(guildUser);
@@ -142,11 +121,6 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
             unresolvedGuildMember.Add(member);
             await Task.Delay(TimeSpan.FromMilliseconds(100));
         }
-    }
-
-    private static bool ShouldSendDM()
-    {
-        return false;
     }
 
     private record MemberDto

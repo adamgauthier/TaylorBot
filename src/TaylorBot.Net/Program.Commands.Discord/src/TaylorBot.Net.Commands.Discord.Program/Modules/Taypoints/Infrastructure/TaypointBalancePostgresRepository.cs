@@ -57,7 +57,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
                 FROM guilds.guild_members
                 WHERE guild_id = @GuildId AND alive = TRUE AND last_known_taypoint_count IS NOT NULL
                 ORDER BY last_known_taypoint_count DESC
-                LIMIT 100
+                LIMIT 150
             ) leaderboard
             JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,

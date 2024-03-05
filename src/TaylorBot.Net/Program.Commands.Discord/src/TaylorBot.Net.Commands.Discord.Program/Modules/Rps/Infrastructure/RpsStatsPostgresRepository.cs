@@ -92,7 +92,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
                 ) rps_users
                 JOIN guilds.guild_members AS gm ON rps_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
                 ORDER BY rps_win_count DESC
-                LIMIT 100
+                LIMIT 150
             ) leaderboard
             JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,

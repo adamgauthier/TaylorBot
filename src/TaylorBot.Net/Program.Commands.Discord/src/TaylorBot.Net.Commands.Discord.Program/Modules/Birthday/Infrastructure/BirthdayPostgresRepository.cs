@@ -77,7 +77,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             FROM attributes.birthday_calendar_6months calendar
             JOIN guilds.guild_members AS gm ON calendar.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
             ORDER BY next_birthday
-            LIMIT 100;
+            LIMIT 150;
             """,
             new
             {

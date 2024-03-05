@@ -59,7 +59,7 @@ public class ServerJoinedPostgresRepository(PostgresConnectionFactory postgresCo
                     rank() OVER (ORDER BY first_joined_at ASC NULLS LAST) AS rank
                 FROM guilds.guild_members
                 WHERE guild_id = @GuildId
-                LIMIT 100
+                LIMIT 150
             ) AS ranked
             INNER JOIN users.users u ON ranked.user_id = u.user_id
             WHERE alive = TRUE;

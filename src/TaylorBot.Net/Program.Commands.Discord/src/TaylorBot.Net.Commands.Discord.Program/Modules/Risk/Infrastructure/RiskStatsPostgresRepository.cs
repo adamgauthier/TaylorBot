@@ -80,7 +80,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<RiskProfile?>(
-            """            
+            """
             SELECT gamble_win_count, gamble_win_amount, gamble_lose_count, gamble_lose_amount
             FROM users.gamble_stats
             WHERE user_id = @UserId;
@@ -111,7 +111,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
                 ) risk_users
                 JOIN guilds.guild_members AS gm ON risk_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
                 ORDER BY gamble_win_count DESC
-                LIMIT 100
+                LIMIT 150
             ) leaderboard
             JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,

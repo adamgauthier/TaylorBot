@@ -83,7 +83,7 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<HeistProfile?>(
-            """            
+            """
             SELECT heist_win_count, heist_win_amount, heist_lose_count, heist_lose_amount
             FROM users.heist_stats
             WHERE user_id = @UserId;
@@ -114,7 +114,7 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
                 ) heist_users
                 JOIN guilds.guild_members AS gm ON heist_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
                 ORDER BY heist_win_count DESC
-                LIMIT 100
+                LIMIT 150
             ) leaderboard
             JOIN users.users AS u ON leaderboard.user_id = u.user_id;
             """,

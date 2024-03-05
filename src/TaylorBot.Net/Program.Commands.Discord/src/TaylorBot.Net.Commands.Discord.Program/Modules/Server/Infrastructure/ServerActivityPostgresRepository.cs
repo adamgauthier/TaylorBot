@@ -36,7 +36,7 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
             FROM guilds.guild_members gm
             JOIN users.users u ON u.user_id = gm.user_id AND u.is_bot = FALSE
             WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND message_count > 0
-            LIMIT 100;
+            LIMIT 150;
             """,
             new
             {
@@ -76,7 +76,7 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
             FROM guilds.guild_members gm
             JOIN users.users u ON u.user_id = gm.user_id AND u.is_bot = FALSE
             WHERE gm.guild_id = @GuildId AND gm.alive = TRUE AND minute_count > 0
-            LIMIT 100;
+            LIMIT 150;
             """,
             new
             {
