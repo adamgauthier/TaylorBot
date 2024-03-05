@@ -8,7 +8,7 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Colors;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.UsernameHistory;
 
 public class UsernamesModuleTests
 {
@@ -21,7 +21,7 @@ public class UsernamesModuleTests
 
     public UsernamesModuleTests()
     {
-        _usernamesModule = new UsernamesModule(new SimpleCommandRunner(), _usernameHistoryRepository);
+        _usernamesModule = new UsernamesModule(new SimpleCommandRunner(), new UsernamesShowSlashCommand(_usernameHistoryRepository));
         _usernamesModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
@@ -46,7 +46,7 @@ public class UsernamesModuleTests
 
         A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(_commandUser)).Returns(false);
         A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(_commandUser, 75)).Returns(new[] {
-            new IUsernameHistoryRepository.UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.Now.AddDays(-1))
+            new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.Now.AddDays(-1))
         });
 
         var result = (await _usernamesModule.GetAsync()).GetResult<PageMessageResult>();
@@ -64,25 +64,5 @@ public class UsernamesModuleTests
             null,
             MessageFlags.None
         )).MustHaveHappenedOnceExactly();
-    }
-
-    [Fact]
-    public async Task PrivateAsync_ThenReturnsSuccessEmbed()
-    {
-        A.CallTo(() => _usernameHistoryRepository.HideUsernameHistoryFor(_commandUser)).Returns(default);
-
-        var result = (await _usernamesModule.PrivateAsync()).GetResult<EmbedResult>();
-
-        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
-    }
-
-    [Fact]
-    public async Task PublicAsync_ThenReturnsSuccessEmbed()
-    {
-        A.CallTo(() => _usernameHistoryRepository.UnhideUsernameHistoryFor(_commandUser)).Returns(default);
-
-        var result = (await _usernamesModule.PublicAsync()).GetResult<EmbedResult>();
-
-        result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
     }
 }

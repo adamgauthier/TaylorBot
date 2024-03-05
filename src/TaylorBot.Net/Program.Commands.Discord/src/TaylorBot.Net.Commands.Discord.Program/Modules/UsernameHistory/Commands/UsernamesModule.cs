@@ -1,10 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
@@ -12,7 +9,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Command
 [Name("Usernames 🏷️")]
 [Group("usernames")]
 [Alias("names")]
-public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepository usernameHistoryRepository) : TaylorBotModule
+public class UsernamesModule(ICommandRunner commandRunner, UsernamesShowSlashCommand usernamesShowCommand) : TaylorBotModule
 {
     [Priority(-1)]
     [Command]
@@ -23,65 +20,28 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
         IUserArgument<IUser>? user = null
     )
     {
-        var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-        {
-            IUser u = user == null ?
-                Context.User :
-                await user.GetTrackedUserAsync();
-
-            EmbedBuilder BuildBaseEmbed() =>
-                new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(u);
-
-            if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(u))
-            {
-                return new EmbedResult(BuildBaseEmbed()
-                    .WithDescription(
-                        $"""
-                        {u.Username}'s username history is private and can't be viewed.
-                        Use `{Context.CommandPrefix}usernames public` or `{Context.CommandPrefix}usernames private` to change your username history privacy setting.
-                        """)
-                .Build());
-            }
-            else
-            {
-                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(u, 75);
-
-                var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt:MMMM dd, yyyy}: {u.Username}");
-
-                var pages =
-                    usernamesAsLines.Chunk(size: 15)
-                    .Select(lines => string.Join('\n', lines))
-                    .ToList();
-
-                return new PageMessageResult(new PageMessage(new(
-                    new EmbedPageMessageRenderer(new DescriptionPageEditor(pages), BuildBaseEmbed)
-                )));
-            }
-        });
+        var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunAsync(
+            usernamesShowCommand.Show(u),
+            context
+        );
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("private")]
-    [Summary("Hides your username history from other users.")]
+    [Summary("This command has been moved to 👉 **/usernames visibility** 👈 Please use it instead! 😊")]
     public async Task<RuntimeResult> PrivateAsync()
     {
-        var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-        {
-            await usernameHistoryRepository.HideUsernameHistoryFor(Context.User);
-
-            return new EmbedResult(new EmbedBuilder()
-                .WithColor(TaylorBotColors.SuccessColor)
-                .WithDescription(
-                    $"""
-                    Your username history is now private, it **can't** be viewed with `{Context.CommandPrefix}usernames`.
-                    Use `{Context.CommandPrefix}usernames public` to make it public.
-                    """)
-            .Build());
-        });
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 **/usernames visibility** 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);
@@ -90,22 +50,16 @@ public class UsernamesModule(ICommandRunner commandRunner, IUsernameHistoryRepos
     }
 
     [Command("public")]
-    [Summary("Makes your username history public for other users to see.")]
+    [Summary("This command has been moved to 👉 **/usernames visibility** 👈 Please use it instead! 😊")]
     public async Task<RuntimeResult> PublicAsync()
     {
-        var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-        {
-            await usernameHistoryRepository.UnhideUsernameHistoryFor(Context.User);
-
-            return new EmbedResult(new EmbedBuilder()
-                .WithColor(TaylorBotColors.SuccessColor)
-                .WithDescription(
-                    $"""
-                    Your username history is now public, it **can** be viewed with `{Context.CommandPrefix}usernames`.
-                    Use `{Context.CommandPrefix}usernames private` to make it private.
-                    """)
-            .Build());
-        });
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 **/usernames visibility** 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);

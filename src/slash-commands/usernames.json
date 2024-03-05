@@ -1,0 +1,42 @@
+{
+  "name": "usernames",
+  "description": "Show and manage your username history",
+  "options": [
+    {
+      "name": "show",
+      "description": "Show the username history of a user",
+      "type": 1,
+      "options": [
+        {
+          "name": "user",
+          "description": "The user to see the history for, default you",
+          "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "visibility",
+      "description": "Configure the visibility of your own username history",
+      "type": 1,
+      "options": [
+        {
+          "name": "setting",
+          "description": "The visibility you want for your username history",
+          "type": 3,
+          "required": true,
+          "choices": [
+            {
+              "name": "Public (everyone can see your previous usernames)",
+              "value": "public"
+            },
+            {
+              "name": "Private (no one see your previous usernames)",
+              "value": "private"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
