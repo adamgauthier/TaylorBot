@@ -38,7 +38,7 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
         {
             var guildUser = (IGuildUser)user;
             var messages = await serverActivityRepository.GetMessagesAsync(guildUser);
-            var wordAverage = (double)messages.word_count / messages.message_count;
+            var wordAverage = messages.message_count > 0 ? (double)messages.word_count / messages.message_count : 0;
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)

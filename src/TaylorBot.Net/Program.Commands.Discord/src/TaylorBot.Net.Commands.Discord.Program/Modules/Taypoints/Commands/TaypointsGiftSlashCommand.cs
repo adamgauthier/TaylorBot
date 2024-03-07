@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Humanizer;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -9,7 +10,8 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsGiftSlashCommand(ITaypointTransferRepository taypointTransferRepository, TaypointAmountParser amountParser) : ISlashCommand<TaypointsGiftSlashCommand.Options>
+public class TaypointsGiftSlashCommand(
+    ITaypointTransferRepository taypointTransferRepository, TaypointAmountParser amountParser, TaypointGuildCacheUpdater taypointGuildCacheUpdater) : ISlashCommand<TaypointsGiftSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints gift");
 
@@ -108,15 +110,30 @@ public class TaypointsGiftSlashCommand(ITaypointTransferRepository taypointTrans
     private async ValueTask<string> TransferAsync(IUser from, IReadOnlyList<IUser> to, ITaypointAmount amount)
     {
         var transfer = await taypointTransferRepository.TransferTaypointsAsync(from, to, amount);
+
+        var fromBalance = transfer.OriginalCount - transfer.GiftedCount;
+
         var recipientBalances = transfer.Recipients.Select(r =>
             $"<@{r.UserId}>: {(r.UpdatedBalance - r.Received).ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(r.UpdatedBalance, TaylorBotFormats.BoldReadable)} 📈");
+
+        if (from is IGuildUser member)
+        {
+            var nonBots = to.Where(u => !u.IsBot);
+            var nonBotRecipientResults = transfer.Recipients.Where(r => nonBots.Any(u => $"{u.Id}" == r.UserId));
+
+            var updates = nonBotRecipientResults
+                .Select(r => new TaypointCountUpdate(r.UserId, r.UpdatedBalance))
+                .Append(new(from.Id, fromBalance))
+                .ToList();
+            taypointGuildCacheUpdater.UpdateLastKnownPointCountsInBackground(member.Guild, updates);
+        }
 
         return
             $"""
             ### Taypoint Transfer
             {from.Mention} 🎁 **{"taypoint".ToQuantity(transfer.GiftedCount, TaylorBotFormats.Readable)}** ➡️ {(to.Count > 1 ? "__multiple users__" : to[0].Mention)}
             ### Balances Updated
-            {from.Mention}: {transfer.OriginalCount.ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(transfer.OriginalCount - transfer.GiftedCount, TaylorBotFormats.BoldReadable)} 📉
+            {from.Mention}: {transfer.OriginalCount.ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(fromBalance, TaylorBotFormats.BoldReadable)} 📉
             {string.Join('\n', recipientBalances)}            
             """;
     }

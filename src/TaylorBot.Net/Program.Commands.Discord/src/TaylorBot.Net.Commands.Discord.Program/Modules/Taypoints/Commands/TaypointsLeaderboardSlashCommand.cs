@@ -11,11 +11,10 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
-using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypointBalanceRepository, MemberNotInGuildUpdater memberNotInGuildUpdater, TaskExceptionLogger taskExceptionLogger) : ISlashCommand<NoOptions>
+public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypointBalanceRepository, MemberNotInGuildUpdater memberNotInGuildUpdater, TaypointGuildCacheUpdater taypointGuildCacheUpdater) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints leaderboard");
 
@@ -25,17 +24,20 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild ?? throw new InvalidOperationException();
+
                 var leaderboard = await taypointBalanceRepository.GetLeaderboardAsync(guild);
+                UpdateLastKnownPointCountsInBackground(guild, leaderboard);
+
+                // We requested more rows than necessary to update their last known point counts
+                var leaderboardToDisplay = leaderboard.Take(150).ToList();
 
                 memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                     nameof(TaypointsLeaderboardSlashCommand),
                     guild,
-                    leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                    leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id)).ToList());
 
-                UpdateLastKnownPointCountsInBackground(guild);
-
-                var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
+                var pages = leaderboardToDisplay.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"taypoint".ToQuantity(entry.last_known_taypoint_count, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
@@ -63,11 +65,13 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
         ));
     }
 
-    private void UpdateLastKnownPointCountsInBackground(IGuild guild)
+    private void UpdateLastKnownPointCountsInBackground(IGuild guild, IList<TaypointLeaderboardEntry> leaderboard)
     {
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-            async () => await taypointBalanceRepository.UpdateLastKnownPointCountsAsync(guild),
-            nameof(taypointBalanceRepository.UpdateLastKnownPointCountsAsync)
-        ));
+        var updates = leaderboard
+            .Where(e => e.last_known_taypoint_count != e.taypoint_count)
+            .Select(e => new TaypointCountUpdate(e.user_id, e.taypoint_count))
+            .ToList();
+
+        taypointGuildCacheUpdater.UpdateLastKnownPointCountsInBackground(guild, updates);
     }
 }

@@ -24,7 +24,7 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            balanceCommand.Balance(u, isLegacyCommand: true),
+            balanceCommand.Balance(u),
             context
         );
 

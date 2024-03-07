@@ -5,6 +5,7 @@ using System.Text.Json;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Snowflake;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
@@ -13,12 +14,14 @@ public record TaypointBalance(long TaypointCount, int? ServerRank);
 
 public record TaypointLeaderboardEntry(string user_id, string username, long last_known_taypoint_count, long rank, long taypoint_count);
 
+public record TaypointCountUpdate(SnowflakeId UserId, long TaypointCount);
+
 public interface ITaypointBalanceRepository
 {
     ValueTask<TaypointBalance> GetBalanceAsync(IUser user);
     ValueTask UpdateLastKnownPointCountAsync(IGuildUser guildUser, long updatedCount);
     ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
-    ValueTask UpdateLastKnownPointCountsAsync(IGuild guild);
+    ValueTask UpdateLastKnownPointCountsAsync(IGuild guild, IReadOnlyList<TaypointCountUpdate> updates);
 }
 
 

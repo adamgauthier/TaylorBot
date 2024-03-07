@@ -17,7 +17,7 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Balance(IUser user, bool isLegacyCommand) => new(
+    public Command Balance(IUser user) => new(
         new("taypoints", "Taypoints 🪙", ["points"]),
         async () =>
         {
@@ -39,6 +39,6 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Balance(options.user.User, isLegacyCommand: false));
+        return new(Balance(options.user.User));
     }
 }
