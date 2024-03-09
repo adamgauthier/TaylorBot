@@ -87,7 +87,7 @@ public class UserNotifierProgram
                 services
                     .AddHostedService<TaylorBotHostedService>()
                     .AddTaylorBotApplicationServices(config, hostBuilderContext.HostingEnvironment)
-                    .AddPostgresConnection(config)
+                    .AddPostgresConnection(config, withTracing: false)
                     .AddRedisConnection(config)
                     .AddMessageLoggingInfrastructure(config)
                     .ConfigureRequired<BirthdayRewardNotifierOptions>(config, "BirthdayRewardNotifier")

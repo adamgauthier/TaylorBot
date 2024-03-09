@@ -151,28 +151,33 @@ public class BirthdayRoleDomainService(
             {
                 var guild = taylorBotClient.Value.ResolveRequiredGuild(roleToRemove.guild_id);
 
-                var member = await taylorBotClient.Value.ResolveGuildUserAsync(guild, roleToRemove.user_id)
-                    ?? throw new ArgumentException($"Could not resolve User ID {roleToRemove.user_id}.");
-
-                SnowflakeId roleId = new(roleToRemove.role_id);
-                var role = guild.GetRole(roleId);
-
-                if (role != null)
+                var member = await taylorBotClient.Value.ResolveGuildUserAsync(guild, roleToRemove.user_id);
+                if (member != null)
                 {
-                    if (member.RoleIds.Contains(roleId))
+                    SnowflakeId roleId = new(roleToRemove.role_id);
+                    var role = guild.GetRole(roleId);
+
+                    if (role != null)
                     {
-                        var keptFor = DateTimeOffset.UtcNow - roleToRemove.set_at;
-                        await member.RemoveRoleAsync(role, new RequestOptions { AuditLogReason = $"Removed birthday role after {keptFor.Humanize(maxUnit: TimeUnit.Hour)}" });
-                        logger.LogInformation("Removed birthday role {RoleId} from {Member} after {KeptFor}", roleId, member.FormatLog(), keptFor);
+                        if (member.RoleIds.Contains(roleId))
+                        {
+                            var keptFor = DateTimeOffset.UtcNow - roleToRemove.set_at;
+                            await member.RemoveRoleAsync(role, new RequestOptions { AuditLogReason = $"Removed birthday role after {keptFor.Humanize(maxUnit: TimeUnit.Hour)}" });
+                            logger.LogInformation("Removed birthday role {RoleId} from {Member} after {KeptFor}", roleId, member.FormatLog(), keptFor);
+                        }
+                        else
+                        {
+                            logger.LogInformation("Member {Member} doesn't have birthday role {RoleId}", member.FormatLog(), roleId);
+                        }
                     }
                     else
                     {
-                        logger.LogInformation("Member {Member} doesn't have birthday role {RoleId}", member.FormatLog(), roleId);
+                        logger.LogWarning("Birthday role {RoleId} in {Guild} doesn't seem to exist", roleToRemove.role_id, guild.FormatLog());
                     }
                 }
                 else
                 {
-                    logger.LogWarning("Birthday role {RoleId} in {Guild} doesn't seem to exist", roleToRemove.role_id, guild.FormatLog());
+                    logger.LogWarning("Could not find user {UserId} in {Guild}", roleToRemove.user_id, guild.FormatLog());
                 }
 
                 await birthdayRepository.SetRoleRemovedAtAsync(roleToRemove);
