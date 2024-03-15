@@ -1,6 +1,7 @@
 # TaylorBot secret files
 *.pass
 *.env
+*.tar
 
 # macOS
 .DS_Store

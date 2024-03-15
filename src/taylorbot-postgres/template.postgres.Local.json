@@ -1,0 +1,6 @@
+{
+    "ContainerName": "taylorbot-postgres",
+    "PublishedPort": "8913",
+    "PostgresPassword": "YOUR_PG_PASSWORD_HERE",
+    "TaylorBotRolePassword": "YOUR_TAYLORBOT_ROLE_PASSWORD_HERE"
+}

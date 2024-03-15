@@ -1,0 +1,6 @@
+{
+    "AzureResourceGroupName": "YOUR_GROUP_NAME_HERE",
+    "AzureResourceName": "YOUR_RESOURCE_NAME_HERE",
+    "PostgresPassword": "YOUR_PG_PASSWORD_HERE",
+    "TaylorBotRolePassword": "YOUR_TAYLORBOT_ROLE_PASSWORD_HERE"
+}

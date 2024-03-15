@@ -1,0 +1,5 @@
+{
+    "ContainerName": "taylorbot-redis-commands",
+    "PublishedPort": "8914",
+    "RedisPassword": "YOUR_REDIS_PASSWORD_HERE"
+}

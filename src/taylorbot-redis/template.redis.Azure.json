@@ -1,0 +1,5 @@
+{
+    "AzureResourceGroupName": "YOUR_GROUP_NAME_HERE",
+    "AzureResourceName": "YOUR_RESOURCE_NAME_HERE",
+    "RedisPassword": "YOUR_REDIS_PASSWORD_HERE"
+}

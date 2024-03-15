@@ -1,0 +1,5 @@
+{
+    "AzureResourceGroupName": "YOUR_GROUP_NAME_HERE",
+    "AzureResourceName": "YOUR_RESOURCE_NAME_HERE",
+    "AzureLocation": "centralus"
+}

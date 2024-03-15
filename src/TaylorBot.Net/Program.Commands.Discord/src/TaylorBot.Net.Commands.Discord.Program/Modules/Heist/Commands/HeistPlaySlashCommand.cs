@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Humanizer;
 using Microsoft.Extensions.Options;
+using System.Text;
 using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
@@ -142,7 +143,12 @@ public class HeistPlaySlashCommand(
 
     private record Bank(string bankName, ushort? maximumUserCount, ushort minimumRollForSuccess, string payoutMultiplier);
 
-    private readonly Lazy<List<Bank>> banks = new(() => JsonSerializer.Deserialize<List<Bank>>(options.CurrentValue.Banks) ?? throw new ArgumentNullException());
+    private readonly Lazy<List<Bank>> banks = new(() =>
+    {
+        var encoded = options.CurrentValue.BanksJsonBase64;
+        var json = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+        return JsonSerializer.Deserialize<List<Bank>>(json) ?? throw new ArgumentNullException();
+    });
 
     private Bank GetBank(int playerCount)
     {

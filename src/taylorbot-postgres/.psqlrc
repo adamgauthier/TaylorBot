@@ -1,0 +1,33 @@
+-- from https://github.com/mogren/dotfiles
+\timing
+\pset null '∅'
+\x auto
+\pset format wrapped
+\set ON_ERROR_ROLLBACK interactive
+\set HISTCONTROL ignoredups
+\set COMP_KEYWORD_CASE upper
+\set PROMPT1 '%[%033[33;1m%]%x%[%033[0m%]%[%033[1m%]%/%[%033[0m%]%R%# '
+
+-- Large indexes that are rarely used
+\set rareindexes '(SELECT s.schemaname as sch, s.relname as rel, s.indexrelname as idx, s.idx_scan as scans, pg_size_pretty(pg_relation_size(s.relid)) as ts, pg_size_pretty(pg_relation_size(s.indexrelid)) as "is" FROM pg_stat_user_indexes s JOIN pg_index i on i.indexrelid=s.indexrelid LEFT JOIN pg_constraint c on i.indrelid=c.conrelid AND array_to_string(i.indkey, '' '') = array_to_string(c.conkey, '' '') WHERE i.indisunique is false AND pg_relation_size(s.relid) > 100000 AND s.idx_scan < 10000 AND c.confrelid is null ORDER BY s.idx_scan ASC, pg_relation_size(s.relid) desc)';
+
+-- Size of tables on disk, with and without indexes
+\set bigtables '(SELECT table_schema, table_name, pg_size_pretty(size) as size, pg_size_pretty(total_size) as total_size, pg_size_pretty(total_size - size) as index_sizes FROM (SELECT table_schema, table_name, pg_relation_size(quote_ident(table_schema) || \'.\' || quote_ident(table_name)) as size, pg_total_relation_size( quote_ident(table_schema) || \'.\' || quote_ident(table_name)) as total_size FROM information_schema.tables WHERE table_type = \'BASE TABLE\' AND table_schema NOT IN (\'information_schema\', \'pg_catalog\')) x ORDER BY x.size desc, x.total_size desc, table_schema, table_name LIMIT 40)';
+
+-- List the largest indexes. Tables without any indexes are listed first.
+\set bigindexes '(SELECT t.tablename, indexname, c.reltuples AS num_rows, pg_relation_size(quote_ident(t.tablename)::text) AS table_size, pg_relation_size(quote_ident(indexrelname)::text) AS index_size, CASE WHEN x.is_unique = 1 THEN ''Y'' ELSE ''N'' END as unique, idx_scan AS number_of_scans, idx_tup_read AS tuples_read, idx_tup_fetch AS tuples_fetched FROM pg_tables t LEFT JOIN pg_class c ON t.tablename=c.relname LEFT JOIN (SELECT indrelid, max(CAST(indisunique AS integer)) AS is_unique FROM pg_index GROUP BY indrelid) x ON c.oid = x.indrelid LEFT JOIN (SELECT c.relname AS ctablename, ipg.relname AS indexname, x.indnatts AS number_of_columns, idx_scan, idx_tup_read, idx_tup_fetch, indexrelname FROM pg_index x JOIN pg_class c ON c.oid = x.indrelid JOIN pg_class ipg ON ipg.oid = x.indexrelid JOIN pg_stat_all_indexes psai ON x.indexrelid = psai.indexrelid) AS idx_info ON t.tablename = idx_info.ctablename WHERE t.schemaname=''public'' ORDER BY 5 desc limit 40)';
+
+-- List the most common full table scans.
+\set seq_scans '(SELECT relname, seq_scan, seq_tup_read, idx_scan, idx_tup_fetch FROM pg_stat_all_tables WHERE schemaname=\'public\' AND pg_relation_size(quote_ident(relname)::regclass)>50000 AND seq_tup_read > 100000 AND seq_scan > 9 ORDER BY seq_scan desc)';
+
+-- Show how much the indexes are being used
+\set index_stats '(SELECT s.relname, s.seq_tup_read + s.idx_tup_fetch usage, (s.idx_tup_fetch/s.seq_tup_read::float)::decimal(18,4) index_ratio, s.seq_tup_read, s.idx_tup_fetch, s.seq_scan, s.n_live_tup, ((io.heap_blks_hit + io.idx_blks_hit)/((io.heap_blks_read + io.idx_blks_read)::float))::decimal(18,4) cache_hit_ratio FROM pg_stat_user_tables s INNER JOIN pg_statio_user_tables io ON s.relid = io.relid WHERE s.seq_tup_read + s.idx_tup_fetch > 0 AND s.n_live_tup > 1000 ORDER BY usage desc, cache_hit_ratio desc, index_ratio ASC, s.seq_scan desc, s.n_live_tup desc)';
+
+-- Show cache hitrate
+\set cache_hitrate '(SELECT \'index hit rate\' as name, (sum(idx_blks_hit) - sum(idx_blks_read)) / sum(idx_blks_hit + idx_blks_read) as ratio FROM pg_statio_user_indexes union all SELECT \'cache hit rate\' as name, case sum(idx_blks_hit) when 0 then \'NaN\'::numeric else to_char((sum(idx_blks_hit) - sum(idx_blks_read)) / sum(idx_blks_hit + idx_blks_read), \'99.99\')::numeric end as ratio FROM pg_statio_user_indexes)';
+
+-- Bad hitrate
+\set bad_hitrate '(select relname, 100 * idx_scan / (seq_scan + idx_scan) as hitrate, n_live_tup from pg_stat_user_tables where (100 * idx_scan / (seq_scan + idx_scan)) < 99 order by n_live_tup desc)';
+
+-- Shorthand
+\set sc 'SELECT COUNT(*) FROM '
