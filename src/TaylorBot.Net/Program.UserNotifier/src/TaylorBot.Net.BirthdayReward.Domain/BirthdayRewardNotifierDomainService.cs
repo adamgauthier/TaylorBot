@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -51,6 +52,10 @@ public class BirthdayRewardNotifierDomainService(
                 logger.LogDebug("Rewarded {PointsCountText} to {RewardedUser}.", "birthday point".ToQuantity(rewardAmount), rewardedUser);
                 var user = await taylorBotClient.Value.ResolveRequiredUserAsync(rewardedUser.UserId);
                 await user.SendMessageAsync(embed: birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
+            }
+            catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+            {
+                logger.LogWarning(e, "Can't notify {RewardedUser} about their birthday because of their DM settings.", rewardedUser);
             }
             catch (Exception exception)
             {
