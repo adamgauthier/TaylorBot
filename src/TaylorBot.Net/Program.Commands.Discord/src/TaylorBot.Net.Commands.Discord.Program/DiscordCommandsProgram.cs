@@ -22,6 +22,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.EggHunt.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
@@ -348,6 +349,14 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<ValentinesStatusSlashCommand>()
             .AddSlashCommand<UsernamesShowSlashCommand>()
             .AddSlashCommand<UsernamesVisibilitySlashCommand>()
+            .AddTransient<IEggRepository, EggPostgresRepository>()
+            .AddTransient<EggService>()
+            .AddSlashCommand<EggVerifySlashCommand>()
+            .AddSlashCommand<EggProfileSlashCommand>()
+            .AddSlashCommand<EggStatusSlashCommand>()
+            .AddSlashCommand<EggLeaderboardSlashCommand>()
+            .AddSlashCommand<EggSetConfigSlashCommand>()
+            .AddSlashCommand<EggRunSlashCommand>()
             ;
 
         services.AddHttpClient<ImgurClient, ImgurHttpClient>((provider, client) =>

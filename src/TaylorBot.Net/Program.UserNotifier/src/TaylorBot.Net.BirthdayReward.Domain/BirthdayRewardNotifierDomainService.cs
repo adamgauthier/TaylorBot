@@ -55,7 +55,7 @@ public class BirthdayRewardNotifierDomainService(
             }
             catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
             {
-                logger.LogWarning(e, "Can't notify {RewardedUser} about their birthday because of their DM settings.", rewardedUser);
+                logger.LogWarning("Can't notify {RewardedUser} about their birthday because of their DM settings.", rewardedUser);
             }
             catch (Exception exception)
             {
