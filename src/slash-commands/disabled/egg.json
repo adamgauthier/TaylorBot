@@ -9,7 +9,7 @@
       "options": [
         {
           "name": "code",
-          "description": "The egg code to verify",
+          "description": "The egg code to verify, for example P1ZR3V3R53M34366",
           "type": 3,
           "required": true
         }

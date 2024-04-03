@@ -7,13 +7,17 @@ param (
     [string]$ImageName = "taylorbot/commands-discord:dev",
 
     [Parameter(Mandatory = $false)]
+    [string]$EnvFile,
+
+    [Parameter(Mandatory = $false)]
     [string]$ImageFile
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$networkName = Get-Content (Join-Path $PSScriptRoot "..\..\linux-infrastructure\docker-network.name")
-$envFile = Join-Path $PSScriptRoot "commands-discord.env"
+if ([string]::IsNullOrWhiteSpace($EnvFile)) {
+    $EnvFile = Join-Path $PSScriptRoot "commands-discord.env"
+}
 
 if (-not [string]::IsNullOrWhiteSpace($ImageFile)) {
     Write-Output "Loading from file $ImageFile"
@@ -25,7 +29,7 @@ if ($Environment -eq "Azure") {
     Write-Output "Creating Azure Container Instance resource"
 
     $config = Get-Content -Path "$PSScriptRoot/commands-discord.$Environment.json" -Raw | ConvertFrom-Json
-    $envContent = Get-Content $envFile
+    $envContent = Get-Content $EnvFile
 
     $envVars = @()
     foreach ($line in $envContent) {
@@ -58,11 +62,16 @@ if ($Environment -eq "Azure") {
 else {
     Write-Output "Creating local container"
 
+    $networkName = "taylorbot-network"
+    try {
+        docker network create $networkName
+    } catch {}
+
     docker container run `
         --detach `
         --name taylorbot-commands-discord `
         --network $networkName `
-        --env-file $envFile `
+        --env-file $EnvFile `
         --restart=on-failure:100 `
         $ImageName
 }

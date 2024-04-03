@@ -22,7 +22,12 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $config = Get-Content -Path "$PSScriptRoot/postgres.$Environment.json" -Raw | ConvertFrom-Json
-$networkName = Get-Content (Join-Path $PSScriptRoot "..\linux-infrastructure\docker-network.name")
+
+$networkName = "taylorbot-network"
+try {
+    docker network create $networkName
+} catch {}
+
 $mountsDir = Join-Path $PSScriptRoot "mounts"
 
 if ([string]::IsNullOrWhiteSpace($PostgresPassword)) {

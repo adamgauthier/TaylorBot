@@ -38,6 +38,38 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "set-config",
+      "description": "h",
+      "type": 1,
+      "options": [
+        {
+          "name": "key",
+          "description": "h",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "value",
+          "description": "h",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "description": "h",
+      "type": 1,
+      "options": [
+        {
+          "name": "value",
+          "description": "h",
+          "type": 3,
+          "required": true
+        }
+      ]
     }
   ]
 }

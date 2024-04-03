@@ -9,6 +9,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
 
@@ -179,6 +180,16 @@ public class EggService(IEggRepository eggRepository)
 {
     public async Task<ICommandResult?> CheckDisabledAsync(RunContext context)
     {
+        var vip = await eggRepository.GetConfigAsync("vip_users");
+        if (vip != null)
+        {
+            var userIds = vip.Split(',');
+            if (userIds.Any(id => new SnowflakeId(id) == context.User.Id))
+            {
+                return null;
+            }
+        }
+
         var isDisabledInGuild = (await eggRepository.GetConfigAsync($"is_disabled_in_{context.Guild?.Id}"))?.Equals("true", StringComparison.InvariantCultureIgnoreCase);
         if (isDisabledInGuild == true)
         {
@@ -220,7 +231,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
 
                         Here are some tips:
                         - Egg codes are always **16 characters long**
-                        - Egg codes are made of **uppercase letters** and **numbers**
+                        - Egg codes are made up of **uppercase letters** and **numbers**
                         - Egg codes are usually **hidden next to an egg emoji, picture or text**
 
                         Here's an example of a valid code: `ABCDEFGH12345678` ✅
@@ -250,7 +261,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                         """));
                 }
 
-                var result = await eggRepository.AddEggFindAsync($"{context.User.Id}", $"{context.User.Username}#{context.User.Discriminator}", egg.egg_number);
+                var result = await eggRepository.AddEggFindAsync($"{context.User.Id}", context.User.Username, egg.egg_number);
                 switch (result)
                 {
                     case EggFindAddedResult:
@@ -395,7 +406,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                     {string.Join('\n', entries.Select(
                         entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"egg".ToQuantity(entry.eggs_found, TaylorBotFormats.BoldReadable)}"
                     ))}
-                    
+
                     See your own progress with {context.MentionCommand("egg profile")} 👀
                     """).ToList();
 

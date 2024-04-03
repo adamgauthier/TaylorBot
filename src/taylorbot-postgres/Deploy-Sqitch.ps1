@@ -33,7 +33,10 @@ else {
         bundle --dest-dir /out
 }
 
-$networkName = Get-Content (Join-Path $PSScriptRoot "..\linux-infrastructure\docker-network.name")
+$networkName = "taylorbot-network"
+try {
+    docker network create $networkName
+} catch {}
 
 docker container run `
     --rm `

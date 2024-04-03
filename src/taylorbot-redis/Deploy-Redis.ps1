@@ -7,7 +7,6 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $config = Get-Content -Path "$PSScriptRoot/redis.$Environment.json" -Raw | ConvertFrom-Json
-$networkName = Get-Content (Join-Path $PSScriptRoot "..\linux-infrastructure\docker-network.name")
 
 if ($Environment -eq "Azure") {
     Write-Output "Creating Azure Container Instance resource"
@@ -30,6 +29,11 @@ if ($Environment -eq "Azure") {
 }
 else {
     Write-Output "Creating local container"
+
+    $networkName = "taylorbot-network"
+    try {
+        docker network create $networkName
+    } catch {}
 
     $containerName = $config.ContainerName
     $currentDate = Get-Date -Format "yyyy.MM.dd-HH.mm.ss"

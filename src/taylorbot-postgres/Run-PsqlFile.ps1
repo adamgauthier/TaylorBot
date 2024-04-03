@@ -16,7 +16,10 @@ if ([string]::IsNullOrWhiteSpace($ConnectionString)) {
     $ConnectionString = "postgresql://postgres:$($config.PostgresPassword)@$($config.ContainerName):5432"
 }
 
-$networkName = Get-Content (Join-Path $PSScriptRoot "..\linux-infrastructure\docker-network.name")
+$networkName = "taylorbot-network"
+try {
+    docker network create $networkName
+} catch {}
 
 $sqlFileName = Split-Path -Path $SqlFile -Leaf
 
