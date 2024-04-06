@@ -1,16 +1,17 @@
-﻿using Discord;
-using FakeItEasy;
+﻿using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
 public class LastFmTracksCommandTests
 {
-    private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly DiscordUser _commandUser = CommandUtils.AUser;
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly ILastFmClient _lastFmClient = A.Fake<ILastFmClient>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();

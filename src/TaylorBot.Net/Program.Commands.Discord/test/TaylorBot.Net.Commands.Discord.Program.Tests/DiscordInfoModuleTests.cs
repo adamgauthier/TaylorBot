@@ -6,6 +6,7 @@ using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
@@ -60,7 +61,7 @@ public class DiscordInfoModuleTests
         var guild = A.Fake<IGuild>();
         A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns([guildUser]);
         A.CallTo(() => _commandContext.Guild).Returns(guild);
-        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(guildUser)).Returns(default);
+        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(A<DiscordUser>.That.Matches(u => u.Id == guildUser.Id))).Returns(default);
 
         var result = (await _discordInfoModule.RandomUserInfoAsync()).GetResult<EmbedResult>();
 

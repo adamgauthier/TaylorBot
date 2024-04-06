@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.Username;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.Username;
 
 public class UsernameRepository(PostgresConnectionFactory postgresConnectionFactory) : IUsernameRepository
 {
-    public async ValueTask AddNewUsernameAsync(IUser user)
+    public async ValueTask AddNewUsernameAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -15,8 +15,8 @@ public class UsernameRepository(PostgresConnectionFactory postgresConnectionFact
             "INSERT INTO users.usernames (user_id, username) VALUES (@UserId, @Username);",
             new
             {
-                UserId = user.Id.ToString(),
-                Username = user.Username
+                UserId = $"{user.Id}",
+                Username = user.Username,
             }
         );
     }

@@ -8,8 +8,7 @@ public class TextChannelTrackedPrecondition(ISpamChannelRepository spamChannelRe
     {
         if (context.Guild != null)
         {
-            var textChannel = context.Channel.CreateLegacyTextChannel(context.Guild);
-            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
+            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(context.Channel.Id, context.Guild.Id));
         }
 
         return new PreconditionPassed();

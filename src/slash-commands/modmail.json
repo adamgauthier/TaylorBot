@@ -1,7 +1,12 @@
 {
   "name": "modmail",
   "description": "Send or receive messages from a server's moderation team",
-  "dm_permission": false,
+  "integration_types": [
+    0
+  ],
+  "contexts": [
+    0
+  ],
   "options": [
     {
       "name": "message-mods",

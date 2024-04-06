@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
@@ -15,9 +16,9 @@ public class TaypointsGiftSlashCommand(
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints gift");
 
-    public record Options(ITaypointAmount amount, ParsedUserNotAuthor user);
+    public record Options(ITaypointAmount amount, ParsedFetchedUserNotAuthor user);
 
-    public Command Gift(RunContext context, IUser author, IReadOnlyList<IUser> recipients, ITaypointAmount? amount, string? amountString = null) => new(
+    public Command Gift(RunContext context, IReadOnlyList<DiscordUser> recipients, ITaypointAmount? amount, string? amountString = null) => new(
         new(Info.Name),
         async () =>
         {
@@ -30,8 +31,9 @@ public class TaypointsGiftSlashCommand(
                 }
                 amount = parsed.Value;
             }
-
             ArgumentNullException.ThrowIfNull(amount);
+
+            var author = context.User;
 
             if (amountString == null && recipients.Any(r => r.IsBot))
             {
@@ -43,7 +45,7 @@ public class TaypointsGiftSlashCommand(
                         Are you sure you want to transfer {amountText} to a bot? ⚠️
                         Bots can **NOT** transfer taypoints back. **Your taypoints will be lost!** 🥶
                         """)),
-                    confirm: async () => new(EmbedFactory.CreateSuccess(await TransferAsync(author, recipients, amount)))
+                    confirm: async () => new(EmbedFactory.CreateSuccess(await TransferAsync(context, author, recipients, amount)))
                 );
             }
             else
@@ -64,12 +66,12 @@ public class TaypointsGiftSlashCommand(
 
                     return MessageResult.CreatePrompt(
                         new(EmbedFactory.CreateWarning(promptText)),
-                        confirm: async () => new(EmbedFactory.CreateSuccess(await TransferAsync(author, recipients, amount)))
+                        confirm: async () => new(EmbedFactory.CreateSuccess(await TransferAsync(context, author, recipients, amount)))
                     );
                 }
                 else
                 {
-                    var description = await TransferAsync(author, recipients, amount);
+                    var description = await TransferAsync(context, author, recipients, amount);
                     if (amountString != null)
                     {
                         description += "\n\nCheck out </taypoints gift:1103846727880028180>!";
@@ -107,7 +109,7 @@ public class TaypointsGiftSlashCommand(
         };
     }
 
-    private async ValueTask<string> TransferAsync(IUser from, IReadOnlyList<IUser> to, ITaypointAmount amount)
+    private async ValueTask<string> TransferAsync(RunContext context, DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount)
     {
         var transfer = await taypointTransferRepository.TransferTaypointsAsync(from, to, amount);
 
@@ -116,7 +118,7 @@ public class TaypointsGiftSlashCommand(
         var recipientBalances = transfer.Recipients.Select(r =>
             $"<@{r.UserId}>: {(r.UpdatedBalance - r.Received).ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(r.UpdatedBalance, TaylorBotFormats.BoldReadable)} 📈");
 
-        if (from is IGuildUser member)
+        if (context.Guild != null)
         {
             var nonBots = to.Where(u => !u.IsBot);
             var nonBotRecipientResults = transfer.Recipients.Where(r => nonBots.Any(u => $"{u.Id}" == r.UserId));
@@ -125,7 +127,7 @@ public class TaypointsGiftSlashCommand(
                 .Select(r => new TaypointCountUpdate(r.UserId, r.UpdatedBalance))
                 .Append(new(from.Id, fromBalance))
                 .ToList();
-            taypointGuildCacheUpdater.UpdateLastKnownPointCountsInBackground(member.Guild, updates);
+            taypointGuildCacheUpdater.UpdateLastKnownPointCountsInBackground(context.Guild, updates);
         }
 
         return
@@ -140,7 +142,7 @@ public class TaypointsGiftSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Gift(context, context.User, [options.user.User], options.amount));
+        return new(Gift(context, [new DiscordUser(options.user.User)], options.amount));
     }
 }
 

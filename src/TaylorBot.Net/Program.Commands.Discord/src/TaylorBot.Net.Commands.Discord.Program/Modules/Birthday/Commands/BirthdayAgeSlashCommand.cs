@@ -4,15 +4,15 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger) : ISlashCommand<BirthdayAgeSlashCommand.Options>
+public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdayAgeSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday age");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -20,7 +20,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Tas
             new(Info.Name),
             async () =>
             {
-                var user = options.user.User;
+                DiscordUser user = new(options.user.User);
                 var birthday = await birthdayRepository.GetBirthdayAsync(user);
 
                 if (birthday != null)
@@ -28,11 +28,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Tas
                     if (birthday.Date.Year != IBirthdayRepository.Birthday.NoYearValue)
                     {
                         var age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday.Date);
-
-                        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                            AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, user, age),
-                            nameof(AgeCalculator.TryAddAgeRolesAsync))
-                        );
+                        ageCalculator.TryAddAgeRolesInBackground(user, age);
 
                         var embed = new EmbedBuilder()
                             .WithUserAsAuthor(user)

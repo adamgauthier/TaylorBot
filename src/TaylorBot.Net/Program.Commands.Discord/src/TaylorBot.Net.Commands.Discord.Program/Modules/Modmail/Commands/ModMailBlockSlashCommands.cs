@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
@@ -12,7 +13,7 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail block", IsPrivateResponse: true);
 
-    public record Options(ParsedUserNotAuthorAndBot user);
+    public record Options(ParsedFetchedUserNotAuthorAndBot user);
 
     private static readonly Color EmbedColor = new(255, 100, 100);
 
@@ -22,10 +23,13 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
-                var user = options.user.User;
+                var guild = context.Guild;
+                ArgumentNullException.ThrowIfNull(guild);
+                ArgumentNullException.ThrowIfNull(guild.Fetched);
 
-                var blockedUserCount = await modMailBlockedUsersRepository.GetBlockedUserCountAsync(guild);
+                DiscordUser user = new(options.user.User);
+
+                var blockedUserCount = await modMailBlockedUsersRepository.GetBlockedUserCountAsync(guild.Fetched);
 
                 var isPlus = await plusRepository.IsActivePlusGuildAsync(guild);
 
@@ -38,14 +42,14 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
                             You've reached the limit of blocked users ({MaxBlockedUsersPerGuild}). 😕
-                            Consider making this server a TaylorBot Plus server (`{context.CommandPrefix}plus add`) to remove this limit.
+                            Consider making this server a TaylorBot Plus server (`{await context.CommandPrefix.Value}plus add`) to remove this limit.
                             """));
                     }
                 }
 
-                await modMailBlockedUsersRepository.BlockAsync(guild, user);
+                await modMailBlockedUsersRepository.BlockAsync(guild.Fetched, user);
 
-                var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(guild, context.User, user, logEmbed =>
+                var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(guild.Fetched, context.User, user, logEmbed =>
                     logEmbed
                         .WithColor(EmbedColor)
                         .WithFooter("User blocked from sending mod mail")
@@ -58,7 +62,7 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
             ]
         ));
@@ -69,7 +73,7 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail unblock", IsPrivateResponse: true);
 
-    public record Options(ParsedUserNotAuthorAndBot user);
+    public record Options(ParsedFetchedUserNotAuthorAndBot user);
 
     private static readonly Color EmbedColor = new(205, 120, 230);
 
@@ -79,8 +83,10 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
-                var user = options.user.User;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
+                DiscordUser user = new(options.user.User);
 
                 await modMailBlockedUsersRepository.UnblockAsync(guild, user);
 
@@ -97,7 +103,7 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
             ]
         ));

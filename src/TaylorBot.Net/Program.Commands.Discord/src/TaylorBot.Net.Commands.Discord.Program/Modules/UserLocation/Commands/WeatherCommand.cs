@@ -4,6 +4,7 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
@@ -11,7 +12,7 @@ public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locati
 {
     public static readonly CommandMetadata Metadata = new("location weather", "Location 🌍");
 
-    public Command Weather(IUser author, IUser user, string? locationOverride, RunContext? context = null) => new(
+    public Command Weather(DiscordUser author, IUser user, string? locationOverride, RunContext? context = null) => new(
         Metadata,
         async () =>
         {
@@ -31,7 +32,7 @@ public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locati
             }
             else
             {
-                var storedLocation = await locationRepository.GetLocationAsync(user);
+                var storedLocation = await locationRepository.GetLocationAsync(new(user));
                 if (storedLocation == null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
@@ -97,7 +98,7 @@ public class WeatherSlashCommand(WeatherCommand weatherCommand) : ISlashCommand<
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location weather");
 
-    public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
+    public record Options(ParsedFetchedUserOrAuthor user, ParsedOptionalString location);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

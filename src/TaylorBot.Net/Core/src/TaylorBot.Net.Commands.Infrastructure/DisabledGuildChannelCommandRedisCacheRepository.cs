@@ -1,14 +1,14 @@
-﻿using Discord;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using TaylorBot.Net.Commands.Preconditions;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class DisabledGuildChannelCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, DisabledGuildChannelCommandPostgresRepository disabledGuildChannelCommandPostgresRepository) : IDisabledGuildChannelCommandRepository
 {
-    private static string GetKey(IGuild guild, MessageChannel channel) => $"enabled-commands:guild:{guild.Id}:channel:{channel.Id}";
+    private static string GetKey(CommandGuild guild, CommandChannel channel) =>
+        $"enabled-commands:guild:{guild.Id}:channel:{channel.Id}";
 
-    public async ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName)
+    public async ValueTask DisableInAsync(CommandChannel channel, CommandGuild guild, string commandName)
     {
         await disabledGuildChannelCommandPostgresRepository.DisableInAsync(channel, guild, commandName);
         var redis = connectionMultiplexer.GetDatabase();
@@ -17,7 +17,7 @@ public class DisabledGuildChannelCommandRedisCacheRepository(ConnectionMultiplex
         await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
     }
 
-    public async ValueTask EnableInAsync(MessageChannel channel, IGuild guild, string commandName)
+    public async ValueTask EnableInAsync(CommandChannel channel, CommandGuild guild, string commandName)
     {
         await disabledGuildChannelCommandPostgresRepository.EnableInAsync(channel, guild, commandName);
         var redis = connectionMultiplexer.GetDatabase();
@@ -26,7 +26,7 @@ public class DisabledGuildChannelCommandRedisCacheRepository(ConnectionMultiplex
         await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
     }
 
-    public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command)
+    public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(CommandChannel channel, CommandGuild guild, CommandMetadata command)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(guild, channel);

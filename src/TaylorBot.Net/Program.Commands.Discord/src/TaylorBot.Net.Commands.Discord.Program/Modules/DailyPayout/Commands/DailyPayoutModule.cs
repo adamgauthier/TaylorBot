@@ -14,7 +14,7 @@ public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand d
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            dailyClaimCommand.Claim(Context.User, Context.CommandPrefix, isLegacyCommand: true),
+            dailyClaimCommand.Claim(context.User, Context.CommandPrefix, isLegacyCommand: true),
             context
         );
 

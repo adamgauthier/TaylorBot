@@ -23,13 +23,18 @@ public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepositor
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var leaderboard = await rollStatsRepository.GetLeaderboardAsync(guild);
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(RollLeaderboardSlashCommand),
-                    guild,
-                    leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(RollLeaderboardSlashCommand),
+                        guild.Fetched,
+                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"perfect roll".ToQuantity(entry.perfect_roll_count, TaylorBotFormats.BoldReadable)}"
@@ -37,8 +42,12 @@ public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepositor
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Roll Leaderboard 🍀");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

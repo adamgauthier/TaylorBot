@@ -1,5 +1,5 @@
-﻿using Discord;
-using TaylorBot.Net.Core.Snowflake;
+﻿using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
@@ -14,9 +14,9 @@ public interface IBirthdayRepository
 
     record AgeRole(SnowflakeId RoleId, int MinimumAge);
 
-    ValueTask<Birthday?> GetBirthdayAsync(IUser user);
-    ValueTask ClearBirthdayAsync(IUser user);
-    ValueTask SetBirthdayAsync(IUser user, Birthday birthday);
-    ValueTask<IList<BirthdayCalendarEntry>> GetBirthdayCalendarAsync(IGuild guild);
-    ValueTask<IList<AgeRole>> GetAgeRolesAsync(IGuild guild);
+    ValueTask<Birthday?> GetBirthdayAsync(DiscordUser user);
+    ValueTask ClearBirthdayAsync(DiscordUser user);
+    ValueTask SetBirthdayAsync(DiscordUser user, Birthday birthday);
+    ValueTask<IList<BirthdayCalendarEntry>> GetBirthdayCalendarAsync(CommandGuild guild);
+    ValueTask<IList<AgeRole>> GetAgeRolesAsync(SnowflakeId guildId);
 }

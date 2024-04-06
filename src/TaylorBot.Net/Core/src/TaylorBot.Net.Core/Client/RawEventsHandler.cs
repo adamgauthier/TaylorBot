@@ -15,7 +15,7 @@ public class RawEventsHandler
 
     public void HandleRawEvent(DiscordSocketClient client, string eventName, Func<string, Task> callback)
     {
-        var apiClient = ApiClientProperty.GetGetMethod(nonPublic: true)!.Invoke(client, Array.Empty<object>())!;
+        var apiClient = ApiClientProperty.GetGetMethod(nonPublic: true)!.Invoke(client, [])!;
 
         var receivedEvent = apiClient.GetType().GetEvent("ReceivedGatewayEvent");
         var delegateInstance = Delegate.CreateDelegate(receivedEvent!.EventHandlerType!, this, Handler);

@@ -22,7 +22,9 @@ public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepo
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var timeline = await serverJoinedRepository.GetTimelineAsync(guild);
 
                 var pages = timeline.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
@@ -30,9 +32,13 @@ public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepo
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()
-                    .WithGuildAsAuthor(guild)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Member Joins Timeline");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

@@ -6,13 +6,14 @@ public static class DiscordNetContextMapper
     {
         RunContext runContext = new(
             context.Message.Timestamp,
+            new(context.User),
             context.User,
-            new(context.Channel.Id.ToString()),
-            context.Guild,
+            new(context.Channel.Id),
+            context.Guild != null ? new(context.Guild.Id, context.Guild) : null,
             context.Client,
             context.CurrentUser,
             new(string.Empty, string.Empty),
-            context.CommandPrefix,
+            new(Task.FromResult(context.CommandPrefix)),
             new(),
             context.Activity.Value
         );

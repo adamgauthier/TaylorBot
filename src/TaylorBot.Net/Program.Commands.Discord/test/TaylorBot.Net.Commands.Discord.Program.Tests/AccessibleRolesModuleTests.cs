@@ -30,6 +30,7 @@ public class AccessibleRolesModuleTests
     {
         _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository);
         _accessibleRolesModule.SetContext(_commandContext);
+        A.CallTo(() => _guild.Id).Returns(123u);
         A.CallTo(() => _commandContext.Guild).Returns(_guild);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Message).Returns(_message);

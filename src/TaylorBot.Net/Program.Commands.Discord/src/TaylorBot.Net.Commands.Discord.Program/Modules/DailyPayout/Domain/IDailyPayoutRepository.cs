@@ -1,6 +1,6 @@
-﻿using Discord;
-using OperationResult;
+﻿using OperationResult;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 
@@ -20,10 +20,10 @@ public record DailyLeaderboardEntry(SnowflakeId UserId, string Username, long Cu
 
 public interface IDailyPayoutRepository
 {
-    ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(IUser user);
-    ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount);
-    ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user);
-    ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay);
-    ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
+    ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(DiscordUser user);
+    ValueTask<RedeemResult?> RedeemDailyPayoutAsync(DiscordUser user, uint payoutAmount);
+    ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(DiscordUser user);
+    ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(DiscordUser user, int pricePerDay);
+    ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);
 }
 

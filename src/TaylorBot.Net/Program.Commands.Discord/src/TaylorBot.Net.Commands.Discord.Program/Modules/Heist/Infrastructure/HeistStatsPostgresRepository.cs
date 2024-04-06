@@ -95,7 +95,7 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
         );
     }
 
-    public async Task<IList<HeistLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    public async Task<IList<HeistLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

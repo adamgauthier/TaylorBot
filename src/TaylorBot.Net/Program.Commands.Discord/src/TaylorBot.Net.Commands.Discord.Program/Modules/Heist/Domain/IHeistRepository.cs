@@ -1,5 +1,5 @@
-﻿using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
+﻿using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 
@@ -12,7 +12,7 @@ public record HeistPlayer(string UserId, ITaypointAmount Amount);
 
 public interface IHeistRepository
 {
-    Task<IEnterHeistResult> EnterHeistAsync(IGuildUser user, ITaypointAmount amount, TimeSpan heistDelay);
-    Task<List<HeistPlayer>> EndHeistAsync(IGuild guild);
+    Task<IEnterHeistResult> EnterHeistAsync(DiscordMember member, ITaypointAmount amount, TimeSpan heistDelay);
+    Task<List<HeistPlayer>> EndHeistAsync(CommandGuild guild);
 }
 

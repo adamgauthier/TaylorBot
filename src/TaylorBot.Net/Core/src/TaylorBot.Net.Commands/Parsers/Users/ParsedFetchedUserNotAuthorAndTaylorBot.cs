@@ -6,17 +6,17 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users;
 
-public record ParsedUserNotAuthorAndTaylorBot(IUser User);
+public record ParsedFetchedUserNotAuthorAndTaylorBot(IUser User);
 
-public class UserNotAuthorAndTaylorBotParser(UserNotAuthorParser userNotAuthorParser) : IOptionParser<ParsedUserNotAuthorAndTaylorBot>
+public class FetchedUserNotAuthorAndTaylorBotParser(FetchedUserNotAuthorParser userNotAuthorParser) : IOptionParser<ParsedFetchedUserNotAuthorAndTaylorBot>
 {
-    public async ValueTask<Result<ParsedUserNotAuthorAndTaylorBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    public async ValueTask<Result<ParsedFetchedUserNotAuthorAndTaylorBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         var parsedUser = await userNotAuthorParser.ParseAsync(context, optionValue, resolved);
         if (parsedUser)
         {
             return parsedUser.Value.User.Id != context.BotUser.Id ?
-                new ParsedUserNotAuthorAndTaylorBot(parsedUser.Value.User) :
+                new ParsedFetchedUserNotAuthorAndTaylorBot(parsedUser.Value.User) :
                 Error(new ParsingFailed("User can't be TaylorBot."));
         }
         else

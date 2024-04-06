@@ -19,13 +19,13 @@ public class UsernamesShowSlashCommandTests
     public UsernamesShowSlashCommandTests()
     {
         _command = new UsernamesShowSlashCommand(_usernameHistoryRepository);
-        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null!, _commandGuild, null!, null!, new("123", _command.Info.Name), null!, null!, null!);
+        _runContext = new RunContext(DateTimeOffset.UtcNow, new(_commandUser), null, null!, new("123", _commandGuild), null!, null!, new("123", _command.Info.Name), null!, null!, null!);
     }
 
     [Fact]
     public async Task GetAsync_WhenUsernameHistoryPrivate_ThenReturnsSuccessEmbed()
     {
-        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(_commandUser)).Returns(true);
+        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(_commandUser))).Returns(true);
 
         var result = (EmbedResult)await (await _command.GetCommandAsync(_runContext, new(new(_commandUser)))).RunAsync();
 
@@ -38,8 +38,8 @@ public class UsernamesShowSlashCommandTests
     {
         const string AUsername = "Enchanted13";
 
-        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(_commandUser)).Returns(false);
-        A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(_commandUser, 75)).Returns(new[] {
+        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(_commandUser))).Returns(false);
+        A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(new(_commandUser), 75)).Returns(new[] {
             new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.Now.AddDays(-1))
         });
 

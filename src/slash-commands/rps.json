@@ -1,6 +1,15 @@
 {
   "name": "rps",
   "description": "Play rock paper scissors with TaylorBot",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "play",

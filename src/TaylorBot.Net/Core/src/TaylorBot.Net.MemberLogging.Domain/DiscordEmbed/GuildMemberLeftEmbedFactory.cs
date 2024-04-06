@@ -14,7 +14,7 @@ public class GuildMemberLeftEmbedFactory(IOptionsMonitor<MemberLeftLoggingOption
         var avatarUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl();
 
         return new EmbedBuilder()
-            .WithAuthor($"{user.Username}{user.DiscrimSuffix()} ({user.Id})", avatarUrl, avatarUrl)
+            .WithAuthor($"{user.Handle()} ({user.Id})", avatarUrl, avatarUrl)
             .WithCurrentTimestamp()
             .WithColor(DiscordColor.FromHexString(options.MemberLeftEmbedColorHex))
             .WithFooter("User left")

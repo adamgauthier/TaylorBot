@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 public class LastFmCollageSlashCommand(ILastFmUsernameRepository lastFmUsernameRepository, LastFmEmbedFactory lastFmEmbedFactory, LastFmPeriodStringMapper lastFmPeriodStringMapper, HttpClient httpClient) : ISlashCommand<LastFmCollageSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm collage");
-    public record Options(LastFmPeriod? period, ParsedOptionalInteger size, ParsedUserOrAuthor user);
+    public record Options(LastFmPeriod? period, ParsedOptionalInteger size, ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -21,7 +21,7 @@ public class LastFmCollageSlashCommand(ILastFmUsernameRepository lastFmUsernameR
             {
                 var period = options.period ?? LastFmPeriod.SevenDay;
                 var size = options.size.Value.HasValue ? new(options.size.Value.Value) : new LastFmCollageSize(3);
-                var user = options.user.User;
+                DiscordUser user = new(options.user.User);
 
                 var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 

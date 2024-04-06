@@ -1,13 +1,12 @@
 ﻿using Discord;
-using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
 public interface IDisabledGuildChannelCommandRepository
 {
-    ValueTask<bool> IsGuildChannelCommandDisabledAsync(MessageChannel channel, IGuild guild, CommandMetadata command);
-    ValueTask EnableInAsync(MessageChannel channel, IGuild guild, string commandName);
-    ValueTask DisableInAsync(MessageChannel channel, IGuild guild, string commandName);
+    ValueTask<bool> IsGuildChannelCommandDisabledAsync(CommandChannel channel, CommandGuild guild, CommandMetadata command);
+    ValueTask EnableInAsync(CommandChannel channel, CommandGuild guild, string commandName);
+    ValueTask DisableInAsync(CommandChannel channel, CommandGuild guild, string commandName);
 }
 
 public class NotGuildChannelDisabledPrecondition(IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository) : ICommandPrecondition
@@ -23,13 +22,15 @@ public class NotGuildChannelDisabledPrecondition(IDisabledGuildChannelCommandRep
 
         return isDisabled ?
             new PreconditionFailed(
-                PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {(context.WasAcknowledged ? context.Guild.FormatLog() : context.Guild.Id)}",
-                UserReason: new(string.Join('\n', new[] {
-                    $"You can't use `{command.Metadata.Name}` because it is disabled in {context.Channel.Mention}.",
-                    canRun is PreconditionPassed
+                PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {context.Guild.FormatLog()}",
+                UserReason: new(
+                    $"""
+                    You can't use `{command.Metadata.Name}` because it is disabled in {context.Channel.Mention}.
+                    {(canRun is PreconditionPassed
                         ? $"You can re-enable it by typing </command channel-enable:909694280703016991> {command.Metadata.Name}."
-                        : "Ask a moderator to re-enable it."
-                }))
+                        : "Ask a moderator to re-enable it.")}
+                    """
+                )
             ) :
             new PreconditionPassed();
     }

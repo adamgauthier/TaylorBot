@@ -15,7 +15,7 @@ public class UserArgument<T>(T user, IUserTracker userTracker) : IUserArgument<T
 
     public async ValueTask<T> GetTrackedUserAsync()
     {
-        await userTracker.TrackUserFromArgumentAsync(user);
+        await userTracker.TrackUserFromArgumentAsync(new(user));
 
         return user;
     }

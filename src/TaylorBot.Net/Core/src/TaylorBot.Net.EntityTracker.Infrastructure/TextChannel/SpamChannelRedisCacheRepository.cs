@@ -6,12 +6,12 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
 
 public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, SpamChannelPostgresRepository spamChannelPostgresRepository) : ISpamChannelRepository
 {
-    private static string GetKey(ITextChannel channel)
+    private static string GetKey(GuildTextChannel channel)
     {
         return $"spam-channel:guild:{channel.GuildId}:channel:{channel.Id}";
     }
 
-    public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(ITextChannel channel)
+    public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(GuildTextChannel channel)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(channel);
@@ -34,7 +34,7 @@ public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMul
     public async ValueTask AddSpamChannelAsync(ITextChannel channel)
     {
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(channel);
+        var key = GetKey(new(channel.Id, channel.GuildId));
         var isSpam = true;
 
         await spamChannelPostgresRepository.AddSpamChannelAsync(channel);
@@ -49,7 +49,7 @@ public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMul
     public async ValueTask RemoveSpamChannelAsync(ITextChannel channel)
     {
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(channel);
+        var key = GetKey(new(channel.Id, channel.GuildId));
         var isSpam = false;
 
         await spamChannelPostgresRepository.RemoveSpamChannelAsync(channel);

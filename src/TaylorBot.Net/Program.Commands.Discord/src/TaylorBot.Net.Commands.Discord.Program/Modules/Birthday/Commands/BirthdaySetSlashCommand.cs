@@ -6,11 +6,10 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
-using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger) : ISlashCommand<BirthdaySetSlashCommand.Options>
+public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdaySetSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday set", IsPrivateResponse: true);
 
@@ -78,10 +77,7 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Tas
                 return EmbedFactory.CreateError($"Age must be lower or equal to {MaxAge} years old.");
             }
 
-            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, context.User, age),
-                nameof(AgeCalculator.TryAddAgeRolesAsync))
-            );
+            ageCalculator.TryAddAgeRolesInBackground(context.User, age);
         }
 
         await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));

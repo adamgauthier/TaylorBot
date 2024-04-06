@@ -1,6 +1,5 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Discord;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
@@ -9,6 +8,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Signature.Commands;
 
@@ -25,8 +25,10 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
             new(Info.Name),
             async () =>
             {
-                var guildUser = (IGuildUser)context.User;
-                ServerJoined joined = await GetServerJoinedAsync(guildUser);
+                var user = context.User;
+                ArgumentNullException.ThrowIfNull(user.MemberInfo);
+
+                ServerJoined joined = await GetServerJoinedAsync(new(user, user.MemberInfo));
                 DateTimeOffset joinedAt = joined.first_joined_at ?? throw new InvalidOperationException();
 
                 if (joinedAt > new DateTimeOffset(2023, 11, 24, 0, 0, 0, TimeSpan.Zero))
@@ -68,7 +70,7 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
                         BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "signatures");
 
                         var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
-                        var blob = container.GetBlobClient($"{guildUser.Id}{fileExtension}");
+                        var blob = container.GetBlobClient($"{user.Id}{fileExtension}");
 
                         var signatureExists = await blob.ExistsAsync();
                         if (signatureExists)
@@ -111,7 +113,7 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
                         {
                             Tags = new Dictionary<string, string>
                             {
-                                { "username", guildUser.Username },
+                                { "username", user.Username },
                             },
                         };
 
@@ -135,10 +137,10 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
         ));
     }
 
-    private async Task<ServerJoined> GetServerJoinedAsync(IGuildUser guildUser)
+    private async Task<ServerJoined> GetServerJoinedAsync(DiscordMember guildUser)
     {
         var joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);
-        if (joined.first_joined_at == null && guildUser.JoinedAt is not null)
+        if (joined.first_joined_at == null && guildUser.Member.JoinedAt is not null)
         {
             await serverJoinedRepository.FixMissingJoinedDateAsync(guildUser);
             joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);

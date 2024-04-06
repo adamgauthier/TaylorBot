@@ -19,7 +19,8 @@ public class ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository)
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
 
                 var guildNames = await guildNamesRepository.GetHistoryAsync(guild, 75);
 
@@ -31,8 +32,12 @@ public class ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository)
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Server Name History 🆔");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

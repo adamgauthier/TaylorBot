@@ -50,7 +50,8 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                var guild = context.Guild ?? throw new InvalidOperationException();
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild.Fetched ?? throw new InvalidOperationException();
 
                 await using var connection = postgresConnectionFactory.CreateConnection();
                 var activeMembers = JsonSerializer.Deserialize<ActiveMembers>(await connection.QuerySingleAsync<string>(
@@ -114,7 +115,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
 
     private async Task ProcessMemberAsync(NpgsqlConnection connection, IGuild guild, ActiveMembers.Member member, List<IGuildUser> successful, List<string> cantMessageGuildMembers, List<string> unresolvedGuildMembers, IList<string> usersIdWhoSubmittedSignatures)
     {
-        var taypointReward = 10000;
+        var taypointReward = 10_000;
 
         if (!member.processedInfo.rewarded)
         {

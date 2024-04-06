@@ -1,7 +1,8 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
@@ -9,7 +10,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 {
     private record BirthdayDto(DateOnly birthday, bool is_private);
 
-    public async ValueTask<IBirthdayRepository.Birthday?> GetBirthdayAsync(IUser user)
+    public async ValueTask<IBirthdayRepository.Birthday?> GetBirthdayAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -31,7 +32,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
         ) : null;
     }
 
-    public async ValueTask ClearBirthdayAsync(IUser user)
+    public async ValueTask ClearBirthdayAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -44,7 +45,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    public async ValueTask SetBirthdayAsync(IUser user, IBirthdayRepository.Birthday birthday)
+    public async ValueTask SetBirthdayAsync(DiscordUser user, IBirthdayRepository.Birthday birthday)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -67,7 +68,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
     private record CalendarEntryDto(string user_id, string username, DateOnly next_birthday);
 
-    public async ValueTask<IList<IBirthdayRepository.BirthdayCalendarEntry>> GetBirthdayCalendarAsync(IGuild guild)
+    public async ValueTask<IList<IBirthdayRepository.BirthdayCalendarEntry>> GetBirthdayCalendarAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -94,7 +95,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
     private record AgeRoleDto(string age_role_id, int minimum_age);
 
-    public async ValueTask<IList<IBirthdayRepository.AgeRole>> GetAgeRolesAsync(IGuild guild)
+    public async ValueTask<IList<IBirthdayRepository.AgeRole>> GetAgeRolesAsync(SnowflakeId guildId)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -109,7 +110,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             """,
             new
             {
-                GuildId = $"{guild.Id}",
+                GuildId = $"{guildId}",
             }
         );
 

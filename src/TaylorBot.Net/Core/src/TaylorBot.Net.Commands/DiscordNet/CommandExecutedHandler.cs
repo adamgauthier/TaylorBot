@@ -68,7 +68,7 @@ public class CommandExecutedHandler(
                                 You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**
                                 """;
 
-                            await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
+                            await ignoredUserRepository.IgnoreUntilAsync(new(context.User), DateTimeOffset.Now + ignoreTime);
                         }
 
                         await context.Channel.SendMessageAsync(
@@ -163,7 +163,7 @@ public class CommandExecutedHandler(
 
         if (commandContext.RunContext?.OnGoing.OnGoingCommandAddedToPool != null)
         {
-            await ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
+            await ongoingCommandRepository.RemoveOngoingCommandAsync(new(context.User), commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
         }
 
         if (commandContext.Activity.IsValueCreated)

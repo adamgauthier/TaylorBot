@@ -1,6 +1,14 @@
 {
   "name": "youtube",
   "description": "Search videos on YouTube",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    2
+  ],
   "options": [
     {
       "name": "search",

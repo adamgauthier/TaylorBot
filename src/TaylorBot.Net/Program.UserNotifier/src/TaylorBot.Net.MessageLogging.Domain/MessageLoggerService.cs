@@ -154,7 +154,7 @@ public class MessageLoggerService(MessageLogChannelFinder messageLogChannelFinde
             new(newMessage.Id),
             foundChannel.Channel.CacheExpiry ?? TimeSpan.FromMinutes(10),
             new(
-                AuthorTag: $"{author.Username}{author.DiscrimSuffix()}",
+                AuthorTag: author.Handle(),
                 AuthorId: $"{author.Id}",
                 SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
                 Content: newMessage is IUserMessage userMessage ? userMessage.Content : null,

@@ -1,6 +1,15 @@
 {
   "name": "gender",
   "description": "Set and see your friends gender",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "show",

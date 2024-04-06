@@ -1,5 +1,4 @@
-﻿using Discord;
-using Humanizer;
+﻿using Humanizer;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
@@ -7,6 +6,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
@@ -14,7 +14,7 @@ public class LastFmArtistsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFm
 {
     public static readonly CommandMetadata Metadata = new("lastfm artists", "Last.fm 🎶", ["fm artists", "np artists"]);
 
-    public Command Artists(LastFmPeriod? period, IUser user, bool isLegacyCommand) => new(
+    public Command Artists(LastFmPeriod? period, DiscordUser user, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {
@@ -65,14 +65,14 @@ public class LastFmArtistsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFm
 public class LastFmArtistsSlashCommand(LastFmArtistsCommand lastFmArtistsCommand) : ISlashCommand<LastFmArtistsSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm artists");
-    public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
+    public record Options(LastFmPeriod? period, ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
             lastFmArtistsCommand.Artists(
                 options.period,
-                options.user.User,
+                new(options.user.User),
                 isLegacyCommand: false
             )
         );

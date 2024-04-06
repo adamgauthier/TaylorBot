@@ -1,24 +1,24 @@
-﻿using Discord;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
 public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger, ITaypointBalanceRepository taypointBalanceRepository, TaskExceptionLogger taskExceptionLogger)
 {
-    public void UpdateLastKnownPointCountInBackground(IUser user, long updatedCount)
+    public void UpdateLastKnownPointCountInBackground(DiscordUser user, long updatedCount)
     {
-        if (!user.IsBot && user is IGuildUser guildUser)
+        if (!user.IsBot && user.MemberInfo != null)
         {
             _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                async () => await taypointBalanceRepository.UpdateLastKnownPointCountAsync(guildUser, updatedCount),
+                async () => await taypointBalanceRepository.UpdateLastKnownPointCountAsync(new(user, user.MemberInfo), updatedCount),
                 nameof(taypointBalanceRepository.UpdateLastKnownPointCountAsync)
             ));
         }
     }
 
-    public void UpdateLastKnownPointCountsInBackground(IGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
+    public void UpdateLastKnownPointCountsInBackground(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
     {
         if (updates.Count > 0)
         {

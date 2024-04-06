@@ -1,5 +1,4 @@
-﻿using Discord;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers.Users;
@@ -7,6 +6,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
@@ -14,7 +14,7 @@ public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFm
 {
     public static readonly CommandMetadata Metadata = new("lastfm current", "Last.fm 🎶", ["fm", "np"]);
 
-    public Command Current(IUser user) => new(
+    public Command Current(DiscordUser user) => new(
         Metadata,
         async () =>
         {
@@ -56,10 +56,11 @@ public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFm
                     }
 
                 case LastFmLogInRequiredErrorResult _:
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', [
-                        "Last.fm says your recent tracks are not public. 😢",
-                        $"Make sure 'Hide recent listening information' is off in your {"Last.fm privacy settings".DiscordMdLink("https://www.last.fm/settings/privacy")}!"
-                    ])));
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        $"""
+                        Last.fm says your recent tracks are not public. 😢
+                        Make sure 'Hide recent listening information' is off in your {"Last.fm privacy settings".DiscordMdLink("https://www.last.fm/settings/privacy")}!
+                        """));
 
                 case LastFmGenericErrorResult errorResult:
                     return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
@@ -74,12 +75,12 @@ public class LastFmCurrentSlashCommand(LastFmCurrentCommand lastFmCurrentCommand
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm current");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            lastFmCurrentCommand.Current(options.user.User)
+            lastFmCurrentCommand.Current(new(options.user.User))
         );
     }
 }

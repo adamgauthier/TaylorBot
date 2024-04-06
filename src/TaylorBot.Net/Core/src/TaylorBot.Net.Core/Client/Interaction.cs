@@ -26,7 +26,7 @@ public record Interaction(
 
     public record ApplicationCommandComponent(byte type, string? custom_id, string? value, IReadOnlyList<ApplicationCommandComponent>? components);
 
-    public record GuildMember(User user, string permissions, string joined_at, string? avatar);
+    public record GuildMember(User user, string permissions, string joined_at, string? avatar, IReadOnlyList<string> roles);
 
     public record User(string id, string username, string discriminator, string? avatar);
 

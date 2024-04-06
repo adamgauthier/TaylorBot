@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.User;
 using static TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain.TransferResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
@@ -10,6 +10,6 @@ public record TransferResult(long OriginalCount, long GiftedCount, IReadOnlyList
 
 public interface ITaypointTransferRepository
 {
-    ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IReadOnlyList<IUser> to, ITaypointAmount amount);
+    ValueTask<TransferResult> TransferTaypointsAsync(DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount);
 }
 

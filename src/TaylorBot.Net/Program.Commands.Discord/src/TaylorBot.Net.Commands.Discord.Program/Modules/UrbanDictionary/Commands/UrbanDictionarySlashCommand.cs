@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
 
@@ -12,7 +13,7 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
 {
     public static readonly CommandMetadata Metadata = new("urbandictionary", "Knowledge ❓", ["urban"]);
 
-    public Command Search(IUser author, string query, bool isLegacyCommand = false) => new(
+    public Command Search(DiscordUser author, string query, bool isLegacyCommand = false) => new(
         Metadata,
         async () =>
         {

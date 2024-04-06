@@ -4,23 +4,24 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 public interface IBaeRepository
 {
-    ValueTask<string?> GetBaeAsync(IUser user);
-    ValueTask SetBaeAsync(IUser user, string bae);
-    ValueTask ClearBaeAsync(IUser user);
+    ValueTask<string?> GetBaeAsync(DiscordUser user);
+    ValueTask SetBaeAsync(DiscordUser user, string bae);
+    ValueTask ClearBaeAsync(DiscordUser user);
 }
 
 public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae show");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
-    public static Embed BuildDisplayEmbed(IUser user, string favoriteBae)
+    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteBae)
     {
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
@@ -30,7 +31,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
             .Build();
     }
 
-    public Command Show(IUser user, RunContext? context = null) => new(
+    public Command Show(DiscordUser user, RunContext? context = null) => new(
         new(Info.Name),
         async () =>
         {
@@ -54,7 +55,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Show(options.user.User, context));
+        return new(Show(new(options.user.User), context));
     }
 }
 

@@ -23,13 +23,14 @@ public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemb
                 var channel = options.channel.Channel;
                 await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', [
-                    $"Ok, I will now log member joins, leaves and bans in {channel.Mention}. 😊",
-                    $"Use {context.MentionCommand("monitor members stop")} to stop monitoring member events."
-                ])));
+                return new EmbedResult(EmbedFactory.CreateSuccess(
+                    $"""
+                    Ok, I will now log member joins, leaves and bans in {channel.Mention}. 😊
+                    Use {context.MentionCommand("monitor members stop")} to stop monitoring member events.
+                    """));
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
@@ -47,7 +48,9 @@ public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLo
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
                 var log = await memberLogChannelRepository.GetMemberLogForGuildAsync(guild);
 
                 Embed? embed = null;
@@ -57,31 +60,34 @@ public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLo
                     var channel = (ITextChannel?)await guild.GetChannelAsync(log.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed = EmbedFactory.CreateSuccess(string.Join('\n', [
-                            $"This server is configured to log member joins, leaves and bans in {channel.Mention}. ✅",
-                            $"Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server."
-                        ]));
+                        embed = EmbedFactory.CreateSuccess(
+                            $"""
+                            This server is configured to log member joins, leaves and bans in {channel.Mention}. ✅
+                            Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server.
+                            """);
                     }
                     else
                     {
-                        embed = EmbedFactory.CreateSuccess(string.Join('\n', [
-                            "I can't find the previously configured member events logging channel in this server. ❌",
-                            $"Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel."
-                        ]));
+                        embed = EmbedFactory.CreateSuccess(
+                            $"""
+                            I can't find the previously configured member events logging channel in this server. ❌
+                            Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel.
+                            """);
                     }
                 }
                 else
                 {
-                    embed = EmbedFactory.CreateSuccess(string.Join('\n', [
-                        "Member events monitoring is not configured in this server. ❌",
-                        $"Use {context.MentionCommand("monitor members set")} to log member events in a specific channel."
-                    ]));
+                    embed = EmbedFactory.CreateSuccess(
+                        $"""
+                        Member events monitoring is not configured in this server. ❌
+                        Use {context.MentionCommand("monitor members set")} to log member events in a specific channel.
+                        """);
                 }
 
                 return new EmbedResult(embed);
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));
@@ -98,15 +104,19 @@ public class MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLo
             new(Info.Name),
             async () =>
             {
-                await memberLogChannelRepository.RemoveMemberLogAsync(context.Guild!);
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(string.Join('\n', [
-                    "Ok, I will stop logging member events in this server. 😊",
-                    $"Use {context.MentionCommand("monitor members set")} to log member events in a specific channel."
-                ])));
+                await memberLogChannelRepository.RemoveMemberLogAsync(guild);
+
+                return new EmbedResult(EmbedFactory.CreateSuccess(
+                    $"""
+                    Ok, I will stop logging member events in this server. 😊
+                    Use {context.MentionCommand("monitor members set")} to log member events in a specific channel.
+                    """));
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));

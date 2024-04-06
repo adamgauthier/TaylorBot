@@ -17,7 +17,7 @@ public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand hei
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            heistCommand.Heist(context, Context.User, amount: null, amountString: amount),
+            heistCommand.Heist(context, amount: null, amountString: amount),
             context
         );
 

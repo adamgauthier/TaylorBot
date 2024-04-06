@@ -6,6 +6,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
@@ -13,7 +14,7 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
 {
     public static readonly CommandMetadata Metadata = new("image", "Media 📷", ["imagen"]);
 
-    public Command Image(IUser user, string text, bool isLegacyCommand) => new(
+    public Command Image(DiscordUser user, string text, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {

@@ -4,23 +4,24 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 public interface IObsessionRepository
 {
-    ValueTask<string?> GetObsessionAsync(IUser user);
-    ValueTask SetObsessionAsync(IUser user, string obsession);
-    ValueTask ClearObsessionAsync(IUser user);
+    ValueTask<string?> GetObsessionAsync(DiscordUser user);
+    ValueTask SetObsessionAsync(DiscordUser user, string obsession);
+    ValueTask ClearObsessionAsync(DiscordUser user);
 }
 
 public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<FavoriteObsessionShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite obsession show");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
-    public static Embed BuildDisplayEmbed(IUser user, string favoriteObsession)
+    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteObsession)
     {
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
@@ -34,7 +35,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
         new(Info.Name),
         async () =>
         {
-            var favoriteObsession = await obsessionRepository.GetObsessionAsync(user);
+            var favoriteObsession = await obsessionRepository.GetObsessionAsync(new(user));
 
             if (favoriteObsession != null)
             {
@@ -48,7 +49,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                         """));
                 }
 
-                Embed embed = BuildDisplayEmbed(user, favoriteObsession);
+                Embed embed = BuildDisplayEmbed(new(user), favoriteObsession);
                 return new EmbedResult(embed);
             }
             else
@@ -74,7 +75,7 @@ public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepo
 
     public record Options(ParsedString obsession);
 
-    public Command Set(IUser user, string favoriteObsession, RunContext? context = null) => new(
+    public Command Set(DiscordUser user, string favoriteObsession, RunContext? context = null) => new(
         new(Info.Name),
         async () =>
         {

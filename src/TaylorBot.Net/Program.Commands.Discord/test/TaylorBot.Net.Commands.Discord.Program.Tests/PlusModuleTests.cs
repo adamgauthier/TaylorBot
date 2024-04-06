@@ -41,7 +41,9 @@ public class PlusModuleTests
     [Fact]
     public async Task AddAsync_WhenMaxGuilds_ThenReturnsErrorEmbed()
     {
-        A.CallTo(() => _commandContext.Guild).Returns(A.Fake<IGuild>(o => o.Strict()));
+        var guild = A.Fake<IGuild>(o => o.Strict());
+        A.CallTo(() => guild.Id).Returns(123u);
+        A.CallTo(() => _commandContext.Guild).Returns(guild);
         A.CallTo(() => _plusUserRepository.GetPlusUserAsync(_commandUser)).Returns(new PlusUser(IsActive: true, MaxPlusGuilds: 2, ["A Server", "Another Server"]));
 
         var result = (await _plusModule.AddAsync()).GetResult<EmbedResult>();

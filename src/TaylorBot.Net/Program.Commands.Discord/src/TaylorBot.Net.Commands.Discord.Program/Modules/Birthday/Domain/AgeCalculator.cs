@@ -1,8 +1,10 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
-public class AgeCalculator
+public class AgeCalculator(TaskExceptionLogger taskExceptionLogger, Lazy<ITaylorBotClient> client, IBirthdayRepository birthdayRepository)
 {
     public static int GetCurrentAge(DateTimeOffset now, DateOnly birthday)
     {
@@ -17,22 +19,29 @@ public class AgeCalculator
         return age;
     }
 
-    public static async Task TryAddAgeRolesAsync(IBirthdayRepository birthdayRepository, IUser user, int age)
+    private async Task TryAddAgeRolesAsync(DiscordUser user, int age)
     {
-        if (user is IGuildUser guildUser)
+        if (user.MemberInfo != null)
         {
-            var ageRoles = await birthdayRepository.GetAgeRolesAsync(guildUser.Guild);
+            var ageRoles = await birthdayRepository.GetAgeRolesAsync(user.MemberInfo.GuildId);
 
             foreach (var ageRole in ageRoles.Where(a =>
                 age >= a.MinimumAge &&
-                !guildUser.RoleIds.Contains(a.RoleId)))
+                !user.MemberInfo.Roles.Contains(a.RoleId)))
             {
-                var role = guildUser.Guild.Roles.FirstOrDefault(r => r.Id == ageRole.RoleId);
-                if (role != null)
+                await client.Value.AddRoleAsync(user.MemberInfo.GuildId, user.Id, ageRole.RoleId, new()
                 {
-                    await guildUser.AddRoleAsync(role, new() { AuditLogReason = $"Assigned age role on user's birthday command ({age} years old)" });
-                }
+                    AuditLogReason = $"Assigned age role on user's birthday command ({age} years old)"
+                });
             }
         }
+    }
+
+    public void TryAddAgeRolesInBackground(DiscordUser user, int age)
+    {
+        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+            TryAddAgeRolesAsync(user, age),
+            nameof(TryAddAgeRolesAsync))
+        );
     }
 }

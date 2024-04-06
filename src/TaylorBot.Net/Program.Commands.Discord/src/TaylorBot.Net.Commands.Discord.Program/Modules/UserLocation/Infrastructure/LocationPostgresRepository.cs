@@ -1,7 +1,7 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
@@ -9,7 +9,7 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
 {
     private record LocationDto(string latitude, string longitude, string formatted_address, string timezone_id);
 
-    public async ValueTask<StoredLocation?> GetLocationAsync(IUser user)
+    public async ValueTask<StoredLocation?> GetLocationAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -34,7 +34,7 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
         ) : null;
     }
 
-    public async ValueTask SetLocationAsync(IUser user, StoredLocation location)
+    public async ValueTask SetLocationAsync(DiscordUser user, StoredLocation location)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -59,7 +59,7 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    public async ValueTask ClearLocationAsync(IUser user)
+    public async ValueTask ClearLocationAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

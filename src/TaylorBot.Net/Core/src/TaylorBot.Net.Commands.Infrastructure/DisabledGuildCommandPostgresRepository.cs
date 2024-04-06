@@ -40,7 +40,7 @@ public class DisabledGuildCommandPostgresRepository(PostgresConnectionFactory po
         );
     }
 
-    public async ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
+    public async ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(CommandGuild guild, CommandMetadata command)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

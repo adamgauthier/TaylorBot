@@ -24,7 +24,8 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild ?? throw new InvalidOperationException();
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
 
                 var leaderboard = await taypointBalanceRepository.GetLeaderboardAsync(guild);
                 UpdateLastKnownPointCountsInBackground(guild, leaderboard);
@@ -32,10 +33,13 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
                 // We requested more rows than necessary to update their last known point counts
                 var leaderboardToDisplay = leaderboard.Take(150).ToList();
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(TaypointsLeaderboardSlashCommand),
-                    guild,
-                    leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id)).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(TaypointsLeaderboardSlashCommand),
+                        guild.Fetched,
+                        leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id)).ToList());
+                }
 
                 var pages = leaderboardToDisplay.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"taypoint".ToQuantity(entry.last_known_taypoint_count, TaylorBotFormats.BoldReadable)}"
@@ -43,8 +47,12 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Taypoint Leaderboard 🪙");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(
@@ -65,7 +73,7 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
         ));
     }
 
-    private void UpdateLastKnownPointCountsInBackground(IGuild guild, IList<TaypointLeaderboardEntry> leaderboard)
+    private void UpdateLastKnownPointCountsInBackground(CommandGuild guild, IList<TaypointLeaderboardEntry> leaderboard)
     {
         var updates = leaderboard
             .Where(e => e.last_known_taypoint_count != e.taypoint_count)

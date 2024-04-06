@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 
 public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointTransferRepository
 {
-    public async ValueTask<TransferResult> TransferTaypointsAsync(IUser from, IReadOnlyList<IUser> to, ITaypointAmount amount)
+    public async ValueTask<TransferResult> TransferTaypointsAsync(DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -54,7 +54,7 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
                     ReceiverId = $"{recipient.User.Id}",
                 }
             );
-            recipients.Add(new($"{recipient.User.Id}", recipient.Amount, newCount));
+            recipients.Add(new(recipient.User.Id, recipient.Amount, newCount));
         }
 
         transaction.Commit();
@@ -63,5 +63,5 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
 
     private record RemoveTaypointDto(long original_count, long gifted_count);
 
-    private record RecipientUser(IUser User, long Amount);
+    private record RecipientUser(DiscordUser User, long Amount);
 }

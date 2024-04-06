@@ -29,7 +29,9 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
                 var userIds = options.userids.Value.Split(',').Select(i => i.Trim()).ToList();
 
                 List<IGuildUser> successful = [];
@@ -78,7 +80,7 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
         var guildUser = await client.ResolveGuildUserAsync(guild, userId);
         if (guildUser != null)
         {
-            var url = guildUser.GetGuildAvatarUrlOrDefault(size: 2048);
+            var url = new DiscordUser(guildUser).GetGuildAvatarUrlOrDefault(size: 2048);
             BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "avatars");
 
             var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);

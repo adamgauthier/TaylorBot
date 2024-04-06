@@ -1,6 +1,6 @@
 ﻿namespace TaylorBot.Net.Commands.Preconditions;
 
-public class InGuildPrecondition : ICommandPrecondition
+public class InGuildPrecondition(bool botMustBeInGuild = false) : ICommandPrecondition
 {
     public ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -9,6 +9,14 @@ public class InGuildPrecondition : ICommandPrecondition
             return new(new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} can only be used in a guild",
                 UserReason: new($"You can't use `{command.Metadata.Name}` because it can only be used in a server.")
+            ));
+        }
+
+        if (botMustBeInGuild && context.Guild.Fetched == null)
+        {
+            return new(new PreconditionFailed(
+                PrivateReason: $"{command.Metadata.Name} requires bot to be in guild",
+                UserReason: new($"You can't use `{command.Metadata.Name}` because it requires TaylorBot to be added to this server.")
             ));
         }
 

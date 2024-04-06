@@ -1,13 +1,13 @@
-﻿using Discord;
-using OperationResult;
+﻿using OperationResult;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
 public class LocationFetcherDomainService(IRateLimiter rateLimiter, ILocationClient locationClient)
 {
-    public async Task<Result<Location, ICommandResult>> GetLocationAsync(IUser author, string location)
+    public async Task<Result<Location, ICommandResult>> GetLocationAsync(DiscordUser author, string location)
     {
         var placeRateLimit = await rateLimiter.VerifyDailyLimitAsync(author, "google-places-search");
         if (placeRateLimit != null)

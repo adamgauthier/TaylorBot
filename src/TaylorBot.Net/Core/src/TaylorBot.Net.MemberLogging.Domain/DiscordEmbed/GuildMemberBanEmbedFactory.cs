@@ -14,7 +14,7 @@ public class GuildMemberBanEmbedFactory(IOptionsMonitor<MemberBanLoggingOptions>
         var avatarUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl();
 
         return new EmbedBuilder()
-            .WithAuthor($"{user.Username}{user.DiscrimSuffix()} ({user.Id})", avatarUrl, avatarUrl)
+            .WithAuthor($"{user.Handle()} ({user.Id})", avatarUrl, avatarUrl)
             .WithCurrentTimestamp()
             .WithColor(DiscordColor.FromHexString(options.MemberBannedEmbedColorHex))
             .WithFooter("User banned")
@@ -27,7 +27,7 @@ public class GuildMemberBanEmbedFactory(IOptionsMonitor<MemberBanLoggingOptions>
         var avatarUrl = user.GetAvatarUrl() ?? user.GetDefaultAvatarUrl();
 
         return new EmbedBuilder()
-            .WithAuthor($"{user.Username}{user.DiscrimSuffix()} ({user.Id})", avatarUrl, avatarUrl)
+            .WithAuthor($"{user.Handle()} ({user.Id})", avatarUrl, avatarUrl)
             .WithCurrentTimestamp()
             .WithColor(DiscordColor.FromHexString(options.MemberUnbannedEmbedColorHex))
             .WithFooter("User unbanned")

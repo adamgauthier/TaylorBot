@@ -11,7 +11,7 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("daily streak");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -19,13 +19,14 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
             new(Info.Name),
             async () =>
             {
-                var streakInfo = await dailyPayoutRepository.GetStreakInfoAsync(options.user.User);
+                var user = options.user.User;
+                var streakInfo = await dailyPayoutRepository.GetStreakInfoAsync(new(user));
 
                 if (!streakInfo.HasValue)
                 {
                     return new EmbedResult(EmbedFactory.CreateSuccess(
                         $"""
-                        {options.user.User.Mention} has never claimed their daily reward! ❌
+                        {user.Mention} has never claimed their daily reward! ❌
                         Use {context.MentionCommand("daily claim")} to claim your daily reward!
                         """));
                 }
@@ -33,14 +34,14 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
                 {
                     return new EmbedResult(EmbedFactory.CreateSuccess(
                         $"""
-                        {options.user.User.Mention}'s current streak is {"day".ToQuantity(streakInfo.Value.CurrentStreak, TaylorBotFormats.BoldReadable)}! ⭐
+                        {user.Mention}'s current streak is {"day".ToQuantity(streakInfo.Value.CurrentStreak, TaylorBotFormats.BoldReadable)}! ⭐
                         Their highest streak ever is {"day".ToQuantity(streakInfo.Value.MaxStreak, TaylorBotFormats.BoldReadable)}! 🥇
                         """));
                 }
                 else
                 {
                     return new EmbedResult(EmbedFactory.CreateSuccess(
-                        $"{options.user.User.Mention}'s current streak is the highest it's ever been ({"day".ToQuantity(streakInfo.Value.CurrentStreak, TaylorBotFormats.BoldReadable)})! ⭐"
+                        $"{user.Mention}'s current streak is the highest it's ever been ({"day".ToQuantity(streakInfo.Value.CurrentStreak, TaylorBotFormats.BoldReadable)})! ⭐"
                     ));
                 }
             }

@@ -1,7 +1,12 @@
 {
   "name": "server",
   "description": "Gets information about the current server",
-  "dm_permission": false,
+  "integration_types": [
+    0
+  ],
+  "contexts": [
+    0
+  ],
   "options": [
     {
       "name": "names",

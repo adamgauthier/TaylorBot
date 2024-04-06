@@ -27,7 +27,8 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverActiv
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
 
                 var leaderboardData = await GetLeaderboardData(options, guild);
 
@@ -47,7 +48,7 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverActiv
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }

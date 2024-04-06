@@ -1,7 +1,7 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 
@@ -9,7 +9,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
 {
     private record TaypointBalanceDto(long taypoint_count);
 
-    public async ValueTask<TaypointBalance> GetBalanceAsync(IUser user)
+    public async ValueTask<TaypointBalance> GetBalanceAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -24,7 +24,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
         return new(balance.taypoint_count, null);
     }
 
-    public async ValueTask UpdateLastKnownPointCountAsync(IGuildUser guildUser, long updatedCount)
+    public async ValueTask UpdateLastKnownPointCountAsync(DiscordMember member, long updatedCount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -36,14 +36,14 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
             """,
             new
             {
-                GuildId = $"{guildUser.GuildId}",
-                UserId = $"{guildUser.Id}",
+                GuildId = $"{member.Member.GuildId}",
+                UserId = $"{member.User.Id}",
                 TaypointCount = updatedCount,
             }
         );
     }
 
-    public async ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    public async ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -68,7 +68,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
         )).ToList();
     }
 
-    public async ValueTask UpdateLastKnownPointCountsAsync(IGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
+    public async ValueTask UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
     {
         List<string> userIds = [];
         List<long> counts = [];

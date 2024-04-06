@@ -18,7 +18,9 @@ public class CommandServerDisableSlashCommand(ICommandRepository commandReposito
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
                 var name = options.command.Value.Trim().ToLowerInvariant();
                 var command = await commandRepository.FindCommandByAliasAsync(name);
 
@@ -39,7 +41,7 @@ public class CommandServerDisableSlashCommand(ICommandRepository commandReposito
 
                 await disabledGuildCommandRepository.DisableInAsync(guild, command.Name);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in '{guild.Name}'. ✅"));
+                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in this server ✅"));
             },
             Preconditions: [
                 new InGuildPrecondition(),
@@ -61,7 +63,9 @@ public class CommandServerEnableSlashCommand(ICommandRepository commandRepositor
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
                 var name = options.command.Value.Trim().ToLowerInvariant();
                 var command = await commandRepository.FindCommandByAliasAsync(name);
 
@@ -72,7 +76,7 @@ public class CommandServerEnableSlashCommand(ICommandRepository commandRepositor
 
                 await disabledGuildCommandRepository.EnableInAsync(guild, command.Name);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in '{guild.Name}'. ✅"));
+                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in this server ✅"));
             },
             Preconditions: [
                 new InGuildPrecondition(),

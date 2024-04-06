@@ -1,6 +1,6 @@
-﻿using Discord;
-using Humanizer;
+﻿using Humanizer;
 using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.User;
 
@@ -10,8 +10,8 @@ public record GetUserIgnoreUntilResult(DateTimeOffset IgnoreUntil, bool WasAdded
 
 public interface IIgnoredUserRepository
 {
-    ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot);
-    ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until);
+    ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(DiscordUser user, bool isBot);
+    ValueTask IgnoreUntilAsync(DiscordUser user, DateTimeOffset until);
 }
 
 public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService) : ICommandPrecondition

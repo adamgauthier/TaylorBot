@@ -1,8 +1,8 @@
-﻿using Discord;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Globalization;
 using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands;
 
@@ -13,12 +13,12 @@ public interface IRateLimitRepository
 
 public interface IRateLimiter
 {
-    ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action);
+    ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(DiscordUser user, string action);
 }
 
 public class CommandRateLimiter(IOptionsMonitor<CommandApplicationOptions> options, IRateLimitRepository rateLimitRepository, IPlusRepository plusRepository) : IRateLimiter
 {
-    public async ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(IUser user, string action)
+    public async ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(DiscordUser user, string action)
     {
         var date = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
         var key = $"user:{user.Id}:action:{action}:date:{date}";

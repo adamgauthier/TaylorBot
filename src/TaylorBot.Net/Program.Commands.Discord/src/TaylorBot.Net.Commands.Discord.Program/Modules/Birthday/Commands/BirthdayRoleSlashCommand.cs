@@ -28,18 +28,19 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
             new(Info.Name),
             async () =>
             {
-                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
 
-                var roleId = await birthdayRoleRepository.GetRoleForGuildAsync(context.Guild);
+                var roleId = await birthdayRoleRepository.GetRoleForGuildAsync(guild);
                 if (roleId is not null)
                 {
-                    var role = context.Guild.GetRole(new SnowflakeId(roleId));
+                    var role = guild.GetRole(new SnowflakeId(roleId));
                     if (role is not null)
                     {
                         return new MessageResult(
                             new(new EmbedBuilder()
                                 .WithColor(TaylorBotColors.SuccessColor)
-                                .WithGuildAsAuthor(context.Guild)
+                                .WithGuildAsAuthor(guild)
                                 .WithDescription(
                                     $"""
                                     The birthday role for this server is {role.Mention} ✅
@@ -47,7 +48,7 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
                                     """)
                                 .Build()),
                             new([
-                                new ButtonResult(new("stop", ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"), _ => RemoveAsync(context, context.Guild, role)),
+                                new ButtonResult(new("stop", ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"), _ => RemoveAsync(context, guild, role)),
                             ]));
                     }
                     else
@@ -55,7 +56,7 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
                         return new MessageResult(
                             new(new EmbedBuilder()
                                 .WithColor(TaylorBotColors.SuccessColor)
-                                .WithGuildAsAuthor(context.Guild)
+                                .WithGuildAsAuthor(guild)
                                 .WithDescription(
                                     """
                                     There used to be a birthday role for this server, but it is now deleted 😮
@@ -63,8 +64,8 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
                                     """)
                                 .Build()),
                             new([
-                                new ButtonResult(new("recreate", ButtonStyle.Primary, Label: "Re-create birthday role", Emoji: "🎂"), _ => CreateAsync(context, context.Guild)),
-                                new ButtonResult(new("stop", ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"), _ => RemoveAsync(context, context.Guild, role)),
+                                new ButtonResult(new("recreate", ButtonStyle.Primary, Label: "Re-create birthday role", Emoji: "🎂"), _ => CreateAsync(context, guild)),
+                                new ButtonResult(new("stop", ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"), _ => RemoveAsync(context, guild, role)),
                             ]));
                     }
                 }
@@ -73,7 +74,7 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
                     return new MessageResult(
                         new(new EmbedBuilder()
                             .WithColor(TaylorBotColors.SuccessColor)
-                            .WithGuildAsAuthor(context.Guild)
+                            .WithGuildAsAuthor(guild)
                             .WithDescription(
                                 $"""
                                 There is no birthday role in this server 😕
@@ -82,7 +83,7 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
                                 """)
                             .Build()),
                         new([
-                            new ButtonResult(new("create", ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂"), _ => CreateAsync(context, context.Guild)),
+                            new ButtonResult(new("create", ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂"), _ => CreateAsync(context, guild)),
                         ]));
                 }
             },

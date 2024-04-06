@@ -1,22 +1,24 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Infrastructure;
 
 public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IReminderRepository
 {
-    public async ValueTask<long> GetReminderCountAsync(IUser user)
+    public async ValueTask<long> GetReminderCountAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<int>(
-            @"SELECT COUNT(*) FROM users.reminders
-                WHERE user_id = @UserId;",
+            """
+            SELECT COUNT(*) FROM users.reminders
+            WHERE user_id = @UserId;
+            """,
             new
             {
-                UserId = user.Id.ToString()
+                UserId = $"{user.Id}",
             }
         );
     }
@@ -28,32 +30,36 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
         public string reminder_text { get; set; } = null!;
     }
 
-    public async ValueTask<IList<Reminder>> GetRemindersAsync(IUser user)
+    public async ValueTask<IList<Reminder>> GetRemindersAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var reminders = await connection.QueryAsync<ReminderDto>(
-            @"SELECT reminder_id, remind_at, reminder_text FROM users.reminders
-                WHERE user_id = @UserId;",
+            """
+            SELECT reminder_id, remind_at, reminder_text FROM users.reminders
+            WHERE user_id = @UserId;
+            """,
             new
             {
-                UserId = user.Id.ToString()
+                UserId = $"{user.Id}",
             }
         );
 
         return reminders.Select(r => new Reminder(r.reminder_id, r.remind_at, r.reminder_text)).ToList();
     }
 
-    public async ValueTask AddReminderAsync(IUser user, DateTimeOffset remindAt, string text)
+    public async ValueTask AddReminderAsync(DiscordUser user, DateTimeOffset remindAt, string text)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"INSERT INTO users.reminders (user_id, remind_at, reminder_text)
-                VALUES (@UserId, @RemindAt, @ReminderText);",
+            """
+            INSERT INTO users.reminders (user_id, remind_at, reminder_text)
+            VALUES (@UserId, @RemindAt, @ReminderText);
+            """,
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
                 RemindAt = remindAt.ToUniversalTime(),
                 ReminderText = text,
             }
@@ -73,7 +79,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    public async ValueTask ClearAllRemindersAsync(IUser user)
+    public async ValueTask ClearAllRemindersAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -81,7 +87,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
             @"DELETE FROM users.reminders WHERE user_id = @UserId;",
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
             }
         );
     }

@@ -27,7 +27,7 @@ public class FavoriteModule(
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            favoriteSongsShowCommand.Show(u),
+            favoriteSongsShowCommand.Show(new(u)),
             context
         );
 
@@ -44,7 +44,7 @@ public class FavoriteModule(
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            favoriteSongsSetCommand.Set(Context.User, text, null),
+            favoriteSongsSetCommand.Set(context.User, text, null),
             context
         );
 
@@ -85,7 +85,7 @@ public class FavoriteModule(
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            favoriteBaeShowCommand.Show(u),
+            favoriteBaeShowCommand.Show(new(u)),
             context
         );
 

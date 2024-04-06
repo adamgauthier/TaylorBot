@@ -1,7 +1,12 @@
 {
   "name": "kick",
   "description": "Kick server members",
-  "dm_permission": false,
+  "integration_types": [
+    0
+  ],
+  "contexts": [
+    0
+  ],
   "options": [
     {
       "name": "member",

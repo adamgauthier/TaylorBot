@@ -5,6 +5,7 @@ using FluentAssertions;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Types.Tests;
@@ -19,6 +20,12 @@ public class MentionedUserTypeReaderTests
     private readonly IServiceProvider _serviceProvider = A.Fake<IServiceProvider>(o => o.Strict());
     private readonly IUserTracker _userTracker = A.Fake<IUserTracker>(o => o.Strict());
 
+    public MentionedUserTypeReaderTests()
+    {
+        A.CallTo(() => AUser.Id).Returns(AnId);
+        A.CallTo(() => AGuildUser.Id).Returns(AnId);
+    }
+
     [Fact]
     public async Task ReadAsync_WhenIUserMentionInChannel_ThenReturnsUser()
     {
@@ -27,7 +34,7 @@ public class MentionedUserTypeReaderTests
         A.CallTo(() => _commandContext.Guild).Returns(null!);
         A.CallTo(() => _commandContext.Channel).Returns(channel);
         A.CallTo(() => channel.GetUserAsync(AnId, CacheMode.CacheOnly, null)).Returns(AUser);
-        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(AUser)).Returns(default);
+        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(A<DiscordUser>.That.Matches(u => u.Id == AnId))).Returns(default);
 
         var result = (IMentionedUser<IUser>)(await mentionedUserTypeReader.ReadAsync(_commandContext, MentionUtils.MentionUser(AnId), _serviceProvider)).Values.Single().Value;
         var user = await result.GetTrackedUserAsync();
@@ -54,7 +61,7 @@ public class MentionedUserTypeReaderTests
         var taylorbotClient = A.Fake<ITaylorBotClient>(o => o.Strict());
         A.CallTo(() => taylorbotClient.ResolveGuildUserAsync(guild, A<SnowflakeId>.That.Matches(id => id.Id == AnId))).Returns(null);
         A.CallTo(() => _serviceProvider.GetService(typeof(ITaylorBotClient))).Returns(taylorbotClient);
-        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(AGuildUser)).Returns(default);
+        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(A<DiscordUser>.That.Matches(u => u.Id == AnId))).Returns(default);
 
         var result = await mentionedUserTypeReader.ReadAsync(_commandContext, MentionUtils.MentionUser(AnId), _serviceProvider);
 
@@ -70,7 +77,7 @@ public class MentionedUserTypeReaderTests
         var taylorbotClient = A.Fake<ITaylorBotClient>(o => o.Strict());
         A.CallTo(() => taylorbotClient.ResolveGuildUserAsync(guild, A<SnowflakeId>.That.Matches(id => id.Id == AnId))).Returns(AGuildUser);
         A.CallTo(() => _serviceProvider.GetService(typeof(ITaylorBotClient))).Returns(taylorbotClient);
-        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(AGuildUser)).Returns(default);
+        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(A<DiscordUser>.That.Matches(u => u.Id == AnId))).Returns(default);
 
         var result = (IMentionedUser<IGuildUser>)(await mentionedUserTypeReader.ReadAsync(_commandContext, MentionUtils.MentionUser(AnId), _serviceProvider)).Values.Single().Value;
         var user = await result.GetTrackedUserAsync();

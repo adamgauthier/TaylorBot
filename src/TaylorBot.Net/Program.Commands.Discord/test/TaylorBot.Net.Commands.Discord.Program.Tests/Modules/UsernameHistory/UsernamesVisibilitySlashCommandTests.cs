@@ -3,14 +3,16 @@ using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.UsernameHistory;
 
 public class UsernamesVisibilitySlashCommandTests
 {
-    private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly DiscordUser _commandUser = CommandUtils.AUser;
     private readonly IGuild _commandGuild = A.Fake<IGuild>();
     private readonly IUsernameHistoryRepository _usernameHistoryRepository = A.Fake<IUsernameHistoryRepository>(o => o.Strict());
     private readonly RunContext _runContext;
@@ -19,7 +21,7 @@ public class UsernamesVisibilitySlashCommandTests
     public UsernamesVisibilitySlashCommandTests()
     {
         _command = new UsernamesVisibilitySlashCommand(_usernameHistoryRepository);
-        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null!, _commandGuild, null!, null!, new("123", _command.Info.Name), null!, null!, null!);
+        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null, null!, new("123", _commandGuild), null!, null!, new("123", _command.Info.Name), null!, null!, null!);
     }
 
     [Fact]

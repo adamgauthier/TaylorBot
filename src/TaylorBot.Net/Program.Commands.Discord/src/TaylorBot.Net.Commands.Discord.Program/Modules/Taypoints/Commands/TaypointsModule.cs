@@ -3,6 +3,7 @@ using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
@@ -24,7 +25,7 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            balanceCommand.Balance(u),
+            balanceCommand.Balance(new(u)),
             context
         );
 
@@ -64,16 +65,16 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
         IReadOnlyList<IMentionedUserNotAuthor<IUser>> users
     )
     {
-        List<IUser> trackedUsers = [];
+        List<DiscordUser> trackedUsers = [];
         foreach (var user in users)
         {
-            trackedUsers.Add(await user.GetTrackedUserAsync());
+            trackedUsers.Add(new(await user.GetTrackedUserAsync()));
         }
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
         var result = await commandRunner.RunAsync(
-            giftCommand.Gift(context, Context.User, trackedUsers, amount: null, amountString: amount),
+            giftCommand.Gift(context, trackedUsers, amount: null, amountString: amount),
             context
         );
 

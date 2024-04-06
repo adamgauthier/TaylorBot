@@ -67,7 +67,7 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                             """);
                     }
 
-                    var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(user.Guild, context.User, user, logEmbed =>
+                    var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(user.Guild, context.User, new(user), logEmbed =>
                         logEmbed
                             .WithColor(EmbedColor)
                             .WithTitle("Message")
@@ -79,7 +79,7 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                 }
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers),
             ]
         ));

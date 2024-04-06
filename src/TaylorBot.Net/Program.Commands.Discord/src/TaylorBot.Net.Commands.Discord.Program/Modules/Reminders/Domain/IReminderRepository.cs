@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 
@@ -6,9 +6,9 @@ public record Reminder(Guid Id, DateTimeOffset RemindAt, string Text);
 
 public interface IReminderRepository
 {
-    ValueTask<long> GetReminderCountAsync(IUser user);
-    ValueTask<IList<Reminder>> GetRemindersAsync(IUser user);
-    ValueTask AddReminderAsync(IUser user, DateTimeOffset remindAt, string text);
+    ValueTask<long> GetReminderCountAsync(DiscordUser user);
+    ValueTask<IList<Reminder>> GetRemindersAsync(DiscordUser user);
+    ValueTask AddReminderAsync(DiscordUser user, DateTimeOffset remindAt, string text);
     ValueTask ClearReminderAsync(Reminder reminder);
-    ValueTask ClearAllRemindersAsync(IUser user);
+    ValueTask ClearAllRemindersAsync(DiscordUser user);
 }

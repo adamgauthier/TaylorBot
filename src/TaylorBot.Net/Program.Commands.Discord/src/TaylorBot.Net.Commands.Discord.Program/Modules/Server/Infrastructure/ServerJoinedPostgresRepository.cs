@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
 
 public class ServerJoinedPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IServerJoinedRepository
 {
-    public async Task<ServerJoined> GetRankedJoinedAsync(IGuildUser guildUser)
+    public async Task<ServerJoined> GetRankedJoinedAsync(DiscordMember guildUser)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -20,13 +20,13 @@ public class ServerJoinedPostgresRepository(PostgresConnectionFactory postgresCo
             """,
             new
             {
-                GuildId = $"{guildUser.GuildId}",
-                UserId = $"{guildUser.Id}",
+                GuildId = $"{guildUser.Member.GuildId}",
+                UserId = $"{guildUser.User.Id}",
             }
         );
     }
 
-    public async Task FixMissingJoinedDateAsync(IGuildUser guildUser)
+    public async Task FixMissingJoinedDateAsync(DiscordMember guildUser)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -37,14 +37,14 @@ public class ServerJoinedPostgresRepository(PostgresConnectionFactory postgresCo
             """,
             new
             {
-                GuildId = $"{guildUser.GuildId}",
-                UserId = $"{guildUser.Id}",
-                FirstJoinedAt = guildUser.JoinedAt,
+                GuildId = $"{guildUser.Member.GuildId}",
+                UserId = $"{guildUser.User.Id}",
+                FirstJoinedAt = guildUser.Member.JoinedAt,
             }
         );
     }
 
-    public async Task<IList<JoinedTimelineEntry>> GetTimelineAsync(IGuild guild)
+    public async Task<IList<JoinedTimelineEntry>> GetTimelineAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

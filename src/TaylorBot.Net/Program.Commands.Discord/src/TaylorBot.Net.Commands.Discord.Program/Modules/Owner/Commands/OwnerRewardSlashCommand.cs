@@ -16,15 +16,15 @@ public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepositor
 
     public record Options(
         ParsedPositiveInteger amount,
-        ParsedUser user1,
-        ParsedOptionalUser user2,
-        ParsedOptionalUser user3,
-        ParsedOptionalUser user4,
-        ParsedOptionalUser user5,
-        ParsedOptionalUser user6,
-        ParsedOptionalUser user7,
-        ParsedOptionalUser user8,
-        ParsedOptionalUser user9
+        ParsedFetchedUser user1,
+        ParsedFetchedUserOptional user2,
+        ParsedFetchedUserOptional user3,
+        ParsedFetchedUserOptional user4,
+        ParsedFetchedUserOptional user5,
+        ParsedFetchedUserOptional user6,
+        ParsedFetchedUserOptional user7,
+        ParsedFetchedUserOptional user8,
+        ParsedFetchedUserOptional user9
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

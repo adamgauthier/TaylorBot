@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 
@@ -9,7 +8,7 @@ public class GuildNamesPostgresRepository(PostgresConnectionFactory postgresConn
 {
     private record GuildNameDto(string guild_name, DateTime changed_at);
 
-    public async ValueTask<List<GuildNameEntry>> GetHistoryAsync(IGuild guild, int limit)
+    public async ValueTask<List<GuildNameEntry>> GetHistoryAsync(CommandGuild guild, int limit)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

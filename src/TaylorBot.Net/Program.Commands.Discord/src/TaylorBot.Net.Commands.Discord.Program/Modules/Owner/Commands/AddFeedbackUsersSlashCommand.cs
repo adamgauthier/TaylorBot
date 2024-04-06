@@ -31,7 +31,7 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
             {
                 var whatIf = options.whatif.Value ?? false;
                 var stopwatch = Stopwatch.StartNew();
-                var guild = context.Guild?.Id == 115332333745340416 ? context.Guild : throw new InvalidOperationException("Unexpected guild.");
+                var guild = context.Guild?.Fetched?.Id == 115332333745340416 ? context.Guild.Fetched : throw new InvalidOperationException("Unexpected guild.");
 
                 await using var connection = postgresConnectionFactory.CreateConnection();
 

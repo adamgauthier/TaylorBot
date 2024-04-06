@@ -1,7 +1,12 @@
 {
   "name": "monitor",
   "description": "Monitor different events in your server",
-  "dm_permission": false,
+  "integration_types": [
+    0
+  ],
+  "contexts": [
+    0
+  ],
   "options": [
     {
       "name": "members",

@@ -32,7 +32,7 @@ public class LastFmModule(
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            lastFmCurrentCommand.Current(user == null ? Context.User : await user.GetTrackedUserAsync()),
+            lastFmCurrentCommand.Current(new(user == null ? Context.User : await user.GetTrackedUserAsync())),
             context
         );
 
@@ -80,7 +80,7 @@ public class LastFmModule(
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            lastFmArtistsCommand.Artists(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
+            lastFmArtistsCommand.Artists(period, new(user == null ? Context.User : await user.GetTrackedUserAsync()), isLegacyCommand: true),
             context
         );
 
@@ -99,7 +99,7 @@ public class LastFmModule(
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            lastFmTracksCommand.Tracks(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
+            lastFmTracksCommand.Tracks(period, new(user == null ? Context.User : await user.GetTrackedUserAsync()), isLegacyCommand: true),
             context
         );
 
@@ -118,7 +118,7 @@ public class LastFmModule(
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            lastFmAlbumsCommand.Albums(period, user == null ? Context.User : await user.GetTrackedUserAsync(), isLegacyCommand: true),
+            lastFmAlbumsCommand.Albums(period, new(user == null ? Context.User : await user.GetTrackedUserAsync()), isLegacyCommand: true),
             context
         );
 

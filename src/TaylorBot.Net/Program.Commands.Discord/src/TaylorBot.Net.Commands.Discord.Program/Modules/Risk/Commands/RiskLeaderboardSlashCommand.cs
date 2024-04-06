@@ -23,13 +23,18 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var leaderboard = await riskStatsRepository.GetLeaderboardAsync(guild);
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(RiskLeaderboardSlashCommand),
-                    guild,
-                    leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(RiskLeaderboardSlashCommand),
+                        guild.Fetched,
+                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.gamble_win_count, TaylorBotFormats.BoldReadable)}"
@@ -37,8 +42,12 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Risk Wins Leaderboard 💼");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

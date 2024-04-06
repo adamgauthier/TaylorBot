@@ -28,7 +28,7 @@ public class LastFmCollageSlashCommandTests
     [Fact]
     public async Task CollageAsync_WhenUsernameNotSet_ThenReturnsErrorEmbed()
     {
-        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
+        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(new(_commandUser))).Returns(null);
 
         var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
         var result = (EmbedResult)await command.RunAsync();
@@ -41,7 +41,7 @@ public class LastFmCollageSlashCommandTests
     {
         var lastFmUsername = new LastFmUsername("taylorswift");
         A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
-        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
+        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(new(_commandUser))).Returns(lastFmUsername);
 
         var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
         var result = (MessageResult)await command.RunAsync();

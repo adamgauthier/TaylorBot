@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
@@ -8,7 +8,7 @@ public record StoredLocation(Location Location, string TimeZoneId);
 
 public interface ILocationRepository
 {
-    ValueTask<StoredLocation?> GetLocationAsync(IUser user);
-    ValueTask SetLocationAsync(IUser user, StoredLocation location);
-    ValueTask ClearLocationAsync(IUser user);
+    ValueTask<StoredLocation?> GetLocationAsync(DiscordUser user);
+    ValueTask SetLocationAsync(DiscordUser user, StoredLocation location);
+    ValueTask ClearLocationAsync(DiscordUser user);
 }

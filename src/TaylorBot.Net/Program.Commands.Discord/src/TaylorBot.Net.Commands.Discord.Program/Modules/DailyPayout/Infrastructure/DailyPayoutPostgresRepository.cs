@@ -1,10 +1,10 @@
 ﻿using Dapper;
-using Discord;
 using Microsoft.Extensions.Options;
 using OperationResult;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
@@ -17,7 +17,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         public DateTimeOffset can_redeem_at { get; set; }
     }
 
-    public async ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(IUser user)
+    public async ValueTask<ICanUserRedeemResult> CanUserRedeemAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -52,7 +52,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         public long taypoint_count { get; set; }
     }
 
-    public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(IUser user, uint payoutAmount)
+    public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(DiscordUser user, uint payoutAmount)
     {
         var settings = options.CurrentValue;
 
@@ -127,7 +127,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         public long max_streak_count { get; set; }
     }
 
-    public async ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(IUser user)
+    public async ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -159,7 +159,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         public long lost_count { get; set; }
     }
 
-    public async ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(IUser user, int pricePerDay)
+    public async ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(DiscordUser user, int pricePerDay)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -223,7 +223,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
 
     private record LeaderboardEntryDto(string user_id, string username, long streak_count, long rank);
 
-    public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

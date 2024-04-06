@@ -23,13 +23,18 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var leaderboard = await rpsStatsRepository.GetLeaderboardAsync(guild);
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(RpsLeaderboardSlashCommand),
-                    guild,
-                    leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(RpsLeaderboardSlashCommand),
+                        guild.Fetched,
+                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.rps_win_count, TaylorBotFormats.BoldReadable)}"
@@ -37,8 +42,12 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Rps Wins Leaderboard ✂️");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

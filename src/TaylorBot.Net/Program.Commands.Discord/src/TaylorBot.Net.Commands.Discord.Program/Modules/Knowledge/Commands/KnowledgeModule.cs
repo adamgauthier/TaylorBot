@@ -42,7 +42,7 @@ public class KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryComman
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            urbanDictionaryCommand.Search(Context.User, text, isLegacyCommand: true),
+            urbanDictionaryCommand.Search(context.User, text, isLegacyCommand: true),
             context
         );
 

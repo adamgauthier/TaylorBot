@@ -6,18 +6,18 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users;
 
-public record ParsedMemberOrAuthor(IGuildUser Member);
+public record ParsedFetchedUserOrAuthor(IUser User);
 
-public class MemberOrAuthorParser(MemberParser memberParser, ITaylorBotClient taylorBotClient) : IOptionParser<ParsedMemberOrAuthor>
+public class FetchedUserOrAuthorParser(FetchedUserParser userParser, ITaylorBotClient taylorBotClient) : IOptionParser<ParsedFetchedUserOrAuthor>
 {
-    public async ValueTask<Result<ParsedMemberOrAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    public async ValueTask<Result<ParsedFetchedUserOrAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         if (optionValue.HasValue)
         {
-            var parsedUser = await memberParser.ParseAsync(context, optionValue, resolved);
+            var parsedUser = await userParser.ParseAsync(context, optionValue, resolved);
             if (parsedUser)
             {
-                return new ParsedMemberOrAuthor(parsedUser.Value.Member);
+                return new ParsedFetchedUserOrAuthor(parsedUser.Value.User);
             }
             else
             {
@@ -27,13 +27,7 @@ public class MemberOrAuthorParser(MemberParser memberParser, ITaylorBotClient ta
         else
         {
             var user = context.FetchedUser ?? await FetchUserAsync(context);
-
-            if (user is not IGuildUser member)
-            {
-                return Error(new ParsingFailed("Member option can only be used in a server."));
-            }
-
-            return new ParsedMemberOrAuthor(member);
+            return new ParsedFetchedUserOrAuthor(user);
         }
     }
 

@@ -1,6 +1,15 @@
 {
   "name": "daily",
   "description": "Claim taypoints every day and build up a streak",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "claim",

@@ -28,7 +28,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     if (message.Author.Id != 0)
                     {
                         var avatarUrl = message.Author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{message.Author.Username}{message.Author.DiscrimSuffix()} ({message.Author.Id})", avatarUrl, avatarUrl);
+                        builder.WithAuthor($"{message.Author.Handle()} ({message.Author.Id})", avatarUrl, avatarUrl);
                     }
 
                     builder.AddField("Sent", message.Timestamp.FormatRelative(), inline: true);
@@ -174,7 +174,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     if (author != null)
                     {
                         var avatarUrl = author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{author.Username}{author.DiscrimSuffix()} ({author.Id})", avatarUrl, avatarUrl);
+                        builder.WithAuthor($"{author.Handle()} ({author.Id})", avatarUrl, avatarUrl);
                     }
 
                     if (message is IUserMessage userMessage && !string.IsNullOrEmpty(userMessage.Content) &&
@@ -195,7 +195,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     if (newMessage.Author.Id != 0)
                     {
                         var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{newMessage.Author.Username}{newMessage.Author.DiscrimSuffix()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
+                        builder.WithAuthor($"{newMessage.Author.Handle()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
                     }
                     else
                     {
@@ -221,7 +221,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
             if (newMessage.Author.Id != 0)
             {
                 var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-                builder.WithAuthor($"{newMessage.Author.Username}{newMessage.Author.DiscrimSuffix()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
+                builder.WithAuthor($"{newMessage.Author.Handle()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
             }
 
             builder

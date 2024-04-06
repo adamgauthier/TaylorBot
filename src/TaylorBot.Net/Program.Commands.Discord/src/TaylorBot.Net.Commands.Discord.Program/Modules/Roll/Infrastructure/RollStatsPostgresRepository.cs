@@ -1,15 +1,15 @@
 ﻿using Dapper;
-using Discord;
 using Npgsql;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Infrastructure;
 
 public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IRollStatsRepository
 {
-    public async Task<RollProfile?> GetProfileAsync(IUser user)
+    public async Task<RollProfile?> GetProfileAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -26,7 +26,7 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
         );
     }
 
-    public async Task<IList<RollLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    public async Task<IList<RollLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -56,7 +56,7 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
         )).ToList();
     }
 
-    public async Task WinRollAsync(IUser user, long taypointReward)
+    public async Task WinRollAsync(DiscordUser user, long taypointReward)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -69,7 +69,7 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
         transaction.Commit();
     }
 
-    public async Task WinPerfectRollAsync(IUser user, long taypointReward)
+    public async Task WinPerfectRollAsync(DiscordUser user, long taypointReward)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -95,14 +95,14 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
         transaction.Commit();
     }
 
-    public async Task AddRollCountAsync(IUser user)
+    public async Task AddRollCountAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await AddRollCountAsync(connection, user);
     }
 
-    private static async Task AddRollCountAsync(NpgsqlConnection connection, IUser user)
+    private static async Task AddRollCountAsync(NpgsqlConnection connection, DiscordUser user)
     {
         await connection.ExecuteAsync(
             """

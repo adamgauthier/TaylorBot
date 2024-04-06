@@ -1,7 +1,7 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrastructure;
 
@@ -9,7 +9,7 @@ public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgre
 {
     private record UsernameDto(string username, DateTime changed_at);
 
-    public async ValueTask<IReadOnlyList<UsernameChange>> GetUsernameHistoryFor(IUser user, int count)
+    public async ValueTask<IReadOnlyList<UsernameChange>> GetUsernameHistoryFor(DiscordUser user, int count)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -34,7 +34,7 @@ public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgre
         )).ToList();
     }
 
-    public async ValueTask<bool> IsUsernameHistoryHiddenFor(IUser user)
+    public async ValueTask<bool> IsUsernameHistoryHiddenFor(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -51,7 +51,7 @@ public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgre
         );
     }
 
-    public async ValueTask HideUsernameHistoryFor(IUser user)
+    public async ValueTask HideUsernameHistoryFor(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -69,7 +69,7 @@ public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgre
         );
     }
 
-    public async ValueTask UnhideUsernameHistoryFor(IUser user)
+    public async ValueTask UnhideUsernameHistoryFor(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

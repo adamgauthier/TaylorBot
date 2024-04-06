@@ -6,6 +6,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Random;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 
@@ -17,10 +18,10 @@ public record RiskLeaderboardEntry(string user_id, string username, long gamble_
 
 public interface IRiskStatsRepository
 {
-    Task<RiskProfile?> GetProfileAsync(IUser user);
-    Task<RiskResult> WinAsync(IUser user, ITaypointAmount amount, RiskLevel level);
-    Task<RiskResult> LoseAsync(IUser user, ITaypointAmount amount);
-    Task<IList<RiskLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
+    Task<RiskProfile?> GetProfileAsync(DiscordUser user);
+    Task<RiskResult> WinAsync(DiscordUser user, ITaypointAmount amount, RiskLevel level);
+    Task<RiskResult> LoseAsync(DiscordUser user, ITaypointAmount amount);
+    Task<IList<RiskLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);
 }
 
 public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsRepository riskStatsRepository, ICryptoSecureRandom cryptoSecureRandom, IPseudoRandom pseudoRandom) : ISlashCommand<RiskPlaySlashCommand.Options>
@@ -29,7 +30,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 
     public record Options(ITaypointAmount amount, RiskLevel? level);
 
-    public Command Play(RunContext context, IUser author, RiskLevel? level, ITaypointAmount? amount, string? amountString = null) => new(
+    public Command Play(RunContext context, DiscordUser author, RiskLevel? level, ITaypointAmount? amount, string? amountString = null) => new(
         new(Info.Name),
         async () =>
         {

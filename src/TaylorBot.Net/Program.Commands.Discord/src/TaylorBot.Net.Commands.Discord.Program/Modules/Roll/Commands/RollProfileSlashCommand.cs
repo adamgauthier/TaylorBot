@@ -14,18 +14,18 @@ public record RollLeaderboardEntry(string user_id, string username, long perfect
 
 public interface IRollStatsRepository
 {
-    Task WinRollAsync(IUser user, long taypointReward);
-    Task WinPerfectRollAsync(IUser user, long taypointReward);
-    Task AddRollCountAsync(IUser user);
-    Task<RollProfile?> GetProfileAsync(IUser user);
-    Task<IList<RollLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
+    Task WinRollAsync(DiscordUser user, long taypointReward);
+    Task WinPerfectRollAsync(DiscordUser user, long taypointReward);
+    Task AddRollCountAsync(DiscordUser user);
+    Task<RollProfile?> GetProfileAsync(DiscordUser user);
+    Task<IList<RollLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);
 }
 
 public class RollProfileSlashCommand(IRollStatsRepository rollStatsRepository) : ISlashCommand<RollProfileSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("roll profile");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -34,7 +34,7 @@ public class RollProfileSlashCommand(IRollStatsRepository rollStatsRepository) :
             async () =>
             {
                 var user = options.user.User;
-                var profile = await rollStatsRepository.GetProfileAsync(user) ?? new(0, 0);
+                var profile = await rollStatsRepository.GetProfileAsync(new(user)) ?? new(0, 0);
 
                 var expectedPerfectRolls = profile.roll_count / 1990;
                 var hasPositiveRecord = profile.perfect_roll_count >= expectedPerfectRolls;

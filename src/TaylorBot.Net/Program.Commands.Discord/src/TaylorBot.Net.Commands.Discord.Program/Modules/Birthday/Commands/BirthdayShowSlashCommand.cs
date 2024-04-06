@@ -6,17 +6,17 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
-using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, TaskExceptionLogger taskExceptionLogger) : ISlashCommand<BirthdayShowSlashCommand.Options>
+public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdayShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday show");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
-    public Command Birthday(IUser user, DateTimeOffset createdAt, RunContext? context) => new(
+    public Command Birthday(DiscordUser user, DateTimeOffset createdAt, RunContext? context) => new(
         new(Info.Name),
         async () =>
         {
@@ -27,11 +27,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ta
                 if (birthday.Date.Year != IBirthdayRepository.Birthday.NoYearValue)
                 {
                     var age = AgeCalculator.GetCurrentAge(createdAt, birthday.Date);
-
-                    _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                        AgeCalculator.TryAddAgeRolesAsync(birthdayRepository, user, age),
-                        nameof(AgeCalculator.TryAddAgeRolesAsync))
-                    );
+                    ageCalculator.TryAddAgeRolesInBackground(user, age);
                 }
 
                 if (!birthday.IsPrivate)
@@ -78,6 +74,6 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ta
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Birthday(options.user.User, context.CreatedAt, context));
+        return new(Birthday(new(options.user.User), context.CreatedAt, context));
     }
 }

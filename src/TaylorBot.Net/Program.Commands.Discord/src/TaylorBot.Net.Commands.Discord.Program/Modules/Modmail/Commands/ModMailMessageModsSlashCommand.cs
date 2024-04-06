@@ -31,7 +31,8 @@ public class ModMailMessageModsSlashCommand(
             new(Info.Name),
             () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
 
                 var embed = new EmbedBuilder()
                     .WithColor(EmbedColor)
@@ -62,10 +63,11 @@ public class ModMailMessageModsSlashCommand(
                         try
                         {
                             await channel.SendMessageAsync(embed: embed);
-                            return EmbedFactory.CreateSuccess(string.Join('\n', [
-                                $"Message sent to the moderation team of '{guild.Name}'. ✉",
-                                "If you're expecting a response, **make sure you are able to send and receive DMs from TaylorBot**."
-                            ]));
+                            return EmbedFactory.CreateSuccess(
+                                $"""
+                                Message sent to the moderation team of '{guild.Name}'. ✉",
+                                If you're expecting a response, **make sure you are able to send and receive DMs from TaylorBot**.
+                                """);
                         }
                         catch (Exception e)
                         {
@@ -73,14 +75,15 @@ public class ModMailMessageModsSlashCommand(
                         }
                     }
 
-                    return EmbedFactory.CreateError(string.Join('\n', [
-                        "I was not able to send the message to the moderation team. 😕",
-                        $"Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it.",
-                    ]));
+                    return EmbedFactory.CreateError(
+                        $"""
+                        I was not able to send the message to the moderation team. 😕
+                        Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it.
+                        """);
                 }
             },
             Preconditions: [
-                new InGuildPrecondition()
+                new InGuildPrecondition(botMustBeInGuild: true)
             ]
         ));
     }

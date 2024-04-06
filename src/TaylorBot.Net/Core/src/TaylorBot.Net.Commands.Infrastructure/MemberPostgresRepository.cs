@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class MemberPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IMemberTrackingRepository
 {
-    public async ValueTask<bool> AddOrUpdateMemberAsync(IGuildUser member, DateTimeOffset? lastSpokeAt)
+    public async ValueTask<bool> AddOrUpdateMemberAsync(DiscordMember member, DateTimeOffset? lastSpokeAt)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -31,10 +31,10 @@ public class MemberPostgresRepository(PostgresConnectionFactory postgresConnecti
             """,
             new
             {
-                GuildId = member.GuildId.ToString(),
-                UserId = member.Id.ToString(),
-                FirstJoinedAt = member.JoinedAt?.ToUniversalTime(),
-                LastSpokeAt = lastSpokeAt?.ToUniversalTime()
+                GuildId = $"{member.Member.GuildId}",
+                UserId = $"{member.User.Id}",
+                FirstJoinedAt = member.Member.JoinedAt?.ToUniversalTime(),
+                LastSpokeAt = lastSpokeAt?.ToUniversalTime(),
             }
         );
 

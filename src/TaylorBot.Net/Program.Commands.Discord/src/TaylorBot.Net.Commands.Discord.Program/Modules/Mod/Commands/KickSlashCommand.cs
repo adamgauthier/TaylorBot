@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Logging;
@@ -14,7 +15,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class KickSlashCommand(IModChannelLogger modChannelLogger) : ISlashCommand<KickSlashCommand.Options>
+public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger modChannelLogger) : ISlashCommand<KickSlashCommand.Options>
 {
     private const int MaxAuditLogReasonSize = 512;
 
@@ -28,7 +29,12 @@ public class KickSlashCommand(IModChannelLogger modChannelLogger) : ISlashComman
             new(Info.Name),
             async () =>
             {
-                var author = (IGuildUser)context.User;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+
+                var author = context.FetchedUser != null
+                    ? (IGuildUser)context.FetchedUser
+                    : await client.Value.ResolveGuildUserAsync(context.Guild.Id, context.User.Id) ?? throw new NotImplementedException();
+
                 var member = options.member.Member;
 
                 if (member.Guild.OwnerId == member.Id)
@@ -42,10 +48,11 @@ public class KickSlashCommand(IModChannelLogger modChannelLogger) : ISlashComman
                     if (member.JoinedAt.HasValue && (DateTimeOffset.Now - member.JoinedAt.Value) > TimeSpan.FromDays(30))
                     {
                         return MessageResult.CreatePrompt(
-                            new(EmbedFactory.CreateWarning(string.Join('\n', [
-                                $"{member.FormatTagAndMention()} joined the server **{member.JoinedAt.Value.Humanize(culture: TaylorBotCulture.Culture)}**.",
-                                "Are you sure you want to kick?"
-                            ]))),
+                            new(EmbedFactory.CreateWarning(
+                                $"""
+                                {member.FormatTagAndMention()} joined the server **{member.JoinedAt.Value.Humanize(culture: TaylorBotCulture.Culture)}**.
+                                Are you sure you want to kick?
+                                """)),
                             confirm: async () => new(await KickAsync())
                         );
                     }
@@ -63,10 +70,11 @@ public class KickSlashCommand(IModChannelLogger modChannelLogger) : ISlashComman
                         }
                         catch (HttpException e) when (e.HttpCode == HttpStatusCode.Forbidden)
                         {
-                            return EmbedFactory.CreateError(string.Join('\n', [
-                                $"Could not kick {member.FormatTagAndMention()} due to missing permissions.",
-                                "In server settings, make sure TaylorBot's role is **higher in the list** than this member's roles."
-                            ]));
+                            return EmbedFactory.CreateError(
+                                $"""
+                                Could not kick {member.FormatTagAndMention()} due to missing permissions.
+                                In server settings, make sure TaylorBot's role is **higher in the list** than this member's roles.
+                                """);
                         }
 
                         var wasLogged = await modChannelLogger.TrySendModLogAsync(member.Guild, author, member, logEmbed =>
@@ -84,10 +92,11 @@ public class KickSlashCommand(IModChannelLogger modChannelLogger) : ISlashComman
                 }
                 else
                 {
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join('\n', [
-                        $"You can't kick {member.FormatTagAndMention()} because their highest role is equal to or higher than yours in the roles list.",
-                        $"The order of roles in server settings is important, you can only kick someone whose role is lower than yours."
-                    ])));
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        $"""
+                        You can't kick {member.FormatTagAndMention()} because their highest role is equal to or higher than yours in the roles list.
+                        The order of roles in server settings is important, you can only kick someone whose role is lower than yours.
+                        """));
                 }
             },
             Preconditions: [

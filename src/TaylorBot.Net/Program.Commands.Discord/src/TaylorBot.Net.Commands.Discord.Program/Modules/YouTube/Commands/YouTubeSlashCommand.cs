@@ -1,10 +1,10 @@
-﻿using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
+﻿using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 
@@ -14,7 +14,7 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
 
     public record Options(ParsedString search);
 
-    public Command Search(IUser author, string query, bool isLegacyCommand = false) => new(
+    public Command Search(DiscordUser author, string query, bool isLegacyCommand = false) => new(
         new(Info.Name),
         async () =>
         {

@@ -14,7 +14,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("usernames show");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public Command Show(IUser user, RunContext? context = null) => new(
         new(Info.Name),
@@ -23,7 +23,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
             EmbedBuilder BuildBaseEmbed() =>
                 new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(user);
 
-            if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(user))
+            if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(user)))
             {
                 return new EmbedResult(BuildBaseEmbed()
                     .WithDescription(
@@ -35,7 +35,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
             }
             else
             {
-                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(user, 75);
+                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(new(user), 75);
 
                 var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt.FormatLongDate()}: {u.Username}");
 

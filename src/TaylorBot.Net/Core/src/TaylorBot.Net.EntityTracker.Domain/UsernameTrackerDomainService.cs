@@ -1,6 +1,5 @@
-﻿using Discord;
-using Microsoft.Extensions.Logging;
-using TaylorBot.Net.Core.Logging;
+﻿using Microsoft.Extensions.Logging;
+using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.User;
 using TaylorBot.Net.EntityTracker.Domain.Username;
 
@@ -8,7 +7,7 @@ namespace TaylorBot.Net.EntityTracker.Domain;
 
 public class UsernameTrackerDomainService(ILogger<UsernameTrackerDomainService> logger, IUsernameRepository usernameRepository)
 {
-    public async ValueTask AddUsernameAfterUserAddedAsync(IUser user, IUserAddedResult userAddedResult)
+    public async ValueTask AddUsernameAfterUserAddedAsync(DiscordUser user, IUserAddedResult userAddedResult)
     {
         if (userAddedResult.WasAdded)
         {

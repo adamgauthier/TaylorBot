@@ -1,37 +1,38 @@
 ﻿using Discord;
-using FakeItEasy;
 using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands;
 
-public record MessageChannel(SnowflakeId Id)
+public record CommandChannel(SnowflakeId Id)
 {
     public string Mention => MentionUtils.MentionChannel(Id);
+}
 
-    public ITextChannel CreateLegacyTextChannel(IGuild guild)
+public record CommandGuild(SnowflakeId Id, IGuild? Fetched)
+{
+    public string FormatLog()
     {
-        var textChannel = A.Fake<ITextChannel>(o => o.Strict());
-        A.CallTo(() => textChannel.Id).Returns(Id);
-        A.CallTo(() => textChannel.GuildId).Returns(guild.Id);
-        return textChannel;
+        return Fetched != null ? Fetched.FormatLog() : Id;
     }
 }
 
 public record RunContext(
     DateTimeOffset CreatedAt,
-    IUser User,
-    MessageChannel Channel,
-    IGuild? Guild,
+    DiscordUser User,
+    IUser? FetchedUser,
+    CommandChannel Channel,
+    CommandGuild? Guild,
     IDiscordClient Client,
     ISelfUser BotUser,
     RunContext.CurrentCommandInfo CommandInfo,
-    string CommandPrefix,
+    Lazy<Task<string>> CommandPrefix,
     RunContext.OnGoingState OnGoing,
     CommandActivity Activity,
-    bool WasAcknowledged = true,
-    bool IsFakeGuild = false
+    bool WasAcknowledged = true
 )
 {
     public record CurrentCommandInfo(string Id, string Name);
@@ -70,7 +71,7 @@ public class CommandRunner(
         context.Activity.ChannelId = context.Channel.Id;
         context.Activity.GuildId = context.Guild?.Id;
 
-        foreach (var precondition in _preconditions.Concat(command.Preconditions ?? Array.Empty<ICommandPrecondition>()))
+        foreach (var precondition in _preconditions.Concat(command.Preconditions ?? []))
         {
             if (await precondition.CanRunAsync(command, context) is PreconditionFailed failed)
                 return failed;

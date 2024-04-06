@@ -19,7 +19,7 @@ public class MediaModule(ICommandRunner commandRunner, IPlusRepository plusRepos
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var command = new ImageCommand(plusRepository, rateLimiter, imageSearchClient);
         var result = await commandRunner.RunAsync(
-            command.Image(Context.User, text, isLegacyCommand: true),
+            command.Image(context.User, text, isLegacyCommand: true),
             context
         );
 

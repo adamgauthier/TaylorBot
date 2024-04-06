@@ -1,15 +1,15 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Infrastructure;
 
 public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IRiskStatsRepository
 {
-    public async Task<RiskResult> WinAsync(IUser user, ITaypointAmount amount, RiskLevel level)
+    public async Task<RiskResult> WinAsync(DiscordUser user, ITaypointAmount amount, RiskLevel level)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -46,7 +46,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
         return new(transfer.invested_count, transfer.final_count, transfer.profit_count);
     }
 
-    public async Task<RiskResult> LoseAsync(IUser user, ITaypointAmount amount)
+    public async Task<RiskResult> LoseAsync(DiscordUser user, ITaypointAmount amount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -75,7 +75,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
         return new(transfer.invested_count, transfer.final_count, transfer.profit_count);
     }
 
-    public async Task<RiskProfile?> GetProfileAsync(IUser user)
+    public async Task<RiskProfile?> GetProfileAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -92,7 +92,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
         );
     }
 
-    public async Task<IList<RiskLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    public async Task<IList<RiskLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

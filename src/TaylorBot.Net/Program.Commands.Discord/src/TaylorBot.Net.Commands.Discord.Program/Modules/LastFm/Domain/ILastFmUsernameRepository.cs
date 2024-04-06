@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 
@@ -9,7 +9,7 @@ public record LastFmUsername(string Username)
 
 public interface ILastFmUsernameRepository
 {
-    ValueTask<LastFmUsername?> GetLastFmUsernameAsync(IUser user);
-    ValueTask SetLastFmUsernameAsync(IUser user, LastFmUsername lastFmUsername);
-    ValueTask ClearLastFmUsernameAsync(IUser user);
+    ValueTask<LastFmUsername?> GetLastFmUsernameAsync(DiscordUser user);
+    ValueTask SetLastFmUsernameAsync(DiscordUser user, LastFmUsername lastFmUsername);
+    ValueTask ClearLastFmUsernameAsync(DiscordUser user);
 }

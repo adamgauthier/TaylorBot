@@ -1,15 +1,15 @@
 ﻿using Dapper;
-using Discord;
 using Npgsql;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Infrastructure;
 
 public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IRpsStatsRepository
 {
-    private static async Task AddRpsStatsAsync(NpgsqlConnection connection, IUser user, int winCount, int drawCount, int loseCount)
+    private static async Task AddRpsStatsAsync(NpgsqlConnection connection, DiscordUser user, int winCount, int drawCount, int loseCount)
     {
         await connection.ExecuteAsync(
             """
@@ -31,7 +31,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    public async Task WinRpsAsync(IUser user, long taypointReward)
+    public async Task WinRpsAsync(DiscordUser user, long taypointReward)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -44,19 +44,19 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
         transaction.Commit();
     }
 
-    public async Task DrawRpsAsync(IUser user)
+    public async Task DrawRpsAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         await AddRpsStatsAsync(connection, user, 0, drawCount: 1, 0);
     }
 
-    public async Task LoseRpsAsync(IUser user)
+    public async Task LoseRpsAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         await AddRpsStatsAsync(connection, user, 0, 0, loseCount: 1);
     }
 
-    public async Task<RpsProfile?> GetProfileAsync(IUser user)
+    public async Task<RpsProfile?> GetProfileAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -73,7 +73,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    public async Task<IList<RpsLeaderboardEntry>> GetLeaderboardAsync(IGuild guild)
+    public async Task<IList<RpsLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

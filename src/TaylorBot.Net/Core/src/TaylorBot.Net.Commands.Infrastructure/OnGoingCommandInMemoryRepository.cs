@@ -1,6 +1,6 @@
-﻿using Discord;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
@@ -8,9 +8,9 @@ public class OnGoingCommandInMemoryRepository : IOngoingCommandRepository
 {
     private readonly IDictionary<string, long> ongoingCommands = new ConcurrentDictionary<string, long>();
 
-    private static string GetKey(IUser user, string pool) => $"{user.Id}{pool}";
+    private static string GetKey(DiscordUser user, string pool) => $"{user.Id}{pool}";
 
-    public ValueTask AddOngoingCommandAsync(IUser user, string pool)
+    public ValueTask AddOngoingCommandAsync(DiscordUser user, string pool)
     {
         var key = GetKey(user, pool);
         if (ongoingCommands.TryGetValue(key, out var count))
@@ -26,14 +26,14 @@ public class OnGoingCommandInMemoryRepository : IOngoingCommandRepository
         return default;
     }
 
-    public ValueTask<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
+    public ValueTask<bool> HasAnyOngoingCommandAsync(DiscordUser user, string pool)
     {
         return new ValueTask<bool>(
             ongoingCommands.TryGetValue(GetKey(user, pool), out var count) && count > 0
         );
     }
 
-    public ValueTask RemoveOngoingCommandAsync(IUser user, string pool)
+    public ValueTask RemoveOngoingCommandAsync(DiscordUser user, string pool)
     {
         var key = GetKey(user, pool);
         if (ongoingCommands.TryGetValue(key, out var count))

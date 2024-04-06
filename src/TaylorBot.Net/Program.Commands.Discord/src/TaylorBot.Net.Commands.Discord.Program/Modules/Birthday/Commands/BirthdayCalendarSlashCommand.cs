@@ -22,22 +22,31 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var calendar = await birthdayRepository.GetBirthdayCalendarAsync(guild);
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(BirthdayCalendarSlashCommand),
-                    guild,
-                    calendar.Select(e => e.UserId).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(BirthdayCalendarSlashCommand),
+                        guild.Fetched,
+                        calendar.Select(e => e.UserId).ToList());
+                }
 
                 var pages = calendar.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.Username.MdUserLink(entry.UserId)} - {entry.NextBirthday.ToString("MMMM d", TaylorBotCulture.Culture)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()
-                    .WithGuildAsAuthor(guild)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Upcoming Birthdays");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

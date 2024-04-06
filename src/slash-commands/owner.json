@@ -1,6 +1,14 @@
 {
   "name": "owner",
   "description": "Special commands restricted to the bot owner",
+  "integration_types": [
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "ignore",

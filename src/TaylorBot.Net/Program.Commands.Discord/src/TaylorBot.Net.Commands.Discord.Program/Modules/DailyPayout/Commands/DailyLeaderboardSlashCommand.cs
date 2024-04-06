@@ -23,13 +23,18 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var leaderboard = await dailyPayoutRepository.GetLeaderboardAsync(guild);
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(DailyLeaderboardSlashCommand),
-                    guild,
-                    leaderboard.Select(e => e.UserId).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(DailyLeaderboardSlashCommand),
+                        guild.Fetched,
+                        leaderboard.Select(e => e.UserId).ToList());
+                }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.Rank}\\. {entry.Username.MdUserLink(entry.UserId)}: {"day".ToQuantity(entry.CurrentDailyStreak, TaylorBotFormats.BoldReadable)}"
@@ -37,8 +42,12 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Daily Streak Leaderboard 📅");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

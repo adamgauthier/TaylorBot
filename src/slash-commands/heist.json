@@ -1,6 +1,15 @@
 {
   "name": "heist",
   "description": "Get a group together and attempt to heist a taypoint bank",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "play",

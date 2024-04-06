@@ -8,6 +8,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Time;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
@@ -15,7 +16,7 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
 {
     public static readonly CommandMetadata Metadata = new("daily", "Daily Payout 👔", ["dailypayout"]);
 
-    public Command Claim(IUser user, string commandPrefix, bool isLegacyCommand) => new(
+    public Command Claim(DiscordUser user, string commandPrefix, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {
@@ -86,10 +87,9 @@ public class DailyClaimSlashCommand(DailyClaimCommand dailyClaimCommand) : ISlas
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("daily claim");
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    public async ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
-        return new(
-            dailyClaimCommand.Claim(context.User, context.CommandPrefix, isLegacyCommand: false)
-        );
+        var prefix = await context.CommandPrefix.Value;
+        return dailyClaimCommand.Claim(context.User, prefix, isLegacyCommand: false);
     }
 }

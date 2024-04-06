@@ -1,6 +1,15 @@
 {
   "name": "choose",
   "description": "Choose randomly between multiple options",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "options",

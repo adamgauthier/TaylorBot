@@ -1,9 +1,10 @@
-﻿using Discord;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
+using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
 
@@ -22,12 +23,12 @@ public record TaypointAmount(AbsoluteTaypointAmount? Absolute, RelativeTaypointA
 
 public class HeistRedisRepository(ConnectionMultiplexer connectionMultiplexer) : IHeistRepository
 {
-    private string GetKey(IGuild guild) => $"heist:guild:{guild.Id}";
+    private string GetKey(SnowflakeId guildId) => $"heist:guild:{guildId}";
 
-    public async Task<List<HeistPlayer>> EndHeistAsync(IGuild guild)
+    public async Task<List<HeistPlayer>> EndHeistAsync(CommandGuild guild)
     {
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(guild);
+        var key = GetKey(guild.Id);
 
         var transaction = redis.CreateTransaction();
         var hashGetAllTask = transaction.HashGetAllAsync(key);
@@ -65,15 +66,15 @@ public class HeistRedisRepository(ConnectionMultiplexer connectionMultiplexer) :
         return {exists, wasAdded}
         """);
 
-    public async Task<IEnterHeistResult> EnterHeistAsync(IGuildUser user, ITaypointAmount amount, TimeSpan heistDelay)
+    public async Task<IEnterHeistResult> EnterHeistAsync(DiscordMember member, ITaypointAmount amount, TimeSpan heistDelay)
     {
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(user.Guild);
+        var key = GetKey(member.Member.GuildId);
 
         var result = await redis.ScriptEvaluateAsync(EnterHeistScript, new
         {
             key = (RedisKey)key,
-            userid = $"{user.Id}",
+            userid = $"{member.User.Id}",
             amount = JsonSerializer.Serialize(TaypointAmount.From(amount)),
             expiryseconds = heistDelay.Add(TimeSpan.FromMinutes(1)).TotalSeconds,
         });
@@ -102,7 +103,7 @@ public class HeistInMemoryRepository : IHeistRepository
 
     private record Heist(ConcurrentDictionary<ulong, ITaypointAmount> Players);
 
-    public Task<List<HeistPlayer>> EndHeistAsync(IGuild guild)
+    public Task<List<HeistPlayer>> EndHeistAsync(CommandGuild guild)
     {
         if (!heistsByGuild.TryRemove(guild.Id, out var heist))
         {
@@ -112,17 +113,17 @@ public class HeistInMemoryRepository : IHeistRepository
         return Task.FromResult(heist.Players.Select(p => new HeistPlayer($"{p.Key}", p.Value)).ToList());
     }
 
-    public Task<IEnterHeistResult> EnterHeistAsync(IGuildUser user, ITaypointAmount amount, TimeSpan heistDelay)
+    public Task<IEnterHeistResult> EnterHeistAsync(DiscordMember member, ITaypointAmount amount, TimeSpan heistDelay)
     {
         var wasUpdated = false;
-        var newHeist = new Heist(new([new(user.Id, amount)]));
+        var newHeist = new Heist(new([new(member.User.Id, amount)]));
 
         var result = heistsByGuild.AddOrUpdate(
-            user.Guild.Id,
+            member.Member.GuildId,
             newHeist,
             (_, heist) =>
             {
-                heist.Players.AddOrUpdate(user.Id, amount, (_, _) =>
+                heist.Players.AddOrUpdate(member.User.Id, amount, (_, _) =>
                 {
                     wasUpdated = true;
                     return amount;

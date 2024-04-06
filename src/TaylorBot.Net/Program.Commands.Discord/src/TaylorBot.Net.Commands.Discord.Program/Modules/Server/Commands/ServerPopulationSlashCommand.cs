@@ -19,14 +19,15 @@ public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepo
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var ageStats = await serverStatsRepository.GetAgeStatsInGuildAsync(guild);
-                GenderStats genderStats = await serverStatsRepository.GetGenderStatsInGuildAsync(guild);
+                var genderStats = await serverStatsRepository.GetGenderStatsInGuildAsync(guild);
 
                 string FormatPercent(long count) => ((decimal)count / genderStats.TotalCount).ToString("0.0%", CultureInfo.InvariantCulture);
 
-                return new EmbedResult(new EmbedBuilder()
-                    .WithGuildAsAuthor(guild)
+                var embed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
                     .AddField(
                         "Age",
@@ -42,8 +43,14 @@ public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepo
                         Female: {genderStats.FemaleCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.FemaleCount)})" : string.Empty)}
                         Other: {genderStats.OtherCount}{(genderStats.TotalCount != 0 ? $" ({FormatPercent(genderStats.OtherCount)})" : string.Empty)}
                         """,
-                        inline: true)
-                .Build());
+                        inline: true);
+
+                if (guild.Fetched != null)
+                {
+                    embed.WithGuildAsAuthor(guild.Fetched);
+                }
+
+                return new EmbedResult(embed.Build());
             },
             Preconditions: [
                 new InGuildPrecondition(),

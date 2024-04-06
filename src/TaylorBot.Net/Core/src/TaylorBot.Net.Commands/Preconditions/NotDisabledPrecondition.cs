@@ -16,10 +16,11 @@ public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandR
         return disabledMessage != string.Empty ?
             new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is globally disabled",
-                UserReason: new(string.Join('\n', new[] {
-                    $"You can't use `{command.Metadata.Name}` because it is globally disabled right now.",
-                    disabledMessage
-                }))
+                UserReason: new(
+                    $"""
+                    You can't use `{command.Metadata.Name}` because it is globally disabled right now.
+                    {disabledMessage}
+                    """)
             ) :
             new PreconditionPassed();
     }

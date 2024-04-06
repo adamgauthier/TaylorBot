@@ -3,14 +3,16 @@ using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
 public class ServerPopulationSlashCommandTests
 {
-    private readonly IUser _commandUser = A.Fake<IUser>();
-    private readonly IGuild _commandGuild = A.Fake<IGuild>();
+    private readonly DiscordUser _commandUser = CommandUtils.AUser;
+    private readonly CommandGuild _commandGuild = new("123", A.Fake<IGuild>());
     private readonly IServerStatsRepository _serverStatsRepository = A.Fake<IServerStatsRepository>(o => o.Strict());
     private readonly RunContext _runContext;
     private readonly ServerPopulationSlashCommand _command;
@@ -18,7 +20,7 @@ public class ServerPopulationSlashCommandTests
     public ServerPopulationSlashCommandTests()
     {
         _command = new ServerPopulationSlashCommand(_serverStatsRepository);
-        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null!, _commandGuild, null!, null!, null!, null!, null!, null!);
+        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null, null!, _commandGuild, null!, null!, null!, null!, null!, null!);
     }
 
     [Fact]

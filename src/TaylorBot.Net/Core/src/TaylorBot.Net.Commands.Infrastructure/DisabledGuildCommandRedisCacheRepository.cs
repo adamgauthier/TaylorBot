@@ -6,13 +6,14 @@ namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class DisabledGuildCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, DisabledGuildCommandPostgresRepository disabledGuildCommandPostgresRepository) : IDisabledGuildCommandRepository
 {
-    private static string GetKey(IGuild guild) => $"enabled-commands:guild:{guild.Id}";
+    private static string GetKey(CommandGuild guild) =>
+        $"enabled-commands:guild:{guild.Id}";
 
     public async ValueTask DisableInAsync(IGuild guild, string commandName)
     {
         await disabledGuildCommandPostgresRepository.DisableInAsync(guild, commandName);
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(guild);
+        var key = GetKey(new(guild.Id, null));
         await redis.HashSetAsync(key, commandName, false);
         await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
     }
@@ -21,12 +22,12 @@ public class DisabledGuildCommandRedisCacheRepository(ConnectionMultiplexer conn
     {
         await disabledGuildCommandPostgresRepository.EnableInAsync(guild, commandName);
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(guild);
+        var key = GetKey(new(guild.Id, null));
         await redis.HashSetAsync(key, commandName, true);
         await redis.KeyExpireAsync(key, TimeSpan.FromHours(6));
     }
 
-    public async ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command)
+    public async ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(CommandGuild guild, CommandMetadata command)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(guild);

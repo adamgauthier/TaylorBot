@@ -8,11 +8,11 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users;
 
-public record ParsedUser(IUser User);
+public record ParsedFetchedUser(IUser User);
 
-public class UserParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker) : IOptionParser<ParsedUser>
+public class FetchedUserParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker) : IOptionParser<ParsedFetchedUser>
 {
-    public async ValueTask<Result<ParsedUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
+    public async ValueTask<Result<ParsedFetchedUser, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         if (!optionValue.HasValue)
         {
@@ -21,12 +21,12 @@ public class UserParser(ITaylorBotClient taylorBotClient, IUserTracker userTrack
 
         SnowflakeId userId = new(optionValue.Value.GetString()!);
         var user = context.Guild != null
-            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild, userId) ??
+            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild.Id, userId) ??
               await taylorBotClient.ResolveRequiredUserAsync(userId)
             : await taylorBotClient.ResolveRequiredUserAsync(userId);
 
-        await userTracker.TrackUserFromArgumentAsync(user);
+        await userTracker.TrackUserFromArgumentAsync(new(user));
 
-        return new ParsedUser(user);
+        return new ParsedFetchedUser(user);
     }
 }

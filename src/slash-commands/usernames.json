@@ -1,6 +1,15 @@
 {
   "name": "usernames",
   "description": "Show and manage your username history",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "show",

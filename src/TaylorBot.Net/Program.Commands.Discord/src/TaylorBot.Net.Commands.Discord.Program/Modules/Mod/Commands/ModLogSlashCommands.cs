@@ -32,7 +32,7 @@ public class ModLogSetSlashCommand(IModLogChannelRepository modLogChannelReposit
                 .Build());
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));
@@ -49,7 +49,10 @@ public class ModLogStopSlashCommand(IModLogChannelRepository modLogChannelReposi
             new(Info.Name),
             async () =>
             {
-                await modLogChannelRepository.RemoveModLogAsync(context.Guild!);
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
+                await modLogChannelRepository.RemoveModLogAsync(guild);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -61,7 +64,7 @@ public class ModLogStopSlashCommand(IModLogChannelRepository modLogChannelReposi
                 .Build());
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));
@@ -78,7 +81,9 @@ public class ModLogShowSlashCommand(IModLogChannelRepository modLogChannelReposi
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
                 var modLog = await modLogChannelRepository.GetModLogForGuildAsync(guild);
 
                 var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
@@ -115,7 +120,7 @@ public class ModLogShowSlashCommand(IModLogChannelRepository modLogChannelReposi
                 return new EmbedResult(embed.Build());
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));

@@ -1,21 +1,21 @@
-﻿using Discord;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class OnGoingCommandRedisRepository(ConnectionMultiplexer connectionMultiplexer) : IOngoingCommandRepository
 {
-    private string GetKey(IUser user, string pool) => $"ongoing-commands:user:{user.Id}{pool}";
+    private string GetKey(DiscordUser user, string pool) => $"ongoing-commands:user:{user.Id}{pool}";
 
-    public async ValueTask AddOngoingCommandAsync(IUser user, string pool)
+    public async ValueTask AddOngoingCommandAsync(DiscordUser user, string pool)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(user, pool);
         await redis.StringSetAsync(key, "1", expiry: TimeSpan.FromSeconds(10));
     }
 
-    public async ValueTask<bool> HasAnyOngoingCommandAsync(IUser user, string pool)
+    public async ValueTask<bool> HasAnyOngoingCommandAsync(DiscordUser user, string pool)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(user, pool);
@@ -24,7 +24,7 @@ public class OnGoingCommandRedisRepository(ConnectionMultiplexer connectionMulti
         return ongoingCommands.HasValue && (long)ongoingCommands > 0;
     }
 
-    public async ValueTask RemoveOngoingCommandAsync(IUser user, string pool)
+    public async ValueTask RemoveOngoingCommandAsync(DiscordUser user, string pool)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(user, pool);

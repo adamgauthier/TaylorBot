@@ -3,6 +3,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
@@ -10,7 +11,7 @@ public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository
 {
     public static readonly CommandMetadata Metadata = new("lastfm set", "Last.fm 🎶", ["fm set", "np set"]);
 
-    public Command Set(IUser user, LastFmUsername lastFmUsername, bool isLegacyCommand) => new(
+    public Command Set(DiscordUser user, LastFmUsername lastFmUsername, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {

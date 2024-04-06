@@ -1,5 +1,4 @@
 ﻿using Discord;
-using FakeItEasy;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,6 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;
 using static OperationResult.Helpers;
@@ -54,7 +52,9 @@ public record ApplicationCommand(
     SnowflakeId ChannelId
 ) : IInteraction
 {
-    public SnowflakeId UserId => Guild?.Member.user.id ?? UserData!.id;
+    public User User => Guild?.Member.user ?? UserData ?? throw new NotImplementedException();
+
+    public SnowflakeId UserId => User.id;
 
     public record GuildData(SnowflakeId Id, GuildMember Member);
 }
@@ -235,97 +235,71 @@ public class SlashCommandHandler(
         switch (slashCommand.Info)
         {
             case MessageCommandInfo info:
-                await interactionResponseClient.SendAckResponseWithLoadingMessageAsync(interaction, isEphemeral: info.IsPrivateResponse);
-
-                var author = interaction.Guild != null ?
-                    (await taylorBotClient.Value.ResolveGuildUserAsync(
-                        interaction.Guild.Id,
-                        new(interaction.Guild.Member.user.id)
-                    ))! :
-                    await taylorBotClient.Value.ResolveRequiredUserAsync(new(interaction.UserData!.id));
-
-                var oldPrefix = await commandPrefixDomainService.GetPrefixAsync(
-                    author is IGuildUser aGuildUser ? aGuildUser.Guild : null);
-
-                context = new RunContext(
-                    DateTimeOffset.Now,
-                    author,
-                    new(interaction.ChannelId),
-                    author is IGuildUser authorGuildUser ? authorGuildUser.Guild : null,
-                    taylorBotClient.Value.DiscordShardedClient,
-                    taylorBotClient.Value.DiscordShardedClient.CurrentUser,
-                    new(interaction.Data.id, interaction.Data.name),
-                    oldPrefix,
-                    new(),
-                    activity
-                );
-
-                logger.LogInformation(
-                    "{User} using slash command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
-                    context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
-                );
-                break;
-
-            case ModalCommandInfo info:
-                IUser user;
-                if (interaction.Guild != null)
                 {
-                    var guild = A.Fake<IGuild>(o => o.Strict());
-                    A.CallTo(() => guild.Id).Returns(interaction.Guild.Id.Id);
-                    // Assuming GuildPermissions will cover use cases where this property is used
-                    A.CallTo(() => guild.OwnerId).Returns(ulong.MaxValue);
+                    await interactionResponseClient.SendAckResponseWithLoadingMessageAsync(interaction, isEphemeral: info.IsPrivateResponse);
 
-                    var fakeGuildUser = A.Fake<IGuildUser>(o => o.Strict());
-                    A.CallTo(() => fakeGuildUser.Id).Returns(new SnowflakeId(interaction.Guild.Member.user.id).Id);
-                    A.CallTo(() => fakeGuildUser.IsBot).Returns(false);
-                    A.CallTo(() => fakeGuildUser.AvatarId).Returns(interaction.Guild.Member.user.avatar!);
-                    A.CallTo(() => fakeGuildUser.GuildAvatarId).Returns(interaction.Guild.Member.avatar!);
-                    A.CallTo(() => fakeGuildUser.Guild).Returns(guild);
-                    A.CallTo(() => fakeGuildUser.GuildId).Returns(guild.Id);
-                    A.CallTo(() => fakeGuildUser.Username).Returns(interaction.Guild.Member.user.username);
-                    A.CallTo(() => fakeGuildUser.Discriminator).Returns(interaction.Guild.Member.user.discriminator);
-                    A.CallTo(() => fakeGuildUser.GuildPermissions).Returns(new GuildPermissions(interaction.Guild.Member.permissions));
-                    A.CallTo(() => fakeGuildUser.JoinedAt).Returns(DateTimeOffset.Parse(interaction.Guild.Member.joined_at));
-                    A.CallTo(() => fakeGuildUser.Mention).Returns(MentionUtils.MentionUser(fakeGuildUser.Id));
-                    user = fakeGuildUser;
-                }
-                else
-                {
-                    user = A.Fake<IUser>(o => o.Strict());
-                    A.CallTo(() => user.Id).Returns(new SnowflakeId(interaction.UserData!.id).Id);
-                    A.CallTo(() => user.IsBot).Returns(false);
-                    A.CallTo(() => user.AvatarId).Returns(interaction.UserData!.avatar!);
-                    A.CallTo(() => user.Username).Returns(interaction.UserData!.username);
-                    A.CallTo(() => user.Discriminator).Returns(interaction.UserData!.discriminator);
-                    A.CallTo(() => user.Mention).Returns(MentionUtils.MentionUser(user.Id));
+                    context = BuildContext(interaction, activity, wasAcknowledged: true);
+
+                    logger.LogInformation(
+                        "{User} using slash command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
+                        context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
+                    );
+                    break;
                 }
 
-                context = new RunContext(
-                    DateTimeOffset.Now,
-                    user,
-                    new(interaction.ChannelId),
-                    user is IGuildUser guildUser ? guildUser.Guild : null,
-                    taylorBotClient.Value.DiscordShardedClient,
-                    taylorBotClient.Value.DiscordShardedClient.CurrentUser,
-                    new(interaction.Data.id, interaction.Data.name),
-                    string.Empty,
-                    new(),
-                    activity,
-                    WasAcknowledged: false,
-                    IsFakeGuild: true
-                );
+            case ModalCommandInfo:
+                {
+                    context = BuildContext(interaction, activity, wasAcknowledged: false);
 
-                logger.LogInformation(
-                    "{User} using modal command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
-                    context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.Id}" : ""
-                );
-                break;
+                    logger.LogInformation(
+                        "{User} using modal command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
+                        context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
+                    );
+                    break;
+                }
 
             default:
                 throw new InvalidOperationException($"Unexpected SlashCommandInfo: {slashCommand.Info.GetType()}");
         }
 
         return context;
+    }
+
+    private RunContext BuildContext(ApplicationCommand interaction, CommandActivity activity, bool wasAcknowledged)
+    {
+        var guild = interaction.Guild != null
+            ? taylorBotClient.Value.DiscordShardedClient.GetGuild(interaction.Guild.Id)
+            : null;
+
+        var user = interaction.User;
+
+        return new RunContext(
+            DateTimeOffset.Now,
+            new(
+                user.id,
+                user.username,
+                user.avatar,
+                user.discriminator,
+                IsBot: false,
+                interaction.Guild != null
+                    ? new(
+                        interaction.Guild.Id,
+                        DateTimeOffset.Parse(interaction.Guild.Member.joined_at),
+                        interaction.Guild.Member.roles.Select(r => new SnowflakeId(r)).ToList(),
+                        new GuildPermissions(interaction.Guild.Member.permissions),
+                        interaction.Guild.Member.avatar)
+                    : null),
+            FetchedUser: null,
+            new(interaction.ChannelId),
+            interaction.Guild != null ? new(interaction.Guild.Id, guild) : null,
+            taylorBotClient.Value.DiscordShardedClient,
+            taylorBotClient.Value.DiscordShardedClient.CurrentUser,
+            new(interaction.Data.id, interaction.Data.name),
+            new(() => commandPrefixDomainService.GetPrefixAsync(guild)),
+            new(),
+            activity,
+            WasAcknowledged: wasAcknowledged
+        );
     }
 
     private const byte SubCommandOptionType = 1;

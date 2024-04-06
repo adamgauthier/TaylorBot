@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 
@@ -13,14 +14,14 @@ public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMail
         var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
         if (modLog != null)
         {
-            var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId.Id);
+            var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId);
             return channel;
         }
 
         return await modChannelLogger.GetModLogAsync(guild);
     }
 
-    public async ValueTask<bool> TrySendModMailLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
+    public async ValueTask<bool> TrySendModMailLogAsync(IGuild guild, DiscordUser moderator, DiscordUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
     {
         var channel = await GetModMailLogAsync(guild);
 

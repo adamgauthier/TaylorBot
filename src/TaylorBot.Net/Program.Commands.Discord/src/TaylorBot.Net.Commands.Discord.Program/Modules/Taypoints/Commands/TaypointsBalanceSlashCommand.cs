@@ -8,6 +8,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
@@ -15,9 +16,9 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
-    public Command Balance(IUser user) => new(
+    public Command Balance(DiscordUser user) => new(
         new("taypoints", "Taypoints 🪙", ["points"]),
         async () =>
         {
@@ -39,6 +40,6 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Balance(options.user.User));
+        return new(Balance(new(options.user.User)));
     }
 }

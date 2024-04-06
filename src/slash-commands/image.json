@@ -1,6 +1,14 @@
 {
   "name": "image",
   "description": "Search the web for images",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    2
+  ],
   "options": [
     {
       "name": "search",

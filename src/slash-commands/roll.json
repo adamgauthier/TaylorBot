@@ -1,6 +1,15 @@
 {
   "name": "roll",
   "description": "Roll the Taylor Machine for a chance to win taypoints",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "play",

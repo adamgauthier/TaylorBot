@@ -1,17 +1,18 @@
-﻿using Discord;
-using FakeItEasy;
+﻿using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
 public class DailyClaimCommandTests
 {
-    private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly DiscordUser _commandUser = CommandUtils.AUser;
     private readonly IOptionsMonitor<DailyPayoutOptions> _options = A.Fake<IOptionsMonitor<DailyPayoutOptions>>(o => o.Strict());
     private readonly IDailyPayoutRepository _dailyPayoutRepository = A.Fake<IDailyPayoutRepository>(o => o.Strict());
     private readonly IMessageOfTheDayRepository _messageOfTheDayRepository = A.Fake<IMessageOfTheDayRepository>(o => o.Strict());

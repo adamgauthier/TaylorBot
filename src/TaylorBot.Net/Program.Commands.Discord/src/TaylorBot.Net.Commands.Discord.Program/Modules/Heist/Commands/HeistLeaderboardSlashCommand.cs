@@ -24,13 +24,18 @@ public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsReposi
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
+                ArgumentNullException.ThrowIfNull(context.Guild);
+                var guild = context.Guild;
+
                 var leaderboard = await heistStatsRepository.GetLeaderboardAsync(guild);
 
-                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                    nameof(HeistLeaderboardSlashCommand),
-                    guild,
-                    leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                if (guild.Fetched != null)
+                {
+                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                        nameof(HeistLeaderboardSlashCommand),
+                        guild.Fetched,
+                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.heist_win_count, TaylorBotFormats.BoldReadable)}"
@@ -38,8 +43,12 @@ public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsReposi
 
                 var baseEmbed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
-                    .WithGuildAsAuthor(guild)
                     .WithTitle("Heist Wins Leaderboard 💼");
+
+                if (guild.Fetched != null)
+                {
+                    baseEmbed.WithGuildAsAuthor(guild.Fetched);
+                }
 
                 return new PageMessageResultBuilder(new(
                     new(new EmbedDescriptionTextEditor(

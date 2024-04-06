@@ -13,6 +13,7 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Random;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
@@ -30,7 +31,7 @@ public class HeistPlaySlashCommand(
 
     public record Options(ITaypointAmount amount);
 
-    public Command Heist(RunContext context, IUser author, ITaypointAmount? amount, string? amountString = null) => new(
+    public Command Heist(RunContext context, ITaypointAmount? amount, string? amountString = null) => new(
         new(Info.Name),
         async () =>
         {
@@ -45,13 +46,22 @@ public class HeistPlaySlashCommand(
             }
             ArgumentNullException.ThrowIfNull(amount);
 
-            var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(context.User, "heist");
+            var guild = context.Guild;
+            ArgumentNullException.ThrowIfNull(guild);
+            var fetched = guild.Fetched;
+            ArgumentNullException.ThrowIfNull(fetched);
+
+            var author = context.User;
+            ArgumentNullException.ThrowIfNull(author.MemberInfo);
+            DiscordMember member = new(author, author.MemberInfo);
+
+            var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(author, "heist");
             if (rateLimitResult != null)
                 return rateLimitResult;
 
             var delay = options.CurrentValue.TimeSpanBeforeHeistStarts!.Value;
 
-            var result = await heistRepository.EnterHeistAsync((IGuildUser)author, amount, delay);
+            var result = await heistRepository.EnterHeistAsync(member, amount, delay);
             switch (result)
             {
                 case HeistCreated:
@@ -60,7 +70,7 @@ public class HeistPlaySlashCommand(
                             async () =>
                             {
                                 await Task.Delay(delay);
-                                await EndHeistAsync(context);
+                                await EndHeistAsync(fetched, guild, context);
                             },
                             nameof(EndHeistAsync))
                         );
@@ -101,18 +111,15 @@ public class HeistPlaySlashCommand(
             }
         },
         Preconditions: [
-            new InGuildPrecondition(),
+            new InGuildPrecondition(botMustBeInGuild: true),
         ]
     );
 
-    private async Task EndHeistAsync(RunContext context)
+    private async Task EndHeistAsync(IGuild guild, CommandGuild commandGuild, RunContext context)
     {
-        var guild = context.Guild;
-        ArgumentNullException.ThrowIfNull(guild);
-
         var channel = await guild.GetTextChannelAsync(context.Channel.Id);
 
-        var heisters = await heistRepository.EndHeistAsync(guild);
+        var heisters = await heistRepository.EndHeistAsync(commandGuild);
         var bank = GetBank(heisters.Count);
 
         var roll = cryptoSecureRandom.GetInt32(1, 100);
@@ -178,7 +185,6 @@ public class HeistPlaySlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Heist(context, context.User, options.amount));
+        return new(Heist(context, options.amount));
     }
 }
-

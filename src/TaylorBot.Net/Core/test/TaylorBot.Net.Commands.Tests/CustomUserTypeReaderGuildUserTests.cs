@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Tests;
@@ -30,6 +31,7 @@ public class CustomUserTypeReaderGuildUserTests
     public CustomUserTypeReaderGuildUserTests()
     {
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
+        A.CallTo(() => AGuildUser.Id).Returns(AnId);
         _mentionedUserTypeReader = new MentionedUserTypeReader<IGuildUser>(_userTracker);
         _customUserTypeReader = new CustomUserTypeReader<IGuildUser>(_mentionedUserTypeReader, _userTracker);
     }
@@ -39,12 +41,12 @@ public class CustomUserTypeReaderGuildUserTests
     {
         var guild = A.Fake<IGuild>(o => o.Strict());
         A.CallTo(() => _commandContext.Guild).Returns(guild);
-        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(Array.Empty<IGuildUser>());
+        A.CallTo(() => guild.GetUsersAsync(CacheMode.CacheOnly, null)).Returns([]);
         A.CallTo(() => _channel.GetUsersAsync(CacheMode.CacheOnly, null)).Returns(AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>());
         var taylorbotClient = A.Fake<ITaylorBotClient>(o => o.Strict());
         A.CallTo(() => taylorbotClient.ResolveGuildUserAsync(guild, A<SnowflakeId>.That.Matches(id => id.Id == AnId))).Returns(AGuildUser);
         A.CallTo(() => _serviceProvider.GetService(typeof(ITaylorBotClient))).Returns(taylorbotClient);
-        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(AGuildUser)).Returns(default);
+        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(A<DiscordUser>.That.Matches(u => u.Id == AnId))).Returns(default);
 
         var result = (UserArgument<IGuildUser>)(await _customUserTypeReader.ReadAsync(_commandContext, MentionUtils.MentionUser(AnId), _serviceProvider)).Values.Single().Value;
         var user = await result.GetTrackedUserAsync();
@@ -102,11 +104,11 @@ public class CustomUserTypeReaderGuildUserTests
 
     private IGuildUser CreateFakeGuildUser(ulong id, string username, string nickname)
     {
-        var guildUser = A.Fake<IGuildUser>(o => o.Strict(StrictFakeOptions.AllowEquals | StrictFakeOptions.AllowToString));
+        var guildUser = A.Fake<IGuildUser>();
         A.CallTo(() => guildUser.Id).Returns(id);
         A.CallTo(() => guildUser.Username).Returns(username);
         A.CallTo(() => guildUser.Nickname).Returns(nickname);
-        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(guildUser)).Returns(default);
+        A.CallTo(() => _userTracker.TrackUserFromArgumentAsync(A<DiscordUser>.That.Matches(u => u.Id == id))).Returns(default);
         return guildUser;
     }
 }

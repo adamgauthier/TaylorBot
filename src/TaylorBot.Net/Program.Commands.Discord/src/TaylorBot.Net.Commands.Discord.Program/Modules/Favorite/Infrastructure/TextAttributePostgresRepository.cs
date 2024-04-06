@@ -1,12 +1,12 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 
 public class TextAttributePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
 {
-    public async ValueTask<string?> GetAttributeAsync(IUser user, string attributeId)
+    public async ValueTask<string?> GetAttributeAsync(DiscordUser user, string attributeId)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -23,7 +23,7 @@ public class TextAttributePostgresRepository(PostgresConnectionFactory postgresC
         );
     }
 
-    public async ValueTask SetAttributeAsync(IUser user, string attributeId, string attributeValue)
+    public async ValueTask SetAttributeAsync(DiscordUser user, string attributeId, string attributeValue)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -43,7 +43,7 @@ public class TextAttributePostgresRepository(PostgresConnectionFactory postgresC
         );
     }
 
-    public async ValueTask ClearAttributeAsync(IUser user, string attributeId)
+    public async ValueTask ClearAttributeAsync(DiscordUser user, string attributeId)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

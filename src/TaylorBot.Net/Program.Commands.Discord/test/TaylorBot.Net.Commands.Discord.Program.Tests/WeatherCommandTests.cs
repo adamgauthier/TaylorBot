@@ -27,10 +27,10 @@ public class WeatherCommandTests
     {
         const double Temperature = 13.3;
         Location location = new("46.8130816", "-71.20745959999999", "Québec City, QC, Canada");
-        A.CallTo(() => _locationRepository.GetLocationAsync(_commandUser)).Returns(new StoredLocation(location, ""));
+        A.CallTo(() => _locationRepository.GetLocationAsync(new(_commandUser))).Returns(new StoredLocation(location, ""));
         A.CallTo(() => _weatherClient.GetCurrentForecastAsync(location.Latitude, location.Longitude)).Returns(new CurrentForecast("", Temperature, 0, 0, 0, ""));
 
-        var result = (EmbedResult)await _weatherCommand.Weather(_commandUser, _commandUser, locationOverride: null).RunAsync();
+        var result = (EmbedResult)await _weatherCommand.Weather(new(_commandUser), _commandUser, locationOverride: null).RunAsync();
 
         result.Embed.Description.Should().Contain($"{Temperature}°C");
         result.Embed.Footer?.Text.Should().Contain(location.FormattedAddress);

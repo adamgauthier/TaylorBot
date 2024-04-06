@@ -18,7 +18,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            riskCommand.Play(context, Context.User, RiskLevel.Low, amount: null, amountString: amount),
+            riskCommand.Play(context, context.User, RiskLevel.Low, amount: null, amountString: amount),
             context
         );
 
@@ -36,7 +36,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            riskCommand.Play(context, Context.User, RiskLevel.High, amount: null, amountString: amount),
+            riskCommand.Play(context, context.User, RiskLevel.High, amount: null, amountString: amount),
             context
         );
 

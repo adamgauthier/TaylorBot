@@ -4,23 +4,24 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 public interface IFavoriteSongsRepository
 {
-    ValueTask<string?> GetFavoriteSongsAsync(IUser user);
-    ValueTask SetFavoriteSongsAsync(IUser user, string songs);
-    ValueTask ClearFavoriteSongsAsync(IUser user);
+    ValueTask<string?> GetFavoriteSongsAsync(DiscordUser user);
+    ValueTask SetFavoriteSongsAsync(DiscordUser user, string songs);
+    ValueTask ClearFavoriteSongsAsync(DiscordUser user);
 }
 
 public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsShowSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs show");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
-    public static Embed BuildDisplayEmbed(IUser user, string favoriteSongs)
+    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteSongs)
     {
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
@@ -30,7 +31,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
         .Build();
     }
 
-    public Command Show(IUser user, RunContext? context = null) => new(
+    public Command Show(DiscordUser user, RunContext? context = null) => new(
         new(Info.Name),
         async () =>
         {
@@ -54,7 +55,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Show(options.user.User, context));
+        return new(Show(new(options.user.User), context));
     }
 }
 
@@ -64,7 +65,7 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 
     public record Options(ParsedString songs);
 
-    public Command Set(IUser user, string favoriteSongs, RunContext? context = null) => new(
+    public Command Set(DiscordUser user, string favoriteSongs, RunContext? context = null) => new(
         new(Info.Name),
         async () =>
         {

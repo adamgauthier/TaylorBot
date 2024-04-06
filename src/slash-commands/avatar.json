@@ -1,6 +1,15 @@
 {
   "name": "avatar",
   "description": "Display user avatars in full size",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "user",

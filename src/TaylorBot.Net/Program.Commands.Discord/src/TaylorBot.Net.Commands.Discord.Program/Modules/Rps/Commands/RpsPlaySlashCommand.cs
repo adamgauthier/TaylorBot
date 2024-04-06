@@ -6,6 +6,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Random;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
@@ -15,11 +16,11 @@ public record RpsLeaderboardEntry(string user_id, string username, int rps_win_c
 
 public interface IRpsStatsRepository
 {
-    Task<RpsProfile?> GetProfileAsync(IUser user);
-    Task WinRpsAsync(IUser user, long taypointReward);
-    Task DrawRpsAsync(IUser user);
-    Task LoseRpsAsync(IUser user);
-    Task<IList<RpsLeaderboardEntry>> GetLeaderboardAsync(IGuild guild);
+    Task<RpsProfile?> GetProfileAsync(DiscordUser user);
+    Task WinRpsAsync(DiscordUser user, long taypointReward);
+    Task DrawRpsAsync(DiscordUser user);
+    Task LoseRpsAsync(DiscordUser user);
+    Task<IList<RpsLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);
 }
 
 public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLimiter rateLimiter, ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<RpsPlaySlashCommand.Options>

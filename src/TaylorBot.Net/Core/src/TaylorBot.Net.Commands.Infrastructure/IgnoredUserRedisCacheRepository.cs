@@ -1,12 +1,12 @@
-﻿using Discord;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, IgnoredUserPostgresRepository ignoredUserPostgresRepository) : IIgnoredUserRepository
 {
-    private static string GetKey(IUser user) => $"ignore-until:user:{user.Id}";
+    private static string GetKey(DiscordUser user) => $"ignore-until:user:{user.Id}";
 
     private static async ValueTask CacheAsync(IDatabase redis, string key, DateTimeOffset ignoreUntil)
     {
@@ -17,7 +17,7 @@ public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMul
         );
     }
 
-    public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot)
+    public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(DiscordUser user, bool isBot)
     {
         var redis = connectionMultiplexer.GetDatabase();
         var key = GetKey(user);
@@ -38,7 +38,7 @@ public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMul
         );
     }
 
-    public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
+    public async ValueTask IgnoreUntilAsync(DiscordUser user, DateTimeOffset until)
     {
         await ignoredUserPostgresRepository.IgnoreUntilAsync(user, until);
 

@@ -7,7 +7,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
 
 public class SpamChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ISpamChannelRepository
 {
-    public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(ITextChannel channel)
+    public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(GuildTextChannel channel)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

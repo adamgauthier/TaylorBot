@@ -68,3 +68,28 @@ SELECT * FROM egghunt2024.egg_finds
 INNER JOIN egghunt2024.eggs ON egghunt2024.egg_finds.egg_number = egghunt2024.eggs.egg_number
 WHERE eggs.egg_number = '01'
 ORDER BY found_at;
+
+-- Reward users after hunt
+CREATE OR REPLACE FUNCTION pg_temp.reward_users_for_egg_find(egg_num text, reward_points integer)
+RETURNS TABLE(_user_id text) AS $$
+BEGIN
+    RETURN QUERY
+    UPDATE users.users
+    SET taypoint_count = taypoint_count + reward_points
+    WHERE users.user_id IN (
+        SELECT egg_finds.user_id FROM egghunt2024.egg_finds
+        INNER JOIN egghunt2024.eggs ON egghunt2024.egg_finds.egg_number = egghunt2024.eggs.egg_number
+        WHERE eggs.egg_number = egg_num
+    )
+    RETURNING user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION pg_temp.reward_users_for_egg(egg_num text, reward_points integer)
+RETURNS TABLE(_reward_message text) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT CONCAT('You just got **', reward_points::text, ' taypoints** for finding egg **#', egg_num, '**! Congrats 🐰🥚 <@', string_agg(_user_id, '> <@'), '>')
+    FROM pg_temp.reward_users_for_egg_find(egg_num, reward_points);
+END;
+$$ LANGUAGE plpgsql;

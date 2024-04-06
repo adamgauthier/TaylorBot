@@ -1,7 +1,12 @@
 {
   "name": "channel",
   "description": "Gets information about a channel",
-  "dm_permission": false,
+  "integration_types": [
+    0
+  ],
+  "contexts": [
+    0
+  ],
   "options": [
     {
       "name": "messages",

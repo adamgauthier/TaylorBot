@@ -3,6 +3,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
@@ -10,7 +11,7 @@ public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameReposito
 {
     public static readonly CommandMetadata Metadata = new("lastfm clear", "Last.fm 🎶", ["fm clear", "np clear"]);
 
-    public Command Clear(IUser user, bool isLegacyCommand) => new(
+    public Command Clear(DiscordUser user, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {

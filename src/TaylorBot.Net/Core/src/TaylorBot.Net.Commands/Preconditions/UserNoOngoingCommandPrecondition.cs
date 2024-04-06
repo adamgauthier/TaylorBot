@@ -1,14 +1,14 @@
-﻿using Discord;
-using System.Reflection;
+﻿using System.Reflection;
 using TaylorBot.Net.Commands.DiscordNet;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
 public interface IOngoingCommandRepository
 {
-    ValueTask<bool> HasAnyOngoingCommandAsync(IUser user, string pool);
-    ValueTask AddOngoingCommandAsync(IUser user, string pool);
-    ValueTask RemoveOngoingCommandAsync(IUser user, string pool);
+    ValueTask<bool> HasAnyOngoingCommandAsync(DiscordUser user, string pool);
+    ValueTask AddOngoingCommandAsync(DiscordUser user, string pool);
+    ValueTask RemoveOngoingCommandAsync(DiscordUser user, string pool);
 }
 
 public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingCommandRepository) : ICommandPrecondition

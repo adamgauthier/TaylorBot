@@ -34,7 +34,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            avatarCommand.Avatar(u, AvatarType.Guild, "Use </avatar:832103922709692436> instead! 😊"),
+            avatarCommand.Avatar(new(u), AvatarType.Guild, "Use </avatar:832103922709692436> instead! 😊"),
             context
         );
 

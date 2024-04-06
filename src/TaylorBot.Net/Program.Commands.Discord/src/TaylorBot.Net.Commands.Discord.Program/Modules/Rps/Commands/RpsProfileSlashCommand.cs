@@ -12,7 +12,7 @@ public class RpsProfileSlashCommand(IRpsStatsRepository rpsStatsRepository) : IS
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("rps profile");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -21,7 +21,7 @@ public class RpsProfileSlashCommand(IRpsStatsRepository rpsStatsRepository) : IS
             async () =>
             {
                 var user = options.user.User;
-                var profile = await rpsStatsRepository.GetProfileAsync(user) ?? new(0, 0, 0);
+                var profile = await rpsStatsRepository.GetProfileAsync(new(user)) ?? new(0, 0, 0);
 
                 var totalGamesPlayed = profile.rps_win_count + profile.rps_draw_count + profile.rps_lose_count;
                 var winRate = totalGamesPlayed != 0 ? (decimal)profile.rps_win_count / totalGamesPlayed : 0;

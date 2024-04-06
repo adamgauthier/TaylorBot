@@ -32,7 +32,7 @@ public class UsernamesModuleTests
     [Fact]
     public async Task GetAsync_WhenUsernameHistoryPrivate_ThenReturnsSuccessEmbed()
     {
-        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(_commandUser)).Returns(true);
+        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(_commandUser))).Returns(true);
 
         var result = (await _usernamesModule.GetAsync()).GetResult<EmbedResult>();
 
@@ -44,8 +44,8 @@ public class UsernamesModuleTests
     {
         const string AUsername = "Enchanted13";
 
-        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(_commandUser)).Returns(false);
-        A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(_commandUser, 75)).Returns(new[] {
+        A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(_commandUser))).Returns(false);
+        A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(new(_commandUser), 75)).Returns(new[] {
             new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.Now.AddDays(-1))
         });
 

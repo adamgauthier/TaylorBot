@@ -1,6 +1,4 @@
 ﻿using Discord;
-using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.EntityTracker.Domain;
 
@@ -10,7 +8,7 @@ public record GuildCommandDisabled(bool IsDisabled, bool WasCacheHit);
 
 public interface IDisabledGuildCommandRepository
 {
-    ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command);
+    ValueTask<GuildCommandDisabled> IsGuildCommandDisabledAsync(CommandGuild guild, CommandMetadata command);
     ValueTask EnableInAsync(IGuild guild, string commandName);
     ValueTask DisableInAsync(IGuild guild, string commandName);
 }
@@ -18,31 +16,18 @@ public interface IDisabledGuildCommandRepository
 public class DisabledGuildCommandDomainService(
     TaskExceptionLogger taskExceptionLogger,
     IDisabledGuildCommandRepository disabledGuildCommandRepository,
-    GuildTrackerDomainService guildTrackerDomainService,
-    Lazy<ITaylorBotClient> taylorBotClient)
+    GuildTrackerDomainService guildTrackerDomainService)
 {
-    public async Task<bool> IsGuildCommandDisabledAsync(IGuild guild, CommandMetadata command, RunContext context)
+    public async Task<bool> IsGuildCommandDisabledAsync(CommandGuild guild, CommandMetadata command, RunContext context)
     {
         var result = await disabledGuildCommandRepository.IsGuildCommandDisabledAsync(guild, command);
-        if (!result.WasCacheHit)
+        if (!result.WasCacheHit && guild.Fetched != null)
         {
             // Take advantage of the cache miss to track guild name changes in the background
             _ = taskExceptionLogger.LogOnError(
-                async () =>
-                {
-                    if (context.IsFakeGuild)
-                    {
-                        var realGuild = taylorBotClient.Value.ResolveRequiredGuild(guild.Id);
-                        await guildTrackerDomainService.TrackGuildAndNameAsync(realGuild);
-                    }
-                    else
-                    {
-                        await guildTrackerDomainService.TrackGuildAndNameAsync(guild);
-                    }
-                },
+                async () => await guildTrackerDomainService.TrackGuildAndNameAsync(guild.Fetched),
                 nameof(guildTrackerDomainService.TrackGuildAndNameAsync)
             );
-
         }
         return result.IsDisabled;
     }

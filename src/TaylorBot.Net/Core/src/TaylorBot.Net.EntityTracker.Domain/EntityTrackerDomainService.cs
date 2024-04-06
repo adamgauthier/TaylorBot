@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.Member;
 using TaylorBot.Net.EntityTracker.Domain.Options;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
@@ -41,7 +42,7 @@ public class EntityTrackerDomainService(
 
         foreach (var textChannel in guild.TextChannels)
         {
-            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
+            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(textChannel.Id, textChannel.Guild.Id));
         }
 
         if (downloadAllUsers)
@@ -70,9 +71,11 @@ public class EntityTrackerDomainService(
     {
         if (oldUser.Username != newUser.Username)
         {
-            var userAddedResult = await userRepository.AddNewUserAsync(newUser);
+            DiscordUser user = new(newUser);
 
-            await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(newUser, userAddedResult);
+            var userAddedResult = await userRepository.AddNewUserAsync(user);
+
+            await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, userAddedResult);
         }
     }
 
@@ -86,8 +89,10 @@ public class EntityTrackerDomainService(
 
     public async Task OnGuildUserJoinedAsync(SocketGuildUser guildUser)
     {
-        var userAddedResult = await userRepository.AddNewUserAsync(guildUser);
-        await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(guildUser, userAddedResult);
+        DiscordUser user = new(guildUser);
+
+        var userAddedResult = await userRepository.AddNewUserAsync(user);
+        await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, userAddedResult);
 
         if (userAddedResult.WasAdded)
         {
@@ -120,7 +125,7 @@ public class EntityTrackerDomainService(
 
     public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
     {
-        await spamChannelRepository.InsertOrGetIsSpamChannelAsync(textChannel);
+        await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(textChannel.Id, textChannel.Guild.Id));
         logger.LogInformation("Added new text channel {TextChannel}.", textChannel.FormatLog());
     }
 }

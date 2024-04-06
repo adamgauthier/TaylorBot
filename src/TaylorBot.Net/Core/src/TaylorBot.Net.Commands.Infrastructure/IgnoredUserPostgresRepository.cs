@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class IgnoredUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IIgnoredUserRepository
 {
-    public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(IUser user, bool isBot)
+    public async ValueTask<GetUserIgnoreUntilResult> InsertOrGetUserIgnoreUntilAsync(DiscordUser user, bool isBot)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -45,7 +45,7 @@ public class IgnoredUserPostgresRepository(PostgresConnectionFactory postgresCon
         public string? previous_username { get; set; }
     }
 
-    public async ValueTask IgnoreUntilAsync(IUser user, DateTimeOffset until)
+    public async ValueTask IgnoreUntilAsync(DiscordUser user, DateTimeOffset until)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

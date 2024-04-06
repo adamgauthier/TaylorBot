@@ -8,6 +8,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Time;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
@@ -17,9 +18,9 @@ public record JoinedTimelineEntry(string user_id, string username, DateTime firs
 
 public interface IServerJoinedRepository
 {
-    Task<ServerJoined> GetRankedJoinedAsync(IGuildUser guildUser);
-    Task FixMissingJoinedDateAsync(IGuildUser guildUser);
-    Task<IList<JoinedTimelineEntry>> GetTimelineAsync(IGuild guild);
+    Task<ServerJoined> GetRankedJoinedAsync(DiscordMember guildUser);
+    Task FixMissingJoinedDateAsync(DiscordMember guildUser);
+    Task<IList<JoinedTimelineEntry>> GetTimelineAsync(CommandGuild guild);
 }
 
 public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<ServerJoinedSlashCommand.Options>
@@ -28,10 +29,10 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
 
     public record Options(ParsedMemberOrAuthor user);
 
-    private async Task<ServerJoined> GetServerJoinedAsync(IGuildUser guildUser)
+    private async Task<ServerJoined> GetServerJoinedAsync(DiscordMember guildUser)
     {
         var joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);
-        if (joined.first_joined_at == null && guildUser.JoinedAt is not null)
+        if (joined.first_joined_at == null && guildUser.Member.JoinedAt is not null)
         {
             await serverJoinedRepository.FixMissingJoinedDateAsync(guildUser);
             joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);
@@ -43,18 +44,20 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
         new("joined"),
         async () =>
         {
-            var guildUser = (IGuildUser)user;
-            ServerJoined joined = await GetServerJoinedAsync(guildUser);
+            DiscordUser u = new(user);
+            ArgumentNullException.ThrowIfNull(u.MemberInfo);
+
+            ServerJoined joined = await GetServerJoinedAsync(new(u, u.MemberInfo));
             DateTimeOffset joinedAt = joined.first_joined_at ?? throw new InvalidOperationException();
 
-            var sinceCreation = joinedAt - guildUser.Guild.CreatedAt;
+            var sinceCreation = joinedAt - SnowflakeUtils.FromSnowflake(u.MemberInfo.GuildId);
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(guildUser)
+                .WithUserAsAuthor(u)
                 .WithDescription(
                     $"""
-                    {guildUser.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
+                    {u.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
                     This was roughly **{sinceCreation.Humanize(maxUnit: TimeUnit.Year, culture: TaylorBotCulture.Culture)}** after the server was created 📆
 
                     Check out </server timeline:1137547317549998130> for a history of who joined first! 📃

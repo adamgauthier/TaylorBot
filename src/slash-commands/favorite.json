@@ -1,6 +1,15 @@
 {
   "name": "favorite",
   "description": "Set and see your friends' favorite things",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
   "options": [
     {
       "name": "songs",

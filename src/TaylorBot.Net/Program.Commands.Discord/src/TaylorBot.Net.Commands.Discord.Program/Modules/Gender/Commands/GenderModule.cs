@@ -21,7 +21,7 @@ public class GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand g
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            genderShowCommand.Show(u),
+            genderShowCommand.Show(new(u)),
             context
         );
 

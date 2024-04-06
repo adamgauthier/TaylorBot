@@ -20,6 +20,8 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
     [Summary("Gets basic information about your TaylorBot Plus membership.")]
     public async Task<RuntimeResult> PlusAsync()
     {
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
             var embed = new EmbedBuilder();
@@ -74,14 +76,15 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
                         """);
             }
 
-            if (Context.Guild != null)
+            if (context.Guild?.Fetched != null)
             {
-                var isPlus = await plusRepository.IsActivePlusGuildAsync(Context.Guild);
+                var isPlus = await plusRepository.IsActivePlusGuildAsync(context.Guild);
+                var guild = context.Guild.Fetched;
 
                 var text = isPlus ?
-                    $"'{Context.Guild.Name}' is a **TaylorBot Plus** server. ✅" :
+                    $"'{guild.Name}' is a **TaylorBot Plus** server. ✅" :
                     $"""
-                    '{Context.Guild.Name}' is not a **TaylorBot Plus** server. ❌
+                    '{guild.Name}' is not a **TaylorBot Plus** server. ❌
                     Members with a plus membership can add it using `{Context.CommandPrefix}plus add`.
                     """;
 
@@ -91,7 +94,6 @@ public class PlusModule(ICommandRunner commandRunner, IPlusRepository plusReposi
             return new EmbedResult(embed.Build());
         });
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);

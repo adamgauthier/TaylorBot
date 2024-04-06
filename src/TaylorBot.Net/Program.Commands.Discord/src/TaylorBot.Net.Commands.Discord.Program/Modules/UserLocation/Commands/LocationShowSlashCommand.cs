@@ -14,7 +14,7 @@ public class LocationShowCommand(ILocationRepository locationRepository)
         Metadata,
         async () =>
         {
-            var location = await locationRepository.GetLocationAsync(user);
+            var location = await locationRepository.GetLocationAsync(new(user));
 
             if (location != null)
             {
@@ -49,7 +49,7 @@ public class LocationShowSlashCommand(LocationShowCommand locationShowCommand) :
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location show");
 
-    public record Options(ParsedUserOrAuthor user);
+    public record Options(ParsedFetchedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

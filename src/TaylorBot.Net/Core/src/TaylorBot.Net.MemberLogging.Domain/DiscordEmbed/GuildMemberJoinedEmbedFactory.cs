@@ -14,7 +14,7 @@ public class GuildMemberJoinedEmbedFactory(IOptionsMonitor<MemberLoggingOptions>
     {
         var avatarUrl = guildUser.GetAvatarUrl() ?? guildUser.GetDefaultAvatarUrl();
         return new EmbedBuilder()
-            .WithAuthor($"{guildUser.Username}{guildUser.DiscrimSuffix()} ({guildUser.Id})", avatarUrl, avatarUrl)
+            .WithAuthor($"{guildUser.Handle()} ({guildUser.Id})", avatarUrl, avatarUrl)
             .WithTimestamp(guildUser.JoinedAt ?? DateTimeOffset.Now);
     }
 
