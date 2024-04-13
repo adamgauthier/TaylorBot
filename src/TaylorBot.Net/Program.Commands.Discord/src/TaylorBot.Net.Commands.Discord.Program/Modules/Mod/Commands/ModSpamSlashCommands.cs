@@ -11,7 +11,7 @@ public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod spam add");
 
-    public record Options(ParsedNonThreadTextChannelOrCurrent channel);
+    public record Options(ParsedTextChannelOrCurrent channel);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -40,7 +40,7 @@ public class ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelReposit
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("mod spam remove");
 
-    public record Options(ParsedNonThreadTextChannelOrCurrent channel);
+    public record Options(ParsedTextChannelOrCurrent channel);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

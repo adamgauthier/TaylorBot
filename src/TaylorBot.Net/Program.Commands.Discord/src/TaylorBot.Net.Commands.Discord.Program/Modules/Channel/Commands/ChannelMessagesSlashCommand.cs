@@ -19,7 +19,7 @@ public class ChannelMessagesSlashCommand(IChannelMessageCountRepository channelM
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("channel messages");
 
-    public record Options(ParsedNonThreadTextChannelOrCurrent channel);
+    public record Options(ParsedTextChannelOrCurrent channel);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
