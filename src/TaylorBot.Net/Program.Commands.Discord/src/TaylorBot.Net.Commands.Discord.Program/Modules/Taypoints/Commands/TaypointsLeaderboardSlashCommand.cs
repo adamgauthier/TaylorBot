@@ -68,7 +68,7 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }

@@ -185,13 +185,13 @@ public class TaylorBotClient : ITaylorBotClient
 
     public async Task AddRoleAsync(SnowflakeId guildId, SnowflakeId userId, SnowflakeId roleId, RequestOptions? options = null)
     {
-        var clientHelperType = Type.GetType("Discord.Rest.ClientHelper");
+        var clientHelperType = typeof(Discord.Rest.DiscordRestClient).Assembly.GetType("Discord.Rest.ClientHelper");
         ArgumentNullException.ThrowIfNull(clientHelperType);
 
-        var methodInfo = clientHelperType.GetMethod("AddRoleAsync", BindingFlags.Static);
+        var methodInfo = clientHelperType.GetMethod("AddRoleAsync", BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.Public);
         ArgumentNullException.ThrowIfNull(methodInfo);
 
-        var returned = methodInfo.Invoke(null, [DiscordShardedClient.Rest, guildId, userId, roleId, options!]);
+        var returned = methodInfo.Invoke(null, [DiscordShardedClient.Rest, guildId.Id, userId.Id, roleId.Id, options!]);
         ArgumentNullException.ThrowIfNull(returned);
         await (Task)returned;
     }

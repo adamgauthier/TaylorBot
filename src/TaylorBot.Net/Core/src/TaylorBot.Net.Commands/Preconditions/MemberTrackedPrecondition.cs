@@ -12,6 +12,14 @@ public class MemberTrackedPrecondition(ILogger<MemberTrackedPrecondition> logger
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
+        if (context.Guild?.Fetched == null)
+        {
+            return new PreconditionPassed();
+        }
+
+        // Bot is joined to the current guild, make sure it is tracked by resolving prefix from database
+        _ = await context.CommandPrefix.Value;
+
         if (context.User.MemberInfo == null)
         {
             return new PreconditionPassed();

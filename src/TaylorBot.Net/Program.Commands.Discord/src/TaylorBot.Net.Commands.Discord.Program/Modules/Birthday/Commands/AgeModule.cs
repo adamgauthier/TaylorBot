@@ -89,7 +89,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            birthdayShowCommand.Birthday(new(u), context.CreatedAt, context: null),
+            birthdayShowCommand.Birthday(new(u), context.CreatedAt, context, isPrefix: true),
             context
         );
 

@@ -77,7 +77,7 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
                 return EmbedFactory.CreateError($"Age must be lower or equal to {MaxAge} years old.");
             }
 
-            ageCalculator.TryAddAgeRolesInBackground(context.User, age);
+            ageCalculator.TryAddAgeRolesInBackground(context, context.User, age);
         }
 
         await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));

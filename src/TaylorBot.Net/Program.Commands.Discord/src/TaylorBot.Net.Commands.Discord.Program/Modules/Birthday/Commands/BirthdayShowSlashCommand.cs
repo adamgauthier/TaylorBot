@@ -16,7 +16,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
 
     public record Options(ParsedFetchedUserOrAuthor user);
 
-    public Command Birthday(DiscordUser user, DateTimeOffset createdAt, RunContext? context) => new(
+    public Command Birthday(DiscordUser user, DateTimeOffset createdAt, RunContext context, bool isPrefix = false) => new(
         new(Info.Name),
         async () =>
         {
@@ -27,7 +27,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                 if (birthday.Date.Year != IBirthdayRepository.Birthday.NoYearValue)
                 {
                     var age = AgeCalculator.GetCurrentAge(createdAt, birthday.Date);
-                    ageCalculator.TryAddAgeRolesInBackground(user, age);
+                    ageCalculator.TryAddAgeRolesInBackground(context, user, age);
                 }
 
                 if (!birthday.IsPrivate)
@@ -45,7 +45,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                         .WithTitle("Birthday")
                         .WithDescription($"{birthday.Date.ToString("MMMM d", TaylorBotCulture.Culture)} ({nextBirthday.ToDateTime(TimeOnly.MinValue).Humanize(culture: TaylorBotCulture.Culture)})");
 
-                    if (context == null)
+                    if (isPrefix)
                     {
                         embed.Description += "\nPlease use </birthday show:1016938623880400907> instead! 😊";
                     }
@@ -57,7 +57,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         {user.Mention}'s birthday is private. 🙅
-                        To set your birthday privately, use {context?.MentionCommand("birthday set") ?? "</birthday set:1016938623880400907>"} with the **privately** option.
+                        To set your birthday privately, use {(!isPrefix ? context.MentionCommand("birthday set") : "</birthday set:1016938623880400907>")} with the **privately** option.
                         """));
                 }
             }
@@ -66,7 +66,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s birthday is not set. 🚫
-                    They need to use {context?.MentionCommand("birthday set") ?? "</birthday set:1016938623880400907>"} to set it first.
+                    They need to use {(!isPrefix ? context.MentionCommand("birthday set") : "</birthday set:1016938623880400907>")} to set it first.
                     """));
             }
         }

@@ -64,7 +64,7 @@ public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsReposi
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }

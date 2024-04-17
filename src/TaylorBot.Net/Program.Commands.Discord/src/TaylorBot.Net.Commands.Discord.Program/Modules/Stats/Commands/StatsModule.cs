@@ -2,7 +2,6 @@
 using Discord.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 
@@ -18,16 +17,12 @@ public class StatsModule(ICommandRunner commandRunner, IBotInfoRepository botInf
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () =>
-            {
-                return new(new EmbedResult(EmbedFactory.CreateError(
-                    """
-                    This command has been moved to 👉 </server population:1137547317549998130> 👈
-                    Please use it instead! 😊
-                    """
-                )));
-            },
-            Preconditions: [new InGuildPrecondition()]
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </server population:1137547317549998130> 👈
+                Please use it instead! 😊
+                """
+            )))
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

@@ -19,29 +19,29 @@ public class AgeCalculator(TaskExceptionLogger taskExceptionLogger, Lazy<ITaylor
         return age;
     }
 
-    private async Task TryAddAgeRolesAsync(DiscordUser user, int age)
+    private async Task TryAddAgeRolesAsync(DiscordMember user, int age)
     {
-        if (user.MemberInfo != null)
-        {
-            var ageRoles = await birthdayRepository.GetAgeRolesAsync(user.MemberInfo.GuildId);
+        var ageRoles = await birthdayRepository.GetAgeRolesAsync(user.Member.GuildId);
 
-            foreach (var ageRole in ageRoles.Where(a =>
-                age >= a.MinimumAge &&
-                !user.MemberInfo.Roles.Contains(a.RoleId)))
+        foreach (var ageRole in ageRoles.Where(a =>
+            age >= a.MinimumAge &&
+            !user.Member.Roles.Contains(a.RoleId)))
+        {
+            await client.Value.AddRoleAsync(user.Member.GuildId, user.User.Id, ageRole.RoleId, new()
             {
-                await client.Value.AddRoleAsync(user.MemberInfo.GuildId, user.Id, ageRole.RoleId, new()
-                {
-                    AuditLogReason = $"Assigned age role on user's birthday command ({age} years old)"
-                });
-            }
+                AuditLogReason = $"Assigned age role on user's birthday command ({age} years old)"
+            });
         }
     }
 
-    public void TryAddAgeRolesInBackground(DiscordUser user, int age)
+    public void TryAddAgeRolesInBackground(RunContext context, DiscordUser user, int age)
     {
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-            TryAddAgeRolesAsync(user, age),
-            nameof(TryAddAgeRolesAsync))
-        );
+        if (context.Guild?.Fetched != null && user.MemberInfo != null)
+        {
+            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                TryAddAgeRolesAsync(new(user, user.MemberInfo), age),
+                nameof(TryAddAgeRolesAsync))
+            );
+        }
     }
 }

@@ -63,7 +63,7 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }

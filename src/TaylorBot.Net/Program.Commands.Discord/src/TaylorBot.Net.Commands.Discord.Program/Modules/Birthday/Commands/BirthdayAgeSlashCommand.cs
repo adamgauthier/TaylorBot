@@ -28,7 +28,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Age
                     if (birthday.Date.Year != IBirthdayRepository.Birthday.NoYearValue)
                     {
                         var age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday.Date);
-                        ageCalculator.TryAddAgeRolesInBackground(user, age);
+                        ageCalculator.TryAddAgeRolesInBackground(context, user, age);
 
                         var embed = new EmbedBuilder()
                             .WithUserAsAuthor(user)

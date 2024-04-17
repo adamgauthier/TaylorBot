@@ -20,13 +20,18 @@ public class MemberRepository(PostgresConnectionFactory postgresConnectionFactor
             """,
             new
             {
-                GuildId = member.GuildId.ToString(),
-                UserId = member.Id.ToString(),
+                GuildId = $"{member.GuildId}",
+                UserId = $"{member.Id}",
                 FirstJoinedAt = member.JoinedAt
             }
         );
 
         return result;
+    }
+
+    private class MemberAddedOrUpdatedDto
+    {
+        public DateTimeOffset? first_joined_at { get; set; }
     }
 
     public async ValueTask<MemberAddResult> AddNewMemberOrUpdateAsync(IGuildUser member)
@@ -47,8 +52,8 @@ public class MemberRepository(PostgresConnectionFactory postgresConnectionFactor
             """,
             new
             {
-                GuildId = member.GuildId.ToString(),
-                UserId = member.Id.ToString(),
+                GuildId = $"{member.GuildId}",
+                UserId = $"{member.Id}",
                 FirstJoinedAt = member.JoinedAt
             }
         );

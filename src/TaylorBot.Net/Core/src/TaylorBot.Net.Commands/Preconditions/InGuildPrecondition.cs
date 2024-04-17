@@ -16,7 +16,11 @@ public class InGuildPrecondition(bool botMustBeInGuild = false) : ICommandPrecon
         {
             return new(new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} requires bot to be in guild",
-                UserReason: new($"You can't use `{command.Metadata.Name}` because it requires TaylorBot to be added to this server.")
+                UserReason: new(
+                    $"""
+                    You can't use **{command.Metadata.Name}** because it requires TaylorBot to be added to this server 🥲
+                    Ask a server admin to add it ✨ https://discord.com/oauth2/authorize?client_id=168767327024840704
+                    """)
             ));
         }
 

@@ -63,7 +63,7 @@ public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepositor
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }

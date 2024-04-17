@@ -63,7 +63,7 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }

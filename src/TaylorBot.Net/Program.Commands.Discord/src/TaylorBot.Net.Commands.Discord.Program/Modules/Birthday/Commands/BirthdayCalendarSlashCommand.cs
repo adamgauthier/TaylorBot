@@ -62,7 +62,9 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: [new InGuildPrecondition()]
+            Preconditions: [
+                new InGuildPrecondition(botMustBeInGuild: true),
+            ]
         ));
     }
 }

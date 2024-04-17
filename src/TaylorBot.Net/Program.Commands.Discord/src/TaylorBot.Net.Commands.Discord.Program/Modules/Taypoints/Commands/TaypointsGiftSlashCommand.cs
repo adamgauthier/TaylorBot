@@ -118,7 +118,7 @@ public class TaypointsGiftSlashCommand(
         var recipientBalances = transfer.Recipients.Select(r =>
             $"<@{r.UserId}>: {(r.UpdatedBalance - r.Received).ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(r.UpdatedBalance, TaylorBotFormats.BoldReadable)} 📈");
 
-        if (context.Guild != null)
+        if (context.Guild?.Fetched != null)
         {
             var nonBots = to.Where(u => !u.IsBot);
             var nonBotRecipientResults = transfer.Recipients.Where(r => nonBots.Any(u => $"{u.Id}" == r.UserId));

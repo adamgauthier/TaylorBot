@@ -63,7 +63,7 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                new InGuildPrecondition(botMustBeInGuild: true),
             ]
         ));
     }
