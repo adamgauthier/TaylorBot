@@ -4,7 +4,6 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
-using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.User;
@@ -79,10 +78,7 @@ public class TaypointsGiftSlashCommand(
                     return new EmbedResult(EmbedFactory.CreateSuccess(description.Truncate(EmbedBuilder.MaxDescriptionLength)));
                 }
             }
-        },
-        Preconditions: [
-            new InGuildPrecondition(),
-        ]
+        }
     );
 
     private static double GetPercent(AbsoluteTaypointAmount absolute)
