@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 [Name("Heist 💰")]
 public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand heistCommand) : TaylorBotModule
 {
-    [Command("heist")]
+    [Command(HeistPlaySlashCommand.PrefixCommandName)]
     [Summary("Get a group together and attempt to heist a taypoint bank")]
     public async Task<RuntimeResult> HeistAsync(
         [Summary("How much of your taypoints do you want to invest into heist equipment?")]

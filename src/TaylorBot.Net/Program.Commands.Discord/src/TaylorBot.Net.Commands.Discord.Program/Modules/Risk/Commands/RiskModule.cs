@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 [Name("Risk 💰")]
 public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskCommand) : TaylorBotModule
 {
-    [Command("gamble")]
+    [Command(RiskPlaySlashCommand.PrefixCommandName)]
     [Summary("Risk some of your taypoints in an investment opportunity (50% chance to win)")]
     public async Task<RuntimeResult> RiskAsync(
         [Summary("How much of your taypoints do you want to invest into this risk?")]
@@ -25,8 +25,8 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
         return new TaylorBotResult(result, context);
     }
 
-    [Command("supergamble")]
-    [Alias("sgamble")]
+    [Command(RiskPlaySlashCommand.PrefixSuperCommandName)]
+    [Alias(RiskPlaySlashCommand.PrefixSuperCommandAlias)]
     [Summary("Risk some of your taypoints in an investment opportunity (10% chance to win)")]
     public async Task<RuntimeResult> SuperRiskAsync(
         [Summary("How much of your taypoints do you want to invest into this risk?")]

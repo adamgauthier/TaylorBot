@@ -25,6 +25,8 @@ public interface IRpsStatsRepository
 
 public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLimiter rateLimiter, ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<RpsPlaySlashCommand.Options>
 {
+    public const string PrefixCommandName = "rps";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("rps play");
 
     public record Options(RpsShape? option);
@@ -32,7 +34,7 @@ public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLi
     private static readonly List<RpsShape> Shapes = Enum.GetValues(typeof(RpsShape)).Cast<RpsShape>().ToList();
 
     public Command Play(RunContext context, RpsShape? shape, string? shapeString = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
             if (shapeString != null)

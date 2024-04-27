@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 [Name("Gender")]
 public class GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand genderShowCommand) : TaylorBotModule
 {
-    [Command("gender")]
+    [Command(GenderShowSlashCommand.PrefixCommandName)]
     [Summary("Show the gender of a user")]
     public async Task<RuntimeResult> ShowGenderAsync(
         [Summary("What user would you like to see the gender of?")]

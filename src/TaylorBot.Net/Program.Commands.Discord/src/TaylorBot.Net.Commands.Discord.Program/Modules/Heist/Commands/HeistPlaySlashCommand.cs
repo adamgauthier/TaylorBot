@@ -27,12 +27,14 @@ public class HeistPlaySlashCommand(
     ICryptoSecureRandom cryptoSecureRandom,
     IPseudoRandom pseudoRandom) : ISlashCommand<HeistPlaySlashCommand.Options>
 {
+    public const string PrefixCommandName = "heist";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("heist play");
 
     public record Options(ITaypointAmount amount);
 
     public Command Heist(RunContext context, ITaypointAmount? amount, string? amountString = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
             if (amountString != null)

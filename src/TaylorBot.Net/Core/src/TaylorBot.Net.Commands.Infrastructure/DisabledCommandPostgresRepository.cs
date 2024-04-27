@@ -21,8 +21,8 @@ public class DisabledCommandPostgresRepository(PostgresConnectionFactory postgre
             new
             {
                 CommandName = command.Name,
-                Aliases = command.Aliases ?? Array.Empty<string>(),
-                ModuleName = command.ModuleName ?? string.Empty
+                Aliases = command.Aliases ?? [],
+                ModuleName = command.ModuleName ?? string.Empty,
             }
         );
     }
@@ -35,7 +35,7 @@ public class DisabledCommandPostgresRepository(PostgresConnectionFactory postgre
             "UPDATE commands.commands SET disabled_message = '' WHERE name = @CommandName;",
             new
             {
-                CommandName = commandName
+                CommandName = commandName,
             }
         );
     }
@@ -52,7 +52,7 @@ public class DisabledCommandPostgresRepository(PostgresConnectionFactory postgre
             new
             {
                 CommandName = commandName,
-                DisabledMessage = disabledMessage
+                DisabledMessage = disabledMessage,
             }
         );
     }

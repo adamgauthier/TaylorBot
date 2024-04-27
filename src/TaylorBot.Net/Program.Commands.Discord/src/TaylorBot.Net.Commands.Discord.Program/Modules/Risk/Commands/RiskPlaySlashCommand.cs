@@ -26,12 +26,16 @@ public interface IRiskStatsRepository
 
 public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsRepository riskStatsRepository, ICryptoSecureRandom cryptoSecureRandom, IPseudoRandom pseudoRandom) : ISlashCommand<RiskPlaySlashCommand.Options>
 {
+    public const string PrefixCommandName = "gamble";
+    public const string PrefixSuperCommandName = "supergamble";
+    public const string PrefixSuperCommandAlias = "sgamble";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("risk play");
 
     public record Options(ITaypointAmount amount, RiskLevel? level);
 
     public Command Play(RunContext context, DiscordUser author, RiskLevel? level, ITaypointAmount? amount, string? amountString = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName, PrefixSuperCommandName, PrefixSuperCommandAlias]),
         async () =>
         {
             if (amountString != null)

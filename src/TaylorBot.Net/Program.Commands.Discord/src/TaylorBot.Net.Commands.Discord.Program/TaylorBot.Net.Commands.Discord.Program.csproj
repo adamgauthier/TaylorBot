@@ -19,8 +19,8 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-    <PackageReference Include="Google.Apis.CustomSearchAPI.v1" Version="1.65.0.3290" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.65.0.3205" />
+    <PackageReference Include="Google.Apis.CustomSearchAPI.v1" Version="1.68.0.3395" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3394" />
     <PackageReference Include="Inflatable.Lastfm" Version="1.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>

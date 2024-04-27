@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 [Name("Rps ✂️")]
 public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCommand) : TaylorBotModule
 {
-    [Command("rps")]
+    [Command(RpsPlaySlashCommand.PrefixCommandName)]
     [Summary("Play a game of rock paper scissors with the bot. If you win, you gain 1 taypoint.")]
     public async Task<RuntimeResult> RockPaperScissorsAsync(
         [Summary("What move do you want to pick (rock, paper or scissors)?")]

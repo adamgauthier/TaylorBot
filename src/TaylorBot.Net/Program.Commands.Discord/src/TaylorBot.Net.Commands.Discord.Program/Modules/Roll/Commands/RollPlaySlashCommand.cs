@@ -10,10 +10,12 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
 
 public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRateLimiter rateLimiter, ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<NoOptions>
 {
+    public const string PrefixCommandName = "roll";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("roll play");
 
     public Command Play(RunContext context) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
             var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(context.User, "roll");

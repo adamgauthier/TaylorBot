@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
 [Name("Points 💰")]
 public class RollModule(ICommandRunner commandRunner, RollPlaySlashCommand playCommand) : TaylorBotModule
 {
-    [Command("roll")]
+    [Command(RollPlaySlashCommand.PrefixCommandName)]
     [Summary("Roll the Taylor Machine for a chance to win taypoints")]
     public async Task<RuntimeResult> RollAsync(
         [Remainder]

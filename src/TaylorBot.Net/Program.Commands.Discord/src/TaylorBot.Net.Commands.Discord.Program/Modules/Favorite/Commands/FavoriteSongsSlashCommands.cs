@@ -17,6 +17,10 @@ public interface IFavoriteSongsRepository
 
 public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsShowSlashCommand.Options>
 {
+    public const string PrefixCommandName = "fav";
+    public const string PrefixCommandAlias1 = "favsongs";
+    public const string PrefixCommandAlias2 = "favoritesongs";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs show");
 
     public record Options(ParsedFetchedUserOrAuthor user);
@@ -32,7 +36,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
     }
 
     public Command Show(DiscordUser user, RunContext? context = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2]),
         async () =>
         {
             var favoriteSongs = await favoriteSongsRepository.GetFavoriteSongsAsync(user);
@@ -61,12 +65,17 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
 public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsSetSlashCommand.Options>
 {
+    public const string PrefixCommandName = "setfav";
+    public const string PrefixCommandAlias1 = "set fav";
+    public const string PrefixCommandAlias2 = "setfavsongs";
+    public const string PrefixCommandAlias3 = "set favsongs";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs set");
 
     public record Options(ParsedString songs);
 
     public Command Set(DiscordUser user, string favoriteSongs, RunContext? context = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2, PrefixCommandAlias3]),
         async () =>
         {
             if (context != null)

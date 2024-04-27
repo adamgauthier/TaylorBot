@@ -9,12 +9,14 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
 public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlashCommand<GenderShowSlashCommand.Options>
 {
+    public const string PrefixCommandName = "gender";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("gender show");
 
     public record Options(ParsedFetchedUserOrAuthor user);
 
     public Command Show(DiscordUser user, RunContext? context = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
             var gender = await genderRepository.GetGenderAsync(user);

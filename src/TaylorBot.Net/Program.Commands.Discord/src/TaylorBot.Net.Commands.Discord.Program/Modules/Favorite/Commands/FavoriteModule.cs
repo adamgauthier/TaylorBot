@@ -14,8 +14,8 @@ public class FavoriteModule(
     FavoriteBaeShowSlashCommand favoriteBaeShowCommand,
     FavoriteObsessionShowSlashCommand favoriteObsessionShowCommand) : TaylorBotModule
 {
-    [Command("fav")]
-    [Alias("favsongs", "favoritesongs")]
+    [Command(FavoriteSongsShowSlashCommand.PrefixCommandName)]
+    [Alias(FavoriteSongsShowSlashCommand.PrefixCommandAlias1, FavoriteSongsShowSlashCommand.PrefixCommandAlias2)]
     [Summary("Show the favorite songs of a user")]
     public async Task<RuntimeResult> ShowFavAsync(
         [Summary("What user would you like to see the favorite songs of?")]
@@ -34,8 +34,8 @@ public class FavoriteModule(
         return new TaylorBotResult(result, context);
     }
 
-    [Command("setfav")]
-    [Alias("set fav", "setfavsongs", "set favsongs")]
+    [Command(FavoriteSongsSetSlashCommand.PrefixCommandName)]
+    [Alias(FavoriteSongsSetSlashCommand.PrefixCommandAlias1, FavoriteSongsSetSlashCommand.PrefixCommandAlias2, FavoriteSongsSetSlashCommand.PrefixCommandAlias3)]
     [Summary("Register your favorite songs for others to see")]
     public async Task<RuntimeResult> SetFavAsync(
         [Remainder]
@@ -73,7 +73,7 @@ public class FavoriteModule(
         return new TaylorBotResult(result, context);
     }
 
-    [Command("bae")]
+    [Command(FavoriteBaeShowSlashCommand.PrefixCommandName)]
     [Summary("Show the bae of a user")]
     public async Task<RuntimeResult> ShowBaeAsync(
         [Summary("What user would you like to see the bae of?")]
@@ -135,7 +135,7 @@ public class FavoriteModule(
         return new TaylorBotResult(result, context);
     }
 
-    [Command("waifu")]
+    [Command(FavoriteObsessionShowSlashCommand.PrefixCommandName)]
     [Summary("Show the obsession of a user")]
     public async Task<RuntimeResult> ShowWaifuAsync(
         [Summary("What user would you like to see the obsession of?")]

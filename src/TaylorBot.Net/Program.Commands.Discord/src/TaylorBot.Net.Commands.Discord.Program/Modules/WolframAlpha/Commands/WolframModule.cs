@@ -7,8 +7,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
 [Name("Wolfram 🤖")]
 public class WolframModule(ICommandRunner commandRunner) : TaylorBotModule
 {
-    [Command("wolfram")]
-    [Alias("wolframalpha", "wa")]
+    [Command("wolframalpha")]
+    [Alias("wolfram", "wa")]
     [Summary("This command has been moved to </wolframalpha:1082193237210574910>. Please use it instead! 😊")]
     public async Task<RuntimeResult> WolframAsync(
         [Remainder]

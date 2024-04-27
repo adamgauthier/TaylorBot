@@ -17,6 +17,8 @@ public interface IObsessionRepository
 
 public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<FavoriteObsessionShowSlashCommand.Options>
 {
+    public const string PrefixCommandName = "waifu";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite obsession show");
 
     public record Options(ParsedFetchedUserOrAuthor user);
@@ -32,7 +34,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
     }
 
     public Command Show(IUser user, RunContext? context = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
             var favoriteObsession = await obsessionRepository.GetObsessionAsync(new(user));

@@ -17,6 +17,8 @@ public interface IBaeRepository
 
 public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeShowSlashCommand.Options>
 {
+    public const string PrefixCommandName = "bae";
+
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae show");
 
     public record Options(ParsedFetchedUserOrAuthor user);
@@ -32,7 +34,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
     }
 
     public Command Show(DiscordUser user, RunContext? context = null) => new(
-        new(Info.Name),
+        new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
             var favoriteBae = await baeRepository.GetBaeAsync(user);
