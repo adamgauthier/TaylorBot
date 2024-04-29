@@ -5,7 +5,6 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Strings;
-using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
@@ -13,7 +12,7 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail block", IsPrivateResponse: true);
 
-    public record Options(ParsedFetchedUserNotAuthorAndBot user);
+    public record Options(ParsedUserNotAuthorAndBot user);
 
     private static readonly Color EmbedColor = new(255, 100, 100);
 
@@ -27,7 +26,7 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
                 ArgumentNullException.ThrowIfNull(guild);
                 ArgumentNullException.ThrowIfNull(guild.Fetched);
 
-                DiscordUser user = new(options.user.User);
+                var user = options.user.User;
 
                 var blockedUserCount = await modMailBlockedUsersRepository.GetBlockedUserCountAsync(guild.Fetched);
 
@@ -73,7 +72,7 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("modmail unblock", IsPrivateResponse: true);
 
-    public record Options(ParsedFetchedUserNotAuthorAndBot user);
+    public record Options(ParsedUserNotAuthorAndBot user);
 
     private static readonly Color EmbedColor = new(205, 120, 230);
 
@@ -86,7 +85,7 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
                 var guild = context.Guild?.Fetched;
                 ArgumentNullException.ThrowIfNull(guild);
 
-                DiscordUser user = new(options.user.User);
+                var user = options.user.User;
 
                 await modMailBlockedUsersRepository.UnblockAsync(guild, user);
 

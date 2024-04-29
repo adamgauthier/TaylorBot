@@ -40,24 +40,21 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
         return joined;
     }
 
-    public Command Joined(IUser user) => new(
+    public Command Joined(DiscordMember member) => new(
         new("joined"),
         async () =>
         {
-            DiscordUser u = new(user);
-            ArgumentNullException.ThrowIfNull(u.MemberInfo);
-
-            ServerJoined joined = await GetServerJoinedAsync(new(u, u.MemberInfo));
+            var joined = await GetServerJoinedAsync(member);
             DateTimeOffset joinedAt = joined.first_joined_at ?? throw new InvalidOperationException();
 
-            var sinceCreation = joinedAt - SnowflakeUtils.FromSnowflake(u.MemberInfo.GuildId);
+            var sinceCreation = joinedAt - SnowflakeUtils.FromSnowflake(member.Member.GuildId);
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(u)
+                .WithUserAsAuthor(member.User)
                 .WithDescription(
                     $"""
-                    {u.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
+                    {member.User.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
                     This was roughly **{sinceCreation.Humanize(maxUnit: TimeUnit.Year, culture: TaylorBotCulture.Culture)}** after the server was created 📆
 
                     Check out </server timeline:1137547317549998130> for a history of who joined first! 📃

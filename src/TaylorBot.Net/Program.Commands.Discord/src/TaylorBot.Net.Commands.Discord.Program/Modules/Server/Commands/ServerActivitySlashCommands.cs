@@ -8,6 +8,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
@@ -19,11 +20,11 @@ public record MinuteLeaderboardEntry(string user_id, string username, long rank,
 
 public interface IServerActivityRepository
 {
-    Task<ServerMessages> GetMessagesAsync(IGuildUser guildUser);
+    Task<ServerMessages> GetMessagesAsync(DiscordMember member);
     Task<IList<MessageLeaderboardEntry>> GetMessageLeaderboardAsync(IGuild guild);
-    Task<int> GetMinutesAsync(IGuildUser guildUser);
+    Task<int> GetMinutesAsync(DiscordMember member);
     Task<IList<MinuteLeaderboardEntry>> GetMinuteLeaderboardAsync(IGuild guild);
-    Task<int?> GetOldMinutesAsync(IUser user);
+    Task<int?> GetOldMinutesAsync(DiscordUser user);
 }
 
 public class ServerMessagesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMessagesSlashCommand.Options>
@@ -32,20 +33,19 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 
     public record Options(ParsedMemberOrAuthor user);
 
-    public Command Messages(IUser user) => new(
+    public Command Messages(DiscordMember member) => new(
         new("messages"),
         async () =>
         {
-            var guildUser = (IGuildUser)user;
-            var messages = await serverActivityRepository.GetMessagesAsync(guildUser);
+            var messages = await serverActivityRepository.GetMessagesAsync(member);
             var wordAverage = messages.message_count > 0 ? (double)messages.word_count / messages.message_count : 0;
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(guildUser)
+                .WithUserAsAuthor(member.User)
                 .WithDescription(
                     $"""
-                    {guildUser.Mention} sent **~{"message".ToQuantity(messages.message_count, TaylorBotFormats.Readable)}** in this server. 📚
+                    {member.User.Mention} sent **~{"message".ToQuantity(messages.message_count, TaylorBotFormats.Readable)}** in this server. 📚
                     Each of their messages contains on average **{wordAverage:0.00}** words. ✍️
 
                     *Count is approximate and updated every few minutes.*
@@ -71,17 +71,16 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 
     public record Options(ParsedMemberOrAuthor user);
 
-    public Command Minutes(IUser user) => new(
+    public Command Minutes(DiscordMember member) => new(
         new("minutes"),
         async () =>
         {
-            var guildUser = (IGuildUser)user;
-            var minutes = await serverActivityRepository.GetMinutesAsync(guildUser);
+            var minutes = await serverActivityRepository.GetMinutesAsync(member);
 
             var bottomText = "Check out </server leaderboard:1137547317549998130> to see the most active server members! 📃";
-            if (guildUser.GuildId == 115332333745340416)
+            if (member.Member.GuildId == 115332333745340416)
             {
-                var oldMinutes = await serverActivityRepository.GetOldMinutesAsync(guildUser);
+                var oldMinutes = await serverActivityRepository.GetOldMinutesAsync(member.User);
                 if (oldMinutes != null)
                 {
                     bottomText = $"Before **December 25th 2015**, minutes used to be counted based on online status. Under that system, this user had {"minute".ToQuantity(oldMinutes.Value, TaylorBotFormats.BoldReadable)}. 🧓";
@@ -90,10 +89,10 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithUserAsAuthor(guildUser)
+                .WithUserAsAuthor(member.User)
                 .WithDescription(
                     $"""
-                    {guildUser.Mention} has been active for {"minute".ToQuantity(minutes, TaylorBotFormats.BoldReadable)} in this server. ⏳
+                    {member.User.Mention} has been active for {"minute".ToQuantity(minutes, TaylorBotFormats.BoldReadable)} in this server. ⏳
                     This is roughly equivalent to **{TimeSpan.FromMinutes(minutes).Humanize(maxUnit: TimeUnit.Month, culture: TaylorBotCulture.Culture)}** of activity.
 
                     {bottomText}

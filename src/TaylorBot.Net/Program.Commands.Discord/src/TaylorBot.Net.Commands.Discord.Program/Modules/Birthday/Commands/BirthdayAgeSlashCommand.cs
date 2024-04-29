@@ -4,7 +4,6 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
@@ -12,7 +11,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Age
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday age");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -20,7 +19,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Age
             new(Info.Name),
             async () =>
             {
-                DiscordUser user = new(options.user.User);
+                var user = options.user.User;
                 var birthday = await birthdayRepository.GetBirthdayAsync(user);
 
                 if (birthday != null)

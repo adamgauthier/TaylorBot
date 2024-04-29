@@ -1,12 +1,12 @@
-﻿using Discord;
-using OperationResult;
+﻿using OperationResult;
 using System.Text.Json;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.User;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users;
 
-public record ParsedMemberNotAuthorAndTaylorBot(IGuildUser Member);
+public record ParsedMemberNotAuthorAndTaylorBot(DiscordMember Member);
 
 public class MemberNotAuthorAndTaylorBotParser(MemberNotAuthorParser memberNotAuthorParser) : IOptionParser<ParsedMemberNotAuthorAndTaylorBot>
 {
@@ -15,9 +15,9 @@ public class MemberNotAuthorAndTaylorBotParser(MemberNotAuthorParser memberNotAu
         var parsedMember = await memberNotAuthorParser.ParseAsync(context, optionValue, resolved);
         if (parsedMember)
         {
-            return parsedMember.Value.Member.Id != context.BotUser.Id ?
+            return parsedMember.Value.Member.User.Id != context.BotUser.Id ?
                 new ParsedMemberNotAuthorAndTaylorBot(parsedMember.Value.Member) :
-                Error(new ParsingFailed("Member can't be TaylorBot."));
+                Error(new ParsingFailed("Member can't be TaylorBot 🤭"));
         }
         else
         {

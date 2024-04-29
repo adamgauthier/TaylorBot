@@ -23,7 +23,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteSongs)
     {
@@ -59,7 +59,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Show(new(options.user.User), context));
+        return new(Show(options.user.User, context));
     }
 }
 

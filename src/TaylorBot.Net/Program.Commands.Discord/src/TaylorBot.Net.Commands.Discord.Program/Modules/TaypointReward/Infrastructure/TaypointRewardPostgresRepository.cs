@@ -1,8 +1,8 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastructure;
 
@@ -14,7 +14,7 @@ public class TaypointRewardPostgresRepository(PostgresConnectionFactory postgres
         public long taypoint_count { get; set; }
     }
 
-    public async ValueTask<IReadOnlyCollection<RewardedUserResult>> RewardUsersAsync(IReadOnlyCollection<IUser> users, int taypointCount)
+    public async ValueTask<IReadOnlyCollection<RewardedUserResult>> RewardUsersAsync(IReadOnlyCollection<DiscordUser> users, int taypointCount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

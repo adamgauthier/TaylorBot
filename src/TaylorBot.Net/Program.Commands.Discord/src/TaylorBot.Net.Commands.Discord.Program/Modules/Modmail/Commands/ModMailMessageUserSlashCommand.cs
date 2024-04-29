@@ -6,12 +6,13 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> modMailOptions) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
+public class ModMailMessageUserSlashCommand(Lazy<ITaylorBotClient> client, ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> modMailOptions) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new ModalCommandInfo("modmail message-user");
 
@@ -23,23 +24,29 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
     {
         return new(new Command(
             new(Info.Name),
-            () =>
+            async () =>
             {
-                return new(new CreateModalResult(
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
+                var user = options.user.Member;
+                var guildUser = await client.Value.ResolveGuildUserAsync(guild.Id, user.User.Id);
+                ArgumentNullException.ThrowIfNull(guildUser);
+
+                return new CreateModalResult(
                     Id: "modmail-message-user",
                     Title: "Send Mod Mail to User",
                     TextInputs: [new TextInput(Id: "messagecontent", TextInputStyle.Paragraph, Label: "Message to user")],
                     SubmitAction: SubmitAsync,
                     IsPrivateResponse: true
-                ));
+                );
 
                 ValueTask<MessageResult> SubmitAsync(ModalSubmit submit)
                 {
                     var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
-                    var user = options.user.Member;
 
                     var embed = new EmbedBuilder()
-                        .WithGuildAsAuthor(user.Guild)
+                        .WithGuildAsAuthor(guild)
                         .WithColor(EmbedColor)
                         .WithTitle("Message from the moderation team")
                         .WithDescription(messageContent)
@@ -47,8 +54,8 @@ public class ModMailMessageUserSlashCommand(ModMailChannelLogger modMailChannelL
                     .Build();
 
                     return new(MessageResult.CreatePrompt(
-                        new([embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {user.FormatTagAndMention()}?")]),
-                        confirm: async () => new(await SendAsync(user, embed))
+                        new([embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {guildUser.FormatTagAndMention()}?")]),
+                        confirm: async () => new(await SendAsync(guildUser, embed))
                     ));
                 }
 

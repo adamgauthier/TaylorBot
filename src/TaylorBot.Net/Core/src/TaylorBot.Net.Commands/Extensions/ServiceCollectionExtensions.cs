@@ -13,6 +13,7 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Tasks;
@@ -40,6 +41,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<DisabledGuildCommandDomainService>()
             .AddTransient<SingletonTaskRunner>()
             .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
+            .AddTransient<InteractionMapper>()
             .AddTransient<SlashCommandHandler>()
             .AddSingleton<MessageComponentHandler>()
             .AddSingleton<ModalInteractionHandler>()
@@ -77,12 +79,12 @@ public static class ServiceCollectionExtensions
             .AddOptionParser<StringParser>()
             .AddOptionParser<OptionalStringParser>()
             .AddOptionParser<OptionalBooleanParser>()
-            .AddOptionParser<FetchedUserParser>()
-            .AddOptionParser<FetchedUserOptionalParser>()
-            .AddOptionParser<FetchedUserNotAuthorParser>()
-            .AddOptionParser<FetchedUserNotAuthorAndTaylorBotParser>()
-            .AddOptionParser<FetchedUserNotAuthorAndBotParser>()
-            .AddOptionParser<FetchedUserOrAuthorParser>()
+            .AddOptionParser<UserParser>()
+            .AddOptionParser<UserNotAuthorParser>()
+            .AddOptionParser<UserNotAuthorAndBotParser>()
+            .AddOptionParser<UserNotAuthorAndTaylorBotParser>()
+            .AddOptionParser<UserOptionalParser>()
+            .AddOptionParser<UserOrAuthorParser>()
             .AddOptionParser<MemberParser>()
             .AddOptionParser<MemberNotAuthorParser>()
             .AddOptionParser<MemberNotAuthorAndTaylorBotParser>()

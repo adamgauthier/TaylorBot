@@ -1,5 +1,4 @@
-﻿using Discord;
-using Humanizer;
+﻿using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OperationResult;
@@ -56,7 +55,7 @@ public record ApplicationCommand(
 
     public SnowflakeId UserId => User.id;
 
-    public record GuildData(SnowflakeId Id, GuildMember Member);
+    public record GuildData(SnowflakeId Id, Member Member);
 }
 
 public class SlashCommandHandler(
@@ -70,6 +69,7 @@ public class SlashCommandHandler(
     ModalInteractionHandler modalInteractionHandler,
     TaskExceptionLogger taskExceptionLogger,
     CommandPrefixDomainService commandPrefixDomainService,
+    InteractionMapper interactionMapper,
     IServiceProvider services)
 {
     private readonly Lazy<IReadOnlyDictionary<string, ISlashCommand>> _slashCommands = new(() => services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name));
@@ -280,14 +280,9 @@ public class SlashCommandHandler(
                 user.username,
                 user.avatar,
                 user.discriminator,
-                IsBot: false,
+                IsBot: user.bot == true,
                 interaction.Guild != null
-                    ? new(
-                        interaction.Guild.Id,
-                        DateTimeOffset.Parse(interaction.Guild.Member.joined_at),
-                        interaction.Guild.Member.roles.Select(r => new SnowflakeId(r)).ToList(),
-                        new GuildPermissions(interaction.Guild.Member.permissions),
-                        interaction.Guild.Member.avatar)
+                    ? interactionMapper.ToMemberInfo(interaction.Guild.Id, interaction.Guild.Member)
                     : null),
             FetchedUser: null,
             new(interaction.ChannelId),
@@ -451,7 +446,7 @@ public class SlashCommandHandler(
                             logger.LogError(e, "Unhandled exception in button {ButtonId} action:", button.Button.Id);
                             await interactionResponseClient.EditOriginalResponseAsync(component, new(
                                 new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
-                                Array.Empty<Button>()
+                                []
                             ));
                         }
                     }
@@ -465,7 +460,7 @@ public class SlashCommandHandler(
                 followUpLimiter.Dispose();
 
                 var result = m.Buttons.OnEnded != null ? await m.Buttons.OnEnded() : null;
-                MessageResponse updated = result != null ? new(result.Content) : new(m.Content, Array.Empty<Button>());
+                MessageResponse updated = result != null ? new(result.Content) : new(m.Content, []);
 
                 await interactionResponseClient.EditOriginalResponseAsync(interaction, updated);
             }, nameof(CreateAndBindButtons)));
@@ -474,7 +469,7 @@ public class SlashCommandHandler(
         }
         else
         {
-            return Array.Empty<Button>();
+            return [];
         }
     }
 

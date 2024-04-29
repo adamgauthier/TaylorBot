@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 
@@ -10,7 +10,7 @@ public record HeistLeaderboardEntry(string user_id, string username, long heist_
 
 public interface IHeistStatsRepository
 {
-    Task<HeistProfile?> GetProfileAsync(IUser user);
+    Task<HeistProfile?> GetProfileAsync(DiscordUser user);
     Task<List<HeistResult>> WinHeistAsync(IList<HeistPlayer> players, string payoutMultiplier);
     Task<List<HeistResult>> LoseHeistAsync(IList<HeistPlayer> players);
     Task<IList<HeistLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);

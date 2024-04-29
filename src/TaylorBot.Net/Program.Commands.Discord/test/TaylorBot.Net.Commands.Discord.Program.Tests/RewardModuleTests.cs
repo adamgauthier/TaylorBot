@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
@@ -35,7 +36,7 @@ public class RewardModuleTests
         var userArgument = A.Fake<IMentionedUserNotAuthor<IUser>>(o => o.Strict());
         A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
-        A.CallTo(() => _taypointRewardRepository.RewardUsersAsync(A<IReadOnlyCollection<IUser>>.That.IsSameSequenceAs(new[] { user }), RewardedTaypointCount))
+        A.CallTo(() => _taypointRewardRepository.RewardUsersAsync(A<IReadOnlyCollection<DiscordUser>>.That.IsSameSequenceAs(new[] { new DiscordUser(user) }), RewardedTaypointCount))
             .Returns(new[] { new RewardedUserResult(new SnowflakeId(UserId), NewTaypointCount) });
 
         var result = (await _rewardModule.RewardAsync(new PositiveInt32(RewardedTaypointCount), [userArgument])).GetResult<EmbedResult>();

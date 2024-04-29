@@ -12,7 +12,7 @@ public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) :
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("risk profile");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -20,7 +20,7 @@ public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) :
             new(Info.Name),
             async () =>
             {
-                DiscordUser user = new(options.user.User);
+                var user = options.user.User;
                 var profile = (await riskStatsRepository.GetProfileAsync(user)) ?? new(0, 0, 0, 0);
 
                 var totalRiskPlayed = profile.gamble_win_count + profile.gamble_lose_count;

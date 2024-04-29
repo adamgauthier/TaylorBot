@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
@@ -16,15 +17,15 @@ public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepositor
 
     public record Options(
         ParsedPositiveInteger amount,
-        ParsedFetchedUser user1,
-        ParsedFetchedUserOptional user2,
-        ParsedFetchedUserOptional user3,
-        ParsedFetchedUserOptional user4,
-        ParsedFetchedUserOptional user5,
-        ParsedFetchedUserOptional user6,
-        ParsedFetchedUserOptional user7,
-        ParsedFetchedUserOptional user8,
-        ParsedFetchedUserOptional user9
+        ParsedUser user1,
+        ParsedUserOptional user2,
+        ParsedUserOptional user3,
+        ParsedUserOptional user4,
+        ParsedUserOptional user5,
+        ParsedUserOptional user6,
+        ParsedUserOptional user7,
+        ParsedUserOptional user8,
+        ParsedUserOptional user9
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -33,7 +34,7 @@ public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepositor
             new(Info.Name),
             async () =>
             {
-                List<IUser> users = [options.user1.User];
+                List<DiscordUser> users = [options.user1.User];
                 foreach (var optional in new[] {
                     options.user2.User,
                     options.user3.User,
@@ -56,11 +57,12 @@ public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepositor
                 var rewardedUsers = await taypointRepository.RewardUsersAsync(users, amount);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    string.Join('\n', new[] {
-                        $"Successfully rewarded {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)} to:"
-                    }.Concat(rewardedUsers.Select(
+                    $"""
+                    Successfully rewarded {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)} to:
+                    {string.Join('\n', rewardedUsers.Select(
                         u => $"{MentionUtils.MentionUser(u.UserId.Id)} - now has {u.NewTaypointCount.ToString(TaylorBotFormats.BoldReadable)}"
-                    ))).Truncate(EmbedBuilder.MaxDescriptionLength)
+                    )).Truncate(EmbedBuilder.MaxDescriptionLength)}
+                    """
                 ));
             },
             Preconditions: [

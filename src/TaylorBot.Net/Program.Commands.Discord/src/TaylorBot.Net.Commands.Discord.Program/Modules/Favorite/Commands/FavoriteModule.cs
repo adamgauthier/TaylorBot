@@ -147,7 +147,7 @@ public class FavoriteModule(
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            favoriteObsessionShowCommand.Show(u),
+            favoriteObsessionShowCommand.Show(new(u)),
             context
         );
 

@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Commands;
 
@@ -33,7 +34,7 @@ public class RewardModule(ICommandRunner commandRunner, ITaypointRewardRepositor
                     trackedUsers.Add(await user.GetTrackedUserAsync());
                 }
 
-                var rewardedUsers = await taypointRepository.RewardUsersAsync(trackedUsers, taypoints.Parsed);
+                var rewardedUsers = await taypointRepository.RewardUsersAsync(trackedUsers.Select(u => new DiscordUser(u)).ToList(), taypoints.Parsed);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)

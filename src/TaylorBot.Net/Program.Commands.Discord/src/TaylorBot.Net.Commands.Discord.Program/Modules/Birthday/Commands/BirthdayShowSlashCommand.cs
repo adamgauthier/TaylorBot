@@ -14,7 +14,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public Command Birthday(DiscordUser user, DateTimeOffset createdAt, RunContext context, bool isPrefix = false) => new(
         new(Info.Name),
@@ -74,6 +74,6 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Birthday(new(options.user.User), context.CreatedAt, context));
+        return new(Birthday(options.user.User, context.CreatedAt, context));
     }
 }

@@ -2,12 +2,13 @@
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
 
 public class ServerActivityPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IServerActivityRepository
 {
-    public async Task<ServerMessages> GetMessagesAsync(IGuildUser guildUser)
+    public async Task<ServerMessages> GetMessagesAsync(DiscordMember member)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -20,8 +21,8 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
             """,
             new
             {
-                GuildId = $"{guildUser.GuildId}",
-                UserId = $"{guildUser.Id}",
+                GuildId = $"{member.Member.GuildId}",
+                UserId = $"{member.User.Id}",
             }
         );
     }
@@ -47,7 +48,7 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
         return entries.ToList();
     }
 
-    public async Task<int> GetMinutesAsync(IGuildUser guildUser)
+    public async Task<int> GetMinutesAsync(DiscordMember member)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -60,8 +61,8 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
             """,
             new
             {
-                GuildId = $"{guildUser.GuildId}",
-                UserId = $"{guildUser.Id}",
+                GuildId = $"{member.Member.GuildId}",
+                UserId = $"{member.User.Id}",
             }
         );
     }
@@ -87,7 +88,7 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
         return entries.ToList();
     }
 
-    public async Task<int?> GetOldMinutesAsync(IUser user)
+    public async Task<int?> GetOldMinutesAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

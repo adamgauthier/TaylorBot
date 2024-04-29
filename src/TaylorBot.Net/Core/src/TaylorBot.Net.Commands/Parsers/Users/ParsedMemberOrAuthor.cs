@@ -1,46 +1,39 @@
-﻿using Discord;
-using OperationResult;
+﻿using OperationResult;
 using System.Text.Json;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.User;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users;
 
-public record ParsedMemberOrAuthor(IGuildUser Member);
+public record ParsedMemberOrAuthor(DiscordMember Member);
 
-public class MemberOrAuthorParser(MemberParser memberParser, ITaylorBotClient taylorBotClient) : IOptionParser<ParsedMemberOrAuthor>
+public class MemberOrAuthorParser(MemberParser memberParser) : IOptionParser<ParsedMemberOrAuthor>
 {
     public async ValueTask<Result<ParsedMemberOrAuthor, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         if (optionValue.HasValue)
         {
-            var parsedUser = await memberParser.ParseAsync(context, optionValue, resolved);
-            if (parsedUser)
+            var parsedMember = await memberParser.ParseAsync(context, optionValue, resolved);
+            if (parsedMember)
             {
-                return new ParsedMemberOrAuthor(parsedUser.Value.Member);
+                return new ParsedMemberOrAuthor(parsedMember.Value.Member);
             }
             else
             {
-                return Error(parsedUser.Error);
+                return Error(parsedMember.Error);
             }
         }
         else
         {
-            var user = context.FetchedUser ?? await FetchUserAsync(context);
-
-            if (user is not IGuildUser member)
+            if (context.User.TryGetMember(out var member))
             {
-                return Error(new ParsingFailed("Member option can only be used in a server."));
+                return new ParsedMemberOrAuthor(member);
             }
-
-            return new ParsedMemberOrAuthor(member);
+            else
+            {
+                return Error(new ParsingFailed("This command can only be used in a server 🤭"));
+            }
         }
-    }
-
-    private async Task<IUser> FetchUserAsync(RunContext context)
-    {
-        return context.Guild != null
-            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild.Id, context.User.Id) ?? await taylorBotClient.ResolveRequiredUserAsync(context.User.Id)
-            : await taylorBotClient.ResolveRequiredUserAsync(context.User.Id);
     }
 }

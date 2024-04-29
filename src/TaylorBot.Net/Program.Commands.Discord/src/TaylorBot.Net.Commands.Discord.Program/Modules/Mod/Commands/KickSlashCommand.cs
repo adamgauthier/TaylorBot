@@ -35,9 +35,11 @@ public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger m
                     ? (IGuildUser)context.FetchedUser
                     : await client.Value.ResolveGuildUserAsync(context.Guild.Id, context.User.Id) ?? throw new NotImplementedException();
 
-                var member = options.member.Member;
+                var user = options.member.Member;
+                var member = await client.Value.ResolveGuildUserAsync(context.Guild.Id, user.User.Id);
+                ArgumentNullException.ThrowIfNull(member);
 
-                if (member.Guild.OwnerId == member.Id)
+                if (author.Guild.OwnerId == member.Id)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"You can't kick {member.FormatTagAndMention()} because they're the server owner!"

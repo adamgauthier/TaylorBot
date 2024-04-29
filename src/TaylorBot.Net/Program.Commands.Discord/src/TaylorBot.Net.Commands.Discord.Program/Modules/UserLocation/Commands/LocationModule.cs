@@ -24,7 +24,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherCommand weather
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
         var result = await commandRunner.RunAsync(
-            weatherCommand.Weather(context.User, u, locationOverride: null),
+            weatherCommand.Weather(context.User, new(u), locationOverride: null),
             context
         );
 
@@ -47,7 +47,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherCommand weather
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
         var result = await commandRunner.RunAsync(
-            locationShowCommand.Location(u),
+            locationShowCommand.Location(new(u)),
             context
         );
 

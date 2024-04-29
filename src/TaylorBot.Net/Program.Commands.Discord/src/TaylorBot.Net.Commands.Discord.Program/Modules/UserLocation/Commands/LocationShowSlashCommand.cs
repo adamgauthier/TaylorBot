@@ -3,6 +3,7 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
@@ -10,11 +11,11 @@ public class LocationShowCommand(ILocationRepository locationRepository)
 {
     public static readonly CommandMetadata Metadata = new("location show", "Location 🌍");
 
-    public Command Location(IUser user, RunContext? context = null) => new(
+    public Command Location(DiscordUser user, RunContext? context = null) => new(
         Metadata,
         async () =>
         {
-            var location = await locationRepository.GetLocationAsync(new(user));
+            var location = await locationRepository.GetLocationAsync(user);
 
             if (location != null)
             {
@@ -49,7 +50,7 @@ public class LocationShowSlashCommand(LocationShowCommand locationShowCommand) :
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

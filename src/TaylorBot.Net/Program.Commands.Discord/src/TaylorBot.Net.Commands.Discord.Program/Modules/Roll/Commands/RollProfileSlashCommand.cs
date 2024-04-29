@@ -25,7 +25,7 @@ public class RollProfileSlashCommand(IRollStatsRepository rollStatsRepository) :
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("roll profile");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -34,7 +34,7 @@ public class RollProfileSlashCommand(IRollStatsRepository rollStatsRepository) :
             async () =>
             {
                 var user = options.user.User;
-                var profile = await rollStatsRepository.GetProfileAsync(new(user)) ?? new(0, 0);
+                var profile = await rollStatsRepository.GetProfileAsync(user) ?? new(0, 0);
 
                 var expectedPerfectRolls = profile.roll_count / 1990;
                 var hasPositiveRecord = profile.perfect_roll_count >= expectedPerfectRolls;

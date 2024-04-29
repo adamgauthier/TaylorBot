@@ -12,7 +12,7 @@ public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locati
 {
     public static readonly CommandMetadata Metadata = new("location weather", "Location 🌍");
 
-    public Command Weather(DiscordUser author, IUser user, string? locationOverride, RunContext? context = null) => new(
+    public Command Weather(DiscordUser author, DiscordUser user, string? locationOverride, RunContext? context = null) => new(
         Metadata,
         async () =>
         {
@@ -32,7 +32,7 @@ public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locati
             }
             else
             {
-                var storedLocation = await locationRepository.GetLocationAsync(new(user));
+                var storedLocation = await locationRepository.GetLocationAsync(user);
                 if (storedLocation == null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
@@ -98,7 +98,7 @@ public class WeatherSlashCommand(WeatherCommand weatherCommand) : ISlashCommand<
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("location weather");
 
-    public record Options(ParsedFetchedUserOrAuthor user, ParsedOptionalString location);
+    public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

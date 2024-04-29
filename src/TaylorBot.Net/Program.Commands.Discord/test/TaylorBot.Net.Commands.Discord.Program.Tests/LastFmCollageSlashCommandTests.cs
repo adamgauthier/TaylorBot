@@ -1,5 +1,4 @@
-﻿using Discord;
-using FakeItEasy;
+﻿using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -7,14 +6,16 @@ using System.Text;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
 public class LastFmCollageSlashCommandTests
 {
-    private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly DiscordUser _commandUser = CommandUtils.AUser;
     private readonly IOptionsMonitor<LastFmOptions> _options = A.Fake<IOptionsMonitor<LastFmOptions>>(o => o.Strict());
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
@@ -28,7 +29,7 @@ public class LastFmCollageSlashCommandTests
     [Fact]
     public async Task CollageAsync_WhenUsernameNotSet_ThenReturnsErrorEmbed()
     {
-        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(new(_commandUser))).Returns(null);
+        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
 
         var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
         var result = (EmbedResult)await command.RunAsync();
@@ -41,7 +42,7 @@ public class LastFmCollageSlashCommandTests
     {
         var lastFmUsername = new LastFmUsername("taylorswift");
         A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
-        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(new(_commandUser))).Returns(lastFmUsername);
+        A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
 
         var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
         var result = (MessageResult)await command.RunAsync();

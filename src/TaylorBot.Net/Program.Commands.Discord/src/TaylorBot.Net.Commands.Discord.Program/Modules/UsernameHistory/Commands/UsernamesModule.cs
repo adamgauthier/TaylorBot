@@ -24,7 +24,7 @@ public class UsernamesModule(ICommandRunner commandRunner, UsernamesShowSlashCom
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            usernamesShowCommand.Show(u),
+            usernamesShowCommand.Show(new(u)),
             context
         );
 

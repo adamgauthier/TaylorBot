@@ -1,8 +1,8 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
 
@@ -78,7 +78,7 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
         return results;
     }
 
-    public async Task<HeistProfile?> GetProfileAsync(IUser user)
+    public async Task<HeistProfile?> GetProfileAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

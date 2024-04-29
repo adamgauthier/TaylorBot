@@ -21,7 +21,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
 
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite obsession show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteObsession)
     {
@@ -33,11 +33,11 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
             .Build();
     }
 
-    public Command Show(IUser user, RunContext? context = null) => new(
+    public Command Show(DiscordUser user, RunContext? context = null) => new(
         new(Info.Name, Aliases: [PrefixCommandName]),
         async () =>
         {
-            var favoriteObsession = await obsessionRepository.GetObsessionAsync(new(user));
+            var favoriteObsession = await obsessionRepository.GetObsessionAsync(user);
 
             if (favoriteObsession != null)
             {
@@ -51,7 +51,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                         """));
                 }
 
-                Embed embed = BuildDisplayEmbed(new(user), favoriteObsession);
+                Embed embed = BuildDisplayEmbed(user, favoriteObsession);
                 return new EmbedResult(embed);
             }
             else

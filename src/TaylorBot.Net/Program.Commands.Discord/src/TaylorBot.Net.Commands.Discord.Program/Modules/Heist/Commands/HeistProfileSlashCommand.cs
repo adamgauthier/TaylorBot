@@ -13,7 +13,7 @@ public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("heist profile");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

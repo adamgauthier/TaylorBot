@@ -15,7 +15,7 @@ public class TaypointsGiftSlashCommand(
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints gift");
 
-    public record Options(ITaypointAmount amount, ParsedFetchedUserNotAuthor user);
+    public record Options(ITaypointAmount amount, ParsedUserNotAuthor user);
 
     public Command Gift(RunContext context, IReadOnlyList<DiscordUser> recipients, ITaypointAmount? amount, string? amountString = null) => new(
         new(Info.Name),
@@ -138,7 +138,7 @@ public class TaypointsGiftSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Gift(context, [new DiscordUser(options.user.User)], options.amount));
+        return new(Gift(context, [options.user.User], options.amount));
     }
 }
 

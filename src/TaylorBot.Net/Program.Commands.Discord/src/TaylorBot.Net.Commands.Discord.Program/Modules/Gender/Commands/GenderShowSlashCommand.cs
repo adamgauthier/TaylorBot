@@ -13,7 +13,7 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlash
 
     public ISlashCommandInfo Info => new MessageCommandInfo("gender show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public Command Show(DiscordUser user, RunContext? context = null) => new(
         new(Info.Name, Aliases: [PrefixCommandName]),
@@ -46,6 +46,6 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlash
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Show(new(options.user.User), context));
+        return new(Show(options.user.User, context));
     }
 }

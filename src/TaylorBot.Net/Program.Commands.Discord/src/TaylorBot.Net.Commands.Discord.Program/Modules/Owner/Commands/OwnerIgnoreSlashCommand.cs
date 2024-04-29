@@ -13,7 +13,7 @@ public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepositor
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("owner ignore");
 
-    public record Options(ParsedFetchedUserNotAuthorAndTaylorBot user, ParsedTimeSpan time);
+    public record Options(ParsedUserNotAuthorAndTaylorBot user, ParsedTimeSpan time);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -21,7 +21,7 @@ public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepositor
             new(Info.Name),
             async () =>
             {
-                await ignoredUserRepository.IgnoreUntilAsync(new(options.user.User), DateTimeOffset.Now + options.time.Value);
+                await ignoredUserRepository.IgnoreUntilAsync(options.user.User, DateTimeOffset.Now + options.time.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"Ignoring {options.user.User.FormatTagAndMention()} for **{options.time.Value.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"

@@ -75,12 +75,12 @@ public class LastFmCurrentSlashCommand(LastFmCurrentCommand lastFmCurrentCommand
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm current");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            lastFmCurrentCommand.Current(new(options.user.User))
+            lastFmCurrentCommand.Current(options.user.User)
         );
     }
 }

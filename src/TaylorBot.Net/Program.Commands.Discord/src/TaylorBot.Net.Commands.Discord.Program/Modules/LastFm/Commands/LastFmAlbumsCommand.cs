@@ -69,14 +69,15 @@ public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
 public class LastFmAlbumsSlashCommand(LastFmAlbumsCommand lastFmAlbumsCommand) : ISlashCommand<LastFmAlbumsSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("lastfm albums");
-    public record Options(LastFmPeriod? period, ParsedFetchedUserOrAuthor user);
+
+    public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
             lastFmAlbumsCommand.Albums(
                 options.period,
-                new(options.user.User),
+                options.user.User,
                 isLegacyCommand: false
             )
         );

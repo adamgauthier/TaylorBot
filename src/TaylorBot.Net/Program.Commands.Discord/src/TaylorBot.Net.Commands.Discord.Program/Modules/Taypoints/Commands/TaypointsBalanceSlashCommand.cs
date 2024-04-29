@@ -16,7 +16,7 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public Command Balance(DiscordUser user) => new(
         new("taypoints", "Taypoints 🪙", ["points"]),
@@ -40,6 +40,6 @@ public class TaypointsBalanceSlashCommand(ITaypointBalanceRepository taypointBal
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Balance(new(options.user.User)));
+        return new(Balance(options.user.User));
     }
 }

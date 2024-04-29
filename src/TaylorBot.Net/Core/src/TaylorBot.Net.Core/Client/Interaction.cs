@@ -1,11 +1,15 @@
-﻿namespace TaylorBot.Net.Core.Client;
+﻿using Discord;
+using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.User;
+
+namespace TaylorBot.Net.Core.Client;
 
 public record Interaction(
     string id,
     byte type,
     string token,
     Interaction.ApplicationCommandInteractionData? data,
-    Interaction.GuildMember? member,
+    Interaction.Member? member,
     Interaction.User? user,
     string? guild_id,
     string? channel_id,
@@ -26,13 +30,15 @@ public record Interaction(
 
     public record ApplicationCommandComponent(byte type, string? custom_id, string? value, IReadOnlyList<ApplicationCommandComponent>? components);
 
-    public record GuildMember(User user, string permissions, string joined_at, string? avatar, IReadOnlyList<string> roles);
+    public record PartialMember(string permissions, string joined_at, string? avatar, IReadOnlyList<string> roles);
 
-    public record User(string id, string username, string discriminator, string? avatar);
+    public record Member(User user, string permissions, string joined_at, string? avatar, IReadOnlyList<string> roles);
+
+    public record User(string id, string username, string discriminator, string? avatar, bool? bot);
 
     public record Message(string id);
 
-    public record Resolved(IReadOnlyDictionary<string, Attachment>? attachments);
+    public record Resolved(IReadOnlyDictionary<string, User>? users, IReadOnlyDictionary<string, PartialMember>? members, IReadOnlyDictionary<string, Attachment>? attachments);
 
     public record Attachment(string id, string filename, string url, int size, string content_type);
 }
@@ -40,4 +46,37 @@ public record Interaction(
 public interface IInteraction
 {
     string Token { get; }
+}
+
+public class InteractionMapper
+{
+    public DiscordMemberInfo ToMemberInfo(SnowflakeId guildId, Interaction.PartialMember member)
+    {
+        return new(
+            guildId,
+            ParseDate(member.joined_at),
+            ParseRoleIds(member.roles),
+            new GuildPermissions(member.permissions),
+            member.avatar);
+    }
+
+    public DiscordMemberInfo ToMemberInfo(SnowflakeId guildId, Interaction.Member member)
+    {
+        return new(
+            guildId,
+            ParseDate(member.joined_at),
+            ParseRoleIds(member.roles),
+            new GuildPermissions(member.permissions),
+            member.avatar);
+    }
+
+    private static DateTimeOffset ParseDate(string joined_at)
+    {
+        return DateTimeOffset.Parse(joined_at);
+    }
+
+    private static List<SnowflakeId> ParseRoleIds(IReadOnlyList<string> roles)
+    {
+        return roles.Select(r => new SnowflakeId(r)).ToList();
+    }
 }

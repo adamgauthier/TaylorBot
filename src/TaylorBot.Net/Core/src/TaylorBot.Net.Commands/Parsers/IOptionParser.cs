@@ -16,6 +16,7 @@ public interface IOptionParser
 public interface IOptionParser<T> : IOptionParser
 {
     Type IOptionParser.OptionType => typeof(T);
+
     async ValueTask<Result<object?, ParsingFailed>> IOptionParser.ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         var result = await ParseAsync(context, optionValue, resolved);

@@ -13,7 +13,7 @@ public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
 
     public ISlashCommandInfo Info => new MessageCommandInfo(Metadata.Name);
 
-    public record Options(ParsedFetchedUserOrAuthor user, AvatarType? type);
+    public record Options(ParsedUserOrAuthor user, AvatarType? type);
 
     public Command Avatar(DiscordUser user, AvatarType? type, string? description = null) => new(
         Metadata,
@@ -39,7 +39,7 @@ public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(Avatar(
-            new(options.user.User),
+            options.user.User,
             options.type
         ));
     }

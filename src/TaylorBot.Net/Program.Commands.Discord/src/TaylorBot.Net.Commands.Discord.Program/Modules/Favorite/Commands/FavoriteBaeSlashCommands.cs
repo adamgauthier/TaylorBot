@@ -21,7 +21,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
 
     public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteBae)
     {
@@ -57,7 +57,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Show(new(options.user.User), context));
+        return new(Show(options.user.User, context));
     }
 }
 

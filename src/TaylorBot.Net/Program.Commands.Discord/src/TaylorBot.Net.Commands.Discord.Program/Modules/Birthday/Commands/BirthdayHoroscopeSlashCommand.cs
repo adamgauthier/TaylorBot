@@ -12,7 +12,7 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("birthday horoscope");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

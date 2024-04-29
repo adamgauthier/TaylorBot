@@ -1,39 +1,43 @@
-﻿using Discord;
-using OperationResult;
+﻿using OperationResult;
 using System.Text.Json;
-using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.User;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Users;
 
-public record ParsedMember(IGuildUser Member);
+public record ParsedMember(DiscordMember Member);
 
-public class MemberParser(ITaylorBotClient taylorBotClient, IUserTracker userTracker) : IOptionParser<ParsedMember>
+public class MemberParser(UserParser userParser) : IOptionParser<ParsedMember>
 {
     public async ValueTask<Result<ParsedMember, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         var option = optionValue?.GetString();
-        if (option is null)
+        if (option == null)
         {
-            return Error(new ParsingFailed("Member option is required."));
+            return Error(new ParsingFailed("Member option is required 🤔"));
         }
+
         if (context.Guild == null)
         {
-            return Error(new ParsingFailed("Member option can only be used in a server."));
+            return Error(new ParsingFailed("This command can only be used in a server 🤭"));
         }
 
-        var member = context.Guild.Fetched != null
-            ? await taylorBotClient.ResolveGuildUserAsync(context.Guild.Fetched, new(option))
-            : await taylorBotClient.ResolveGuildUserAsync(context.Guild.Id, new(option));
-
-        if (member == null)
+        var parsedUser = await userParser.ParseAsync(context, optionValue, resolved);
+        if (parsedUser)
         {
-            return Error(new ParsingFailed("Did not find member in the current server."));
+            if (parsedUser.Value.User.TryGetMember(out var member))
+            {
+                return new ParsedMember(member);
+            }
+            else
+            {
+                return Error(new ParsingFailed("User must be in the current server 🤭"));
+            }
         }
-
-        await userTracker.TrackUserFromArgumentAsync(new(member));
-
-        return new ParsedMember(member);
+        else
+        {
+            return Error(parsedUser.Error);
+        }
     }
 }

@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Time;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 
@@ -14,16 +15,16 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("usernames show");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
-    public Command Show(IUser user, RunContext? context = null) => new(
+    public Command Show(DiscordUser user, RunContext? context = null) => new(
         new(Info.Name),
         async () =>
         {
             EmbedBuilder BuildBaseEmbed() =>
                 new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(user);
 
-            if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(user)))
+            if (await usernameHistoryRepository.IsUsernameHistoryHiddenFor(user))
             {
                 return new EmbedResult(BuildBaseEmbed()
                     .WithDescription(
@@ -35,7 +36,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
             }
             else
             {
-                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(new(user), 75);
+                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(user, 75);
 
                 var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt.FormatLongDate()}: {u.Username}");
 

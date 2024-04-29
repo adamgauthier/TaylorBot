@@ -11,7 +11,7 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("daily streak");
 
-    public record Options(ParsedFetchedUserOrAuthor user);
+    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -20,7 +20,7 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
             async () =>
             {
                 var user = options.user.User;
-                var streakInfo = await dailyPayoutRepository.GetStreakInfoAsync(new(user));
+                var streakInfo = await dailyPayoutRepository.GetStreakInfoAsync(user);
 
                 if (!streakInfo.HasValue)
                 {
