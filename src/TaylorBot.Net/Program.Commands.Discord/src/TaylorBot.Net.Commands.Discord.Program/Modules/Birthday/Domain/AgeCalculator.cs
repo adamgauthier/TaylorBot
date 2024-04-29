@@ -36,10 +36,10 @@ public class AgeCalculator(TaskExceptionLogger taskExceptionLogger, Lazy<ITaylor
 
     public void TryAddAgeRolesInBackground(RunContext context, DiscordUser user, int age)
     {
-        if (context.Guild?.Fetched != null && user.MemberInfo != null)
+        if (context.Guild?.Fetched != null && user.TryGetMember(out var member))
         {
             _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                TryAddAgeRolesAsync(new(user, user.MemberInfo), age),
+                TryAddAgeRolesAsync(member, age),
                 nameof(TryAddAgeRolesAsync))
             );
         }

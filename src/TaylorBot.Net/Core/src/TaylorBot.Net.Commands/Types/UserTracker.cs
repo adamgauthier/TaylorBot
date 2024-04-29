@@ -17,9 +17,9 @@ public class UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ign
         var getUserIgnoreUntilResult = await ignoredUserRepository.InsertOrGetUserIgnoreUntilAsync(user, user.IsBot);
         await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(user, getUserIgnoreUntilResult);
 
-        if (user.MemberInfo != null)
+        if (user.TryGetMember(out var member))
         {
-            var memberAdded = await memberRepository.AddOrUpdateMemberAsync(new(user, user.MemberInfo), lastSpokeAt: null);
+            var memberAdded = await memberRepository.AddOrUpdateMemberAsync(member, lastSpokeAt: null);
 
             if (memberAdded)
             {

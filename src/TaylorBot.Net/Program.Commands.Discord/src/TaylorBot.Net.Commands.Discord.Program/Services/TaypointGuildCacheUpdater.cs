@@ -9,10 +9,10 @@ public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger
 {
     public void UpdateLastKnownPointCountInBackground(DiscordUser user, long updatedCount)
     {
-        if (!user.IsBot && user.MemberInfo != null)
+        if (!user.IsBot && user.TryGetMember(out var member))
         {
             _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                async () => await taypointBalanceRepository.UpdateLastKnownPointCountAsync(new(user, user.MemberInfo), updatedCount),
+                async () => await taypointBalanceRepository.UpdateLastKnownPointCountAsync(member, updatedCount),
                 nameof(taypointBalanceRepository.UpdateLastKnownPointCountAsync)
             ));
         }

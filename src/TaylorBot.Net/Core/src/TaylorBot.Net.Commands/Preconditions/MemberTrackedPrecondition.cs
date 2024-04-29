@@ -20,12 +20,12 @@ public class MemberTrackedPrecondition(ILogger<MemberTrackedPrecondition> logger
         // Bot is joined to the current guild, make sure it is tracked by resolving prefix from database
         _ = await context.CommandPrefix.Value;
 
-        if (context.User.MemberInfo == null)
+        if (!context.User.TryGetMember(out var member))
         {
             return new PreconditionPassed();
         }
 
-        var memberAdded = await memberRepository.AddOrUpdateMemberAsync(new(context.User, context.User.MemberInfo), lastSpokeAt: context.CreatedAt);
+        var memberAdded = await memberRepository.AddOrUpdateMemberAsync(member, lastSpokeAt: context.CreatedAt);
 
         if (memberAdded)
         {

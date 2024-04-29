@@ -47,10 +47,9 @@ stages:
           testResultsFiles: '*.trx'
           searchFolder: $(testResultsPath)
 
-      - task: PublishCodeCoverageResults@1
+      - task: PublishCodeCoverageResults@2
         displayName: 'Publish code coverage report'
         inputs:
-          codeCoverageTool: 'Cobertura'
           summaryFileLocation: '$(testResultsPath)/*/coverage.cobertura.xml'
           pathToSources: ${{ parameters.dockerBuildContext }}
 
