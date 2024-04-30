@@ -11,34 +11,28 @@ stages:
   - stage: build
     displayName: 'Build container image'
     variables:
-      containerImageTag: 'taylorbot/${{ parameters.componentName }}:$(Build.SourceVersion)'
-      containerImageFilePath: '$(Build.ArtifactStagingDirectory)/${{ parameters.componentName }}.tar'
-      testImageTag: 'taylorbot/${{ parameters.componentName }}-tests'
+      imageRepo: 'louistio/${{ parameters.componentName }}'
+      imageTag: '$(Build.SourceVersion)'
+      imageFullTag: '$(imageRepo):$(imageTag)'
+      imageFilePath: '$(Build.ArtifactStagingDirectory)/${{ parameters.componentName }}.tar'
+      testImageFullTag: '$(imageRepo)-tests:$(imageTag)'
       testResultsPath: '$(Build.ArtifactStagingDirectory)/TestResults'
     jobs:
     - job: build
-      displayName: 'Run tests and build container image'
+      displayName: 'Run tests and build image'
       pool:
         vmImage: 'ubuntu-latest'
       steps:
       - task: Docker@2
-        displayName: 'Build test container image'
+        displayName: 'Build test image'
         inputs:
           command: build
           dockerfile: ${{ parameters.dockerfilePath }}
           buildContext: ${{ parameters.dockerBuildContext }}
-          arguments: '--target test --tag $(testImageTag) --build-arg FEED_ACCESS_TOKEN=$(taylorbot_feed_access_token)'
+          arguments: '--target test --tag $(testImageFullTag) --build-arg FEED_ACCESS_TOKEN=$(taylorbot_feed_access_token)'
 
-      - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageTag) --verbosity normal
+      - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageFullTag) --verbosity normal
         displayName: 'Run tests'
-
-      - task: Docker@2
-        displayName: 'Build final container image'
-        inputs:
-          command: build
-          dockerfile: ${{ parameters.dockerfilePath }}
-          buildContext: ${{ parameters.dockerBuildContext }}
-          arguments: '--tag $(containerImageTag) --build-arg FEED_ACCESS_TOKEN=$(taylorbot_feed_access_token)'
 
       - task: PublishTestResults@2
         displayName: 'Publish tests results'
@@ -52,11 +46,28 @@ stages:
         inputs:
           summaryFileLocation: '$(testResultsPath)/*/coverage.cobertura.xml'
           pathToSources: ${{ parameters.dockerBuildContext }}
+          failIfCoverageEmpty: true
 
-      - script: docker save --output $(containerImageFilePath) $(containerImageTag)
+      - task: Docker@2
+        displayName: 'Build final image'
+        inputs:
+          command: build
+          dockerfile: ${{ parameters.dockerfilePath }}
+          buildContext: ${{ parameters.dockerBuildContext }}
+          arguments: '--tag $(imageFullTag) --build-arg FEED_ACCESS_TOKEN=$(taylorbot_feed_access_token)'
+
+      - task: Docker@2
+        displayName: 'Push image to registry'
+        inputs:
+          command: push
+          containerRegistry: docker-hub-louistio
+          repository: louistio/${{ parameters.componentName }}
+          tags: $(imageTag)
+
+      - script: docker save --output $(imageFilePath) $(imageFullTag)
         displayName: 'Save container image to file'
 
-      - publish: $(containerImageFilePath)
+      - publish: $(imageFilePath)
         artifact: '${{ parameters.componentName }}-image'
         displayName: 'Publish built container image'
 
