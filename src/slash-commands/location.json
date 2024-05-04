@@ -44,7 +44,7 @@
       "options": [
         {
           "name": "user",
-          "description": "The user to see the horoscope for, default you",
+          "description": "The user to see the time for, default you",
           "type": 6,
           "required": false
         }
