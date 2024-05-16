@@ -70,7 +70,8 @@ public class MediaModuleTests
             null,
             null,
             null,
-            MessageFlags.None
+            MessageFlags.None,
+            null
         )).MustHaveHappenedOnceExactly();
     }
 }

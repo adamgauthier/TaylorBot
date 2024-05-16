@@ -62,7 +62,8 @@ public class UsernamesModuleTests
             null,
             null,
             null,
-            MessageFlags.None
+            MessageFlags.None,
+            null
         )).MustHaveHappenedOnceExactly();
     }
 }
