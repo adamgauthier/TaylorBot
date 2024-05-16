@@ -58,6 +58,7 @@ stages:
 
       - task: Docker@2
         displayName: 'Push image to registry'
+        condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
         inputs:
           command: push
           containerRegistry: docker-hub-louistio
