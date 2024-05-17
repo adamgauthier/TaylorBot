@@ -7,57 +7,106 @@ param (
     [string]$ImageName = "taylorbot/commands-discord:dev",
 
     [Parameter(Mandatory = $false)]
-    [string]$EnvFile,
+    [string]$EnvFile = "$PSScriptRoot/commands-discord.env",
+
+    [Parameter(Mandatory=$false)]
+    [bool]$IsProduction = $false,
 
     [Parameter(Mandatory = $false)]
-    [string]$ImageFile
+    [string]$ImageFile,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Secrets,
+
+    [Parameter(Mandatory = $false)]
+    [string]$SecretsFile,
+
+    [Parameter(Mandatory = $false)]
+    [string]$AzureConfigJson,
+
+    [Parameter(Mandatory = $false)]
+    [string]$AzureConfigFile
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if ([string]::IsNullOrWhiteSpace($EnvFile)) {
-    $EnvFile = Join-Path $PSScriptRoot "commands-discord.env"
+Write-Output "Loading envVars from $EnvFile"
+$envVars = [System.IO.File]::ReadAllLines($EnvFile)
+
+Write-Output "Found $($envVars.Length) environment variables"
+[System.ArgumentOutOfRangeException]::ThrowIfLessThan($envVars.Length, 2, "envVarsLength")
+
+if ($IsProduction) {
+    $envVars = $envVars -Replace 'DOTNET_ENVIRONMENT=Staging', 'DOTNET_ENVIRONMENT=Production'
+    Write-Output "Replaced envVars to $envVars"
 }
+
+if (-not [string]::IsNullOrWhiteSpace($SecretsFile)) {
+    Write-Output "Loading Secrets from $SecretsFile"
+    $Secrets = [string]::Join(" ", [System.IO.File]::ReadAllLines($SecretsFile))
+}
+[System.ArgumentException]::ThrowIfNullOrWhiteSpace($Secrets, "Secrets")
+$ParsedSecrets = $Secrets.Split(" ")
+Write-Output "Found $($ParsedSecrets.Length) secrets"
+[System.ArgumentOutOfRangeException]::ThrowIfLessThan($ParsedSecrets.Length, 2, "secretsLength")
 
 if (-not [string]::IsNullOrWhiteSpace($ImageFile)) {
     Write-Output "Loading from file $ImageFile"
     $loadOutput = docker load --input $ImageFile
     $ImageName = $loadOutput.Trim().Split()[-1]
 }
+Write-Output "Image name is $ImageName"
 
 if ($Environment -eq "Azure") {
-    Write-Output "Creating Azure Container Instance resource"
+    Write-Output "Loading Azure config"
 
-    $config = Get-Content -Path "$PSScriptRoot/commands-discord.$Environment.json" -Raw | ConvertFrom-Json
-    $envContent = Get-Content $EnvFile
-
-    $envVars = @()
-    foreach ($line in $envContent) {
-        $parts = $line -split '=', 2
-
-        if ($parts.Count -eq 2) {
-            $secureValue = ConvertTo-SecureString $parts[1] -AsPlainText -Force
-            $envVars += New-AzContainerInstanceEnvironmentVariableObject -Name $parts[0] -SecureValue $secureValue
-        }
-        else {
-            throw "Invalid line in .env file"
-        }
+    if ([string]::IsNullOrWhiteSpace($AzureConfigJson)) {
+        [System.ArgumentException]::ThrowIfNullOrWhiteSpace($AzureConfigFile, "AzureConfigFile")
+        Write-Output "Loading AzureConfigJson from $AzureConfigFile"
+        $AzureConfigJson = Get-Content -Path $AzureConfigFile -Raw
     }
+    [System.ArgumentException]::ThrowIfNullOrWhiteSpace($AzureConfigJson, "AzureConfigJson")
+    $config = $AzureConfigJson | ConvertFrom-Json
 
-    $container = New-AzContainerInstanceObject `
-        -Name $config.AzureResourceName `
-        -Image $ImageName `
-        -EnvironmentVariable $envVars
+    Write-Output "Checking if Azure Container App exists"
 
-    New-AzContainerGroup `
-        -Location $config.AzureLocation `
-        -ResourceGroupName $config.AzureResourceGroupName `
-        -Name $config.AzureResourceName `
-        -RestartPolicy 'OnFailure' `
-        -OSType 'Linux' `
-        -Container $container `
-        -RequestCpu 1 `
-        -RequestMemoryInGb 1
+    $existingAppName = az containerapp show `
+        --name $config.AzureResourceName `
+        --resource-group $config.AzureResourceGroupName `
+        --output tsv --query "name" 2>$null
+
+    if (-not [string]::IsNullOrEmpty($existingAppName)) {
+        Write-Output "Azure Container App already exists, updating"
+
+        az containerapp secret set `
+            --name $config.AzureResourceName `
+            --resource-group $config.AzureResourceGroupName `
+            --secrets $ParsedSecrets
+
+        az containerapp update `
+            --name $config.AzureResourceName `
+            --resource-group $config.AzureResourceGroupName `
+            --image $ImageName `
+            --replace-env-vars $envVars `
+            --cpu $config.ContainerCpu `
+            --memory $config.ContainerMemory `
+            --min-replicas 1 `
+            --max-replicas 1
+    } else {
+        Write-Output "Azure Container App doesn't exist, creating"
+
+        az containerapp create `
+            --name $config.AzureResourceName `
+            --resource-group $config.AzureResourceGroupName `
+            --environment $config.AzureContainerAppEnvName `
+            --image $ImageName `
+            --secrets $ParsedSecrets `
+            --env-vars $envVars `
+            --cpu $config.ContainerCpu `
+            --memory $config.ContainerMemory `
+            --min-replicas 1 `
+            --max-replicas 1
+    }
 }
 else {
     Write-Output "Creating local container"
@@ -67,11 +116,35 @@ else {
         docker network create $networkName
     } catch {}
 
+    $secretsLookup = @{}
+    foreach ($line in $ParsedSecrets) {
+        if ($line -match "^(.*?)=(.*)$") {
+            $secretsLookup[$matches[1]] = $matches[2]
+        }
+        else {
+            throw "Invalid secrets"
+        }
+    }
+
+    $generatedenvVars = $envVars -Replace 'secretref:([^\s,]+)', {
+        $secret = $_.Groups[1].Value
+        if ($secretsLookup.ContainsKey($secret)) {
+            $secretsLookup[$secret]
+        } else {
+            throw "Can't find $secret"
+        }
+    }
+
+    $generatedFile = "$PSScriptRoot/commands-discord.$Environment.generated.secrets.env"
+    Write-Output "Writing $generatedFile"
+
+    $generatedenvVars -Split ' ' | Out-File -FilePath $generatedFile -Encoding utf8
+
     docker container run `
         --detach `
         --name taylorbot-commands-discord `
         --network $networkName `
-        --env-file $EnvFile `
+        --env-file $generatedFile `
         --restart=on-failure:100 `
         $ImageName
 }

@@ -5,7 +5,19 @@ parameters:
     default: ''
   - name: dockerBuildContext
     default: ''
-
+  - name: deployAzureContainerApp
+    type: boolean
+    default: false
+  - name: pushImage
+    default: master-only
+    values:
+    - master-only
+    - force
+  - name: deployAzureContainerAppEnv
+    default: none
+    values:
+    - none
+    - prod
 
 stages:
   - stage: build
@@ -58,54 +70,84 @@ stages:
 
       - task: Docker@2
         displayName: 'Push image to registry'
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        condition: and(succeeded(), or(eq('${{ parameters.pushImage }}', 'force'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
         inputs:
           command: push
           containerRegistry: docker-hub-louistio
           repository: louistio/${{ parameters.componentName }}
           tags: $(imageTag)
 
-      - script: docker save --output $(imageFilePath) $(imageFullTag)
-        displayName: 'Save container image to file'
+      - ${{ if eq(parameters.deployAzureContainerApp, false) }}:
+        - script: docker save --output $(imageFilePath) $(imageFullTag)
+          displayName: 'Save container image to file'
 
-      - publish: $(imageFilePath)
-        artifact: '${{ parameters.componentName }}-image'
-        displayName: 'Publish built container image'
+        - publish: $(imageFilePath)
+          artifact: '${{ parameters.componentName }}-image'
+          displayName: 'Publish built container image'
 
   - stage: deploy
-    displayName: 'TaylorBot'
+    displayName: 'TaylorBot deploy'
     dependsOn: build
-    condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+    condition: and(succeeded(), eq('${{ parameters.deployAzureContainerAppEnv }}', 'prod'))
     variables:
+      imageFullTag: 'louistio/${{ parameters.componentName }}:$(Build.SourceVersion)'
       artifactName: '${{ parameters.componentName }}-image'
       archiveName: '${{ parameters.componentName }}.tar'
     jobs:
-      - deployment: deploy_component
-        displayName: 'Deploy to virtual machine'
-        environment:
-          name: taylorbot
-          resourceType: VirtualMachine
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-              - download: current
-                artifact: $(artifactName)
-              # This assumes we have set up a remote virtual machine resource with the repository cloned in home folder
-              - script: |
-                  set -o errexit
-                  set -o pipefail
-                  set -o nounset
+      - ${{ if eq(parameters.deployAzureContainerApp, false) }}:
+        - deployment: deploy_component
+          displayName: 'Deploy to virtual machine'
+          environment:
+            name: taylorbot
+            resourceType: VirtualMachine
+          strategy:
+            runOnce:
+              deploy:
+                steps:
+                - download: current
+                  artifact: $(artifactName)
+                # This assumes we have set up a remote virtual machine resource with the repository cloned in home folder
+                - script: |
+                    set -o errexit
+                    set -o pipefail
+                    set -o nounset
 
-                  deploy_folder=~/TaylorBot/src/linux-infrastructure/dotnet/${{ parameters.componentName }}
+                    deploy_folder=~/TaylorBot/src/linux-infrastructure/dotnet/${{ parameters.componentName }}
 
-                  echo 'Moving $(archiveName) to deploy folder'
-                  rm -f ${deploy_folder}/$(archiveName).bak
-                  mv ${deploy_folder}/$(archiveName) ${deploy_folder}/$(archiveName).bak
-                  mv $(Pipeline.Workspace)/$(artifactName)/$(archiveName) ${deploy_folder}/$(archiveName)
+                    echo 'Moving $(archiveName) to deploy folder'
+                    rm -f ${deploy_folder}/$(archiveName).bak
+                    mv ${deploy_folder}/$(archiveName) ${deploy_folder}/$(archiveName).bak
+                    mv $(Pipeline.Workspace)/$(artifactName)/$(archiveName) ${deploy_folder}/$(archiveName)
 
-                  cd ${deploy_folder}
-                  docker rm -f taylorbot-${{ parameters.componentName }} &>/dev/null && echo 'Removed previous container'
-                  chmod +x ./deploy-${{ parameters.componentName }}.sh
-                  ./deploy-${{ parameters.componentName }}.sh
-                displayName: 'Deploy image and start container'
+                    cd ${deploy_folder}
+                    docker rm -f taylorbot-${{ parameters.componentName }} &>/dev/null && echo 'Removed previous container'
+                    chmod +x ./deploy-${{ parameters.componentName }}.sh
+                    ./deploy-${{ parameters.componentName }}.sh
+                  displayName: 'Deploy image and start container'
+
+      - ${{ if eq(parameters.deployAzureContainerApp, true) }}:
+        - deployment: deploy_component
+          displayName: 'Deploy azure container app'
+          environment: taylorbot
+          strategy:
+            runOnce:
+              deploy:
+                steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: 'Deploy or update azure container app'
+                  inputs:
+                    azureSubscription: 'TaylorBotAzureSubscription'
+                    scriptType: 'pscore'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      . '$(Build.Repository.LocalPath)/src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1' `
+                        -ImageName $(imageFullTag) `
+                        -Environment Azure `
+                        -IsProduction $true `
+                        -AzureConfigJson ${env:AZURE_CONFIG_JSON} `
+                        -Secrets ${env:ACA_SECRETS}
+                    visibleAzLogin: false
+                  env:
+                    AZURE_CONFIG_JSON: $(taylorbot_${{ parameters.componentName }}_aca_config_json)
+                    ACA_SECRETS: $(taylorbot_${{ parameters.componentName }}_aca_secrets)

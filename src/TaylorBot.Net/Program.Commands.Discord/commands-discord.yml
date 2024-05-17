@@ -1,3 +1,17 @@
+parameters:
+  - name: pushImage
+    displayName: 'Push image to registry'
+    default: master-only
+    values:
+    - master-only
+    - force
+  - name: deployAzureContainerAppEnv
+    displayName: 'Deploy azure container app'
+    default: none
+    values:
+    - none
+    - prod
+
 trigger:
   branches:
     include:
@@ -26,3 +40,6 @@ stages:
     componentName: commands-discord
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.Commands.Discord/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
+    deployAzureContainerApp: true
+    pushImage: ${{ parameters.pushImage }}
+    deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}

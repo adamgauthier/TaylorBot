@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Deploy-Postgres (Local)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/taylorbot-postgres/Deploy-Postgres.ps1"
+        },
+        {
+            "name": "Deploy-Redis (Local)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/taylorbot-redis/Deploy-Redis.ps1"
+        },
+        {
+            "name": "Deploy-Redis (Stage)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/taylorbot-redis/Deploy-Redis.ps1 -Environment Azure"
+        },
+        {
+            "name": "Build-CommandsDiscord",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/Build-CommandsDiscord.ps1"
+        },
+        {
+            "name": "Deploy-CommandsDiscord (Local)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1",
+            "args": [
+                "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/commands-discord.local.secrets.env"
+            ]
+        },
+        {
+            "name": "Deploy-CommandsDiscord (Stage)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1",
+            "args": [
+                "-ImageName louistio/commands-discord:87b6c3db8ccf6f1e162cf43007fd5233ba0eccea",
+                "-Environment Azure",
+                "-AzureConfigFile ${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/commands-discord.stage.Azure.json",
+                "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/commands-discord.stage.secrets.env"
+            ]
+        },
+    ]
+}

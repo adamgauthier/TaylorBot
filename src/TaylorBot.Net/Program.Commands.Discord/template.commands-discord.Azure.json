@@ -1,5 +1,7 @@
 {
     "AzureResourceGroupName": "YOUR_GROUP_NAME_HERE",
     "AzureResourceName": "YOUR_RESOURCE_NAME_HERE",
-    "AzureLocation": "centralus"
+    "AzureLocation": "centralus",
+    "ContainerCpu": "0.25",
+    "ContainerMemory": "0.5Gi"
 }
