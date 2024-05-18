@@ -4,7 +4,7 @@ param (
     [string]$Environment = "Local",
 
     [Parameter(Mandatory = $false)]
-    [string]$ImageName = "taylorbot/commands-discord:dev",
+    [string]$ImageName = "taylorbot/user-notifier:dev",
 
     [Parameter(Mandatory = $false)]
     [bool]$IsProduction = $false,
@@ -30,11 +30,11 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot/../Deploy-TaylorBotNetComponent.ps1" `
     -Environment $Environment `
     -ImageName $ImageName `
-    -EnvFile "$PSScriptRoot/commands-discord.env" `
+    -EnvFile "$PSScriptRoot/user-notifier.env" `
     -IsProduction $IsProduction `
     -ImageFile $ImageFile `
     -Secrets $Secrets `
     -SecretsFile $SecretsFile `
     -AzureConfigJson $AzureConfigJson `
     -AzureConfigFile $AzureConfigFile `
-    -LocalContainerName "taylorbot-commands-discord"
+    -LocalContainerName "taylorbot-user-notifier"

@@ -20,6 +20,8 @@ if ($Environment -eq "Azure") {
         --restart-policy Always `
         --os-type Linux `
         --ip-address Public `
+        --cpu 1 `
+        --memory 1 `
         --output json
 
     $createdParsed = $created | ConvertFrom-Json

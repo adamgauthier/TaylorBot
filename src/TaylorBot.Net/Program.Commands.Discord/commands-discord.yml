@@ -41,5 +41,6 @@ stages:
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.Commands.Discord/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
     deployAzureContainerApp: true
+    deployAzureContainerScript: src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1
     pushImage: ${{ parameters.pushImage }}
     deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}

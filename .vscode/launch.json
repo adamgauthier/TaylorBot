@@ -8,7 +8,20 @@
             "name": "Deploy-Postgres (Local)",
             "type": "PowerShell",
             "request": "launch",
-            "script": "${workspaceFolder}/src/taylorbot-postgres/Deploy-Postgres.ps1"
+            "script": "${workspaceFolder}/src/taylorbot-postgres/Deploy-Postgres.ps1",
+            "args": [
+                "-DatabaseBackupFile ${input:backupFile}"
+            ]
+        },
+        {
+            "name": "Deploy-Postgres (Azure)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/taylorbot-postgres/Deploy-Postgres.ps1",
+            "args": [
+                "-Environment Azure",
+                "-DatabaseBackupFile ${input:backupFile}",
+            ]
         },
         {
             "name": "Deploy-Redis (Local)",
@@ -17,7 +30,7 @@
             "script": "${workspaceFolder}/src/taylorbot-redis/Deploy-Redis.ps1"
         },
         {
-            "name": "Deploy-Redis (Stage)",
+            "name": "Deploy-Redis (Azure)",
             "type": "PowerShell",
             "request": "launch",
             "script": "${workspaceFolder}/src/taylorbot-redis/Deploy-Redis.ps1 -Environment Azure"
@@ -43,11 +56,52 @@
             "request": "launch",
             "script": "${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1",
             "args": [
-                "-ImageName louistio/commands-discord:87b6c3db8ccf6f1e162cf43007fd5233ba0eccea",
+                "-ImageName louistio/commands-discord:${input:imageTag}",
                 "-Environment Azure",
                 "-AzureConfigFile ${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/commands-discord.stage.Azure.json",
                 "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.Commands.Discord/commands-discord.stage.secrets.env"
             ]
+        },
+        {
+            "name": "Build-UserNotifier",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/Build-UserNotifier.ps1"
+        },
+        {
+            "name": "Deploy-UserNotifier (Local)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/Deploy-UserNotifier.ps1",
+            "args": [
+                "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/user-notifier.local.secrets.env"
+            ]
+        },
+        {
+            "name": "Deploy-UserNotifier (Stage)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/Deploy-UserNotifier.ps1",
+            "args": [
+                "-ImageName louistio/user-notifier:${input:imageTag}",
+                "-Environment Azure",
+                "-AzureConfigFile ${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/user-notifier.stage.Azure.json",
+                "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/user-notifier.stage.secrets.env"
+            ]
+        },
+    ],
+    "inputs": [
+        {
+            "id": "imageTag",
+            "type": "promptString",
+            "description": "Image tag (commit id) to deploy from DockerHub",
+            "default": ""
+        },
+        {
+            "id": "backupFile",
+            "type": "promptString",
+            "description": "Path to a backup .sql file to restore from, leave empty for fresh deployment",
+            "default": ""
         },
     ]
 }

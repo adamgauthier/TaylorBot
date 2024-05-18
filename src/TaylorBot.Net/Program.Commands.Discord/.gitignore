@@ -1,2 +1,2 @@
 commands-discord.*.json
-commands-discord*.secrets.env
+commands-discord.*.secrets.env

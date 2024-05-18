@@ -8,6 +8,8 @@ parameters:
   - name: deployAzureContainerApp
     type: boolean
     default: false
+  - name: deployAzureContainerScript
+    default: ''
   - name: pushImage
     default: master-only
     values:
@@ -141,7 +143,7 @@ stages:
                     scriptType: 'pscore'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
-                      . '$(Build.Repository.LocalPath)/src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1' `
+                      . '$(Build.Repository.LocalPath)/${{ parameters.deployAzureContainerScript }}' `
                         -ImageName $(imageFullTag) `
                         -Environment Azure `
                         -IsProduction $true `

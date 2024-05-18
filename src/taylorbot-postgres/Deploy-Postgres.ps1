@@ -51,6 +51,8 @@ if ([string]::IsNullOrWhiteSpace($PostgresHost)) {
             --os-type Linux `
             --ip-address Public `
             --secure-environment-variables "POSTGRES_PASSWORD=$PostgresPassword" `
+            --cpu 1 `
+            --memory 1 `
             --output json
 
         $createdParsed = $created | ConvertFrom-Json
@@ -120,9 +122,9 @@ docker container run `
 if (-not [string]::IsNullOrWhiteSpace($DatabaseBackupFile)) {
     Write-Output "Restoring from backup"
 
-    ./Run-PsqlFile.ps1 -ConnectionString $connection -SqlFile $DatabaseBackupFile
+    . "$PSScriptRoot/Run-PsqlFile.ps1" -ConnectionString $connection -SqlFile $DatabaseBackupFile
 }
 
 Write-Output "Deploying sqitch schema"
 
-./Deploy-Sqitch.ps1 -ConnectionString "postgresql://taylorbot:$TaylorBotRolePassword@$($PostgresHost):$PostgresPort"
+. "$PSScriptRoot/Deploy-Sqitch.ps1" -ConnectionString "postgresql://taylorbot:$TaylorBotRolePassword@$($PostgresHost):$PostgresPort"
