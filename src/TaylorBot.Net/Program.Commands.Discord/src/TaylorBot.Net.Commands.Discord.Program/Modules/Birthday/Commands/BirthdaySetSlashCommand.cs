@@ -26,7 +26,19 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
             {
                 var isPrivate = options.privately.Value ?? false;
 
-                DateOnly birthday = new(options.year.Value ?? IBirthdayRepository.Birthday.NoYearValue, options.month.Value, options.day.Value);
+                DateOnly birthday;
+                try
+                {
+                    birthday = new(options.year.Value ?? IBirthdayRepository.Birthday.NoYearValue, options.month.Value, options.day.Value);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        """
+                        The date you chose is not valid 🤔
+                        Make sure you pick the right day/month, dates like February 31st are not real 🤭
+                        """));
+                }
 
                 var setBirthday = await birthdayRepository.GetBirthdayAsync(context.User);
 

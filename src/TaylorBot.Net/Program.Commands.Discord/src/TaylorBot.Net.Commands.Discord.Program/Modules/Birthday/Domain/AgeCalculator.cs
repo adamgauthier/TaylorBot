@@ -27,7 +27,7 @@ public class AgeCalculator(TaskExceptionLogger taskExceptionLogger, Lazy<ITaylor
             age >= a.MinimumAge &&
             !user.Member.Roles.Contains(a.RoleId)))
         {
-            await client.Value.AddRoleAsync(user.Member.GuildId, user.User.Id, ageRole.RoleId, new()
+            await client.Value.DiscordShardedClient.Rest.AddRoleAsync(user.Member.GuildId, user.User.Id, ageRole.RoleId, new()
             {
                 AuditLogReason = $"Assigned age role on user's birthday command ({age} years old)"
             });

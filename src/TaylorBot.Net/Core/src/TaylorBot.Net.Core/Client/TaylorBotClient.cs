@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 using System.Text.Json;
 using TaylorBot.Net.Core.Events;
 using TaylorBot.Net.Core.Logging;
@@ -21,8 +20,6 @@ public interface ITaylorBotClient
     ValueTask StopAsync();
 
     SocketGuild ResolveRequiredGuild(SnowflakeId id);
-
-    Task AddRoleAsync(SnowflakeId guildId, SnowflakeId userId, SnowflakeId roleId, RequestOptions? options = null);
 
     ValueTask<IUser> ResolveRequiredUserAsync(SnowflakeId id);
     ValueTask<IChannel> ResolveRequiredChannelAsync(SnowflakeId id);
@@ -181,18 +178,5 @@ public class TaylorBotClient : ITaylorBotClient
         }
 
         return user;
-    }
-
-    public async Task AddRoleAsync(SnowflakeId guildId, SnowflakeId userId, SnowflakeId roleId, RequestOptions? options = null)
-    {
-        var clientHelperType = typeof(Discord.Rest.DiscordRestClient).Assembly.GetType("Discord.Rest.ClientHelper");
-        ArgumentNullException.ThrowIfNull(clientHelperType);
-
-        var methodInfo = clientHelperType.GetMethod("AddRoleAsync", BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.Public);
-        ArgumentNullException.ThrowIfNull(methodInfo);
-
-        var returned = methodInfo.Invoke(null, [DiscordShardedClient.Rest, guildId.Id, userId.Id, roleId.Id, options!]);
-        ArgumentNullException.ThrowIfNull(returned);
-        await (Task)returned;
     }
 }

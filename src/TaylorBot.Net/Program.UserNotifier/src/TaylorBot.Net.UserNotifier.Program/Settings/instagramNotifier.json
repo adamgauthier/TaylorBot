@@ -1,6 +1,6 @@
 ﻿{
   "InstagramNotifier": {
-    "TimeSpanBetweenRequests": "0.00:01:30",
+    "TimeSpanBetweenRequests": "0.24:00:00",
     "InstagramPostEmbedIconUrl": "https://www.instagram.com/static/images/ico/apple-touch-icon-76x76-precomposed.png/932e4d9af891.png",
     "InstagramPostEmbedColor": "#BC2A8D"
   }
