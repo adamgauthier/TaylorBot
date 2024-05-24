@@ -89,6 +89,33 @@
                 "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.UserNotifier/user-notifier.stage.secrets.env"
             ]
         },
+        {
+            "name": "Build-EntityTracker",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/Build-EntityTracker.ps1"
+        },
+        {
+            "name": "Deploy-EntityTracker (Local)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/Deploy-EntityTracker.ps1",
+            "args": [
+                "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/entity-tracker.local.secrets.env"
+            ]
+        },
+        {
+            "name": "Deploy-EntityTracker (Stage)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/Deploy-EntityTracker.ps1",
+            "args": [
+                "-ImageName louistio/entity-tracker:${input:imageTag}",
+                "-Environment Azure",
+                "-AzureConfigFile ${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/entity-tracker.stage.Azure.json",
+                "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/entity-tracker.stage.secrets.env"
+            ]
+        },
     ],
     "inputs": [
         {

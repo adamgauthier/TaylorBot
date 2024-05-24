@@ -1,3 +1,17 @@
+parameters:
+  - name: pushImage
+    displayName: 'Push image to registry'
+    default: master-only
+    values:
+    - master-only
+    - force
+  - name: deployAzureContainerAppEnv
+    displayName: 'Deploy azure container app'
+    default: none
+    values:
+    - none
+    - prod
+
 trigger:
   branches:
     include:
@@ -26,3 +40,7 @@ stages:
     componentName: entity-tracker
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.EntityTracker/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
+    deployAzureContainerApp: true
+    deployAzureContainerScript: src/TaylorBot.Net/Program.EntityTracker/Deploy-EntityTracker.ps1
+    pushImage: ${{ parameters.pushImage }}
+    deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}
