@@ -1,6 +1,6 @@
 ﻿{
   "RedisConnection": {
-    "Host": "taylorbot-redis-commands",
+    "Host": "taylorbot-redis",
     "Port": 6379
   }
 }

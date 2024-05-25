@@ -1,5 +1,8 @@
 {
     "AzureResourceGroupName": "YOUR_GROUP_NAME_HERE",
     "AzureResourceName": "YOUR_RESOURCE_NAME_HERE",
-    "RedisPassword": "YOUR_REDIS_PASSWORD_HERE"
+    "RedisPassword": "YOUR_REDIS_PASSWORD_HERE",
+    "AzureContainerAppEnvName": "YOUR_CONTAINER_ENV_NAME",
+    "ContainerCpu": "0.25",
+    "ContainerMemory": "0.5Gi"
 }
