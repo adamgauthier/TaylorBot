@@ -187,7 +187,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     }
 
                     builder
-                        .AddField("Channel", channel.Mention, inline: true)
+                        .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
                         .AddField("Sent", message.Timestamp.FormatRelative(), inline: true);
                     break;
 
@@ -211,7 +211,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     }
 
                     builder
-                        .AddField("Channel", channel.Mention, inline: true)
+                        .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
                         .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
                     break;
             }
@@ -238,7 +238,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
             }
 
             builder
-                .AddField("Channel", channel.Mention, inline: true)
+                .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
                 .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
         }
 
