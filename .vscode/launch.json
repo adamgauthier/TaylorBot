@@ -116,6 +116,12 @@
                 "-SecretsFile ${workspaceFolder}/src/TaylorBot.Net/Program.EntityTracker/entity-tracker.stage.secrets.env"
             ]
         },
+        {
+            "name": "Open-GlobalSolution",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/TaylorBot.Net/Open-GlobalSolution.ps1"
+        },
     ],
     "inputs": [
         {
