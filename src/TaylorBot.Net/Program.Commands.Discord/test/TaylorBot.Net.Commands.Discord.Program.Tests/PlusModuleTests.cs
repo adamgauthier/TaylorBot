@@ -15,6 +15,7 @@ public class PlusModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly IPlusRepository _plusRepository = A.Fake<IPlusRepository>(o => o.Strict());
     private readonly IPlusUserRepository _plusUserRepository = A.Fake<IPlusUserRepository>(o => o.Strict());
     private readonly PlusModule _plusModule;
@@ -23,6 +24,7 @@ public class PlusModuleTests
     {
         _plusModule = new PlusModule(new SimpleCommandRunner(), _plusRepository, _plusUserRepository);
         _plusModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
     }

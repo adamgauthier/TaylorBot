@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Discord;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
@@ -26,7 +25,7 @@ public class SpamChannelPostgresRepository(PostgresConnectionFactory postgresCon
         );
     }
 
-    private async ValueTask UpsertSpamChannelAsync(ITextChannel channel, bool isSpam)
+    private async ValueTask UpsertSpamChannelAsync(GuildTextChannel channel, bool isSpam)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -45,12 +44,12 @@ public class SpamChannelPostgresRepository(PostgresConnectionFactory postgresCon
         );
     }
 
-    public async ValueTask AddSpamChannelAsync(ITextChannel channel)
+    public async ValueTask AddSpamChannelAsync(GuildTextChannel channel)
     {
         await UpsertSpamChannelAsync(channel, isSpam: true);
     }
 
-    public async ValueTask RemoveSpamChannelAsync(ITextChannel channel)
+    public async ValueTask RemoveSpamChannelAsync(GuildTextChannel channel)
     {
         await UpsertSpamChannelAsync(channel, isSpam: false);
     }

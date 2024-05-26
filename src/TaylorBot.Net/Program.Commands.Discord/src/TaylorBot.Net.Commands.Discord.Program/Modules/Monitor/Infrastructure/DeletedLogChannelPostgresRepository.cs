@@ -3,24 +3,27 @@ using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
 
 public class DeletedLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IDeletedLogChannelRepository
 {
-    public async ValueTask AddOrUpdateDeletedLogAsync(ITextChannel textChannel)
+    public async ValueTask AddOrUpdateDeletedLogAsync(GuildTextChannel textChannel)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"INSERT INTO plus.deleted_log_channels (guild_id, deleted_log_channel_id)
-                VALUES (@GuildId, @ChannelId)
-                ON CONFLICT (guild_id) DO UPDATE SET
-                    deleted_log_channel_id = excluded.deleted_log_channel_id;",
+            """
+            INSERT INTO plus.deleted_log_channels (guild_id, deleted_log_channel_id)
+            VALUES (@GuildId, @ChannelId)
+            ON CONFLICT (guild_id) DO UPDATE SET
+                deleted_log_channel_id = excluded.deleted_log_channel_id;
+            """,
             new
             {
-                GuildId = textChannel.GuildId.ToString(),
-                ChannelId = textChannel.Id.ToString()
+                GuildId = $"{textChannel.GuildId}",
+                ChannelId = $"{textChannel.Id}",
             }
         );
     }
@@ -35,11 +38,13 @@ public class DeletedLogChannelPostgresRepository(PostgresConnectionFactory postg
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
-            @"SELECT deleted_log_channel_id FROM plus.deleted_log_channels
-                WHERE guild_id = @GuildId;",
+            """
+            SELECT deleted_log_channel_id FROM plus.deleted_log_channels
+            WHERE guild_id = @GuildId;
+            """,
             new
             {
-                GuildId = guild.Id.ToString()
+                GuildId = $"{guild.Id}",
             }
         );
 
@@ -54,7 +59,7 @@ public class DeletedLogChannelPostgresRepository(PostgresConnectionFactory postg
             "DELETE FROM plus.deleted_log_channels WHERE guild_id = @GuildId;",
             new
             {
-                GuildId = guild.Id.ToString()
+                GuildId = $"{guild.Id}",
             }
         );
     }

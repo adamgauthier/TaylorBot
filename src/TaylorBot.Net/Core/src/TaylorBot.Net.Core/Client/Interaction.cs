@@ -13,6 +13,7 @@ public record Interaction(
     Interaction.User? user,
     string? guild_id,
     string? channel_id,
+    Interaction.PartialChannel? channel,
     Interaction.Message? message
 )
 {
@@ -38,7 +39,13 @@ public record Interaction(
 
     public record Message(string id);
 
-    public record Resolved(IReadOnlyDictionary<string, User>? users, IReadOnlyDictionary<string, PartialMember>? members, IReadOnlyDictionary<string, Attachment>? attachments);
+    public record Resolved(
+        IReadOnlyDictionary<string, User>? users,
+        IReadOnlyDictionary<string, PartialMember>? members,
+        IReadOnlyDictionary<string, PartialChannel>? channels,
+        IReadOnlyDictionary<string, Attachment>? attachments);
+
+    public record PartialChannel(string id, byte type, string? guild_id);
 
     public record Attachment(string id, string filename, string url, int size, string content_type);
 }

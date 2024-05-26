@@ -1,4 +1,5 @@
-﻿using Humanizer;
+﻿using Discord;
+using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OperationResult;
@@ -48,7 +49,7 @@ public record ApplicationCommand(
     ApplicationCommandInteractionData Data,
     ApplicationCommand.GuildData? Guild,
     User? UserData,
-    SnowflakeId ChannelId
+    (SnowflakeId Id, PartialChannel Partial) Channel
 ) : IInteraction
 {
     public User User => Guild?.Member.user ?? UserData ?? throw new NotImplementedException();
@@ -79,16 +80,19 @@ public class SlashCommandHandler(
     {
         activity.CommandName = interaction.data!.name;
 
+        ArgumentNullException.ThrowIfNull(interaction.channel_id);
+        ArgumentNullException.ThrowIfNull(interaction.channel);
+
         ApplicationCommand command = new(
             interaction.id,
             interaction.token,
             interaction.data!,
-            interaction.member != null ? new(interaction.guild_id!, interaction.member) : null,
+            interaction.member != null && interaction.guild_id != null ? new(interaction.guild_id, interaction.member) : null,
             interaction.user,
-            new(interaction.channel_id!));
+            (new(interaction.channel_id), interaction.channel));
 
         activity.UserId = command.UserId;
-        activity.ChannelId = command.ChannelId.Id;
+        activity.ChannelId = command.Channel.Id;
         activity.GuildId = command.Guild?.Id;
 
         await HandleApplicationCommand(command, activity);
@@ -285,7 +289,7 @@ public class SlashCommandHandler(
                     ? interactionMapper.ToMemberInfo(interaction.Guild.Id, interaction.Guild.Member)
                     : null),
             FetchedUser: null,
-            new(interaction.ChannelId),
+            new(interaction.Channel.Id, (ChannelType)interaction.Channel.Partial.type),
             interaction.Guild != null ? new(interaction.Guild.Id, guild) : null,
             taylorBotClient.Value.DiscordShardedClient,
             taylorBotClient.Value.DiscordShardedClient.CurrentUser,

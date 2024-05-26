@@ -42,7 +42,8 @@ public class EntityTrackerDomainService(
 
         foreach (var textChannel in guild.TextChannels)
         {
-            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(textChannel.Id, textChannel.Guild.Id));
+            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(
+                textChannel.Id, textChannel.Guild.Id, textChannel.GetChannelType() ?? ChannelType.Text));
         }
 
         if (downloadAllUsers)
@@ -125,7 +126,7 @@ public class EntityTrackerDomainService(
 
     public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
     {
-        await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(textChannel.Id, textChannel.Guild.Id));
+        _ = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(textChannel.Id, textChannel.Guild.Id, textChannel.GetChannelType() ?? ChannelType.Text));
         logger.LogInformation("Added new text channel {TextChannel}.", textChannel.FormatLog());
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Dapper;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class DisabledGuildChannelCommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IDisabledGuildChannelCommandRepository
 {
-    public async ValueTask DisableInAsync(CommandChannel channel, CommandGuild guild, string commandName)
+    public async ValueTask DisableInAsync(GuildTextChannel channel, string commandName)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -17,14 +18,14 @@ public class DisabledGuildChannelCommandPostgresRepository(PostgresConnectionFac
             """,
             new
             {
-                GuildId = $"{guild.Id}",
+                GuildId = $"{channel.GuildId}",
                 ChannelId = $"{channel.Id}",
                 CommandId = commandName,
             }
         );
     }
 
-    public async ValueTask EnableInAsync(CommandChannel channel, CommandGuild guild, string commandName)
+    public async ValueTask EnableInAsync(GuildTextChannel channel, string commandName)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -35,14 +36,14 @@ public class DisabledGuildChannelCommandPostgresRepository(PostgresConnectionFac
             """,
             new
             {
-                GuildId = $"{guild.Id}",
+                GuildId = $"{channel.GuildId}",
                 ChannelId = $"{channel.Id}",
                 CommandId = commandName,
             }
         );
     }
 
-    public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(CommandChannel channel, CommandGuild guild, CommandMetadata command)
+    public async ValueTask<bool> IsGuildChannelCommandDisabledAsync(GuildTextChannel channel, CommandMetadata command)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -55,8 +56,8 @@ public class DisabledGuildChannelCommandPostgresRepository(PostgresConnectionFac
             """,
             new
             {
-                GuildId = guild.Id.ToString(),
-                ChannelId = channel.Id.ToString(),
+                GuildId = $"{channel.GuildId}",
+                ChannelId = $"{channel.Id}",
                 CommandId = command.Name,
             }
         );

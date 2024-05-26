@@ -1,14 +1,19 @@
-﻿namespace TaylorBot.Net.Commands.DiscordNet;
+﻿using Discord;
+
+namespace TaylorBot.Net.Commands.DiscordNet;
 
 public static class DiscordNetContextMapper
 {
     public static RunContext MapToRunContext(ITaylorBotCommandContext context)
     {
+        var channelType = context.Channel.GetChannelType();
+        ArgumentNullException.ThrowIfNull(channelType);
+
         RunContext runContext = new(
             context.Message.Timestamp,
             new(context.User),
             context.User,
-            new(context.Channel.Id),
+            new(context.Channel.Id, channelType.Value),
             context.Guild != null ? new(context.Guild.Id, context.Guild) : null,
             context.Client,
             context.CurrentUser,

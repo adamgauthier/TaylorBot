@@ -1,18 +1,14 @@
-﻿using Discord;
-using FakeItEasy;
+﻿using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
-using TaylorBot.Net.Core.User;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
 public class ServerPopulationSlashCommandTests
 {
-    private readonly DiscordUser _commandUser = CommandUtils.AUser;
-    private readonly CommandGuild _commandGuild = new("123", A.Fake<IGuild>());
     private readonly IServerStatsRepository _serverStatsRepository = A.Fake<IServerStatsRepository>(o => o.Strict());
     private readonly RunContext _runContext;
     private readonly ServerPopulationSlashCommand _command;
@@ -20,14 +16,14 @@ public class ServerPopulationSlashCommandTests
     public ServerPopulationSlashCommandTests()
     {
         _command = new ServerPopulationSlashCommand(_serverStatsRepository);
-        _runContext = new RunContext(DateTimeOffset.UtcNow, _commandUser, null, null!, _commandGuild, null!, null!, null!, null!, null!, null!);
+        _runContext = CommandUtils.CreateTestContext(_command);
     }
 
     [Fact]
     public async Task ServerPopulation_WhenNoData_ThenReturnsEmbedWithNoDataAndNoPercent()
     {
-        A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(AgeAverage: null, AgeMedian: null));
-        A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_commandGuild)).Returns(new GenderStats(TotalCount: 0, MaleCount: 0, FemaleCount: 0, OtherCount: 0));
+        A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_runContext.Guild!)).Returns(new AgeStats(AgeAverage: null, AgeMedian: null));
+        A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_runContext.Guild!)).Returns(new GenderStats(TotalCount: 0, MaleCount: 0, FemaleCount: 0, OtherCount: 0));
 
         var result = (EmbedResult)await (await _command.GetCommandAsync(_runContext, new())).RunAsync();
 
@@ -45,8 +41,8 @@ public class ServerPopulationSlashCommandTests
         const long OtherCount = 2;
         const long TotalCount = 10;
 
-        A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_commandGuild)).Returns(new AgeStats(AgeAverage, AgeMedian));
-        A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_commandGuild)).Returns(new GenderStats(
+        A.CallTo(() => _serverStatsRepository.GetAgeStatsInGuildAsync(_runContext.Guild!)).Returns(new AgeStats(AgeAverage, AgeMedian));
+        A.CallTo(() => _serverStatsRepository.GetGenderStatsInGuildAsync(_runContext.Guild!)).Returns(new GenderStats(
             TotalCount, MaleCount, FemaleCount, OtherCount
         ));
 

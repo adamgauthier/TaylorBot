@@ -14,7 +14,7 @@ public class UsernamesModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
-    private readonly IMessageChannel _channel = A.Fake<IMessageChannel>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IUsernameHistoryRepository _usernameHistoryRepository = A.Fake<IUsernameHistoryRepository>(o => o.Strict());
     private readonly UsernamesModule _usernamesModule;

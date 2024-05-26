@@ -19,7 +19,6 @@ public class CommandChannelDisableSlashCommand(ICommandRepository commandReposit
             new(Info.Name),
             async () =>
             {
-                var guild = context.Guild!;
                 var name = options.command.Value.Trim().ToLowerInvariant();
                 var command = await commandRepository.FindCommandByAliasAsync(name);
 
@@ -38,7 +37,7 @@ public class CommandChannelDisableSlashCommand(ICommandRepository commandReposit
                     return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
                 }
 
-                await disabledGuildChannelCommandRepository.DisableInAsync(new(options.channel.Channel.Id.ToString()), guild, command.Name);
+                await disabledGuildChannelCommandRepository.DisableInAsync(options.channel.Channel, command.Name);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
             },
@@ -71,7 +70,7 @@ public class CommandChannelEnableSlashCommand(ICommandRepository commandReposito
                     return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
                 }
 
-                await disabledGuildChannelCommandRepository.EnableInAsync(new(options.channel.Channel.Id.ToString()), guild, command.Name);
+                await disabledGuildChannelCommandRepository.EnableInAsync(options.channel.Channel, command.Name);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
             },

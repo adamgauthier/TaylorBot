@@ -14,6 +14,7 @@ public class RandomModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ICryptoSecureRandom _cryptoSecureRandom = A.Fake<ICryptoSecureRandom>(o => o.Strict());
     private readonly RandomModule _randomModule;
 
@@ -21,6 +22,7 @@ public class RandomModuleTests
     {
         _randomModule = new RandomModule(new SimpleCommandRunner(), _cryptoSecureRandom);
         _randomModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
     }
 

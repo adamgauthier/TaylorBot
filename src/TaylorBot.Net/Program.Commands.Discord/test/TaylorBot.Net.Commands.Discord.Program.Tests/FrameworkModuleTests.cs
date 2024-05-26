@@ -12,6 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 public class FrameworkModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly IGuild _commandGuild = A.Fake<IGuild>(o => o.Strict());
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly ICommandPrefixRepository _commandPrefixRepository = A.Fake<ICommandPrefixRepository>(o => o.Strict());
@@ -22,6 +23,7 @@ public class FrameworkModuleTests
         _frameworkModule = new FrameworkModule(new SimpleCommandRunner(), _commandPrefixRepository);
         _frameworkModule.SetContext(_commandContext);
         A.CallTo(() => _commandGuild.Id).Returns(123u);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
     }

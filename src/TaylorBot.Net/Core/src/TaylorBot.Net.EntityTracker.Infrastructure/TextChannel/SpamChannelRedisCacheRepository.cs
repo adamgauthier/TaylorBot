@@ -1,15 +1,12 @@
-﻿using Discord;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.EntityTracker.Infrastructure.TextChannel;
 
 public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, SpamChannelPostgresRepository spamChannelPostgresRepository) : ISpamChannelRepository
 {
-    private static string GetKey(GuildTextChannel channel)
-    {
-        return $"spam-channel:guild:{channel.GuildId}:channel:{channel.Id}";
-    }
+    private static string GetKey(GuildTextChannel channel) =>
+        $"spam-channel:guild:{channel.GuildId}:channel:{channel.Id}";
 
     public async ValueTask<bool> InsertOrGetIsSpamChannelAsync(GuildTextChannel channel)
     {
@@ -31,10 +28,10 @@ public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMul
         return (bool)cachedSpamChannel;
     }
 
-    public async ValueTask AddSpamChannelAsync(ITextChannel channel)
+    public async ValueTask AddSpamChannelAsync(GuildTextChannel channel)
     {
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(new(channel.Id, channel.GuildId));
+        var key = GetKey(channel);
         var isSpam = true;
 
         await spamChannelPostgresRepository.AddSpamChannelAsync(channel);
@@ -46,10 +43,10 @@ public class SpamChannelRedisCacheRepository(ConnectionMultiplexer connectionMul
         );
     }
 
-    public async ValueTask RemoveSpamChannelAsync(ITextChannel channel)
+    public async ValueTask RemoveSpamChannelAsync(GuildTextChannel channel)
     {
         var redis = connectionMultiplexer.GetDatabase();
-        var key = GetKey(new(channel.Id, channel.GuildId));
+        var key = GetKey(channel);
         var isSpam = false;
 
         await spamChannelPostgresRepository.RemoveSpamChannelAsync(channel);

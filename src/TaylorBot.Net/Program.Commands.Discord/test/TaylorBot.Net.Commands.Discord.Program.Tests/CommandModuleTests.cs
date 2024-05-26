@@ -14,6 +14,7 @@ public class CommandModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly IDisabledCommandRepository _disabledCommandRepository = A.Fake<IDisabledCommandRepository>(o => o.Strict());
     private readonly CommandModule _commandModule;
 
@@ -22,6 +23,7 @@ public class CommandModuleTests
         _commandModule = new CommandModule(new SimpleCommandRunner(), _disabledCommandRepository);
         _commandModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
     }
 
     [Fact]

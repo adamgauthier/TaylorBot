@@ -18,6 +18,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 public class JailModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly IGuild _guild = A.Fake<IGuild>(o => o.Strict());
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IJailRepository _jailRepository = A.Fake<IJailRepository>(o => o.Strict());
@@ -29,6 +30,7 @@ public class JailModuleTests
         _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository, _modLogChannelLogger);
         _jailModule.SetContext(_commandContext);
         A.CallTo(() => _guild.Id).Returns(123u);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_guild);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.CommandPrefix).Returns("!");

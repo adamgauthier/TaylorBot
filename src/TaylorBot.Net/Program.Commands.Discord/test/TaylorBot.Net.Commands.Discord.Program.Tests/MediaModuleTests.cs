@@ -15,7 +15,7 @@ public class MediaModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
-    private readonly IMessageChannel _channel = A.Fake<IMessageChannel>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IPlusRepository _plusRepository = A.Fake<IPlusRepository>(o => o.Strict());
     private readonly IImageSearchClient _imageSearchClient = A.Fake<IImageSearchClient>(o => o.Strict());
@@ -25,8 +25,8 @@ public class MediaModuleTests
     {
         _mediaModule = new MediaModule(new SimpleCommandRunner(), _plusRepository, CommandUtils.UnlimitedRateLimiter, _imageSearchClient);
         _mediaModule.SetContext(_commandContext);
-        A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
+        A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _message.Channel).Returns(_channel);
     }
 

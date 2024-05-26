@@ -4,10 +4,11 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands;
 
-public record CommandChannel(SnowflakeId Id)
+public record CommandChannel(SnowflakeId Id, ChannelType Type)
 {
     public string Mention => MentionUtils.MentionChannel(Id);
 }
@@ -42,6 +43,8 @@ public record RunContext(
         name.Split(' ')[0] == CommandInfo.Name.Split(' ')[0] ?
             $"</{name}:{CommandInfo.Id}>" :
             $"**/{name}**";
+
+    public GuildTextChannel? GuildTextChannel { get; set; } = Guild != null ? new GuildTextChannel(Channel.Id, Guild.Id, Channel.Type) : null;
 }
 
 public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);

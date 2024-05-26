@@ -4,24 +4,27 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Infrastructure;
 
 public class ModMailLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IModMailLogChannelRepository
 {
-    public async ValueTask AddOrUpdateModMailLogAsync(ITextChannel textChannel)
+    public async ValueTask AddOrUpdateModMailLogAsync(GuildTextChannel textChannel)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"INSERT INTO moderation.mod_mail_log_channels (guild_id, channel_id)
+            """
+            INSERT INTO moderation.mod_mail_log_channels (guild_id, channel_id)
             VALUES (@GuildId, @ChannelId)
             ON CONFLICT (guild_id) DO UPDATE SET
-                channel_id = excluded.channel_id;",
+                channel_id = excluded.channel_id;
+            """,
             new
             {
-                GuildId = textChannel.GuildId.ToString(),
-                ChannelId = textChannel.Id.ToString(),
+                GuildId = $"{textChannel.GuildId}",
+                ChannelId = $"{textChannel.Id}",
             }
         );
     }
@@ -34,7 +37,7 @@ public class ModMailLogChannelPostgresRepository(PostgresConnectionFactory postg
             "DELETE FROM moderation.mod_mail_log_channels WHERE guild_id = @GuildId;",
             new
             {
-                GuildId = guild.Id.ToString(),
+                GuildId = $"{guild.Id}",
             }
         );
     }
@@ -49,11 +52,13 @@ public class ModMailLogChannelPostgresRepository(PostgresConnectionFactory postg
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
-            @"SELECT channel_id FROM moderation.mod_mail_log_channels
-            WHERE guild_id = @GuildId;",
+            """
+            SELECT channel_id FROM moderation.mod_mail_log_channels
+            WHERE guild_id = @GuildId;
+            """,
             new
             {
-                GuildId = guild.Id.ToString(),
+                GuildId = $"{guild.Id}",
             }
         );
 

@@ -21,6 +21,7 @@ public class AccessibleRolesModuleTests
 
     private readonly IGuildUser _commandUser = A.Fake<IGuildUser>();
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly IGuild _guild = A.Fake<IGuild>(o => o.Strict());
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IAccessibleRoleRepository _accessibleRoleRepository = A.Fake<IAccessibleRoleRepository>(o => o.Strict());
@@ -31,6 +32,7 @@ public class AccessibleRolesModuleTests
         _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository);
         _accessibleRolesModule.SetContext(_commandContext);
         A.CallTo(() => _guild.Id).Returns(123u);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_guild);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Message).Returns(_message);

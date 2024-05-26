@@ -15,6 +15,7 @@ namespace TaylorBot.Net.Commands.Tests.Modules;
 public class HelpModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IDisabledCommandRepository _disabledCommandRepository = A.Fake<IDisabledCommandRepository>(o => o.Strict());
     private readonly ICommandRepository _commandRepository = A.Fake<ICommandRepository>(o => o.Strict());
@@ -26,6 +27,7 @@ public class HelpModuleTests
     {
         _helpModule = new HelpModule(new CommandService(), _disabledCommandRepository, _commandRepository, _commandApplicationOptions, new SimpleCommandRunner());
         _helpModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
     }

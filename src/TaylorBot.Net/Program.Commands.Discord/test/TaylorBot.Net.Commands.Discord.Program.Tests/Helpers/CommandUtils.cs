@@ -1,4 +1,6 @@
-﻿using FakeItEasy;
+﻿using Discord;
+using FakeItEasy;
+using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -15,5 +17,13 @@ public class CommandUtils
             A.CallTo(() => rateLimiter.VerifyDailyLimitAsync(A<DiscordUser>.Ignored, A<string>.Ignored)).Returns(null);
             return rateLimiter;
         }
+    }
+
+    public static RunContext CreateTestContext(ISlashCommand command)
+    {
+        CommandGuild guild = new(167845806479638529, A.Fake<IGuild>());
+        CommandChannel channel = new(167845806479638529, ChannelType.Text);
+
+        return new RunContext(DateTimeOffset.UtcNow, AUser, null, channel, guild, null!, null!, new("922354806574678086", command.Info.Name), null!, null!, null!);
     }
 }

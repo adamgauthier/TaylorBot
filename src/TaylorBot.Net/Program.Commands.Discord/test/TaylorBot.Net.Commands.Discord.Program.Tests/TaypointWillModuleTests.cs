@@ -20,12 +20,14 @@ public class TaypointWillModuleTests
 
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IUser _commandUser = A.Fake<IUser>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly IOptionsMonitor<TaypointWillOptions> _options = A.Fake<IOptionsMonitor<TaypointWillOptions>>(o => o.Strict());
     private readonly ITaypointWillRepository _taypointWillRepository = A.Fake<ITaypointWillRepository>(o => o.Strict());
     private readonly TaypointWillModule _taypointWillModule;
 
     public TaypointWillModuleTests()
     {
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         _taypointWillModule = new TaypointWillModule(new SimpleCommandRunner(), _options, _taypointWillRepository);
         _taypointWillModule.SetContext(_commandContext);

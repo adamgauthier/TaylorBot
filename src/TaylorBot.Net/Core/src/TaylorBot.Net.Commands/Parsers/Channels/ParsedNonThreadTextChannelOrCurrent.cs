@@ -2,11 +2,12 @@
 using OperationResult;
 using System.Text.Json;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Parsers.Channels;
 
-public record ParsedNonThreadTextChannelOrCurrent(ITextChannel Channel);
+public record ParsedNonThreadTextChannelOrCurrent(GuildTextChannel Channel);
 
 public class NonThreadTextChannellOrCurrentParser(TextChannelOrCurrentParser textChannelOrCurrentParser) : IOptionParser<ParsedNonThreadTextChannelOrCurrent>
 {
@@ -16,9 +17,9 @@ public class NonThreadTextChannellOrCurrentParser(TextChannelOrCurrentParser tex
 
         if (parsed)
         {
-            return parsed.Value.Channel is not IThreadChannel thread ?
-                new ParsedNonThreadTextChannelOrCurrent(parsed.Value.Channel) :
-                Error(new ParsingFailed($"Channel '{thread.Name}' is a thread! Please use another text channel."));
+            return parsed.Value.Channel.Type is ChannelType.PublicThread or ChannelType.PrivateThread or ChannelType.NewsThread
+                ? Error(new ParsingFailed($"Channel {MentionUtils.MentionChannel(parsed.Value.Channel.Id)} is a thread! Please use another text channel."))
+                : new ParsedNonThreadTextChannelOrCurrent(parsed.Value.Channel);
         }
         else
         {

@@ -16,6 +16,7 @@ public class RewardModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ITaypointRewardRepository _taypointRewardRepository = A.Fake<ITaypointRewardRepository>(o => o.Strict());
     private readonly RewardModule _rewardModule;
 
@@ -23,6 +24,7 @@ public class RewardModuleTests
     {
         _rewardModule = new RewardModule(new SimpleCommandRunner(), _taypointRewardRepository);
         _rewardModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
     }
 

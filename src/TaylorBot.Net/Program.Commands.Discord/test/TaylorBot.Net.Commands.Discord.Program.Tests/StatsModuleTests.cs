@@ -13,6 +13,7 @@ public class StatsModuleTests
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly IGuild _commandGuild = A.Fake<IGuild>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IBotInfoRepository _botInfoRepository = A.Fake<IBotInfoRepository>(o => o.Strict());
     private readonly StatsModule _statsModule;
@@ -21,6 +22,7 @@ public class StatsModuleTests
     {
         _statsModule = new StatsModule(new SimpleCommandRunner(), _botInfoRepository);
         _statsModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
     }

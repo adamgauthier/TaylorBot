@@ -6,9 +6,9 @@ public class TextChannelTrackedPrecondition(ISpamChannelRepository spamChannelRe
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
-        if (context.Guild?.Fetched != null)
+        if (context.Guild?.Fetched != null && context.GuildTextChannel != null)
         {
-            await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(context.Channel.Id, context.Guild.Id));
+            _ = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(context.GuildTextChannel);
         }
 
         return new PreconditionPassed();

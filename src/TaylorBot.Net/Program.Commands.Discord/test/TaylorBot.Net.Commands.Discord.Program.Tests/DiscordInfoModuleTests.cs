@@ -14,6 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 public class DiscordInfoModuleTests
 {
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
+    private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ChannelTypeStringMapper _channelTypeStringMapper = new();
     private readonly IUserTracker _userTracker = A.Fake<IUserTracker>(o => o.Strict());
     private readonly DiscordInfoModule _discordInfoModule;
@@ -22,6 +23,7 @@ public class DiscordInfoModuleTests
     {
         _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _channelTypeStringMapper, _userTracker, new AvatarSlashCommand());
         _discordInfoModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.Channel).Returns(_channel);
     }
 
     [Fact]
