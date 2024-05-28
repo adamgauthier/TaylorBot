@@ -102,6 +102,10 @@ public class SlashCommandHandler(
     {
         var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
         activity.CommandName = commandName;
+        foreach (var option in options ?? [])
+        {
+            activity.SetOption(option.name, $"{option.value}");
+        }
 
         if (_slashCommands.Value.TryGetValue(commandName, out var slashCommand))
         {
@@ -304,20 +308,21 @@ public class SlashCommandHandler(
     private const byte SubCommandOptionType = 1;
     private const byte SubCommandGroupOptionType = 2;
 
-    private static (string, IReadOnlyList<ApplicationCommandOption>? options) GetFullCommandNameAndOptions(ApplicationCommandInteractionData data)
+    private static (string name, IReadOnlyList<ApplicationCommandOption>? options) GetFullCommandNameAndOptions(ApplicationCommandInteractionData data)
     {
-        if (data.options != null && data.options.Count == 1)
+        if (data.options?.Count == 1)
         {
-            if (data.options[0].type == SubCommandOptionType)
+            var option = data.options[0];
+            if (option.type == SubCommandOptionType)
             {
-                return ($"{data.name} {data.options[0].name}", data.options[0].options);
+                return ($"{data.name} {option.name}", option.options);
             }
-            else if (data.options[0].type == SubCommandGroupOptionType)
+            else if (option.type == SubCommandGroupOptionType)
             {
-                var subOptions = data.options[0].options;
-                if (subOptions != null && subOptions.Count == 1 && subOptions[0].type == SubCommandOptionType)
+                var subOptions = option.options;
+                if (subOptions?.Count == 1 && subOptions[0].type == SubCommandOptionType)
                 {
-                    return ($"{data.name} {data.options[0].name} {subOptions[0].name}", subOptions[0].options);
+                    return ($"{data.name} {option.name} {subOptions[0].name}", subOptions[0].options);
                 }
                 else
                 {

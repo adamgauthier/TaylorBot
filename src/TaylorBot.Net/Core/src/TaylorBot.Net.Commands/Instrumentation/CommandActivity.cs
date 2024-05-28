@@ -42,6 +42,11 @@ public sealed class CommandActivity(Activity? activity) : IDisposable
 
     public CommandType Type { set => activity?.SetTag("command.type", value); }
 
+    public void SetOption(string name, string value)
+    {
+        activity?.SetTag($"command.options.{name}", value);
+    }
+
     public void SetError(Exception? e = null)
     {
         var exceptionName = e?.GetType().Name;
