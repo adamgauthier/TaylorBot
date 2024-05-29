@@ -40,7 +40,6 @@ stages:
     componentName: entity-tracker
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.EntityTracker/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
-    deployAzureContainerApp: true
     deployAzureContainerScript: src/TaylorBot.Net/Program.EntityTracker/Deploy-EntityTracker.ps1
     pushImage: ${{ parameters.pushImage }}
     deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}

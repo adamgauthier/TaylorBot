@@ -40,7 +40,6 @@ stages:
     componentName: user-notifier
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.UserNotifier/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
-    deployAzureContainerApp: true
     deployAzureContainerScript: src/TaylorBot.Net/Program.UserNotifier/Deploy-UserNotifier.ps1
     pushImage: ${{ parameters.pushImage }}
     deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}
