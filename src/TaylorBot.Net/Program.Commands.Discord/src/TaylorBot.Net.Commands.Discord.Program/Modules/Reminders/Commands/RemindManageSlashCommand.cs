@@ -1,9 +1,11 @@
-﻿using Humanizer;
+﻿using Discord;
+using Humanizer;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Time;
 using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
@@ -24,11 +26,11 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository) : 
                 {
                     Domain = reminder,
                     UserFacingId = i + 1,
-                    Summary = $"{reminder.Text.Replace("\n", " ").Truncate(75)} ({reminder.RemindAt.Humanize(culture: TaylorBotCulture.Culture)})"
+                    Summary = $"{reminder.Text.Replace("\n", " ").Truncate(75)} ({reminder.RemindAt.FormatRelative()})"
                 }).ToList();
 
                 var content = reminderViews.Count > 0 ?
-                    string.Join("\n", reminderViews.Select(r => $"**{r.UserFacingId}:** {r.Summary}")) :
+                    string.Join("\n", reminderViews.Select(r => $"{r.UserFacingId}. {r.Summary}")) :
                     $"""
                     You don't have any reminders. 😶
                     Add one with {context.MentionCommand("remind add")}.
@@ -53,7 +55,11 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository) : 
                 );
 
                 return new MessageResult(
-                    new(EmbedFactory.CreateSuccess(content)),
+                    new(new EmbedBuilder()
+                        .WithColor(TaylorBotColors.SuccessColor)
+                        .WithTitle("Your Reminders ⏲️")
+                        .WithDescription(content)
+                        .Build()),
                     reminderViews.Count > 0 ? new(clearButtons.Append(clearAllButton).ToList()) : null
                 );
             }

@@ -5,7 +5,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
@@ -53,19 +53,24 @@ public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlus
 
                 if (await reminderRepository.GetReminderCountAsync(context.User) >= maxReminders)
                 {
-                    return new EmbedResult(EmbedFactory.CreateError(string.Join("\n", [
-                        $"Sorry, you can't have more than {maxReminders} set at the same time. 😕",
-                        $"Use {context.MentionCommand("remind manage")} to clear some of your current reminders.",
-                        $"By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}."
-                    ])));
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        $"""
+                        Sorry, you can't have more than {maxReminders} set at the same time. 😕
+                        Use {context.MentionCommand("remind manage")} to clear some of your current reminders.
+                        By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}.
+                        """
+                    ));
                 }
 
-                var remindAt = DateTimeOffset.Now + fromNow;
+                var remindAt = DateTimeOffset.UtcNow + fromNow;
 
                 await reminderRepository.AddReminderAsync(context.User, remindAt, options.text.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"Okay, I will remind you in about **{fromNow.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
+                    $"""
+                    Okay, I will you remind you {remindAt.FormatRelative()} 👍
+                    I will send you a message, make sure your DMs are not closed ✅
+                    """
                 ));
             }
         ));

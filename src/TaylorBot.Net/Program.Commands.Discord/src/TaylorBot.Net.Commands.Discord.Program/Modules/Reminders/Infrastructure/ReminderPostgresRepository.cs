@@ -23,12 +23,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    private class ReminderDto
-    {
-        public Guid reminder_id { get; set; }
-        public DateTimeOffset remind_at { get; set; }
-        public string reminder_text { get; set; } = null!;
-    }
+    private record ReminderDto(Guid reminder_id, DateTime remind_at, string reminder_text);
 
     public async ValueTask<IList<Reminder>> GetRemindersAsync(DiscordUser user)
     {
@@ -36,7 +31,8 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
 
         var reminders = await connection.QueryAsync<ReminderDto>(
             """
-            SELECT reminder_id, remind_at, reminder_text FROM users.reminders
+            SELECT reminder_id, remind_at, reminder_text
+            FROM users.reminders
             WHERE user_id = @UserId;
             """,
             new
@@ -60,7 +56,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
             new
             {
                 UserId = $"{user.Id}",
-                RemindAt = remindAt.ToUniversalTime(),
+                RemindAt = remindAt,
                 ReminderText = text,
             }
         );

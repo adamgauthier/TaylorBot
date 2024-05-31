@@ -2,6 +2,6 @@
 
 public interface IReminderRepository
 {
-    ValueTask<IReadOnlyCollection<Reminder>> GetExpiredRemindersAsync();
+    ValueTask<IReadOnlyCollection<Reminder>> GetDueRemindersAsync();
     ValueTask RemoveReminderAsync(Reminder reminder);
 }
