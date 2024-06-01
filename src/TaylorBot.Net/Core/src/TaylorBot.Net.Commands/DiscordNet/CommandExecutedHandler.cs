@@ -68,7 +68,7 @@ public class CommandExecutedHandler(
                                 You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**
                                 """;
 
-                            await ignoredUserRepository.IgnoreUntilAsync(new(context.User), DateTimeOffset.Now + ignoreTime);
+                            await ignoredUserRepository.IgnoreUntilAsync(new(context.User), DateTimeOffset.UtcNow + ignoreTime);
                         }
 
                         await context.Channel.SendMessageAsync(

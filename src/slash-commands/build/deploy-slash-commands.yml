@@ -10,88 +10,10 @@ parameters:
     default: ''
 
 steps:
+- checkout: self
 - pwsh: |
-    $ProgressPreference = 'SilentlyContinue'
-
-    # Global commands
-    $files = Get-ChildItem -File ${{ parameters.slashCommandsDir }}
-    Write-Output "Processing $($files.Count) slash command file(s)"
-
-    $jsonArray = @()
-    foreach ($file in $files) {
-      $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
-      $jsonArray += $jsonContent
-    }
-    $merged = ConvertTo-Json -Depth 100 $jsonArray
-
-    $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/commands"
-    Write-Output "Publishing to $url"
-
-    $response = Invoke-WebRequest -Uri $url `
-      -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.3.0)' `
-      -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
-      -Method 'PUT' `
-      -ContentType 'application/json' `
-      -Body $merged
-
-    Write-Output "$url ($($response.StatusCode))"
-
-    # Guild-specific commands
-    if ([string]::IsNullOrEmpty($env:GUILD_COMMANDS_GUILD_ID)) {
-      foreach ($subDir in (Get-ChildItem -Directory ${{ parameters.slashCommandsDir }}/guilds)) {
-        $files = Get-ChildItem -File -Path $subDir.FullName
-        Write-Output "Processing $($files.Count) slash command file(s)"
-
-        $jsonArray = @()
-        foreach ($file in $files) {
-          $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
-          $jsonArray += $jsonContent
-        }
-        $merged = ConvertTo-Json -Depth 100 $jsonArray
-
-        $guildId = $subDir.Name
-        $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/guilds/$guildId/commands"
-        Write-Output "Publishing $($files.Count) to $url"
-
-        $response = Invoke-WebRequest -Uri $url `
-          -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.3.0)' `
-          -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
-          -Method 'PUT' `
-          -ContentType 'application/json' `
-          -Body $merged
-
-        Write-Output "$url ($($response.StatusCode))"
-      }
-    }
-    else {
-      Write-Output "Publishing all guild commands to ${env:GUILD_COMMANDS_GUILD_ID}"
-      $guildDirs = Get-ChildItem -Directory ${{ parameters.slashCommandsDir }}/guilds
-
-      $guildCommandsArray = @()
-      foreach ($guildDir in $guildDirs) {
-        $guildCommands = Get-ChildItem -File -Path $guildDir.FullName
-        foreach ($file in $guildCommands) {
-          $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
-          $guildCommandsArray += $jsonContent
-        }
-      }
-      Write-Output "Processing $($guildCommandsArray.Count) slash command file(s)"
-
-      $merged = ConvertTo-Json -Depth 100 $guildCommandsArray
-
-      $url = "https://discord.com/api/v10/applications/${{ parameters.applicationId }}/guilds/${env:GUILD_COMMANDS_GUILD_ID}/commands"
-      Write-Output "Publishing to $url"
-
-      $guildResponse = Invoke-WebRequest -Uri $url `
-        -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.3.0)' `
-        -Headers @{ Authorization="Bot ${env:BOT_TOKEN}" } `
-        -Method 'PUT' `
-        -ContentType 'application/json' `
-        -Body $merged
-
-      Write-Output "$url ($($guildResponse.StatusCode))"
-    }
+    . '$(Build.Repository.LocalPath)/src/slash-commands/build/Deploy-SlashCommands.ps1' `
+      -ApplicationId ${{ parameters.applicationId }} `
+      -BotToken ${{ parameters.botToken }} `
+      -GuildCommandsGuildId '${{ parameters.guildCommandsGuildId }}'
   displayName: 'Push all slash commands'
-  env:
-    BOT_TOKEN: ${{ parameters.botToken }}
-    GUILD_COMMANDS_GUILD_ID: ${{ parameters.guildCommandsGuildId }}

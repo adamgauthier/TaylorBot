@@ -52,6 +52,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
@@ -162,6 +163,9 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>()
             .AddTransient<IUsernameHistoryRepository, UsernameHistoryPostgresRepository>()
             .AddTransient<IPlusUserRepository, PlusUserPostgresRepository>()
+            .AddSlashCommand<PlusShowSlashCommand>()
+            .AddSlashCommand<PlusAddSlashCommand>()
+            .AddSlashCommand<PlusRemoveSlashCommand>()
             .ConfigureRequired<GoogleOptions>(config, "Google")
             .AddSingleton(provider =>
             {

@@ -117,7 +117,7 @@ public class TaypointWillModuleTests
     {
         const uint InactiveDaysForClaim = 20;
         A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
-        var oneDayAfterThreshold = DateTimeOffset.Now.AddDays((-InactiveDaysForClaim) + 1);
+        var oneDayAfterThreshold = DateTimeOffset.UtcNow.AddDays((-InactiveDaysForClaim) + 1);
         A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
             OwnerUserId: new("1"), OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayAfterThreshold
         )});
@@ -135,7 +135,7 @@ public class TaypointWillModuleTests
         A.CallTo(() => _commandUser.Id).Returns(commandUserId.Id);
         const uint InactiveDaysForClaim = 20;
         A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
-        var oneDayBeforeThreshold = DateTimeOffset.Now.AddDays(-(InactiveDaysForClaim + 1));
+        var oneDayBeforeThreshold = DateTimeOffset.UtcNow.AddDays(-(InactiveDaysForClaim + 1));
         A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
             OwnerUserId: willOwnerId, OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayBeforeThreshold
         )});

@@ -68,7 +68,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
                     void TimerCallback(object? state)
                     {
                         if (_lastInteractionAt == null ||
-                            (DateTimeOffset.Now - _lastInteractionAt.Value).TotalSeconds > 30)
+                            (DateTimeOffset.UtcNow - _lastInteractionAt.Value).TotalSeconds > 30)
                         {
                             pageMessageReactionsHandler.OnReact -= OnReactAsync;
                             _unsubscribeTimer?.Change(Timeout.Infinite, Timeout.Infinite);
@@ -85,7 +85,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
         {
             if (reaction.Emote.Equals(PreviousEmoji))
             {
-                _lastInteractionAt = DateTimeOffset.Now;
+                _lastInteractionAt = DateTimeOffset.UtcNow;
                 await sentMessage.ModifyAsync(m =>
                 {
                     var next = options.Renderer.RenderNext();
@@ -101,7 +101,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
             }
             else if (reaction.Emote.Equals(NextEmoji))
             {
-                _lastInteractionAt = DateTimeOffset.Now;
+                _lastInteractionAt = DateTimeOffset.UtcNow;
                 await sentMessage.ModifyAsync(m =>
                 {
                     var previous = options.Renderer.RenderPrevious();

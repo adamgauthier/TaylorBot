@@ -47,7 +47,7 @@ public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger m
                 }
                 else if (author.Guild.OwnerId == author.Id || GetHighestRole(member).Position < GetHighestRole(author).Position)
                 {
-                    if (member.JoinedAt.HasValue && (DateTimeOffset.Now - member.JoinedAt.Value) > TimeSpan.FromDays(30))
+                    if (member.JoinedAt.HasValue && (DateTimeOffset.UtcNow - member.JoinedAt.Value) > TimeSpan.FromDays(30))
                     {
                         return MessageResult.CreatePrompt(
                             new(EmbedFactory.CreateWarning(

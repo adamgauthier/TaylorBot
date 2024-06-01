@@ -38,7 +38,7 @@ public class UsernamesShowSlashCommandTests
 
         A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(_runContext.User)).Returns(false);
         A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(_runContext.User, 75)).Returns(new[] {
-            new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.Now.AddDays(-1))
+            new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.UtcNow.AddDays(-1))
         });
 
         var result = (MessageResult)await (await _command.GetCommandAsync(_runContext, new(new(_runContext.User)))).RunAsync();

@@ -5,6 +5,8 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 
+public enum ContextType { Guild, DM }
+
 public class CommandUtils
 {
     public static readonly DiscordUser AUser = new(119341483219353602, "adam", "ecb368bd7eb540754c0bf5a2ce65af62", "0", IsBot: true, MemberInfo: null);
@@ -19,10 +21,13 @@ public class CommandUtils
         }
     }
 
-    public static RunContext CreateTestContext(ISlashCommand command)
+    public static RunContext CreateTestContext(ISlashCommand command, ContextType contextType = ContextType.Guild)
     {
-        CommandGuild guild = new(167845806479638529, A.Fake<IGuild>());
-        CommandChannel channel = new(167845806479638529, ChannelType.Text);
+        CommandGuild? guild = contextType == ContextType.Guild
+            ? new(167845806479638529, A.Fake<IGuild>())
+            : null;
+
+        CommandChannel channel = new(167845806479638529, contextType == ContextType.Guild ? ChannelType.Text : ChannelType.DM);
 
         return new RunContext(DateTimeOffset.UtcNow, AUser, null, channel, guild, null!, null!, new("922354806574678086", command.Info.Name), null!, null!, null!);
     }

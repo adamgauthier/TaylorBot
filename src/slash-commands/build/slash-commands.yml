@@ -24,19 +24,8 @@ variables:
   artifactName: slash-commands
 
 stages:
-- stage: publish
-  displayName: 'Publish slash commands'
-  jobs:
-  - job: publish
-    displayName: 'Publish slash commands'
-    steps:
-    - publish: '$(Build.SourcesDirectory)/src/slash-commands'
-      artifact: $(artifactName)
-      displayName: 'Publish slash command definitions'
-
 - stage: deploy_beta
   displayName: 'TaylorBot Beta'
-  dependsOn: publish
   condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
     - deployment: deploy_discord
@@ -48,14 +37,12 @@ stages:
             steps:
             - template: deploy-slash-commands.yml
               parameters:
-                slashCommandsDir: $(Pipeline.Workspace)/$(artifactName)
                 applicationId: $(taylorbot_beta_application_id)
                 botToken: $(taylorbot_beta_token_secret)
                 guildCommandsGuildId: '437399881343041536'
 
 - stage: deploy
   displayName: 'TaylorBot'
-  dependsOn: publish
   condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
   jobs:
     - deployment: deploy_discord
@@ -67,6 +54,5 @@ stages:
             steps:
             - template: deploy-slash-commands.yml
               parameters:
-                slashCommandsDir: $(Pipeline.Workspace)/$(artifactName)
                 applicationId: $(taylorbot_application_id)
                 botToken: $(taylorbot_token_secret)

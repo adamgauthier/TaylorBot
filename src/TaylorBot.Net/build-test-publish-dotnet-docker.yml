@@ -99,6 +99,7 @@ stages:
           runOnce:
             deploy:
               steps:
+              - download: none
               - checkout: self
               - task: AzureCLI@2
                 displayName: 'Deploy or update azure container app'

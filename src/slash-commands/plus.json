@@ -1,0 +1,30 @@
+{
+  "name": "plus",
+  "description": "Support TaylorBot and get exclusive perks for you and your server",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
+  "options": [
+    {
+      "name": "show",
+      "description": "Get basic information about your TaylorBot Plus membership",
+      "type": 1
+    },
+    {
+      "name": "add",
+      "description": "Add this server to your TaylorBot Plus servers, giving it access to exclusive perks",
+      "type": 1
+    },
+    {
+      "name": "remove",
+      "description": "Remove this server from your TaylorBot Plus servers, losing access to exclusive perks",
+      "type": 1
+    }
+  ]
+}

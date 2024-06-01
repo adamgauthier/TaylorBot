@@ -1,4 +1,4 @@
-﻿using Discord;
+﻿using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 
@@ -6,7 +6,7 @@ public record PlusUser(bool IsActive, int MaxPlusGuilds, IReadOnlyCollection<str
 
 public interface IPlusUserRepository
 {
-    ValueTask<PlusUser?> GetPlusUserAsync(IUser user);
-    ValueTask AddPlusGuildAsync(IUser user, IGuild guild);
-    ValueTask DisablePlusGuildAsync(IUser user, IGuild guild);
+    ValueTask<PlusUser?> GetPlusUserAsync(DiscordUser user);
+    ValueTask AddPlusGuildAsync(DiscordUser user, CommandGuild guild);
+    ValueTask DisablePlusGuildAsync(DiscordUser user, CommandGuild guild);
 }

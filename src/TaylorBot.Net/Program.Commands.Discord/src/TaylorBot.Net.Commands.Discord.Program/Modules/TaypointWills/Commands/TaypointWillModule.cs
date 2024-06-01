@@ -163,7 +163,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
         {
             var wills = await taypointWillRepository.GetWillsWithBeneficiaryAsync(Context.User);
 
-            var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.Now.AddDays(-options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
+            var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.UtcNow.AddDays(-options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
             var expiredWills = isInactive[true].ToList();
 
             var embed = new EmbedBuilder();

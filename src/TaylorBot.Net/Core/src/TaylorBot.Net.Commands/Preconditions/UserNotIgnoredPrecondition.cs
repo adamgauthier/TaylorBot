@@ -22,7 +22,7 @@ public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserReposi
 
         await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
 
-        return DateTimeOffset.Now < getUserIgnoreUntilResult.IgnoreUntil ?
+        return context.CreatedAt < getUserIgnoreUntilResult.IgnoreUntil ?
             new PreconditionFailed(
                 PrivateReason: $"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}",
                 UserReason: new(

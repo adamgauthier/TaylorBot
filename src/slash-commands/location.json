@@ -31,7 +31,7 @@
       "options": [
         {
           "name": "location",
-          "description": "The location where you are (give an approximate nearby city)",
+          "description": "The location where you are (give a nearby city or state)",
           "type": 3,
           "required": true
         }

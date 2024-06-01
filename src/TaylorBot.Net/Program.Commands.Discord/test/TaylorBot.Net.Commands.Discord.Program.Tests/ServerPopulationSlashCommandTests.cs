@@ -15,7 +15,7 @@ public class ServerPopulationSlashCommandTests
 
     public ServerPopulationSlashCommandTests()
     {
-        _command = new ServerPopulationSlashCommand(_serverStatsRepository);
+        _command = new(_serverStatsRepository);
         _runContext = CommandUtils.CreateTestContext(_command);
     }
 

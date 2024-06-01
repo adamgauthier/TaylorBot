@@ -21,10 +21,10 @@ public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepositor
             new(Info.Name),
             async () =>
             {
-                await ignoredUserRepository.IgnoreUntilAsync(options.user.User, DateTimeOffset.Now + options.time.Value);
+                await ignoredUserRepository.IgnoreUntilAsync(options.user.User, DateTimeOffset.UtcNow + options.time.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"Ignoring {options.user.User.FormatTagAndMention()} for **{options.time.Value.Humanize(culture: TaylorBotCulture.Culture)}**. 👍"
+                    $"Ignoring {options.user.User.FormatTagAndMention()} for **{options.time.Value.Humanize(culture: TaylorBotCulture.Culture)}** 👍"
                 ));
             },
             Preconditions: [

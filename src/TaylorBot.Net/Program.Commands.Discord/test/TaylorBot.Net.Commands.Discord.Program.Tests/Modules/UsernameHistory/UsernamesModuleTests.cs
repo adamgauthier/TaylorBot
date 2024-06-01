@@ -46,7 +46,7 @@ public class UsernamesModuleTests
 
         A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(_commandUser))).Returns(false);
         A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(new(_commandUser), 75)).Returns(new[] {
-            new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.Now.AddDays(-1))
+            new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.UtcNow.AddDays(-1))
         });
 
         var result = (await _usernamesModule.GetAsync()).GetResult<PageMessageResult>();

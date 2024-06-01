@@ -25,7 +25,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         UserReason: new(
                             $"""
                             You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** members.
-                            {await PlusInfoAsync(context)}
+                            {PlusInfo()}
                             """)
                     ),
 
@@ -37,7 +37,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         UserReason: new(
                             $"""
                             You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** servers.
-                            {await PlusInfoAsync(context)}
+                            {PlusInfo()}
                             """)
                     ),
 
@@ -49,7 +49,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         UserReason: new(
                             $"""
                             You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** members or servers.
-                            {await PlusInfoAsync(context)}
+                            {PlusInfo()}
                             """)
                     ),
 
@@ -62,12 +62,12 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
         return context.Guild != null && await plusRepository.IsActivePlusGuildAsync(context.Guild);
     }
 
-    private static async Task<string> PlusInfoAsync(RunContext context)
+    private static string PlusInfo()
     {
         return
             $"""
-            TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}.
-            Some features are exclusive to **TaylorBot Plus**, learn more by using `{await context.CommandPrefix.Value}plus`.
+            TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")} 💖
+            Some features are exclusive to **TaylorBot Plus**, learn more by using **/plus show** 💎
             """;
     }
 }

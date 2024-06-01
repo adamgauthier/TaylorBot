@@ -48,6 +48,7 @@ public record RunContext(
 }
 
 public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);
+
 public record CommandMetadata(string Name, string? ModuleName = null, IReadOnlyList<string>? Aliases = null);
 
 public interface ICommandRunner

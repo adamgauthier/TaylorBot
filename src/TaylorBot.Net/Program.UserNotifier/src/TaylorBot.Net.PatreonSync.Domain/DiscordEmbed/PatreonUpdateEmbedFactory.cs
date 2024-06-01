@@ -20,7 +20,7 @@ public class PatreonUpdateEmbedFactory
                         I just detected that you are now supporting me on Patreon, thank you so much! 🥺
                         This gives you access to exclusive features for you and your favorite servers! ⚡
                         Patreon only charges you at the start of every month, and when that happens, you'll also receive taypoints! 🎁
-                        To learn more, take a look at your membership status by typing `plus`. 👀
+                        To learn more, take a look at your membership status by typing **/plus show**. 👀
                         """)
                 .Build();
 

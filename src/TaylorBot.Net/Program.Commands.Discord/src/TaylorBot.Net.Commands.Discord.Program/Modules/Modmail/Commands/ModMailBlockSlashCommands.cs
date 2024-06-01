@@ -40,8 +40,8 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
                     {
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
-                            You've reached the limit of blocked users ({MaxBlockedUsersPerGuild}). 😕
-                            Consider making this server a TaylorBot Plus server (`{await context.CommandPrefix.Value}plus add`) to remove this limit.
+                            You've reached the limit of blocked users ({MaxBlockedUsersPerGuild}) 😕
+                            Use {context.MentionCommand("plus add")} to remove this limit 💎
                             """));
                     }
                 }

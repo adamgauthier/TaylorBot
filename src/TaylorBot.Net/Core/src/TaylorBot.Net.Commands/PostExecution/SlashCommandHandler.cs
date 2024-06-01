@@ -224,7 +224,7 @@ public class SlashCommandHandler(
                             $"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**",
                         ];
 
-                        await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.Now + ignoreTime);
+                        await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.UtcNow + ignoreTime);
                     }
 
                     await interactionResponseClient.SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
@@ -282,7 +282,7 @@ public class SlashCommandHandler(
         var user = interaction.User;
 
         return new RunContext(
-            DateTimeOffset.Now,
+            DateTimeOffset.UtcNow,
             new(
                 user.id,
                 user.username,
