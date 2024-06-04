@@ -67,7 +67,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
         return
             $"""
             TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")} 💖
-            Some features are exclusive to **TaylorBot Plus**, learn more by using **/plus show** 💎
+            Some features are exclusive to **TaylorBot Plus**, learn more by using </plus show:1246970937321066608> 💎
             """;
     }
 }

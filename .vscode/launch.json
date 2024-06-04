@@ -117,6 +117,16 @@
             ]
         },
         {
+            "name": "Deploy-SlashCommands",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/slash-commands/build/Deploy-SlashCommands.ps1",
+            "args": [
+                "-ApplicationId ${input:applicationId}",
+                "-BotToken ${input:botToken}",
+            ]
+        },
+        {
             "name": "Open-GlobalSolution",
             "type": "PowerShell",
             "request": "launch",
@@ -134,6 +144,18 @@
             "id": "backupFile",
             "type": "promptString",
             "description": "Path to a backup .sql file to restore from, leave empty for fresh deployment",
+            "default": ""
+        },
+        {
+            "id": "applicationId",
+            "type": "promptString",
+            "description": "Discord Application ID (found in https://discord.com/developers/applications)",
+            "default": ""
+        },
+        {
+            "id": "botToken",
+            "type": "promptString",
+            "description": "Discord Bot Token",
             "default": ""
         },
     ]

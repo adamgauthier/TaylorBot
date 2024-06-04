@@ -105,7 +105,8 @@ public class TaylorBotClient : ITaylorBotClient
 
     private Task ShardReadyAsync(DiscordSocketClient shardClient)
     {
-        _logger.LogInformation("Shard Number {ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}.", shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count);
+        _logger.LogInformation("Shard Number {ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}. {SharedReadyCount}/{ShardCount} shards ready",
+            shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count, shardReadyCount, DiscordShardedClient.Shards.Count);
 
         Interlocked.Increment(ref shardReadyCount);
         if (shardReadyCount >= DiscordShardedClient.Shards.Count)

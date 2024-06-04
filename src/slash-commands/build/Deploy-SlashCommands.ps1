@@ -12,9 +12,12 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $ProgressPreference = 'SilentlyContinue'
 
+[System.ArgumentException]::ThrowIfNullOrWhiteSpace($ApplicationId, "ApplicationId")
+[System.ArgumentException]::ThrowIfNullOrWhiteSpace($BotToken, "BotToken")
+
 # Global commands
 $slashCommandsDir = "$PSScriptRoot/.."
-$files = Get-ChildItem -File $slashCommandsDir
+[array] $files = Get-ChildItem -File -Path $slashCommandsDir
 Write-Output "Processing $($files.Count) slash command file(s)"
 
 $jsonArray = @()
@@ -39,19 +42,19 @@ Write-Output "$url ($($response.StatusCode))"
 # Guild-specific commands
 if ([string]::IsNullOrEmpty($GuildCommandsGuildId)) {
     foreach ($subDir in (Get-ChildItem -Directory "$slashCommandsDir/guilds")) {
-        $files = Get-ChildItem -File -Path $subDir.FullName
-        Write-Output "Processing $($files.Count) slash command file(s)"
+        [array] $guildFiles = Get-ChildItem -File -Path $subDir.FullName
+        Write-Output "Processing $($guildFiles.Count) slash command file(s)"
 
         $jsonArray = @()
-        foreach ($file in $files) {
-            $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
+        foreach ($guildFile in $guildFiles) {
+            $jsonContent = Get-Content $guildFile.FullName | ConvertFrom-Json
             $jsonArray += $jsonContent
         }
         $merged = ConvertTo-Json -Depth 100 $jsonArray
 
         $guildId = $subDir.Name
         $url = "https://discord.com/api/v10/applications/$ApplicationId/guilds/$guildId/commands"
-        Write-Output "Publishing $($files.Count) to $url"
+        Write-Output "Publishing $($guildFiles.Count) to $url"
 
         $response = Invoke-WebRequest -Uri $url `
             -UserAgent 'TaylorBot-Deploy (https://taylorbot.app/, 0.3.0)' `
@@ -65,11 +68,11 @@ if ([string]::IsNullOrEmpty($GuildCommandsGuildId)) {
 }
 else {
     Write-Output "Publishing all guild commands to $GuildCommandsGuildId"
-    $guildDirs = Get-ChildItem -Directory "$slashCommandsDir/guilds"
+    [array] $guildDirs = Get-ChildItem -Directory "$slashCommandsDir/guilds"
 
     $guildCommandsArray = @()
     foreach ($guildDir in $guildDirs) {
-        $guildCommands = Get-ChildItem -File -Path $guildDir.FullName
+        [array] $guildCommands = Get-ChildItem -File -Path $guildDir.FullName
         foreach ($file in $guildCommands) {
             $jsonContent = Get-Content $file.FullName | ConvertFrom-Json
             $guildCommandsArray += $jsonContent

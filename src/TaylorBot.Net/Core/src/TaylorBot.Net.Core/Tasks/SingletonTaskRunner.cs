@@ -21,13 +21,13 @@ public class SingletonTaskRunner(ILogger<SingletonTaskRunner> logger, TaskExcept
                 }
                 else
                 {
-                    logger.LogWarning("Attempted to start task but it was already started.");
+                    logger.LogWarning("Attempted to start {TaskName} but it was already started.", taskName);
                 }
             }
         }
         else
         {
-            logger.LogWarning("Attempted to start task but it was already started.");
+            logger.LogWarning("Attempted to start {TaskName} but it was already started.", taskName);
         }
 
         return _runningTask;
