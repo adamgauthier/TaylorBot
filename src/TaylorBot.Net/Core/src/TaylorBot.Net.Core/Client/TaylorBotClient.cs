@@ -11,7 +11,6 @@ namespace TaylorBot.Net.Core.Client;
 
 public interface ITaylorBotClient
 {
-    event Func<Task> AllShardsReady;
     event Func<Interaction, Task> InteractionCreated;
 
     DiscordShardedClient DiscordShardedClient { get; }
@@ -33,15 +32,6 @@ public class TaylorBotClient : ITaylorBotClient
     private readonly ILogSeverityToLogLevelMapper _logSeverityToLogLevelMapper;
     private readonly TaylorBotToken _taylorBotToken;
     private readonly RawEventsHandler _rawEventsHandler;
-
-    private int shardReadyCount = 0;
-
-    private readonly AsyncEvent<Func<Task>> _allShardsReadyEvent = new();
-    public event Func<Task> AllShardsReady
-    {
-        add { _allShardsReadyEvent.Add(value); }
-        remove { _allShardsReadyEvent.Remove(value); }
-    }
 
     private readonly AsyncEvent<Func<Interaction, Task>> _interactionCreatedEvent = new();
     public event Func<Interaction, Task> InteractionCreated
@@ -105,15 +95,8 @@ public class TaylorBotClient : ITaylorBotClient
 
     private Task ShardReadyAsync(DiscordSocketClient shardClient)
     {
-        _logger.LogInformation("Shard Number {ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}. {SharedReadyCount}/{ShardCount} shards ready",
-            shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count, shardReadyCount, DiscordShardedClient.Shards.Count);
-
-        Interlocked.Increment(ref shardReadyCount);
-        if (shardReadyCount >= DiscordShardedClient.Shards.Count)
-        {
-            _logger.LogInformation("All {ShardCountText} ready!", "shard".ToQuantity(DiscordShardedClient.Shards.Count));
-            return _allShardsReadyEvent.InvokeAsync();
-        }
+        _logger.LogInformation("Shard #{ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}. ShardCount {ShardCount}",
+            shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count, DiscordShardedClient.Shards.Count);
 
         return Task.CompletedTask;
     }

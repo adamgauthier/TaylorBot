@@ -18,6 +18,8 @@ public class RedditNotifierService(
 {
     public async Task StartCheckingRedditsAsync()
     {
+        await Task.Delay(TimeSpan.FromSeconds(30));
+
         while (true)
         {
             try

@@ -1,8 +1,11 @@
 ﻿using Discord.WebSocket;
+using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.InstagramNotifier.Domain;
+using TaylorBot.Net.PatreonSync.Domain;
 using TaylorBot.Net.RedditNotifier.Domain;
+using TaylorBot.Net.Reminder.Domain;
 using TaylorBot.Net.TumblrNotifier.Domain;
 using TaylorBot.Net.YoutubeNotifier.Domain;
 
@@ -16,7 +19,18 @@ public class ShardReadyHandler(
     RedditNotifierService redditNotiferService,
     YoutubeNotifierService youtubeNotiferService,
     TumblrNotifierService tumblrNotifierService,
-    InstagramNotifierService instagramNotifierService
+    InstagramNotifierService instagramNotifierService,
+    SingletonTaskRunner birthdayCalendarSingletonTaskRunner,
+    BirthdayCalendarDomainService birthdayCalendarDomainService,
+    SingletonTaskRunner reminderSingletonTaskRunner,
+    ReminderNotifierDomainService reminderNotifierDomainService,
+    SingletonTaskRunner patreonSyncSingletonTaskRunner,
+    PatreonSyncDomainService patreonSyncDomainService,
+    SingletonTaskRunner birthdayRoleAddSingletonTaskRunner,
+    SingletonTaskRunner birthdayRoleRemoveSingletonTaskRunner,
+    BirthdayRoleDomainService birthdayRoleDomainService,
+    SingletonTaskRunner birthdaySingletonTaskRunner,
+    BirthdayRewardNotifierDomainService birthdayRewardNotifierDomainService
     ) : IShardReadyHandler
 {
     public Task ShardReadyAsync(DiscordSocketClient shardClient)
@@ -39,6 +53,36 @@ public class ShardReadyHandler(
         _ = instagramSingletonTaskRunner.StartTaskIfNotStarted(
             instagramNotifierService.StartCheckingInstagramsAsync,
             nameof(InstagramNotifierService)
+        );
+
+        _ = birthdayCalendarSingletonTaskRunner.StartTaskIfNotStarted(
+            birthdayCalendarDomainService.StartRefreshingBirthdayCalendarAsync,
+            nameof(birthdayCalendarDomainService.StartRefreshingBirthdayCalendarAsync)
+        );
+
+        _ = reminderSingletonTaskRunner.StartTaskIfNotStarted(
+            reminderNotifierDomainService.StartCheckingRemindersAsync,
+            nameof(ReminderNotifierDomainService)
+        );
+
+        _ = patreonSyncSingletonTaskRunner.StartTaskIfNotStarted(
+            patreonSyncDomainService.StartSyncingPatreonSupportersAsync,
+            nameof(PatreonSyncDomainService)
+        );
+
+        _ = birthdayRoleAddSingletonTaskRunner.StartTaskIfNotStarted(
+            birthdayRoleDomainService.StartAddingBirthdayRolesAsync,
+            nameof(birthdayRoleDomainService.StartAddingBirthdayRolesAsync)
+        );
+
+        _ = birthdayRoleRemoveSingletonTaskRunner.StartTaskIfNotStarted(
+            birthdayRoleDomainService.StartRemovingBirthdayRolesAsync,
+            nameof(birthdayRoleDomainService.StartRemovingBirthdayRolesAsync)
+        );
+
+        _ = birthdaySingletonTaskRunner.StartTaskIfNotStarted(
+            birthdayRewardNotifierDomainService.StartCheckingBirthdaysAsync,
+            nameof(BirthdayRewardNotifierDomainService)
         );
 
         return Task.CompletedTask;

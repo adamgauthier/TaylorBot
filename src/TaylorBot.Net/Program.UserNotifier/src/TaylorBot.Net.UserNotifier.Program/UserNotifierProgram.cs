@@ -96,7 +96,6 @@ public class UserNotifierProgram
                     .ConfigureRequired<MemberBanLoggingOptions>(config, "MemberBan")
                     .ConfigureRequired<PatreonSyncOptions>(config, "PatreonSync")
                     .AddTransient<IShardReadyHandler, ShardReadyHandler>()
-                    .AddTransient<IAllReadyHandler, ReadyHandler>()
                     .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
                     .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
                     .AddTransient<IGuildUserUnbannedHandler, GuildUserBanHandler>()

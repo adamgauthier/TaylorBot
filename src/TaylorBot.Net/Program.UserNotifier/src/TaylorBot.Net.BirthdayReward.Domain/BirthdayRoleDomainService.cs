@@ -35,6 +35,8 @@ public class BirthdayRoleDomainService(
 {
     public async Task StartAddingBirthdayRolesAsync()
     {
+        await Task.Delay(TimeSpan.FromMinutes(1));
+
         while (true)
         {
             var options = optionsMonitor.CurrentValue;
@@ -124,6 +126,8 @@ public class BirthdayRoleDomainService(
 
     public async Task StartRemovingBirthdayRolesAsync()
     {
+        await Task.Delay(TimeSpan.FromMinutes(1));
+
         while (true)
         {
             var options = optionsMonitor.CurrentValue;

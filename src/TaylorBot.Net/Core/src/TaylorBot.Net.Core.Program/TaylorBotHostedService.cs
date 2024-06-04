@@ -81,19 +81,6 @@ public class TaylorBotHostedService(IServiceProvider services) : IHostedService
             }, [GatewayIntents.Guilds, GatewayIntents.GuildMembers]);
         }
 
-        var allReadyHandler = services.GetService<IAllReadyHandler>();
-        if (allReadyHandler != null)
-        {
-            yield return new EventHandlerRegistrar((client) =>
-            {
-                client.AllShardsReady += async () =>
-                    await _taskExceptionLogger.LogOnError(async () =>
-                        await allReadyHandler.AllShardsReadyAsync(),
-                        nameof(IAllReadyHandler)
-                    );
-            }, [GatewayIntents.Guilds, GatewayIntents.GuildMembers]);
-        }
-
         var interactionHandler = services.GetService<IInteractionCreatedHandler>();
         if (interactionHandler != null)
         {

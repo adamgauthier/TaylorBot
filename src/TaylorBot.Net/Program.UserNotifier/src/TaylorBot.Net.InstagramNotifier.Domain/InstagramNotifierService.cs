@@ -17,6 +17,8 @@ public class InstagramNotifierService(
 {
     public async Task StartCheckingInstagramsAsync()
     {
+        await Task.Delay(TimeSpan.FromSeconds(30));
+
         while (true)
         {
             try

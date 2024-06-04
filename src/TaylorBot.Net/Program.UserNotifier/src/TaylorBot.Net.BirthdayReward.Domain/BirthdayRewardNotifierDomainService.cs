@@ -23,6 +23,8 @@ public class BirthdayRewardNotifierDomainService(
 {
     public async Task StartCheckingBirthdaysAsync()
     {
+        await Task.Delay(TimeSpan.FromMinutes(5));
+
         while (true)
         {
             try
