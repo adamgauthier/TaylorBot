@@ -40,6 +40,7 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
                     SELECT user_id
                     FROM guilds.guild_members
                     WHERE guild_id = '115332333745340416'
+                    AND alive = TRUE
                     AND message_count > 1300
                     AND minute_count > 1300
                     AND first_joined_at <= (CURRENT_TIMESTAMP - INTERVAL '30 day')
@@ -75,10 +76,10 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(
                         $"""
-                        {(whatIf ? "[SIMULATION] " : "")}Added **{roleAdded.Count}** members to feedback. 👍
-                        Considered a total of **{members.Count}** members who met requirements. ✅
-                        **{alreadyHaveRole.Count}** members already had the role. 🧓
-                        Unexpected errors happened with **{unexpectedError.Count}** members. 🐛
+                        {(whatIf ? "[SIMULATION] " : "")}Added **{roleAdded.Count}** members to feedback 👍
+                        Considered a total of **{members.Count}** members who met requirements ✅
+                        **{alreadyHaveRole.Count}** members already had the role 🧓
+                        Unexpected errors happened with **{unexpectedError.Count}** members 🐛
                         {string.Join(", ", roleAdded.Select(r => r.FormatTagAndMention()))}
                         """.Truncate(EmbedBuilder.MaxDescriptionLength))
                     .WithFooter($"Took {stopwatch.Elapsed.Humanize()}")
@@ -94,7 +95,7 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
 
     private async Task AddMemberToFeedback(RunContext context, bool whatIf, IGuild guild, MemberDto member, List<IGuildUser> roleAdded, List<MemberDto> unresolvedGuildMember, List<IGuildUser> alreadyHaveRole)
     {
-        var guildUser = await client.ResolveGuildUserAsync(guild, new(member.user_id));
+        var guildUser = await client.ResolveGuildUserAsync(guild, member.user_id);
         if (guildUser != null)
         {
             if (!guildUser.RoleIds.Any(i => i == FeedbackRoleId))
@@ -103,7 +104,7 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
                 {
                     await guildUser.AddRoleAsync(FeedbackRoleId, new()
                     {
-                        AuditLogReason = $"Feedback command triggered by {context.User.Username} ({context.User.Id})"
+                        AuditLogReason = $"Feedback command triggered by {context.User.Username} ({context.User.Id})",
                     });
 
                     await Task.Delay(TimeSpan.FromMilliseconds(100));
@@ -123,8 +124,5 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
         }
     }
 
-    private record MemberDto
-    {
-        public string user_id { get; set; } = null!;
-    }
+    private record MemberDto(string user_id);
 }

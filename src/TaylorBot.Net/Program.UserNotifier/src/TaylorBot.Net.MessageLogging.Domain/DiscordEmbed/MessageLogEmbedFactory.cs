@@ -69,7 +69,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
 
                     if (message.Attachments.Count > 0)
                     {
-                        builder.AddField("Attachments", string.Join(" ", message.Attachments.Select(a => a.ProxyUrl)));
+                        builder.AddField("Attachments", string.Join(" ", message.Attachments.Select(a => a.ProxyUrl)).Truncate(EmbedFieldBuilder.MaxFieldValueLength));
 
                         var previewAttachment = message.Attachments.FirstOrDefault(a => a.ContentType?.StartsWith("image") == true)
                             ?? message.Attachments.First();
@@ -97,17 +97,17 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                 case TaylorBotCachedMessageData taylorBot:
                     builder
                         .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
-                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
+                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
 
                     if (!string.IsNullOrWhiteSpace(taylorBot.ReplyingToId))
                     {
                         builder.AddField("Replying To", taylorBot.ReplyingToId.LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true);
                     }
 
-                    if (taylorBot.AttachmentUrls?.Any() == true)
+                    if (taylorBot.AttachmentUrls?.Count > 0)
                     {
                         builder
-                            .AddField("Attachments", string.Join(" ", taylorBot.AttachmentUrls))
+                            .AddField("Attachments", string.Join(" ", taylorBot.AttachmentUrls).Truncate(EmbedFieldBuilder.MaxFieldValueLength))
                             .WithImageUrl(taylorBot.AttachmentUrls[0]);
                     }
 
@@ -126,7 +126,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
         }
         else
         {
-            builder.AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
+            builder.AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
         }
 
         return builder;
@@ -212,7 +212,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
 
                     builder
                         .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
-                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
+                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
                     break;
             }
         }
@@ -239,7 +239,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
 
             builder
                 .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
-                .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id.Id).FormatRelative(), inline: true);
+                .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
         }
 
         return builder.Build();
@@ -274,7 +274,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
             .AddField("Channel", channel.Mention, inline: true)
             .WithTitle($"{"uncached message".ToQuantity(chunk.Length)} deleted (Id - Sent)")
             .WithDescription(string.Join('\n', chunk.Select(uncached =>
-                $"`{uncached.Id}` - {SnowflakeUtils.FromSnowflake(uncached.Id.Id).FormatRelative()}"
+                $"`{uncached.Id}` - {SnowflakeUtils.FromSnowflake(uncached.Id).FormatRelative()}"
             )))
             .WithFooter($"{chunk.Length}/{footerText}")
             .Build()
