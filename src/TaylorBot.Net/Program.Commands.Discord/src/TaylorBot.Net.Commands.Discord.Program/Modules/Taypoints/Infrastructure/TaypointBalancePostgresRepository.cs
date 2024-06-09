@@ -99,4 +99,33 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
             commandTimeout: (int)TimeSpan.FromMinutes(1).TotalSeconds
         );
     }
+
+    public async ValueTask UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        await connection.ExecuteAsync(
+            """
+            UPDATE guilds.guild_members gm
+            SET last_known_taypoint_count = u.taypoint_count
+            FROM (
+                SELECT user_id
+                FROM guilds.guild_members
+                WHERE guild_id = @GuildId
+                AND alive = TRUE
+                AND minute_count > 0
+                AND last_spoke_at IS NOT NULL AND last_spoke_at >= CURRENT_TIMESTAMP - interval '12 hours'
+            ) recently_active
+            JOIN users.users u ON recently_active.user_id = u.user_id
+            WHERE gm.guild_id = @GuildId
+            AND gm.user_id = recently_active.user_id
+            AND u.is_bot = FALSE;
+            """,
+            new
+            {
+                GuildId = $"{guild.Id}",
+            },
+            commandTimeout: (int)TimeSpan.FromMinutes(1).TotalSeconds
+        );
+    }
 }

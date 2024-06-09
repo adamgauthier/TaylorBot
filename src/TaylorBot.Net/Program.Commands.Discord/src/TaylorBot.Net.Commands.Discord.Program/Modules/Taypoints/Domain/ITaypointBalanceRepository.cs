@@ -22,6 +22,7 @@ public interface ITaypointBalanceRepository
     ValueTask UpdateLastKnownPointCountAsync(DiscordMember member, long updatedCount);
     ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);
     ValueTask UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates);
+    ValueTask UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild);
 }
 
 

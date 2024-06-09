@@ -24,8 +24,8 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
             new(Info.Name),
             async () =>
             {
-                ArgumentNullException.ThrowIfNull(context.Guild);
                 var guild = context.Guild;
+                ArgumentNullException.ThrowIfNull(guild?.Fetched);
 
                 var leaderboard = await taypointBalanceRepository.GetLeaderboardAsync(guild);
                 UpdateLastKnownPointCountsInBackground(guild, leaderboard);
@@ -33,13 +33,10 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
                 // We requested more rows than necessary to update their last known point counts
                 var leaderboardToDisplay = leaderboard.Take(150).ToList();
 
-                if (guild.Fetched != null)
-                {
-                    memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
-                        nameof(TaypointsLeaderboardSlashCommand),
-                        guild.Fetched,
-                        leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id)).ToList());
-                }
+                memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
+                    nameof(TaypointsLeaderboardSlashCommand),
+                    guild.Fetched,
+                    leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id)).ToList());
 
                 var pages = leaderboardToDisplay.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"taypoint".ToQuantity(entry.last_known_taypoint_count, TaylorBotFormats.BoldReadable)}"
@@ -75,6 +72,8 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
 
     private void UpdateLastKnownPointCountsInBackground(CommandGuild guild, IList<TaypointLeaderboardEntry> leaderboard)
     {
+        taypointGuildCacheUpdater.UpdateLastKnownPointCountsForRecentlyActiveMembersInBackground(guild);
+
         var updates = leaderboard
             .Where(e => e.last_known_taypoint_count != e.taypoint_count)
             .Select(e => new TaypointCountUpdate(e.user_id, e.taypoint_count))

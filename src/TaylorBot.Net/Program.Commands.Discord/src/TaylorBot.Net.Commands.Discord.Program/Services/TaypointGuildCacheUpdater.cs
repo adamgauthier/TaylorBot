@@ -34,4 +34,12 @@ public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger
             logger.LogDebug("No last known point counts to update");
         }
     }
+
+    public void UpdateLastKnownPointCountsForRecentlyActiveMembersInBackground(CommandGuild guild)
+    {
+        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+            async () => await taypointBalanceRepository.UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(guild),
+            nameof(taypointBalanceRepository.UpdateLastKnownPointCountsAsync)
+        ));
+    }
 }
