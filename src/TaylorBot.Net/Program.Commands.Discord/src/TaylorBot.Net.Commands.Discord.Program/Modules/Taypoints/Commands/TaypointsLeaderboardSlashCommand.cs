@@ -11,10 +11,15 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypointBalanceRepository, MemberNotInGuildUpdater memberNotInGuildUpdater, TaypointGuildCacheUpdater taypointGuildCacheUpdater) : ISlashCommand<NoOptions>
+public class TaypointsLeaderboardSlashCommand(
+    ITaypointBalanceRepository taypointBalanceRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    TaypointGuildCacheUpdater taypointGuildCacheUpdater,
+    TaskExceptionLogger taskExceptionLogger) : ISlashCommand<NoOptions>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints leaderboard");
 
@@ -72,13 +77,19 @@ public class TaypointsLeaderboardSlashCommand(ITaypointBalanceRepository taypoin
 
     private void UpdateLastKnownPointCountsInBackground(CommandGuild guild, IList<TaypointLeaderboardEntry> leaderboard)
     {
-        taypointGuildCacheUpdater.UpdateLastKnownPointCountsForRecentlyActiveMembersInBackground(guild);
+        _ = taskExceptionLogger.LogOnError(
+            async () =>
+            {
+                var updates = leaderboard
+                    .Where(e => e.last_known_taypoint_count != e.taypoint_count)
+                    .Select(e => new TaypointCountUpdate(e.user_id, e.taypoint_count))
+                    .ToList();
 
-        var updates = leaderboard
-            .Where(e => e.last_known_taypoint_count != e.taypoint_count)
-            .Select(e => new TaypointCountUpdate(e.user_id, e.taypoint_count))
-            .ToList();
+                await taypointGuildCacheUpdater.UpdateLastKnownPointCountsAsync(guild, updates);
 
-        taypointGuildCacheUpdater.UpdateLastKnownPointCountsInBackground(guild, updates);
+                await taypointGuildCacheUpdater.UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(guild);
+            },
+            nameof(UpdateLastKnownPointCountsInBackground)
+        );
     }
 }

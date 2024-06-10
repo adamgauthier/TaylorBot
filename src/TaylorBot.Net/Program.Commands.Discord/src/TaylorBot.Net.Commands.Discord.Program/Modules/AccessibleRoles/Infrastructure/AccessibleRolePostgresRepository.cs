@@ -161,9 +161,11 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"UPDATE guilds.guild_accessible_roles
-                SET group_name = NULL
-                WHERE guild_id = @GuildId AND role_id = @RoleId;",
+            """
+            UPDATE guilds.guild_accessible_roles
+            SET group_name IS NULL
+            WHERE guild_id = @GuildId AND role_id = @RoleId;
+            """,
             new
             {
                 GuildId = role.Guild.Id.ToString(),

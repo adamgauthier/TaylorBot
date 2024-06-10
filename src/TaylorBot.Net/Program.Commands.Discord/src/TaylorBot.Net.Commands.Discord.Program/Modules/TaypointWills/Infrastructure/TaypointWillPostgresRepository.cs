@@ -165,7 +165,7 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
                 ),
                 sum_gifters AS (
                     SELECT SUM(taypoint_count) AS sum_taypoints FROM old_u
-                    WHERE user_id <> @ReceiverId
+                    WHERE user_id IS DISTINCT FROM @ReceiverId
                 )
                 UPDATE users.users AS u
                 SET taypoint_count = (CASE

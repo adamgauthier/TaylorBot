@@ -7,13 +7,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructur
 
 public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointBalanceRepository
 {
-    private record TaypointBalanceDto(long taypoint_count);
-
-    public async ValueTask<TaypointBalance> GetBalanceAsync(DiscordUser user)
+    public async ValueTask<long> GetBalanceAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        var balance = await connection.QuerySingleAsync<TaypointBalanceDto>(
+        var balance = await connection.QuerySingleAsync<long>(
             "SELECT taypoint_count FROM users.users WHERE user_id = @UserId;",
             new
             {
@@ -21,18 +19,19 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
             }
         );
 
-        return new(balance.taypoint_count, null);
+        return balance;
     }
 
-    public async ValueTask UpdateLastKnownPointCountAsync(DiscordMember member, long updatedCount)
+    public async Task<int> UpdateLastKnownPointCountAsync(DiscordMember member, long updatedCount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        await connection.ExecuteAsync(
+        return await connection.ExecuteAsync(
             """
             UPDATE guilds.guild_members
             SET last_known_taypoint_count = @TaypointCount
-            WHERE guild_id = @GuildId AND user_id = @UserId;
+            WHERE guild_id = @GuildId AND user_id = @UserId
+            AND last_known_taypoint_count IS DISTINCT FROM @TaypointCount;
             """,
             new
             {
@@ -68,7 +67,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
         )).ToList();
     }
 
-    public async ValueTask UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
+    public async Task UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
     {
         List<string> userIds = [];
         List<long> counts = [];
@@ -100,11 +99,11 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
         );
     }
 
-    public async ValueTask UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild)
+    public async Task<int> UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        await connection.ExecuteAsync(
+        return await connection.ExecuteAsync(
             """
             UPDATE guilds.guild_members gm
             SET last_known_taypoint_count = u.taypoint_count
@@ -119,7 +118,8 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
             JOIN users.users u ON recently_active.user_id = u.user_id
             WHERE gm.guild_id = @GuildId
             AND gm.user_id = recently_active.user_id
-            AND u.is_bot = FALSE;
+            AND u.is_bot = FALSE
+            AND last_known_taypoint_count IS DISTINCT FROM u.taypoint_count;
             """,
             new
             {

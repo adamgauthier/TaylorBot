@@ -1,45 +1,44 @@
 ﻿using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
-using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
-public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger, ITaypointBalanceRepository taypointBalanceRepository, TaskExceptionLogger taskExceptionLogger)
+public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger, ITaypointBalanceRepository taypointBalanceRepository)
 {
-    public void UpdateLastKnownPointCountInBackground(DiscordUser user, long updatedCount)
+    public async Task UpdateLastKnownPointCountAsync(DiscordUser user, long updatedCount)
     {
         if (!user.IsBot && user.TryGetMember(out var member))
         {
-            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                async () => await taypointBalanceRepository.UpdateLastKnownPointCountAsync(member, updatedCount),
-                nameof(taypointBalanceRepository.UpdateLastKnownPointCountAsync)
-            ));
+            var rowsAffected = await taypointBalanceRepository.UpdateLastKnownPointCountAsync(member, updatedCount);
+            if (rowsAffected > 0)
+            {
+                logger.LogDebug("Last known count for member updated ({RowsAffected})", rowsAffected);
+            }
+            else
+            {
+                logger.LogDebug("Last known count for member was already up to date");
+            }
         }
     }
 
-    public void UpdateLastKnownPointCountsInBackground(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
+    public ValueTask UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)
     {
         if (updates.Count > 0)
         {
             logger.LogDebug("Updating last known point counts for {Count} members", updates.Count);
-
-            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                async () => await taypointBalanceRepository.UpdateLastKnownPointCountsAsync(guild, updates),
-                nameof(taypointBalanceRepository.UpdateLastKnownPointCountsAsync)
-            ));
+            return new(taypointBalanceRepository.UpdateLastKnownPointCountsAsync(guild, updates));
         }
         else
         {
             logger.LogDebug("No last known point counts to update");
+            return new();
         }
     }
 
-    public void UpdateLastKnownPointCountsForRecentlyActiveMembersInBackground(CommandGuild guild)
+    public async Task UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild)
     {
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-            async () => await taypointBalanceRepository.UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(guild),
-            nameof(taypointBalanceRepository.UpdateLastKnownPointCountsAsync)
-        ));
+        var rowsAffected = await taypointBalanceRepository.UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(guild);
+        logger.LogDebug("{RowsAffected} last known counts updated for active members", rowsAffected);
     }
 }

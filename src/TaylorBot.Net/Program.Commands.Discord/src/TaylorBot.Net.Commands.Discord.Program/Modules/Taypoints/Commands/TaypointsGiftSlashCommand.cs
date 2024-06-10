@@ -6,12 +6,16 @@ using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
 public class TaypointsGiftSlashCommand(
-    ITaypointTransferRepository taypointTransferRepository, TaypointAmountParser amountParser, TaypointGuildCacheUpdater taypointGuildCacheUpdater) : ISlashCommand<TaypointsGiftSlashCommand.Options>
+    ITaypointTransferRepository taypointTransferRepository,
+    TaypointAmountParser amountParser,
+    TaypointGuildCacheUpdater taypointGuildCacheUpdater,
+    TaskExceptionLogger taskExceptionLogger) : ISlashCommand<TaypointsGiftSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("taypoints gift");
 
@@ -123,7 +127,11 @@ public class TaypointsGiftSlashCommand(
                 .Select(r => new TaypointCountUpdate(r.UserId, r.UpdatedBalance))
                 .Append(new(from.Id, fromBalance))
                 .ToList();
-            taypointGuildCacheUpdater.UpdateLastKnownPointCountsInBackground(context.Guild, updates);
+
+            _ = taskExceptionLogger.LogOnError(
+                async () => await taypointGuildCacheUpdater.UpdateLastKnownPointCountsAsync(context.Guild, updates),
+                nameof(taypointGuildCacheUpdater.UpdateLastKnownPointCountsAsync)
+            );
         }
 
         return

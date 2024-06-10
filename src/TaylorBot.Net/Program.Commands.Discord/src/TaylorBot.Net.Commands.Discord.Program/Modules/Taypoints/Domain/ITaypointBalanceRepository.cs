@@ -10,19 +10,17 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 
-public record TaypointBalance(long TaypointCount, int? ServerRank);
-
 public record TaypointLeaderboardEntry(string user_id, string username, long last_known_taypoint_count, long rank, long taypoint_count);
 
 public record TaypointCountUpdate(SnowflakeId UserId, long TaypointCount);
 
 public interface ITaypointBalanceRepository
 {
-    ValueTask<TaypointBalance> GetBalanceAsync(DiscordUser user);
-    ValueTask UpdateLastKnownPointCountAsync(DiscordMember member, long updatedCount);
+    ValueTask<long> GetBalanceAsync(DiscordUser user);
+    Task<int> UpdateLastKnownPointCountAsync(DiscordMember member, long updatedCount);
     ValueTask<IList<TaypointLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild);
-    ValueTask UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates);
-    ValueTask UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild);
+    Task UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates);
+    Task<int> UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild);
 }
 
 
@@ -71,12 +69,12 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
                     {
                         var balance = await taypointBalanceRepository.GetBalanceAsync(context.User);
 
-                        if (amount > balance.TaypointCount)
+                        if (amount > balance)
                         {
-                            return Error(new ParsingFailed($"You can't spend {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)}, you only have {balance.TaypointCount.ToString(TaylorBotFormats.BoldReadable)}. 😕"));
+                            return Error(new ParsingFailed($"You can't spend {"taypoint".ToQuantity(amount, TaylorBotFormats.BoldReadable)}, you only have {balance.ToString(TaylorBotFormats.BoldReadable)}. 😕"));
                         }
 
-                        return new AbsoluteTaypointAmount(amount, balance.TaypointCount);
+                        return new AbsoluteTaypointAmount(amount, balance);
                     }
                     else
                     {
