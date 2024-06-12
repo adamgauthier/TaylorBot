@@ -33,7 +33,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                                 $"""
                                 You are currently a **TaylorBot Plus** member 💎
                                 Thank you for supporting {"TaylorBot on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}! 💖
-                                If you have any questions, join the TaylorBot server listed on the Patreon 😊
+                                If you have any questions, join the {"TaylorBot support server".DiscordMdLink("https://discord.gg/3qVNd5P")} 😊
                                 """)
                             .AddField(
                                 "Plus Servers",
@@ -41,7 +41,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                                     $"""
                                     These servers benefit from **TaylorBot Plus** features thanks to you!
                                     {string.Join('\n', plusUser.ActivePlusGuilds.Select(name => $"- {name}"))}
-                                    
+
                                     Use {context.MentionCommand("plus add")} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
                                     """.Truncate(EmbedFieldBuilder.MaxFieldValueLength) :
                                     $"You don't have any plus server set, add one with {context.MentionCommand("plus add")} (up to **{plusUser.MaxPlusGuilds}**)!"
@@ -67,7 +67,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                         .WithThumbnailUrl("https://i.imgur.com/55CptF4.jpg")
                         .WithDescription(
                             $"""
-                            You are currently not part of **TaylorBot Plus** 🚫
+                            You are currently not part of **TaylorBot Plus** 😢
                             TaylorBot is free for everyone thanks to the community members that {"support on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")} 💖
                             If you support on Patreon, you'll also get access to exclusive features and points 😱
                             """);

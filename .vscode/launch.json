@@ -24,6 +24,22 @@
             ]
         },
         {
+            "name": "Add-SqitchChange",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/taylorbot-postgres/Add-SqitchChange.ps1",
+            "args": [
+                "-ChangeName ${input:sqitchChangeName}",
+                "-Note '${input:sqitchNote}'",
+            ]
+        },
+        {
+            "name": "Deploy-Sqitch (Local)",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/src/taylorbot-postgres/Deploy-Sqitch.ps1",
+        },
+        {
             "name": "Deploy-Redis (Local)",
             "type": "PowerShell",
             "request": "launch",
@@ -157,6 +173,18 @@
             "type": "promptString",
             "description": "Discord Bot Token",
             "default": ""
+        },
+        {
+            "id": "sqitchChangeName",
+            "type": "promptString",
+            "description": "Sqitch change name",
+            "default": "bump_version_1.21.0"
+        },
+        {
+            "id": "sqitchNote",
+            "type": "promptString",
+            "description": "Sqitch note",
+            "default": "Bump product version to 1.21.0"
         },
     ]
 }

@@ -56,10 +56,10 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(
                     $"""
-                    You redeemed {"taypoint".ToQuantity(payoutAmount, format)} + {"bonus point".ToQuantity(redeemResult.BonusAmount, format)}. You now have {redeemResult.TotalTaypointCount.ToString(format)}. 💰
-                    Bonus streak: {redeemResult.CurrentDailyStreak.ToString(format)}/{nextStreakForBonus.ToString(format)}. Don't miss a day and get a bonus! See you tomorrow! 😄
-
-                    **Daily Message:** {messageOfTheDay.Replace("{prefix}", commandPrefix)}
+                    You redeemed {"taypoint".ToQuantity(payoutAmount, format)} + {"bonus point".ToQuantity(redeemResult.BonusAmount, format)}. You now have {redeemResult.TotalTaypointCount.ToString(format)} 💰
+                    Streak: {redeemResult.CurrentDailyStreak.ToString(format)}/{nextStreakForBonus.ToString(format)}. Don't miss a day and get a bonus! See you tomorrow! 😄
+                    ### Daily Message 📨
+                    {messageOfTheDay.Replace("{prefix}", commandPrefix)}
                     """)
             .Build());
         }
