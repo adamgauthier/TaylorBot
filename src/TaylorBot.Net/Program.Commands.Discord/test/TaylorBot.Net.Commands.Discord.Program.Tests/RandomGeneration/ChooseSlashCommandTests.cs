@@ -6,14 +6,14 @@ using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.RandomGeneration;
 
-public class ChooseCommandTests
+public class ChooseSlashCommandTests
 {
     private readonly ICryptoSecureRandom _cryptoSecureRandom = A.Fake<ICryptoSecureRandom>(o => o.Strict());
-    private readonly ChooseCommand _chooseCommand;
+    private readonly ChooseSlashCommand _chooseCommand;
 
-    public ChooseCommandTests()
+    public ChooseSlashCommandTests()
     {
-        _chooseCommand = new ChooseCommand(_cryptoSecureRandom);
+        _chooseCommand = new(_cryptoSecureRandom);
     }
 
     [Fact]

@@ -1,0 +1,23 @@
+{
+  "name": "dice",
+  "description": "Roll a dice with the specified amount of faces",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
+  "options": [
+    {
+      "name": "faces",
+      "description": "The number of faces the dice should have (maximum number you can get)",
+      "type": 4,
+      "min_value": 1,
+      "max_value": 2147483646,
+      "required": true
+    }
+  ]
+}

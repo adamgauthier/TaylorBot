@@ -4,7 +4,6 @@ using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Random;
 using Xunit;
 
@@ -20,22 +19,10 @@ public class RandomModuleTests
 
     public RandomModuleTests()
     {
-        _randomModule = new RandomModule(new SimpleCommandRunner(), _cryptoSecureRandom);
+        _randomModule = new RandomModule(new SimpleCommandRunner(), new ChooseSlashCommand(_cryptoSecureRandom));
         _randomModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
-    }
-
-    [Fact]
-    public async Task DiceAsync_ThenReturnsEmbedWithRoll()
-    {
-        const int FaceCount = 6;
-        const int Roll = 2;
-        A.CallTo(() => _cryptoSecureRandom.GetInt32(1, FaceCount)).Returns(Roll);
-
-        var result = (await _randomModule.DiceAsync(new PositiveInt32(FaceCount))).GetResult<EmbedResult>();
-
-        result.Embed.Description.Should().Contain($"{Roll}");
     }
 
     [Fact]

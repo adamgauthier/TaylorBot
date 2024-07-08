@@ -26,7 +26,8 @@
       },
       "youtube-search": {
         "FriendlyName": "Searching YouTube (slash command)",
-        "MaxUsesForUser": 8
+        "MaxUsesForUser": 8,
+        "MaxUsesForPlusUser": 18
       },
       "youtube-search-legacy": {
         "FriendlyName": "Searching YouTube (prefix command)",

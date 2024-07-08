@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 
-public class ChooseCommand(ICryptoSecureRandom cryptoSecureRandom)
+public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<ChooseSlashCommand.Options>
 {
     public static readonly CommandMetadata Metadata = new("choose", "Random 🎲");
 
@@ -34,16 +34,13 @@ public class ChooseCommand(ICryptoSecureRandom cryptoSecureRandom)
             return new(new EmbedResult(embed.Build()));
         }
     );
-}
 
-public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<ChooseSlashCommand.Options>
-{
-    public ISlashCommandInfo Info => new MessageCommandInfo(ChooseCommand.Metadata.Name);
+    public ISlashCommandInfo Info => new MessageCommandInfo(Metadata.Name);
 
     public record Options(ParsedString options);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(new ChooseCommand(cryptoSecureRandom).Choose(options.options.Value));
+        return new(Choose(options.options.Value));
     }
 }

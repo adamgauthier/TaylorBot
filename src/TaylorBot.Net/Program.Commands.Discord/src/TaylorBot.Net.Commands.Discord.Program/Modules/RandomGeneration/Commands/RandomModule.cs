@@ -1,35 +1,26 @@
-﻿using Discord;
-using Discord.Commands;
-using Humanizer;
+﻿using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Colors;
-using TaylorBot.Net.Core.Number;
-using TaylorBot.Net.Core.Random;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 
 [Name("Random 🎲")]
-public class RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryptoSecureRandom) : TaylorBotModule
+public class RandomModule(ICommandRunner commandRunner, ChooseSlashCommand chooseSlashCommand) : TaylorBotModule
 {
     [Command("dice")]
-    [Summary("Rolls a dice with the specified amount of faces.")]
+    [Summary("This command has been moved to **/dice**. Please use it instead! 😊")]
     public async Task<RuntimeResult> DiceAsync(
         [Remainder]
-        [Summary("How many faces should your dice have?")]
-        PositiveInt32 faces
+        string? _ = null
     )
     {
-        var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), () =>
-        {
-            var randomNumber = cryptoSecureRandom.GetInt32(1, faces.Parsed);
-
-            return new(new EmbedResult(new EmbedBuilder()
-                .WithColor(TaylorBotColors.SuccessColor)
-                .WithTitle($"Rolling a dice with {"face".ToQuantity(faces.Parsed, TaylorBotFormats.Readable)} 🎲")
-                .WithDescription($"You rolled {randomNumber.ToString(TaylorBotFormats.BoldReadable)}!")
-            .Build()));
-        });
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 **/dice** 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);
@@ -48,7 +39,7 @@ public class RandomModule(ICommandRunner commandRunner, ICryptoSecureRandom cryp
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(
-            new ChooseCommand(cryptoSecureRandom).Choose(options, Context.User),
+            chooseSlashCommand.Choose(options, Context.User),
             context
         );
 
