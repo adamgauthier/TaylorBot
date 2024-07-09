@@ -6,11 +6,9 @@ using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Time;
-using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
@@ -42,60 +40,25 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
     }
 
     [Command("userinfo")]
-    [Alias("uinfo")]
-    [Summary("Gets discord information about a user.")]
+    [Alias("uinfo", "randomuserinfo", "randomuser", "randomuinfo")]
+    [Summary("This command has been moved to **/inspect user**. Please use it instead! 😊")]
     public async Task<RuntimeResult> UserInfoAsync(
-        [Summary("What user would you like to see the info of?")]
         [Remainder]
-        IUserArgument<IGuildUser>? member = null
+        string? _ = null
     )
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
-            async () =>
-            {
-                var guildUser = member == null ?
-                    (IGuildUser)Context.User :
-                    await member.GetTrackedUserAsync();
-
-                var embed = new EmbedBuilder()
-                    .WithUserAsAuthor(guildUser, showGuildAvatar: false)
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithThumbnailUrl(guildUser.GetAvatarUrlOrDefault(size: 2048))
-                    .AddField("Id", $"`{guildUser.Id}`", inline: true);
-
-                if (guildUser.JoinedAt.HasValue)
-                    embed.AddField("Server Joined", guildUser.JoinedAt.Value.FormatFullUserDate(TaylorBotCulture.Culture));
-
-                embed.AddField("Account Created", guildUser.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
-
-                if (guildUser.RoleIds.Count != 0)
-                {
-                    embed.AddField(
-                        "Role".ToQuantity(guildUser.RoleIds.Count),
-                        string.Join(", ", guildUser.RoleIds.Take(4).Select(id => MentionUtils.MentionRole(id))) + (guildUser.RoleIds.Count > 4 ? ", ..." : string.Empty)
-                    );
-                }
-
-                return new EmbedResult(embed.Build());
-            },
-            Preconditions: [new InGuildPrecondition()]
-        );
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 **/inspect user** 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);
 
         return new TaylorBotResult(result, context);
-    }
-
-    [Command("randomuserinfo")]
-    [Alias("randomuser", "randomuinfo")]
-    [Summary("Gets discord information about a random user in the server.")]
-    public async Task<RuntimeResult> RandomUserInfoAsync()
-    {
-        var cachedUsers = await Context.Guild.GetUsersAsync(CacheMode.CacheOnly);
-        var randomUser = cachedUsers.ElementAt(_random.Next(cachedUsers.Count));
-        return await UserInfoAsync(new UserArgument<IGuildUser>(randomUser, userTracker));
     }
 
     [Command("roleinfo")]

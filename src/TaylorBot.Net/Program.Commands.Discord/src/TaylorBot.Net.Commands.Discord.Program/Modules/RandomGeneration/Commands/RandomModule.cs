@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
 public class RandomModule(ICommandRunner commandRunner, ChooseSlashCommand chooseSlashCommand) : TaylorBotModule
 {
     [Command("dice")]
-    [Summary("This command has been moved to **/dice**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </dice:1259767442998300723>. Please use it instead! 😊")]
     public async Task<RuntimeResult> DiceAsync(
         [Remainder]
         string? _ = null
@@ -18,7 +18,7 @@ public class RandomModule(ICommandRunner commandRunner, ChooseSlashCommand choos
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/dice** 👈
+                This command has been moved to 👉 </dice:1259767442998300723> 👈
                 Please use it instead! 😊
                 """))));
 

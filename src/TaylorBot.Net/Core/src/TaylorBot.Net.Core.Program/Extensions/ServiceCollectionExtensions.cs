@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Metrics;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Logging;
@@ -25,6 +26,14 @@ public static class ServiceCollectionExtensions
             .AddOpenTelemetry()
             .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name))
             .UseAzureMonitor();
+
+        services.ConfigureOpenTelemetryMeterProvider(metrics => metrics
+            // Remove noisy metrics that incur storage cost, only keep http.client.request.duration
+            .AddView(instrumentName: "http.client.open_connections", MetricStreamConfiguration.Drop)
+            .AddView(instrumentName: "http.client.active_requests", MetricStreamConfiguration.Drop)
+            .AddView(instrumentName: "http.client.connection.duration", MetricStreamConfiguration.Drop)
+            .AddView(instrumentName: "http.client.request.time_in_queue", MetricStreamConfiguration.Drop)
+        );
 
         return services
             .ConfigureRequired<DiscordOptions>(configuration, "Discord")
