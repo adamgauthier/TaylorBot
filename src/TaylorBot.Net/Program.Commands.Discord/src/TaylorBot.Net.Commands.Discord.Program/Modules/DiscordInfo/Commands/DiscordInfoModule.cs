@@ -13,7 +13,7 @@ using TaylorBot.Net.Core.Time;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 [Name("DiscordInfo 💬")]
-public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMapper channelTypeStringMapper, IUserTracker userTracker, AvatarSlashCommand avatarCommand) : TaylorBotModule
+public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMapper channelTypeStringMapper, AvatarSlashCommand avatarCommand) : TaylorBotModule
 {
     private static readonly Random _random = new();
 
@@ -41,7 +41,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
     [Command("userinfo")]
     [Alias("uinfo", "randomuserinfo", "randomuser", "randomuinfo")]
-    [Summary("This command has been moved to **/inspect user**. Please use it instead! 😊")]
+    [Summary("This command has been moved to </inspect user:1260489511297749054>. Please use it instead! 😊")]
     public async Task<RuntimeResult> UserInfoAsync(
         [Remainder]
         string? _ = null
@@ -51,7 +51,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
-                This command has been moved to 👉 **/inspect user** 👈
+                This command has been moved to 👉 </inspect user:1260489511297749054> 👈
                 Please use it instead! 😊
                 """))));
 
