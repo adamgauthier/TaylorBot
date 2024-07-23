@@ -62,10 +62,14 @@ public class BirthdayRoleDomainService(
 
         if (roles.Count > 0)
         {
+            logger.LogInformation("Found {Count} configured birthday roles: {Roles}", roles.Count, string.Join(", ", roles.Select(r => $"{r}")));
+
             var rolesByGuild = roles.ToDictionary(r => r.guild_id);
 
             foreach (var birthdayUser in await birthdayRepository.GetBirthdayUsersAsync())
             {
+                logger.LogInformation("Found birthday user {User}", birthdayUser);
+
                 foreach (var guildId in await birthdayRepository.GetGuildsForUserAsync(birthdayUser.user_id, roles))
                 {
                     try
@@ -77,32 +81,38 @@ public class BirthdayRoleDomainService(
                         {
                             var guild = taylorBotClient.Value.ResolveRequiredGuild(guildId);
 
-                            var member = await taylorBotClient.Value.ResolveGuildUserAsync(guild, birthdayUser.user_id)
-                                ?? throw new ArgumentException($"Could not resolve User ID {birthdayUser.user_id}.");
-
-                            SnowflakeId roleId = new(birthdayRole.role_id);
-                            var role = guild.GetRole(roleId);
-
-                            if (role != null)
+                            var member = await taylorBotClient.Value.ResolveGuildUserAsync(guild, birthdayUser.user_id);
+                            if (member != null)
                             {
-                                if (!member.RoleIds.Contains(roleId))
+                                SnowflakeId roleId = new(birthdayRole.role_id);
+                                var role = guild.GetRole(roleId);
+
+                                if (role != null)
                                 {
-                                    await member.AddRoleAsync(role, new RequestOptions { AuditLogReason = "Given as a birthday role" });
-                                    logger.LogInformation("Added birthday role {RoleId} to {Member}", roleId, member.FormatLog());
+                                    if (!member.RoleIds.Contains(roleId))
+                                    {
+                                        await member.AddRoleAsync(role, new RequestOptions { AuditLogReason = "Given as a birthday role" });
+                                        logger.LogInformation("Added birthday role {RoleId} to {Member}", roleId, member.FormatLog());
+                                    }
+                                    else
+                                    {
+                                        logger.LogInformation("Member {Member} already has birthday role {RoleId}", member.FormatLog(), roleId);
+                                    }
+
+                                    await birthdayRepository.CreateRoleGivenAsync(birthdayUser, birthdayRole, setAt: DateTimeOffset.UtcNow);
+                                    logger.LogInformation("Added birthday role {RoleId} to remove from {Member}", roleId, member.FormatLog());
                                 }
                                 else
                                 {
-                                    logger.LogInformation("Member {Member} already has birthday role {RoleId}", member.FormatLog(), roleId);
+                                    logger.LogWarning("Birthday role {RoleId} in {Guild} doesn't seem to exist", roleId, guild.FormatLog());
+                                    rolesByGuild.Remove(guildId);
                                 }
-
-                                await birthdayRepository.CreateRoleGivenAsync(birthdayUser, birthdayRole, setAt: DateTimeOffset.UtcNow);
-                                logger.LogInformation("Added birthday role {RoleId} to remove from {Member}", roleId, member.FormatLog());
                             }
                             else
                             {
-                                logger.LogWarning("Birthday role {RoleId} in {Guild} doesn't seem to exist", roleId, guild.FormatLog());
-                                rolesByGuild.Remove(guildId);
+                                logger.LogWarning("Birthday user {User} doesn't seem to be part of {Guild} anymore", birthdayUser, guild.FormatLog());
                             }
+
                             await Task.Delay(TimeSpan.FromSeconds(1));
                         }
                         else
@@ -112,7 +122,7 @@ public class BirthdayRoleDomainService(
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, "Exception occurred when adding birthday role for User {UserId} in Guild {GuildId}", birthdayUser, guildId);
+                        logger.LogError(e, "Exception occurred when adding birthday role for User {User} in Guild {GuildId}", birthdayUser, guildId);
                         await Task.Delay(TimeSpan.FromSeconds(1));
                     }
                 }
