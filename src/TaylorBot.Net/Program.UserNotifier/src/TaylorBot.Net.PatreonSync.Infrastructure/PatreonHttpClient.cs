@@ -49,7 +49,7 @@ public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
 
     private record MembersResult(IReadOnlyCollection<CampaignMembersApi.Data> data, IReadOnlyCollection<CampaignMembersApi.Included> included)
     {
-        public static readonly MembersResult Default = new(Array.Empty<CampaignMembersApi.Data>(), Array.Empty<CampaignMembersApi.Included>());
+        public static readonly MembersResult Default = new([], []);
     }
 
     private record CampaignMembersApi(

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Reddit;
 using System.Net.Http.Headers;
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
@@ -127,11 +126,6 @@ public class UserNotifierProgram
                     .AddTransient<PatreonSyncDomainService>()
                     .ConfigureRequired<RedditNotifierOptions>(config, "RedditNotifier")
                     .ConfigureRequired<RedditAuthOptions>(config, "RedditAuth")
-                    .AddSingleton(provider =>
-                    {
-                        var auth = provider.GetRequiredService<IOptionsMonitor<RedditAuthOptions>>().CurrentValue;
-                        return new RedditClient(appId: auth.AppId, appSecret: auth.AppSecret, refreshToken: auth.RefreshToken);
-                    })
                     .ConfigureRequired<YoutubeNotifierOptions>(config, "YoutubeNotifier")
                     .ConfigureRequired<YoutubeAuthOptions>(config, "YoutubeAuth")
                     .AddSingleton(provider =>
@@ -165,11 +159,18 @@ public class UserNotifierProgram
                     .AddTransient<IInstagramClient, InstagramRestClient>()
                     .AddTransient<InstagramNotifierService>()
                     .AddTransient<InstagramPostToEmbedMapper>()
-                    .AddHttpClient<IPatreonClient, PatreonHttpClient>((provider, client) =>
-                    {
-                        var options = provider.GetRequiredService<IOptionsMonitor<PatreonSyncOptions>>().CurrentValue;
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.ApiKey);
-                    });
+                    ;
+
+                services.AddHttpClient<IPatreonClient, PatreonHttpClient>((provider, client) =>
+                {
+                    var options = provider.GetRequiredService<IOptionsMonitor<PatreonSyncOptions>>().CurrentValue;
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.ApiKey);
+                });
+
+                services.AddHttpClient<RedditHttpClient>((provider, client) =>
+                {
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("TaylorBot/1.0");
+                });
             })
             .Build();
 

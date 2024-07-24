@@ -1,7 +1,5 @@
 ﻿using Dapper;
-using Reddit.Controllers;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.RedditNotifier.Domain;
 
 namespace TaylorBot.Net.RedditNotifier.Infrastructure;
@@ -26,28 +24,30 @@ public class RedditCheckerRepository(PostgresConnectionFactory postgresConnectio
         );
 
         return checkers.Select(checker => new RedditChecker(
-            guildId: new SnowflakeId(checker.guild_id),
-            channelId: new SnowflakeId(checker.channel_id),
-            subredditName: checker.subreddit,
-            lastPostId: checker.last_post_id,
-            lastPostCreatedAt: checker.last_created
+            GuildId: checker.guild_id,
+            ChannelId: checker.channel_id,
+            SubredditName: checker.subreddit,
+            LastPostId: checker.last_post_id,
+            LastPostCreatedAt: checker.last_created
         )).ToList();
     }
 
-    public async ValueTask UpdateLastPostAsync(RedditChecker redditChecker, Post redditPost)
+    public async ValueTask UpdateLastPostAsync(RedditChecker redditChecker, RedditPost redditPost)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"UPDATE checkers.reddit_checker SET last_post_id = @LastPostId, last_created = @LastCreated
-                WHERE subreddit = @SubredditName AND guild_id = @GuildId AND channel_id = @ChannelId;",
+            """
+            UPDATE checkers.reddit_checker SET last_post_id = @LastPostId, last_created = @LastCreated
+            WHERE subreddit = @SubredditName AND guild_id = @GuildId AND channel_id = @ChannelId;
+            """,
             new
             {
                 SubredditName = redditChecker.SubredditName,
-                GuildId = redditChecker.GuildId.ToString(),
-                ChannelId = redditChecker.ChannelId.ToString(),
-                LastPostId = redditPost.Id,
-                LastCreated = redditPost.Created.ToUniversalTime(),
+                GuildId = $"{redditChecker.GuildId}",
+                ChannelId = $"{redditChecker.ChannelId}",
+                LastPostId = redditPost.id,
+                LastCreated = redditPost.CreatedAt,
             }
         );
     }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Reddit;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
@@ -11,7 +10,7 @@ public class RedditNotifierService(
     ILogger<RedditNotifierService> logger,
     IOptionsMonitor<RedditNotifierOptions> optionsMonitor,
     IRedditCheckerRepository redditCheckerRepository,
-    RedditClient redditClient,
+    RedditHttpClient redditClient,
     RedditPostToEmbedMapper redditPostToEmbedMapper,
     Lazy<ITaylorBotClient> taylorBotClient
     )
@@ -42,13 +41,14 @@ public class RedditNotifierService(
             {
                 var channel = taylorBotClient.Value.ResolveRequiredGuild(redditChecker.GuildId).GetRequiredTextChannel(redditChecker.ChannelId);
 
-                var newestPost = redditClient.Subreddit(name: redditChecker.SubredditName).Posts.GetNew(limit: 1).Single();
+                var subreddit = redditChecker.SubredditName;
+                var newestPost = await redditClient.GetNewestPostAsync(subreddit);
 
                 if (redditChecker.LastPostId == null || !redditChecker.LastPostCreatedAt.HasValue ||
-                    (newestPost.Id != redditChecker.LastPostId && newestPost.Created > redditChecker.LastPostCreatedAt.Value))
+                    (newestPost.id != redditChecker.LastPostId && newestPost.CreatedAt > redditChecker.LastPostCreatedAt.Value))
                 {
-                    logger.LogDebug("Found new Reddit post for {RedditChecker}: {PostId}.", redditChecker, newestPost.Id);
-                    await channel.SendMessageAsync(embed: redditPostToEmbedMapper.ToEmbed(newestPost));
+                    logger.LogDebug("Found new Reddit post for {RedditChecker}: {PostId}.", redditChecker, newestPost.id);
+                    await channel.SendMessageAsync(embed: redditPostToEmbedMapper.ToEmbed(subreddit, newestPost));
                     await redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
                 }
             }
