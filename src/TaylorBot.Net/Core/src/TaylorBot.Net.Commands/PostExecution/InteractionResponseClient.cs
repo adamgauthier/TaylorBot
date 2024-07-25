@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Net.Http.Json;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.Commands.PostExecution;
 
@@ -100,8 +101,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
             JsonContent.Create(new InteractionResponse(ChannelMessageWithSourceInteractionResponseType, ToInteractionData(message)))
         );
-
-        await EnsureSuccess(response);
+        await response.EnsureSuccessAsync(logger);
     }
 
     public async ValueTask SendAckResponseWithLoadingMessageAsync(ApplicationCommand interaction, bool isEphemeral = false)
@@ -120,8 +120,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"interactions/{id}/{token}/callback",
             JsonContent.Create(new InteractionResponse(DeferredChannelMessageWithSourceInteractionResponseType, isEphemeral ? new(flags: 64) : null))
         );
-
-        await EnsureSuccess(response);
+        await response.EnsureSuccessAsync(logger);
     }
 
     public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(ButtonComponent interaction)
@@ -130,8 +129,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
             JsonContent.Create(new InteractionResponse(ComponentDeferredUpdateMessageInteractionResponseType, null))
         );
-
-        await EnsureSuccess(response);
+        await response.EnsureSuccessAsync(logger);
     }
 
     public async ValueTask SendModalResponseAsync(ApplicationCommand interaction, CreateModalResult createModal)
@@ -159,8 +157,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
             JsonContent.Create(interactionResponse)
         );
-
-        await EnsureSuccess(response);
+        await response.EnsureSuccessAsync(logger);
     }
 
     private static InteractionResponse.Embed ToInteractionEmbed(Embed embed)
@@ -280,8 +277,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"webhooks/{applicationInfo.Id}/{token}",
             httpContent
         );
-
-        await EnsureSuccess(response);
+        await response.EnsureSuccessAsync(logger);
     }
 
     public async ValueTask EditOriginalResponseAsync(IInteraction interaction, MessageResponse message)
@@ -299,8 +295,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"webhooks/{applicationInfo.Id}/{token}/messages/@original",
             content
         );
-
-        await EnsureSuccess(response);
+        await response.EnsureSuccessAsync(logger);
     }
 
     public async ValueTask DeleteOriginalResponseAsync(ButtonComponent component)
@@ -310,25 +305,6 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         var response = await httpClient.DeleteAsync(
             $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original"
         );
-
-        await EnsureSuccess(response);
-    }
-
-    private async ValueTask EnsureSuccess(HttpResponseMessage response)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            try
-            {
-                var body = await response.Content.ReadAsStringAsync();
-                logger.LogError("Error response from Discord ({StatusCode}): {Body}", response.StatusCode, body);
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Unhandled error when parsing error body ({StatusCode}):", response.StatusCode);
-            }
-
-            response.EnsureSuccessStatusCode();
-        }
+        await response.EnsureSuccessAsync(logger);
     }
 }

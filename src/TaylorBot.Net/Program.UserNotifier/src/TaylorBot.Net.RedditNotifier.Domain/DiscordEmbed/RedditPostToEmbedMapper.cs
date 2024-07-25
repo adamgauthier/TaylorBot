@@ -11,7 +11,7 @@ public class RedditPostToEmbedMapper(IOptionsMonitor<RedditNotifierOptions> opti
 {
     private static readonly string[] DOMAINS_TO_USE_URL_AS_THUMBNAIL = ["i.redd.it", "i.imgur.com"];
 
-    public Embed ToEmbed(string subreddit, RedditPost post)
+    public Embed ToEmbed(RedditPost post)
     {
         var options = optionsMonitor.CurrentValue;
 
@@ -19,7 +19,7 @@ public class RedditPostToEmbedMapper(IOptionsMonitor<RedditNotifierOptions> opti
             .WithTitle(post.title.Truncate(65))
             .WithUrl($"https://redd.it/{post.id}")
             .WithTimestamp(post.CreatedAt)
-            .WithAuthor(name: $"r/{subreddit}", url: $"https://www.reddit.com/r/{subreddit}")
+            .WithAuthor(name: post.subreddit_name_prefixed, url: $"https://www.reddit.com/r/{post.subreddit}")
             .WithFooter(text: $"u/{post.author}", iconUrl: options.RedditPostEmbedIconUrl)
             .WithColor(DiscordColor.FromHexString(options.RedditPostEmbedColor));
 

@@ -22,7 +22,7 @@ public static class ConfigurationBuilderExtensions
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMessageLoggingInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMessageLogging(this IServiceCollection services, IConfiguration configuration)
     {
         return services
             .ConfigureRequired<MessageDeletedLoggingOptions>(configuration, "MessageDeleted")

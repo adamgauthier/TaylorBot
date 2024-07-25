@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Client;
@@ -39,9 +40,9 @@ public interface IPlusRepository
 }
 
 public class PatreonSyncDomainService(
+    IServiceProvider serviceProvider,
     ILogger<PatreonSyncDomainService> logger,
     IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
-    IPatreonClient patreonClient,
     IPlusRepository plusRepository,
     Lazy<ITaylorBotClient> taylorBotClient
     )
@@ -67,6 +68,8 @@ public class PatreonSyncDomainService(
     private async ValueTask SyncPatreonSupportersAsync()
     {
         logger.LogInformation("Syncing Patreon supporters.");
+
+        var patreonClient = serviceProvider.GetRequiredService<IPatreonClient>();
 
         foreach (var patron in await patreonClient.GetPatronsWithDiscordAccountAsync(optionsMonitor.CurrentValue.CampaignId))
         {

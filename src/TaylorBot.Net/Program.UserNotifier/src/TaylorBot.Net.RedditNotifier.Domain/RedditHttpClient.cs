@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Net.Http.Headers;
 using System.Text.Json;
+using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.RedditNotifier.Domain;
 
@@ -8,6 +10,8 @@ public record RedditPost(
     float created_utc,
     string title,
     string author,
+    string subreddit,
+    string subreddit_name_prefixed,
     bool is_self,
     bool spoiler,
     uint num_comments,
@@ -26,25 +30,25 @@ public record RedditData(IReadOnlyList<RedditChild> children);
 
 public record RedditListing(RedditData data);
 
-public class RedditHttpClient(ILogger<RedditHttpClient> logger, HttpClient httpClient)
+public class RedditHttpClient(ILogger<RedditHttpClient> logger, HttpClient httpClient, RedditTokenInMemoryRepository redditTokenRepository)
 {
     public async Task<RedditPost> GetNewestPostAsync(string subreddit)
     {
-        var response = await httpClient.GetAsync($"https://www.reddit.com/r/{subreddit}/new.json?sort=new&limit=1");
-
-        if (response.IsSuccessStatusCode)
+        var request = new HttpRequestMessage
         {
-            var responseAsString = await response.Content.ReadAsStringAsync();
+            Method = HttpMethod.Get,
+            RequestUri = new($"https://oauth.reddit.com/r/{subreddit}/new.json?limit=1"),
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await redditTokenRepository.GetValidTokenAsync());
 
-            var redditListing = JsonSerializer.Deserialize<RedditListing>(responseAsString);
-            ArgumentNullException.ThrowIfNull(redditListing);
+        var response = await httpClient.SendAsync(request);
+        await response.EnsureSuccessAsync(logger);
 
-            return redditListing.data.children.Single().data;
-        }
-        else
-        {
-            logger.LogWarning("Unexpected status code when fetching from Reddit ({StatusCode}).", response.StatusCode);
-            throw new InvalidOperationException();
-        }
+        var responseAsString = await response.Content.ReadAsStringAsync();
+
+        var redditListing = JsonSerializer.Deserialize<RedditListing>(responseAsString);
+        ArgumentNullException.ThrowIfNull(redditListing);
+
+        return redditListing.data.children.Single().data;
     }
 }
