@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
 
-public class ImgurSlashCommand(IRateLimiter rateLimiter, ImgurClient imgurClient) : ISlashCommand<ImgurSlashCommand.Options>
+public class ImgurSlashCommand(IRateLimiter rateLimiter, IImgurClient imgurClient) : ISlashCommand<ImgurSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("imgur");
 
@@ -56,6 +56,13 @@ public class ImgurSlashCommand(IRateLimiter rateLimiter, ImgurClient imgurClient
                             """
                             Sorry, Imgur does not accept this file type. Are you sure it's a photo? 🤔
                             Try another one! 😕
+                            """));
+
+                    case FileTooLarge _:
+                        return new EmbedResult(EmbedFactory.CreateError(
+                            """
+                            Sorry, this file is too large for Imgur 😢
+                            Try a smaller one! 😕
                             """));
 
                     case GenericImgurError _:

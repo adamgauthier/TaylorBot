@@ -32,7 +32,7 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        {user.Mention}'s birthday is not set. 🚫
+                        {user.Mention}'s birthday is not set 🚫
                         They need to use {context.MentionCommand("birthday set")} to set it first.
                         """));
                 }
@@ -49,13 +49,10 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
                             .WithDescription(horoscope.Text)
                         .Build());
 
-                    case HoroscopeUnavailable:
-                        return new EmbedResult(EmbedFactory.CreateError($"Sorry, GaneshaSpeaks does not have an horoscope for {zodiac} today. 😢"));
-
                     case GaneshaSpeaksGenericErrorResult error:
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
-                            GaneshaSpeaks returned an error. {(error.Error != null ? $"({error.Error}) " : string.Empty)}😢
+                            GaneshaSpeaks returned an error 😢
                             The site might be down. Try again later!
                             """));
 

@@ -1,47 +1,46 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Core.Http;
 using TaylorBot.Net.Core.Infrastructure.Extensions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
-public class PirateWeatherClient(ILogger<PirateWeatherClient> logger, IOptionsMonitor<WeatherOptions> options, HttpClient httpClient) : IWeatherClient
+public class PirateWeatherClient(ILogger<PirateWeatherClient> logger, IOptionsMonitor<WeatherOptions> options, HttpClient client) : IWeatherClient
 {
-    private static readonly string ForecastQueryString = new Dictionary<string, string>() {
+    private static readonly string ForecastQueryString = new Dictionary<string, string>
+    {
         { "exclude", "minutely,hourly,daily,alerts,flags" },
         { "units", "si" },
     }.ToUrlQueryString();
 
-    private record ForecastApi(ForecastApi.Currently currently)
-    {
-        public record Currently(long time, string summary, string icon, double temperature, double humidity, double windSpeed);
-    }
-
     public async ValueTask<IForecastResult> GetCurrentForecastAsync(string latitude, string longitude)
     {
-        var response = await httpClient.GetAsync($"https://api.pirateweather.net/forecast/{options.CurrentValue.PirateWeatherApiKey}/{latitude},{longitude}?{ForecastQueryString}");
+        return await client.ReadJsonWithErrorLogging<ForecastApi, IForecastResult>(
+            c => c.GetAsync($"https://api.pirateweather.net/forecast/{options.CurrentValue.PirateWeatherApiKey}/{latitude},{longitude}?{ForecastQueryString}"),
+            handleSuccessAsync: success => Task.FromResult(HandleSuccess(success)),
+            handleErrorAsync: error => Task.FromResult(HandleError(error)),
+            logger);
+    }
 
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            var forecast = JsonSerializer.Deserialize<ForecastApi>(json)!;
+    private IForecastResult HandleSuccess(HttpSuccess<ForecastApi> result)
+    {
+        var forecast = result.Parsed;
 
-            return new CurrentForecast(
-                Summary: forecast.currently.summary,
-                TemperatureCelsius: forecast.currently.temperature,
-                WindSpeed: forecast.currently.windSpeed,
-                Humidity: forecast.currently.humidity,
-                Time: forecast.currently.time,
-                IconUrl: GetIconUrl(forecast.currently.icon)
-            );
-        }
-        else
-        {
-            logger.LogWarning("Unexpected status code from Dark Sky API: {code}", response.StatusCode);
-            return new WeatherGenericErrorResult();
-        }
+        return new CurrentForecast(
+            Summary: forecast.currently.summary,
+            TemperatureCelsius: forecast.currently.temperature,
+            WindSpeed: forecast.currently.windSpeed,
+            Humidity: forecast.currently.humidity,
+            Time: forecast.currently.time,
+            IconUrl: GetIconUrl(forecast.currently.icon)
+        );
+    }
+
+    private IForecastResult HandleError(HttpError error)
+    {
+        return new WeatherGenericErrorResult();
     }
 
     private static string? GetIconUrl(string iconName)
@@ -72,5 +71,10 @@ public class PirateWeatherClient(ILogger<PirateWeatherClient> logger, IOptionsMo
             "wind" => "https://i.imgur.com/W4VgX8l.png",
             _ => null,
         };
+    }
+
+    private record ForecastApi(ForecastApi.Currently currently)
+    {
+        public record Currently(long time, string summary, string icon, double temperature, double humidity, double windSpeed);
     }
 }

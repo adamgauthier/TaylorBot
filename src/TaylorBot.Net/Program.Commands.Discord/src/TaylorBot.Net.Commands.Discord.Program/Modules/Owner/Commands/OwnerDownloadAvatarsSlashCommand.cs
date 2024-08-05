@@ -14,7 +14,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlashCommand> logger, IOptionsMonitor<SignatureOptions> signatureOptions, ITaylorBotClient client, HttpClient httpClient)
+public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlashCommand> logger, IOptionsMonitor<SignatureOptions> signatureOptions, ITaylorBotClient client, IHttpClientFactory httpClientFactory)
     : ISlashCommand<OwnerDownloadAvatarsSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("owner downloadavatars");
@@ -86,7 +86,8 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
             var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
             var blob = container.GetBlobClient($"{guildUser.Id}-{guildUser.Username}{fileExtension}");
 
-            using var response = await httpClient.GetAsync(url);
+            using var client = httpClientFactory.CreateClient();
+            using var response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             using var stream = await response.Content.ReadAsStreamAsync();

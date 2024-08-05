@@ -9,14 +9,11 @@ public record ParsingFailed(string Message) : ICommandResult;
 
 public interface IOptionParser
 {
-    Type OptionType { get; }
     ValueTask<Result<object?, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved);
 }
 
 public interface IOptionParser<T> : IOptionParser
 {
-    Type IOptionParser.OptionType => typeof(T);
-
     async ValueTask<Result<object?, ParsingFailed>> IOptionParser.ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         var result = await ParseAsync(context, optionValue, resolved);

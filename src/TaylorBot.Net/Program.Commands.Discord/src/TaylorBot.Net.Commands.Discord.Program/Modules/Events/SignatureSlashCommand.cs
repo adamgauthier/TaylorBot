@@ -8,12 +8,18 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Http;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Signature.Commands;
 
-public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptionsMonitor<SignatureOptions> signatureOptions, IRateLimiter rateLimiter, IServerJoinedRepository serverJoinedRepository, HttpClient httpClient)
-    : ISlashCommand<SignatureSlashCommand.Options>
+public class SignatureSlashCommand(
+    ILogger<SignatureSlashCommand> logger,
+    IOptionsMonitor<SignatureOptions> signatureOptions,
+    IRateLimiter rateLimiter,
+    IServerJoinedRepository serverJoinedRepository,
+    IHttpClientFactory clientFactory
+    ) : ISlashCommand<SignatureSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("signature");
 
@@ -82,11 +88,11 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
                                 """));
                         }
 
-                        using var response = await httpClient.GetAsync(url);
+                        using var client = clientFactory.CreateClient();
+                        using var response = await client.GetAsync(url);
 
-                        if (!response.IsSuccessStatusCode)
+                        if (!await response.VerifyStatusAsync(logger))
                         {
-                            logger.LogError("Error downloading signature, status code is {StatusCode}", response.StatusCode);
                             return new(EmbedFactory.CreateError(
                                 """
                                 Oops, something went wrong when trying to download your signature. Try again or upload it to imgur.com beforehand 😕
@@ -99,7 +105,7 @@ public class SignatureSlashCommand(ILogger<SignatureSlashCommand> logger, IOptio
                         var contentLength = response.Content.Headers.ContentLength ?? 0;
                         if (contentLength > MaxSizeInBytes)
                         {
-                            logger.LogError("Error downloading signature, content length is {ContentLength}", contentLength);
+                            logger.LogWarning("Signature too large to download, content length is {ContentLength}", contentLength);
                             return new(EmbedFactory.CreateError(
                                 """
                                 Oops, it seems like your signature file is too large. Please make sure it is under 10MB 😕

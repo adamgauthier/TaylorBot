@@ -1,56 +1,52 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Net;
-using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
+using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Infrastructure;
 
-public class UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger) : IUrbanDictionaryClient
+public sealed class UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger, HttpClient client) : IUrbanDictionaryClient
 {
-    private readonly HttpClient _httpClient = new();
-
     public async ValueTask<IUrbanDictionaryResult> SearchAsync(string query)
     {
         var queryString = new[] { $"term={query}" };
-        try
-        {
-            var response = await _httpClient.GetAsync($"https://api.urbandictionary.com/v0/define?{string.Join('&', queryString)}");
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+        return await client.ReadJsonWithErrorLogging<UrbanDictionaryResponse, IUrbanDictionaryResult>(
+            c => c.GetAsync($"https://api.urbandictionary.com/v0/define?{string.Join('&', queryString)}"),
+            handleSuccessAsync: success => Task.FromResult(HandleSuccess(success)),
+            handleErrorAsync: error => Task.FromResult(HandleError(error)),
+            logger);
+    }
 
-                var list = jsonDocument.RootElement.GetProperty("list");
+    private IUrbanDictionaryResult HandleSuccess(HttpSuccess<UrbanDictionaryResponse> result)
+    {
+        var list = result.Parsed.list;
 
-                return new UrbanDictionaryResult(list.EnumerateArray().Select(a => new UrbanDictionaryResult.SlangDefinition(
-                    Word: a.GetProperty("word").GetString()!,
-                    Definition: a.GetProperty("definition").GetString()!,
-                    Author: a.GetProperty("author").GetString()!,
-                    WrittenOn: a.GetProperty("written_on").GetDateTimeOffset(),
-                    Link: a.GetProperty("permalink").GetString()!,
-                    UpvoteCount: a.GetProperty("thumbs_up").GetInt32(),
-                    DownvoteCount: a.GetProperty("thumbs_down").GetInt32()
-                )).ToList());
-            }
-            else
-            {
-                try
-                {
-                    var body = await response.Content.ReadAsStringAsync();
-                    logger.LogWarning("Error response from UrbanDictionary ({StatusCode}): {Body}", response.StatusCode, body);
-                    return new GenericUrbanError();
-                }
-                catch (Exception e)
-                {
-                    logger.LogWarning(e, "Unhandled error when parsing JSON in UrbanDictionary error response ({StatusCode}):", response.StatusCode);
-                    return new GenericUrbanError();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Unhandled error in UrbanDictionary API:");
-            return new GenericUrbanError();
-        }
+        return new UrbanDictionaryResult(list.Select(a => new UrbanDictionaryResult.SlangDefinition(
+            Word: a.word,
+            Definition: a.definition,
+            Author: a.author,
+            WrittenOn: a.written_on,
+            Link: a.permalink,
+            UpvoteCount: a.thumbs_up,
+            DownvoteCount: a.thumbs_down
+        )).ToList());
+    }
+
+    private IUrbanDictionaryResult HandleError(HttpError error)
+    {
+        return new GenericUrbanError();
+    }
+
+    private record UrbanDictionaryResponse(IReadOnlyList<UrbanDictionaryResponse.SlangDefinition> list)
+    {
+        public record SlangDefinition(
+            string word,
+            string definition,
+            string author,
+            DateTimeOffset written_on,
+            string permalink,
+            int thumbs_up,
+            int thumbs_down
+        );
     }
 }

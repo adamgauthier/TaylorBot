@@ -1,37 +1,45 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
+﻿using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
+using System.Net;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
+using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
-public partial class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient httpClient) : IHoroscopeClient
+public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient client) : IHoroscopeClient
 {
-    private static readonly Regex HoroscopeContent = HoroscopeRegex();
-
     public async ValueTask<IHoroscopeResult> GetHoroscopeAsync(string zodiacSign)
     {
-        var response = await httpClient.GetAsync($"https://www.ganeshaspeaks.com/horoscopes/daily-horoscope/{zodiacSign}/");
+        var result = await client.ReadStringWithErrorLogging(
+            c => c.GetAsync($"https://www.ganeshaspeaks.com/horoscopes/daily-horoscope/{zodiacSign}/"),
+            logger);
 
-        if (response.IsSuccessStatusCode)
+        if (result.IsSuccess)
         {
-            var responseAsString = await response.Content.ReadAsStringAsync();
+            var htmlDocument = new HtmlDocument();
 
-            var horoscopeMatch = HoroscopeContent.Match(responseAsString);
-
-            if (!horoscopeMatch.Success)
+            try
             {
-                return new HoroscopeUnavailable();
-            }
+                htmlDocument.LoadHtml(result.Value);
 
-            return new Horoscope(horoscopeMatch.Groups[1].Value);
+                var horoscopeContent = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='horoscope-content']");
+                ArgumentNullException.ThrowIfNull(horoscopeContent);
+
+                var pElements = horoscopeContent.SelectNodes(".//p[not(ancestor::div[@class='horoscope-date'])]");
+                ArgumentNullException.ThrowIfNull(pElements);
+
+                var horoscope = string.Join("\n\n", pElements.Select(p => p.InnerText.Trim()));
+                return new Horoscope(WebUtility.HtmlDecode(horoscope));
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Unable to parse horoscope: {Content}", result.Value);
+                throw;
+            }
         }
         else
         {
-            logger.LogWarning("Unexpected status code when fetching from GaneshaSpeaks ({StatusCode}).", response.StatusCode);
-            return new GaneshaSpeaksGenericErrorResult(response.StatusCode.ToString());
+            return new GaneshaSpeaksGenericErrorResult();
         }
     }
-
-    [GeneratedRegex("<p id=\"horo_content\">(.*)<\\/p>")]
-    private static partial Regex HoroscopeRegex();
 }

@@ -1,17 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net;
-using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Core.Http;
 using static TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain.WolframAlphaResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Infrastructure;
 
-public class WolframAlphaClient(ILogger<WolframAlphaClient> logger, IOptionsMonitor<WolframAlphaOptions> options) : IWolframAlphaClient
+public class WolframAlphaClient(ILogger<WolframAlphaClient> logger, IOptionsMonitor<WolframAlphaOptions> options, HttpClient client) : IWolframAlphaClient
 {
-    private readonly HttpClient _httpClient = new();
-
     public async ValueTask<IWolframAlphaResult> QueryAsync(string query)
     {
         var queryString = new[] {
@@ -21,54 +18,45 @@ public class WolframAlphaClient(ILogger<WolframAlphaClient> logger, IOptionsMoni
             $"ip=192.168.1.1",
             $"podindex=1,2"
         };
-        try
+
+        return await client.ReadJsonWithErrorLogging<WolframResponse, IWolframAlphaResult>(
+            c => c.GetAsync($"https://api.wolframalpha.com/v2/query?{string.Join('&', queryString)}"),
+            handleSuccessAsync: HandleSuccessAsync,
+            handleErrorAsync: error => Task.FromResult(HandleError(error)),
+            logger);
+    }
+
+    private async Task<IWolframAlphaResult> HandleSuccessAsync(HttpSuccess<WolframResponse> result)
+    {
+        var queryResult = result.Parsed.queryresult;
+        if (queryResult.success)
         {
-            var response = await _httpClient.GetAsync($"https://api.wolframalpha.com/v2/query?{string.Join('&', queryString)}");
+            var pods = queryResult.pods
+                .Select(p => p.subpods[0])
+                .Select(p => new Pod(p.plaintext, p.img.src))
+                .ToList();
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-                var queryResult = jsonDocument.RootElement.GetProperty("queryresult");
-
-                if (queryResult.TryGetProperty("success", out var isSuccess) && isSuccess.GetBoolean())
-                {
-                    var pods = queryResult.GetProperty("pods")
-                        .EnumerateArray()
-                        .Select(p => p.GetProperty("subpods").EnumerateArray().First())
-                        .Select(p => new Pod(
-                            p.GetProperty("plaintext").GetString()!,
-                            p.GetProperty("img").GetProperty("src").GetString()!
-                        ))
-                        .ToList();
-
-                    return new WolframAlphaResult(InputPod: pods[0], OutputPod: pods[1]);
-                }
-                else
-                {
-                    queryResult.TryGetProperty("error", out var error);
-                    logger.LogWarning("Error response from WolframAlpha: {Error}", error);
-                    return new WolframAlphaFailed();
-                }
-            }
-            else
-            {
-                try
-                {
-                    var body = await response.Content.ReadAsStringAsync();
-                    logger.LogWarning("Error response from WolframAlpha ({StatusCode}): {Body}", response.StatusCode, body);
-                    return new GenericWolframAlphaError();
-                }
-                catch (Exception e)
-                {
-                    logger.LogWarning(e, "Unhandled error when parsing JSON in WolframAlpha error response ({StatusCode}):", response.StatusCode);
-                    return new GenericWolframAlphaError();
-                }
-            }
+            return new WolframAlphaResult(InputPod: pods[0], OutputPod: pods[1]);
         }
-        catch (Exception e)
+        else
         {
-            logger.LogWarning(e, "Unhandled error in WolframAlpha API:");
-            return new GenericWolframAlphaError();
+            await result.Response.LogContentAsync(logger, LogLevel.Warning, "Non-success queryResult");
+            return new WolframAlphaFailed();
         }
     }
+
+    private IWolframAlphaResult HandleError(HttpError error)
+    {
+        return new GenericWolframAlphaError();
+    }
+
+    private record WolframResponse(WolframQueryResult queryresult);
+
+    private record WolframQueryResult(bool success, IReadOnlyList<WolframPod> pods);
+
+    private record WolframPod(IReadOnlyList<WolframSubPod> subpods);
+
+    private record WolframSubPod(string plaintext, WolframImg img);
+
+    private record WolframImg(string src);
 }

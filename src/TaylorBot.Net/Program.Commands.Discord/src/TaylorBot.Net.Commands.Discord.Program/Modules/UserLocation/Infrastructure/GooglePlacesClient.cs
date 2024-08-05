@@ -1,21 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Core.Http;
 using TaylorBot.Net.Core.Infrastructure.Extensions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
-public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMonitor<GoogleOptions> options, HttpClient httpClient) : ILocationClient
+public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMonitor<GoogleOptions> options, HttpClient client) : ILocationClient
 {
-    private record PlaceResponse(string status, IReadOnlyList<PlaceResponse.PlaceCandidate> candidates)
-    {
-        public record PlaceCandidate(string formatted_address, PlaceGeometry geometry);
-        public record PlaceGeometry(PlaceLocation location);
-        public record PlaceLocation(double lat, double lng);
-    }
-
     public async ValueTask<ILocationResult> GetLocationAsync(string search)
     {
         var qs = new Dictionary<string, string>() {
@@ -25,43 +18,42 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
             { "input", search },
         }.ToUrlQueryString();
 
-        try
+        return await client.ReadJsonWithErrorLogging<PlaceResponse, ILocationResult>(
+            c => c.GetAsync($"https://maps.googleapis.com/maps/api/place/findplacefromtext/json?{qs}"),
+            handleSuccessAsync: HandleLocationSuccessAsync,
+            handleErrorAsync: error => Task.FromResult(HandleLocationError(error)),
+            logger);
+    }
+
+    private async Task<ILocationResult> HandleLocationSuccessAsync(HttpSuccess<PlaceResponse> result)
+    {
+        var place = result.Parsed;
+        switch (place.status)
         {
-            var response = await httpClient.GetAsync($"https://maps.googleapis.com/maps/api/place/findplacefromtext/json?{qs}");
+            case "OK":
+                var first = place.candidates[0];
+                return new LocationFoundResult(new($"{first.geometry.location.lat}", $"{first.geometry.location.lng}", first.formatted_address));
 
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var place = JsonSerializer.Deserialize<PlaceResponse>(json);
+            case "ZERO_RESULTS":
+                return new LocationNotFoundResult();
 
-                switch (place?.status)
-                {
-                    case "OK":
-                        var first = place.candidates[0];
-                        return new LocationFoundResult(new($"{first.geometry.location.lat}", $"{first.geometry.location.lng}", first.formatted_address));
-
-                    case "ZERO_RESULTS":
-                        return new LocationNotFoundResult();
-
-                    default:
-                        logger.LogWarning("Unexpected response from Google Places API: {json}", json.Replace("\n", " "));
-                        return new LocationGenericErrorResult();
-                }
-            }
-            else
-            {
-                logger.LogWarning("Unexpected status code from Google Places API: {code}", response.StatusCode);
+            default:
+                await result.Response.LogContentAsync(logger, LogLevel.Warning, $"Unexpected status {place.status}");
                 return new LocationGenericErrorResult();
-            }
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Unexpected exception when querying Google Places API");
-            return new LocationGenericErrorResult();
         }
     }
 
-    private record TimeZoneResponse(string status, string timeZoneId);
+    private ILocationResult HandleLocationError(HttpError error)
+    {
+        return new LocationGenericErrorResult();
+    }
+
+    private record PlaceResponse(string status, IReadOnlyList<PlaceResponse.PlaceCandidate> candidates)
+    {
+        public record PlaceCandidate(string formatted_address, PlaceGeometry geometry);
+        public record PlaceGeometry(PlaceLocation location);
+        public record PlaceLocation(double lat, double lng);
+    }
 
     public async ValueTask<ITimeZoneResult> GetTimeZoneForLocationAsync(string latitude, string longitude)
     {
@@ -71,35 +63,31 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
             { "location", $"{latitude},{longitude}" },
         }.ToUrlQueryString();
 
-        try
+        return await client.ReadJsonWithErrorLogging<TimeZoneResponse, ITimeZoneResult>(
+            c => c.GetAsync($"https://maps.googleapis.com/maps/api/timezone/json?{qs}"),
+            handleSuccessAsync: HandleTimeZoneSuccessAsync,
+            handleErrorAsync: error => Task.FromResult(HandleTimeZoneError(error)),
+            logger);
+    }
+
+    private async Task<ITimeZoneResult> HandleTimeZoneSuccessAsync(HttpSuccess<TimeZoneResponse> result)
+    {
+        var timeZone = result.Parsed;
+        switch (timeZone.status)
         {
-            var response = await httpClient.GetAsync($"https://maps.googleapis.com/maps/api/timezone/json?{qs}");
+            case "OK":
+                return new TimeZoneResult(timeZone.timeZoneId);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var timeZone = JsonSerializer.Deserialize<TimeZoneResponse>(json);
-
-                switch (timeZone?.status)
-                {
-                    case "OK":
-                        return new TimeZoneResult(timeZone.timeZoneId);
-
-                    default:
-                        logger.LogWarning("Unexpected response from Google Maps API: {json}", json.Replace("\n", " "));
-                        return new TimeZoneGenericErrorResult();
-                }
-            }
-            else
-            {
-                logger.LogWarning("Unexpected status code from Google Maps API: {code}", response.StatusCode);
+            default:
+                await result.Response.LogContentAsync(logger, LogLevel.Warning, $"Unexpected status {timeZone.status}");
                 return new TimeZoneGenericErrorResult();
-            }
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Unexpected exception when querying Google Maps API");
-            return new TimeZoneGenericErrorResult();
         }
     }
+
+    private ITimeZoneResult HandleTimeZoneError(HttpError error)
+    {
+        return new TimeZoneGenericErrorResult();
+    }
+
+    private record TimeZoneResponse(string status, string timeZoneId);
 }

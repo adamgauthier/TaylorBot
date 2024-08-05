@@ -7,8 +7,9 @@ public record UploadSuccess(string Url) : IImgurResult
 };
 public record GenericImgurError() : IImgurResult;
 public record FileTypeInvalid() : IImgurResult;
+public record FileTooLarge() : IImgurResult;
 
-public interface ImgurClient
+public interface IImgurClient
 {
     ValueTask<IImgurResult> UploadAsync(string url);
 }

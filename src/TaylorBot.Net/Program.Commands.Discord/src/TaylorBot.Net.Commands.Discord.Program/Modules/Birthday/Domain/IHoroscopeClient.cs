@@ -6,6 +6,5 @@ public interface IHoroscopeClient
 }
 
 public interface IHoroscopeResult { }
-public record GaneshaSpeaksGenericErrorResult(string? Error) : IHoroscopeResult;
+public record GaneshaSpeaksGenericErrorResult() : IHoroscopeResult;
 public record Horoscope(string Text) : IHoroscopeResult;
-public record HoroscopeUnavailable() : IHoroscopeResult;

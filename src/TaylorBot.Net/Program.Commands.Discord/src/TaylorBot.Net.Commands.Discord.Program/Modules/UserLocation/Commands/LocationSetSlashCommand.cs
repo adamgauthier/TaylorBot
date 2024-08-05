@@ -27,7 +27,7 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
                         case TimeZoneGenericErrorResult _:
                             return new EmbedResult(EmbedFactory.CreateError(
                                 """
-                                Unexpected error happened when attempting to find information about this location. 😢
+                                Unexpected error happened when attempting to find information about this location 😢
                                 The location service might be down. Try again later!
                                 """));
 
@@ -35,9 +35,9 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
                             await locationRepository.SetLocationAsync(context.User, new(location, timeZone.TimeZoneId));
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
-                                Your location has been set to **{location.FormattedAddress}**. 🌍
-                                You can use {context.MentionCommand("location weather")} to see the current weather at your location. 🌦
-                                People can now use {context.MentionCommand("location time")} to see what time it is for you. 🕰️
+                                Your location has been set to **{location.FormattedAddress}** 🌍
+                                You can use {context.MentionCommand("location weather")} to see the current weather at your location 🌦
+                                People can now use {context.MentionCommand("location time")} to see what time it is for you 🕰️
                                 """));
 
                         default: throw new NotImplementedException();

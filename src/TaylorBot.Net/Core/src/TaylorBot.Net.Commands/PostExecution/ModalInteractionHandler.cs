@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Core.Client;
 using static TaylorBot.Net.Commands.PostExecution.ModalSubmit;
 
@@ -18,7 +19,7 @@ public record ModalSubmit(
 
 public record ModalCallback(Func<ModalSubmit, ValueTask> SubmitAsync, bool IsPrivateResponse);
 
-public class ModalInteractionHandler(ILogger<ModalInteractionHandler> logger, InteractionResponseClient interactionResponseClient)
+public class ModalInteractionHandler(IServiceProvider services, ILogger<ModalInteractionHandler> logger)
 {
     private readonly Dictionary<string, ModalCallback> _callbacks = [];
 
@@ -35,7 +36,8 @@ public class ModalInteractionHandler(ILogger<ModalInteractionHandler> logger, In
 
         if (_callbacks.TryGetValue(submit.CustomId, out var callback))
         {
-            await interactionResponseClient.SendAckResponseWithLoadingMessageAsync(submit, callback.IsPrivateResponse);
+            await services.GetRequiredService<InteractionResponseClient>()
+                .SendAckResponseWithLoadingMessageAsync(submit, callback.IsPrivateResponse);
 
             await callback.SubmitAsync(submit);
         }

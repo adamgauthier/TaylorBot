@@ -19,15 +19,15 @@ public class LocationFetcherDomainService(IRateLimiter rateLimiter, ILocationCli
             case LocationGenericErrorResult _:
                 return Error((ICommandResult)new EmbedResult(EmbedFactory.CreateError(
                     """
-                    Unexpected error happened when attempting to find this location. 😢
+                    Unexpected error happened when attempting to find this location 😢
                     The location service might be down. Try again later!
                     """)));
 
             case LocationNotFoundResult _:
                 return Error((ICommandResult)new EmbedResult(EmbedFactory.CreateError(
                     """
-                    Unable to find the location you specified. 🔍
-                    Are you sure it's a real place that exist in the world?
+                    Unable to find the location you specified 🔍
+                    Are you sure it's a place that exists in the real world?
                     """)));
 
             case LocationFoundResult found:

@@ -76,37 +76,37 @@ public static class ServiceCollectionExtensions
             .AddTransient<TextChannelTrackedPrecondition>()
             .AddTransient<UserNoOngoingCommandPrecondition>()
             .AddTransient<ICommandRunner, CommandRunner>()
-            .AddOptionParser<StringParser>()
-            .AddOptionParser<OptionalStringParser>()
-            .AddOptionParser<OptionalBooleanParser>()
-            .AddOptionParser<UserParser>()
-            .AddOptionParser<UserNotAuthorParser>()
-            .AddOptionParser<UserNotAuthorAndBotParser>()
-            .AddOptionParser<UserNotAuthorAndTaylorBotParser>()
-            .AddOptionParser<UserOptionalParser>()
-            .AddOptionParser<UserOrAuthorParser>()
-            .AddOptionParser<MemberParser>()
-            .AddOptionParser<MemberNotAuthorParser>()
-            .AddOptionParser<MemberNotAuthorAndTaylorBotParser>()
-            .AddOptionParser<MemberNotAuthorAndBotParser>()
-            .AddOptionParser<MemberOrAuthorParser>()
-            .AddOptionParser<TextChannelOrCurrentParser>()
-            .AddOptionParser<NonThreadTextChannellOrCurrentParser>()
-            .AddOptionParser<TimeSpanParser>()
-            .AddOptionParser<IntegerParser>()
-            .AddOptionParser<OptionalIntegerParser>()
-            .AddOptionParser<PositiveIntegerParser>()
-            .AddOptionParser<AttachmentParser>()
-            .AddOptionParser<OptionalAttachmentParser>()
+            .AddOptionParser<StringParser, ParsedString>()
+            .AddOptionParser<OptionalStringParser, ParsedOptionalString>()
+            .AddOptionParser<OptionalBooleanParser, ParsedOptionalBoolean>()
+            .AddOptionParser<UserParser, ParsedUser>()
+            .AddOptionParser<UserNotAuthorParser, ParsedUserNotAuthor>()
+            .AddOptionParser<UserNotAuthorAndBotParser, ParsedUserNotAuthorAndBot>()
+            .AddOptionParser<UserNotAuthorAndTaylorBotParser, ParsedUserNotAuthorAndTaylorBot>()
+            .AddOptionParser<UserOptionalParser, ParsedUserOptional>()
+            .AddOptionParser<UserOrAuthorParser, ParsedUserOrAuthor>()
+            .AddOptionParser<MemberParser, ParsedMember>()
+            .AddOptionParser<MemberNotAuthorParser, ParsedMemberNotAuthor>()
+            .AddOptionParser<MemberNotAuthorAndTaylorBotParser, ParsedMemberNotAuthorAndTaylorBot>()
+            .AddOptionParser<MemberNotAuthorAndBotParser, ParsedMemberNotAuthorAndBot>()
+            .AddOptionParser<MemberOrAuthorParser, ParsedMemberOrAuthor>()
+            .AddOptionParser<TextChannelOrCurrentParser, ParsedTextChannelOrCurrent>()
+            .AddOptionParser<NonThreadTextChannellOrCurrentParser, ParsedNonThreadTextChannelOrCurrent>()
+            .AddOptionParser<TimeSpanParser, ParsedTimeSpan>()
+            .AddOptionParser<IntegerParser, ParsedInteger>()
+            .AddOptionParser<OptionalIntegerParser, ParsedOptionalInteger>()
+            .AddOptionParser<PositiveIntegerParser, ParsedPositiveInteger>()
+            .AddOptionParser<AttachmentParser, ParsedAttachment>()
+            .AddOptionParser<OptionalAttachmentParser, ParsedOptionalAttachment>()
             ;
     }
 
-    public static IServiceCollection AddOptionParser<T>(this IServiceCollection services)
-        where T : class, IOptionParser
+    public static IServiceCollection AddOptionParser<TParser, TOption>(this IServiceCollection services)
+        where TParser : class, IOptionParser<TOption>
     {
         return services
-            .AddTransient<T>()
-            .AddTransient<IOptionParser, T>();
+            .AddTransient<TParser>()
+            .AddTransient<IOptionParser<TOption>, TParser>();
     }
 
     public static IServiceCollection AddSlashCommand<T>(this IServiceCollection services)

@@ -52,7 +52,7 @@ public class InteractionCreatedHandler(
             case MODAL_SUBMIT:
                 _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
                     async () => await modalInteractionHandler.HandleAsync(interaction),
-                    nameof(MessageComponentHandler)
+                    nameof(ModalInteractionHandler)
                 ));
                 break;
 

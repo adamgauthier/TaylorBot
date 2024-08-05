@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Core.Client;
 
 namespace TaylorBot.Net.Commands.PostExecution;
@@ -11,7 +12,7 @@ public record ButtonComponent(
     string UserId
 ) : IInteraction;
 
-public class MessageComponentHandler(ILogger<MessageComponentHandler> logger, InteractionResponseClient interactionResponseClient)
+public class MessageComponentHandler(IServiceProvider services, ILogger<MessageComponentHandler> logger)
 {
     private readonly Dictionary<string, Func<ButtonComponent, ValueTask>> _callbacks = [];
 
@@ -30,7 +31,8 @@ public class MessageComponentHandler(ILogger<MessageComponentHandler> logger, In
 
                 if (_callbacks.TryGetValue(button.CustomId, out var callback))
                 {
-                    await interactionResponseClient.SendComponentAckResponseWithoutLoadingMessageAsync(button);
+                    await services.GetRequiredService<InteractionResponseClient>()
+                        .SendComponentAckResponseWithoutLoadingMessageAsync(button);
 
                     await callback(button);
                 }

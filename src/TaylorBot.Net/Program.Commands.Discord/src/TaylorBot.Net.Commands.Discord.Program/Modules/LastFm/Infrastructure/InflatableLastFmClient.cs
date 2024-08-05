@@ -2,18 +2,22 @@
 using IF.Lastfm.Core.Api.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
 
-public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOptionsMonitor<LastFmOptions> options, LastfmClient client, LastFmPeriodStringMapper lastFmPeriodStringMapper) : ILastFmClient
+public sealed class InflatableLastFmClient(
+    ILogger<InflatableLastFmClient> logger,
+    IOptionsMonitor<LastFmOptions> options,
+    HttpClient httpClient,
+    LastfmClient client,
+    LastFmPeriodStringMapper lastFmPeriodStringMapper) : ILastFmClient
 {
-    private readonly HttpClient _httpClient = new();
-
     public async ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername)
     {
         var response = await client.User.GetRecentScrobbles(
@@ -97,36 +101,38 @@ public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOpt
             "limit=10"
         };
 
-        var response = await _httpClient.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}");
+        return await httpClient.ReadJsonWithErrorLogging<TopTracksResponse, ITopTracksResult>(
+            c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}"),
+            handleSuccessAsync: success => Task.FromResult(HandleTopTracksSuccess(success)),
+            handleErrorAsync: error => Task.FromResult<ITopTracksResult>(HandleLastFmHttpError(error)),
+            logger);
+    }
 
-        if (response.StatusCode == HttpStatusCode.OK)
-        {
-            var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+    private ITopTracksResult HandleTopTracksSuccess(HttpSuccess<TopTracksResponse> result)
+    {
+        var tracks = result.Parsed.toptracks.track;
 
-            var tracks = jsonDocument.RootElement.GetProperty("toptracks").GetProperty("track");
+        return new TopTracksResult(tracks.Select(t => new TopTrack(
+            Name: t.name,
+            TrackUrl: new(t.url),
+            PlayCount: int.Parse(t.playcount),
+            ArtistName: t.artist.name,
+            ArtistUrl: new(t.artist.url)
+        )).ToList());
+    }
 
-            return new TopTracksResult(tracks.EnumerateArray().Select(t => new TopTrack(
-                Name: t.GetProperty("name").GetString()!,
-                TrackUrl: new Uri(t.GetProperty("url").GetString()!),
-                PlayCount: int.Parse(t.GetProperty("playcount").GetString()!),
-                ArtistName: t.GetProperty("artist").GetProperty("name").GetString()!,
-                ArtistUrl: new Uri(t.GetProperty("artist").GetProperty("url").GetString()!)
-            )).ToList());
-        }
-        else
-        {
-            try
-            {
-                var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-                var status = (LastResponseStatus)jsonDocument.RootElement.GetProperty("error").GetUInt16();
-                return new LastFmGenericErrorResult(status.ToString());
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Unhandled error when parsing json in Last.fm error response ({StatusCode}):", response.StatusCode);
-                return new LastFmGenericErrorResult(null);
-            }
-        }
+    public record TopTracksResponse(TopTracksResponse.TopTracks toptracks)
+    {
+        public record TopTracks(IReadOnlyList<Track> track);
+
+        public record Track(
+            string name,
+            string url,
+            string playcount,
+            Artist artist
+        );
+
+        public record Artist(string name, string url);
     }
 
     public async ValueTask<ITopAlbumsResult> GetTopAlbumsAsync(string lastFmUsername, LastFmPeriod period)
@@ -141,43 +147,66 @@ public class InflatableLastFmClient(ILogger<InflatableLastFmClient> logger, IOpt
             "limit=10"
         };
 
-        var response = await _httpClient.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}");
+        return await httpClient.ReadJsonWithErrorLogging<TopAlbumsResponse, ITopAlbumsResult>(
+            c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}"),
+            handleSuccessAsync: success => Task.FromResult(HandleTopAlbumsSuccess(success)),
+            handleErrorAsync: error => Task.FromResult<ITopAlbumsResult>(HandleLastFmHttpError(error)),
+            logger);
+    }
 
-        if (response.StatusCode == HttpStatusCode.OK)
+    private ITopAlbumsResult HandleTopAlbumsSuccess(HttpSuccess<TopAlbumsResponse> result)
+    {
+        var albums = result.Parsed.topalbums.album;
+
+        return new TopAlbumsResult(albums.Select(a =>
         {
-            var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            var images = a.image;
 
-            var albums = jsonDocument.RootElement.GetProperty("topalbums").GetProperty("album");
+            return new TopAlbum(
+                Name: a.name,
+                AlbumUrl: new(a.url),
+                AlbumImageUrl: images.Any(i => i.size == "large" && !string.IsNullOrEmpty(i.text))
+                    ? new Uri(images.First(i => i.size == "large").text)
+                    : null,
+                PlayCount: int.Parse(a.playcount),
+                ArtistName: a.artist.name,
+                ArtistUrl: new(a.artist.url)
+            );
+        }).ToList());
+    }
 
-            return new TopAlbumsResult(albums.EnumerateArray().Select(a =>
-            {
-                var images = a.GetProperty("image").EnumerateArray().ToList();
+    public record TopAlbumsResponse(TopAlbumsResponse.TopAlbums topalbums)
+    {
+        public record TopAlbums(IReadOnlyList<Album> album);
 
-                return new TopAlbum(
-                    Name: a.GetProperty("name").GetString()!,
-                    AlbumUrl: new Uri(a.GetProperty("url").GetString()!),
-                    AlbumImageUrl: images.Any(i => i.GetProperty("size").GetString() == "large" && !string.IsNullOrEmpty(i.GetProperty("#text").GetString())) ?
-                        new Uri(images.First(i => i.GetProperty("size").GetString() == "large").GetProperty("#text").GetString()!) :
-                        null,
-                    PlayCount: int.Parse(a.GetProperty("playcount").GetString()!),
-                    ArtistName: a.GetProperty("artist").GetProperty("name").GetString()!,
-                    ArtistUrl: new Uri(a.GetProperty("artist").GetProperty("url").GetString()!)
-                );
-            }).ToList());
+        public record Album(
+            string name,
+            string url,
+            string playcount,
+            Artist artist,
+            IReadOnlyList<AlbumImage> image
+        );
+
+        public record AlbumImage(string size, [property: JsonPropertyName("#text")] string text);
+
+        public record Artist(string name, string url);
+    }
+
+    private LastFmGenericErrorResult HandleLastFmHttpError(HttpError error)
+    {
+        if (error.Content != null)
+        {
+            var jsonDocument = JsonDocument.Parse(error.Content);
+
+            var status = jsonDocument.RootElement.TryGetProperty("error", out var errorCode)
+                ? (LastResponseStatus?)errorCode.GetUInt16()
+                : null;
+
+            return new LastFmGenericErrorResult(status?.ToString());
         }
         else
         {
-            try
-            {
-                var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-                var status = (LastResponseStatus)jsonDocument.RootElement.GetProperty("error").GetUInt16();
-                return new LastFmGenericErrorResult(status.ToString());
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Unhandled error when parsing json in Last.fm error response ({StatusCode}):", response.StatusCode);
-                return new LastFmGenericErrorResult(null);
-            }
+            return new LastFmGenericErrorResult(null);
         }
     }
 }

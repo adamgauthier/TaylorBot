@@ -1,72 +1,65 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
+using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
 
-public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient httpClient) : ImgurClient
+public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient client) : IImgurClient
 {
     public async ValueTask<IImgurResult> UploadAsync(string url)
     {
-        try
+        FormUrlEncodedContent content = new(new Dictionary<string, string>
         {
-            FormUrlEncodedContent content = new(new Dictionary<string, string>
-            {
-                { "image", url },
-            });
+            { "image", url },
+        });
 
-            var response = await httpClient.PostAsync("https://api.imgur.com/3/image", content);
+        return await client.ReadJsonWithErrorLogging<ImgurSuccessResponse, IImgurResult>(
+            c => c.PostAsync("https://api.imgur.com/3/image", content),
+            handleSuccessAsync: HandleSuccessAsync,
+            handleErrorAsync: error => Task.FromResult(HandleError(error)),
+            logger);
+    }
 
-            if (response.IsSuccessStatusCode)
-            {
-                var responseString = await response.Content.ReadAsStreamAsync();
-                var jsonDocument = await JsonDocument.ParseAsync(responseString);
-
-                if (jsonDocument.RootElement.TryGetProperty("success", out var isSuccess) && isSuccess.GetBoolean())
-                {
-                    var link = jsonDocument.RootElement.GetProperty("data").GetProperty("link").GetString();
-
-                    if (link == null)
-                    {
-                        logger.LogWarning("Error response from Imgur: {Response}", responseString);
-                        throw new InvalidOperationException("link property is null");
-                    }
-
-                    return new UploadSuccess(Url: link);
-                }
-                else
-                {
-                    logger.LogWarning("Error response from Imgur: {Response}", responseString);
-                    return new GenericImgurError();
-                }
-            }
-            else
-            {
-                try
-                {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    logger.LogWarning("Error response from Imgur ({StatusCode}): {Response}", response.StatusCode, responseString);
-
-                    var jsonDocument = JsonDocument.Parse(responseString);
-                    var errorCode = jsonDocument.RootElement.GetProperty("data").GetProperty("error").GetProperty("code").GetInt32();
-
-                    return errorCode switch
-                    {
-                        1003 => new FileTypeInvalid(),
-                        _ => new GenericImgurError(),
-                    };
-                }
-                catch (Exception e)
-                {
-                    logger.LogWarning(e, "Unhandled error when parsing JSON in Imgur error response ({StatusCode}):", response.StatusCode);
-                    return new GenericImgurError();
-                }
-            }
+    private async Task<IImgurResult> HandleSuccessAsync(HttpSuccess<ImgurSuccessResponse> result)
+    {
+        if (result.Parsed.success)
+        {
+            return new UploadSuccess(Url: result.Parsed.data.link);
         }
-        catch (Exception e)
+        else
         {
-            logger.LogWarning(e, "Unhandled error in Imgur API:");
+            await result.Response.LogContentAsync(logger, LogLevel.Warning, "Non-success response");
             return new GenericImgurError();
         }
+    }
+
+    private IImgurResult HandleError(HttpError error)
+    {
+        if (error.Content != null)
+        {
+            var response = JsonSerializer.Deserialize<ImgurErrorResponse>(error.Content);
+
+            return response?.data.error.ToLowerInvariant() switch
+            {
+                "we don't support that file type!" => new FileTypeInvalid(),
+                "file is over the size limit" => new FileTooLarge(),
+                _ => new GenericImgurError(),
+            };
+        }
+        else
+        {
+            return new GenericImgurError();
+        }
+    }
+
+    private record ImgurSuccessResponse(bool success, ImgurSuccessResponse.ImgurSuccessData data)
+    {
+        public record ImgurSuccessData(string link);
+    }
+
+    private record ImgurErrorResponse(ImgurErrorResponse.ImgurErrorData data)
+    {
+        public record ImgurErrorData(string error);
     }
 }

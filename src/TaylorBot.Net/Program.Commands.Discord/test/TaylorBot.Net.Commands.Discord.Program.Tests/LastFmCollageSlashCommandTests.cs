@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Text;
@@ -16,14 +17,19 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 public class LastFmCollageSlashCommandTests
 {
     private readonly DiscordUser _commandUser = CommandUtils.AUser;
+
+    private readonly ILogger<LastFmCollageSlashCommand> _logger = A.Fake<ILogger<LastFmCollageSlashCommand>>();
     private readonly IOptionsMonitor<LastFmOptions> _options = A.Fake<IOptionsMonitor<LastFmOptions>>(o => o.Strict());
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
+    private readonly IHttpClientFactory _clientFactory = A.Fake<IHttpClientFactory>(o => o.Strict());
+
     private readonly LastFmCollageSlashCommand _lastFmCollageSlashCommand;
 
     public LastFmCollageSlashCommandTests()
     {
-        _lastFmCollageSlashCommand = new(_lastFmUsernameRepository, new(_lastFmPeriodStringMapper), _lastFmPeriodStringMapper, new HttpClient(new AlwaysSucceedHttpMessageHandler()));
+        A.CallTo(() => _clientFactory.CreateClient(Microsoft.Extensions.Options.Options.DefaultName)).Returns(new HttpClient(new AlwaysSucceedHttpMessageHandler()));
+        _lastFmCollageSlashCommand = new(_logger, _lastFmUsernameRepository, new(_lastFmPeriodStringMapper), _lastFmPeriodStringMapper, _clientFactory);
     }
 
     [Fact]
