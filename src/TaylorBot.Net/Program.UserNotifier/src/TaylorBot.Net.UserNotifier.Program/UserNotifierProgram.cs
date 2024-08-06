@@ -19,10 +19,6 @@ using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.InstagramNotifier.Domain;
-using TaylorBot.Net.InstagramNotifier.Domain.DiscordEmbed;
-using TaylorBot.Net.InstagramNotifier.Domain.Options;
-using TaylorBot.Net.InstagramNotifier.Infrastructure;
 using TaylorBot.Net.MemberLogging.Domain;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.MemberLogging.Domain.Options;
@@ -74,7 +70,6 @@ public class UserNotifierProgram
                     .AddJsonFile(path: "Settings/redditNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/youtubeNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/tumblrNotifier.json", optional: false, reloadOnChange: true)
-                    .AddJsonFile(path: "Settings/instagramNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/birthdayRole.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: $"Settings/birthdayRole.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                     ;
@@ -97,7 +92,6 @@ public class UserNotifierProgram
                     .AddRedditNotify(config)
                     .AddTumblrNotify(config)
                     .AddYoutubeNotify(config)
-                    .AddInstagramNotify(config)
                     .AddReminderNotify(config)
                     .AddBirthdayCalendarRefresh()
                     .AddTransient<SingletonTaskRunner>()
@@ -218,16 +212,6 @@ public static class ServiceCollectionExtensions
             .AddTransient<IYoutubeCheckerRepository, YoutubeCheckerPostgresRepository>()
             .AddTransient<YoutubeNotifierService>()
             .AddTransient<YoutubePostToEmbedMapper>();
-    }
-
-    public static IServiceCollection AddInstagramNotify(this IServiceCollection services, IConfiguration config)
-    {
-        return services
-            .ConfigureRequired<InstagramNotifierOptions>(config, "InstagramNotifier")
-            .AddTransient<IInstagramCheckerRepository, InstagramCheckerPostgresRepository>()
-            .AddTransient<IInstagramClient, InstagramRestClient>()
-            .AddTransient<InstagramNotifierService>()
-            .AddTransient<InstagramPostToEmbedMapper>();
     }
 
     public static IServiceCollection AddReminderNotify(this IServiceCollection services, IConfiguration config)

@@ -2,7 +2,6 @@
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
-using TaylorBot.Net.InstagramNotifier.Domain;
 using TaylorBot.Net.PatreonSync.Domain;
 using TaylorBot.Net.RedditNotifier.Domain;
 using TaylorBot.Net.Reminder.Domain;
@@ -15,11 +14,9 @@ public class ShardReadyHandler(
     SingletonTaskRunner redditSingletonTaskRunner,
     SingletonTaskRunner youtubeSingletonTaskRunner,
     SingletonTaskRunner tumblrSingletonTaskRunner,
-    SingletonTaskRunner instagramSingletonTaskRunner,
     RedditNotifierService redditNotiferService,
     YoutubeNotifierService youtubeNotiferService,
     TumblrNotifierService tumblrNotifierService,
-    InstagramNotifierService instagramNotifierService,
     SingletonTaskRunner birthdayCalendarSingletonTaskRunner,
     BirthdayCalendarDomainService birthdayCalendarDomainService,
     SingletonTaskRunner reminderSingletonTaskRunner,
@@ -48,11 +45,6 @@ public class ShardReadyHandler(
         _ = tumblrSingletonTaskRunner.StartTaskIfNotStarted(
             tumblrNotifierService.StartCheckingTumblrsAsync,
             nameof(TumblrNotifierService)
-        );
-
-        _ = instagramSingletonTaskRunner.StartTaskIfNotStarted(
-            instagramNotifierService.StartCheckingInstagramsAsync,
-            nameof(InstagramNotifierService)
         );
 
         _ = birthdayCalendarSingletonTaskRunner.StartTaskIfNotStarted(

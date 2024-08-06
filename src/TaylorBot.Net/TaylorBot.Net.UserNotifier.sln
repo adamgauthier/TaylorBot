@@ -43,10 +43,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.PatreonSync.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.PatreonSync.Infrastructure", "Program.UserNotifier\src\TaylorBot.Net.PatreonSync.Infrastructure\TaylorBot.Net.PatreonSync.Infrastructure.csproj", "{9F532DC3-65D8-42FA-ADC6-71B5EE46FA52}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.InstagramNotifier.Domain", "Program.UserNotifier\src\TaylorBot.Net.InstagramNotifier.Domain\TaylorBot.Net.InstagramNotifier.Domain.csproj", "{889B9706-C7D4-443B-B007-885F8504B56E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.InstagramNotifier.Infrastructure", "Program.UserNotifier\src\TaylorBot.Net.InstagramNotifier.Infrastructure\TaylorBot.Net.InstagramNotifier.Infrastructure.csproj", "{26A15779-600A-4722-A77A-258F406B3F49}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Domain", "Program.UserNotifier\src\TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj", "{FF9A4EAF-82F7-4099-8E7D-C3CEFA0338C2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaylorBot.Net.RedditNotifier.Infrastructure", "Program.UserNotifier\src\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj", "{C6D75749-7E37-4D23-BA6E-7F1DF3A2C4DE}"
@@ -129,14 +125,6 @@ Global
 		{9F532DC3-65D8-42FA-ADC6-71B5EE46FA52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F532DC3-65D8-42FA-ADC6-71B5EE46FA52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F532DC3-65D8-42FA-ADC6-71B5EE46FA52}.Release|Any CPU.Build.0 = Release|Any CPU
-		{889B9706-C7D4-443B-B007-885F8504B56E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{889B9706-C7D4-443B-B007-885F8504B56E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{889B9706-C7D4-443B-B007-885F8504B56E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{889B9706-C7D4-443B-B007-885F8504B56E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{26A15779-600A-4722-A77A-258F406B3F49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26A15779-600A-4722-A77A-258F406B3F49}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26A15779-600A-4722-A77A-258F406B3F49}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26A15779-600A-4722-A77A-258F406B3F49}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FF9A4EAF-82F7-4099-8E7D-C3CEFA0338C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FF9A4EAF-82F7-4099-8E7D-C3CEFA0338C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF9A4EAF-82F7-4099-8E7D-C3CEFA0338C2}.Release|Any CPU.ActiveCfg = Release|Any CPU

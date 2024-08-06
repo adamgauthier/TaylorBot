@@ -18,8 +18,6 @@
     <ProjectReference Include="..\TaylorBot.Net.PatreonSync.Infrastructure\TaylorBot.Net.PatreonSync.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj" />
-    <ProjectReference Include="..\TaylorBot.Net.InstagramNotifier.Domain\TaylorBot.Net.InstagramNotifier.Domain.csproj" />
-    <ProjectReference Include="..\TaylorBot.Net.InstagramNotifier.Infrastructure\TaylorBot.Net.InstagramNotifier.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Domain\TaylorBot.Net.RedditNotifier.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.TumblrNotifier.Domain\TaylorBot.Net.TumblrNotifier.Domain.csproj" />
