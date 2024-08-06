@@ -13,13 +13,26 @@
   "options": [
     {
       "name": "user",
-      "description": "Inspect Discord data about a specific user",
+      "description": "Inspect Discord data about a user",
       "type": 1,
       "options": [
         {
           "name": "user",
-          "description": "The user to retrieve to inspect, default you",
+          "description": "The user to inspect, default you",
           "type": 6,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "channel",
+      "description": "Inspect Discord data about a channel",
+      "type": 1,
+      "options": [
+        {
+          "name": "channel",
+          "description": "The channel to inspect, default current channel",
+          "type": 7,
           "required": false
         }
       ]
