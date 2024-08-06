@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Humanizer;
-using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
@@ -13,10 +12,8 @@ using TaylorBot.Net.Core.Time;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 [Name("DiscordInfo 💬")]
-public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMapper channelTypeStringMapper, AvatarSlashCommand avatarCommand) : TaylorBotModule
+public class DiscordInfoModule(ICommandRunner commandRunner, AvatarSlashCommand avatarCommand) : TaylorBotModule
 {
-    private static readonly Random _random = new();
-
     [Command("avatar")]
     [Alias("av", "avi")]
     [Summary("Displays the avatar of a user.")]
@@ -118,54 +115,19 @@ public class DiscordInfoModule(ICommandRunner commandRunner, ChannelTypeStringMa
 
     [Command("channelinfo")]
     [Alias("cinfo")]
-    [Summary("Gets discord information about a channel.")]
+    [Summary("This command has been moved to </inspect channel:1260489511297749054>. Please use it instead! 😊")]
     public async Task<RuntimeResult> ChannelInfoAsync(
-        [Summary("What channel would you like to see the info of?")]
         [Remainder]
-        IChannelArgument<IChannel>? channel = null
+        string? _ = null
     )
     {
-        var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
-        {
-            var c = channel == null ? Context.Channel : channel.Channel;
-
-            var embed = new EmbedBuilder()
-                .WithAuthor(c is ITextChannel t && t.IsNsfw ? $"{c.Name} 🔞" : c.Name)
-                .AddField("Id", $"`{c.Id}`", inline: true)
-                .AddField("Type", channelTypeStringMapper.MapChannelToTypeString(c), inline: true)
-                .AddField("Created", c.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture));
-
-            if (channel is INestedChannel nested && nested.CategoryId.HasValue)
-            {
-                var parent = await nested.Guild.GetChannelAsync(nested.CategoryId.Value);
-                embed.AddField("Category", $"{parent.Name} (`{parent.Id}`)", inline: true);
-            }
-
-            if (channel is IGuildChannel guildChannel)
-            {
-                embed.AddField("Server", $"{guildChannel.Guild.Name} (`{guildChannel.GuildId}`)", inline: true);
-                switch (guildChannel)
-                {
-                    case IVoiceChannel voice:
-                        embed
-                            .AddField("Bitrate", $"{voice.Bitrate} bps", inline: true)
-                            .AddField("User Limit", voice.UserLimit.HasValue ? $"{voice.UserLimit.Value}" : "None", inline: true);
-                        break;
-                    case ITextChannel text:
-                        embed.AddField("Topic", string.IsNullOrEmpty(text.Topic) ? "None" : text.Topic);
-                        break;
-                    case ICategoryChannel category:
-                        var channels = await category.Guild.GetChannelsAsync();
-                        var children = channels.OfType<INestedChannel>().Where(c => c.CategoryId.HasValue && c.CategoryId.Value == category.Id);
-                        embed.AddField("Channels", string.Join(", ", children.Select(c => c.Name)).Truncate(75));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return new EmbedResult(embed.Build());
-        });
+        var command = new Command(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </inspect channel:1260489511297749054> 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);

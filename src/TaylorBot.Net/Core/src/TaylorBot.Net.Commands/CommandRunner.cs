@@ -1,5 +1,6 @@
 ﻿using Discord;
 using TaylorBot.Net.Commands.Instrumentation;
+using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
@@ -7,11 +8,6 @@ using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands;
-
-public record CommandChannel(SnowflakeId Id, ChannelType Type)
-{
-    public string Mention => MentionUtils.MentionChannel(Id);
-}
 
 public record CommandGuild(SnowflakeId Id, IGuild? Fetched)
 {
@@ -25,7 +21,7 @@ public record RunContext(
     DateTimeOffset CreatedAt,
     DiscordUser User,
     IUser? FetchedUser,
-    CommandChannel Channel,
+    DiscordChannel Channel,
     CommandGuild? Guild,
     IDiscordClient Client,
     ISelfUser BotUser,

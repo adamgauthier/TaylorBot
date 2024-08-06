@@ -1,5 +1,6 @@
 ﻿using Discord;
 using FakeItEasy;
+using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.User;
 
@@ -27,7 +28,7 @@ public class CommandUtils
             ? new(167845806479638529, A.Fake<IGuild>())
             : null;
 
-        CommandChannel channel = new(167845806479638529, contextType == ContextType.Guild ? ChannelType.Text : ChannelType.DM);
+        DiscordChannel channel = new(167845806479638529, contextType == ContextType.Guild ? ChannelType.Text : ChannelType.DM);
 
         return new RunContext(DateTimeOffset.UtcNow, AUser, null, channel, guild, null!, null!, new("922354806574678086", command.Info.Name), null!, null!, null!);
     }

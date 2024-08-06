@@ -12,7 +12,8 @@ public class ChannelTypeStringMapper
             ITextChannel _ => "Text",
             ICategoryChannel _ => "Category",
             IDMChannel _ => "DM",
-            _ => throw new ArgumentOutOfRangeException(nameof(channel)),
+            IForumChannel _ => "Forum",
+            _ => "Unknown",
         };
     }
 }

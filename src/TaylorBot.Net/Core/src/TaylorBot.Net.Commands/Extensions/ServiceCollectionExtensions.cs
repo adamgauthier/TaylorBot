@@ -90,6 +90,7 @@ public static class ServiceCollectionExtensions
             .AddOptionParser<MemberNotAuthorAndTaylorBotParser, ParsedMemberNotAuthorAndTaylorBot>()
             .AddOptionParser<MemberNotAuthorAndBotParser, ParsedMemberNotAuthorAndBot>()
             .AddOptionParser<MemberOrAuthorParser, ParsedMemberOrAuthor>()
+            .AddOptionParser<ChannelOrCurrentParser, ParsedChannelOrCurrent>()
             .AddOptionParser<TextChannelOrCurrentParser, ParsedTextChannelOrCurrent>()
             .AddOptionParser<NonThreadTextChannellOrCurrentParser, ParsedNonThreadTextChannelOrCurrent>()
             .AddOptionParser<TimeSpanParser, ParsedTimeSpan>()

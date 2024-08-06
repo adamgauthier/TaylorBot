@@ -2,7 +2,6 @@
 using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
@@ -14,12 +13,11 @@ public class DiscordInfoModuleTests
 {
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
-    private readonly ChannelTypeStringMapper _channelTypeStringMapper = new();
     private readonly DiscordInfoModule _discordInfoModule;
 
     public DiscordInfoModuleTests()
     {
-        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), _channelTypeStringMapper, new AvatarSlashCommand());
+        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), new AvatarSlashCommand());
         _discordInfoModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
     }
@@ -46,18 +44,6 @@ public class DiscordInfoModuleTests
         A.CallTo(() => role.Id).Returns(AnId);
 
         var result = (await _discordInfoModule.RoleInfoAsync(new RoleArgument<IRole>(role))).GetResult<EmbedResult>();
-
-        result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
-    }
-
-    [Fact]
-    public async Task ChannelInfoAsync_ThenReturnsIdFieldEmbed()
-    {
-        const ulong AnId = 1;
-        var channel = A.Fake<ITextChannel>();
-        A.CallTo(() => channel.Id).Returns(AnId);
-
-        var result = (await _discordInfoModule.ChannelInfoAsync(new ChannelArgument<IChannel>(channel))).GetResult<EmbedResult>();
 
         result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
     }

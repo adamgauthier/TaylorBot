@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Parsers.Channels;
 
 public record ParsedTextChannelOrCurrent(GuildTextChannel Channel);
 
-public class TextChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository) : IOptionParser<ParsedTextChannelOrCurrent>
+public class TextChannelOrCurrentParser(ChannelOrCurrentParser channelOrCurrentParser) : IOptionParser<ParsedTextChannelOrCurrent>
 {
     public async ValueTask<Result<ParsedTextChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
@@ -19,19 +19,10 @@ public class TextChannelOrCurrentParser(ISpamChannelRepository spamChannelReposi
         {
             if (resolved?.channels?.TryGetValue(option, out var resolvedChannel) == true)
             {
-                var guildId = resolvedChannel.guild_id ?? context.Guild?.Id?.ToString();
-
-                if (IsGuildTextChannel(resolvedChannel) && guildId != null)
+                var guildTextChannel = await channelOrCurrentParser.TrackTextChannelAsync(context, resolvedChannel);
+                if (guildTextChannel != null)
                 {
-                    GuildTextChannel channel = new(resolvedChannel.id, guildId, (ChannelType)resolvedChannel.type);
-
-                    // Command channel is already tracked
-                    if (channel.Id != context.Channel.Id && context.Guild?.Fetched != null)
-                    {
-                        _ = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(channel);
-                    }
-
-                    return new ParsedTextChannelOrCurrent(channel);
+                    return new ParsedTextChannelOrCurrent(guildTextChannel);
                 }
                 else
                 {
@@ -51,19 +42,5 @@ public class TextChannelOrCurrentParser(ISpamChannelRepository spamChannelReposi
             }
             return new ParsedTextChannelOrCurrent(new(context.Channel.Id, context.Guild.Id, context.Channel.Type));
         }
-    }
-
-    private static bool IsGuildTextChannel(Interaction.PartialChannel resolvedChannel)
-    {
-        var channelType = (ChannelType)resolvedChannel.type;
-
-        return channelType is
-            ChannelType.Text or
-            ChannelType.Voice or
-            ChannelType.News or
-            ChannelType.NewsThread or
-            ChannelType.PublicThread or
-            ChannelType.PrivateThread or
-            ChannelType.Stage;
     }
 }
