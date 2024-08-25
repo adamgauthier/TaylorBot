@@ -60,52 +60,19 @@ public class DiscordInfoModule(ICommandRunner commandRunner, AvatarSlashCommand 
 
     [Command("roleinfo")]
     [Alias("rinfo")]
-    [Summary("Gets discord information about a role.")]
+    [Summary("This command has been moved to </inspect role:1260489511297749054>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RoleInfoAsync(
-        [Summary("What role would you like to see the info of?")]
         [Remainder]
-        RoleArgument<IRole>? role = null
+        string? _ = null
     )
     {
         var command = new Command(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
-            async () =>
-            {
-                IRole GetRole()
-                {
-                    if (role == null)
-                    {
-                        var guildUser = (IGuildUser)Context.User;
-                        return guildUser.Guild.GetRole(guildUser.RoleIds.First());
-                    }
-                    else
-                    {
-                        return role.Role;
-                    }
-                }
-
-                var r = GetRole();
-
-                var members = (await r.Guild.GetUsersAsync(CacheMode.CacheOnly)).Where(m => m.RoleIds.Contains(r.Id)).ToList();
-
-                var embed = new EmbedBuilder()
-                    .WithColor(r.Color)
-                    .WithAuthor(r.Name)
-                    .AddField("Id", $"`{r.Id}`", inline: true)
-                    .AddField("Color", $"`{r.Color}`", inline: true)
-                    .AddField("Server Id", $"`{r.Guild.Id}`", inline: true)
-                    .AddField("Hoisted", r.IsHoisted ? "✅" : "❌", inline: true)
-                    .AddField("Managed", r.IsManaged ? "✅" : "❌", inline: true)
-                    .AddField("Mentionable", r.IsMentionable ? "✅" : "❌", inline: true)
-                    .AddField("Created", r.CreatedAt.FormatFullUserDate(TaylorBotCulture.Culture))
-                    .AddField("Members",
-                        $"**({members.Count}{(members.Count != 0 ? $"+)** {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : ")**")}"
-                    );
-
-                return new EmbedResult(embed.Build());
-            },
-            Preconditions: [new InGuildPrecondition()]
-        );
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </inspect role:1260489511297749054> 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);

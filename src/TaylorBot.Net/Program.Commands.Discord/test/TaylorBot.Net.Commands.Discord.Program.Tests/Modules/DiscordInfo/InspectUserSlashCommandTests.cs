@@ -3,7 +3,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.DiscordInfo;
 
 public class InspectUserSlashCommandTests
 {

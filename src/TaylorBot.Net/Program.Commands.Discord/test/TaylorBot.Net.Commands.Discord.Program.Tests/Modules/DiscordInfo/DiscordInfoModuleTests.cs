@@ -7,7 +7,7 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.DiscordInfo;
 
 public class DiscordInfoModuleTests
 {
@@ -33,19 +33,8 @@ public class DiscordInfoModuleTests
 
         var result = (await _discordInfoModule.AvatarAsync(userArgument)).GetResult<EmbedResult>();
 
-        result.Embed.Image!.Value.Url.Should().StartWith("https://cdn.discordapp.com/avatars/");
-    }
-
-    [Fact]
-    public async Task RoleInfoAsync_ThenReturnsIdFieldEmbed()
-    {
-        const ulong AnId = 1;
-        var role = A.Fake<IRole>();
-        A.CallTo(() => role.Id).Returns(AnId);
-
-        var result = (await _discordInfoModule.RoleInfoAsync(new RoleArgument<IRole>(role))).GetResult<EmbedResult>();
-
-        result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
+        result.Embed.Image.Should().NotBeNull()
+            .And.BeOfType<EmbedImage>().Which.Url.Should().StartWith("https://cdn.discordapp.com/avatars/");
     }
 
     [Fact]

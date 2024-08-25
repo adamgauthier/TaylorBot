@@ -7,7 +7,7 @@ using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Core.Client;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.DiscordInfo;
 
 public class InspectChannelSlashCommandTests
 {

@@ -70,7 +70,8 @@ public class TaylorBotClient : ITaylorBotClient
         {
             _rawEventsHandler.HandleRawEvent(shard, "INTERACTION_CREATE", async (payload) =>
             {
-                var interaction = JsonSerializer.Deserialize<Interaction>(payload)!;
+                var interaction = JsonSerializer.Deserialize<Interaction>(payload);
+                ArgumentNullException.ThrowIfNull(interaction);
 
                 await _interactionCreatedEvent.InvokeAsync(interaction);
             });
@@ -87,7 +88,9 @@ public class TaylorBotClient : ITaylorBotClient
     private Task LogAsync(LogMessage log)
     {
         if (_rawEventsHandler.Callbacks.Keys.Any(rawEvent => log.Message == $"Unknown Dispatch ({rawEvent})"))
+        {
             return Task.CompletedTask;
+        }
 
         _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), log.ToString(prependTimestamp: false));
         return Task.CompletedTask;

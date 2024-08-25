@@ -42,6 +42,7 @@ public record Interaction(
     public record Resolved(
         IReadOnlyDictionary<string, User>? users,
         IReadOnlyDictionary<string, PartialMember>? members,
+        IReadOnlyDictionary<string, DiscordRole>? roles,
         IReadOnlyDictionary<string, PartialChannel>? channels,
         IReadOnlyDictionary<string, Attachment>? attachments);
 
@@ -49,6 +50,30 @@ public record Interaction(
 
     public record Attachment(string id, string filename, string url, int size, string content_type);
 }
+
+public record DiscordRole(
+    SnowflakeId id,
+    string name,
+    uint color,
+    bool hoist,
+    string? icon,
+    string? unicode_emoji,
+    int position,
+    string permissions,
+    bool managed,
+    bool mentionable,
+    RoleTags? tags,
+    int flags
+);
+
+public record RoleTags(
+    string? bot_id,
+    string? integration_id,
+    bool? premium_subscriber,
+    string? subscription_listing_id,
+    bool? available_for_purchase,
+    bool? guild_connections
+);
 
 public interface IInteraction
 {

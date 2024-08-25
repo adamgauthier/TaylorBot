@@ -36,6 +36,19 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "role",
+      "description": "Inspect Discord data about a role",
+      "type": 1,
+      "options": [
+        {
+          "name": "role",
+          "description": "The role to inspect",
+          "type": 8,
+          "required": true
+        }
+      ]
     }
   ]
 }

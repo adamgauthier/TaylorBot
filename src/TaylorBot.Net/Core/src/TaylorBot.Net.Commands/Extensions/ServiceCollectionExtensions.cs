@@ -9,6 +9,7 @@ using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.Parsers.Numbers;
+using TaylorBot.Net.Commands.Parsers.Roles;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -93,6 +94,7 @@ public static class ServiceCollectionExtensions
             .AddOptionParser<ChannelOrCurrentParser, ParsedChannelOrCurrent>()
             .AddOptionParser<TextChannelOrCurrentParser, ParsedTextChannelOrCurrent>()
             .AddOptionParser<NonThreadTextChannellOrCurrentParser, ParsedNonThreadTextChannelOrCurrent>()
+            .AddOptionParser<RoleParser, ParsedRole>()
             .AddOptionParser<TimeSpanParser, ParsedTimeSpan>()
             .AddOptionParser<IntegerParser, ParsedInteger>()
             .AddOptionParser<OptionalIntegerParser, ParsedOptionalInteger>()
