@@ -18,14 +18,15 @@ public record SnowflakeId(ulong Id)
 
 public class SnowflakeIdConverter : JsonConverter<SnowflakeId>
 {
+    private readonly static JsonConverter<string> defaultConverter =
+        (JsonConverter<string>)JsonSerializerOptions.Default.GetConverter(typeof(string));
+
     public override SnowflakeId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var rawString = reader.GetString();
+        var rawString = defaultConverter.Read(ref reader, typeToConvert, options);
         return rawString == null ? throw new JsonException() : new(rawString);
     }
 
-    public override void Write(Utf8JsonWriter writer, SnowflakeId value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(value);
-    }
+    public override void Write(Utf8JsonWriter writer, SnowflakeId value, JsonSerializerOptions options) =>
+        defaultConverter.Write(writer, value.ToString(), options);
 }

@@ -36,21 +36,4 @@ public class DiscordInfoModuleTests
         result.Embed.Image.Should().NotBeNull()
             .And.BeOfType<EmbedImage>().Which.Url.Should().StartWith("https://cdn.discordapp.com/avatars/");
     }
-
-    [Fact]
-    public async Task ServerInfoAsync_ThenReturnsIdFieldEmbed()
-    {
-        const ulong AnId = 1;
-        var guild = A.Fake<IGuild>();
-        A.CallTo(() => guild.Id).Returns(AnId);
-        A.CallTo(() => guild.VoiceRegionId).Returns("us-east");
-        var role = A.Fake<IRole>();
-        A.CallTo(() => role.Mention).Returns("<@0>");
-        A.CallTo(() => guild.Roles).Returns([role]);
-        A.CallTo(() => _commandContext.Guild).Returns(guild);
-
-        var result = (await _discordInfoModule.ServerInfoAsync()).GetResult<EmbedResult>();
-
-        result.Embed.Fields.Single(f => f.Name == "Id").Value.Should().Contain(AnId.ToString());
-    }
 }

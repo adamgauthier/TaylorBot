@@ -19,7 +19,7 @@ public class TaylorBotShardedCommandContext(DiscordShardedClient client, SocketU
 {
     public Lazy<CommandActivity> Activity { get; } = activity;
     public string CommandPrefix { get; } = commandPrefix;
-    public IList<CommandInfo> CommandInfos { get; set; } = new List<CommandInfo>();
+    public IList<CommandInfo> CommandInfos { get; set; } = [];
     public RunContext? RunContext { get; set; }
     public ISelfUser CurrentUser => Client.CurrentUser;
 

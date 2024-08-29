@@ -49,6 +49,11 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "server",
+      "description": "Inspect Discord data about the current server",
+      "type": 1
     }
   ]
 }
