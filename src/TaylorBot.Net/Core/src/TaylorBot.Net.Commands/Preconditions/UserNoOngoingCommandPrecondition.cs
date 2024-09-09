@@ -15,7 +15,7 @@ public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingC
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
-        var pool = command.Metadata.Name is SharedCommands.Help or SharedCommands.Diagnostic ?
+        var pool = command.Metadata.Name is SharedCommands.Help ?
             $"help.{Assembly.GetEntryAssembly()!.GetName().Name!.ToLowerInvariant()}" :
             string.Empty;
 

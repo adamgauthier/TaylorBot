@@ -97,6 +97,11 @@
       ]
     },
     {
+      "name": "diagnostic",
+      "description": "Get diagnostic information about the running instance",
+      "type": 1
+    },
+    {
       "name": "addfeedbackusers",
       "description": "Add users to feedback role",
       "type": 1,

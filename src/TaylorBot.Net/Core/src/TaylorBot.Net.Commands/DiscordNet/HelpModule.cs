@@ -1,8 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using TaylorBot.Net.Commands.Options;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 
@@ -11,7 +8,6 @@ namespace TaylorBot.Net.Commands.DiscordNet;
 public class SharedCommands
 {
     public const string Help = "help";
-    public const string Diagnostic = "diagnostic";
 }
 
 [Name("Help")]
@@ -19,7 +15,6 @@ public class HelpModule(
     CommandService commands,
     IDisabledCommandRepository disabledCommandRepository,
     ICommandRepository commandRepository,
-    IOptionsMonitor<CommandApplicationOptions> commandApplicationOptions,
     ICommandRunner commandRunner
     ) : TaylorBotModule
 {
@@ -87,7 +82,7 @@ public class HelpModule(
             else
             {
                 var commands = await commandRepository.GetAllCommandsAsync();
-                var featuredModules = new[] {
+                string[] featuredModules = [
                     "Random 🎲",
                     "DiscordInfo 💬",
                     "Fun 🎭",
@@ -96,8 +91,8 @@ public class HelpModule(
                     "Points 💰",
                     "Reminders ⏰",
                     "Stats 📊",
-                    "Weather 🌦"
-                };
+                    "Weather 🌦",
+                ];
                 var groupedCommands = commands.Where(c => featuredModules.Contains(c.ModuleName)).GroupBy(c => c.ModuleName).OrderBy(g => g.Key);
 
                 builder
@@ -111,47 +106,6 @@ public class HelpModule(
 
             return new EmbedResult(builder.Build());
         });
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
-
-    [Command(SharedCommands.Diagnostic)]
-    [Summary("Gets diagnostic information a TaylorBot component.")]
-    public async Task<RuntimeResult> DiagnosticAsync(
-        [Summary("The component to show diagnostic information for")]
-        [Remainder]
-        string? component = null
-    )
-    {
-        var command = new Command(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            async () =>
-            {
-                if (component != commandApplicationOptions.CurrentValue.ApplicationName)
-                    return new EmptyResult();
-
-                var embed = new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .AddField("Guild Cache", (await Context.Client.GetGuildsAsync(CacheMode.CacheOnly)).Count, inline: true)
-                    .AddField("DM Channels Cache", (await Context.Client.GetDMChannelsAsync(CacheMode.CacheOnly)).Count, inline: true);
-
-                if (Context.Client is DiscordShardedClient shardedClient)
-                {
-                    embed.AddField("Shard Count", shardedClient.Shards.Count, inline: true);
-                }
-
-                if (Context.Client is BaseSocketClient socketClient)
-                {
-                    embed.AddField("Latency", $"{socketClient.Latency} ms", inline: true);
-                }
-
-                return new EmbedResult(embed.Build());
-            },
-            Preconditions: [new TaylorBotOwnerPrecondition()]
-        );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunAsync(command, context);

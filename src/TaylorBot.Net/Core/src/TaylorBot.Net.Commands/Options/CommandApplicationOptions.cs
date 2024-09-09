@@ -2,7 +2,6 @@
 
 public class CommandApplicationOptions
 {
-    public string ApplicationName { get; set; } = null!;
     public Dictionary<string, DailyLimit> DailyLimits { get; set; } = null!;
 }
 

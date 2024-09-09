@@ -3,7 +3,6 @@
     "UseRedisCache": true
   },
   "CommandApplication": {
-    "ApplicationName": "commands-discord",
     "DailyLimits": {
       "custom-search": {
         "FriendlyName": "Searching images (slash command)",
