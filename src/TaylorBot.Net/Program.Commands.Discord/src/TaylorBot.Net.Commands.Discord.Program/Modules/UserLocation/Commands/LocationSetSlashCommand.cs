@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
 public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRepository locationRepository, LocationFetcherDomainService locationFetcherDomainService) : ISlashCommand<LocationSetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("location set");
+    public ISlashCommandInfo Info => new MessageCommandInfo("location set", IsPrivateResponse: true);
 
     public record Options(ParsedString location);
 

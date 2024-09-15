@@ -26,7 +26,7 @@ public class WeatherCommandTests
     public async Task Weather_ThenReturnsEmbedWithTemperature()
     {
         const double Temperature = 13.3;
-        Location location = new("46.8130816", "-71.20745959999999", "Québec City, QC, Canada");
+        Location location = new("46.8130816", "-71.20745959999999", "Québec City, QC, Canada", null);
         A.CallTo(() => _locationRepository.GetLocationAsync(_commandUser)).Returns(new StoredLocation(location, ""));
         A.CallTo(() => _weatherClient.GetCurrentForecastAsync(location.Latitude, location.Longitude)).Returns(new CurrentForecast("", Temperature, 0, 0, 0, ""));
 

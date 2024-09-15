@@ -29,7 +29,8 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
             new(
                 Latitude: location.latitude,
                 Longitude: location.longitude,
-                FormattedAddress: location.formatted_address),
+                FormattedAddress: location.formatted_address,
+                IsGeneral: null),
             TimeZoneId: location.timezone_id
         ) : null;
     }

@@ -14,7 +14,7 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
         var qs = new Dictionary<string, string>() {
             { "key", options.CurrentValue.GoogleApiKey },
             { "inputtype", "textquery" },
-            { "fields", "formatted_address,geometry/location" },
+            { "fields", "formatted_address,geometry/location,type" },
             { "input", search },
         }.ToUrlQueryString();
 
@@ -32,7 +32,27 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
         {
             case "OK":
                 var first = place.candidates[0];
-                return new LocationFoundResult(new($"{first.geometry.location.lat}", $"{first.geometry.location.lng}", first.formatted_address));
+
+                var isGeneral = first.types.Contains("country")
+                    || first.types.Contains("political")
+                    || first.types.Contains("locality")
+                    || first.types.Contains("neighborhood")
+                    || first.types.Contains("postal_town")
+                    || first.types.Contains("archipelago")
+                    || first.types.Contains("continent")
+                    || first.types.Contains("colloquial_area")
+                    || first.types.Any(t => t.Contains("administrative_area"))
+                    || first.types.Any(t => t.Contains("sublocality"));
+
+                var isPrecise = first.types.Contains("street_address")
+                    || first.types.Contains("premise")
+                    || first.types.Contains("subpremise");
+
+                return new LocationFoundResult(new(
+                    $"{first.geometry.location.lat}",
+                    $"{first.geometry.location.lng}",
+                    first.formatted_address,
+                    IsGeneral: isGeneral && !isPrecise));
 
             case "ZERO_RESULTS":
                 return new LocationNotFoundResult();
@@ -50,7 +70,7 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
 
     private record PlaceResponse(string status, IReadOnlyList<PlaceResponse.PlaceCandidate> candidates)
     {
-        public record PlaceCandidate(string formatted_address, PlaceGeometry geometry);
+        public record PlaceCandidate(string formatted_address, PlaceGeometry geometry, IReadOnlyList<string> types);
         public record PlaceGeometry(PlaceLocation location);
         public record PlaceLocation(double lat, double lng);
     }

@@ -20,18 +20,30 @@ public class LocationFetcherDomainService(IRateLimiter rateLimiter, ILocationCli
                 return Error((ICommandResult)new EmbedResult(EmbedFactory.CreateError(
                     """
                     Unexpected error happened when attempting to find this location 😢
-                    The location service might be down. Try again later!
+                    The location service might be down. Try again later! 🔁
                     """)));
 
             case LocationNotFoundResult _:
                 return Error((ICommandResult)new EmbedResult(EmbedFactory.CreateError(
                     """
                     Unable to find the location you specified 🔍
-                    Are you sure it's a place that exists in the real world?
+                    Are you sure it's a place that exists in the real world? 🤔
                     """)));
 
             case LocationFoundResult found:
-                return Ok(found.Location);
+                var foundLocation = found.Location;
+
+                if (foundLocation.IsGeneral != true)
+                {
+                    return Error((ICommandResult)new EmbedResult(EmbedFactory.CreateError(
+                        """
+                        The location you specified is too specific 🙅
+                        **Don't** expose your location with a precise street address! ⚠️
+                        Make sure to use a **nearby city, region or state** instead 😊
+                        """)));
+                }
+
+                return Ok(foundLocation);
 
             default: throw new NotImplementedException();
         }
