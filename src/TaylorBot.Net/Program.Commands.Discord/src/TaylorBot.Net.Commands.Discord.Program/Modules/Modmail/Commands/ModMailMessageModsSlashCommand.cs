@@ -65,7 +65,7 @@ public class ModMailMessageModsSlashCommand(
                             await channel.SendMessageAsync(embed: embed);
                             return EmbedFactory.CreateSuccess(
                                 $"""
-                                Message sent to the moderation team of '{guild.Name}'. ✉",
+                                Message sent to the moderation team of '{guild.Name}'. ✉
                                 If you're expecting a response, **make sure you are able to send and receive DMs from TaylorBot**.
                                 """);
                         }

@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
@@ -21,13 +22,27 @@ public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemb
             async () =>
             {
                 var channel = options.channel.Channel;
-                await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
-                    Ok, I will now log member joins, leaves and bans in {channel.Mention}. 😊
-                    Use {context.MentionCommand("monitor members stop")} to stop monitoring member events.
-                    """));
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
+                var log = await memberLogChannelRepository.GetMemberLogForGuildAsync(guild);
+                if (log == null)
+                {
+                    return new EmbedResult(await AddOrUpdateAsync(context, channel));
+                }
+                else
+                {
+                    return MessageResult.CreatePrompt(
+                        new(EmbedFactory.CreateWarning(
+                            $"""
+                            Are you sure you want to change the member monitor channel to {channel.Mention}? ⚠️
+                            Member joins, leaves and bans are currently being logged to {MentionUtils.MentionChannel(log.ChannelId)} 👈
+                            """
+                        )),
+                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                    );
+                }
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
@@ -35,6 +50,17 @@ public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemb
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));
+    }
+
+    private async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
+    {
+        await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
+
+        return EmbedFactory.CreateSuccess(
+            $"""
+            Ok, I will now log member joins, leaves and bans in {channel.Mention} ✅
+            Use {context.MentionCommand("monitor members stop")} to stop monitoring member events ↩️
+            """);
     }
 }
 
@@ -62,16 +88,16 @@ public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLo
                     {
                         embed = EmbedFactory.CreateSuccess(
                             $"""
-                            This server is configured to log member joins, leaves and bans in {channel.Mention}. ✅
-                            Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server.
+                            This server is configured to log member joins, leaves and bans in {channel.Mention} ✅
+                            Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server ↩️
                             """);
                     }
                     else
                     {
                         embed = EmbedFactory.CreateSuccess(
                             $"""
-                            I can't find the previously configured member events logging channel in this server. ❌
-                            Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel.
+                            I can't find the previously configured member events logging channel in this server ❌
+                            Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel ↩️
                             """);
                     }
                 }
@@ -79,8 +105,8 @@ public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLo
                 {
                     embed = EmbedFactory.CreateSuccess(
                         $"""
-                        Member events monitoring is not configured in this server. ❌
-                        Use {context.MentionCommand("monitor members set")} to log member events in a specific channel.
+                        Member events monitoring is not configured in this server ❌
+                        Use {context.MentionCommand("monitor members set")} to log member events in a specific channel  ↩️
                         """);
                 }
 
@@ -111,8 +137,8 @@ public class MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLo
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Ok, I will stop logging member events in this server. 😊
-                    Use {context.MentionCommand("monitor members set")} to log member events in a specific channel.
+                    Ok, I will stop logging member events in this server ✅
+                    Use {context.MentionCommand("monitor members set")} to log member events in a specific channel ↩️
                     """));
             },
             Preconditions: [

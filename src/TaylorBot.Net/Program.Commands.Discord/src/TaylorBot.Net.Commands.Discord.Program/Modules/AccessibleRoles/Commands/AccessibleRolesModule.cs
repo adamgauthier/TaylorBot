@@ -104,7 +104,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                             .WithColor(TaylorBotColors.ErrorColor)
                             .WithDescription(
                                 $"""
-                                You already have role {role.Role.Mention}.",
+                                You already have role {role.Role.Mention}.
                                 Use `{Context.CommandPrefix}role drop {role.Role.Name}` to drop it!
                                 """);
                     }

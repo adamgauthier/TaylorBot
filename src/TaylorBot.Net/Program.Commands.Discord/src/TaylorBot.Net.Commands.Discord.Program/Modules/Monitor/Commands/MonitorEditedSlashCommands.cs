@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
@@ -18,28 +19,40 @@ public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEdite
     {
         return new(new Command(
             new(Info.Name),
-            () =>
+            async () =>
             {
-                return new(MessageResult.CreatePrompt(
-                    new(EmbedFactory.CreateWarning(
-                        """
-                        You are configuring edited message monitoring for this server. In doing so, you understand that:
-                        - TaylorBot will **save the content of all messages sent in the server for 10 minutes** to provide this feature.
-                        - Edited messages that are older than this time window will be logged but the content before edit won't be available.
-                        - Bots often use message editing to provide features. These **will not** be logged as they could quickly clutter your logs.
-                        """)),
-                    confirm: async () =>
-                    {
-                        var channel = options.channel.Channel;
-                        await editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
+                var channel = options.channel.Channel;
 
-                        return new MessageContent(EmbedFactory.CreateSuccess(
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
+                var log = await editedLogChannelRepository.GetEditedLogForGuildAsync(guild);
+                if (log == null)
+                {
+                    return MessageResult.CreatePrompt(
+                        new(EmbedFactory.CreateWarning(
+                            """
+                            You are configuring edited message monitoring for this server. In doing so, you understand that:
+                            - TaylorBot will **save the content of all messages sent in the server for 10 minutes** to provide this feature.
+                            - Edited messages that are older than this time window will be logged but the content before edit won't be available.
+                            - Bots often use message editing to provide features. These **will not** be logged as they could quickly clutter your logs.
+                            """)),
+                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                    );
+                }
+                else
+                {
+
+                    return MessageResult.CreatePrompt(
+                        new(EmbedFactory.CreateWarning(
                             $"""
-                            Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚
-                            Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages.
-                            """));
-                    }
-                ));
+                            Are you sure you want to change the edited message monitor channel to {channel.Mention}? ⚠️
+                            Edited messages are currently being logged to {MentionUtils.MentionChannel(log.ChannelId)} 👈
+                            """
+                        )),
+                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                    );
+                }
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
@@ -47,6 +60,17 @@ public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEdite
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));
+    }
+
+    private async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
+    {
+        await editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
+
+        return EmbedFactory.CreateSuccess(
+            $"""
+            Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
+            Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages ↩️
+            """);
     }
 }
 
@@ -74,16 +98,16 @@ public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLog
                     {
                         embed = EmbedFactory.CreateSuccess(
                             $"""
-                            This server is configured to log edited messages in {channel.Mention}. ✅
-                            Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages in this server.
+                            This server is configured to log edited messages in {channel.Mention} ✅
+                            Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages in this server ↩️
                             """);
                     }
                     else
                     {
                         embed = EmbedFactory.CreateSuccess(
                             $"""
-                            I can't find the previously configured edited messages logging channel in this server. ❌
-                            Was it deleted? Use {context.MentionCommand("monitor edited set")} to log edited messages in another channel.
+                            I can't find the previously configured edited messages logging channel in this server ❌
+                            Was it deleted? Use {context.MentionCommand("monitor edited set")} to log edited messages in another channel ↩️
                             """);
                     }
                 }
@@ -91,8 +115,8 @@ public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLog
                 {
                     embed = EmbedFactory.CreateSuccess(
                         $"""
-                        Edited message monitoring is not configured in this server. ❌
-                        Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel.
+                        Edited message monitoring is not configured in this server ❌
+                        Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel ↩️
                         """);
                 }
 
@@ -123,8 +147,8 @@ public class MonitorEditedStopSlashCommand(IEditedLogChannelRepository editedLog
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Ok, I will stop logging edited messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚
-                    Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel.
+                    Ok, I will stop logging edited messages in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
+                    Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel ↩️
                     """));
             },
             Preconditions: [

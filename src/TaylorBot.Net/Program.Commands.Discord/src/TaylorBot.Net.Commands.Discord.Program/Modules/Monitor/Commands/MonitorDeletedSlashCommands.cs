@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
@@ -18,27 +19,39 @@ public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDele
     {
         return new(new Command(
             new(Info.Name),
-            () =>
+            async () =>
             {
-                return new(MessageResult.CreatePrompt(
-                    new(EmbedFactory.CreateWarning(
-                        """
-                        You are configuring deleted message monitoring for this server. In doing so, you understand that:
-                        - TaylorBot will **save the content of all messages sent in the server for 10 minutes** to provide this feature.
-                        - Deleted messages that are older than this time window will be logged but the message content won't be available.
-                        """)),
-                    confirm: async () =>
-                    {
-                        var channel = options.channel.Channel;
-                        await deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
+                var channel = options.channel.Channel;
 
-                        return new MessageContent(EmbedFactory.CreateSuccess(
+                var guild = context.Guild?.Fetched;
+                ArgumentNullException.ThrowIfNull(guild);
+
+                var log = await deletedLogChannelRepository.GetDeletedLogForGuildAsync(guild);
+                if (log == null)
+                {
+                    return MessageResult.CreatePrompt(
+                        new(EmbedFactory.CreateWarning(
+                            """
+                            You are configuring deleted message monitoring for this server. In doing so, you understand that:
+                            - TaylorBot will **save the content of all messages sent in the server for 10 minutes** to provide this feature.
+                            - Deleted messages that are older than this time window will be logged but the message content won't be available.
+                            """)),
+                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                    );
+                }
+                else
+                {
+
+                    return MessageResult.CreatePrompt(
+                        new(EmbedFactory.CreateWarning(
                             $"""
-                            Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect.** ⌚
-                            Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages.
-                            """));
-                    }
-                ));
+                            Are you sure you want to change the deleted message monitor channel to {channel.Mention}? ⚠️
+                            Deleted messages are currently being logged to {MentionUtils.MentionChannel(log.ChannelId)} 👈
+                            """
+                        )),
+                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                    );
+                }
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
@@ -46,6 +59,17 @@ public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDele
                 new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
             ]
         ));
+    }
+
+    private async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
+    {
+        await deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
+
+        return EmbedFactory.CreateSuccess(
+            $"""
+            Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
+            Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages ↩️
+            """);
     }
 }
 
@@ -73,16 +97,16 @@ public class MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deleted
                     {
                         embed = EmbedFactory.CreateSuccess(
                             $"""
-                            This server is configured to log deleted messages in {channel.Mention}. ✅
-                            Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages in this server.
+                            This server is configured to log deleted messages in {channel.Mention} ✅
+                            Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages in this server ↩️
                             """);
                     }
                     else
                     {
                         embed = EmbedFactory.CreateSuccess(
                             $"""
-                            I can't find the previously configured deleted messages logging channel in this server. ❌
-                            Was it deleted? Use {context.MentionCommand("monitor deleted set")} to log deleted messages in another channel.
+                            I can't find the previously configured deleted messages logging channel in this server ❌
+                            Was it deleted? Use {context.MentionCommand("monitor deleted set")} to log deleted messages in another channel ↩️
                             """);
                     }
                 }
@@ -90,8 +114,8 @@ public class MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deleted
                 {
                     embed = EmbedFactory.CreateSuccess(
                         $"""
-                        Deleted message monitoring is not configured in this server. ❌
-                        Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel.
+                        Deleted message monitoring is not configured in this server ❌
+                        Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel ↩️
                         """);
                 }
 
@@ -122,8 +146,8 @@ public class MonitorDeletedStopSlashCommand(IDeletedLogChannelRepository deleted
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect.** ⌚
-                    Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel.
+                    Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
+                    Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel ↩️
                     """));
             },
             Preconditions: [

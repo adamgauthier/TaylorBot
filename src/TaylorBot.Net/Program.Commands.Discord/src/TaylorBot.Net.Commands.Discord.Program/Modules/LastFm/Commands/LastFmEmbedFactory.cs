@@ -34,7 +34,7 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
     {
         return new(EmbedFactory.CreateError(
             $"""
-            {user.Mention}'s Last.fm username is not set. 🚫",
+            {user.Mention}'s Last.fm username is not set. 🚫
             Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.
             You can then link it to TaylorBot with </lastfm set:922354806574678086>.
             """

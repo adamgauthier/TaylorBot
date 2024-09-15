@@ -45,7 +45,7 @@ public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRe
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, $"Error when sending mod log in {channel.FormatLog()}:");
+                logger.LogWarning(e, "Error when sending mod log in {Channel}:", channel.FormatLog());
             }
         }
 
