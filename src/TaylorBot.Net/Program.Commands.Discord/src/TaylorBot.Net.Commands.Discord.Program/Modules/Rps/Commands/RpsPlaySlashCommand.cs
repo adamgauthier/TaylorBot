@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Humanizer;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
@@ -58,7 +59,7 @@ public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLi
 
             var embed = new EmbedBuilder();
 
-            const long winReward = 1;
+            long winReward = AnniversaryEvent.IsActive ? 2 : 1;
             string resultMessage;
             if (winner == player)
             {

@@ -11,7 +11,22 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Http;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Signature.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+
+public static class AnniversaryEvent
+{
+    public static readonly DateTimeOffset Start = new DateTimeOffset(2024, 11, 22, 0, 0, 0, TimeSpan.Zero) - TimeSpan.FromHours(12);
+    public static readonly DateTimeOffset End = new DateTimeOffset(2024, 11, 23, 0, 0, 0, TimeSpan.Zero) + TimeSpan.FromHours(12);
+
+    public static bool IsActive
+    {
+        get
+        {
+            var now = DateTimeOffset.UtcNow;
+            return now >= Start && now <= End;
+        }
+    }
+}
 
 public class SignatureSlashCommand(
     ILogger<SignatureSlashCommand> logger,
@@ -32,12 +47,9 @@ public class SignatureSlashCommand(
             async () =>
             {
                 var user = context.User;
-                ArgumentNullException.ThrowIfNull(user.MemberInfo);
+                var joinedAt = await GetJoinedAtAsync(user);
 
-                ServerJoined joined = await GetServerJoinedAsync(new(user, user.MemberInfo));
-                DateTimeOffset joinedAt = joined.first_joined_at ?? throw new InvalidOperationException();
-
-                if (joinedAt > new DateTimeOffset(2023, 11, 24, 0, 0, 0, TimeSpan.Zero))
+                if (joinedAt > AnniversaryEvent.End + TimeSpan.FromDays(7))
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         """
@@ -46,8 +58,8 @@ public class SignatureSlashCommand(
                         """));
                 }
 
-                if ((options.file.Value == null && options.link.Value == null) ||
-                    (options.file.Value != null && options.link.Value != null))
+                if (options.file.Value == null && options.link.Value == null ||
+                    options.file.Value != null && options.link.Value != null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         """
@@ -69,11 +81,11 @@ public class SignatureSlashCommand(
                         Please confirm the picture you are uploading is:
                         - Your signature either in digital form or a real photo of your writing on a piece of paper ✅
                         - For real photos, the background is easy to remove (blank page, no lines, good lighting) 💡
-                        - Not a picture you've submitted in previous years 🆕
+                        - Not the same picture you've submitted in previous years 🆕
                         """)),
                     confirm: async () =>
                     {
-                        BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "signatures");
+                        BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "signatures2024");
 
                         var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
                         var blob = container.GetBlobClient($"{user.Id}{fileExtension}");
@@ -100,7 +112,7 @@ public class SignatureSlashCommand(
                                 """));
                         }
 
-                        const int MaxSizeInBytes = 10 * 1024 * 1024; // 10 MB
+                        const int MaxSizeInBytes = 10 * 1_024 * 1_024; // 10 MB
 
                         var contentLength = response.Content.Headers.ContentLength ?? 0;
                         if (contentLength > MaxSizeInBytes)
@@ -115,7 +127,7 @@ public class SignatureSlashCommand(
 
                         using var stream = await response.Content.ReadAsStreamAsync();
 
-                        var uploadOptions = new BlobUploadOptions
+                        BlobUploadOptions uploadOptions = new()
                         {
                             Tags = new Dictionary<string, string>
                             {
@@ -133,7 +145,7 @@ public class SignatureSlashCommand(
 
                         return new(EmbedFactory.CreateSuccess(
                             """
-                            Your Yearbook 2023 signature has been successfully uploaded! Thank you for your contribution to our community 💖
+                            Your Yearbook 2024 signature has been successfully uploaded! Thank you for your contribution to our community 💖
                             Please take a moment to complete the anniversary survey as well 👀
                             """));
                     }
@@ -141,6 +153,15 @@ public class SignatureSlashCommand(
             },
             Preconditions: [new InGuildPrecondition()]
         ));
+    }
+
+    private async Task<DateTimeOffset> GetJoinedAtAsync(DiscordUser user)
+    {
+        ArgumentNullException.ThrowIfNull(user.MemberInfo);
+
+        ServerJoined joined = await GetServerJoinedAsync(new(user, user.MemberInfo));
+
+        return joined.first_joined_at ?? throw new InvalidOperationException();
     }
 
     private async Task<ServerJoined> GetServerJoinedAsync(DiscordMember guildUser)

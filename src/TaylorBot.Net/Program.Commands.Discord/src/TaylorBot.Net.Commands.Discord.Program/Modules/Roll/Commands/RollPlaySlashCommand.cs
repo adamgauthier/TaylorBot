@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Humanizer;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
@@ -35,13 +36,13 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
                 case 15:
                 case 22:
                 case 420:
-                    reward = 100;
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
                     color = "#43b581";
                     await rollStatsRepository.WinRollAsync(context.User, reward);
                     break;
 
                 case 1989:
-                    reward = 5_000;
+                    reward = AnniversaryEvent.IsActive ? 10_000 : 5_000;
                     color = "#00c3ff";
                     await rollStatsRepository.WinPerfectRollAsync(context.User, reward);
                     break;
