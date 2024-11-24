@@ -15,7 +15,7 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
             .WithColor(TaylorBotColors.ErrorColor)
             .WithDescription(
                 $"""
-                This account does not have any scrobbles for period '{lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}'. 🔍
+                This Last.fm account doesn't have scrobbles for period '{lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}' 🔍
                 Start listening to a song and scrobble it to Last.fm so it shows up here!
                 """)
         .Build());
@@ -34,15 +34,30 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
     {
         return new(EmbedFactory.CreateError(
             $"""
-            {user.Mention}'s Last.fm username is not set. 🚫
+            {user.Mention}'s Last.fm username is not set 🚫
             Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.
             You can then link it to TaylorBot with </lastfm set:922354806574678086>.
             """
         ));
     }
 
+    private EmbedResult CreateLastFmNotFoundEmbedResult(LastFmUserNotFound notFound)
+    {
+        return new(EmbedFactory.CreateError(
+            $"""
+            This Last.fm account ({notFound.Username}) can't be found 🚫
+            Make sure the username set with </lastfm set:922354806574678086> is an existing Last.fm account 👆
+            """
+        ));
+    }
+
     public EmbedResult CreateLastFmErrorEmbedResult(LastFmGenericErrorResult error)
     {
+        if (error is LastFmUserNotFound notFound)
+        {
+            return CreateLastFmNotFoundEmbedResult(notFound);
+        }
+
         return new(EmbedFactory.CreateError(
             $"""
             Last.fm returned an error. {(error.Error != null ? $"({error.Error}) " : string.Empty)}😢

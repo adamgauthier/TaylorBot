@@ -2,6 +2,8 @@
 
 public record LastFmGenericErrorResult(string? Error) : IMostRecentScrobbleResult, ITopArtistsResult, ITopTracksResult, ITopAlbumsResult;
 
+public record LastFmUserNotFound(string? Error, string Username) : LastFmGenericErrorResult(Error);
+
 public record LastFmLogInRequiredErrorResult : IMostRecentScrobbleResult;
 
 public interface IMostRecentScrobbleResult { }

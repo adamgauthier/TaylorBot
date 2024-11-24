@@ -44,9 +44,13 @@ public sealed class InflatableLastFmClient(
         {
             return new LastFmLogInRequiredErrorResult();
         }
+        else if (response.Status == LastResponseStatus.MissingParameters)
+        {
+            return new LastFmUserNotFound($"{response.Status}", lastFmUsername);
+        }
         else
         {
-            return new LastFmGenericErrorResult(response.Status.ToString());
+            return new LastFmGenericErrorResult($"{response.Status}");
         }
     }
 
@@ -83,9 +87,13 @@ public sealed class InflatableLastFmClient(
                 PlayCount: a.PlayCount ?? 0
             )).ToList());
         }
+        else if (response.Status == LastResponseStatus.MissingParameters)
+        {
+            return new LastFmUserNotFound($"{response.Status}", lastFmUsername);
+        }
         else
         {
-            return new LastFmGenericErrorResult(response.Status.ToString());
+            return new LastFmGenericErrorResult($"{response.Status}");
         }
     }
 
@@ -104,7 +112,7 @@ public sealed class InflatableLastFmClient(
         return await httpClient.ReadJsonWithErrorLogging<TopTracksResponse, ITopTracksResult>(
             c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}"),
             handleSuccessAsync: success => Task.FromResult(HandleTopTracksSuccess(success)),
-            handleErrorAsync: error => Task.FromResult<ITopTracksResult>(HandleLastFmHttpError(error)),
+            handleErrorAsync: error => Task.FromResult<ITopTracksResult>(HandleLastFmHttpError(error, lastFmUsername)),
             logger);
     }
 
@@ -150,7 +158,7 @@ public sealed class InflatableLastFmClient(
         return await httpClient.ReadJsonWithErrorLogging<TopAlbumsResponse, ITopAlbumsResult>(
             c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}"),
             handleSuccessAsync: success => Task.FromResult(HandleTopAlbumsSuccess(success)),
-            handleErrorAsync: error => Task.FromResult<ITopAlbumsResult>(HandleLastFmHttpError(error)),
+            handleErrorAsync: error => Task.FromResult<ITopAlbumsResult>(HandleLastFmHttpError(error, lastFmUsername)),
             logger);
     }
 
@@ -192,7 +200,7 @@ public sealed class InflatableLastFmClient(
         public record Artist(string name, string url);
     }
 
-    private LastFmGenericErrorResult HandleLastFmHttpError(HttpError error)
+    private LastFmGenericErrorResult HandleLastFmHttpError(HttpError error, string lastFmUsername)
     {
         if (error.Content != null)
         {
@@ -201,6 +209,12 @@ public sealed class InflatableLastFmClient(
             var status = jsonDocument.RootElement.TryGetProperty("error", out var errorCode)
                 ? (LastResponseStatus?)errorCode.GetUInt16()
                 : null;
+
+            if (jsonDocument.RootElement.TryGetProperty("message", out var message) &&
+                message.GetString()?.Contains("user not found", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return new LastFmUserNotFound(status?.ToString(), lastFmUsername);
+            }
 
             return new LastFmGenericErrorResult(status?.ToString());
         }

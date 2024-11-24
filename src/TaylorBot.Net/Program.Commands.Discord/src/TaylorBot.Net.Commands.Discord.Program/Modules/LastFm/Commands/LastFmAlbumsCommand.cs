@@ -29,9 +29,6 @@ public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
 
             switch (result)
             {
-                case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
-
                 case TopAlbumsResult success:
                     if (success.TopAlbums.Count > 0)
                     {
@@ -59,6 +56,9 @@ public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
                     {
                         return lastFmEmbedFactory.CreateLastFmNoScrobbleErrorEmbedResult(lastFmUsername, user, period.Value);
                     }
+
+                case LastFmGenericErrorResult errorResult:
+                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
 
                 default: throw new NotImplementedException();
             }
