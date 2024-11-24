@@ -323,7 +323,7 @@ var host = Host.CreateDefaultBuilder()
                 var options = provider.GetRequiredService<IOptionsMonitor<SignatureOptions>>().CurrentValue;
                 var accountUri = options.StorageAccountUri;
 
-                if (!string.IsNullOrEmpty(options.StorageAccountKey))
+                if (!string.IsNullOrWhiteSpace(options.StorageAccountKey) && !options.StorageAccountKey.Equals("none", StringComparison.OrdinalIgnoreCase))
                 {
                     var accountName = accountUri.Host.Split('.').First();
                     return new(accountUri, new StorageSharedKeyCredential(accountName, options.StorageAccountKey));
