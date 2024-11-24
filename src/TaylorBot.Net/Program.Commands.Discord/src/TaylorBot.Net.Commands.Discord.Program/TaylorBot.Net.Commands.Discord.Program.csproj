@@ -18,12 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.22.2" />
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageReference Include="Google.Apis.CustomSearchAPI.v1" Version="1.68.0.3520" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3582" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.70" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3608" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
     <PackageReference Include="Inflatable.Lastfm" Version="1.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

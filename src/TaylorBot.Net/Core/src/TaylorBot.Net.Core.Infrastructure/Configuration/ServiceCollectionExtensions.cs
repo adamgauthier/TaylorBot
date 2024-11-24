@@ -22,7 +22,9 @@ public static class ServiceCollectionExtensions
         }
 
         return services
-            .AddNpgsqlDataSource(CreateConnectionString(configuration))
+            .AddNpgsqlDataSource(
+                CreateConnectionString(configuration),
+                builder => builder.ConfigureTracing(o => o.EnableFirstResponseEvent(false)))
             .AddTransient<PostgresConnectionFactory>();
     }
 

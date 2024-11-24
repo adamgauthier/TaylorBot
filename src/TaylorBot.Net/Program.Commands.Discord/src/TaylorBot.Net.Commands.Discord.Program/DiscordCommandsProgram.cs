@@ -1,4 +1,7 @@
-﻿using Google.Apis.CustomSearchAPI.v1;
+﻿using Azure.Identity;
+using Azure.Storage;
+using Azure.Storage.Blobs;
+using Google.Apis.CustomSearchAPI.v1;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using IF.Lastfm.Core.Api;
@@ -315,7 +318,30 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<FavoriteObsessionSetSlashCommand>()
             .AddSlashCommand<FavoriteObsessionClearSlashCommand>()
             .ConfigureRequired<SignatureOptions>(config, "Signature")
+            .AddKeyedSingleton<BlobServiceClient>("SignatureAccount", (provider, key) =>
+            {
+                var options = provider.GetRequiredService<IOptionsMonitor<SignatureOptions>>().CurrentValue;
+                var accountUri = options.StorageAccountUri;
+
+                if (!string.IsNullOrEmpty(options.StorageAccountKey))
+                {
+                    var accountName = accountUri.Host.Split('.').First();
+                    return new(accountUri, new StorageSharedKeyCredential(accountName, options.StorageAccountKey));
+                }
+                else
+                {
+                    return new(accountUri, new ManagedIdentityCredential());
+                }
+            })
+            .AddKeyedSingleton<Lazy<BlobContainerClient>>("SignatureContainer", (provider, key) =>
+            {
+                return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("signatures2024"));
+            })
             .AddSlashCommand<SignatureSlashCommand>()
+            .AddKeyedSingleton<Lazy<BlobContainerClient>>("AvatarsContainer", (provider, key) =>
+            {
+                return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("avatars2024"));
+            })
             .AddSlashCommand<OwnerDownloadAvatarsSlashCommand>()
             .ConfigureRequired<HeistOptions>(config, "Heist")
             .AddSingleton<IValidateOptions<HeistOptions>, HeistOptionsValidator>()

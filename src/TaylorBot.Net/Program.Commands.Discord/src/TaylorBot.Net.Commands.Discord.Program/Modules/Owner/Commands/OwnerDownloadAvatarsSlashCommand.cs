@@ -1,10 +1,9 @@
 ﻿using Azure.Storage.Blobs;
 using Discord;
 using Humanizer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Diagnostics;
-using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -14,7 +13,12 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlashCommand> logger, IOptionsMonitor<SignatureOptions> signatureOptions, ITaylorBotClient client, IHttpClientFactory httpClientFactory)
+public class OwnerDownloadAvatarsSlashCommand(
+    ILogger<OwnerAddFeedbackUsersSlashCommand> logger,
+    [FromKeyedServices("AvatarsContainer")]
+    Lazy<BlobContainerClient> avatarsContainer,
+    ITaylorBotClient client,
+    IHttpClientFactory httpClientFactory)
     : ISlashCommand<OwnerDownloadAvatarsSlashCommand.Options>
 {
     public ISlashCommandInfo Info => new MessageCommandInfo("owner downloadavatars");
@@ -60,9 +64,9 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(
                         $"""
-                        Downloaded **{successful.Count}** avatars. 👍
-                        Couldn't resolve **{unresolvedGuildMember.Count}** members. ❓
-                        Unexpected errors happened with **{unexpectedError.Count}** members. 🐛
+                        Downloaded **{successful.Count}** avatars 👍
+                        Couldn't resolve **{unresolvedGuildMember.Count}** members ❓
+                        Unexpected errors happened with **{unexpectedError.Count}** members 🐛
                         """.Truncate(EmbedBuilder.MaxDescriptionLength))
                     .WithFooter($"Took {stopwatch.Elapsed.Humanize()}")
                 .Build());
@@ -81,10 +85,9 @@ public class OwnerDownloadAvatarsSlashCommand(ILogger<OwnerAddFeedbackUsersSlash
         if (guildUser != null)
         {
             var url = new DiscordUser(guildUser).GetGuildAvatarUrlOrDefault(size: 2048);
-            BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "avatars");
 
             var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
-            var blob = container.GetBlobClient($"{guildUser.Id}-{guildUser.Username}{fileExtension}");
+            var blob = avatarsContainer.Value.GetBlobClient($"{guildUser.Id}-{guildUser.Username}{fileExtension}");
 
             using var client = httpClientFactory.CreateClient();
             using var response = await client.GetAsync(url);

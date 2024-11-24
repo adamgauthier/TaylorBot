@@ -2,5 +2,6 @@
 
 public class SignatureOptions
 {
-    public string BlobConnectionString { get; set; } = null!;
+    public Uri StorageAccountUri { get; set; } = null!;
+    public string? StorageAccountKey { get; set; }
 }

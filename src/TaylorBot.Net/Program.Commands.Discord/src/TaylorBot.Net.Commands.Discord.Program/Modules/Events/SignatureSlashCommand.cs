@@ -1,9 +1,8 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -30,8 +29,9 @@ public static class AnniversaryEvent
 
 public class SignatureSlashCommand(
     ILogger<SignatureSlashCommand> logger,
-    IOptionsMonitor<SignatureOptions> signatureOptions,
     IRateLimiter rateLimiter,
+    [FromKeyedServices("SignatureContainer")]
+    Lazy<BlobContainerClient> signatureContainer,
     IServerJoinedRepository serverJoinedRepository,
     IHttpClientFactory clientFactory
     ) : ISlashCommand<SignatureSlashCommand.Options>
@@ -80,15 +80,14 @@ public class SignatureSlashCommand(
                         """
                         Please confirm the picture you are uploading is:
                         - Your signature either in digital form or a real photo of your writing on a piece of paper ✅
+                        - Using a darker color (light colors like white/yellow will blend in with the yearbook's light background) 🖊️
                         - For real photos, the background is easy to remove (blank page, no lines, good lighting) 💡
                         - Not the same picture you've submitted in previous years 🆕
                         """)),
                     confirm: async () =>
                     {
-                        BlobContainerClient container = new(signatureOptions.CurrentValue.BlobConnectionString, blobContainerName: "signatures2024");
-
                         var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
-                        var blob = container.GetBlobClient($"{user.Id}{fileExtension}");
+                        var blob = signatureContainer.Value.GetBlobClient($"{user.Id}{fileExtension}");
 
                         var signatureExists = await blob.ExistsAsync();
                         if (signatureExists)
@@ -112,7 +111,7 @@ public class SignatureSlashCommand(
                                 """));
                         }
 
-                        const int MaxSizeInBytes = 10 * 1_024 * 1_024; // 10 MB
+                        const int MaxSizeInBytes = 10 * 1024 * 1024; // 10 MB
 
                         var contentLength = response.Content.Headers.ContentLength ?? 0;
                         if (contentLength > MaxSizeInBytes)
