@@ -25,7 +25,7 @@ public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingC
         {
             return new PreconditionFailed(
                 PrivateReason: "user has an ongoing command",
-                UserReason: new($"You can't use `{command.Metadata.Name}` because you have an ongoing command.", HideInPrefixCommands: true)
+                UserReason: new($"You can't use {context.MentionCommand(command)} because you have an ongoing command.", HideInPrefixCommands: true)
             );
         }
         else

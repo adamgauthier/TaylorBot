@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Discord;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
@@ -94,7 +95,16 @@ public class OwnerDownloadAvatarsSlashCommand(
             response.EnsureSuccessStatusCode();
 
             using var stream = await response.Content.ReadAsStreamAsync();
-            await blob.UploadAsync(stream);
+
+            var contentType = response.Content.Headers.ContentType?.ToString();
+            if (!string.IsNullOrWhiteSpace(contentType))
+            {
+                await blob.UploadAsync(stream, new BlobUploadOptions { HttpHeaders = new() { ContentType = contentType } });
+            }
+            else
+            {
+                await blob.UploadAsync(stream);
+            }
 
             successful.Add(guildUser);
         }

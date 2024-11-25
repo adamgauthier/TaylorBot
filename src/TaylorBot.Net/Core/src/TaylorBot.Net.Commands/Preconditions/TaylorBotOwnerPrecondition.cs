@@ -12,10 +12,9 @@ public class TaylorBotOwnerPrecondition : ICommandPrecondition
         }
         else
         {
-            var commandName = command.Metadata.Name;
             return new PreconditionFailed(
-                PrivateReason: $"{commandName} can only be used by owner",
-                UserReason: new($"You can't use `{commandName}` because it can only be used by the bot owner.")
+                PrivateReason: $"{command.Metadata.Name} can only be used by owner",
+                UserReason: new($"You can't use {context.MentionCommand(command)} because it can only be used by the bot owner 🚫")
             );
         }
     }

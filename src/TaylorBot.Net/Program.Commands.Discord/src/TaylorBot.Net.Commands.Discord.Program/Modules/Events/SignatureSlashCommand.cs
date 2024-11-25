@@ -87,14 +87,14 @@ public class SignatureSlashCommand(
                     confirm: async () =>
                     {
                         var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
-                        var blob = signatureContainer.Value.GetBlobClient($"{user.Id}{fileExtension}");
+                        var blob = signatureContainer.Value.GetBlobClient($"{user.Id}-{user.Username}{fileExtension}");
 
                         var signatureExists = await blob.ExistsAsync();
                         if (signatureExists)
                         {
                             return new(EmbedFactory.CreateError(
                                 """
-                                Oops, it looks like you already uploaded your signature. 😕
+                                Oops, it looks like you already uploaded your signature 😕
                                 If you want to update your signature, please contact Adam directly!
                                 """));
                         }
@@ -126,21 +126,15 @@ public class SignatureSlashCommand(
 
                         using var stream = await response.Content.ReadAsStreamAsync();
 
-                        BlobUploadOptions uploadOptions = new()
-                        {
-                            Tags = new Dictionary<string, string>
-                            {
-                                { "username", user.Username },
-                            },
-                        };
-
                         var contentType = response.Content.Headers.ContentType?.ToString();
                         if (!string.IsNullOrWhiteSpace(contentType))
                         {
-                            uploadOptions.HttpHeaders = new() { ContentType = contentType };
+                            await blob.UploadAsync(stream, new BlobUploadOptions { HttpHeaders = new() { ContentType = contentType } });
                         }
-
-                        await blob.UploadAsync(stream, uploadOptions);
+                        else
+                        {
+                            await blob.UploadAsync(stream);
+                        }
 
                         return new(EmbedFactory.CreateSuccess(
                             """

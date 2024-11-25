@@ -24,7 +24,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users",
                         UserReason: new(
                             $"""
-                            You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** members.
+                            You can't use {context.MentionCommand(command)} because it is restricted to **TaylorBot Plus** members 😕
                             {PlusInfo()}
                             """)
                     ),
@@ -36,7 +36,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus guilds",
                         UserReason: new(
                             $"""
-                            You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** servers.
+                            You can't use {context.MentionCommand(command)} because it is restricted to **TaylorBot Plus** servers 😕
                             {PlusInfo()}
                             """)
                     ),
@@ -48,7 +48,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users or guilds",
                         UserReason: new(
                             $"""
-                            You can't use `{command.Metadata.Name}` because it is restricted to **TaylorBot Plus** members or servers.
+                            You can't use {context.MentionCommand(command)} because it is restricted to **TaylorBot Plus** members or servers 😕
                             {PlusInfo()}
                             """)
                     ),
@@ -67,7 +67,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
         return
             $"""
             TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")} 💖
-            Some features are exclusive to **TaylorBot Plus**, learn more by using </plus show:1246970937321066608> 💎
+            Some features are exclusive to **TaylorBot Plus**, learn more with </plus show:1246970937321066608> 💎
             """;
     }
 }

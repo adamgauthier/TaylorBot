@@ -26,10 +26,10 @@ public class NotGuildChannelDisabledPrecondition(IDisabledGuildChannelCommandRep
                 PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {context.Guild.FormatLog()}",
                 UserReason: new(
                     $"""
-                    You can't use `{command.Metadata.Name}` because it is disabled in {context.Channel.Mention}.
+                    You can't use {context.MentionCommand(command)} because it is disabled in {context.Channel.Mention} 🚫
                     {(canRun is PreconditionPassed
-                        ? $"You can re-enable it by typing </command channel-enable:909694280703016991> {command.Metadata.Name}."
-                        : "Ask a moderator to re-enable it.")}
+                        ? $"You can re-enable it by typing </command channel-enable:909694280703016991> {command.Metadata.Name} ✅"
+                        : "Ask a moderator to re-enable it 🙏")}
                     """
                 )
             ) :

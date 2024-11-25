@@ -49,10 +49,10 @@ public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disa
                 PrivateReason: $"{command.Metadata.Name} is disabled in {context.Guild.FormatLog()}",
                 UserReason: new(
                     $"""
-                    You can't use `{command.Metadata.Name}` because it is disabled in this server.
+                    You can't use {context.MentionCommand(command)} because it is disabled in this server 🚫
                     {(canRun is PreconditionPassed
-                        ? $"You can re-enable it by typing </command server-enable:909694280703016991> {command.Metadata.Name}."
-                        : "Ask a moderator to re-enable it.")}
+                        ? $"You can re-enable it by typing </command server-enable:909694280703016991> {command.Metadata.Name} ✅"
+                        : "Ask a moderator to re-enable it 🙏")}
                     """,
                     HideInPrefixCommands: true)
             ) :

@@ -22,7 +22,7 @@ public class UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permi
         {
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} can only be used by a guild member",
-                UserReason: new($"You can't use `{command.Metadata.Name}` because it can only be used in a server.")
+                UserReason: new($"You can't use {context.MentionCommand(command)} because it can only be used in a server 🚫")
             );
         }
 
@@ -52,8 +52,8 @@ public class UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permi
                         PrivateReason: $"{command.Metadata.Name} can only be used with one of {string.Join(',', GuildPermissions)}",
                         UserReason: new(
                             $"""
-                            You can't use `{command.Metadata.Name}` because you need {permissionMessage}.
-                            Ask someone with more permissions than you to use the command or to give you this permission in the server settings.
+                            You can't use {context.MentionCommand(command)} because you need {permissionMessage} 🚫
+                            Ask someone with more permissions than you to use the command or to give you this permission in the server settings ⚙️
                             """)
                     );
                 }

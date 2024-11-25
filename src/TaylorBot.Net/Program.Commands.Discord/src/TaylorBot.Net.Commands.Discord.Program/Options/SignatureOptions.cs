@@ -3,5 +3,4 @@
 public class SignatureOptions
 {
     public Uri StorageAccountUri { get; set; } = null!;
-    public string? StorageAccountKey { get; set; }
 }

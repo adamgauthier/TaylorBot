@@ -18,7 +18,7 @@ public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandR
                 PrivateReason: $"{command.Metadata.Name} is globally disabled",
                 UserReason: new(
                     $"""
-                    You can't use `{command.Metadata.Name}` because it is globally disabled right now.
+                    You can't use {context.MentionCommand(command)} because it is globally disabled right now 😕
                     {disabledMessage}
                     """)
             ) :

@@ -35,6 +35,10 @@ public record RunContext(
     public record CurrentCommandInfo(string Id, string Name);
     public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
 
+    public string MentionCommand(Command command) => !string.IsNullOrEmpty(CommandInfo.Name)
+        ? MentionCommand(command.Metadata.Name)
+        : $"**{command.Metadata.Name}**";
+
     public string MentionCommand(string name) =>
         name.Split(' ')[0] == CommandInfo.Name.Split(' ')[0] ?
             $"</{name}:{CommandInfo.Id}>" :
