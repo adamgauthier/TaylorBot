@@ -51,3 +51,4 @@
 20240220_leaderboard_perf 2024-02-21T07:19:05Z Adam Gauthier <adamgauthier12@gmail.com> # Fix leaderboard performance issues
 20240426_duplicate_commands 2024-04-27T04:29:34Z Adam Gauthier <adamgauthier12@gmail.com> # Remove recently deprecated commands
 20240611_bump_version_1.21.0 2024-06-12T02:20:13Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.21.0
+20241130_coupons 2024-11-30T18:48:28Z Adam Gauthier <adamgauthier12@gmail.com> # Add redeemable coupons

@@ -58,6 +58,11 @@
         "MaxUsesForUser": 5,
         "MaxUsesForPlusUser": 10
       },
+      "redeem-coupon": {
+        "FriendlyName": "Redeeming a coupon",
+        "MaxUsesForUser": 5,
+        "MaxUsesForPlusUser": 10
+      },
       "heist": {
         "FriendlyName": "Entering a heist",
         "MaxUsesForUser": 150

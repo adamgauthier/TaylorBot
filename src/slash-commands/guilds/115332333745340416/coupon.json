@@ -1,0 +1,24 @@
+{
+  "name": "coupon",
+  "description": "Redeem coupons for special rewards",
+  "options": [
+    {
+      "name": "redeem",
+      "description": "Redeem a coupon for a special reward",
+      "type": 1,
+      "options": [
+        {
+          "name": "code",
+          "description": "The secret code of the coupon to redeem",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "show",
+      "description": "Show the coupons you already redeemed",
+      "type": 1
+    }
+  ]
+}
