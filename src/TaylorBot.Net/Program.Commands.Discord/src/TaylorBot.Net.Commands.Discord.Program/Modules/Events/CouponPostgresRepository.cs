@@ -87,4 +87,25 @@ public class CouponPostgresRepository(PostgresConnectionFactory postgresConnecti
 
         return taypointAddResult;
     }
+
+    public async Task<Guid> AddCouponAsync(Coupon coupon)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        return await connection.QuerySingleAsync<Guid>(
+            """
+            INSERT INTO commands.coupons (code, valid_from, valid_until, usage_limit, taypoint_reward)
+            VALUES (@Code, @ValidFrom, @ValidUntil, @UsageLimit, @TaypointReward)
+            RETURNING coupon_id;
+            """,
+            new
+            {
+                Code = coupon.code,
+                ValidFrom = coupon.valid_from,
+                ValidUntil = coupon.valid_until,
+                UsageLimit = coupon.usage_limit,
+                TaypointReward = coupon.taypoint_reward,
+            }
+        );
+    }
 }

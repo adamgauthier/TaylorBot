@@ -126,6 +126,43 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "addcoupon",
+      "description": "Add coupon",
+      "type": 1,
+      "options": [
+        {
+          "name": "code",
+          "description": "Coupon code",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "from",
+          "description": "When the coupon becomes valid",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "until",
+          "description": "When the coupon becomes invalid",
+          "type": 3,
+          "required": true
+        },
+        {
+          "name": "limit",
+          "description": "Max amount of uses",
+          "type": 4,
+          "required": true
+        },
+        {
+          "name": "reward",
+          "description": "Reward in taypoints for redeeming the code",
+          "type": 4,
+          "required": true
+        }
+      ]
     }
   ]
 }
