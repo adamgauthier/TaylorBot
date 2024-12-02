@@ -25,6 +25,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
@@ -209,7 +210,6 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IYouTubeClient, YouTubeClient>()
             .AddSlashCommand<YouTubeSlashCommand>()
             .AddSlashCommand<OwnerIgnoreSlashCommand>()
-            .AddSlashCommand<OwnerAddCouponSlashCommand>()
             .AddSlashCommand<OwnerRewardSlashCommand>()
             .AddSlashCommand<OwnerDiagnosticSlashCommand>()
             .AddSlashCommand<OwnerAddFeedbackUsersSlashCommand>()
@@ -373,6 +373,8 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<ICouponRepository, CouponPostgresRepository>()
             .AddSlashCommand<CouponRedeemSlashCommand>()
             .AddSlashCommand<CouponShowSlashCommand>()
+            .AddSlashCommand<OwnerAddCouponSlashCommand>()
+            .AddSlashCommand<OwnerShowCouponsSlashCommand>()
             ;
 
         services.AddHttpClient<ILastFmClient, InflatableLastFmClient>();

@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
 public record Coupon(Guid coupon_id, string code, DateTime valid_from, DateTime valid_until, int? usage_limit, int used_count, long taypoint_reward);
 

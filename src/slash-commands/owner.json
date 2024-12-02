@@ -163,6 +163,19 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "showcoupons",
+      "description": "See info about coupons",
+      "type": 1,
+      "options": [
+        {
+          "name": "codes",
+          "description": "Comma-separated list of codes to see stats for",
+          "type": 3,
+          "required": true
+        }
+      ]
     }
   ]
 }

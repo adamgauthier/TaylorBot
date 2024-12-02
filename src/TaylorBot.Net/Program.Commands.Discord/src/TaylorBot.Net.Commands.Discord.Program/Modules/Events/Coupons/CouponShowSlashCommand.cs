@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
 public record RedeemedCoupon(DateTime redeemed_at, string coupon_code, long coupon_reward);
 
@@ -52,8 +52,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository) : ISlash
                             You've never redeemed a coupon before 😵
                             You can get coupon codes from events and redeem them with {context.MentionCommand("coupon redeem")} for special rewards ✨
                             """
-                    )),
-                    IsCancellable: true
+                    ))
                 )).Build();
             }
         ));

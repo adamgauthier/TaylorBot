@@ -4,7 +4,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
 public partial interface ICouponRepository
 {

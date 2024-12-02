@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.User;
 using static Dapper.SqlMapper;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
 public class CouponPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ICouponRepository
 {
