@@ -25,6 +25,23 @@ public class CouponPostgresRepository(PostgresConnectionFactory postgresConnecti
         );
     }
 
+    public async Task<IList<RedeemedCoupon>> GetRedeemedCouponsAsync(DiscordUser user)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        return (await connection.QueryAsync<RedeemedCoupon>(
+            """
+            SELECT redeemed_at, coupon_code, coupon_reward
+            FROM users.redeemed_coupons
+            WHERE user_id = @UserId;
+            """,
+            new
+            {
+                UserId = $"{user.Id}",
+            }
+        )).ToList();
+    }
+
     public async Task<TaypointAddResult?> RedeemCouponAsync(DiscordUser user, Coupon coupon)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();

@@ -371,6 +371,7 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<UsernamesVisibilitySlashCommand>()
             .AddTransient<ICouponRepository, CouponPostgresRepository>()
             .AddSlashCommand<CouponRedeemSlashCommand>()
+            .AddSlashCommand<CouponShowSlashCommand>()
             ;
 
         services.AddHttpClient<ILastFmClient, InflatableLastFmClient>();

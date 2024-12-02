@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using OperationResult;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.User;
@@ -47,18 +48,13 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         public long bonus_reward { get; set; }
     }
 
-    private class TaypointAddDto
-    {
-        public long taypoint_count { get; set; }
-    }
-
     public async ValueTask<RedeemResult?> RedeemDailyPayoutAsync(DiscordUser user, uint payoutAmount)
     {
         var settings = options.CurrentValue;
 
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
-        using var transaction = connection.BeginTransaction();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var redeem = await connection.QuerySingleAsync<RedeemDto>(
             """
@@ -97,26 +93,19 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
 
         if (redeem.was_streak_added)
         {
-            var taypointAdd = await connection.QuerySingleAsync<TaypointAddDto>(
-                "UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd WHERE user_id = @UserId RETURNING taypoint_count;",
-                new
-                {
-                    PointsToAdd = payoutAmount + redeem.bonus_reward,
-                    UserId = user.Id.ToString()
-                }
-            );
-            transaction.Commit();
+            var addResult = await TaypointPostgresUtil.AddTaypointsReturningAsync(connection, user.Id, pointsToAdd: payoutAmount + redeem.bonus_reward);
+            await transaction.CommitAsync();
 
             return new RedeemResult(
                 BonusAmount: redeem.bonus_reward,
-                TotalTaypointCount: taypointAdd.taypoint_count,
+                TotalTaypointCount: addResult.taypoint_count,
                 CurrentDailyStreak: redeem.streak_count,
                 DaysForBonus: settings.DaysForBonus
             );
         }
         else
         {
-            transaction.Commit();
+            await transaction.CommitAsync();
             return null;
         }
     }
@@ -163,7 +152,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
-        using var transaction = connection.BeginTransaction();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var updateStreak = await connection.QuerySingleAsync<UpdateStreakDto>(
             """
@@ -205,18 +194,18 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
 
             if (removeTaypointCount.lost_count < cost)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 return Error(new RebuyFailed(removeTaypointCount.original_count));
             }
             else
             {
-                transaction.Commit();
+                await transaction.CommitAsync();
                 return new RebuyResult(removeTaypointCount.taypoint_count, updateStreak.streak_count);
             }
         }
         else
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             throw new InvalidOperationException();
         }
     }

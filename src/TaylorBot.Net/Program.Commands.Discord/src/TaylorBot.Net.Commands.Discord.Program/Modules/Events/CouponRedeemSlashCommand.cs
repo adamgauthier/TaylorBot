@@ -11,7 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 
 public record Coupon(Guid coupon_id, string code, DateTime valid_from, DateTime valid_until, int? usage_limit, int used_count, long taypoint_reward);
 
-public interface ICouponRepository
+public partial interface ICouponRepository
 {
     Task<Coupon?> GetCouponAsync(string code);
     Task<TaypointAddResult?> RedeemCouponAsync(DiscordUser user, Coupon coupon);
