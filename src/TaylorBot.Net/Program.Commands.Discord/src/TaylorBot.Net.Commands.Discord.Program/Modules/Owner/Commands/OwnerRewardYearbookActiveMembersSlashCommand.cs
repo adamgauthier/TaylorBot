@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Diagnostics;
 using System.Text.Json;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -22,7 +23,8 @@ public record ActiveMembers(IList<ActiveMembers.Member> members, IList<string> u
     public class Member
     {
         public string userId { get; set; } = null!;
-        public ProcessedInfo processedInfo { get; set; } = null!;
+        public ProcessedInfo processedInfo { get; set; } = new();
+        public bool isMod { get; set; }
     }
 
     public class ProcessedInfo
@@ -56,7 +58,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
                 await using var connection = postgresConnectionFactory.CreateConnection();
                 var activeMembers = JsonSerializer.Deserialize<ActiveMembers>(await connection.QuerySingleAsync<string>(
                     """
-                    SELECT info_value FROM configuration.application_info WHERE info_key = 'rewardyearbook2023';
+                    SELECT info_value FROM configuration.application_info WHERE info_key = 'rewardyearbook2024';
                     """
                 )) ?? throw new NotImplementedException();
 
@@ -78,7 +80,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
                         member.processedInfo.completed = true;
 
                         await connection.ExecuteAsync(
-                            "UPDATE configuration.application_info SET info_value = @InfoValue WHERE info_key = 'rewardyearbook2023';",
+                            "UPDATE configuration.application_info SET info_value = @InfoValue WHERE info_key = 'rewardyearbook2024';",
                             new
                             {
                                 InfoValue = JsonSerializer.Serialize(activeMembers),
@@ -97,10 +99,10 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(
                         $"""
-                        Messaged **{successful.Count}** members. 👍
-                        Couldn't resolve **{unresolvedGuildMembers.Count}** members. ❓
-                        Couldn't message **{cantMessageGuildMembers.Count}** members. 🚫
-                        Unexpected errors happened with **{unexpectedError.Count}** members. 🐛
+                        Messaged **{successful.Count}** members 👍
+                        Couldn't resolve **{unresolvedGuildMembers.Count}** members ❓
+                        Couldn't message **{cantMessageGuildMembers.Count}** members 🚫
+                        Unexpected errors happened with **{unexpectedError.Count}** members 🐛
                         """.Truncate(EmbedBuilder.MaxDescriptionLength))
                     .WithFooter($"Took {stopwatch.Elapsed.Humanize()}")
                 .Build());
@@ -115,30 +117,26 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
 
     private async Task ProcessMemberAsync(NpgsqlConnection connection, IGuild guild, ActiveMembers.Member member, List<IGuildUser> successful, List<string> cantMessageGuildMembers, List<string> unresolvedGuildMembers, IList<string> usersIdWhoSubmittedSignatures)
     {
-        var taypointReward = 10_000;
+        var taypointReward = member.isMod ? 25_000 : 10_000;
 
         if (!member.processedInfo.rewarded)
         {
-            await connection.ExecuteAsync(
-                """
-                UPDATE users.users
-                SET taypoint_count = taypoint_count + @PointsToAdd
-                WHERE user_id = @UserId;
-                """,
-                new
-                {
-                    PointsToAdd = taypointReward,
-                    UserId = member.userId,
-                }
-            );
+            await TaypointPostgresUtil.AddTaypointsAsync(connection, member.userId, taypointReward);
             member.processedInfo.rewarded = true;
         }
 
         var guildUser = await client.ResolveGuildUserAsync(guild, member.userId);
         if (guildUser != null)
         {
-            var description =
-                $"""
+            var description = member.isMod
+                ? $"""
+                ## Thank You 💖
+                Thank you for your dedication this year as a Taylor Swift Discord moderator 🛡️
+                Your commitment to keep our community safe is essential to our continued growth 🥺
+                I know it's not always easy, especially when dealing with challenging situations and negative feedback from members 🙏
+                As a small token of appreciation, I've gifted you {"taypoint".ToQuantity(taypointReward, TaylorBotFormats.BoldReadable)}! 🎁
+                """
+                : $"""
                 ## Congratulations 🎉
                 You were in the Taylor Swift Discord's **top 100 most active members** this year 🏆
                 Thank you for being a part of our community and contributing to it 💝
@@ -151,9 +149,9 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
                     $"""
 
                     ## Yearbook Signature 🖊️
-                    It seems like you haven't submitted **your signature for Yearbook 2023** yet ⚠️
+                    It seems like you haven't submitted **your signature for Yearbook 2024** yet ⚠️
                     Please take a minute to submit it using the **/signature** command in #bots. 😊
-                    Click here for more details: https://discord.com/channels/115332333745340416/123150327456333824/1178893819702411314 ✨
+                    Click here for more details: https://discord.com/channels/115332333745340416/123150327456333824/1312535164714483793 ✨
                     """;
             }
 
