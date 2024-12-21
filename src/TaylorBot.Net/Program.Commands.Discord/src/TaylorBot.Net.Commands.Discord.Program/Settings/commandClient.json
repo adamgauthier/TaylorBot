@@ -74,6 +74,11 @@
       "roll": {
         "FriendlyName": "Playing roll",
         "MaxUsesForUser": 1989
+      },
+      "generate-recap": {
+        "FriendlyName": "Generate a recap",
+        "MaxUsesForUser": 10,
+        "MaxUsesForPlusUser": 20
       }
     }
   }

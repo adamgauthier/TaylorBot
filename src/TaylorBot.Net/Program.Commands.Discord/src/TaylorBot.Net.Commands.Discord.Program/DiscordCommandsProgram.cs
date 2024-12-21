@@ -129,6 +129,7 @@ var host = Host.CreateDefaultBuilder()
         var config = hostBuilderContext.Configuration;
         services
             .AddHttpClient()
+            .AddMemoryCache()
             .AddHostedService<TaylorBotCommandHostedService>()
             .AddCommandApplication(config, hostBuilderContext.HostingEnvironment)
             .AddCommandInfrastructure(config)
@@ -375,6 +376,8 @@ var host = Host.CreateDefaultBuilder()
             .AddSlashCommand<CouponShowSlashCommand>()
             .AddSlashCommand<OwnerAddCouponSlashCommand>()
             .AddSlashCommand<OwnerShowCouponsSlashCommand>()
+            .AddTransient<IMemberActivityRepository, PostgresMemberActivityRepository>()
+            .AddSlashCommand<RecapSlashCommand>()
             ;
 
         services.AddHttpClient<ILastFmClient, InflatableLastFmClient>();
