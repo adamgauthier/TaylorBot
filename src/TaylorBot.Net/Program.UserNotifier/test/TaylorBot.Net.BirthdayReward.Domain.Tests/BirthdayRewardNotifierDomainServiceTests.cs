@@ -29,7 +29,7 @@ public class BirthdayRewardNotifierDomainServiceTests
     public async Task RewardBirthdaysAsync_WhenCantResolveUser_ThenErrorIsLogged()
     {
         const uint RewardAmount = 1989;
-        var userId = new SnowflakeId(1);
+        SnowflakeId userId = 1;
 
         var rewardedUser = new RewardedUser(
             userId,
