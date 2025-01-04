@@ -33,9 +33,10 @@ if ([string]::IsNullOrWhiteSpace($ConnectionString)) {
 }
 else {
     $networkName = "taylorbot-network"
-    try {
+    $networkExists = docker network ls --filter name="^${networkName}$" --format "{{.Name}}"
+    if (-not $networkExists) {
         docker network create $networkName
-    } catch {}
+    }
 
     $mountsDir = Join-Path $PSScriptRoot "mounts"
     Write-Output "Dumping to $mountsDir/$dumpFileName"

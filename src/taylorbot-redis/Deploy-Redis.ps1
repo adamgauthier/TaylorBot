@@ -52,9 +52,10 @@ else {
     Write-Output "Creating local container"
 
     $networkName = "taylorbot-network"
-    try {
+    $networkExists = docker network ls --filter name="^${networkName}$" --format "{{.Name}}"
+    if (-not $networkExists) {
         docker network create $networkName
-    } catch {}
+    }
 
     $containerName = $config.ContainerName
     $currentDate = Get-Date -Format "yyyy.MM.dd-HH.mm.ss"

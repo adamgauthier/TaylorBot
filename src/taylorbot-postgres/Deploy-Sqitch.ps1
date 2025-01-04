@@ -34,9 +34,10 @@ else {
 }
 
 $networkName = "taylorbot-network"
-try {
+$networkExists = docker network ls --filter name="^${networkName}$" --format "{{.Name}}"
+if (-not $networkExists) {
     docker network create $networkName
-} catch {}
+}
 
 docker container run `
     --rm `

@@ -24,9 +24,10 @@ $ErrorActionPreference = "Stop"
 $config = Get-Content -Path "$PSScriptRoot/postgres.$Environment.json" -Raw | ConvertFrom-Json
 
 $networkName = "taylorbot-network"
-try {
+$networkExists = docker network ls --filter name="^${networkName}$" --format "{{.Name}}"
+if (-not $networkExists) {
     docker network create $networkName
-} catch {}
+}
 
 $mountsDir = Join-Path $PSScriptRoot "mounts"
 
@@ -94,7 +95,7 @@ if ([string]::IsNullOrWhiteSpace($PostgresHost)) {
         $PostgresPort = "5432"
 
         Write-Host "Waiting for database server to be ready..."
-        Start-Sleep -Seconds 20
+        Start-Sleep -Seconds 30
     }
 }
 
@@ -117,7 +118,7 @@ docker container run `
     --rm `
     --network $networkName `
     postgres:15 `
-    psql --command="GRANT ALL ON SCHEMA public TO taylorbot;" "$connection/taylorbot"
+    psql --command="CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;GRANT ALL ON SCHEMA public TO taylorbot;" "$connection/taylorbot"
 
 if (-not [string]::IsNullOrWhiteSpace($DatabaseBackupFile)) {
     Write-Output "Restoring from backup"
