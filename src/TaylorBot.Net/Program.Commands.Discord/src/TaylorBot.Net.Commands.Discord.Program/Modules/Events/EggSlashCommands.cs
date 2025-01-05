@@ -206,7 +206,9 @@ public class EggService(IEggRepository eggRepository)
 
 public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<EggVerifySlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("egg verify", IsPrivateResponse: true);
+    public static string CommandName => "egg verify";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
     public record Options(ParsedString code);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -304,7 +306,9 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
 
 public class EggProfileSlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("egg profile", IsPrivateResponse: true);
+    public static string CommandName => "egg profile";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -342,7 +346,9 @@ public class EggProfileSlashCommand(IEggRepository eggRepository, EggService egg
 
 public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("egg status");
+    public static string CommandName => "egg status";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -385,7 +391,9 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
 
 public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("egg leaderboard");
+    public static string CommandName => "egg leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -433,7 +441,9 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
 
 public class EggSetConfigSlashCommand(IEggRepository eggRepository) : ISlashCommand<EggSetConfigSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner set-config", IsPrivateResponse: true);
+    public static string CommandName => "owner set-config";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
     public record Options(ParsedString key, ParsedString value);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -451,7 +461,9 @@ public class EggSetConfigSlashCommand(IEggRepository eggRepository) : ISlashComm
 
 public class EggRunSlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<EggRunSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner run", IsPrivateResponse: true);
+    public static string CommandName => "owner run";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
     public record Options(ParsedString value);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

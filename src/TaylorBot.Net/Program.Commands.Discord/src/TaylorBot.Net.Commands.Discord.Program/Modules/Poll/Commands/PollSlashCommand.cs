@@ -16,7 +16,9 @@ public class PollSlashCommand : ISlashCommand<NoOptions>
 {
     public static readonly Color PollColor = new(84, 160, 255);
 
-    public ISlashCommandInfo Info => new ModalCommandInfo("poll");
+    public static string CommandName => "poll";
+
+    public ISlashCommandInfo Info => new ModalCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {

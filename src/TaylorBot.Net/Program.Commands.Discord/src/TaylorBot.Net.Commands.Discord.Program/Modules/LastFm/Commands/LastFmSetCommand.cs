@@ -37,7 +37,9 @@ public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository
 
 public class LastFmSetSlashCommand(LastFmSetCommand lastFmSetCommand) : ISlashCommand<LastFmSetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("lastfm set");
+    public static string CommandName => "lastfm set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(LastFmUsername username);
 

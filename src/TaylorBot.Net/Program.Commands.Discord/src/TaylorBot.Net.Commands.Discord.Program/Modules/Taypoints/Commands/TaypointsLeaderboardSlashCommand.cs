@@ -21,7 +21,9 @@ public class TaypointsLeaderboardSlashCommand(
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
     TaskExceptionLogger taskExceptionLogger) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("taypoints leaderboard");
+    public static string CommandName => "taypoints leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

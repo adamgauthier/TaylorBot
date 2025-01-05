@@ -9,7 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
 public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepository) : ISlashCommand<DailyStreakSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("daily streak");
+    public static string CommandName => "daily streak";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

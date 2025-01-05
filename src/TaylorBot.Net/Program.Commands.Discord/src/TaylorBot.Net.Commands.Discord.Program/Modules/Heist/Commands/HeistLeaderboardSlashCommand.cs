@@ -16,7 +16,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
 public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("heist leaderboard");
+    public static string CommandName => "heist leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

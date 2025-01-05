@@ -12,7 +12,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
 public class RemindManageSlashCommand(IReminderRepository reminderRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("remind manage", IsPrivateResponse: true);
+    public static string CommandName => "remind manage";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 public class InspectServerSlashCommand : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("inspect server");
+    public static string CommandName => "inspect server";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {

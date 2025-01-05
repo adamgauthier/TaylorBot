@@ -14,7 +14,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("server timeline");
+    public static string CommandName => "server timeline";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

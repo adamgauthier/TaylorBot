@@ -9,7 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 
 public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository) : ISlashCommand<ModSpamAddSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("mod spam add");
+    public static string CommandName => "mod spam add";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedTextChannelOrCurrent channel);
 
@@ -38,7 +40,9 @@ public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository
 
 public class ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelRepository) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("mod spam remove");
+    public static string CommandName => "mod spam remove";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedTextChannelOrCurrent channel);
 

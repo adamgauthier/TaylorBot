@@ -1,12 +1,10 @@
 ﻿using Discord.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Preconditions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
 [Name("Media 📷")]
-public class MediaModule(ICommandRunner commandRunner, IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient) : TaylorBotModule
+public class MediaModule(ICommandRunner commandRunner, ImageSlashCommand imageCommand) : TaylorBotModule
 {
     [Command("image")]
     [Alias("imagen")]
@@ -17,9 +15,8 @@ public class MediaModule(ICommandRunner commandRunner, IPlusRepository plusRepos
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var command = new ImageCommand(plusRepository, rateLimiter, imageSearchClient);
         var result = await commandRunner.RunAsync(
-            command.Image(context.User, text, isLegacyCommand: true),
+            imageCommand.Image(context.User, text, isLegacyCommand: true),
             context
         );
 

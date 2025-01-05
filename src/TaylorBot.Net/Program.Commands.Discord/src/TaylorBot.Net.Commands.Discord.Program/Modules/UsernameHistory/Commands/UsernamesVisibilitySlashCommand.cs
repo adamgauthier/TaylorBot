@@ -8,7 +8,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Command
 
 public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository usernameHistoryRepository) : ISlashCommand<UsernamesVisibilitySlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("usernames visibility");
+    public static string CommandName => "usernames visibility";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString setting);
 

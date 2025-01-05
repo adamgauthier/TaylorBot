@@ -30,17 +30,24 @@ public record ModalCommandInfo(string Name) : ISlashCommandInfo;
 public interface ISlashCommand
 {
     Type OptionType { get; }
+
     ValueTask<Command> GetCommandAsync(RunContext context, object options);
 
     ISlashCommandInfo Info { get; }
 }
 
-public interface ISlashCommand<T> : ISlashCommand
+public interface ISlashCommand<T> : ISlashCommand, IKeyedSlashCommand
 {
     Type ISlashCommand.OptionType => typeof(T);
+
     async ValueTask<Command> ISlashCommand.GetCommandAsync(RunContext context, object options) => await GetCommandAsync(context, (T)options);
 
     ValueTask<Command> GetCommandAsync(RunContext context, T options);
+}
+
+public interface IKeyedSlashCommand
+{
+    abstract static string CommandName { get; }
 }
 
 public record ApplicationCommand(
@@ -105,145 +112,159 @@ public class SlashCommandHandler(
             activity.SetOption(option.name, $"{option.value}");
         }
 
-        var slashCommand = CreateSlashCommand(commandName);
-        if (slashCommand != null)
+        var created = TryCreateSlashCommand(commandName);
+        if (created.IsSuccess)
         {
-            RunContext context = await CreateRunContextAsync(interaction, slashCommand, activity);
-
-            var result = await RunCommandAsync(slashCommand, context, options, interaction.Data.resolved, activity);
-
-            if (context.OnGoing.OnGoingCommandAddedToPool != null)
+            var slashCommand = created.Value;
+            if (slashCommand != null)
             {
-                await ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, context.OnGoing.OnGoingCommandAddedToPool);
-            }
+                RunContext context = await CreateRunContextAsync(interaction, slashCommand, activity);
 
-            switch (result)
-            {
-                case EmbedResult embedResult:
-                    if (context.WasAcknowledged)
-                    {
-                        await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(embedResult.Embed));
-                    }
-                    else
-                    {
-                        await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(embedResult.Embed));
-                    }
-                    break;
+                var result = await RunCommandAsync(slashCommand, context, options, interaction.Data.resolved, activity);
 
-                case MessageResult messageResult:
-                    IReadOnlyList<Button>? buttons = CreateAndBindButtons(interaction, messageResult, context.User.Id.ToString());
+                if (context.OnGoing.OnGoingCommandAddedToPool != null)
+                {
+                    await ongoingCommandRepository.RemoveOngoingCommandAsync(context.User, context.OnGoing.OnGoingCommandAddedToPool);
+                }
 
-                    await CreateInteractionClient().SendFollowupResponseAsync(
-                        interaction,
-                        new(messageResult.Content, buttons)
-                    );
-                    break;
-
-                case CreateModalResult createModal:
-                    var modal = createModal with { Id = $"{Guid.NewGuid():N}-{createModal.Id}" };
-
-                    modalInteractionHandler.AddCallback(modal.Id, new(async submit =>
-                    {
-                        if (submit.UserId == $"{context.User.Id}")
+                switch (result)
+                {
+                    case EmbedResult embedResult:
+                        if (context.WasAcknowledged)
                         {
-                            modalInteractionHandler.RemoveCallback(submit.CustomId);
-
-                            try
-                            {
-                                var result = await modal.SubmitAction(submit);
-                                var buttons = CreateAndBindButtons(submit, result, $"{context.User.Id}");
-                                await CreateInteractionClient().EditOriginalResponseAsync(submit, new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
-                            }
-                            catch (Exception e)
-                            {
-                                logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Id);
-                                await CreateInteractionClient().EditOriginalResponseAsync(submit, new(
-                                    EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")
-                                ));
-                            }
+                            await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(embedResult.Embed));
                         }
-                    }, createModal.IsPrivateResponse));
+                        else
+                        {
+                            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(embedResult.Embed));
+                        }
+                        break;
 
-                    _ = Task.Run(async () => await taskExceptionLogger.LogOnError(async () =>
-                    {
-                        await Task.Delay(TimeSpan.FromMinutes(10));
-                        modalInteractionHandler.RemoveCallback(modal.Id);
-                    }, nameof(CreateModalResult)));
+                    case MessageResult messageResult:
+                        IReadOnlyList<Button>? buttons = CreateAndBindButtons(interaction, messageResult, context.User.Id.ToString());
 
-                    await CreateInteractionClient().SendModalResponseAsync(interaction, modal);
-                    break;
+                        await CreateInteractionClient().SendFollowupResponseAsync(
+                            interaction,
+                            new(messageResult.Content, buttons)
+                        );
+                        break;
 
-                case ParsingFailed parsingFailed:
-                    if (context.WasAcknowledged)
-                    {
-                        await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
-                    }
-                    else
-                    {
-                        await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(parsingFailed.Message)), IsPrivate: true));
-                    }
-                    break;
+                    case CreateModalResult createModal:
+                        var modal = createModal with { Id = $"{Guid.NewGuid():N}-{createModal.Id}" };
 
-                case PreconditionFailed preconditionFailed:
-                    logger.LogInformation("{User} precondition failure: {PrivateReason}.", context.User.FormatLog(), preconditionFailed.PrivateReason);
-                    if (context.WasAcknowledged)
-                    {
-                        await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
-                    }
-                    else
-                    {
-                        await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)), IsPrivate: true));
-                    }
-                    break;
+                        modalInteractionHandler.AddCallback(modal.Id, new(async submit =>
+                        {
+                            if (submit.UserId == $"{context.User.Id}")
+                            {
+                                modalInteractionHandler.RemoveCallback(submit.CustomId);
 
-                case EmptyResult _:
-                    break;
+                                try
+                                {
+                                    var result = await modal.SubmitAction(submit);
+                                    var buttons = CreateAndBindButtons(submit, result, $"{context.User.Id}");
+                                    await CreateInteractionClient().EditOriginalResponseAsync(submit, new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
+                                }
+                                catch (Exception e)
+                                {
+                                    logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Id);
+                                    await CreateInteractionClient().EditOriginalResponseAsync(submit, new(
+                                        EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")
+                                    ));
+                                }
+                            }
+                        }, createModal.IsPrivateResponse));
 
-                case RateLimitedResult rateLimited:
-                    var baseDescriptionLines = new[] {
+                        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(async () =>
+                        {
+                            await Task.Delay(TimeSpan.FromMinutes(10));
+                            modalInteractionHandler.RemoveCallback(modal.Id);
+                        }, nameof(CreateModalResult)));
+
+                        await CreateInteractionClient().SendModalResponseAsync(interaction, modal);
+                        break;
+
+                    case ParsingFailed parsingFailed:
+                        if (context.WasAcknowledged)
+                        {
+                            await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
+                        }
+                        else
+                        {
+                            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(parsingFailed.Message)), IsPrivate: true));
+                        }
+                        break;
+
+                    case PreconditionFailed preconditionFailed:
+                        logger.LogInformation("{User} precondition failure: {PrivateReason}.", context.User.FormatLog(), preconditionFailed.PrivateReason);
+                        if (context.WasAcknowledged)
+                        {
+                            await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
+                        }
+                        else
+                        {
+                            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)), IsPrivate: true));
+                        }
+                        break;
+
+                    case EmptyResult _:
+                        break;
+
+                    case RateLimitedResult rateLimited:
+                        var baseDescriptionLines = new[] {
                         $"You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕",
                         $"This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
                     };
 
-                    if (rateLimited.Uses < rateLimited.Limit + 6)
-                    {
-                        baseDescriptionLines =
-                        [
-                            .. baseDescriptionLines,
+                        if (rateLimited.Uses < rateLimited.Limit + 6)
+                        {
+                            baseDescriptionLines =
+                            [
+                                .. baseDescriptionLines,
                             "**Stop trying to perform this action or all your commands will be ignored.**"
-                        ];
-                    }
-                    else
-                    {
-                        var ignoreTime = TimeSpan.FromDays(5);
+                            ];
+                        }
+                        else
+                        {
+                            var ignoreTime = TimeSpan.FromDays(5);
 
-                        baseDescriptionLines =
-                        [
-                            .. baseDescriptionLines,
+                            baseDescriptionLines =
+                            [
+                                .. baseDescriptionLines,
                             $"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**",
                         ];
 
-                        await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.UtcNow + ignoreTime);
-                    }
+                            await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.UtcNow + ignoreTime);
+                        }
 
-                    await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
-                    break;
+                        await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
+                        break;
 
-                default:
-                    throw new InvalidOperationException($"Unexpected command result: {result.GetType()}");
+                    default:
+                        throw new InvalidOperationException($"Unexpected command result: {result.GetType()}");
+                }
+            }
+            else
+            {
+                logger.LogWarning("Slash command {CommandName} not found", commandName);
             }
         }
         else
         {
-            logger.LogWarning("Slash command {CommandName} not found", commandName);
+            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that 😕")));
         }
     }
 
-    private ISlashCommand? CreateSlashCommand(string name)
+    private Result<ISlashCommand?> TryCreateSlashCommand(string commandName)
     {
-        return services.GetServices<ISlashCommand>().ToDictionary(c => c.Info.Name).TryGetValue(name, out var slashCommand)
-            ? slashCommand
-            : null;
+        try
+        {
+            return Ok(services.GetKeyedService<ISlashCommand>(commandName));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to create slash command service {CommandName}", commandName);
+            return Error();
+        }
     }
 
     private async Task<RunContext> CreateRunContextAsync(ApplicationCommand interaction, ISlashCommand slashCommand, CommandActivity activity)
@@ -362,7 +383,7 @@ public class SlashCommandHandler(
         {
             logger.LogError(e, "Unhandled exception in slash command '{CommandName}':", slashCommand.Info.Name);
             activity.SetError(e);
-            return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕"));
+            return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that 😕"));
         }
     }
 

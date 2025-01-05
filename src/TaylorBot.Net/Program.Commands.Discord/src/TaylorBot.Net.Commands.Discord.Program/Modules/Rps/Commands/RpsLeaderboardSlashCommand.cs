@@ -15,7 +15,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
 public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("rps leaderboard");
+    public static string CommandName => "rps leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

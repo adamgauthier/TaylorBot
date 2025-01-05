@@ -25,7 +25,9 @@ public interface IServerJoinedRepository
 
 public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<ServerJoinedSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("server joined");
+    public static string CommandName => "server joined";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedMemberOrAuthor user);
 

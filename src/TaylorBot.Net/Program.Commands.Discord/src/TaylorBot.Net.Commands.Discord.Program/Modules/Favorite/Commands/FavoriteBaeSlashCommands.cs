@@ -19,7 +19,9 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
 {
     public const string PrefixCommandName = "bae";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae show");
+    public static string CommandName => "favorite bae show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 
@@ -63,7 +65,9 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
 
 public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeSetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae set");
+    public static string CommandName => "favorite bae set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString bae);
 
@@ -98,7 +102,9 @@ public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCo
 
 public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite bae clear");
+    public static string CommandName => "favorite bae clear";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

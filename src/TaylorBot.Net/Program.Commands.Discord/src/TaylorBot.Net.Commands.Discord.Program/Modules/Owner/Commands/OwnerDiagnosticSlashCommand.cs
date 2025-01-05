@@ -10,7 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
 public class OwnerDiagnosticSlashCommand(Lazy<ITaylorBotClient> taylorBotClient) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner diagnostic");
+    public static string CommandName => "owner diagnostic";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

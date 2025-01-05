@@ -23,7 +23,9 @@ public interface IRollStatsRepository
 
 public class RollProfileSlashCommand(IRollStatsRepository rollStatsRepository) : ISlashCommand<RollProfileSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("roll profile");
+    public static string CommandName => "roll profile";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

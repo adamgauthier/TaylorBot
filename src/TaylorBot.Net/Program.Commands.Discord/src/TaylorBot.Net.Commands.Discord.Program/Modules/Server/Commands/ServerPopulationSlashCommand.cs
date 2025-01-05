@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("server population");
+    public static string CommandName => "server population";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

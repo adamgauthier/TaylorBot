@@ -15,7 +15,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 
 public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("risk leaderboard");
+    public static string CommandName => "risk leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using TaylorBot.Net.Core.Client;
@@ -21,11 +22,18 @@ public static class ServiceCollectionExtensions
     {
         var instrumentation = new TaylorBotInstrumentation(hostEnvironment.ApplicationName);
 
-        services
+        var builder = services
             .AddSingleton(instrumentation)
             .AddOpenTelemetry()
-            .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name))
-            .UseAzureMonitor();
+            .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name));
+
+        var appInsightsConnectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+        ArgumentException.ThrowIfNullOrEmpty(appInsightsConnectionString);
+
+        if (!appInsightsConnectionString.Equals("no_application_insights", StringComparison.OrdinalIgnoreCase))
+        {
+            builder.UseAzureMonitor();
+        }
 
         services.ConfigureOpenTelemetryMeterProvider(metrics => metrics
             // Remove noisy metrics that incur storage cost, only keep http.client.request.duration

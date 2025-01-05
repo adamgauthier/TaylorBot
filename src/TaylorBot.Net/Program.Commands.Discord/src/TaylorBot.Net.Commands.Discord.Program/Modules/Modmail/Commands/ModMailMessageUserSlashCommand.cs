@@ -14,7 +14,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailMessageUserSlashCommand(Lazy<ITaylorBotClient> client, ModMailChannelLogger modMailChannelLogger, IOptionsMonitor<ModMailOptions> modMailOptions) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new ModalCommandInfo("modmail message-user");
+    public static string CommandName => "modmail message-user";
+
+    public ISlashCommandInfo Info => new ModalCommandInfo(CommandName);
 
     public record Options(ParsedMemberNotAuthorAndBot user);
 

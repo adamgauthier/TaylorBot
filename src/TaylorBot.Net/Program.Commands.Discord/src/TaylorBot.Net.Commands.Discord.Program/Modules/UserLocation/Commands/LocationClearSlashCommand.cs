@@ -6,7 +6,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
 public class LocationClearSlashCommand(ILocationRepository locationRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("location clear");
+    public static string CommandName => "location clear";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

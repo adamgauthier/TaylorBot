@@ -10,7 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBlockedUsersRepository, ModMailChannelLogger modMailChannelLogger, IPlusRepository plusRepository) : ISlashCommand<ModMailBlockSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("modmail block", IsPrivateResponse: true);
+    public static string CommandName => "modmail block";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public record Options(ParsedUserNotAuthorAndBot user);
 
@@ -70,7 +72,9 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
 
 public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBlockedUsersRepository, ModMailChannelLogger modMailChannelLogger) : ISlashCommand<ModMailUnblockSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("modmail unblock", IsPrivateResponse: true);
+    public static string CommandName => "modmail unblock";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public record Options(ParsedUserNotAuthorAndBot user);
 

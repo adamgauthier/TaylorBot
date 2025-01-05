@@ -36,7 +36,9 @@ public class SignatureSlashCommand(
     IHttpClientFactory clientFactory
     ) : ISlashCommand<SignatureSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("signature");
+    public static string CommandName => "signature";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedOptionalAttachment file, ParsedOptionalString link);
 

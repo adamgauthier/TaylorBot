@@ -22,7 +22,9 @@ public class OwnerDownloadAvatarsSlashCommand(
     IHttpClientFactory httpClientFactory)
     : ISlashCommand<OwnerDownloadAvatarsSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner downloadavatars");
+    public static string CommandName => "owner downloadavatars";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString userids);
 

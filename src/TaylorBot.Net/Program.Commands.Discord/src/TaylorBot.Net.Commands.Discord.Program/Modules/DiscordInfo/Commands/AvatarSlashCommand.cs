@@ -9,7 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("avatar", "DiscordInfo 💬", ["av", "avi"]);
+    public static string CommandName => "avatar";
+
+    public static readonly CommandMetadata Metadata = new(CommandName, "DiscordInfo 💬", ["av", "avi"]);
 
     public ISlashCommandInfo Info => new MessageCommandInfo(Metadata.Name);
 

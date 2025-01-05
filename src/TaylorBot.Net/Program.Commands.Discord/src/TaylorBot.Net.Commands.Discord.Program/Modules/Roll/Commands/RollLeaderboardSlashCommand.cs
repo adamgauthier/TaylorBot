@@ -15,7 +15,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
 
 public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("roll leaderboard");
+    public static string CommandName => "roll leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

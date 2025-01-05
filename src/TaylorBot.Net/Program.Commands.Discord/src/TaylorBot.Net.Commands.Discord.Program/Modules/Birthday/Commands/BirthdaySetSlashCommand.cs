@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
 public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdaySetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("birthday set", IsPrivateResponse: true);
+    public static string CommandName => "birthday set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public record Options(ParsedPositiveInteger day, ParsedPositiveInteger month, ParsedOptionalInteger year, ParsedOptionalBoolean privately);
 

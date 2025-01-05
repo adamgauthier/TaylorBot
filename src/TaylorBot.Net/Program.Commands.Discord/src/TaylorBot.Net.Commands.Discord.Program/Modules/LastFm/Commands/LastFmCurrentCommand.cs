@@ -73,7 +73,9 @@ public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFm
 
 public class LastFmCurrentSlashCommand(LastFmCurrentCommand lastFmCurrentCommand) : ISlashCommand<LastFmCurrentSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("lastfm current");
+    public static string CommandName => "lastfm current";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

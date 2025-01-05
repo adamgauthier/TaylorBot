@@ -8,7 +8,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 public class InspectRoleSlashCommand : ISlashCommand<InspectRoleSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("inspect role");
+    public static string CommandName => "inspect role";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedRole role);
 

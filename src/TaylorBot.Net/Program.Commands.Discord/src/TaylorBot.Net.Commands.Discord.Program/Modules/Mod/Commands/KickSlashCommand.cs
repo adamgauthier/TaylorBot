@@ -19,7 +19,9 @@ public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger m
 {
     private const int MaxAuditLogReasonSize = 512;
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("kick", IsPrivateResponse: true);
+    public static string CommandName => "kick";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public record Options(ParsedMemberNotAuthorAndTaylorBot member, ParsedOptionalString reason);
 

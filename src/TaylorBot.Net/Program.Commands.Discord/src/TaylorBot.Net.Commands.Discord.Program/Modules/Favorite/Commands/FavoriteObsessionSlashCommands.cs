@@ -19,7 +19,9 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
 {
     public const string PrefixCommandName = "waifu";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite obsession show");
+    public static string CommandName => "favorite obsession show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 
@@ -73,7 +75,9 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
 
 public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<FavoriteObsessionSetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite obsession set");
+    public static string CommandName => "favorite obsession set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString obsession);
 
@@ -121,7 +125,9 @@ public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepo
 
 public class FavoriteObsessionClearSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite obsession clear");
+    public static string CommandName => "favorite obsession clear";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

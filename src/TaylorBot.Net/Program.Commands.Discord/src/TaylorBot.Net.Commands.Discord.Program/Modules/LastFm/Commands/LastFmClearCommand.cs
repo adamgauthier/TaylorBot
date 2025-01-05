@@ -36,7 +36,9 @@ public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameReposito
 
 public class LastFmClearSlashCommand(LastFmClearCommand lastFmClearCommand) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("lastfm clear");
+    public static string CommandName => "lastfm clear";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

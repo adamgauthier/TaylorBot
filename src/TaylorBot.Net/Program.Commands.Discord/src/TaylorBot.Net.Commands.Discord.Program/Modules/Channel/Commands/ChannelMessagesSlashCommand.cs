@@ -18,7 +18,9 @@ public interface IChannelMessageCountRepository
 
 public class ChannelMessagesSlashCommand(IChannelMessageCountRepository channelMessageCountRepository) : ISlashCommand<ChannelMessagesSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("channel messages");
+    public static string CommandName => "channel messages";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedTextChannelOrCurrent channel);
 

@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 
 public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepository plusUserRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("plus show", IsPrivateResponse: true);
+    public static string CommandName => "plus show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

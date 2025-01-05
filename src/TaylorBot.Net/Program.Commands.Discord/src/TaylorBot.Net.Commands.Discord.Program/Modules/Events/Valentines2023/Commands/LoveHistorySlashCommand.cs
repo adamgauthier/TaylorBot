@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.C
 
 public class LoveHistorySlashCommand(IValentinesRepository valentinesRepository) : ISlashCommand<LoveHistorySlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("love history");
+    public static string CommandName => "love history";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

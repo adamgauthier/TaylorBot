@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 public class InspectUserSlashCommand : ISlashCommand<InspectUserSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("inspect user");
+    public static string CommandName => "inspect user";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

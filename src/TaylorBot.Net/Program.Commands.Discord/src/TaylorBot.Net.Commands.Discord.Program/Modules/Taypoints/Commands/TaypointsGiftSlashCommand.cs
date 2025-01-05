@@ -17,7 +17,9 @@ public class TaypointsGiftSlashCommand(
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
     TaskExceptionLogger taskExceptionLogger) : ISlashCommand<TaypointsGiftSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("taypoints gift");
+    public static string CommandName => "taypoints gift";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ITaypointAmount amount, ParsedUserNotAuthor user);
 
@@ -140,7 +142,7 @@ public class TaypointsGiftSlashCommand(
             {from.Mention} 🎁 **{"taypoint".ToQuantity(transfer.GiftedCount, TaylorBotFormats.Readable)}** ➡️ {(to.Count > 1 ? "__multiple users__" : to[0].Mention)}
             ### Balances Updated
             {from.Mention}: {transfer.OriginalCount.ToString(TaylorBotFormats.BoldReadable)} ➡️ {"taypoint".ToQuantity(fromBalance, TaylorBotFormats.BoldReadable)} 📉
-            {string.Join('\n', recipientBalances)}            
+            {string.Join('\n', recipientBalances)}
             """;
     }
 

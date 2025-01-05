@@ -16,7 +16,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlashCommand> logger, ITaylorBotClient client, PostgresConnectionFactory postgresConnectionFactory)
     : ISlashCommand<OwnerAddFeedbackUsersSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner addfeedbackusers");
+    public static string CommandName => "owner addfeedbackusers";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedOptionalBoolean whatif);
 

@@ -19,7 +19,9 @@ public partial interface ICouponRepository
 
 public class CouponRedeemSlashCommand(IRateLimiter rateLimiter, ICouponRepository couponRepository) : ISlashCommand<CouponRedeemSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("coupon redeem", IsPrivateResponse: true);
+    public static string CommandName => "coupon redeem";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public record Options(ParsedString code);
 

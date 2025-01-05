@@ -48,7 +48,9 @@ public class LocationShowCommand(ILocationRepository locationRepository)
 
 public class LocationShowSlashCommand(LocationShowCommand locationShowCommand) : ISlashCommand<LocationShowSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("location show");
+    public static string CommandName => "location show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 
@@ -60,7 +62,9 @@ public class LocationShowSlashCommand(LocationShowCommand locationShowCommand) :
 
 public class LocationTimeSlashCommand(LocationShowCommand locationShowCommand) : ISlashCommand<LocationShowSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("location time");
+    public static string CommandName => "location time";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, LocationShowSlashCommand.Options options)
     {

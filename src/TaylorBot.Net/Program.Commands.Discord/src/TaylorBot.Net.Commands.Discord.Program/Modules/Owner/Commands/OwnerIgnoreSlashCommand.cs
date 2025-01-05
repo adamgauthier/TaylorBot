@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
 public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepository) : ISlashCommand<OwnerIgnoreSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner ignore");
+    public static string CommandName => "owner ignore";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserNotAuthorAndTaylorBot user, ParsedTimeSpan time);
 

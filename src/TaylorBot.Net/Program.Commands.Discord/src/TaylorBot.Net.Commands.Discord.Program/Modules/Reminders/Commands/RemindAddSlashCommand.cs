@@ -16,7 +16,9 @@ public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlus
     private const uint MaxRemindersNonPlus = 2;
     private const uint MaxRemindersPlus = 4;
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("remind add");
+    public static string CommandName => "remind add";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedTimeSpan time, ParsedString text);
 

@@ -23,7 +23,7 @@ public class MediaModuleTests
 
     public MediaModuleTests()
     {
-        _mediaModule = new MediaModule(new SimpleCommandRunner(), _plusRepository, CommandUtils.UnlimitedRateLimiter, _imageSearchClient);
+        _mediaModule = new MediaModule(new SimpleCommandRunner(), new ImageSlashCommand(_plusRepository, CommandUtils.UnlimitedRateLimiter, _imageSearchClient));
         _mediaModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);

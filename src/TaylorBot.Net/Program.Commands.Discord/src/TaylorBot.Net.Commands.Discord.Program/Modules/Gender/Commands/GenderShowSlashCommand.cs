@@ -11,7 +11,9 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlash
 {
     public const string PrefixCommandName = "gender";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("gender show");
+    public static string CommandName => "gender show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

@@ -21,7 +21,9 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
     public const string PrefixCommandAlias1 = "favsongs";
     public const string PrefixCommandAlias2 = "favoritesongs";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs show");
+    public static string CommandName => "favorite songs show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 
@@ -70,7 +72,9 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
     public const string PrefixCommandAlias2 = "setfavsongs";
     public const string PrefixCommandAlias3 = "set favsongs";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs set");
+    public static string CommandName => "favorite songs set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString songs);
 
@@ -117,7 +121,9 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 
 public class FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("favorite songs clear");
+    public static string CommandName => "favorite songs clear";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

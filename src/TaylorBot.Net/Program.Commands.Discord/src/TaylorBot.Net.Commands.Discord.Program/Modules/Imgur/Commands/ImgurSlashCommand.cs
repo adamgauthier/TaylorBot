@@ -9,7 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
 
 public class ImgurSlashCommand(IRateLimiter rateLimiter, IImgurClient imgurClient) : ISlashCommand<ImgurSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("imgur");
+    public static string CommandName => "imgur";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedOptionalAttachment file, ParsedOptionalString link);
 

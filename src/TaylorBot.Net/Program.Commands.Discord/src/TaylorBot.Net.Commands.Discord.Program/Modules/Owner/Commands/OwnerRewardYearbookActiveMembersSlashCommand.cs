@@ -40,7 +40,9 @@ public record ActiveMembers(IList<ActiveMembers.Member> members, IList<string> u
 public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYearbookActiveMembersSlashCommand> logger, ITaylorBotClient client, PostgresConnectionFactory postgresConnectionFactory)
     : ISlashCommand<OwnerRewardYearbookActiveMembersSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner rewardyearbook");
+    public static string CommandName => "owner rewardyearbook";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedPositiveInteger count);
 

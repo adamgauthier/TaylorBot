@@ -6,7 +6,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
 public class GenderSetSlashCommand(IGenderRepository genderRepository) : ISlashCommand<GenderSetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("gender set");
+    public static string CommandName => "gender set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString gender);
 

@@ -20,7 +20,10 @@ public static class Valentines
 
 public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<ValentinesVerifySlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("valentines verify", IsPrivateResponse: true);
+    public static string CommandName => "valentines verify";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
+
     public record Options(ParsedString puzzle, ParsedString code);
 
     private record Code(string puzzle_code, bool enabled);
@@ -128,7 +131,9 @@ public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConn
 
 public class ValentinesProfileSlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("valentines profile");
+    public static string CommandName => "valentines profile";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     private record Solved(string puzzle_id, short attempt_count, DateTime? solved_at);
 
@@ -177,7 +182,9 @@ public class ValentinesProfileSlashCommand(PostgresConnectionFactory postgresCon
 
 public class ValentinesStatusSlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("valentines status");
+    public static string CommandName => "valentines status";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     private record PuzzleStatus(string puzzle_id, long found_by);
 
@@ -234,7 +241,9 @@ public class ValentinesStatusSlashCommand(PostgresConnectionFactory postgresConn
 
 public class ValentinesEnableSlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<ValentinesEnableSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner enable-puzzle", IsPrivateResponse: true);
+    public static string CommandName => "owner enable-puzzle";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
     public record Options(ParsedString puzzle, ParsedOptionalBoolean enable);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

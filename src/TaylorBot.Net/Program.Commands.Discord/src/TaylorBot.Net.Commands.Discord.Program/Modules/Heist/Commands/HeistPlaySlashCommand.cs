@@ -29,7 +29,9 @@ public class HeistPlaySlashCommand(
 {
     public const string PrefixCommandName = "heist";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("heist play");
+    public static string CommandName => "heist play";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ITaypointAmount amount);
 

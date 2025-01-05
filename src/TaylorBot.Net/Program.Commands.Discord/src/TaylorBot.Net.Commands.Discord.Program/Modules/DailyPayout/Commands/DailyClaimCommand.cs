@@ -85,7 +85,9 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
 
 public class DailyClaimSlashCommand(DailyClaimCommand dailyClaimCommand) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("daily claim");
+    public static string CommandName => "daily claim";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public async ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

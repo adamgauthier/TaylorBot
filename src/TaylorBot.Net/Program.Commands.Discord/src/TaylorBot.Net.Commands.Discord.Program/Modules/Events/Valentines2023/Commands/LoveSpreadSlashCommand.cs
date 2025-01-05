@@ -10,7 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.C
 
 public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRepository valentinesRepository) : ISlashCommand<LoveSpreadSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("love spread");
+    public static string CommandName => "love spread";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedMemberNotAuthor user);
 

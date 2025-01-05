@@ -18,7 +18,9 @@ public class ModMailMessageModsSlashCommand(
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
     ModMailChannelLogger modMailChannelLogger) : ISlashCommand<ModMailMessageModsSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("modmail message-mods", IsPrivateResponse: true);
+    public static string CommandName => "modmail message-mods";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public record Options(ParsedString message);
 

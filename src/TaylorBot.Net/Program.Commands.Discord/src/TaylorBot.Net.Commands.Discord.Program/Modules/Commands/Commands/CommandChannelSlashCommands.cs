@@ -9,7 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 
 public class CommandChannelDisableSlashCommand(ICommandRepository commandRepository, IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository) : ISlashCommand<CommandChannelDisableSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("command channel-disable");
+    public static string CommandName => "command channel-disable";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString command, ParsedTextChannelOrCurrent channel);
 
@@ -51,7 +53,9 @@ public class CommandChannelDisableSlashCommand(ICommandRepository commandReposit
 
 public class CommandChannelEnableSlashCommand(ICommandRepository commandRepository, IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository) : ISlashCommand<CommandChannelEnableSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("command channel-enable");
+    public static string CommandName => "command channel-enable";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString command, ParsedTextChannelOrCurrent channel);
 

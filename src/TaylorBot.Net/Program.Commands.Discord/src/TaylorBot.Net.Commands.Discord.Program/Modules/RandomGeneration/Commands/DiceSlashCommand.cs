@@ -10,7 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 public class DiceSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<DiceSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("dice");
+    public static string CommandName => "dice";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedPositiveInteger faces);
 

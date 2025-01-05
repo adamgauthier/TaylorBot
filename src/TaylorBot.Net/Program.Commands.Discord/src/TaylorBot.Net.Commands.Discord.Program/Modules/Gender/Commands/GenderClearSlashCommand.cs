@@ -6,7 +6,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
 public class GenderClearSlashCommand(IGenderRepository genderRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("gender clear");
+    public static string CommandName => "gender clear";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

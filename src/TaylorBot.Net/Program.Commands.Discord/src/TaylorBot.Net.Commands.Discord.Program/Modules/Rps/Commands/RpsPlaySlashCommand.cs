@@ -28,7 +28,9 @@ public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLi
 {
     public const string PrefixCommandName = "rps";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("rps play");
+    public static string CommandName => "rps play";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(RpsShape? option);
 

@@ -20,7 +20,9 @@ public interface IBirthdayRoleConfigRepository
 
 public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, IPlusRepository plusRepository, IBirthdayRoleConfigRepository birthdayRoleRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("birthday role");
+    public static string CommandName => "birthday role";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

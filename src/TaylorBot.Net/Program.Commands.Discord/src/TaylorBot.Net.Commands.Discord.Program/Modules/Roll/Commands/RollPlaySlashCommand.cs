@@ -13,7 +13,9 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
 {
     public const string PrefixCommandName = "roll";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("roll play");
+    public static string CommandName => "roll play";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public Command Play(RunContext context) => new(
         new(Info.Name, Aliases: [PrefixCommandName]),

@@ -13,7 +13,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Command
 
 public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistoryRepository) : ISlashCommand<UsernamesShowSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("usernames show");
+    public static string CommandName => "usernames show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

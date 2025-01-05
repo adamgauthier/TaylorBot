@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
 public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository) : ISlashCommand<HeistProfileSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("heist profile");
+    public static string CommandName => "heist profile";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 
@@ -35,7 +37,7 @@ public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository
                     .WithThumbnailUrl(user.GetAvatarUrlOrDefault())
                     .AddField("Heists Won", $"{(hasPositiveRecord ? "🟢" : "🔴")} **{winRate:0%}** out of {"total heist".ToQuantity(totalHeistPlayed, TaylorBotFormats.BoldReadable)} played")
                     .AddField("Heist Profits",
-                        $"""                        
+                        $"""
                         **{(profits >= 0 ? "🟢 +" : "🔴 —")}{"taypoint".ToQuantity(Math.Abs(profits), TaylorBotFormats.Readable)}**
                         Won {"taypoint".ToQuantity(profile.heist_win_amount, TaylorBotFormats.BoldReadable)} 📈
                         Lost {"taypoint".ToQuantity(profile.heist_lose_amount, TaylorBotFormats.BoldReadable)} 📉

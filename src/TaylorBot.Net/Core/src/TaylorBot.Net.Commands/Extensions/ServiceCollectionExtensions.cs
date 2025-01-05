@@ -113,10 +113,10 @@ public static class ServiceCollectionExtensions
     }
 
     public static IServiceCollection AddSlashCommand<T>(this IServiceCollection services)
-        where T : class, ISlashCommand
+        where T : class, ISlashCommand, IKeyedSlashCommand
     {
         return services
             .AddTransient<T>()
-            .AddTransient<ISlashCommand, T>();
+            .AddKeyedTransient<ISlashCommand, T>(T.CommandName);
     }
 }

@@ -15,7 +15,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 public class ServerLeaderboardSlashCommand(IServerActivityRepository serverActivityRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("server leaderboard");
+    public static string CommandName => "server leaderboard";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString @for);
 

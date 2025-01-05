@@ -20,7 +20,9 @@ public class TaypointsBalanceSlashCommand(
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
     TaskExceptionLogger taskExceptionLogger) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("taypoints balance");
+    public static string CommandName => "taypoints balance";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

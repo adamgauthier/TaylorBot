@@ -9,7 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
 public class DailyRebuySlashCommand(IDailyPayoutRepository dailyPayoutRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("daily rebuy");
+    public static string CommandName => "daily rebuy";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -22,7 +24,7 @@ public class DailyRebuySlashCommand(IDailyPayoutRepository dailyPayoutRepository
                 if (!streakInfo.HasValue)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""                        
+                        $"""
                         You've never claimed your daily reward! ❌
                         Use {context.MentionCommand("daily claim")} to start!
                         """));

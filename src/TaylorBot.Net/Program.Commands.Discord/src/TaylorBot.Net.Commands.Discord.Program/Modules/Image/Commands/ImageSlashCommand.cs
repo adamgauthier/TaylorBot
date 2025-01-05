@@ -10,9 +10,15 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
-public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient)
+public class ImageSlashCommand(IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient) : ISlashCommand<ImageSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("image", "Media 📷", ["imagen"]);
+    public static string CommandName => "image";
+
+    public static readonly CommandMetadata Metadata = new(CommandName, "Media 📷", ["imagen"]);
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public record Options(ParsedString search);
 
     public Command Image(DiscordUser user, string text, bool isLegacyCommand) => new(
         Metadata,
@@ -81,17 +87,9 @@ public class ImageCommand(IPlusRepository plusRepository, IRateLimiter rateLimit
         },
         Preconditions: [new PlusPrecondition(plusRepository, PlusRequirement.PlusUserOrGuild)]
     );
-}
-
-public class ImageSlashCommand(IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient) : ISlashCommand<ImageSlashCommand.Options>
-{
-    public ISlashCommandInfo Info => new MessageCommandInfo(ImageCommand.Metadata.Name);
-
-    public record Options(ParsedString search);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        var command = new ImageCommand(plusRepository, rateLimiter, imageSearchClient);
-        return new(command.Image(context.User, options.search.Value, isLegacyCommand: false));
+        return new(Image(context.User, options.search.Value, isLegacyCommand: false));
     }
 }

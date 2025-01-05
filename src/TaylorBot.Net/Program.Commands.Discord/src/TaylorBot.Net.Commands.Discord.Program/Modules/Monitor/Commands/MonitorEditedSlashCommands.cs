@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
 public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("monitor edited set");
+    public static string CommandName => "monitor edited set";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -76,7 +78,9 @@ public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEdite
 
 public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("monitor edited show");
+    public static string CommandName => "monitor edited show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -132,7 +136,9 @@ public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLog
 
 public class MonitorEditedStopSlashCommand(IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("monitor edited stop");
+    public static string CommandName => "monitor edited stop";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {

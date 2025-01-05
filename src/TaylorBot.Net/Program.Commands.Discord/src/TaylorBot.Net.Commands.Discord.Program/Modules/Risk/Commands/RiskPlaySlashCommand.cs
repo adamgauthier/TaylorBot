@@ -30,7 +30,9 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
     public const string PrefixSuperCommandName = "supergamble";
     public const string PrefixSuperCommandAlias = "sgamble";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo("risk play");
+    public static string CommandName => "risk play";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ITaypointAmount amount, RiskLevel? level);
 

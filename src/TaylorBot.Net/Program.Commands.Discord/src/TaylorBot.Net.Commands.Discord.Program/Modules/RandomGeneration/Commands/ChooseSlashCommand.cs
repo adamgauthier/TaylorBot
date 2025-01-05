@@ -8,7 +8,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Comman
 
 public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<ChooseSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("choose", "Random 🎲");
+    public static string CommandName => "choose";
+
+    public static readonly CommandMetadata Metadata = new(CommandName, "Random 🎲");
 
     public Command Choose(string options, IUser? author = null) => new(
         Metadata,

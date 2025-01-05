@@ -96,7 +96,9 @@ public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locati
 
 public class WeatherSlashCommand(WeatherCommand weatherCommand) : ISlashCommand<WeatherSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("location weather");
+    public static string CommandName => "location weather";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
 

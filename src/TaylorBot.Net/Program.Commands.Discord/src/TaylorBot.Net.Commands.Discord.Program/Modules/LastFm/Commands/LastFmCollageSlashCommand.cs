@@ -19,7 +19,9 @@ public class LastFmCollageSlashCommand(
     IHttpClientFactory clientFactory
     ) : ISlashCommand<LastFmCollageSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("lastfm collage");
+    public static string CommandName => "lastfm collage";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
     public record Options(LastFmPeriod? period, ParsedOptionalInteger size, ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

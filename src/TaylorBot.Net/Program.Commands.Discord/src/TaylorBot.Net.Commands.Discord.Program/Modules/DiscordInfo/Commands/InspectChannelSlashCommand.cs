@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
 public class InspectChannelSlashCommand(Lazy<ITaylorBotClient> taylorBot, ChannelTypeStringMapper channelTypeStringMapper) : ISlashCommand<InspectChannelSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("inspect channel");
+    public static string CommandName => "inspect channel";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedChannelOrCurrent channel);
 

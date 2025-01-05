@@ -45,7 +45,7 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
 
                 case GenericUrbanError error:
                     return new EmbedResult(EmbedFactory.CreateError(
-                        """                        
+                        """
                         UrbanDictionary returned an unexpected error. 😢
                         The site might be down. Try again later!
                         """
@@ -60,7 +60,9 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
 
 public class UrbanDictionarySlashCommand(UrbanDictionaryCommand urbanDictionaryCommand) : ISlashCommand<UrbanDictionarySlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("urbandictionary");
+    public static string CommandName => "urbandictionary";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString search);
 

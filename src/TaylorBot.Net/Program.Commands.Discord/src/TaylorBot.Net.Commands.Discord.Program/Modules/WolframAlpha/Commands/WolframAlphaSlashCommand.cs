@@ -8,7 +8,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Commands;
 
 public class WolframAlphaSlashCommand(IRateLimiter rateLimiter, IWolframAlphaClient wolframAlphaClient) : ISlashCommand<WolframAlphaSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("wolframalpha");
+    public static string CommandName => "wolframalpha";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString question);
 

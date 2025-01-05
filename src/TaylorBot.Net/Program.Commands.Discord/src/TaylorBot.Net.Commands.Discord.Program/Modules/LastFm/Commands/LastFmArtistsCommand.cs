@@ -64,7 +64,9 @@ public class LastFmArtistsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFm
 
 public class LastFmArtistsSlashCommand(LastFmArtistsCommand lastFmArtistsCommand) : ISlashCommand<LastFmArtistsSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("lastfm artists");
+    public static string CommandName => "lastfm artists";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
 

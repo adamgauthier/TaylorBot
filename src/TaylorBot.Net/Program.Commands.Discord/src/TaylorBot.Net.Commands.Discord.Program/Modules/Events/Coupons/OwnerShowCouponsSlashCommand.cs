@@ -11,7 +11,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
 public class OwnerShowCouponsSlashCommand(ICouponRepository couponRepository) : ISlashCommand<OwnerShowCouponsSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner showcoupons");
+    public static string CommandName => "owner showcoupons";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString codes);
 

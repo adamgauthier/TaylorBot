@@ -13,7 +13,9 @@ public partial interface ICouponRepository
 
 public class OwnerAddCouponSlashCommand(ICouponRepository couponRepository) : ISlashCommand<OwnerAddCouponSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("owner addcoupon");
+    public static string CommandName => "owner addcoupon";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedString code, ParsedTimeSpan from, ParsedTimeSpan until, ParsedPositiveInteger limit, ParsedPositiveInteger reward);
 

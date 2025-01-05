@@ -10,7 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 
 public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) : ISlashCommand<RiskProfileSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("risk profile");
+    public static string CommandName => "risk profile";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

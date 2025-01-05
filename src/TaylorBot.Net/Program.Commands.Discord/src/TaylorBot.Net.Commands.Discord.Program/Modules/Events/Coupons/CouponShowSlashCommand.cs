@@ -19,7 +19,9 @@ public partial interface ICouponRepository
 
 public class CouponShowSlashCommand(ICouponRepository couponRepository) : ISlashCommand<NoOptions>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("coupon show", IsPrivateResponse: true);
+    public static string CommandName => "coupon show";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {

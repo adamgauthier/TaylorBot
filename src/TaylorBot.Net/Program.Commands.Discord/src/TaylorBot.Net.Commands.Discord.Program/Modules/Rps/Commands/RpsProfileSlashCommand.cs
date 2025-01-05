@@ -10,7 +10,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
 public class RpsProfileSlashCommand(IRpsStatsRepository rpsStatsRepository) : ISlashCommand<RpsProfileSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("rps profile");
+    public static string CommandName => "rps profile";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedUserOrAuthor user);
 

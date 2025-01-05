@@ -29,7 +29,9 @@ public interface IServerActivityRepository
 
 public class ServerMessagesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMessagesSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("server messages");
+    public static string CommandName => "server messages";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedMemberOrAuthor user);
 
@@ -67,7 +69,9 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 
 public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMinutesSlashCommand.Options>
 {
-    public ISlashCommandInfo Info => new MessageCommandInfo("server minutes");
+    public static string CommandName => "server minutes";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedMemberOrAuthor user);
 
