@@ -77,8 +77,8 @@
       },
       "generate-recap": {
         "FriendlyName": "Generate a recap",
-        "MaxUsesForUser": 10,
-        "MaxUsesForPlusUser": 20
+        "MaxUsesForUser": 20,
+        "MaxUsesForPlusUser": 50
       }
     }
   }
