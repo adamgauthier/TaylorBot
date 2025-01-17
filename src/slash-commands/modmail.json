@@ -10,7 +10,7 @@
   "options": [
     {
       "name": "message-mods",
-      "description": "As a user, send a message to a server's moderation team",
+      "description": "Send a message to this server's moderation team (a window will open to type your message)",
       "type": 1
     },
     {

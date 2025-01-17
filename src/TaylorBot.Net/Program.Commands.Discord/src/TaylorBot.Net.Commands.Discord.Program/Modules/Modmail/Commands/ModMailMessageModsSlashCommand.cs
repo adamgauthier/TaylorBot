@@ -11,22 +11,22 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
+public record NoOptions; 
+
 public class ModMailMessageModsSlashCommand(
     ILogger<ModMailMessageModsSlashCommand> logger,
     IOptionsMonitor<ModMailOptions> options,
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
-    ModMailChannelLogger modMailChannelLogger) : ISlashCommand<ModMailMessageModsSlashCommand.Options>
+    ModMailChannelLogger modMailChannelLogger) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail message-mods";
 
     public ISlashCommandInfo Info => new ModalCommandInfo(CommandName);
 
-    public record Options();
-
     private static readonly Color EmbedColor = new(255, 255, 240);
     private readonly IOptionsMonitor<ModMailOptions> _options = options;
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
         return new(new Command(
             new(Info.Name),
@@ -40,7 +40,7 @@ public class ModMailMessageModsSlashCommand(
                     Id: "modmail-message-mods",
                     Title: "Send Message to Moderators",
                     TextInputs: [
-                        new TextInput(Id: "subject", Style: TextInputStyle.Short, Label: "Subject", Required: true, MaxLength: 100),
+                        new TextInput(Id: "subject", Style: TextInputStyle.Short, Label: "Subject", Required: false, MaxLength: 50),
                         new TextInput(Id: "messagecontent", Style: TextInputStyle.Paragraph, Label: "Message to moderators", Required: true)
                     ],
                     SubmitAction: SubmitAsync,
@@ -51,6 +51,11 @@ public class ModMailMessageModsSlashCommand(
                 ValueTask<MessageResult> SubmitAsync(ModalSubmit submit)
                 {
                     var subject = submit.TextInputs.Single(t => t.CustomId == "subject").Value;
+                    if (string.IsNullOrWhiteSpace(subject))
+                    {
+                        subject = "No Subject";
+                    }
+
                     var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
 
                     // Creates an embed containing the user's message and metadata
