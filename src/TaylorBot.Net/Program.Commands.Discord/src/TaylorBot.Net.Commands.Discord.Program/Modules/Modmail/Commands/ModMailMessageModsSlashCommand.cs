@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
+using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
@@ -10,8 +11,6 @@ using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
-
-public record NoOptions; 
 
 public class ModMailMessageModsSlashCommand(
     ILogger<ModMailMessageModsSlashCommand> logger,
@@ -26,7 +25,7 @@ public class ModMailMessageModsSlashCommand(
     private static readonly Color EmbedColor = new(255, 255, 240);
     private readonly IOptionsMonitor<ModMailOptions> _options = options;
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {
         return new(new Command(
             new(Info.Name),
