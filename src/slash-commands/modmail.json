@@ -10,16 +10,8 @@
   "options": [
     {
       "name": "message-mods",
-      "description": "As a user, send a message to a server's moderation team",
-      "type": 1,
-      "options": [
-        {
-          "name": "message",
-          "description": "The message to send",
-          "type": 3,
-          "required": true
-        }
-      ]
+      "description": "Send a message to this server's moderation team (a window will open to type your message)",
+      "type": 1
     },
     {
       "name": "message-user",

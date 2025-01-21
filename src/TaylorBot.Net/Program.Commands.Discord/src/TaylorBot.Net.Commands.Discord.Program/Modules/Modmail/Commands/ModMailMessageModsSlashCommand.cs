@@ -16,18 +16,16 @@ public class ModMailMessageModsSlashCommand(
     ILogger<ModMailMessageModsSlashCommand> logger,
     IOptionsMonitor<ModMailOptions> options,
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
-    ModMailChannelLogger modMailChannelLogger) : ISlashCommand<ModMailMessageModsSlashCommand.Options>
+    ModMailChannelLogger modMailChannelLogger) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail message-mods";
 
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
-
-    public record Options(ParsedString message);
+    public ISlashCommandInfo Info => new ModalCommandInfo(CommandName);
 
     private static readonly Color EmbedColor = new(255, 255, 240);
     private readonly IOptionsMonitor<ModMailOptions> _options = options;
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {
         return new(new Command(
             new(Info.Name),
@@ -36,21 +34,47 @@ public class ModMailMessageModsSlashCommand(
                 var guild = context.Guild?.Fetched;
                 ArgumentNullException.ThrowIfNull(guild);
 
-                var embed = new EmbedBuilder()
-                    .WithColor(EmbedColor)
-                    .WithTitle("Message")
-                    .WithDescription(options.message.Value)
-                    .AddField("From", context.User.FormatTagAndMention(), inline: true)
-                    .WithFooter("Mod mail received", iconUrl: _options.CurrentValue.ReceivedLogEmbedFooterIconUrl)
-                    .WithCurrentTimestamp()
-                .Build();
-
-                return new(MessageResult.CreatePrompt(
-                    new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?") }),
-                    confirm: async () => new(await SendAsync())
+                // Creates a modal form with subject and message fields for users to compose their message
+                return new(new CreateModalResult(
+                    Id: "modmail-message-mods",
+                    Title: "Send Message to Moderators",
+                    TextInputs: [
+                        new TextInput(Id: "subject", Style: TextInputStyle.Short, Label: "Subject", Required: false, MaxLength: 50),
+                        new TextInput(Id: "messagecontent", Style: TextInputStyle.Paragraph, Label: "Message to moderators", Required: true)
+                    ],
+                    SubmitAction: SubmitAsync,
+                    IsPrivateResponse: true
                 ));
 
-                async ValueTask<Embed> SendAsync()
+                // Processes the submitted message and shows a confirmation prompt
+                ValueTask<MessageResult> SubmitAsync(ModalSubmit submit)
+                {
+                    var subject = submit.TextInputs.Single(t => t.CustomId == "subject").Value;
+                    if (string.IsNullOrWhiteSpace(subject))
+                    {
+                        subject = "No Subject";
+                    }
+
+                    var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
+
+                    // Creates an embed containing the user's message and metadata
+                    var embed = new EmbedBuilder()
+                        .WithColor(EmbedColor)
+                        .WithTitle(subject)
+                        .WithDescription(messageContent)
+                        .AddField("From", context.User.FormatTagAndMention(), inline: true)
+                        .WithFooter("Mod mail received", iconUrl: _options.CurrentValue.ReceivedLogEmbedFooterIconUrl)
+                        .WithCurrentTimestamp()
+                        .Build();
+
+                    return new(MessageResult.CreatePrompt(
+                        new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?") }),
+                        confirm: async () => new(await SendAsync(embed))
+                    ));
+                }
+
+                // Handles message delivery to the moderation team's channel
+                async ValueTask<Embed> SendAsync(Embed embed)
                 {
                     var isBlocked = await modMailBlockedUsersRepository.IsBlockedAsync(guild, context.User);
                     if (isBlocked)
