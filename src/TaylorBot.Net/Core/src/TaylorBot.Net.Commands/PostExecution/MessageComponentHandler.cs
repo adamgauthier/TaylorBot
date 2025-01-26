@@ -1,44 +1,101 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Commands.PostExecution;
 
-public record ButtonComponent(
+public record DiscordButtonComponent(
     string Id,
     string Token,
-    string CustomId,
-    string MessageId,
-    string UserId
+    InteractionCustomId CustomId,
+    SnowflakeId MessageId,
+    SnowflakeId UserId,
+    SnowflakeId? GuildId,
+    Interaction RawInteraction
 ) : IInteraction;
 
-public class MessageComponentHandler(IServiceProvider services, ILogger<MessageComponentHandler> logger)
+public interface IComponentHandlerInfo
 {
-    private readonly Dictionary<string, Func<ButtonComponent, ValueTask>> _callbacks = [];
+    string CustomIdName { get; }
+}
+public record MessageHandlerInfo(string CustomIdName) : IComponentHandlerInfo;
+public record ModalHandlerInfo(string CustomIdName) : IComponentHandlerInfo;
+
+public interface IButtonComponentHandler
+{
+    IComponentHandlerInfo Info { get; }
+
+    Task HandleAsync(DiscordButtonComponent button);
+}
+
+public interface IButtonHandler : IButtonComponentHandler
+{
+    abstract static CustomIdNames CustomIdName { get; }
+}
+
+public partial class MessageComponentHandler(IServiceProvider services, ILogger<MessageComponentHandler> logger)
+{
+    private readonly Dictionary<string, Func<DiscordButtonComponent, ValueTask>> _callbacks = [];
+
+    private InteractionResponseClient CreateInteractionClient() => services.GetRequiredService<InteractionResponseClient>();
 
     public async ValueTask HandleAsync(Interaction interaction)
     {
         switch (interaction.data!.component_type!)
         {
             case 2:
-                ButtonComponent button = new(
+                ArgumentNullException.ThrowIfNull(interaction.data.custom_id);
+                ArgumentNullException.ThrowIfNull(interaction.message);
+
+                DiscordButtonComponent button = new(
                     interaction.id,
                     interaction.token,
-                    interaction.data!.custom_id!,
-                    interaction.message!.id,
-                    interaction.user != null ? interaction.user.id : interaction.member!.user.id
+                    new(interaction.data.custom_id),
+                    interaction.message.id,
+                    interaction.user != null ? interaction.user.id : interaction.member!.user.id,
+                    interaction.guild_id != null ? new(interaction.guild_id) : null,
+                    interaction
                 );
 
-                if (_callbacks.TryGetValue(button.CustomId, out var callback))
+                if (button.CustomId.IsValid)
                 {
-                    await services.GetRequiredService<InteractionResponseClient>()
-                        .SendComponentAckResponseWithoutLoadingMessageAsync(button);
+                    var handler = services.GetKeyedService<IButtonComponentHandler>(button.CustomId.Name);
+                    if (handler != null)
+                    {
+                        logger.LogInformation("Handling button component {ParsedName} with id {RawId}", button.CustomId.ParsedName, button.CustomId.RawId);
 
-                    await callback(button);
+                        switch (handler.Info)
+                        {
+                            case MessageHandlerInfo _:
+                                await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(button);
+                                await handler.HandleAsync(button);
+                                break;
+
+                            case ModalHandlerInfo _:
+                                await handler.HandleAsync(button);
+                                break;
+
+                            default: throw new NotImplementedException(handler.GetType().FullName);
+                        }
+                    }
+                    else
+                    {
+                        logger.LogWarning("Button component without handler: {Interaction}", interaction);
+                    }
                 }
                 else
                 {
-                    logger.LogWarning("Button component without callback: {Interaction}", interaction);
+                    if (_callbacks.TryGetValue(button.CustomId.RawId, out var callback))
+                    {
+                        await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(button);
+
+                        await callback(button);
+                    }
+                    else
+                    {
+                        logger.LogWarning("Button component without callback: {Interaction}", interaction);
+                    }
                 }
                 break;
 
@@ -48,7 +105,7 @@ public class MessageComponentHandler(IServiceProvider services, ILogger<MessageC
         }
     }
 
-    public void AddCallback(string customId, Func<ButtonComponent, ValueTask> callback)
+    public void AddCallback(string customId, Func<DiscordButtonComponent, ValueTask> callback)
     {
         _callbacks.Add(customId, callback);
     }

@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Options;
 using OperationResult;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.User;
 using static OperationResult.Helpers;
 

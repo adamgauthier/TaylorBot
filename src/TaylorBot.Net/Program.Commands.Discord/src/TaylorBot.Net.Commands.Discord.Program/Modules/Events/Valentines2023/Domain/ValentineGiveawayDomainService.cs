@@ -101,16 +101,16 @@ public class ValentineGiveawayDomainService(
                     {
                         try
                         {
-                            if (_giveaway != null && !_giveaway.Entrants.Contains(new(component.UserId)))
+                            if (_giveaway != null && !_giveaway.Entrants.Contains(component.UserId))
                             {
                                 var user = new DiscordUser(component.UserId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
                                 var given = await valentinesRepository.GetRoleObtainedFromUserAsync(user);
 
                                 if (given.Count >= config.SpreadLimit)
                                 {
-                                    _giveaway.Entrants.Add(new(component.UserId));
+                                    _giveaway.Entrants.Add(component.UserId);
 
-                                    await interactionResponseClient.EditOriginalResponseAsync(component, new(
+                                    await interactionResponseClient.EditOriginalResponseAsync(component, message: new(
                                         new([BuildGiveawayEmbed()], Content: _giveaway?.OriginalMessage?.Content ?? ""),
                                         [new Button("enter-giveaway", ButtonStyle.Primary, "Enter giveaway", "🎉")]
                                     ));

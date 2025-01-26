@@ -6,13 +6,13 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Diagnostics;
 using System.Text.Json;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Number;
 

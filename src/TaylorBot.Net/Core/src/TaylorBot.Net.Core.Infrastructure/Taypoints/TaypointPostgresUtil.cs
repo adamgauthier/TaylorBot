@@ -2,9 +2,11 @@
 using Npgsql;
 using TaylorBot.Net.Core.Snowflake;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
+namespace TaylorBot.Net.Core.Infrastructure.Taypoints;
 
 public record TaypointAddResult(long taypoint_count);
+
+public record TaypointAddResults(string user_id, long taypoint_count);
 
 public static class TaypointPostgresUtil
 {
@@ -39,5 +41,22 @@ public static class TaypointPostgresUtil
                 UserId = $"{userId}",
             }
         );
+    }
+
+    public static async Task<IList<TaypointAddResults>> AddTaypointsForMultipleUsersAsync(NpgsqlConnection connection, long pointsToAdd, IReadOnlyList<SnowflakeId> userIds)
+    {
+        return (await connection.QueryAsync<TaypointAddResults>(
+            """
+            UPDATE users.users
+            SET taypoint_count = taypoint_count + @PointsToAdd
+            WHERE user_id = ANY(@UserIds)
+            RETURNING user_id, taypoint_count;
+            """,
+            new
+            {
+                PointsToAdd = pointsToAdd,
+                UserIds = userIds.Select(u => $"{u.Id}").ToList(),
+            }
+        )).ToList();
     }
 }

@@ -3,6 +3,7 @@ using Discord;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.BirthdayReward.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.BirthdayReward.Infrastructure;
@@ -10,8 +11,6 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure;
 public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory) : IBirthdayRepository
 {
     private record EligibleUserDto(string user_id);
-
-    private record RewardedUserDto(string user_id, long taypoint_count);
 
     public async ValueTask<List<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)
     {
@@ -32,22 +31,11 @@ public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logg
         );
 
         var userIds = eligibleUsers
-            .Select(u => u.user_id)
+            .Select(u => new SnowflakeId(u.user_id))
             .Where(IsNotNewAccount)
             .ToList();
 
-        var rewardedUsers = await connection.QueryAsync<RewardedUserDto>(
-            """
-            UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd
-            WHERE user_id = ANY(@UserIds)
-            RETURNING user_id, taypoint_count;
-            """,
-            new
-            {
-                PointsToAdd = rewardAmount,
-                UserIds = userIds,
-            }
-        );
+        var rewardedUsers = await TaypointPostgresUtil.AddTaypointsForMultipleUsersAsync(connection, rewardAmount, userIds);
 
         transaction.Commit();
 
@@ -56,9 +44,9 @@ public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logg
         ).ToList();
     }
 
-    private bool IsNotNewAccount(string id)
+    private bool IsNotNewAccount(SnowflakeId id)
     {
-        var createdAt = SnowflakeUtils.FromSnowflake(new SnowflakeId(id));
+        var createdAt = SnowflakeUtils.FromSnowflake(id);
         var timeSinceCreation = DateTimeOffset.UtcNow - createdAt;
 
         var isNewAccount = timeSinceCreation < TimeSpan.FromDays(7);

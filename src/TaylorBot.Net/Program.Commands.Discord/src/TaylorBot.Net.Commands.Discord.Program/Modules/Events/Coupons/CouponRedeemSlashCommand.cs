@@ -1,9 +1,9 @@
 ﻿using Discord;
 using Humanizer;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.User;
 

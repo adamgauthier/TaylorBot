@@ -1,8 +1,8 @@
 ﻿using Dapper;
 using Npgsql;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Infrastructure;

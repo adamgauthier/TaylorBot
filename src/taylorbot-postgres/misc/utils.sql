@@ -9,7 +9,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION pg_temp.reward_users_for_outfits(user_ids text[], reward_points integer)
+CREATE OR REPLACE FUNCTION pg_temp.reward_users_for_event(user_ids text[], reward_points integer)
 RETURNS TABLE(_reward_message text) AS $$
 BEGIN
     RETURN QUERY
@@ -18,4 +18,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM pg_temp.reward_users_for_outfits('{1, 2, 3}', 1);
+SELECT * FROM pg_temp.reward_users_for_event('{1, 2, 3}', 1);

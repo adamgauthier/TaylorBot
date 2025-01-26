@@ -1,6 +1,6 @@
 ﻿using Dapper;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.User;
 using static Dapper.SqlMapper;
 

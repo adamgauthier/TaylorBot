@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<SlashCommandHandler>()
             .AddSingleton<MessageComponentHandler>()
             .AddSingleton<ModalInteractionHandler>()
+            .AddButtonHandler<GenericPromptCancelButtonHandler>()
             .AddTransient<IInteractionCreatedHandler, InteractionCreatedHandler>()
             .AddSingleton<PageMessageReactionsHandler>()
             .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
@@ -118,5 +119,21 @@ public static class ServiceCollectionExtensions
         return services
             .AddTransient<T>()
             .AddKeyedTransient<ISlashCommand, T>(T.CommandName);
+    }
+
+    public static IServiceCollection AddButtonHandler<T>(this IServiceCollection services)
+        where T : class, IButtonHandler
+    {
+        return services
+            .AddTransient<T>()
+            .AddKeyedTransient<IButtonComponentHandler, T>(T.CustomIdName.ToText());
+    }
+
+    public static IServiceCollection AddModalHandler<T>(this IServiceCollection services)
+        where T : class, IModalHandler
+    {
+        return services
+            .AddTransient<T>()
+            .AddKeyedTransient<IModalComponentHandler, T>(T.CustomIdName.ToText());
     }
 }

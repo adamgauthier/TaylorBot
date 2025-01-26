@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using System.Data;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.PatreonSync.Domain;
 
 namespace TaylorBot.Net.PatreonSync.Infrastructure;
@@ -38,7 +40,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
         return result;
     }
 
-    private async ValueTask<IUpdatePlusUserResult> UpsertPlusUserAsync(IDbConnection connection, Patron patron)
+    private async ValueTask<IUpdatePlusUserResult> UpsertPlusUserAsync(NpgsqlConnection connection, Patron patron)
     {
         var logPrefix = $"Upserting patron {patron.DiscordUserId}:";
 
@@ -108,17 +110,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 logger.LogDebug("{Prefix} Rewarding {rewardAmount} points because {RewardedForChargeAt}.",
                     logPrefix, rewardAmount, $"{nameof(existingPlusUser.rewarded_for_charge_at)}={existingPlusUser.rewarded_for_charge_at}");
 
-                var rewardedUser = await connection.QuerySingleAsync<RewardedUserDto>(
-                    """
-                    UPDATE users.users SET taypoint_count = taypoint_count + @PointsToAdd
-                    WHERE user_id = @UserId RETURNING taypoint_count;
-                    """,
-                    new
-                    {
-                        PointsToAdd = rewardAmount,
-                        UserId = userId,
-                    }
-                );
+                var rewardedUser = await TaypointPostgresUtil.AddTaypointsReturningAsync(connection, userId, rewardAmount);
 
                 return new UserRewarded(Reward: rewardAmount, NewTaypointCount: rewardedUser.taypoint_count);
             }

@@ -1,6 +1,4 @@
-﻿using Discord;
-using Microsoft.Extensions.Logging;
-using System.Globalization;
+﻿using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Http;
@@ -18,7 +16,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
     {
         public record InteractionApplicationCommandCallbackData(
             string? content = null,
-            IReadOnlyList<Embed>? embeds = null,
+            IReadOnlyList<DiscordEmbed>? embeds = null,
             byte? flags = null,
             IReadOnlyList<Component>? components = null,
             IReadOnlyList<Attachment>? attachments = null,
@@ -77,18 +75,6 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
 
         public record Attachment(int id, string filename, string? description = null);
 
-        public record Embed(string? title, string? description, string? url, EmbedAuthor? author, EmbedImage? image, EmbedThumbnail? thumbnail, uint? color, EmbedFooter? footer, IReadOnlyList<EmbedField>? fields, string? timestamp);
-
-        public record EmbedAuthor(string? name, string? url, string? icon_url);
-
-        public record EmbedImage(string url);
-
-        public record EmbedThumbnail(string url);
-
-        public record EmbedFooter(string text, string? icon_url, string? proxy_icon_url);
-
-        public record EmbedField(string name, string value, bool? inline);
-
         public record Emoji(string name);
     }
 
@@ -123,7 +109,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(ButtonComponent interaction)
+    public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(DiscordButtonComponent interaction)
     {
         var response = await httpClient.PostAsync(
             $"interactions/{interaction.Id}/{interaction.Token}/callback",
@@ -132,12 +118,12 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask SendModalResponseAsync(ApplicationCommand interaction, CreateModalResult createModal)
+    private async ValueTask SendModalResponseAsync(string id, string token, CreateModalResult createModal)
     {
         // Text inputs fill an entire ActionRow
         var components = createModal.TextInputs.Select(t =>
             InteractionResponse.Component.CreateActionRow([
-                 InteractionResponse.Component.CreateTextInput(
+                InteractionResponse.Component.CreateTextInput(
                     custom_id: t.Id,
                     style: (byte)ToInteractionStyle(t.Style),
                     label: t.Label,
@@ -154,33 +140,27 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         );
 
         var response = await httpClient.PostAsync(
-            $"interactions/{interaction.Id}/{interaction.Token}/callback",
+            $"interactions/{id}/{token}/callback",
             JsonContent.Create(interactionResponse)
         );
         await response.EnsureSuccessAsync(logger);
     }
 
-    private static InteractionResponse.Embed ToInteractionEmbed(Embed embed)
+    public async ValueTask SendModalResponseAsync(DiscordButtonComponent interaction, CreateModalResult createModal)
     {
-        return new InteractionResponse.Embed(
-            title: embed.Title,
-            description: embed.Description,
-            url: embed.Url,
-            author: embed.Author.HasValue ? new(embed.Author.Value.Name, embed.Author.Value.Url, embed.Author.Value.IconUrl) : null,
-            image: embed.Image.HasValue ? new(embed.Image.Value.Url) : null,
-            thumbnail: embed.Thumbnail.HasValue ? new(embed.Thumbnail.Value.Url) : null,
-            color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,
-            footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null,
-            fields: embed.Fields.Select(f => new InteractionResponse.EmbedField(f.Name, f.Value, f.Inline)).ToList(),
-            timestamp: embed.Timestamp.HasValue ? embed.Timestamp.Value.ToString("s", CultureInfo.InvariantCulture) : null
-        );
+        await SendModalResponseAsync(interaction.Id, interaction.Token, createModal);
+    }
+
+    public async ValueTask SendModalResponseAsync(ApplicationCommand interaction, CreateModalResult createModal)
+    {
+        await SendModalResponseAsync(interaction.Id, interaction.Token, createModal);
     }
 
     private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageResponse response)
     {
         return new InteractionResponse.InteractionApplicationCommandCallbackData(
             content: response.Content.Content,
-            embeds: response.Content.Embeds.Select(ToInteractionEmbed).ToList(),
+            embeds: response.Content.Embeds.Select(InteractionMapper.ToInteractionEmbed).ToList(),
             components: ToInteractionComponents(response),
             attachments: response.Content.Attachments?.Select((a, i) => new InteractionResponse.Attachment(
                 id: i,
@@ -196,7 +176,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         {
             if (!response.Buttons.Any())
             {
-                return Array.Empty<InteractionResponse.Component>();
+                return [];
             }
 
             return [
@@ -253,12 +233,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         return content;
     }
 
-    public async ValueTask SendFollowupResponseAsync(ButtonComponent component, MessageResponse message)
-    {
-        await SendFollowupResponseAsync(component.Token, message);
-    }
-
-    public async ValueTask SendFollowupResponseAsync(ApplicationCommand interaction, MessageResponse message)
+    public async ValueTask SendFollowupResponseAsync(IInteraction interaction, MessageResponse message)
     {
         await SendFollowupResponseAsync(interaction.Token, message);
     }
@@ -282,14 +257,21 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
 
     public async ValueTask EditOriginalResponseAsync(IInteraction interaction, MessageResponse message)
     {
-        await EditOriginalResponseAsync(interaction.Token, message);
+        var data = ToInteractionData(message);
+        await EditOriginalResponseAsync(interaction.Token, data);
     }
 
-    private async ValueTask EditOriginalResponseAsync(string token, MessageResponse message)
+    public async ValueTask EditOriginalResponseAsync(IInteraction interaction, DiscordEmbed embed)
+    {
+        InteractionResponse.InteractionApplicationCommandCallbackData data = new(embeds: [embed]);
+        await EditOriginalResponseAsync(interaction.Token, data);
+    }
+
+    private async ValueTask EditOriginalResponseAsync(string token, InteractionResponse.InteractionApplicationCommandCallbackData data)
     {
         var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
-        using var content = JsonContent.Create(ToInteractionData(message));
+        using var content = JsonContent.Create(data);
 
         var response = await httpClient.PatchAsync(
             $"webhooks/{applicationInfo.Id}/{token}/messages/@original",
@@ -298,7 +280,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask DeleteOriginalResponseAsync(ButtonComponent component)
+    public async ValueTask DeleteOriginalResponseAsync(DiscordButtonComponent component)
     {
         var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 

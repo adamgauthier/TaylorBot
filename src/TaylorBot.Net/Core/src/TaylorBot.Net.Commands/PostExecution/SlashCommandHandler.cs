@@ -83,7 +83,8 @@ public class SlashCommandHandler(
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
-        activity.CommandName = interaction.data!.name;
+        ArgumentNullException.ThrowIfNull(interaction.data);
+        activity.CommandName = interaction.data.name;
 
         ArgumentNullException.ThrowIfNull(interaction.channel_id);
         ArgumentNullException.ThrowIfNull(interaction.channel);
@@ -91,7 +92,7 @@ public class SlashCommandHandler(
         ApplicationCommand command = new(
             interaction.id,
             interaction.token,
-            interaction.data!,
+            interaction.data,
             interaction.member != null && interaction.guild_id != null ? new(interaction.guild_id, interaction.member) : null,
             interaction.user,
             (new(interaction.channel_id), interaction.channel));
@@ -150,37 +151,41 @@ public class SlashCommandHandler(
                         break;
 
                     case CreateModalResult createModal:
-                        var modal = createModal with { Id = $"{Guid.NewGuid():N}-{createModal.Id}" };
-
-                        modalInteractionHandler.AddCallback(modal.Id, new(async submit =>
+                        var submitAction = createModal.SubmitAction;
+                        if (submitAction != null)
                         {
-                            if (submit.UserId == $"{context.User.Id}")
+                            createModal = createModal with { Id = $"{Guid.NewGuid():N}-{createModal.Id}" };
+
+                            modalInteractionHandler.AddCallback(createModal.Id, new(async submit =>
                             {
-                                modalInteractionHandler.RemoveCallback(submit.CustomId);
-
-                                try
+                                if (submit.UserId == $"{context.User.Id}")
                                 {
-                                    var result = await modal.SubmitAction(submit);
-                                    var buttons = CreateAndBindButtons(submit, result, $"{context.User.Id}");
-                                    await CreateInteractionClient().EditOriginalResponseAsync(submit, new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
-                                }
-                                catch (Exception e)
-                                {
-                                    logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Id);
-                                    await CreateInteractionClient().EditOriginalResponseAsync(submit, new(
-                                        EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")
-                                    ));
-                                }
-                            }
-                        }, createModal.IsPrivateResponse));
+                                    modalInteractionHandler.RemoveCallback(submit.CustomId.RawId);
 
-                        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(async () =>
-                        {
-                            await Task.Delay(TimeSpan.FromMinutes(10));
-                            modalInteractionHandler.RemoveCallback(modal.Id);
-                        }, nameof(CreateModalResult)));
+                                    try
+                                    {
+                                        var result = await submitAction(submit);
+                                        var buttons = CreateAndBindButtons(submit, result, $"{context.User.Id}");
+                                        await CreateInteractionClient().EditOriginalResponseAsync(submit, message: new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Id);
+                                        await CreateInteractionClient().EditOriginalResponseAsync(submit, message: new(
+                                            EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")
+                                        ));
+                                    }
+                                }
+                            }, createModal.IsPrivateResponse));
 
-                        await CreateInteractionClient().SendModalResponseAsync(interaction, modal);
+                            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(async () =>
+                            {
+                                await Task.Delay(TimeSpan.FromMinutes(10));
+                                modalInteractionHandler.RemoveCallback(createModal.Id);
+                            }, nameof(CreateModalResult)));
+                        }
+
+                        await CreateInteractionClient().SendModalResponseAsync(interaction, createModal);
                         break;
 
                     case ParsingFailed parsingFailed:
@@ -211,16 +216,16 @@ public class SlashCommandHandler(
 
                     case RateLimitedResult rateLimited:
                         var baseDescriptionLines = new[] {
-                        $"You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕",
-                        $"This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
-                    };
+                            $"You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕",
+                            $"This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
+                        };
 
                         if (rateLimited.Uses < rateLimited.Limit + 6)
                         {
                             baseDescriptionLines =
                             [
                                 .. baseDescriptionLines,
-                            "**Stop trying to perform this action or all your commands will be ignored.**"
+                                "**Stop trying to perform this action or all your commands will be ignored.**"
                             ];
                         }
                         else
@@ -230,8 +235,8 @@ public class SlashCommandHandler(
                             baseDescriptionLines =
                             [
                                 .. baseDescriptionLines,
-                            $"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**",
-                        ];
+                                $"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**",
+                            ];
 
                             await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.UtcNow + ignoreTime);
                         }
@@ -426,93 +431,104 @@ public class SlashCommandHandler(
         return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
     }
 
-    private IReadOnlyList<Button> CreateAndBindButtons(IInteraction interaction, MessageResult m, string authorId)
+    private List<Button> CreateAndBindButtons(IInteraction interaction, MessageResult m, string authorId)
     {
         if (m.Buttons?.Buttons.Count > 0)
         {
-            var buttons = m.Buttons.Buttons
-                .Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } })
-                .ToList();
-
-            RateLimiter followUpLimiter = new ConcurrencyLimiter(
-                new ConcurrencyLimiterOptions { PermitLimit = 1, QueueLimit = 100 });
-
-            foreach (var button in buttons)
+            switch (m.Buttons.Settings)
             {
-                messageComponentHandler.AddCallback(button.Button.Id, async component =>
-                {
-                    if (button.AllowNonAuthor || component.UserId == authorId)
+                case TemporaryButtonSettings temporary:
                     {
-                        try
+                        var buttons = m.Buttons.Buttons
+                            .Select(b => b with { Button = b.Button with { Id = $"{Guid.NewGuid():N}-{b.Button.Id}" } })
+                            .ToList();
+
+                        RateLimiter followUpLimiter = new ConcurrencyLimiter(
+                            new ConcurrencyLimiterOptions { PermitLimit = 1, QueueLimit = 100 });
+
+                        foreach (var button in buttons)
                         {
-                            var action = await button.OnClick(component.UserId);
-                            switch (action)
+                            messageComponentHandler.AddCallback(button.Button.Id, async component =>
                             {
-                                case UpdateMessage update:
-                                    RemoveCallbacks(buttons);
-                                    var newButtons = CreateAndBindButtons(interaction, update.NewMessage, authorId);
-                                    await CreateInteractionClient().EditOriginalResponseAsync(component, new(update.NewMessage.Content, newButtons));
-                                    break;
-
-                                case UpdateMessageContent update:
-                                    await CreateInteractionClient().EditOriginalResponseAsync(component, new(update.Content, buttons.Select(b => b.Button).ToList()));
-                                    if (update.Response != null)
+                                if (button.AllowNonAuthor || component.UserId == authorId)
+                                {
+                                    try
                                     {
-                                        using var lease = await followUpLimiter.AcquireAsync();
-                                        if (lease.IsAcquired)
+                                        var action = await button.OnClick(component.UserId);
+                                        switch (action)
                                         {
-                                            // Throttle to avoid Discord rate limit
-                                            await Task.Delay(TimeSpan.FromMilliseconds(250));
+                                            case UpdateMessage update:
+                                                RemoveCallbacks(buttons);
+                                                var newButtons = CreateAndBindButtons(interaction, update.NewMessage, authorId);
+                                                await CreateInteractionClient().EditOriginalResponseAsync(component, message: new(update.NewMessage.Content, newButtons));
+                                                break;
 
-                                            try
-                                            {
-                                                await CreateInteractionClient().SendFollowupResponseAsync(component,
-                                                    new(update.Response.Message.Content, IsPrivate: update.Response.IsPrivate));
-                                            }
-                                            catch (Exception e)
-                                            {
-                                                logger.LogError(e, "Unhandled exception trying to send followup response to button {ButtonId} action:", button.Button.Id);
-                                            }
+                                            case UpdateMessageContent update:
+                                                await CreateInteractionClient().EditOriginalResponseAsync(component, message: new(update.Content, buttons.Select(b => b.Button).ToList()));
+                                                if (update.Response != null)
+                                                {
+                                                    using var lease = await followUpLimiter.AcquireAsync();
+                                                    if (lease.IsAcquired)
+                                                    {
+                                                        // Throttle to avoid Discord rate limit
+                                                        await Task.Delay(TimeSpan.FromMilliseconds(250));
+
+                                                        try
+                                                        {
+                                                            await CreateInteractionClient().SendFollowupResponseAsync(component,
+                                                                new(update.Response.Message.Content, IsPrivate: update.Response.IsPrivate));
+                                                        }
+                                                        catch (Exception e)
+                                                        {
+                                                            logger.LogError(e, "Unhandled exception trying to send follow up response to button {ButtonId} action:", button.Button.Id);
+                                                        }
+                                                    }
+                                                }
+                                                break;
+
+                                            case DeleteMessage:
+                                                RemoveCallbacks(buttons);
+                                                await CreateInteractionClient().DeleteOriginalResponseAsync(component);
+                                                break;
+
+                                            case IgnoreClick:
+                                                break;
+
+                                            default: throw new InvalidOperationException();
                                         }
                                     }
-                                    break;
-
-                                case DeleteMessage:
-                                    RemoveCallbacks(buttons);
-                                    await CreateInteractionClient().DeleteOriginalResponseAsync(component);
-                                    break;
-
-                                case IgnoreClick:
-                                    break;
-
-                                default: throw new InvalidOperationException();
-                            }
+                                    catch (Exception e)
+                                    {
+                                        logger.LogError(e, "Unhandled exception in button {ButtonId} action:", button.Button.Id);
+                                        await CreateInteractionClient().EditOriginalResponseAsync(component, message: new(
+                                            new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
+                                            []
+                                        ));
+                                    }
+                                }
+                            });
                         }
-                        catch (Exception e)
+
+                        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(async () =>
                         {
-                            logger.LogError(e, "Unhandled exception in button {ButtonId} action:", button.Button.Id);
-                            await CreateInteractionClient().EditOriginalResponseAsync(component, new(
-                                new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
-                                []
-                            ));
-                        }
+                            await Task.Delay(temporary.ListenToClicksFor ?? TimeSpan.FromMinutes(10));
+                            RemoveCallbacks(buttons);
+                            followUpLimiter.Dispose();
+
+                            var result = temporary.OnEnded != null ? await temporary.OnEnded() : null;
+                            MessageResponse updated = result != null ? new(result.Content) : new(m.Content, []);
+
+                            await CreateInteractionClient().EditOriginalResponseAsync(interaction, updated);
+                        }, nameof(CreateAndBindButtons)));
+
+                        return buttons.Select(b => b.Button).ToList();
                     }
-                });
+
+                case PermanentButtonSettings permanent:
+                    return m.Buttons.Buttons.Select(b => b.Button).ToList();
+
+                default: throw new NotImplementedException();
             }
-
-            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(async () =>
-            {
-                await Task.Delay(m.Buttons.ListenToClicksFor ?? TimeSpan.FromMinutes(10));
-                RemoveCallbacks(buttons);
-                followUpLimiter.Dispose();
-
-                var result = m.Buttons.OnEnded != null ? await m.Buttons.OnEnded() : null;
-                MessageResponse updated = result != null ? new(result.Content) : new(m.Content, []);
-
-                await CreateInteractionClient().EditOriginalResponseAsync(interaction, updated);
-            }, nameof(CreateAndBindButtons)));
-
-            return buttons.Select(b => b.Button).ToList();
         }
         else
         {

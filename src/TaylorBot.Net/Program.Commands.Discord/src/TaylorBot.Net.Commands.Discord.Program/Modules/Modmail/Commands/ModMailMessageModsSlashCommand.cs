@@ -9,12 +9,13 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
+using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailMessageModsSlashCommand(
     ILogger<ModMailMessageModsSlashCommand> logger,
-    IOptionsMonitor<ModMailOptions> options,
+    IOptionsMonitor<ModMailOptions> modMailOptions,
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
     ModMailChannelLogger modMailChannelLogger) : ISlashCommand<NoOptions>
 {
@@ -22,8 +23,7 @@ public class ModMailMessageModsSlashCommand(
 
     public ISlashCommandInfo Info => new ModalCommandInfo(CommandName);
 
-    private static readonly Color EmbedColor = new(255, 255, 240);
-    private readonly IOptionsMonitor<ModMailOptions> _options = options;
+    public static readonly Color EmbedColor = new(255, 255, 240);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {
@@ -63,12 +63,12 @@ public class ModMailMessageModsSlashCommand(
                         .WithTitle(subject)
                         .WithDescription(messageContent)
                         .AddField("From", context.User.FormatTagAndMention(), inline: true)
-                        .WithFooter("Mod mail received", iconUrl: _options.CurrentValue.ReceivedLogEmbedFooterIconUrl)
+                        .WithFooter("Mod mail received", iconUrl: modMailOptions.CurrentValue.ReceivedLogEmbedFooterIconUrl)
                         .WithCurrentTimestamp()
                         .Build();
 
-                    return new(MessageResult.CreatePrompt(
-                        new(new[] { embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?") }),
+                    return new(CreatePrompt(
+                        new([embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?")]),
                         confirm: async () => new(await SendAsync(embed))
                     ));
                 }
@@ -79,7 +79,7 @@ public class ModMailMessageModsSlashCommand(
                     var isBlocked = await modMailBlockedUsersRepository.IsBlockedAsync(guild, context.User);
                     if (isBlocked)
                     {
-                        return EmbedFactory.CreateError("Sorry, the moderation team has blocked you from sending mod mail. 😕");
+                        return EmbedFactory.CreateError("Sorry, the moderation team has blocked you from sending mod mail 😕");
                     }
 
                     var channel = await modMailChannelLogger.GetModMailLogAsync(guild);
@@ -88,11 +88,12 @@ public class ModMailMessageModsSlashCommand(
                     {
                         try
                         {
-                            await channel.SendMessageAsync(embed: embed);
+                            await channel.SendMessageAsync(embed: embed, components: new ComponentBuilder()
+                                .WithButton(customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId, label: "Reply", emote: new Emoji("📨")).Build());
                             return EmbedFactory.CreateSuccess(
                                 $"""
-                                Message sent to the moderation team of '{guild.Name}'. ✉
-                                If you're expecting a response, **make sure you are able to send and receive DMs from TaylorBot**.
+                                Message sent to the moderation team of '{guild.Name}' ✉️
+                                If you're expecting a response, **make sure you're able to send & receive DMs from TaylorBot** ⚙️
                                 """);
                         }
                         catch (Exception e)
@@ -103,8 +104,8 @@ public class ModMailMessageModsSlashCommand(
 
                     return EmbedFactory.CreateError(
                         $"""
-                        I was not able to send the message to the moderation team. 😕
-                        Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it.
+                        I was not able to send the message to the moderation team 😕
+                        Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it 🛠️
                         """);
                 }
             },
@@ -112,5 +113,18 @@ public class ModMailMessageModsSlashCommand(
                 new InGuildPrecondition(botMustBeInGuild: true)
             ]
         ));
+    }
+}
+
+public class ModMailUserMessageReplyButtonHandler(InteractionResponseClient responseClient) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.ModMailUserMessageReply;
+
+    public IComponentHandlerInfo Info => new ModalHandlerInfo(CustomIdName.ToText());
+
+    public async Task HandleAsync(DiscordButtonComponent button)
+    {
+        var toUserId = button.CustomId.ParsedData["to"];
+        await responseClient.SendModalResponseAsync(button, ModMailMessageUserSlashCommand.CreateModalResult(toUserId, button.MessageId));
     }
 }

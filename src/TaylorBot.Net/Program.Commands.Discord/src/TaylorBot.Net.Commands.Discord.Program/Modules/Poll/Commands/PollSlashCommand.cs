@@ -108,7 +108,7 @@ public class PollSlashCommand : ISlashCommand<NoOptions>
 
             return new MessageResult(
                 new(CreateEmbed()),
-                new(buttons, _duration, OnEnded: OnEnded));
+                new(buttons, new TemporaryButtonSettings(_duration, OnEnded: OnEnded)));
         }
 
         private Func<string, ValueTask<IButtonClickResult>> OnClickVote(Option option)

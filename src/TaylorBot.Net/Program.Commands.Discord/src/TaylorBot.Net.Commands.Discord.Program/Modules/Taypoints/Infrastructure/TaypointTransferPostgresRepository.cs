@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
@@ -46,15 +47,8 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
 
         foreach (var recipient in recipientUsers.Where(r => r.Amount > 0))
         {
-            var newCount = await connection.QuerySingleAsync<long>(
-                "UPDATE users.users SET taypoint_count = taypoint_count + @PointsToGift WHERE user_id = @ReceiverId RETURNING taypoint_count;",
-                new
-                {
-                    PointsToGift = recipient.Amount,
-                    ReceiverId = $"{recipient.User.Id}",
-                }
-            );
-            recipients.Add(new(recipient.User.Id, recipient.Amount, newCount));
+            var addResult = await TaypointPostgresUtil.AddTaypointsReturningAsync(connection, recipient.User.Id, pointsToAdd: recipient.Amount);
+            recipients.Add(new(recipient.User.Id, recipient.Amount, addResult.taypoint_count));
         }
 
         transaction.Commit();
