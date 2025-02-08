@@ -62,14 +62,14 @@ public class TaylorBotClient : ITaylorBotClient
 
     public async ValueTask StartAsync()
     {
-        await Task.Delay(TimeSpan.FromSeconds(10));
-
         await DiscordShardedClient.LoginAsync(TokenType.Bot, _taylorBotToken.Token);
 
         foreach (var shard in DiscordShardedClient.Shards)
         {
-            _rawEventsHandler.HandleRawEvent(shard, "INTERACTION_CREATE", async (payload) =>
+            _rawEventsHandler.HandleRawEvent(shard, "INTERACTION_CREATE", async payload =>
             {
+                _logger.LogTrace("Received interaction {Payload}", payload);
+
                 var interaction = JsonSerializer.Deserialize<Interaction>(payload);
                 ArgumentNullException.ThrowIfNull(interaction);
 

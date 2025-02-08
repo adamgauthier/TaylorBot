@@ -6,7 +6,10 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 
-public class CommandServerDisableSlashCommand(ICommandRepository commandRepository, IDisabledGuildCommandRepository disabledGuildCommandRepository) : ISlashCommand<CommandServerDisableSlashCommand.Options>
+public class CommandServerDisableSlashCommand(
+    ICommandRepository commandRepository,
+    IDisabledGuildCommandRepository disabledGuildCommandRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandServerDisableSlashCommand.Options>
 {
     public static string CommandName => "command server-disable";
 
@@ -45,15 +48,15 @@ public class CommandServerDisableSlashCommand(ICommandRepository commandReposito
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in this server ✅"));
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         ));
     }
 }
 
-public class CommandServerEnableSlashCommand(ICommandRepository commandRepository, IDisabledGuildCommandRepository disabledGuildCommandRepository) : ISlashCommand<CommandServerEnableSlashCommand.Options>
+public class CommandServerEnableSlashCommand(
+    ICommandRepository commandRepository,
+    IDisabledGuildCommandRepository disabledGuildCommandRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandServerEnableSlashCommand.Options>
 {
     public static string CommandName => "command server-enable";
 
@@ -82,10 +85,7 @@ public class CommandServerEnableSlashCommand(ICommandRepository commandRepositor
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in this server ✅"));
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         ));
     }
 }

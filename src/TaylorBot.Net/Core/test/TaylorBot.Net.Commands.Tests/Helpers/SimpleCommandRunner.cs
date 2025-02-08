@@ -2,7 +2,12 @@
 
 public class SimpleCommandRunner : ICommandRunner
 {
-    public async ValueTask<ICommandResult> RunAsync(Command command, RunContext context)
+    public async Task<ICommandResult> RunInteractionAsync(Command command, RunContext context)
+    {
+        return await command.RunAsync();
+    }
+
+    public async ValueTask<ICommandResult> RunSlashCommandAsync(Command command, RunContext context)
     {
         return await command.RunAsync();
     }

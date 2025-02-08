@@ -101,26 +101,26 @@ public class ValentineGiveawayDomainService(
                     {
                         try
                         {
-                            if (_giveaway != null && !_giveaway.Entrants.Contains(component.UserId))
+                            if (_giveaway != null && !_giveaway.Entrants.Contains(component.Interaction.UserId))
                             {
-                                var user = new DiscordUser(component.UserId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
+                                var user = new DiscordUser(component.Interaction.UserId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
                                 var given = await valentinesRepository.GetRoleObtainedFromUserAsync(user);
 
                                 if (given.Count >= config.SpreadLimit)
                                 {
-                                    _giveaway.Entrants.Add(component.UserId);
+                                    _giveaway.Entrants.Add(component.Interaction.UserId);
 
-                                    await interactionResponseClient.EditOriginalResponseAsync(component, message: new(
+                                    await interactionResponseClient.EditOriginalResponseAsync(component.Interaction, message: new(
                                         new([BuildGiveawayEmbed()], Content: _giveaway?.OriginalMessage?.Content ?? ""),
                                         [new Button("enter-giveaway", ButtonStyle.Primary, "Enter giveaway", "🎉")]
                                     ));
 
-                                    await interactionResponseClient.SendFollowupResponseAsync(component,
+                                    await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                         new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
                                 }
                                 else
                                 {
-                                    await interactionResponseClient.SendFollowupResponseAsync(component,
+                                    await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                         new(new(EmbedFactory.CreateError(
                                             $"""
                                             You can't enter a giveaway because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
@@ -133,7 +133,7 @@ public class ValentineGiveawayDomainService(
                         catch (Exception e)
                         {
                             logger.LogError(e, $"Unhandled exception in button {id}:");
-                            await interactionResponseClient.SendFollowupResponseAsync(component,
+                            await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                 new(new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")), IsPrivate: true));
                         }
                     });

@@ -1,21 +1,22 @@
 ﻿using Discord;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public class UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permissions) : ICommandPrecondition
+public class UserHasPermissionOrOwnerPrecondition(InGuildPrecondition.Factory inGuild, TaylorBotOwnerPrecondition taylorBotOwner, PermissionStringMapper permissionMapper, params GuildPermission[] permissions) : ICommandPrecondition
 {
-    private readonly PermissionStringMapper _permissionStringMapper = new();
-    private readonly TaylorBotOwnerPrecondition _taylorBotOwnerPrecondition = new();
-    private readonly InGuildPrecondition _inGuild = new();
-
-    public GuildPermission[] GuildPermissions { get; } = permissions;
+    public class Factory(IServiceProvider services)
+    {
+        public UserHasPermissionOrOwnerPrecondition Create(params GuildPermission[] permissions) =>
+            ActivatorUtilities.CreateInstance<UserHasPermissionOrOwnerPrecondition>(services, permissions);
+    }
 
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.Guild == null)
         {
-            return await _inGuild.CanRunAsync(command, context);
+            return await inGuild.Create().CanRunAsync(command, context);
         }
 
         if (context.User.MemberInfo == null)
@@ -32,24 +33,24 @@ public class UserHasPermissionOrOwnerPrecondition(params GuildPermission[] permi
         }
         else
         {
-            if (GuildPermissions.Any(context.User.MemberInfo.Permissions.Has))
+            if (permissions.Any(context.User.MemberInfo.Permissions.Has))
             {
                 return new PreconditionPassed();
             }
             else
             {
-                if (await _taylorBotOwnerPrecondition.CanRunAsync(command, context) is PreconditionPassed)
+                if (await taylorBotOwner.CanRunAsync(command, context) is PreconditionPassed)
                 {
                     return new PreconditionPassed();
                 }
                 else
                 {
-                    var permissionMessage = GuildPermissions.Length > 1
-                        ? $"one of these permissions in this server: **{string.Join("** or **", GuildPermissions.Select(_permissionStringMapper.MapGuildPermissionToString))}**"
-                        : $"the **{_permissionStringMapper.MapGuildPermissionToString(GuildPermissions[0])}** permission in this server";
+                    var permissionMessage = permissions.Length > 1
+                        ? $"one of these permissions in this server: **{string.Join("** or **", permissions.Select(permissionMapper.MapGuildPermissionToString))}**"
+                        : $"the **{permissionMapper.MapGuildPermissionToString(permissions[0])}** permission in this server";
 
                     return new PreconditionFailed(
-                        PrivateReason: $"{command.Metadata.Name} can only be used with one of {string.Join(',', GuildPermissions)}",
+                        PrivateReason: $"{command.Metadata.Name} can only be used with one of {string.Join(',', permissions)}",
                         UserReason: new(
                             $"""
                             You can't use {context.MentionCommand(command)} because you need {permissionMessage} 🚫

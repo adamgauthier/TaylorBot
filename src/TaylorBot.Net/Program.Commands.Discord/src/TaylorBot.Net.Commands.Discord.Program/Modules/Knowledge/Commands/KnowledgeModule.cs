@@ -27,7 +27,7 @@ public class KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryComman
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -41,7 +41,7 @@ public class KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryComman
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             urbanDictionaryCommand.Search(context.User, text, isLegacyCommand: true),
             context
         );

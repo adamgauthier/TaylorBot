@@ -16,7 +16,6 @@ public static class DiscordNetContextMapper
             new(context.Channel.Id, channelType.Value),
             context.Guild != null ? new(context.Guild.Id, context.Guild) : null,
             context.Client,
-            context.CurrentUser,
             new(string.Empty, string.Empty),
             new(Task.FromResult(context.CommandPrefix)),
             new(),

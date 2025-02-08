@@ -9,7 +9,10 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
-public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDeletedLogChannelRepository deletedLogChannelRepository) : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
+public class MonitorDeletedSetSlashCommand(
+    IPlusRepository plusRepository,
+    IDeletedLogChannelRepository deletedLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
 {
     public static string CommandName => "monitor deleted set";
 
@@ -58,7 +61,7 @@ public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDele
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
@@ -75,7 +78,9 @@ public class MonitorDeletedSetSlashCommand(IPlusRepository plusRepository, IDele
     }
 }
 
-public class MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deletedLogChannelRepository) : ISlashCommand<NoOptions>
+public class MonitorDeletedShowSlashCommand(
+    IDeletedLogChannelRepository deletedLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor deleted show";
 
@@ -127,13 +132,15 @@ public class MonitorDeletedShowSlashCommand(IDeletedLogChannelRepository deleted
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
 }
 
-public class MonitorDeletedStopSlashCommand(IDeletedLogChannelRepository deletedLogChannelRepository) : ISlashCommand<NoOptions>
+public class MonitorDeletedStopSlashCommand(
+    IDeletedLogChannelRepository deletedLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor deleted stop";
 
@@ -158,7 +165,7 @@ public class MonitorDeletedStopSlashCommand(IDeletedLogChannelRepository deleted
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }

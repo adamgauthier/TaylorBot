@@ -25,7 +25,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -48,7 +48,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -69,7 +69,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -88,7 +88,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             birthdayShowCommand.Birthday(new(u), context.CreatedAt, context, isPrefix: true),
             context
         );
@@ -113,7 +113,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -135,7 +135,7 @@ public class AgeModule(ICommandRunner commandRunner, BirthdayShowSlashCommand bi
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

@@ -9,6 +9,8 @@ public enum CommandType
     Unknown = 0,
     Slash,
     Prefix,
+    MessageComponent,
+    ModalSubmit,
 }
 
 public class CommandActivityFactory(TaylorBotInstrumentation instrumentation)
@@ -38,7 +40,16 @@ public sealed class CommandActivity(Activity? activity) : IDisposable
 
     public SnowflakeId? GuildId { set => activity?.SetTag("guild.id", value?.Id); }
 
-    public string CommandName { set => activity?.SetTag("command.name", value); }
+    public string? CommandName
+    {
+        set
+        {
+            if (value != null)
+            {
+                activity?.SetTag("command.name", value);
+            }
+        }
+    }
 
     public CommandType Type { set => activity?.SetTag("command.type", value); }
 

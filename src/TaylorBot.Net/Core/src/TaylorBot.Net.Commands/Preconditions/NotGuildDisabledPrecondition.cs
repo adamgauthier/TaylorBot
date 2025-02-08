@@ -33,7 +33,7 @@ public class DisabledGuildCommandDomainService(
     }
 }
 
-public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService) : ICommandPrecondition
+public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -42,7 +42,7 @@ public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disa
 
         var isDisabled = await disabledGuildCommandDomainService.IsGuildCommandDisabledAsync(context.Guild, command.Metadata, context);
 
-        var canRun = await new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild).CanRunAsync(command, context);
+        var canRun = await userHasPermission.Create(GuildPermission.ManageGuild).CanRunAsync(command, context);
 
         return isDisabled ?
             new PreconditionFailed(

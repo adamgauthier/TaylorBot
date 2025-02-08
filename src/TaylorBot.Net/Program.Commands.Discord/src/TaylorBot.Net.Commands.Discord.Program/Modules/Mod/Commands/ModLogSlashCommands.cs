@@ -9,7 +9,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 
-public class ModLogSetSlashCommand(IModLogChannelRepository modLogChannelRepository) : ISlashCommand<ModLogSetSlashCommand.Options>
+public class ModLogSetSlashCommand(
+    IModLogChannelRepository modLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModLogSetSlashCommand.Options>
 {
     public static string CommandName => "mod log set";
 
@@ -46,7 +48,7 @@ public class ModLogSetSlashCommand(IModLogChannelRepository modLogChannelReposit
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
@@ -66,7 +68,9 @@ public class ModLogSetSlashCommand(IModLogChannelRepository modLogChannelReposit
     }
 }
 
-public class ModLogStopSlashCommand(IModLogChannelRepository modLogChannelRepository) : ISlashCommand<NoOptions>
+public class ModLogStopSlashCommand(
+    IModLogChannelRepository modLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "mod log stop";
 
@@ -94,13 +98,15 @@ public class ModLogStopSlashCommand(IModLogChannelRepository modLogChannelReposi
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
 }
 
-public class ModLogShowSlashCommand(IModLogChannelRepository modLogChannelRepository) : ISlashCommand<NoOptions>
+public class ModLogShowSlashCommand(
+    IModLogChannelRepository modLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "mod log show";
 
@@ -152,7 +158,7 @@ public class ModLogShowSlashCommand(IModLogChannelRepository modLogChannelReposi
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }

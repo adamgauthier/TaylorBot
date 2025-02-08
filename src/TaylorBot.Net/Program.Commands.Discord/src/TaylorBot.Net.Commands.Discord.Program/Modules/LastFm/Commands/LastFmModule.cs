@@ -31,7 +31,7 @@ public class LastFmModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             lastFmCurrentCommand.Current(new(user == null ? Context.User : await user.GetTrackedUserAsync())),
             context
         );
@@ -47,7 +47,7 @@ public class LastFmModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             lastFmSetCommand.Set(context.User, lastFmUsername, isLegacyCommand: true),
             context
         );
@@ -60,7 +60,7 @@ public class LastFmModule(
     public async Task<RuntimeResult> ClearAsync()
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             lastFmClearCommand.Clear(context.User, isLegacyCommand: true),
             context
         );
@@ -79,7 +79,7 @@ public class LastFmModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             lastFmArtistsCommand.Artists(period, new(user == null ? Context.User : await user.GetTrackedUserAsync()), isLegacyCommand: true),
             context
         );
@@ -98,7 +98,7 @@ public class LastFmModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             lastFmTracksCommand.Tracks(period, new(user == null ? Context.User : await user.GetTrackedUserAsync()), isLegacyCommand: true),
             context
         );
@@ -117,7 +117,7 @@ public class LastFmModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             lastFmAlbumsCommand.Albums(period, new(user == null ? Context.User : await user.GetTrackedUserAsync()), isLegacyCommand: true),
             context
         );
@@ -161,7 +161,7 @@ public class LastFmDeprecatedModule(ICommandRunner commandRunner) : TaylorBotMod
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -183,7 +183,7 @@ public class LastFmDeprecatedModule(ICommandRunner commandRunner) : TaylorBotMod
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -205,7 +205,7 @@ public class LastFmDeprecatedModule(ICommandRunner commandRunner) : TaylorBotMod
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

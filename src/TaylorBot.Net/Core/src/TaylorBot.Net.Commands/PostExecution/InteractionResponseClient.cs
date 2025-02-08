@@ -37,7 +37,8 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             bool? required = null,
             string? value = null,
             string? placeholder = null,
-            IReadOnlyList<Component>? components = null
+            IReadOnlyList<Component>? components = null,
+            IReadOnlyList<byte>? channel_types = null
         )
         {
             public static Component CreateActionRow(IReadOnlyList<Component> components)
@@ -71,6 +72,17 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
                     placeholder: placeholder
                 );
             }
+
+            public static Component CreateChannelSelectMenu(string custom_id, IReadOnlyList<byte>? channel_types, string? placeholder = null, bool? disabled = null)
+            {
+                return CreateActionRow([new Component(
+                    8,
+                    channel_types: channel_types,
+                    custom_id: custom_id,
+                    placeholder: placeholder,
+                    disabled: disabled
+                )]);
+            }
         };
 
         public record Attachment(int id, string filename, string? description = null);
@@ -81,23 +93,23 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
     private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
     private enum InteractionTextInputStyle { Short = 1, Paragraph = 2 }
 
-    public async ValueTask SendImmediateResponseAsync(ApplicationCommand interaction, MessageResponse message)
+    public async ValueTask SendImmediateResponseAsync(ApplicationCommand command, MessageResponse message)
     {
         var response = await httpClient.PostAsync(
-            $"interactions/{interaction.Id}/{interaction.Token}/callback",
+            $"interactions/{command.Interaction.Id}/{command.Interaction.Token}/callback",
             JsonContent.Create(new InteractionResponse(ChannelMessageWithSourceInteractionResponseType, ToInteractionData(message)))
         );
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask SendAckResponseWithLoadingMessageAsync(ApplicationCommand interaction, bool isEphemeral = false)
+    public async ValueTask SendAckResponseWithLoadingMessageAsync(ApplicationCommand command, bool isEphemeral = false)
     {
-        await SendAckResponseWithLoadingMessageAsync(interaction.Id, interaction.Token, isEphemeral);
+        await SendAckResponseWithLoadingMessageAsync(command.Interaction.Id, command.Interaction.Token, isEphemeral);
     }
 
-    public async ValueTask SendAckResponseWithLoadingMessageAsync(ModalSubmit interaction, bool isEphemeral = false)
+    public async ValueTask SendAckResponseWithLoadingMessageAsync(ModalSubmit submit, bool isEphemeral = false)
     {
-        await SendAckResponseWithLoadingMessageAsync(interaction.Id, interaction.Token, isEphemeral);
+        await SendAckResponseWithLoadingMessageAsync(submit.Interaction.Id, submit.Token, isEphemeral);
     }
 
     private async ValueTask SendAckResponseWithLoadingMessageAsync(string id, string token, bool isEphemeral)
@@ -109,10 +121,10 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(DiscordButtonComponent interaction)
+    public async ValueTask SendComponentAckResponseWithoutLoadingMessageAsync(DiscordButtonComponent button)
     {
         var response = await httpClient.PostAsync(
-            $"interactions/{interaction.Id}/{interaction.Token}/callback",
+            $"interactions/{button.Interaction.Id}/{button.Interaction.Token}/callback",
             JsonContent.Create(new InteractionResponse(ComponentDeferredUpdateMessageInteractionResponseType, null))
         );
         await response.EnsureSuccessAsync(logger);
@@ -146,14 +158,14 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask SendModalResponseAsync(DiscordButtonComponent interaction, CreateModalResult createModal)
+    public async ValueTask SendModalResponseAsync(DiscordButtonComponent button, CreateModalResult createModal)
     {
-        await SendModalResponseAsync(interaction.Id, interaction.Token, createModal);
+        await SendModalResponseAsync(button.Interaction.Id, button.Interaction.Token, createModal);
     }
 
-    public async ValueTask SendModalResponseAsync(ApplicationCommand interaction, CreateModalResult createModal)
+    public async ValueTask SendModalResponseAsync(ApplicationCommand command, CreateModalResult createModal)
     {
-        await SendModalResponseAsync(interaction.Id, interaction.Token, createModal);
+        await SendModalResponseAsync(command.Interaction.Id, command.Interaction.Token, createModal);
     }
 
     private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageResponse response)
@@ -174,7 +186,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
     {
         if (response.Buttons != null)
         {
-            if (!response.Buttons.Any())
+            if (response.Buttons.Count == 0)
             {
                 return [];
             }
@@ -233,7 +245,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         return content;
     }
 
-    public async ValueTask SendFollowupResponseAsync(IInteraction interaction, MessageResponse message)
+    public async ValueTask SendFollowupResponseAsync(ParsedInteraction interaction, MessageResponse message)
     {
         await SendFollowupResponseAsync(interaction.Token, message);
     }
@@ -244,7 +256,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
 
         var jsonContent = JsonContent.Create(ToInteractionData(message));
 
-        using HttpContent httpContent = message.Content.Attachments?.Any() == true ?
+        using HttpContent httpContent = message.Content.Attachments?.Count > 0 ?
             CreateContentWithAttachments(message.Content.Attachments, jsonContent) :
             jsonContent;
 
@@ -255,13 +267,13 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask EditOriginalResponseAsync(IInteraction interaction, MessageResponse message)
+    public async ValueTask EditOriginalResponseAsync(ParsedInteraction interaction, MessageResponse message)
     {
         var data = ToInteractionData(message);
         await EditOriginalResponseAsync(interaction.Token, data);
     }
 
-    public async ValueTask EditOriginalResponseAsync(IInteraction interaction, DiscordEmbed embed)
+    public async ValueTask EditOriginalResponseAsync(ParsedInteraction interaction, DiscordEmbed embed)
     {
         InteractionResponse.InteractionApplicationCommandCallbackData data = new(embeds: [embed]);
         await EditOriginalResponseAsync(interaction.Token, data);
@@ -285,7 +297,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
         var response = await httpClient.DeleteAsync(
-            $"webhooks/{applicationInfo.Id}/{component.Token}/messages/@original"
+            $"webhooks/{applicationInfo.Id}/{component.Interaction.Token}/messages/@original"
         );
         await response.EnsureSuccessAsync(logger);
     }

@@ -34,26 +34,21 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository) : 
                 var content = reminderViews.Count > 0 ?
                     string.Join("\n", reminderViews.Select(r => $"{r.UserFacingId}. {r.Summary}")) :
                     $"""
-                    You don't have any reminders. 😶
-                    Add one with {context.MentionCommand("remind add")}.
+                    You don't have any reminders 😶
+                    Add one with {context.MentionCommand("remind add")} ⏲️
                     """;
 
-                var clearButtons = reminderViews.Select(r => new ButtonResult(
-                    new Button(Id: $"{r.UserFacingId}-clear", ButtonStyle.Danger, Label: $"Clear #{r.UserFacingId}", Emoji: "🗑"),
-                    async (_) =>
-                    {
-                        await reminderRepository.ClearReminderAsync(r.Domain);
-                        return new UpdateMessage(new(new(EmbedFactory.CreateSuccess($"Reminder {r.UserFacingId} has been cleared. 👍"))));
-                    }
-                ));
-
+                var clearButtons = reminderViews.Select(r =>
+                {
+                    List<CustomIdDataEntry> clearData = [new("rem", $"{r.Domain.Id:N}")];
+                    return new ButtonResult(
+                        new Button(Id: InteractionCustomId.Create(RemindManageClearButtonHandler.CustomIdName, clearData).RawId, ButtonStyle.Danger, Label: $"Clear #{r.UserFacingId}", Emoji: "🗑"),
+                        _ => throw new NotImplementedException()
+                    );
+                });
                 var clearAllButton = new ButtonResult(
-                    new Button(Id: "clearall", ButtonStyle.Danger, Label: "Clear all", Emoji: "🗑"),
-                    async (_) =>
-                    {
-                        await reminderRepository.ClearAllRemindersAsync(context.User);
-                        return new UpdateMessage(new(new(EmbedFactory.CreateSuccess("All your reminders have been cleared. 👍"))));
-                    }
+                    new Button(Id: InteractionCustomId.Create(RemindManageClearAllButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Clear all", Emoji: "🗑"),
+                    _ => throw new NotImplementedException()
                 );
 
                 return new MessageResult(
@@ -62,9 +57,41 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository) : 
                         .WithTitle("Your Reminders ⏲️")
                         .WithDescription(content)
                         .Build()),
-                    reminderViews.Count > 0 ? new(clearButtons.Append(clearAllButton).ToList()) : null
+                    reminderViews.Count > 0
+                        ? new(clearButtons.Append(clearAllButton).ToList(), new PermanentButtonSettings())
+                        : null
                 );
             }
         ));
+    }
+}
+
+public class RemindManageClearButtonHandler(InteractionResponseClient responseClient, IReminderRepository reminderRepository) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.RemindManageClear;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var reminderId = Guid.ParseExact(button.CustomId.ParsedData["rem"], "N");
+
+        await reminderRepository.ClearReminderAsync(reminderId);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(new(EmbedFactory.CreateSuccess($"Reminder has been cleared 👍")), []));
+    }
+}
+
+public class RemindManageClearAllButtonHandler(InteractionResponseClient responseClient, IReminderRepository reminderRepository) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.RemindManageClearAll;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        await reminderRepository.ClearAllRemindersAsync(context.User);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(new(EmbedFactory.CreateSuccess("All your reminders have been cleared 👍")), []));
     }
 }

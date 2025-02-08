@@ -18,7 +18,11 @@ public interface IBirthdayRoleConfigRepository
     Task RemoveRoleForGuildAsync(IGuild guild);
 }
 
-public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, IPlusRepository plusRepository, IBirthdayRoleConfigRepository birthdayRoleRepository) : ISlashCommand<NoOptions>
+public class BirthdayRoleSlashCommand(
+    ILogger<BirthdayRoleSlashCommand> logger,
+    IPlusRepository plusRepository,
+    IBirthdayRoleConfigRepository birthdayRoleRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "birthday role";
 
@@ -90,10 +94,9 @@ public class BirthdayRoleSlashCommand(ILogger<BirthdayRoleSlashCommand> logger, 
                 }
             },
             Preconditions: [
-                new InGuildPrecondition(),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles),
+                userHasPermission.Create(GuildPermission.ManageRoles),
             ]
         ));
     }

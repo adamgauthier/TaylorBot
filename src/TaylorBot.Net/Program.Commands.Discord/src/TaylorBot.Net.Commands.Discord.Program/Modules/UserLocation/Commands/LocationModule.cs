@@ -23,7 +23,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherCommand weather
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             weatherCommand.Weather(context.User, new(u), locationOverride: null),
             context
         );
@@ -46,7 +46,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherCommand weather
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
 
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             locationShowCommand.Location(new(u)),
             context
         );
@@ -70,7 +70,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherCommand weather
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

@@ -16,7 +16,7 @@ public class YouTubeModule(ICommandRunner commandRunner, YouTubeSlashCommand you
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             youTubeCommand.Search(context.User, text, isLegacyCommand: true),
             context
         );

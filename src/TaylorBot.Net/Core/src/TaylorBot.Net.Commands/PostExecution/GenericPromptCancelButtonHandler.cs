@@ -6,10 +6,10 @@ public class GenericPromptCancelButtonHandler(InteractionResponseClient response
 {
     public static CustomIdNames CustomIdName => CustomIdNames.GenericPromptCancel;
 
-    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText());
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
 
-    public async Task HandleAsync(DiscordButtonComponent button)
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
-        await responseClient.EditOriginalResponseAsync(button, EmbedFactory.CreateErrorEmbed("Operation cancelled 👍"));
+        await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed("Operation cancelled 👍"));
     }
 }

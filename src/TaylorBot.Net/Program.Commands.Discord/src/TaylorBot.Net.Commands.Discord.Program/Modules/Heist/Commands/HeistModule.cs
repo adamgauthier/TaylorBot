@@ -16,7 +16,7 @@ public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand hei
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             heistCommand.Heist(context, amount: null, amountString: amount),
             context
         );
@@ -41,7 +41,7 @@ public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand hei
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -63,7 +63,7 @@ public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand hei
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

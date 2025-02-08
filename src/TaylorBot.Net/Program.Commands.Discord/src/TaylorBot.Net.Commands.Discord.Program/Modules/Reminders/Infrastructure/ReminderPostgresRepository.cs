@@ -62,7 +62,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    public async ValueTask ClearReminderAsync(Reminder reminder)
+    public async ValueTask ClearReminderAsync(Guid reminderId)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -70,7 +70,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
             @"DELETE FROM users.reminders WHERE reminder_id = @ReminderId;",
             new
             {
-                ReminderId = reminder.Id,
+                ReminderId = reminderId,
             }
         );
     }

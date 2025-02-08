@@ -22,7 +22,7 @@ public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             serverJoinedCommand.Joined(new((IGuildUser)u)),
             context
         );
@@ -47,7 +47,7 @@ public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

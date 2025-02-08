@@ -15,7 +15,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger modChannelLogger) : ISlashCommand<KickSlashCommand.Options>
+public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger modChannelLogger, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<KickSlashCommand.Options>
 {
     private const int MaxAuditLogReasonSize = 512;
 
@@ -104,8 +104,7 @@ public class KickSlashCommand(Lazy<ITaylorBotClient> client, IModChannelLogger m
                 }
             },
             Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.KickMembers, GuildPermission.BanMembers),
+                userHasPermission.Create(GuildPermission.KickMembers, GuildPermission.BanMembers),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.KickMembers)
             ]
         ));

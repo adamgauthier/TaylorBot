@@ -1,5 +1,4 @@
-﻿using Discord;
-using Humanizer;
+﻿using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OperationResult;
@@ -11,7 +10,6 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
-using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;
 using static OperationResult.Helpers;
 using static TaylorBot.Net.Commands.MessageResult;
@@ -50,63 +48,32 @@ public interface IKeyedSlashCommand
     abstract static string CommandName { get; }
 }
 
-public record ApplicationCommand(
-    string Id,
-    string Token,
-    ApplicationCommandInteractionData Data,
-    ApplicationCommand.GuildData? Guild,
-    User? UserData,
-    (SnowflakeId Id, PartialChannel Partial) Channel
-) : IInteraction
-{
-    public User User => Guild?.Member.user ?? UserData ?? throw new NotImplementedException();
-
-    public SnowflakeId UserId => User.id;
-
-    public record GuildData(SnowflakeId Id, Member Member);
-}
+public record ApplicationCommand(ParsedInteraction Interaction);
 
 public class SlashCommandHandler(
+    IServiceProvider services,
     ILogger<SlashCommandHandler> logger,
-    Lazy<ITaylorBotClient> taylorBotClient,
+    TaskExceptionLogger taskExceptionLogger,
     ICommandRunner commandRunner,
     IOngoingCommandRepository ongoingCommandRepository,
     IIgnoredUserRepository ignoredUserRepository,
     MessageComponentHandler messageComponentHandler,
     ModalInteractionHandler modalInteractionHandler,
-    TaskExceptionLogger taskExceptionLogger,
-    CommandPrefixDomainService commandPrefixDomainService,
-    InteractionMapper interactionMapper,
-    IServiceProvider services)
+    RunContextFactory contextFactory)
 {
     private InteractionResponseClient CreateInteractionClient() => services.GetRequiredService<InteractionResponseClient>();
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
-        ArgumentNullException.ThrowIfNull(interaction.data);
-        activity.CommandName = interaction.data.name;
-
-        ArgumentNullException.ThrowIfNull(interaction.channel_id);
-        ArgumentNullException.ThrowIfNull(interaction.channel);
-
-        ApplicationCommand command = new(
-            interaction.id,
-            interaction.token,
-            interaction.data,
-            interaction.member != null && interaction.guild_id != null ? new(interaction.guild_id, interaction.member) : null,
-            interaction.user,
-            (new(interaction.channel_id), interaction.channel));
-
-        activity.UserId = command.UserId;
-        activity.ChannelId = command.Channel.Id;
-        activity.GuildId = command.Guild?.Id;
+        var parsed = ParsedInteraction.Parse(interaction, activity);
+        ApplicationCommand command = new(parsed);
 
         await HandleApplicationCommand(command, activity);
     }
 
-    private async ValueTask HandleApplicationCommand(ApplicationCommand interaction, CommandActivity activity)
+    private async ValueTask HandleApplicationCommand(ApplicationCommand command, CommandActivity activity)
     {
-        var (commandName, options) = GetFullCommandNameAndOptions(interaction.Data);
+        var (commandName, options) = GetFullCommandNameAndOptions(command.Interaction.Data);
         activity.CommandName = commandName;
         foreach (var option in options ?? [])
         {
@@ -119,9 +86,9 @@ public class SlashCommandHandler(
             var slashCommand = created.Value;
             if (slashCommand != null)
             {
-                RunContext context = await CreateRunContextAsync(interaction, slashCommand, activity);
+                var context = await CreateRunContextAsync(command, slashCommand, activity);
 
-                var result = await RunCommandAsync(slashCommand, context, options, interaction.Data.resolved, activity);
+                var result = await RunCommandAsync(slashCommand, context, options, command.Interaction.Data.resolved, activity);
 
                 if (context.OnGoing.OnGoingCommandAddedToPool != null)
                 {
@@ -133,19 +100,19 @@ public class SlashCommandHandler(
                     case EmbedResult embedResult:
                         if (context.WasAcknowledged)
                         {
-                            await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(embedResult.Embed));
+                            await CreateInteractionClient().SendFollowupResponseAsync(command.Interaction, new(embedResult.Embed));
                         }
                         else
                         {
-                            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(embedResult.Embed));
+                            await CreateInteractionClient().SendImmediateResponseAsync(command, new(embedResult.Embed));
                         }
                         break;
 
                     case MessageResult messageResult:
-                        IReadOnlyList<Button>? buttons = CreateAndBindButtons(interaction, messageResult, context.User.Id.ToString());
+                        IReadOnlyList<Button>? buttons = CreateAndBindButtons(command.Interaction, messageResult, context.User.Id.ToString());
 
                         await CreateInteractionClient().SendFollowupResponseAsync(
-                            interaction,
+                            command.Interaction,
                             new(messageResult.Content, buttons)
                         );
                         break;
@@ -158,20 +125,20 @@ public class SlashCommandHandler(
 
                             modalInteractionHandler.AddCallback(createModal.Id, new(async submit =>
                             {
-                                if (submit.UserId == $"{context.User.Id}")
+                                if (submit.Interaction.UserId == context.User.Id)
                                 {
                                     modalInteractionHandler.RemoveCallback(submit.CustomId.RawId);
 
                                     try
                                     {
                                         var result = await submitAction(submit);
-                                        var buttons = CreateAndBindButtons(submit, result, $"{context.User.Id}");
-                                        await CreateInteractionClient().EditOriginalResponseAsync(submit, message: new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
+                                        var buttons = CreateAndBindButtons(submit.Interaction, result, $"{context.User.Id}");
+                                        await CreateInteractionClient().EditOriginalResponseAsync(submit.Interaction, message: new(result.Content, buttons, IsPrivate: createModal.IsPrivateResponse));
                                     }
                                     catch (Exception e)
                                     {
-                                        logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Id);
-                                        await CreateInteractionClient().EditOriginalResponseAsync(submit, message: new(
+                                        logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Interaction.Id);
+                                        await CreateInteractionClient().EditOriginalResponseAsync(submit.Interaction, message: new(
                                             EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")
                                         ));
                                     }
@@ -185,17 +152,17 @@ public class SlashCommandHandler(
                             }, nameof(CreateModalResult)));
                         }
 
-                        await CreateInteractionClient().SendModalResponseAsync(interaction, createModal);
+                        await CreateInteractionClient().SendModalResponseAsync(command, createModal);
                         break;
 
                     case ParsingFailed parsingFailed:
                         if (context.WasAcknowledged)
                         {
-                            await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
+                            await CreateInteractionClient().SendFollowupResponseAsync(command.Interaction, new(EmbedFactory.CreateError(parsingFailed.Message)));
                         }
                         else
                         {
-                            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(parsingFailed.Message)), IsPrivate: true));
+                            await CreateInteractionClient().SendImmediateResponseAsync(command, new(new(EmbedFactory.CreateError(parsingFailed.Message)), IsPrivate: true));
                         }
                         break;
 
@@ -203,11 +170,11 @@ public class SlashCommandHandler(
                         logger.LogInformation("{User} precondition failure: {PrivateReason}.", context.User.FormatLog(), preconditionFailed.PrivateReason);
                         if (context.WasAcknowledged)
                         {
-                            await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
+                            await CreateInteractionClient().SendFollowupResponseAsync(command.Interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
                         }
                         else
                         {
-                            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)), IsPrivate: true));
+                            await CreateInteractionClient().SendImmediateResponseAsync(command, new(new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)), IsPrivate: true));
                         }
                         break;
 
@@ -241,7 +208,7 @@ public class SlashCommandHandler(
                             await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.UtcNow + ignoreTime);
                         }
 
-                        await CreateInteractionClient().SendFollowupResponseAsync(interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
+                        await CreateInteractionClient().SendFollowupResponseAsync(command.Interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
                         break;
 
                     default:
@@ -255,7 +222,7 @@ public class SlashCommandHandler(
         }
         else
         {
-            await CreateInteractionClient().SendImmediateResponseAsync(interaction, new(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that 😕")));
+            await CreateInteractionClient().SendImmediateResponseAsync(command, new(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that 😕")));
         }
     }
 
@@ -272,7 +239,7 @@ public class SlashCommandHandler(
         }
     }
 
-    private async Task<RunContext> CreateRunContextAsync(ApplicationCommand interaction, ISlashCommand slashCommand, CommandActivity activity)
+    private async Task<RunContext> CreateRunContextAsync(ApplicationCommand command, ISlashCommand slashCommand, CommandActivity activity)
     {
         RunContext context;
 
@@ -280,24 +247,24 @@ public class SlashCommandHandler(
         {
             case MessageCommandInfo info:
                 {
-                    await CreateInteractionClient().SendAckResponseWithLoadingMessageAsync(interaction, isEphemeral: info.IsPrivateResponse);
+                    await CreateInteractionClient().SendAckResponseWithLoadingMessageAsync(command, isEphemeral: info.IsPrivateResponse);
 
-                    context = BuildContext(interaction, activity, wasAcknowledged: true);
+                    context = contextFactory.BuildContext(command.Interaction, activity, wasAcknowledged: true);
 
                     logger.LogInformation(
                         "{User} using slash command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
-                        context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
+                        context.User.FormatLog(), slashCommand.Info.Name, command.Interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
                     );
                     break;
                 }
 
             case ModalCommandInfo:
                 {
-                    context = BuildContext(interaction, activity, wasAcknowledged: false);
+                    context = contextFactory.BuildContext(command.Interaction, activity, wasAcknowledged: false);
 
                     logger.LogInformation(
                         "{User} using modal command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
-                        context.User.FormatLog(), slashCommand.Info.Name, interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
+                        context.User.FormatLog(), slashCommand.Info.Name, command.Interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
                     );
                     break;
                 }
@@ -309,42 +276,10 @@ public class SlashCommandHandler(
         return context;
     }
 
-    private RunContext BuildContext(ApplicationCommand interaction, CommandActivity activity, bool wasAcknowledged)
-    {
-        var guild = interaction.Guild != null
-            ? taylorBotClient.Value.DiscordShardedClient.GetGuild(interaction.Guild.Id)
-            : null;
-
-        var user = interaction.User;
-
-        return new RunContext(
-            DateTimeOffset.UtcNow,
-            new(
-                user.id,
-                user.username,
-                user.avatar,
-                user.discriminator,
-                IsBot: user.bot == true,
-                interaction.Guild != null
-                    ? interactionMapper.ToMemberInfo(interaction.Guild.Id, interaction.Guild.Member)
-                    : null),
-            FetchedUser: null,
-            new(interaction.Channel.Id, (ChannelType)interaction.Channel.Partial.type),
-            interaction.Guild != null ? new(interaction.Guild.Id, guild) : null,
-            taylorBotClient.Value.DiscordShardedClient,
-            taylorBotClient.Value.DiscordShardedClient.CurrentUser,
-            new(interaction.Data.id, interaction.Data.name),
-            new(() => commandPrefixDomainService.GetPrefixAsync(guild)),
-            new(),
-            activity,
-            WasAcknowledged: wasAcknowledged
-        );
-    }
-
     private const byte SubCommandOptionType = 1;
     private const byte SubCommandGroupOptionType = 2;
 
-    private static (string name, IReadOnlyList<ApplicationCommandOption>? options) GetFullCommandNameAndOptions(ApplicationCommandInteractionData data)
+    private static (string name, IReadOnlyList<ApplicationCommandOption>? options) GetFullCommandNameAndOptions(InteractionData data)
     {
         if (data.options?.Count == 1)
         {
@@ -380,7 +315,7 @@ public class SlashCommandHandler(
 
             var command = await slashCommand.GetCommandAsync(context, parsedOptions.Value);
 
-            var result = await commandRunner.RunAsync(command, context);
+            var result = await commandRunner.RunSlashCommandAsync(command, context);
 
             return result;
         }
@@ -402,20 +337,19 @@ public class SlashCommandHandler(
         var constructorParameters = command.OptionType.GetConstructors().Single().GetParameters();
 
         var optionWithoutMatch = options.FirstOrDefault(o => !constructorParameters.Any(p => p.Name == o.name));
-
         if (optionWithoutMatch != null)
         {
             throw new InvalidOperationException($"Found no parameter mapping in '{command.OptionType}' for option '{optionWithoutMatch.name}'.");
         }
 
-        List<object?> args = [];
+        List<object?> args = new(constructorParameters.Length);
 
         foreach (var constructorParameter in constructorParameters)
         {
-            var optionName = constructorParameter.ParameterType;
+            var optionType = constructorParameter.ParameterType;
 
-            var parser = services.GetService(typeof(IOptionParser<>).MakeGenericType(optionName)) as IOptionParser
-                ?? throw new InvalidOperationException($"No option parser registered for type '{optionName.Name}'.");
+            var parser = services.GetService(typeof(IOptionParser<>).MakeGenericType(optionType)) as IOptionParser
+                ?? throw new InvalidOperationException($"No option parser registered for type '{optionType.Name}'.");
 
             var optionValue = (JsonElement?)options.SingleOrDefault(option => option.name == constructorParameter.Name)?.value;
 
@@ -431,7 +365,7 @@ public class SlashCommandHandler(
         return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
     }
 
-    private List<Button> CreateAndBindButtons(IInteraction interaction, MessageResult m, string authorId)
+    private List<Button> CreateAndBindButtons(ParsedInteraction interaction, MessageResult m, string authorId)
     {
         if (m.Buttons?.Buttons.Count > 0)
         {
@@ -450,21 +384,21 @@ public class SlashCommandHandler(
                         {
                             messageComponentHandler.AddCallback(button.Button.Id, async component =>
                             {
-                                if (button.AllowNonAuthor || component.UserId == authorId)
+                                if (button.AllowNonAuthor || component.Interaction.UserId == authorId)
                                 {
                                     try
                                     {
-                                        var action = await button.OnClick(component.UserId);
+                                        var action = await button.OnClick(component.Interaction.UserId);
                                         switch (action)
                                         {
                                             case UpdateMessage update:
                                                 RemoveCallbacks(buttons);
                                                 var newButtons = CreateAndBindButtons(interaction, update.NewMessage, authorId);
-                                                await CreateInteractionClient().EditOriginalResponseAsync(component, message: new(update.NewMessage.Content, newButtons));
+                                                await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, message: new(update.NewMessage.Content, newButtons));
                                                 break;
 
                                             case UpdateMessageContent update:
-                                                await CreateInteractionClient().EditOriginalResponseAsync(component, message: new(update.Content, buttons.Select(b => b.Button).ToList()));
+                                                await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, message: new(update.Content, buttons.Select(b => b.Button).ToList()));
                                                 if (update.Response != null)
                                                 {
                                                     using var lease = await followUpLimiter.AcquireAsync();
@@ -475,7 +409,7 @@ public class SlashCommandHandler(
 
                                                         try
                                                         {
-                                                            await CreateInteractionClient().SendFollowupResponseAsync(component,
+                                                            await CreateInteractionClient().SendFollowupResponseAsync(component.Interaction,
                                                                 new(update.Response.Message.Content, IsPrivate: update.Response.IsPrivate));
                                                         }
                                                         catch (Exception e)
@@ -500,7 +434,7 @@ public class SlashCommandHandler(
                                     catch (Exception e)
                                     {
                                         logger.LogError(e, "Unhandled exception in button {ButtonId} action:", button.Button.Id);
-                                        await CreateInteractionClient().EditOriginalResponseAsync(component, message: new(
+                                        await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, message: new(
                                             new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")),
                                             []
                                         ));

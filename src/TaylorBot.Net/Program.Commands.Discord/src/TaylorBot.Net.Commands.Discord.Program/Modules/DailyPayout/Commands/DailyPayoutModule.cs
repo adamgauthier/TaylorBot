@@ -13,7 +13,7 @@ public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand d
     public async Task<RuntimeResult> DailyAsync()
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             dailyClaimCommand.Claim(context.User, Context.CommandPrefix, isLegacyCommand: true),
             context
         );
@@ -38,7 +38,7 @@ public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand d
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -60,7 +60,7 @@ public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand d
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

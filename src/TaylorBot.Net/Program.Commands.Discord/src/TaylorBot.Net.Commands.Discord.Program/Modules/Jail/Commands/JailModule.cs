@@ -15,7 +15,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands;
 
 [Name("Jail 👮")]
 [Group("jail")]
-public class JailModule(ICommandRunner commandRunner, IJailRepository jailRepository, IModChannelLogger modChannelLogger) : TaylorBotModule
+public class JailModule(
+    ICommandRunner commandRunner,
+    IJailRepository jailRepository,
+    IModChannelLogger modChannelLogger,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : TaylorBotModule
 {
     [Priority(-1)]
     [Command]
@@ -79,13 +83,12 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                 }
             },
             Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ModerateMembers),
+                userHasPermission.Create(GuildPermission.ModerateMembers),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
             ]
         );
 
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -159,13 +162,12 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                 }
             },
             Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ModerateMembers),
+                userHasPermission.Create(GuildPermission.ModerateMembers),
                 new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
             ]
         );
 
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -192,14 +194,11 @@ public class JailModule(ICommandRunner commandRunner, IJailRepository jailReposi
                     ]))
                 .Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

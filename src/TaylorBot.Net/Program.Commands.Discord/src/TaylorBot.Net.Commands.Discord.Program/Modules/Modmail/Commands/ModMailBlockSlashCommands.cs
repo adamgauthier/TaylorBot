@@ -8,7 +8,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBlockedUsersRepository, ModMailChannelLogger modMailChannelLogger, IPlusRepository plusRepository) : ISlashCommand<ModMailBlockSlashCommand.Options>
+public class ModMailBlockSlashCommand(
+    IModMailBlockedUsersRepository modMailBlockedUsersRepository,
+    ModMailChannelLogger modMailChannelLogger,
+    IPlusRepository plusRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailBlockSlashCommand.Options>
 {
     public static string CommandName => "modmail block";
 
@@ -64,13 +68,16 @@ public class ModMailBlockSlashCommand(IModMailBlockedUsersRepository modMailBloc
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
+                userHasPermission.Create(GuildPermission.BanMembers)
             ]
         ));
     }
 }
 
-public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBlockedUsersRepository, ModMailChannelLogger modMailChannelLogger) : ISlashCommand<ModMailUnblockSlashCommand.Options>
+public class ModMailUnblockSlashCommand(
+    IModMailBlockedUsersRepository modMailBlockedUsersRepository,
+    ModMailChannelLogger modMailChannelLogger,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailUnblockSlashCommand.Options>
 {
     public static string CommandName => "modmail unblock";
 
@@ -107,7 +114,7 @@ public class ModMailUnblockSlashCommand(IModMailBlockedUsersRepository modMailBl
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.BanMembers)
+                userHasPermission.Create(GuildPermission.BanMembers)
             ]
         ));
     }

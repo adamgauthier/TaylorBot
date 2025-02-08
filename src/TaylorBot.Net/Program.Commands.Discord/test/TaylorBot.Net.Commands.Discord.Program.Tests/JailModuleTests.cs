@@ -2,11 +2,14 @@
 using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
+using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Commands.StringMappers;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -27,8 +30,14 @@ public class JailModuleTests
 
     public JailModuleTests()
     {
-        _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository, _modLogChannelLogger);
+        var services = new ServiceCollection();
+        services.AddTransient<PermissionStringMapper>();
+        services.AddTransient<TaylorBotOwnerPrecondition>();
+        services.AddTransient<InGuildPrecondition.Factory>();
+
+        _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository, _modLogChannelLogger, new(services.BuildServiceProvider()));
         _jailModule.SetContext(_commandContext);
+
         A.CallTo(() => _guild.Id).Returns(123u);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_guild);

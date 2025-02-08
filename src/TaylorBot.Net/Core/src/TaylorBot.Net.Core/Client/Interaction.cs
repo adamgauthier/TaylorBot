@@ -9,7 +9,7 @@ public record Interaction(
     string id,
     byte type,
     string token,
-    Interaction.ApplicationCommandInteractionData? data,
+    Interaction.InteractionData? data,
     Interaction.Member? member,
     Interaction.User? user,
     string? guild_id,
@@ -18,7 +18,7 @@ public record Interaction(
     Interaction.Message? message
 )
 {
-    public record ApplicationCommandInteractionData(
+    public record InteractionData(
         string id,
         string name,
         IReadOnlyList<ApplicationCommandOption>? options,
@@ -38,7 +38,9 @@ public record Interaction(
 
     public record User(string id, string username, string discriminator, string? avatar, bool? bot);
 
-    public record Message(string id, IReadOnlyList<DiscordEmbed> embeds, IReadOnlyList<Component>? components = null);
+    public record Message(string id, IReadOnlyList<DiscordEmbed> embeds, IReadOnlyList<Component>? components = null, InteractionMetadata? interaction_metadata = null);
+
+    public record InteractionMetadata(User user, string? name = null);
 
     public record Component(string? custom_id = null, IReadOnlyList<Component>? components = null);
 
@@ -100,11 +102,6 @@ public record RoleTags(
     bool? available_for_purchase,
     bool? guild_connections
 );
-
-public interface IInteraction
-{
-    string Token { get; }
-}
 
 public class InteractionMapper
 {

@@ -114,17 +114,24 @@ var host = Host.CreateDefaultBuilder()
             .AddDatabaseConnection(env)
             .AddRedisConnection(env)
             .AddCommandClient(env)
-            .AddJsonFile(path: "Settings/taypointWill.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: "Settings/dailyPayout.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: "Settings/lastFm.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: "Settings/modMail.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: "Settings/heist.json", optional: false, reloadOnChange: true)
-            .AddJsonFile(path: $"Settings/heist.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddJsonFile(path: "Settings/taypointWill.json", optional: false)
+            .AddJsonFile(path: "Settings/dailyPayout.json", optional: false)
+            .AddJsonFile(path: "Settings/lastFm.json", optional: false)
+            .AddJsonFile(path: "Settings/modMail.json", optional: false)
+            .AddJsonFile(path: "Settings/heist.json", optional: false)
+            .AddJsonFile(path: $"Settings/heist.{env.EnvironmentName}.json", optional: true)
             ;
 
         appConfig.AddEnvironmentVariables("TaylorBot_");
     })
-    .ConfigureServices((hostBuilderContext, services) =>
+    .ConfigureServices(DiscordCommandsProgram.ConfigureServices)
+    .Build();
+
+await host.RunAsync();
+
+public class DiscordCommandsProgram
+{
+    public static void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         var config = hostBuilderContext.Configuration;
         services
@@ -210,6 +217,8 @@ var host = Host.CreateDefaultBuilder()
             .AddTransient<IReminderRepository, ReminderPostgresRepository>()
             .AddSlashCommand<RemindAddSlashCommand>()
             .AddSlashCommand<RemindManageSlashCommand>()
+            .AddButtonHandler<RemindManageClearButtonHandler>()
+            .AddButtonHandler<RemindManageClearAllButtonHandler>()
             .AddTransient<YouTubeService>()
             .AddTransient<IYouTubeClient, YouTubeClient>()
             .AddSlashCommand<YouTubeSlashCommand>()
@@ -394,7 +403,5 @@ var host = Host.CreateDefaultBuilder()
             var options = provider.GetRequiredService<IOptionsMonitor<ImgurOptions>>().CurrentValue;
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", options.ClientId);
         });
-    })
-    .Build();
-
-await host.RunAsync();
+    }
+}

@@ -7,7 +7,9 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 
-public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository) : ISlashCommand<ModSpamAddSlashCommand.Options>
+public class ModSpamAddSlashCommand(
+    ISpamChannelRepository spamChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModSpamAddSlashCommand.Options>
 {
     public static string CommandName => "mod spam add";
 
@@ -30,15 +32,14 @@ public class ModSpamAddSlashCommand(ISpamChannelRepository spamChannelRepository
                     Use {context.MentionCommand("mod spam remove")} to revert and mark the channel as non-spam.
                     """));
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild),
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         ));
     }
 }
 
-public class ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelRepository) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
+public class ModSpamRemoveSlashCommand(
+    ISpamChannelRepository spamChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
 {
     public static string CommandName => "mod spam remove";
 
@@ -61,10 +62,7 @@ public class ModSpamRemoveSlashCommand(ISpamChannelRepository spamChannelReposit
                     Use {context.MentionCommand("mod spam add")} to revert and mark the channel as spam.
                     """));
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild),
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         ));
     }
 }

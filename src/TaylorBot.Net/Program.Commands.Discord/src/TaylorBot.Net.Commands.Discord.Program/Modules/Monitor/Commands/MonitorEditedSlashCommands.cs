@@ -9,7 +9,10 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
-public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
+public class MonitorEditedSetSlashCommand(
+    IPlusRepository plusRepository,
+    IEditedLogChannelRepository editedLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
 {
     public static string CommandName => "monitor edited set";
 
@@ -59,7 +62,7 @@ public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEdite
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
@@ -76,7 +79,9 @@ public class MonitorEditedSetSlashCommand(IPlusRepository plusRepository, IEdite
     }
 }
 
-public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<NoOptions>
+public class MonitorEditedShowSlashCommand(
+    IEditedLogChannelRepository editedLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor edited show";
 
@@ -128,13 +133,15 @@ public class MonitorEditedShowSlashCommand(IEditedLogChannelRepository editedLog
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
 }
 
-public class MonitorEditedStopSlashCommand(IEditedLogChannelRepository editedLogChannelRepository) : ISlashCommand<NoOptions>
+public class MonitorEditedStopSlashCommand(
+    IEditedLogChannelRepository editedLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor edited stop";
 
@@ -159,7 +166,7 @@ public class MonitorEditedStopSlashCommand(IEditedLogChannelRepository editedLog
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }

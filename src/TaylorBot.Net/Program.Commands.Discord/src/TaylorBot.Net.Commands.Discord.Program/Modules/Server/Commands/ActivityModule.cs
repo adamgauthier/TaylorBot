@@ -22,7 +22,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             serverMessagesCommand.Messages(new((IGuildUser)u)),
             context
         );
@@ -47,7 +47,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -65,7 +65,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
             await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             serverMinutesCommand.Minutes(new((IGuildUser)u)),
             context
         );
@@ -90,7 +90,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

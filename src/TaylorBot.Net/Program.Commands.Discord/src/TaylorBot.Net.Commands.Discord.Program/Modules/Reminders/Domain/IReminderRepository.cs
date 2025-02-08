@@ -9,6 +9,6 @@ public interface IReminderRepository
     ValueTask<long> GetReminderCountAsync(DiscordUser user);
     ValueTask<IList<Reminder>> GetRemindersAsync(DiscordUser user);
     ValueTask AddReminderAsync(DiscordUser user, DateTimeOffset remindAt, string text);
-    ValueTask ClearReminderAsync(Reminder reminder);
+    ValueTask ClearReminderAsync(Guid reminderId);
     ValueTask ClearAllRemindersAsync(DiscordUser user);
 }

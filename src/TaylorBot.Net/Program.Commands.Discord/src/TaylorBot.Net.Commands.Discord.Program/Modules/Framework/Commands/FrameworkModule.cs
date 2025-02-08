@@ -8,7 +8,10 @@ using TaylorBot.Net.Core.Colors;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Framework.Commands;
 
 [Name("Framework")]
-public class FrameworkModule(ICommandRunner commandRunner, ICommandPrefixRepository commandPrefixRepository) : TaylorBotModule
+public class FrameworkModule(
+    ICommandRunner commandRunner,
+    ICommandPrefixRepository commandPrefixRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : TaylorBotModule
 {
     [Command("prefix")]
     [Alias("setprefix")]
@@ -45,14 +48,11 @@ public class FrameworkModule(ICommandRunner commandRunner, ICommandPrefixReposit
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

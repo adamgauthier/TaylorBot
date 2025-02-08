@@ -26,7 +26,7 @@ public class FavoriteModule(
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             favoriteSongsShowCommand.Show(new(u)),
             context
         );
@@ -43,7 +43,7 @@ public class FavoriteModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             favoriteSongsSetCommand.Set(context.User, text, null),
             context
         );
@@ -68,7 +68,7 @@ public class FavoriteModule(
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -84,7 +84,7 @@ public class FavoriteModule(
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             favoriteBaeShowCommand.Show(new(u)),
             context
         );
@@ -109,7 +109,7 @@ public class FavoriteModule(
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -130,7 +130,7 @@ public class FavoriteModule(
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -146,7 +146,7 @@ public class FavoriteModule(
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             favoriteObsessionShowCommand.Show(new(u)),
             context
         );
@@ -171,7 +171,7 @@ public class FavoriteModule(
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -193,7 +193,7 @@ public class FavoriteModule(
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

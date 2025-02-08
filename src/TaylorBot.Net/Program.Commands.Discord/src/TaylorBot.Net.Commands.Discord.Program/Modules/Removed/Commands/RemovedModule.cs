@@ -24,7 +24,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -42,7 +42,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -60,7 +60,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -78,7 +78,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -96,7 +96,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

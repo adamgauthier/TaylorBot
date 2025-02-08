@@ -13,6 +13,7 @@ using TaylorBot.Net.Commands.Parsers.Roles;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Commands.StringMappers;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
@@ -42,7 +43,9 @@ public static class ServiceCollectionExtensions
             .AddTransient<DisabledGuildCommandDomainService>()
             .AddTransient<SingletonTaskRunner>()
             .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
+            .AddTransient<PermissionStringMapper>()
             .AddTransient<InteractionMapper>()
+            .AddTransient<RunContextFactory>()
             .AddTransient<SlashCommandHandler>()
             .AddSingleton<MessageComponentHandler>()
             .AddSingleton<ModalInteractionHandler>()
@@ -77,6 +80,9 @@ public static class ServiceCollectionExtensions
             .AddTransient<MemberTrackedPrecondition>()
             .AddTransient<TextChannelTrackedPrecondition>()
             .AddTransient<UserNoOngoingCommandPrecondition>()
+            .AddTransient<UserHasPermissionOrOwnerPrecondition.Factory>()
+            .AddTransient<TaylorBotOwnerPrecondition>()
+            .AddTransient<InGuildPrecondition.Factory>()
             .AddTransient<ICommandRunner, CommandRunner>()
             .AddOptionParser<StringParser, ParsedString>()
             .AddOptionParser<OptionalStringParser, ParsedOptionalString>()

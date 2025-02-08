@@ -36,7 +36,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(enableCommand, context);
+        var result = await commandRunner.RunSlashCommandAsync(enableCommand, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -76,7 +76,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(disableCommand, context);
+        var result = await commandRunner.RunSlashCommandAsync(disableCommand, context);
 
         return new TaylorBotResult(result, context);
     }

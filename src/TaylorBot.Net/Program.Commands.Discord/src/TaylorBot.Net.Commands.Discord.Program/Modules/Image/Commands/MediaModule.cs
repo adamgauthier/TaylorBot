@@ -15,7 +15,7 @@ public class MediaModule(ICommandRunner commandRunner, ImageSlashCommand imageCo
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             imageCommand.Image(context.User, text, isLegacyCommand: true),
             context
         );

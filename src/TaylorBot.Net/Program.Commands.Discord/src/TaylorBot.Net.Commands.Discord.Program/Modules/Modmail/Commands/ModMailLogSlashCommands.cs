@@ -9,7 +9,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailLogSetSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository) : ISlashCommand<ModMailLogSetSlashCommand.Options>
+public class ModMailLogSetSlashCommand(
+    IModMailLogChannelRepository modMailLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailLogSetSlashCommand.Options>
 {
     public static string CommandName => "modmail log-set";
 
@@ -46,7 +48,7 @@ public class ModMailLogSetSlashCommand(IModMailLogChannelRepository modMailLogCh
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
@@ -66,7 +68,9 @@ public class ModMailLogSetSlashCommand(IModMailLogChannelRepository modMailLogCh
     }
 }
 
-public class ModMailLogStopSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository) : ISlashCommand<NoOptions>
+public class ModMailLogStopSlashCommand(
+    IModMailLogChannelRepository modMailLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail log-stop";
 
@@ -94,13 +98,15 @@ public class ModMailLogStopSlashCommand(IModMailLogChannelRepository modMailLogC
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
 }
 
-public class ModMailLogShowSlashCommand(IModMailLogChannelRepository modMailLogChannelRepository) : ISlashCommand<NoOptions>
+public class ModMailLogShowSlashCommand(
+    IModMailLogChannelRepository modMailLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail log-show";
 
@@ -153,7 +159,7 @@ public class ModMailLogShowSlashCommand(IModMailLogChannelRepository modMailLogC
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }

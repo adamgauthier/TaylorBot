@@ -14,7 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Command
 [Name("Roles 🆔")]
 [Group("roles")]
 [Alias("role", "gr")]
-public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRoleRepository accessibleRoleRepository) : TaylorBotModule
+public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRoleRepository accessibleRoleRepository, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : TaylorBotModule
 {
     [Priority(-1)]
     [Command]
@@ -155,7 +155,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -219,7 +219,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -248,14 +248,11 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                         """)
                 .Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -284,14 +281,11 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
                         """)
                 .Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -340,14 +334,11 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageRoles)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

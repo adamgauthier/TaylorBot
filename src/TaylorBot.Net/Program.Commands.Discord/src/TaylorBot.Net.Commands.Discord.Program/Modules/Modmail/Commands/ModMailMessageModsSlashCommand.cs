@@ -89,7 +89,10 @@ public class ModMailMessageModsSlashCommand(
                         try
                         {
                             await channel.SendMessageAsync(embed: embed, components: new ComponentBuilder()
-                                .WithButton(customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId, label: "Reply", emote: new Emoji("📨")).Build());
+                                .WithButton(
+                                    customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId,
+                                    label: "Reply", emote: new Emoji("📨"))
+                                .Build());
                             return EmbedFactory.CreateSuccess(
                                 $"""
                                 Message sent to the moderation team of '{guild.Name}' ✉️
@@ -122,9 +125,9 @@ public class ModMailUserMessageReplyButtonHandler(InteractionResponseClient resp
 
     public IComponentHandlerInfo Info => new ModalHandlerInfo(CustomIdName.ToText());
 
-    public async Task HandleAsync(DiscordButtonComponent button)
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
         var toUserId = button.CustomId.ParsedData["to"];
-        await responseClient.SendModalResponseAsync(button, ModMailMessageUserSlashCommand.CreateModalResult(toUserId, button.MessageId));
+        await responseClient.SendModalResponseAsync(button, ModMailMessageUserSlashCommand.CreateModalResult(toUserId, button.Message.id));
     }
 }

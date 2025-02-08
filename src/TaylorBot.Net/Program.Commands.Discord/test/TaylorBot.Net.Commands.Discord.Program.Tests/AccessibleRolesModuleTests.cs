@@ -2,11 +2,14 @@
 using Discord.Net;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Commands.DiscordNet;
+using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Commands.StringMappers;
 using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Snowflake;
@@ -29,8 +32,14 @@ public class AccessibleRolesModuleTests
 
     public AccessibleRolesModuleTests()
     {
-        _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository);
+        var services = new ServiceCollection();
+        services.AddTransient<PermissionStringMapper>();
+        services.AddTransient<TaylorBotOwnerPrecondition>();
+        services.AddTransient<InGuildPrecondition.Factory>();
+
+        _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository, new(services.BuildServiceProvider()));
         _accessibleRolesModule.SetContext(_commandContext);
+
         A.CallTo(() => _guild.Id).Returns(123u);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_guild);

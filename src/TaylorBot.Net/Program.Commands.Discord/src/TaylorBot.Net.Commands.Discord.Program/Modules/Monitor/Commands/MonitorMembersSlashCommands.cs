@@ -9,7 +9,10 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
-public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemberLogChannelRepository memberLogChannelRepository) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
+public class MonitorMembersSetSlashCommand(
+    IPlusRepository plusRepository,
+    IMemberLogChannelRepository memberLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
 {
     public static string CommandName => "monitor members set";
 
@@ -49,7 +52,7 @@ public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemb
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
                 new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
@@ -66,7 +69,9 @@ public class MonitorMembersSetSlashCommand(IPlusRepository plusRepository, IMemb
     }
 }
 
-public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLogChannelRepository) : ISlashCommand<NoOptions>
+public class MonitorMembersShowSlashCommand(
+    IMemberLogChannelRepository memberLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor members show";
 
@@ -118,13 +123,15 @@ public class MonitorMembersShowSlashCommand(IMemberLogChannelRepository memberLo
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }
 }
 
-public class MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLogChannelRepository) : ISlashCommand<NoOptions>
+public class MonitorMembersStopSlashCommand(
+    IMemberLogChannelRepository memberLogChannelRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor members stop";
 
@@ -149,7 +156,7 @@ public class MonitorMembersStopSlashCommand(IMemberLogChannelRepository memberLo
             },
             Preconditions: [
                 new InGuildPrecondition(botMustBeInGuild: true),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
     }

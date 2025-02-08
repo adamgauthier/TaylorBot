@@ -12,6 +12,7 @@ namespace TaylorBot.Net.Core.Program;
 public class TaylorBotHostedService(IServiceProvider services) : IHostedService
 {
     private const GatewayIntents IntentMessageContent = (GatewayIntents)(1 << 15);
+
     private readonly ILogger<TaylorBotHostedService> _logger = services.GetRequiredService<ILogger<TaylorBotHostedService>>();
     private readonly TaskExceptionLogger _taskExceptionLogger = services.GetRequiredService<TaskExceptionLogger>();
     private ITaylorBotClient? _client;

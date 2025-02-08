@@ -1,7 +1,15 @@
-﻿namespace TaylorBot.Net.Commands.Preconditions;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace TaylorBot.Net.Commands.Preconditions;
 
 public class InGuildPrecondition(bool botMustBeInGuild = false) : ICommandPrecondition
 {
+    public class Factory(IServiceProvider services)
+    {
+        public InGuildPrecondition Create(bool botMustBeInGuild = false) =>
+            ActivatorUtilities.CreateInstance<InGuildPrecondition>(services, botMustBeInGuild);
+    }
+
     public ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.Guild == null)

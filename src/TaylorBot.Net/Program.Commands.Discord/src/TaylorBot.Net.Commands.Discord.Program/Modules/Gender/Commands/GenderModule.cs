@@ -20,7 +20,7 @@ public class GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand g
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(
+        var result = await commandRunner.RunSlashCommandAsync(
             genderShowCommand.Show(new(u)),
             context
         );
@@ -45,7 +45,7 @@ public class GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand g
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
@@ -67,7 +67,7 @@ public class GenderModule(ICommandRunner commandRunner, GenderShowSlashCommand g
                 """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunAsync(command, context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }

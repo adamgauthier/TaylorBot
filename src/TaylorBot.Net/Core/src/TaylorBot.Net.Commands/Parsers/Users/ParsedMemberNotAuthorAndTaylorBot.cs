@@ -8,14 +8,14 @@ namespace TaylorBot.Net.Commands.Parsers.Users;
 
 public record ParsedMemberNotAuthorAndTaylorBot(DiscordMember Member);
 
-public class MemberNotAuthorAndTaylorBotParser(MemberNotAuthorParser memberNotAuthorParser) : IOptionParser<ParsedMemberNotAuthorAndTaylorBot>
+public class MemberNotAuthorAndTaylorBotParser(MemberNotAuthorParser memberNotAuthorParser, Lazy<ITaylorBotClient> taylorBotClient) : IOptionParser<ParsedMemberNotAuthorAndTaylorBot>
 {
     public async ValueTask<Result<ParsedMemberNotAuthorAndTaylorBot, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
         var parsedMember = await memberNotAuthorParser.ParseAsync(context, optionValue, resolved);
         if (parsedMember)
         {
-            return parsedMember.Value.Member.User.Id != context.BotUser.Id ?
+            return parsedMember.Value.Member.User.Id != taylorBotClient.Value.DiscordShardedClient.CurrentUser.Id ?
                 new ParsedMemberNotAuthorAndTaylorBot(parsedMember.Value.Member) :
                 Error(new ParsingFailed("Member can't be TaylorBot 🤭"));
         }

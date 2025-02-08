@@ -45,6 +45,8 @@ public enum CustomIdNames
     ModMailUserMessageReply = 101,
     ModMailUserMessageReplyModal = 102,
     ModMailReplyConfirm = 103,
+    RemindManageClear = 104,
+    RemindManageClearAll = 105,
 }
 
 public static class CustomIdExtensions

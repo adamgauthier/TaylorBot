@@ -47,7 +47,7 @@ public class YoutubeNotifierService(
                 var response = await request.ExecuteAsync();
                 var newestPost = response.Items.First().Snippet;
 
-                logger.LogTrace("Checking if Youtube post '{VideoId}' for {YoutubeChecker} is new.", newestPost.ResourceId.VideoId, youtubeChecker);
+                logger.LogDebug("Checking if Youtube post '{VideoId}' for {YoutubeChecker} is new.", newestPost.ResourceId.VideoId, youtubeChecker);
 
                 if (youtubeChecker.LastVideoId == null || (
                     newestPost.ResourceId.VideoId != youtubeChecker.LastVideoId &&

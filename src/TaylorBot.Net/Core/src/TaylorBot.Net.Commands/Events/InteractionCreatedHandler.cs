@@ -44,14 +44,38 @@ public class InteractionCreatedHandler(
 
             case MESSAGE_COMPONENT:
                 _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                    async () => await messageComponentHandler.HandleAsync(interaction),
+                    async () =>
+                    {
+                        using var activity = commandActivityFactory.Create(CommandType.MessageComponent);
+                        try
+                        {
+                            await messageComponentHandler.HandleAsync(interaction, activity);
+                        }
+                        catch (Exception e)
+                        {
+                            activity.SetError(e);
+                            throw;
+                        }
+                    },
                     nameof(MessageComponentHandler)
                 ));
                 break;
 
             case MODAL_SUBMIT:
                 _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                    async () => await modalInteractionHandler.HandleAsync(interaction),
+                    async () =>
+                    {
+                        using var activity = commandActivityFactory.Create(CommandType.ModalSubmit);
+                        try
+                        {
+                            await modalInteractionHandler.HandleAsync(interaction, activity);
+                        }
+                        catch (Exception e)
+                        {
+                            activity.SetError(e);
+                            throw;
+                        }
+                    },
                     nameof(ModalInteractionHandler)
                 ));
                 break;

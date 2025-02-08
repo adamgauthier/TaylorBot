@@ -7,7 +7,10 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 
-public class CommandChannelDisableSlashCommand(ICommandRepository commandRepository, IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository) : ISlashCommand<CommandChannelDisableSlashCommand.Options>
+public class CommandChannelDisableSlashCommand(
+    ICommandRepository commandRepository,
+    IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandChannelDisableSlashCommand.Options>
 {
     public static string CommandName => "command channel-disable";
 
@@ -43,15 +46,15 @@ public class CommandChannelDisableSlashCommand(ICommandRepository commandReposit
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageChannels)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageChannels)]
         ));
     }
 }
 
-public class CommandChannelEnableSlashCommand(ICommandRepository commandRepository, IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository) : ISlashCommand<CommandChannelEnableSlashCommand.Options>
+public class CommandChannelEnableSlashCommand(
+    ICommandRepository commandRepository,
+    IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandChannelEnableSlashCommand.Options>
 {
     public static string CommandName => "command channel-enable";
 
@@ -78,10 +81,7 @@ public class CommandChannelEnableSlashCommand(ICommandRepository commandReposito
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new UserHasPermissionOrOwnerPrecondition(GuildPermission.ManageChannels)
-            ]
+            Preconditions: [userHasPermission.Create(GuildPermission.ManageChannels)]
         ));
     }
 }
