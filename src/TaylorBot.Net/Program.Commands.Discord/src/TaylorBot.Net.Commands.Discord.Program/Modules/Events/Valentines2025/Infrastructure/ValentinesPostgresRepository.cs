@@ -1,10 +1,10 @@
 ﻿using Dapper;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Infrastructure;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Infrastructure;
 
 public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IValentinesRepository
 {
@@ -15,24 +15,25 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var configs = (await connection.QueryAsync<ConfigDto>(
-            "SELECT config_key, config_value FROM valentines2023.config;")).ToList();
+            "SELECT config_key, config_value FROM valentines2025.config;")).ToList();
 
-        var getValue = (string key) => configs.Single(c => c.config_key == key).config_value;
+        string GetConfigValue(string key) =>
+            configs.Single(c => c.config_key == key).config_value;
 
         return new(
-            SpreadLoveRoleId: new(getValue("spread_love_role_id")),
-            IncubationPeriod: TimeSpan.Parse(getValue("incubation_period")),
-            BypassSpreadLimitRoleIds: getValue("bypass_spread_limit_role_ids").Split(',').Select(i => new SnowflakeId(i)).ToList(),
-            SpreadLimit: int.Parse(getValue("spread_limit")),
-            LoungeChannelId: new(getValue("lounge_channel_id")),
-            GiveawaysEndTime: DateTimeOffset.Parse(getValue("giveaways_end_time")),
-            TimeSpanBetweenGiveaways: TimeSpan.Parse(getValue("timespan_between_giveaways")),
-            GiveawayTaypointPrizeMin: int.Parse(getValue("giveaway_prize_min")),
-            GiveawayTaypointPrizeMax: int.Parse(getValue("giveaway_prize_max"))
+            SpreadLoveRoleId: new(GetConfigValue("spread_love_role_id")),
+            IncubationPeriod: TimeSpan.Parse(GetConfigValue("incubation_period")),
+            BypassSpreadLimitRoleIds: GetConfigValue("bypass_spread_limit_role_ids").Split(',').Select(i => new SnowflakeId(i)).ToList(),
+            SpreadLimit: int.Parse(GetConfigValue("spread_limit")),
+            LoungeChannelId: new(GetConfigValue("lounge_channel_id")),
+            GiveawaysEndTime: DateTimeOffset.Parse(GetConfigValue("giveaways_end_time")),
+            TimeSpanBetweenGiveaways: TimeSpan.Parse(GetConfigValue("timespan_between_giveaways")),
+            GiveawayTaypointPrizeMin: int.Parse(GetConfigValue("giveaway_prize_min")),
+            GiveawayTaypointPrizeMax: int.Parse(GetConfigValue("giveaway_prize_max"))
         );
     }
 
-    private record RoleObtainedDto(string user_id, string full_username, string acquired_from_user_id, string acquired_from_full_username, DateTime acquired_at);
+    private record RoleObtainedDto(string user_id, string username, string acquired_from_user_id, string acquired_from_username, DateTime acquired_at);
 
     public async ValueTask<RoleObtained?> GetRoleObtainedByUserAsync(DiscordMember user)
     {
@@ -40,8 +41,8 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         var obtainedByUser = await connection.QuerySingleOrDefaultAsync<RoleObtainedDto?>(
             """
-            SELECT user_id, full_username, acquired_from_user_id, acquired_from_full_username, acquired_at
-            FROM valentines2023.role_obtained WHERE user_id = @UserId;
+            SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
+            FROM valentines2025.role_obtained WHERE user_id = @UserId;
             """,
             new
             {
@@ -51,9 +52,9 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         return obtainedByUser == null ? null : new RoleObtained(
             new(obtainedByUser.acquired_from_user_id),
-            obtainedByUser.acquired_from_full_username,
+            obtainedByUser.acquired_from_username,
             new(obtainedByUser.user_id),
-            obtainedByUser.full_username,
+            obtainedByUser.username,
             obtainedByUser.acquired_at
         );
     }
@@ -64,16 +65,16 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         var acquiredAt = await connection.QuerySingleAsync<DateTime>(
             """
-            INSERT INTO valentines2023.role_obtained (user_id, full_username, acquired_from_user_id, acquired_from_full_username)
-            VALUES (@ToUserId, @ToUserFullUsername, @FromUserId, @FromUserFullUsername)
+            INSERT INTO valentines2025.role_obtained (user_id, username, acquired_from_user_id, acquired_from_username)
+            VALUES (@ToUserId, @ToUserUsername, @FromUserId, @FromUserUsername)
             RETURNING acquired_at;
             """,
             new
             {
                 ToUserId = $"{toUser.User.Id}",
-                ToUserFullUsername = $"{toUser.User.Username}#{toUser.User.Discriminator}",
+                ToUserUsername = toUser.User.Username,
                 FromUserId = $"{fromUser.User.Id}",
-                FromUserFullUsername = $"{fromUser.User.Username}#{fromUser.User.Discriminator}",
+                FromUserUsername = fromUser.User.Username,
             }
         );
 
@@ -86,8 +87,8 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         var records = await connection.QueryAsync<RoleObtainedDto>(
             """
-            SELECT user_id, full_username, acquired_from_user_id, acquired_from_full_username, acquired_at
-            FROM valentines2023.role_obtained WHERE acquired_from_user_id = @UserId;
+            SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
+            FROM valentines2025.role_obtained WHERE acquired_from_user_id = @UserId;
             """,
             new
             {
@@ -97,9 +98,9 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         return records.Select(r => new RoleObtained(
             new(r.acquired_from_user_id),
-            r.acquired_from_full_username,
+            r.acquired_from_username,
             new(r.user_id),
-            r.full_username,
+            r.username,
             r.acquired_at
         )).ToList();
     }
@@ -110,16 +111,16 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         var records = await connection.QueryAsync<RoleObtainedDto>(
             """
-            SELECT user_id, full_username, acquired_from_user_id, acquired_from_full_username, acquired_at
-            FROM valentines2023.role_obtained;
+            SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
+            FROM valentines2025.role_obtained;
             """
         );
 
         return records.Select(r => new RoleObtained(
             new(r.acquired_from_user_id),
-            r.acquired_from_full_username,
+            r.acquired_from_username,
             new(r.user_id),
-            r.full_username,
+            r.username,
             r.acquired_at
         )).ToList();
     }
@@ -130,10 +131,10 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         var records = await connection.QueryAsync<RoleObtainedDto>(
             """
-            SELECT user_id, full_username, acquired_from_user_id, acquired_from_full_username, acquired_at
-            FROM valentines2023.role_obtained AS acquired
-            WHERE 
-                (SELECT COUNT(*) FROM valentines2023.role_obtained AS givenTo WHERE givenTo.acquired_from_user_id = acquired.user_id) < @SpreadLimit
+            SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
+            FROM valentines2025.role_obtained AS acquired
+            WHERE
+                (SELECT COUNT(*) FROM valentines2025.role_obtained AS givenTo WHERE givenTo.acquired_from_user_id = acquired.user_id) < @SpreadLimit
             AND
                 acquired_at + @IncubationPeriod < CURRENT_TIMESTAMP;
             """,
@@ -146,9 +147,9 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         return records.Select(r => new RoleObtained(
             new(r.acquired_from_user_id),
-            r.acquired_from_full_username,
+            r.acquired_from_username,
             new(r.user_id),
-            r.full_username,
+            r.username,
             r.acquired_at
         )).ToList();
     }

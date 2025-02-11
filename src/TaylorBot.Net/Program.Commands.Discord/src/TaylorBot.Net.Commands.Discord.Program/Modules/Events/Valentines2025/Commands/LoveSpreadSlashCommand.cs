@@ -1,12 +1,14 @@
 ﻿using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Domain;
+using Humanizer;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Number;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
 
 public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRepository valentinesRepository) : ISlashCommand<LoveSpreadSlashCommand.Options>
 {
@@ -34,7 +36,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        You don't have the {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role. 😭
+                        You don't have the {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role 😭
                         Once someone with the role spreads it to you, you will be able to use this command! 💖
                         """));
                 }
@@ -45,7 +47,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        {member.User.Mention} already has the {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role. 🥺
+                        {member.User.Mention} already has the {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role 🥺
                         Please spread love to another bestie who doesn't have it already! 💖
                         """));
                 }
@@ -55,7 +57,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        Oops, your {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role has not been obtained legitimately. 😭
+                        Oops, your {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role has not been obtained legitimately 😭
                         Please make sure you get it from someone spreading love to you! 💖
                         """));
                 }
@@ -65,7 +67,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        Oops, {member.User.Mention} has already been given {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role before. 😭
+                        Oops, {member.User.Mention} has already been given {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role before 😭
                         Did someone remove the role manually? Ask a mod to give it back!
                         """));
                 }
@@ -75,7 +77,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        You must wait a little more to be able to spread love to your besties. 🥺
+                        You must wait a little more to be able to spread love to your besties 🥺
                         You will be able to spread love <t:{authorCanSpreadAt.ToUnixTimeSeconds()}:R>! 💖
                         """));
                 }
@@ -87,7 +89,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                     {
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
-                            It looks like you already spread love to the maximum amount of besties (**{config.SpreadLimit}**). 🥺
+                            It looks like you already spread love to the maximum amount of besties (**{config.SpreadLimit}**) 🥺
                             Thank you, sharing is caring! 💖
                             """));
                     }
@@ -108,10 +110,10 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your love 💕 is being delivered to {member.User.Mention} 💖🥰
-                    They will be able to spread love <t:{memberCanSpreadAt.ToUnixTimeSeconds()}:R>
+                    They will be able to spread love <t:{memberCanSpreadAt.ToUnixTimeSeconds()}:R> ✨
                     {(canStillGiveTo > 0
-                        ? $"You have **{config.SpreadLimit}** more valentines 💌 with love you can send! 💝"
-                        : "You've reached the spreading love limit and can't spread to more people, thank you. 🙏")}
+                        ? $"You can still spread love to {"more bestie".ToQuantity(canStillGiveTo, TaylorBotFormats.BoldReadable)}! 💝"
+                        : $"You can't spread love anymore, but you can enter giveaways in {lounge.Mention} 🙏")}
                     """));
             },
             Preconditions: [

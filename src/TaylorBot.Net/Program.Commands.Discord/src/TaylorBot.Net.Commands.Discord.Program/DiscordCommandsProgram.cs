@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using TaylorBot.Net.Commands;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
@@ -26,6 +27,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
@@ -101,6 +105,7 @@ using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
+using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Random;
 
@@ -390,6 +395,12 @@ public class DiscordCommandsProgram
             .AddSlashCommand<OwnerShowCouponsSlashCommand>()
             .AddTransient<IMemberActivityRepository, PostgresMemberActivityRepository>()
             .AddSlashCommand<RecapSlashCommand>()
+            .AddTransient<IShardReadyHandler, ShardReadyHandler>()
+            .AddTransient<IValentinesRepository, ValentinesPostgresRepository>()
+            .AddSingleton<ValentineGiveawayDomainService>()
+            .AddSlashCommand<LoveReadySlashCommand>()
+            .AddSlashCommand<LoveSpreadSlashCommand>()
+            .AddSlashCommand<LoveHistorySlashCommand>()
             ;
 
         services.AddHttpClient<ILastFmClient, InflatableLastFmClient>();

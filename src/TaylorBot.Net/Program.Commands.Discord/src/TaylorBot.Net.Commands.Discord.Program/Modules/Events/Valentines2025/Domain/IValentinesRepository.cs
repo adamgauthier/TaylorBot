@@ -1,7 +1,7 @@
 ﻿using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Domain;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 
 public record ValentinesConfig(
     SnowflakeId SpreadLoveRoleId,

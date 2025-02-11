@@ -10,7 +10,7 @@ using TaylorBot.Net.Core.Random;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Domain;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 
 public record Giveaway(List<SnowflakeId> Entrants, DateTimeOffset EndsAt, int TaypointPrize)
 {
@@ -21,11 +21,10 @@ public class ValentineGiveawayDomainService(
     ILogger<ValentineGiveawayDomainService> logger,
     IValentinesRepository valentinesRepository,
     ITaypointRewardRepository taypointRepository,
-    ITaylorBotClient taylorBotClient,
+    Lazy<ITaylorBotClient> taylorBotClient,
     MessageComponentHandler messageComponentHandler,
     InteractionResponseClient interactionResponseClient,
-    ICryptoSecureRandom cryptoSecureRandom
-    )
+    ICryptoSecureRandom cryptoSecureRandom)
 {
     private Giveaway? _giveaway = null;
 
@@ -46,7 +45,7 @@ public class ValentineGiveawayDomainService(
                 if (DateTimeOffset.UtcNow < config.GiveawaysEndTime)
                 {
                     nextRun = config.TimeSpanBetweenGiveaways;
-                    var lounge = (ITextChannel)await taylorBotClient.ResolveRequiredChannelAsync(config.LoungeChannelId);
+                    var lounge = (ITextChannel)await taylorBotClient.Value.ResolveRequiredChannelAsync(config.LoungeChannelId);
                     var id = "enter-giveaway";
 
                     PreviousGiveaway? previousGiveaway = null;
@@ -60,7 +59,7 @@ public class ValentineGiveawayDomainService(
                             previousGiveaway = new(_giveaway.OriginalMessage.Id);
 
                             var entrants = _giveaway.Entrants.ToList();
-                            if (entrants.Any())
+                            if (entrants.Count != 0)
                             {
                                 var winnerId = cryptoSecureRandom.GetRandomElement(_giveaway.Entrants);
                                 var winner = new DiscordUser(winnerId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
@@ -85,7 +84,7 @@ public class ValentineGiveawayDomainService(
                             {
                                 await _giveaway.OriginalMessage.ModifyAsync(m =>
                                 {
-                                    m.Embed = EmbedFactory.CreateError("Giveaway ended, but there were no entrants. 😔");
+                                    m.Embed = EmbedFactory.CreateError("Giveaway ended, but there were no entrants 😔");
                                     m.Components = new ComponentBuilder().Build();
                                 });
                             }
@@ -95,7 +94,7 @@ public class ValentineGiveawayDomainService(
                     }
 
                     var builder = new ComponentBuilder()
-                        .WithButton(label: "Enter giveaway", customId: id, emote: new Emoji("🎉"));
+                        .WithButton(label: "Enter", customId: id, emote: new Emoji("🎉"));
 
                     messageComponentHandler.AddCallback(id, async component =>
                     {
@@ -112,8 +111,10 @@ public class ValentineGiveawayDomainService(
 
                                     await interactionResponseClient.EditOriginalResponseAsync(component.Interaction, message: new(
                                         new([BuildGiveawayEmbed()], Content: _giveaway?.OriginalMessage?.Content ?? ""),
-                                        [new Button("enter-giveaway", ButtonStyle.Primary, "Enter giveaway", "🎉")]
+                                        [new Button("enter-giveaway", ButtonStyle.Primary, "Enter", "🎉")]
                                     ));
+
+                                    await Task.Delay(100);
 
                                     await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                         new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
@@ -123,8 +124,8 @@ public class ValentineGiveawayDomainService(
                                     await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                         new(new(EmbedFactory.CreateError(
                                             $"""
-                                            You can't enter a giveaway because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
-                                            Please use /love spread to give the role to someone who doesn't have it yet. 😊
+                                            You can't enter because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
+                                            Please use **/love spread** to give the role to someone who doesn't have it 😊
                                             """)
                                         ), IsPrivate: true));
                                 }
@@ -132,19 +133,17 @@ public class ValentineGiveawayDomainService(
                         }
                         catch (Exception e)
                         {
-                            logger.LogError(e, $"Unhandled exception in button {id}:");
-                            await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
-                                new(new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that. 😕")), IsPrivate: true));
+                            logger.LogError(e, "Unhandled exception in button {Id}:", id);
                         }
                     });
 
-                    var getWinnerMessage = (RewardedUserResult r, int won) =>
+                    static string GetWinnerMessage(RewardedUserResult r, int won) =>
                         $"{MentionUtils.MentionUser(r.UserId.Id)} You won {"taypoint".ToQuantity(won, TaylorBotFormats.BoldReadable)} from the previous giveaway! You now have {r.NewTaypointCount.ToString(TaylorBotFormats.Readable)} 🥳💖";
 
                     _giveaway = new([], EndsAt: DateTimeOffset.UtcNow + nextRun, cryptoSecureRandom.GetInt32(config.GiveawayTaypointPrizeMin, config.GiveawayTaypointPrizeMax));
                     var originalMessage = await lounge.SendMessageAsync(
                         text: previousGiveaway?.Winner != null
-                            ? getWinnerMessage(previousGiveaway.Winner, previousGiveaway.AmountWon)
+                            ? GetWinnerMessage(previousGiveaway.Winner, previousGiveaway.AmountWon)
                             : null,
                         embed: BuildGiveawayEmbed(),
                         components: builder.Build(),
@@ -166,7 +165,7 @@ public class ValentineGiveawayDomainService(
     {
         return new EmbedBuilder()
             .WithColor(new(233, 30, 99))
-            .WithTitle("Lover giveaway")
+            .WithTitle("Lover Giveaway 💝")
             .WithDescription(
                 $"""
                 A 💞 lover 💞 taypoint giveaway has started! 🥺

@@ -1,5 +1,5 @@
 ﻿using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
@@ -7,7 +7,7 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2023.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
 
 public class LoveHistorySlashCommand(IValentinesRepository valentinesRepository) : ISlashCommand<LoveHistorySlashCommand.Options>
 {
@@ -30,7 +30,7 @@ public class LoveHistorySlashCommand(IValentinesRepository valentinesRepository)
 
                 if (!allObtained.Any())
                 {
-                    return new EmbedResult(EmbedFactory.CreateError("No love spreading data ☹️"));
+                    return new EmbedResult(EmbedFactory.CreateError("No love spreading data 😕"));
                 }
 
                 var givenTo = allObtained.ToDictionary(o => o.ToUserId.Id);
@@ -53,14 +53,14 @@ public class LoveHistorySlashCommand(IValentinesRepository valentinesRepository)
                             new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(user),
                             pages,
                             hasPageFooter: true,
-                            emptyText: "No love history. 🤔"
+                            emptyText: "No love history 🤔"
                         ))
                     )).Build();
                 }
                 else
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"{user.Mention} has never received the {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role. 😭"
+                        $"{user.Mention} has never received the {MentionUtils.MentionRole(config.SpreadLoveRoleId.Id)} role 😭"
                     ));
                 }
             },
