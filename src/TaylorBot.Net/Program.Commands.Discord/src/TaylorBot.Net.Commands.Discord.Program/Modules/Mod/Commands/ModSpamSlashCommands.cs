@@ -29,7 +29,7 @@ public class ModSpamAddSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Users' messages and words in {options.channel.Channel.Mention} will no longer be counted. ✅
-                    Use {context.MentionCommand("mod spam remove")} to revert and mark the channel as non-spam.
+                    Use {context.MentionSlashCommand("mod spam remove")} to revert and mark the channel as non-spam.
                     """));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
@@ -59,7 +59,7 @@ public class ModSpamRemoveSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Users' messages and words in {options.channel.Channel.Mention} are now counted. ✅
-                    Use {context.MentionCommand("mod spam add")} to revert and mark the channel as spam.
+                    Use {context.MentionSlashCommand("mod spam add")} to revert and mark the channel as spam.
                     """));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]

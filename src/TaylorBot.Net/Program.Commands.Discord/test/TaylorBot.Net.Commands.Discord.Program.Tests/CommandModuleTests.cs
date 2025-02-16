@@ -22,6 +22,7 @@ public class CommandModuleTests
     {
         _commandModule = new CommandModule(new SimpleCommandRunner(), _disabledCommandRepository);
         _commandModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
     }

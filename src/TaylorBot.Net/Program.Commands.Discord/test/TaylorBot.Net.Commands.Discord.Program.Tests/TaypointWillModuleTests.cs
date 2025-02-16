@@ -27,6 +27,7 @@ public class TaypointWillModuleTests
 
     public TaypointWillModuleTests()
     {
+        A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         _taypointWillModule = new TaypointWillModule(new SimpleCommandRunner(), _options, _taypointWillRepository);

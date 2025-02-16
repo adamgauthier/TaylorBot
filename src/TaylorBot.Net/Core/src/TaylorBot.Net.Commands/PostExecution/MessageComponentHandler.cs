@@ -69,7 +69,7 @@ public partial class MessageComponentHandler(
                                     var context = BuildContext(button, activity, wasAcknowledged: true);
 
                                     Command command = new(
-                                        new($"{button.CustomId.ParsedName}"),
+                                        new($"{button.CustomId.ParsedName}", IsSlashCommand: false),
                                         RunAsync: async () =>
                                         {
                                             await handler.HandleAsync(button, context);

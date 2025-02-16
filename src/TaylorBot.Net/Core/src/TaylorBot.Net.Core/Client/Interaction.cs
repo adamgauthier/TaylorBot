@@ -19,8 +19,8 @@ public record Interaction(
 )
 {
     public record InteractionData(
-        string id,
-        string name,
+        string? id,
+        string? name,
         IReadOnlyList<ApplicationCommandOption>? options,
         string? custom_id,
         byte? component_type,

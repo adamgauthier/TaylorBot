@@ -38,8 +38,8 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
                                 Your location has been set to **{location.FormattedAddress}** 🌍
-                                You can use {context.MentionCommand("location weather")} to see the current weather at your location 🌦
-                                People can now use {context.MentionCommand("location time")} to see what time it is for you 🕰️
+                                You can use {context.MentionSlashCommand("location weather")} to see the current weather at your location 🌦
+                                People can now use {context.MentionSlashCommand("location time")} to see what time it is for you 🕰️
                                 """));
 
                         default: throw new NotImplementedException();

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
@@ -19,7 +20,6 @@ public interface IBirthdayRoleConfigRepository
 }
 
 public class BirthdayRoleSlashCommand(
-    ILogger<BirthdayRoleSlashCommand> logger,
     IPlusRepository plusRepository,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
@@ -28,7 +28,13 @@ public class BirthdayRoleSlashCommand(
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    public IList<ICommandPrecondition> BuildPreconditions() => [
+        new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
+        new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles),
+        userHasPermission.Create(GuildPermission.ManageRoles),
+    ];
+
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {
         return new(new Command(
             new(Info.Name),
@@ -41,7 +47,7 @@ public class BirthdayRoleSlashCommand(
                 if (roleId is not null)
                 {
                     var role = guild.GetRole(new SnowflakeId(roleId));
-                    if (role is not null)
+                    if (role != null)
                     {
                         return new MessageResult(
                             new(new EmbedBuilder()
@@ -53,9 +59,10 @@ public class BirthdayRoleSlashCommand(
                                     {HowItWorks(context)}
                                     """)
                                 .Build()),
-                            new([
-                                new ButtonResult(new("stop", ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"), _ => RemoveAsync(context, guild, role)),
-                            ]));
+                            new([new ButtonResult(
+                                new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"),
+                                _ => throw new NotImplementedException()
+                            )], new PermanentButtonSettings()));
                     }
                     else
                     {
@@ -70,9 +77,15 @@ public class BirthdayRoleSlashCommand(
                                     """)
                                 .Build()),
                             new([
-                                new ButtonResult(new("recreate", ButtonStyle.Primary, Label: "Re-create birthday role", Emoji: "🎂"), _ => CreateAsync(context, guild)),
-                                new ButtonResult(new("stop", ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"), _ => RemoveAsync(context, guild, role)),
-                            ]));
+                                new ButtonResult(
+                                    new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Re-create birthday role", Emoji: "🎂"),
+                                    _ => throw new NotImplementedException()
+                                ),
+                                new ButtonResult(
+                                    new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"),
+                                    _ => throw new NotImplementedException()
+                                ),
+                            ], new PermanentButtonSettings()));
                     }
                 }
                 else
@@ -88,39 +101,87 @@ public class BirthdayRoleSlashCommand(
                                 {HowItWorks(context)}
                                 """)
                             .Build()),
-                        new([
-                            new ButtonResult(new("create", ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂"), _ => CreateAsync(context, guild)),
-                        ]));
+                        new([new ButtonResult(
+                            new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂"),
+                            _ => throw new NotImplementedException()
+                        )], new PermanentButtonSettings()));
                 }
             },
-            Preconditions: [
-                new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles),
-                userHasPermission.Create(GuildPermission.ManageRoles),
-            ]
+            Preconditions: BuildPreconditions()
         ));
     }
 
-    private async ValueTask<IButtonClickResult> CreateAsync(RunContext context, IGuild guild)
+    public static string HowItWorks(RunContext context) =>
+        $"""
+        ### How Does It Work ❓
+        - A member sets their birthday with {context.MentionSlashCommand("birthday set")} 🎂
+        - On their birthday, **they automatically get the role** 🎈
+        - When the birthday is over, **the role is removed automatically** 🥲
+
+        The role is kept for **~40 hours** so the birthday is celebrated in all timezones 🌐
+        Members can **NOT** change their birthday to get the role multiple times a year 🚫
+        """;
+}
+
+public class BirthdayRoleCreateButtonHandler(
+    InteractionResponseClient responseClient,
+    IBirthdayRoleConfigRepository birthdayRoleRepository,
+    BirthdayRoleSlashCommand birthdayRoleSlashCommand) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.BirthdayRoleCreate;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: birthdayRoleSlashCommand.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
+
         Emoji? emoji = guild.Features.HasRoleIcons ? new("🎂") : null;
         var role = await guild.CreateRoleAsync("happy birthday", color: DiscordColor.FromHexString("#3498DB"), isHoisted: true, emoji: emoji);
 
         await birthdayRoleRepository.AddRoleForGuildAsync(guild, role);
 
-        return new UpdateMessage(new(new MessageContent(new EmbedBuilder()
+        var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithGuildAsAuthor(guild)
             .WithDescription(
                 $"""
                 Birthday role created: {role.Mention} ✅
                 Feel free to **change the name, color, order, etc.** 🖌️
-                {HowItWorks(context)}
-                """).Build())));
-    }
+                {BirthdayRoleSlashCommand.HowItWorks(context)}
+                """)
+            .Build();
 
-    private async ValueTask<IButtonClickResult> RemoveAsync(RunContext context, IGuild guild, IRole? role)
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(embed));
+    }
+}
+
+public class BirthdayRoleRemoveButtonHandler(
+    ILogger<BirthdayRoleRemoveButtonHandler> logger,
+    InteractionResponseClient responseClient,
+    IBirthdayRoleConfigRepository birthdayRoleRepository,
+    BirthdayRoleSlashCommand birthdayRoleSlashCommand
+) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.BirthdayRoleRemove;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: birthdayRoleSlashCommand.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var roleId = await birthdayRoleRepository.GetRoleForGuildAsync(guild);
+        var role = roleId != null ? guild.GetRole(new SnowflakeId(roleId)) : null;
+
         await birthdayRoleRepository.RemoveRoleForGuildAsync(guild);
 
         if (role != null)
@@ -135,22 +196,11 @@ public class BirthdayRoleSlashCommand(
             }
         }
 
-        return new UpdateMessage(new(new MessageContent(EmbedFactory.CreateSuccess(
+        await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
             $"""
             Successfully **removed birthday role from this server** ✅
             Members will no longer automatically receive a role on their birthday 🎂
-            Use {context.MentionCommand("birthday role")} again to re-create the role 🎈
-            """))));
+            Use {context.MentionSlashCommand("birthday role")} again to re-create the role 🎈
+            """));
     }
-
-    private static string HowItWorks(RunContext context) =>
-        $"""
-        ### How Does It Work ❓
-        - A member sets their birthday with {context.MentionCommand("birthday set")} 🎂
-        - On their birthday, **they automatically get the role** 🎈
-        - When the birthday is over, **the role is removed automatically** 🥲
-
-        The role is kept for **~40 hours** so the birthday is celebrated in all timezones 🌐
-        Members can **NOT** change their birthday to get the role multiple times a year 🚫
-        """;
 }

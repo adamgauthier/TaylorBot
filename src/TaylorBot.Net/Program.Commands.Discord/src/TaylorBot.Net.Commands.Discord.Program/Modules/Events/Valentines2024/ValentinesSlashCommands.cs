@@ -92,7 +92,7 @@ public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConn
 
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        Your code is **NOT** the answer. Added 1 failed attempt to your {context.MentionCommand("valentines profile")}
+                        Your code is **NOT** the answer. Added 1 failed attempt to your {context.MentionSlashCommand("valentines profile")}
                         Better luck next time! 🤐
                         """
                     ));
@@ -119,7 +119,7 @@ public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConn
                         $"""
                         Congrats, your code is right! 🎉
                         You solved {options.puzzle.Value} after {"attempt".ToQuantity(attemptCount, TaylorBotFormats.BoldReadable)} 🎊
-                        Your {context.MentionCommand("valentines profile")} has been updated! ✅
+                        Your {context.MentionSlashCommand("valentines profile")} has been updated! ✅
                         **IMPORTANT**: Make sure all your teammates verify this code as soon as possible to secure maximum points for your team!
                         """
                     ));

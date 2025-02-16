@@ -32,6 +32,7 @@ public class FrameworkModuleTests
         _frameworkModule.SetContext(_commandContext);
 
         A.CallTo(() => _commandGuild.Id).Returns(123u);
+        A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);

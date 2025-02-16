@@ -35,7 +35,7 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository) : 
                     string.Join("\n", reminderViews.Select(r => $"{r.UserFacingId}. {r.Summary}")) :
                     $"""
                     You don't have any reminders 😶
-                    Add one with {context.MentionCommand("remind add")} ⏲️
+                    Add one with {context.MentionSlashCommand("remind add")} ⏲️
                     """;
 
                 var clearButtons = reminderViews.Select(r =>

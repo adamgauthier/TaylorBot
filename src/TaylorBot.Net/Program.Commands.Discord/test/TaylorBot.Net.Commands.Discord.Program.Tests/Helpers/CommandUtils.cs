@@ -3,6 +3,7 @@ using FakeItEasy;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.User;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 
@@ -30,6 +31,17 @@ public class CommandUtils
 
         DiscordChannel channel = new(167845806479638529, contextType == ContextType.Guild ? ChannelType.Text : ChannelType.DM);
 
-        return new RunContext(DateTimeOffset.UtcNow, AUser, null, channel, guild, null!, new("922354806574678086", command.Info.Name), null!, null!, null!);
+        return new RunContext(
+            DateTimeOffset.UtcNow,
+            AUser,
+            null,
+            channel,
+            guild,
+            guild != null ? new GuildTextChannel(channel.Id, guild.Id, channel.Type) : null,
+            null!,
+            new("922354806574678086", command.Info.Name),
+            null!,
+            null!,
+            null!);
     }
 }

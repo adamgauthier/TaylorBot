@@ -35,7 +35,7 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         {user.Mention}'s birthday is not set 🚫
-                        They need to use {context.MentionCommand("birthday set")} to set it first.
+                        They need to use {context.MentionSlashCommand("birthday set")} to set it first.
                         """));
                 }
 

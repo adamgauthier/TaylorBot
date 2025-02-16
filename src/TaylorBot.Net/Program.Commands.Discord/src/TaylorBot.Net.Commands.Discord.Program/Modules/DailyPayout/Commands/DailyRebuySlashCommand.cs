@@ -26,7 +26,7 @@ public class DailyRebuySlashCommand(IDailyPayoutRepository dailyPayoutRepository
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         You've never claimed your daily reward! ❌
-                        Use {context.MentionCommand("daily claim")} to start!
+                        Use {context.MentionSlashCommand("daily claim")} to start!
                         """));
                 }
                 else if (streakInfo.Value.MaxStreak > streakInfo.Value.CurrentStreak)

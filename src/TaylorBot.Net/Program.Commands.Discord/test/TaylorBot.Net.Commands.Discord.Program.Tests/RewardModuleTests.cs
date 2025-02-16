@@ -24,6 +24,7 @@ public class RewardModuleTests
     {
         _rewardModule = new RewardModule(new SimpleCommandRunner(), _taypointRewardRepository);
         _rewardModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
     }

@@ -59,7 +59,7 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
                         emptyText:
                         $"""
                         No rps played by members of this server.
-                        Members need to use {context.MentionCommand("rps play")}! 😊
+                        Members need to use {context.MentionSlashCommand("rps play")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();

@@ -258,7 +258,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                         $"""
                         Congratulations, you've found 🥚 **#{egg.egg_number}** (`{code}`)! 🎊
 
-                        Your {context.MentionCommand("egg profile")} was not updated because someone finished the hunt! 🏆
+                        Your {context.MentionSlashCommand("egg profile")} was not updated because someone finished the hunt! 🏆
                         You can still hunt and verify codes for fun! 😊
                         """));
                 }
@@ -283,7 +283,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
                                 Congratulations, you've found 🥚 **#{egg.egg_number}** (`{code}`)! 🎊
-                                Your {context.MentionCommand("egg profile")} has been updated! ✅
+                                Your {context.MentionSlashCommand("egg profile")} has been updated! ✅
 
                                 Make sure **all your teammates verify this code as soon as possible** to secure maximum points for your team! 👪
                                 """));
@@ -331,7 +331,7 @@ public class EggProfileSlashCommand(IEggRepository eggRepository, EggService egg
                     description += $"\n{string.Join("\n", eggs.OrderBy(e => e.egg_number).Select(e => $"- 🥚 **#{e.egg_number}**"))}";
                 }
 
-                description += $"\nSee the status of the hunt with {context.MentionCommand("egg status")} 👀";
+                description += $"\nSee the status of the hunt with {context.MentionSlashCommand("egg status")} 👀";
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -381,7 +381,7 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
                             ? string.Join("\n", unsolved.Select(e => $"- 🥚 **#{e.egg_number}**: Found by no one!"))
                             : "None!")}
 
-                        See the leaderboard of hunters with {context.MentionCommand("egg leaderboard")} 👀
+                        See the leaderboard of hunters with {context.MentionSlashCommand("egg leaderboard")} 👀
                         """)
                     .Build());
             }
@@ -415,7 +415,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                         entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"egg".ToQuantity(entry.eggs_found, TaylorBotFormats.BoldReadable)}"
                     ))}
 
-                    See your own progress with {context.MentionCommand("egg profile")} 👀
+                    See your own progress with {context.MentionSlashCommand("egg profile")} 👀
                     """).ToList();
 
                 var baseEmbed = new EmbedBuilder()
@@ -430,7 +430,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                         emptyText:
                             $"""
                             No eggs found yet! 👀
-                            Start hunting and verify your eggs with {context.MentionCommand("egg verify")}! 😊
+                            Start hunting and verify your eggs with {context.MentionSlashCommand("egg verify")}! 😊
                             """)),
                     IsCancellable: true
                 )).Build();

@@ -49,7 +49,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         The obsession for this user is not a valid URL to a photo! 😕
-                        They need to use {context?.MentionCommand("favorite obsession set") ?? "</favorite obsession set:1169468169140838502>"} to update it.
+                        They need to use {context?.MentionSlashCommand("favorite obsession set") ?? "</favorite obsession set:1169468169140838502>"} to update it.
                         """));
                 }
 
@@ -61,7 +61,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s obsession is not set. 🚫
-                    They need to use {context?.MentionCommand("favorite obsession set") ?? "</favorite obsession set:1169468169140838502>"} to set it first.
+                    They need to use {context?.MentionSlashCommand("favorite obsession set") ?? "</favorite obsession set:1169468169140838502>"} to set it first.
                     """));
             }
         }
@@ -111,7 +111,7 @@ public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepo
                 return EmbedFactory.CreateSuccess(
                     $"""
                     Your obsession has been set successfully. ✅
-                    Others can now use {context?.MentionCommand("favorite obsession show")} to see your obsession. ❤️
+                    Others can now use {context?.MentionSlashCommand("favorite obsession show")} to see your obsession. ❤️
                     """);
             }
         }
@@ -140,7 +140,7 @@ public class FavoriteObsessionClearSlashCommand(IObsessionRepository obsessionRe
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your obsession has been cleared and is no longer visible. ✅
-                    You can set it again with {context.MentionCommand("favorite obsession set")}.
+                    You can set it again with {context.MentionSlashCommand("favorite obsession set")}.
                     """));
             }
         ));

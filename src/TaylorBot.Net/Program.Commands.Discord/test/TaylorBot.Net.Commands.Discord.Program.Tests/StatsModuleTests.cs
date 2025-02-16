@@ -22,6 +22,7 @@ public class StatsModuleTests
     {
         _statsModule = new StatsModule(new SimpleCommandRunner(), _botInfoRepository);
         _statsModule.SetContext(_commandContext);
+        A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Guild).Returns(_commandGuild);

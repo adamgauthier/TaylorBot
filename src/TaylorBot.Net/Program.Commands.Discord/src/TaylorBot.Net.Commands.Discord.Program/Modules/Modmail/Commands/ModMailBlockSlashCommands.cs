@@ -47,7 +47,7 @@ public class ModMailBlockSlashCommand(
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
                             You've reached the limit of blocked users ({MaxBlockedUsersPerGuild}) 😕
-                            Use {context.MentionCommand("plus add")} to remove this limit 💎
+                            Use {context.MentionSlashCommand("plus add")} to remove this limit 💎
                             """));
                     }
                 }
@@ -63,7 +63,7 @@ public class ModMailBlockSlashCommand(
                 return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
                     $"""
                     Blocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍
-                    You can undo this action with {context.MentionCommand("mod mail unblock")}.
+                    You can undo this action with {context.MentionSlashCommand("mod mail unblock")}.
                     """));
             },
             Preconditions: [
@@ -109,7 +109,7 @@ public class ModMailUnblockSlashCommand(
                 return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
                     $"""
                     Unblocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍
-                    You can block again with {context.MentionCommand("mod mail block")}.
+                    You can block again with {context.MentionSlashCommand("mod mail block")}.
                     """));
             },
             Preconditions: [

@@ -59,7 +59,7 @@ public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRe
             EmbedFactory.CreateWarning(string.Join('\n', [
                 successMessage,
                 "However, I was not able to log this action in your moderation log channel.",
-                $"Make sure you set it up with {context.MentionCommand("mod log set")} and TaylorBot has access to it."
+                $"Make sure you set it up with {context.MentionSlashCommand("mod log set")} and TaylorBot has access to it."
             ]));
     }
 }

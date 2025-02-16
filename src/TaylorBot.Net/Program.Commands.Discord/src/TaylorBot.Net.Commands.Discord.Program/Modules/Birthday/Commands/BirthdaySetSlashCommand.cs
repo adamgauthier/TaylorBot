@@ -102,12 +102,12 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
                 $"""
                 Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}** ✅
                 {(birthday.Year == IBirthdayRepository.Birthday.NoYearValue
-                    ? $"Consider setting your birthday with the **year** option for {context.MentionCommand("birthday age")} to work ❓"
-                    : $"You can now use {context.MentionCommand("birthday age")} to display your age 🔢")}
+                    ? $"Consider setting your birthday with the **year** option for {context.MentionSlashCommand("birthday age")} to work ❓"
+                    : $"You can now use {context.MentionSlashCommand("birthday age")} to display your age 🔢")}
                 {(isPrivate
-                    ? $"Since your birthday is private, it won't show up in {context.MentionCommand("birthday calendar")} 🙈"
-                    : $"Your birthday will show up in {context.MentionCommand("birthday calendar")} 📅")}
-                You can now use {context.MentionCommand("birthday horoscope")} to get your horoscope ✨
+                    ? $"Since your birthday is private, it won't show up in {context.MentionSlashCommand("birthday calendar")} 🙈"
+                    : $"Your birthday will show up in {context.MentionSlashCommand("birthday calendar")} 📅")}
+                You can now use {context.MentionSlashCommand("birthday horoscope")} to get your horoscope ✨
                 You will get taypoints on your birthday every year 🎁
                 """);
 

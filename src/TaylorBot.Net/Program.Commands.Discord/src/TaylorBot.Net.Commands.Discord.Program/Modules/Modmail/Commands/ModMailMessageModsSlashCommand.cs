@@ -108,7 +108,7 @@ public class ModMailMessageModsSlashCommand(
                     return EmbedFactory.CreateError(
                         $"""
                         I was not able to send the message to the moderation team 😕
-                        Make sure they have a moderation log set up with {context.MentionCommand("mod log set")} and TaylorBot has access to it 🛠️
+                        Make sure they have a moderation log set up with {context.MentionSlashCommand("mod log set")} and TaylorBot has access to it 🛠️
                         """);
                 }
             },

@@ -56,7 +56,7 @@ public class ModalInteractionHandler(
                 logger.LogInformation("Handling modal component {ParsedName} with id {RawId}", submit.CustomId.ParsedName, submit.CustomId.RawId);
 
                 Command command = new(
-                    new($"{submit.CustomId.ParsedName}"),
+                    new($"{submit.CustomId.ParsedName}", IsSlashCommand: false),
                     RunAsync: async () =>
                     {
                         await handler.HandleAsync(submit);

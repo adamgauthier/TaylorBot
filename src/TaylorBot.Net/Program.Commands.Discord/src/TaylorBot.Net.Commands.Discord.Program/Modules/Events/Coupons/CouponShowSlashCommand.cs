@@ -52,7 +52,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository) : ISlash
                         emptyText:
                             $"""
                             You've never redeemed a coupon before 😵
-                            You can get coupon codes from events and redeem them with {context.MentionCommand("coupon redeem")} for special rewards ✨
+                            You can get coupon codes from events and redeem them with {context.MentionSlashCommand("coupon redeem")} for special rewards ✨
                             """
                     ))
                 )).Build();

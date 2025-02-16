@@ -29,8 +29,8 @@ public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository username
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(
                                 $"""
-                                Your username history is now **public** (__can__ be viewed with {context.MentionCommand("usernames show")}) ✅
-                                Use {context.MentionCommand("usernames visibility")} again to make it private 🕵️
+                                Your username history is now **public** (__can__ be viewed with {context.MentionSlashCommand("usernames show")}) ✅
+                                Use {context.MentionSlashCommand("usernames visibility")} again to make it private 🕵️
                                 """)
                             .Build());
 
@@ -41,8 +41,8 @@ public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository username
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(
                                 $"""
-                                Your username history is now **private** (__can't__ be viewed with {context.MentionCommand("usernames show")}) ✅
-                                Use {context.MentionCommand("usernames visibility")} again to make it public 📢
+                                Your username history is now **private** (__can't__ be viewed with {context.MentionSlashCommand("usernames show")}) ✅
+                                Use {context.MentionSlashCommand("usernames visibility")} again to make it public 📢
                                 """)
                             .Build());
 

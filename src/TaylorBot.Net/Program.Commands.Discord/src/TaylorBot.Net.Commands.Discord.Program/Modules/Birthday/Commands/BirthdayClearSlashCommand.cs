@@ -22,7 +22,7 @@ public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository) :
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your birthday has been cleared. Calendar, horoscope, age and birthday taypoints will no longer work. ✅
-                    You can set it again with {context.MentionCommand("birthday set")}.
+                    You can set it again with {context.MentionSlashCommand("birthday set")}.
                     """));
             }
         ));

@@ -62,7 +62,7 @@ public class ModMailLogSetSlashCommand(
             .WithDescription(
                 $"""
                 Ok, I will now log mod mail in {options.channel.Channel.Mention} ✅
-                Use {context.MentionCommand("modmail log-stop")} to undo this action ↩️
+                Use {context.MentionSlashCommand("modmail log-stop")} to undo this action ↩️
                 """)
         .Build();
     }
@@ -92,7 +92,7 @@ public class ModMailLogStopSlashCommand(
                     .WithDescription(
                         $"""
                         Ok, I will stop logging mod mail in a different channel than your configured moderation log channel ✅
-                        Use {context.MentionCommand("modmail log-set")} to change the mod mail log channel from the moderation log channel configured with {context.MentionCommand("mod log set")}
+                        Use {context.MentionSlashCommand("modmail log-set")} to change the mod mail log channel from the moderation log channel configured with {context.MentionSlashCommand("mod log set")}
                         """)
                 .Build());
             },
@@ -133,7 +133,7 @@ public class ModMailLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             This server is configured to log mod mail in {channel.Mention} ✅
-                            Use {context.MentionCommand("modmail log-stop")} to stop logging mod mail in a different channel than the one configured with {context.MentionCommand("mod log set")}
+                            Use {context.MentionSlashCommand("modmail log-stop")} to stop logging mod mail in a different channel than the one configured with {context.MentionSlashCommand("mod log set")}
                             """);
                     }
                     else
@@ -141,7 +141,7 @@ public class ModMailLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             I can't find the previously configured mod mail command usage logging channel in this server ❌
-                            Was it deleted? Use {context.MentionCommand("modmail log-set")} to log mod mail in another channel
+                            Was it deleted? Use {context.MentionSlashCommand("modmail log-set")} to log mod mail in another channel
                             """);
                     }
                 }
@@ -150,8 +150,8 @@ public class ModMailLogShowSlashCommand(
                     embed.WithDescription(
                         $"""
                         There is no mod mail specific logging channel configured in this server ❌
-                        By default, mod mail logs will be sent in the moderation logging channel configured with {context.MentionCommand("mod log set")}
-                        Use {context.MentionCommand("modmail log-set")} to log mod mail in a different channel
+                        By default, mod mail logs will be sent in the moderation logging channel configured with {context.MentionSlashCommand("mod log set")}
+                        Use {context.MentionSlashCommand("modmail log-set")} to log mod mail in a different channel
                         """);
                 }
 

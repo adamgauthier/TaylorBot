@@ -11,6 +11,7 @@ public interface ITaylorBotCommandContext : ICommandContext
     string CommandPrefix { get; }
     IList<CommandInfo> CommandInfos { get; set; }
     RunContext? RunContext { get; set; }
+    bool IsTestEnv { get; }
     ISelfUser CurrentUser { get; }
     string GetUsage(CommandInfo commandInfo);
 }
@@ -21,6 +22,7 @@ public class TaylorBotShardedCommandContext(DiscordShardedClient client, SocketU
     public string CommandPrefix { get; } = commandPrefix;
     public IList<CommandInfo> CommandInfos { get; set; } = [];
     public RunContext? RunContext { get; set; }
+    public bool IsTestEnv { get; set; } = false;
     public ISelfUser CurrentUser => Client.CurrentUser;
 
     public string GetUsage(CommandInfo command)

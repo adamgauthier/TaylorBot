@@ -25,27 +25,27 @@ public record RunContext(
     IUser? FetchedUser,
     DiscordChannel Channel,
     CommandGuild? Guild,
+    GuildTextChannel? GuildTextChannel,
     IDiscordClient Client,
-    RunContext.CurrentCommandInfo CommandInfo,
+    RunContext.SlashCommandInfo? SlashCommand,
     Lazy<Task<string>> CommandPrefix,
     RunContext.OnGoingState OnGoing,
     CommandActivity Activity,
     bool WasAcknowledged = true
 )
 {
-    public record CurrentCommandInfo(string Id, string Name);
+    public record SlashCommandInfo(string Id, string Name);
+
     public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
 
-    public string MentionCommand(Command command) => !string.IsNullOrEmpty(CommandInfo.Name)
-        ? MentionCommand(command.Metadata.Name)
+    public string MentionCommand(Command command) => command.Metadata.IsSlashCommand
+        ? MentionSlashCommand(command.Metadata.Name)
         : $"**{command.Metadata.Name}**";
 
-    public string MentionCommand(string name) =>
-        name.Split(' ')[0] == CommandInfo.Name.Split(' ')[0] ?
-            $"</{name}:{CommandInfo.Id}>" :
+    public string MentionSlashCommand(string name) =>
+        SlashCommand != null && name.Split(' ')[0] == SlashCommand.Name.Split(' ')[0] ?
+            $"</{name}:{SlashCommand.Id}>" :
             $"**/{name}**";
-
-    public GuildTextChannel? GuildTextChannel { get; set; } = Guild != null ? new GuildTextChannel(Channel.Id, Guild.Id, Channel.Type) : null;
 }
 
 public class RunContextFactory(
@@ -55,11 +55,28 @@ public class RunContextFactory(
 {
     public RunContext BuildContext(ParsedInteraction interaction, CommandActivity activity, bool wasAcknowledged)
     {
-        var guild = interaction.Guild != null
+        var fetchedGuild = interaction.Guild != null
             ? taylorBotClient.Value.DiscordShardedClient.GetGuild(interaction.Guild.Id)
             : null;
 
+        CommandGuild? guild = interaction.Guild != null
+            ? new(interaction.Guild.Id, fetchedGuild)
+            : null;
+
+        DiscordChannel channel = new(interaction.Channel.Id, (ChannelType)interaction.Channel.Partial.type);
+
         var user = interaction.User;
+
+        RunContext.SlashCommandInfo? CreateSlashCommandInfo()
+        {
+            if (interaction.Data.id != null)
+            {
+                ArgumentNullException.ThrowIfNull(interaction.Data.name);
+                return new(interaction.Data.id, interaction.Data.name);
+            }
+
+            return null;
+        }
 
         return new RunContext(
             CreatedAt: DateTimeOffset.UtcNow,
@@ -73,11 +90,12 @@ public class RunContextFactory(
                     ? interactionMapper.ToMemberInfo(interaction.Guild.Id, interaction.Guild.Member)
                     : null),
             FetchedUser: null,
-            Channel: new(interaction.Channel.Id, (ChannelType)interaction.Channel.Partial.type),
-            Guild: interaction.Guild != null ? new(interaction.Guild.Id, guild) : null,
+            Channel: channel,
+            Guild: guild,
+            GuildTextChannel: guild != null ? new GuildTextChannel(channel.Id, guild.Id, channel.Type) : null,
             Client: taylorBotClient.Value.DiscordShardedClient,
-            CommandInfo: new(interaction.Data.id, interaction.Data.name),
-            CommandPrefix: new(() => commandPrefixDomainService.GetPrefixAsync(guild)),
+            SlashCommand: CreateSlashCommandInfo(),
+            CommandPrefix: new(() => commandPrefixDomainService.GetPrefixAsync(fetchedGuild)),
             OnGoing: new(),
             activity,
             WasAcknowledged: wasAcknowledged
@@ -87,7 +105,7 @@ public class RunContextFactory(
 
 public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);
 
-public record CommandMetadata(string Name, string? ModuleName = null, IReadOnlyList<string>? Aliases = null);
+public record CommandMetadata(string Name, string? ModuleName = null, IReadOnlyList<string>? Aliases = null, bool IsSlashCommand = true);
 
 public interface ICommandRunner
 {

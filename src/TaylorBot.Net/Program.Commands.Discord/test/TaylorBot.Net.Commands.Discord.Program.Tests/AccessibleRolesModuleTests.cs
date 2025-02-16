@@ -41,6 +41,7 @@ public class AccessibleRolesModuleTests
         _accessibleRolesModule.SetContext(_commandContext);
 
         A.CallTo(() => _guild.Id).Returns(123u);
+        A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.Guild).Returns(_guild);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);

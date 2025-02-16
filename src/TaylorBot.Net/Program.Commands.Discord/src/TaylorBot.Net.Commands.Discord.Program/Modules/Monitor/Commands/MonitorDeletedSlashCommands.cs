@@ -73,7 +73,7 @@ public class MonitorDeletedSetSlashCommand(
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages ↩️
+            Use {context.MentionSlashCommand("monitor deleted stop")} to stop monitoring deleted messages ↩️
             """);
     }
 }
@@ -107,7 +107,7 @@ public class MonitorDeletedShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             This server is configured to log deleted messages in {channel.Mention} ✅
-                            Use {context.MentionCommand("monitor deleted stop")} to stop monitoring deleted messages in this server ↩️
+                            Use {context.MentionSlashCommand("monitor deleted stop")} to stop monitoring deleted messages in this server ↩️
                             """);
                     }
                     else
@@ -115,7 +115,7 @@ public class MonitorDeletedShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             I can't find the previously configured deleted messages logging channel in this server ❌
-                            Was it deleted? Use {context.MentionCommand("monitor deleted set")} to log deleted messages in another channel ↩️
+                            Was it deleted? Use {context.MentionSlashCommand("monitor deleted set")} to log deleted messages in another channel ↩️
                             """);
                     }
                 }
@@ -124,7 +124,7 @@ public class MonitorDeletedShowSlashCommand(
                     embed = EmbedFactory.CreateSuccess(
                         $"""
                         Deleted message monitoring is not configured in this server ❌
-                        Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel ↩️
+                        Use {context.MentionSlashCommand("monitor deleted set")} to log deleted messages in a specific channel ↩️
                         """);
                 }
 
@@ -160,7 +160,7 @@ public class MonitorDeletedStopSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
-                    Use {context.MentionCommand("monitor deleted set")} to log deleted messages in a specific channel ↩️
+                    Use {context.MentionSlashCommand("monitor deleted set")} to log deleted messages in a specific channel ↩️
                     """));
             },
             Preconditions: [

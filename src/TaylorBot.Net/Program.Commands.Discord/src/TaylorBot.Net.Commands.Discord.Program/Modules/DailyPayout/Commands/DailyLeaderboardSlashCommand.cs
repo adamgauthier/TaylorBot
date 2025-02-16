@@ -59,7 +59,7 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
                         emptyText:
                         $"""
                         No daily streaks in this server.
-                        Members need to use {context.MentionCommand("daily claim")}! 😊
+                        Members need to use {context.MentionSlashCommand("daily claim")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();

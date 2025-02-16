@@ -59,7 +59,7 @@ public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepositor
                         emptyText:
                         $"""
                         No roll played by members of this server.
-                        Members need to use {context.MentionCommand("roll play")}! 😊
+                        Members need to use {context.MentionSlashCommand("roll play")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();

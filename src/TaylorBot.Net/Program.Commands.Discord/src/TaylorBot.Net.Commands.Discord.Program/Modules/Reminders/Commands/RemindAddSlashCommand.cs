@@ -58,7 +58,7 @@ public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlus
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         Sorry, you can't have more than {maxReminders} set at the same time 😕
-                        Use {context.MentionCommand("remind manage")} to clear some of your current reminders
+                        Use {context.MentionSlashCommand("remind manage")} to clear some of your current reminders
                         By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}.
                         """
                     ));

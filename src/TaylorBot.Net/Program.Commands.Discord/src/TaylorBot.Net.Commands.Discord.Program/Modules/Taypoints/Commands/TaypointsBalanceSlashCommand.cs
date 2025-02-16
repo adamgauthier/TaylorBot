@@ -50,7 +50,7 @@ public class TaypointsBalanceSlashCommand(
 
     private static string GetRankText(RunContext context, bool isLegacyCommand, int serverRank)
     {
-        var commandMention = isLegacyCommand ? "</taypoints leaderboard:1103846727880028180>" : context.MentionCommand("taypoints leaderboard");
+        var commandMention = isLegacyCommand ? "</taypoints leaderboard:1103846727880028180>" : context.MentionSlashCommand("taypoints leaderboard");
         var emoji = serverRank switch
         {
             1 => "🥇",

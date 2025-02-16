@@ -33,7 +33,7 @@ public class PlusAddSlashCommand(IPlusRepository plusRepository, IPlusUserReposi
                         .WithDescription(
                             $"""
                             Unfortunately you can't add more **TaylorBot Plus** servers with your current membership 😕
-                            Use {context.MentionCommand("plus show")} to see your plus servers and maybe remove some with {context.MentionCommand("plus remove")}
+                            Use {context.MentionSlashCommand("plus show")} to see your plus servers and maybe remove some with {context.MentionSlashCommand("plus remove")}
                             """);
                 }
                 else

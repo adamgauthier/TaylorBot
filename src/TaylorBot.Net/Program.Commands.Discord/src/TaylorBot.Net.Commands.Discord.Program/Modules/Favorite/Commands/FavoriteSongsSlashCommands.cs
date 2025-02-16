@@ -53,7 +53,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s favorite songs list is not set. 🚫
-                    They need to use {context?.MentionCommand("favorite songs set") ?? "</favorite songs set:1169468169140838502>"} to set it first.
+                    They need to use {context?.MentionSlashCommand("favorite songs set") ?? "</favorite songs set:1169468169140838502>"} to set it first.
                     """));
             }
         }
@@ -107,7 +107,7 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
                 return EmbedFactory.CreateSuccess(
                     $"""
                     Your favorite songs list has been set successfully. ✅
-                    Others can now use {context?.MentionCommand("favorite songs show") ?? "</favorite songs show:1169468169140838502>"} to see your favorite songs. 🎵
+                    Others can now use {context?.MentionSlashCommand("favorite songs show") ?? "</favorite songs show:1169468169140838502>"} to see your favorite songs. 🎵
                     """);
             }
         }
@@ -136,7 +136,7 @@ public class FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSon
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your favorite songs list has been cleared and is no longer be visible. ✅
-                    You can set it again with {context.MentionCommand("favorite songs set")}.
+                    You can set it again with {context.MentionSlashCommand("favorite songs set")}.
                     """));
             }
         ));

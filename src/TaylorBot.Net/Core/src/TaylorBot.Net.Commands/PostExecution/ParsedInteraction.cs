@@ -23,13 +23,22 @@ public record ParsedInteraction(
             ? new(raw.guild_id, raw.member)
             : null;
 
+        Interaction.User? user = guildData?.Member.user ?? raw.user;
+        ArgumentNullException.ThrowIfNull(user);
+
         ParsedInteraction parsed = new(
             raw,
             raw.id,
             raw.data,
             guildData,
-            guildData?.Member.user ?? raw.user ?? throw new NotImplementedException(),
+            user,
             new(raw.channel_id, raw.channel));
+
+        activity.CommandName = parsed.Data.name;
+        activity.UserId = parsed.UserId;
+        activity.ChannelId = parsed.Channel.Id;
+        activity.GuildId = parsed.Guild?.Id;
+
         return parsed;
     }
 

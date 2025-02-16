@@ -32,7 +32,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
                     .WithDescription(
                         $"""
                         {user.Mention}'s username history is **private** and can't be viewed 🕵️
-                        Use {context?.MentionCommand("usernames visibility") ?? "</usernames visibility:1214813880463921242>"} to change your username history visibility 🫣
+                        Use {context?.MentionSlashCommand("usernames visibility") ?? "</usernames visibility:1214813880463921242>"} to change your username history visibility 🫣
                         """)
                 .Build());
             }

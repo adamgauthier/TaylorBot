@@ -82,7 +82,7 @@ public class HeistPlaySlashCommand(
                         var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithDescription(
                             $"""
                             Heist started by {author.Mention}! The more people, the higher the rewards! 🤑
-                            To join, use {(amountString != null ? "</heist play:1183612687935078512>" : context.MentionCommand("heist play"))} and invest points into the heist! 🕵️‍
+                            To join, use {(amountString != null ? "</heist play:1183612687935078512>" : context.MentionSlashCommand("heist play"))} and invest points into the heist! 🕵️‍
                             The heist begins in **{delay.Humanize()}**. ⏰
                             """);
 

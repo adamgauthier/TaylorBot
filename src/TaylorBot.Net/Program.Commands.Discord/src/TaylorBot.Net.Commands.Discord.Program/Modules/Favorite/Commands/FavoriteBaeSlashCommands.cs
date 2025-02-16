@@ -51,7 +51,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s bae is not set. 🚫
-                    They need to use {context?.MentionCommand("favorite bae set") ?? "</favorite bae set:1169468169140838502>"} to set it first.
+                    They need to use {context?.MentionSlashCommand("favorite bae set") ?? "</favorite bae set:1169468169140838502>"} to set it first.
                     """));
             }
         }
@@ -91,7 +91,7 @@ public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCo
                     return EmbedFactory.CreateSuccess(
                         $"""
                         Your bae has been set successfully. ✅
-                        Others can now use {context?.MentionCommand("favorite bae show") ?? "</favorite bae show:1169468169140838502>"} to see your bae. ❤️
+                        Others can now use {context?.MentionSlashCommand("favorite bae show") ?? "</favorite bae show:1169468169140838502>"} to see your bae. ❤️
                         """);
                 }
             }
@@ -117,7 +117,7 @@ public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository) : ISlash
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your bae has been cleared and is no longer visible. ✅
-                    You can set it again with {context.MentionCommand("favorite bae set")}.
+                    You can set it again with {context.MentionSlashCommand("favorite bae set")}.
                     """));
             }
         ));

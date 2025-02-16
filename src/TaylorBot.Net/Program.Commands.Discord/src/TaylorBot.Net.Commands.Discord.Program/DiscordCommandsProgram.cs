@@ -278,6 +278,8 @@ public class DiscordCommandsProgram
             .AddSlashCommand<BirthdayAgeSlashCommand>()
             .AddTransient<IBirthdayRoleConfigRepository, BirthdayRoleConfigPostgresRepository>()
             .AddSlashCommand<BirthdayRoleSlashCommand>()
+            .AddButtonHandler<BirthdayRoleCreateButtonHandler>()
+            .AddButtonHandler<BirthdayRoleRemoveButtonHandler>()
             .AddTransient<UrbanDictionaryCommand>()
             .AddSlashCommand<UrbanDictionarySlashCommand>()
             .ConfigureRequired<WolframAlphaOptions>(config, "WolframAlpha")

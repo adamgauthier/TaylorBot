@@ -10,6 +10,7 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;
 using static OperationResult.Helpers;
 using static TaylorBot.Net.Commands.MessageResult;
@@ -48,7 +49,7 @@ public interface IKeyedSlashCommand
     abstract static string CommandName { get; }
 }
 
-public record ApplicationCommand(ParsedInteraction Interaction);
+public record ApplicationCommand(ParsedInteraction Interaction, SnowflakeId Id, string Name);
 
 public class SlashCommandHandler(
     IServiceProvider services,
@@ -65,15 +66,22 @@ public class SlashCommandHandler(
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
-        var parsed = ParsedInteraction.Parse(interaction, activity);
-        ApplicationCommand command = new(parsed);
-
+        var command = CreateApplicationCommand(interaction, activity);
         await HandleApplicationCommand(command, activity);
+    }
+
+    private static ApplicationCommand CreateApplicationCommand(Interaction interaction, CommandActivity activity)
+    {
+        var parsed = ParsedInteraction.Parse(interaction, activity);
+        ArgumentNullException.ThrowIfNull(parsed.Data.id);
+        ArgumentNullException.ThrowIfNull(parsed.Data.name);
+        ApplicationCommand command = new(parsed, parsed.Data.id, parsed.Data.name);
+        return command;
     }
 
     private async ValueTask HandleApplicationCommand(ApplicationCommand command, CommandActivity activity)
     {
-        var (commandName, options) = GetFullCommandNameAndOptions(command.Interaction.Data);
+        var (commandName, options) = GetFullCommandNameAndOptions(command);
         activity.CommandName = commandName;
         foreach (var option in options ?? [])
         {
@@ -279,21 +287,22 @@ public class SlashCommandHandler(
     private const byte SubCommandOptionType = 1;
     private const byte SubCommandGroupOptionType = 2;
 
-    private static (string name, IReadOnlyList<ApplicationCommandOption>? options) GetFullCommandNameAndOptions(InteractionData data)
+    private static (string name, IReadOnlyList<ApplicationCommandOption>? options) GetFullCommandNameAndOptions(ApplicationCommand command)
     {
-        if (data.options?.Count == 1)
+        var options = command.Interaction.Data.options;
+        if (options?.Count == 1)
         {
-            var option = data.options[0];
+            var option = options[0];
             if (option.type == SubCommandOptionType)
             {
-                return ($"{data.name} {option.name}", option.options);
+                return ($"{command.Name} {option.name}", option.options);
             }
             else if (option.type == SubCommandGroupOptionType)
             {
                 var subOptions = option.options;
                 if (subOptions?.Count == 1 && subOptions[0].type == SubCommandOptionType)
                 {
-                    return ($"{data.name} {option.name} {subOptions[0].name}", subOptions[0].options);
+                    return ($"{command.Name} {option.name} {subOptions[0].name}", subOptions[0].options);
                 }
                 else
                 {
@@ -302,7 +311,7 @@ public class SlashCommandHandler(
             }
         }
 
-        return (data.name, data.options);
+        return (command.Name, options);
     }
 
     private async ValueTask<ICommandResult> RunCommandAsync(ISlashCommand slashCommand, RunContext context, IReadOnlyList<ApplicationCommandOption>? options, Resolved? resolved, CommandActivity activity)

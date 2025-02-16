@@ -74,7 +74,7 @@ public class MonitorEditedSetSlashCommand(
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages ↩️
+            Use {context.MentionSlashCommand("monitor edited stop")} to stop monitoring edited messages ↩️
             """);
     }
 }
@@ -108,7 +108,7 @@ public class MonitorEditedShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             This server is configured to log edited messages in {channel.Mention} ✅
-                            Use {context.MentionCommand("monitor edited stop")} to stop monitoring edited messages in this server ↩️
+                            Use {context.MentionSlashCommand("monitor edited stop")} to stop monitoring edited messages in this server ↩️
                             """);
                     }
                     else
@@ -116,7 +116,7 @@ public class MonitorEditedShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             I can't find the previously configured edited messages logging channel in this server ❌
-                            Was it deleted? Use {context.MentionCommand("monitor edited set")} to log edited messages in another channel ↩️
+                            Was it deleted? Use {context.MentionSlashCommand("monitor edited set")} to log edited messages in another channel ↩️
                             """);
                     }
                 }
@@ -125,7 +125,7 @@ public class MonitorEditedShowSlashCommand(
                     embed = EmbedFactory.CreateSuccess(
                         $"""
                         Edited message monitoring is not configured in this server ❌
-                        Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel ↩️
+                        Use {context.MentionSlashCommand("monitor edited set")} to log edited messages in a specific channel ↩️
                         """);
                 }
 
@@ -161,7 +161,7 @@ public class MonitorEditedStopSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Ok, I will stop logging edited messages in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
-                    Use {context.MentionCommand("monitor edited set")} to log edited messages in a specific channel ↩️
+                    Use {context.MentionSlashCommand("monitor edited set")} to log edited messages in a specific channel ↩️
                     """));
             },
             Preconditions: [

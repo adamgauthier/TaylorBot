@@ -20,8 +20,8 @@ public class LocationClearSlashCommand(ILocationRepository locationRepository) :
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Your location has been cleared. {context.MentionCommand("location time")} and {context.MentionCommand("location weather")} will no longer work. ✅
-                    You can set it again with {context.MentionCommand("location set")}.
+                    Your location has been cleared. {context.MentionSlashCommand("location time")} and {context.MentionSlashCommand("location weather")} will no longer work. ✅
+                    You can set it again with {context.MentionSlashCommand("location set")}.
                     """));
             }
         ));

@@ -64,7 +64,7 @@ public class MonitorMembersSetSlashCommand(
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log member joins, leaves and bans in {channel.Mention} ✅
-            Use {context.MentionCommand("monitor members stop")} to stop monitoring member events ↩️
+            Use {context.MentionSlashCommand("monitor members stop")} to stop monitoring member events ↩️
             """);
     }
 }
@@ -98,7 +98,7 @@ public class MonitorMembersShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             This server is configured to log member joins, leaves and bans in {channel.Mention} ✅
-                            Use {context.MentionCommand("monitor members stop")} to stop monitoring member events in this server ↩️
+                            Use {context.MentionSlashCommand("monitor members stop")} to stop monitoring member events in this server ↩️
                             """);
                     }
                     else
@@ -106,7 +106,7 @@ public class MonitorMembersShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             I can't find the previously configured member events logging channel in this server ❌
-                            Was it deleted? Use {context.MentionCommand("monitor members set")} to log member events in another channel ↩️
+                            Was it deleted? Use {context.MentionSlashCommand("monitor members set")} to log member events in another channel ↩️
                             """);
                     }
                 }
@@ -115,7 +115,7 @@ public class MonitorMembersShowSlashCommand(
                     embed = EmbedFactory.CreateSuccess(
                         $"""
                         Member events monitoring is not configured in this server ❌
-                        Use {context.MentionCommand("monitor members set")} to log member events in a specific channel  ↩️
+                        Use {context.MentionSlashCommand("monitor members set")} to log member events in a specific channel  ↩️
                         """);
                 }
 
@@ -151,7 +151,7 @@ public class MonitorMembersStopSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Ok, I will stop logging member events in this server ✅
-                    Use {context.MentionCommand("monitor members set")} to log member events in a specific channel ↩️
+                    Use {context.MentionSlashCommand("monitor members set")} to log member events in a specific channel ↩️
                     """));
             },
             Preconditions: [

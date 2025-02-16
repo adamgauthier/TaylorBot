@@ -44,9 +44,9 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                                     These servers benefit from **TaylorBot Plus** features thanks to you!
                                     {string.Join('\n', plusUser.ActivePlusGuilds.Select(name => $"- {name}"))}
 
-                                    Use {context.MentionCommand("plus add")} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
+                                    Use {context.MentionSlashCommand("plus add")} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
                                     """.Truncate(EmbedFieldBuilder.MaxFieldValueLength) :
-                                    $"You don't have any plus server set, add one with {context.MentionCommand("plus add")} (up to **{plusUser.MaxPlusGuilds}**)!"
+                                    $"You don't have any plus server set, add one with {context.MentionSlashCommand("plus add")} (up to **{plusUser.MaxPlusGuilds}**)!"
                             );
                     }
                     else
@@ -84,7 +84,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                         $"'{guild.Name}' is a **TaylorBot Plus** server ✅" :
                         $"""
                         '{guild.Name}' is not a **TaylorBot Plus** server ❌
-                        Use {context.MentionCommand("plus add")} to give it access to exclusive perks ➕
+                        Use {context.MentionSlashCommand("plus add")} to give it access to exclusive perks ➕
                         """;
 
                     embed.AddField("This Server", text);

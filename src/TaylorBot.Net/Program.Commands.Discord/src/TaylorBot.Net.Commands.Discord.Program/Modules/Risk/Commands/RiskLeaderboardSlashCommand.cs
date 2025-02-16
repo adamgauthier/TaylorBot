@@ -59,7 +59,7 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
                         emptyText:
                         $"""
                         No risks played by members of this server.
-                        Members need to use {context.MentionCommand("risk play")}! 😊
+                        Members need to use {context.MentionSlashCommand("risk play")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();

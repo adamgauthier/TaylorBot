@@ -24,7 +24,7 @@ public class GenderSetSlashCommand(IGenderRepository genderRepository) : ISlashC
                     $"""
                     Your gender has been set to {options.gender.Value}. ✅
                     You are now included in </server population:1137547317549998130> stats for servers you're in. 🧮
-                    People can now use {context.MentionCommand("gender show")} to see your gender. 👁️
+                    People can now use {context.MentionSlashCommand("gender show")} to see your gender. 👁️
                     """));
             }
         ));

@@ -28,7 +28,7 @@ public class PlusRemoveSlashCommand(IPlusRepository plusRepository, IPlusUserRep
                     .WithDescription(
                         $"""
                         Successfully removed {context.Guild.Fetched?.Name ?? "this server"} from your plus servers ❌
-                        Use {context.MentionCommand("plus add")} if you change your mind 😊
+                        Use {context.MentionSlashCommand("plus add")} if you change your mind 😊
                         """)
                     .Build()
                 );

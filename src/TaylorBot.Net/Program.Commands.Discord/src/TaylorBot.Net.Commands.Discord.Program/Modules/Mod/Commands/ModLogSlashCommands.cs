@@ -62,7 +62,7 @@ public class ModLogSetSlashCommand(
             .WithDescription(
                 $"""
                 Ok, I will now log moderation command usage in {options.channel.Channel.Mention} ✅
-                Use {context.MentionCommand("mod log stop")} to undo this action ↩️
+                Use {context.MentionSlashCommand("mod log stop")} to undo this action ↩️
                 """)
         .Build();
     }
@@ -92,7 +92,7 @@ public class ModLogStopSlashCommand(
                     .WithDescription(
                         $"""
                         Ok, I will stop logging moderation command usage in this server ✅
-                        Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel ↩️
+                        Use {context.MentionSlashCommand("mod log set")} to log moderation command usage in a specific channel ↩️
                         """)
                 .Build());
             },
@@ -133,7 +133,7 @@ public class ModLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             This server is configured to log moderation command usage in {channel.Mention} ✅
-                            Use {context.MentionCommand("mod log stop")} to stop logging moderation command usage in this server ↩️
+                            Use {context.MentionSlashCommand("mod log stop")} to stop logging moderation command usage in this server ↩️
                             """);
                     }
                     else
@@ -141,7 +141,7 @@ public class ModLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             I can't find the previously configured moderation command usage logging channel in this server ❌
-                            Was it deleted? Use {context.MentionCommand("mod log set")} to log moderation command usage in another channel ↩️
+                            Was it deleted? Use {context.MentionSlashCommand("mod log set")} to log moderation command usage in another channel ↩️
                             """);
                     }
                 }
@@ -150,7 +150,7 @@ public class ModLogShowSlashCommand(
                     embed.WithDescription(
                         $"""
                         There is no moderation command usage logging configured in this server ❌
-                        "Use {context.MentionCommand("mod log set")} to log moderation command usage in a specific channel ↩️
+                        "Use {context.MentionSlashCommand("mod log set")} to log moderation command usage in a specific channel ↩️
                         """);
                 }
 

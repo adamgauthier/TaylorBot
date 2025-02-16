@@ -60,7 +60,7 @@ public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsReposi
                         emptyText:
                         $"""
                         No heists played by members of this server.
-                        Members need to use {context.MentionCommand("heist play")}! 😊
+                        Members need to use {context.MentionSlashCommand("heist play")}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();
