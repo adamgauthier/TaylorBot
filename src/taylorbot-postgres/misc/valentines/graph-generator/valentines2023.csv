@@ -1,4 +1,4 @@
-"given_to_full_username","acquired_from_full_username","acquired_at"
+username,acquired_from_username,acquired_at
 "Adam","Adam","2023-02-10 12:41:00.000000+00"
 "MikeeyJ","Adam","2023-02-10 12:42:00.000000+00"
 "Chloe","Adam","2023-02-10 12:42:00.000000+00"

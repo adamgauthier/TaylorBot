@@ -45,8 +45,10 @@ if ($IsProduction) {
 }
 
 if (-not [string]::IsNullOrWhiteSpace($SecretsFile)) {
-    Write-Output "Loading Secrets from $SecretsFile"
-    $Secrets = [string]::Join(" ", [System.IO.File]::ReadAllLines($SecretsFile))
+    $currentPath = (Get-Location).Path
+    $secretsFilePath = Resolve-Path (Join-Path $currentPath $SecretsFile)
+    Write-Output "Loading Secrets from $secretsFilePath"
+    $Secrets = [string]::Join(" ", [System.IO.File]::ReadAllLines($secretsFilePath))
 }
 [System.ArgumentException]::ThrowIfNullOrWhiteSpace($Secrets, "Secrets")
 $ParsedSecrets = $Secrets.Split(" ")
