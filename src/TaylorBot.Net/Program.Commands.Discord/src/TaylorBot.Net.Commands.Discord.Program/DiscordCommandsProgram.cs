@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using TaylorBot.Net.Commands;
 using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
@@ -105,7 +104,6 @@ using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
-using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Random;
 
@@ -397,7 +395,6 @@ public class DiscordCommandsProgram
             .AddSlashCommand<OwnerShowCouponsSlashCommand>()
             .AddTransient<IMemberActivityRepository, PostgresMemberActivityRepository>()
             .AddSlashCommand<RecapSlashCommand>()
-            .AddTransient<IShardReadyHandler, ShardReadyHandler>()
             .AddTransient<IValentinesRepository, ValentinesPostgresRepository>()
             .AddSingleton<ValentineGiveawayDomainService>()
             .AddSlashCommand<LoveReadySlashCommand>()

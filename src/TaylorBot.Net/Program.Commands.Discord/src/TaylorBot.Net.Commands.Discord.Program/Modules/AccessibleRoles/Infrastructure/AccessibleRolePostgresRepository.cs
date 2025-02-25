@@ -13,39 +13,37 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleAsync<bool>(
-            @"SELECT EXISTS(
-                    SELECT role_id FROM guilds.guild_accessible_roles
-                    WHERE guild_id = @GuildId AND role_id = @RoleId AND accessible = TRUE
-                );",
+            """
+            SELECT EXISTS(
+                SELECT role_id FROM guilds.guild_accessible_roles
+                WHERE guild_id = @GuildId AND role_id = @RoleId AND accessible = TRUE
+            );
+            """,
             new
             {
-                GuildId = role.Guild.Id.ToString(),
-                RoleId = role.Id.ToString()
+                GuildId = $"{role.Guild.Id}",
+                RoleId = $"{role.Id}",
             }
         );
     }
 
-    private class GetSingleAccessibleRoleDto
-    {
-        public string? group_name { get; set; }
-    }
+    private record GetSingleAccessibleRoleDto(string? group_name);
 
-    private class OtherAccessibleRoleInSameGroupDto
-    {
-        public string role_id { get; set; } = null!;
-    }
+    private record OtherAccessibleRoleInSameGroupDto(string role_id);
 
     public async ValueTask<AccessibleRoleWithGroup?> GetAccessibleRoleAsync(IRole role)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var accessibleRole = await connection.QuerySingleOrDefaultAsync<GetSingleAccessibleRoleDto?>(
-            @"SELECT group_name FROM guilds.guild_accessible_roles
-                WHERE guild_id = @GuildId AND role_id = @RoleId AND accessible = TRUE;",
+            """
+            SELECT group_name FROM guilds.guild_accessible_roles
+            WHERE guild_id = @GuildId AND role_id = @RoleId AND accessible = TRUE;
+            """,
             new
             {
-                GuildId = role.Guild.Id.ToString(),
-                RoleId = role.Id.ToString()
+                GuildId = $"{role.Guild.Id}",
+                RoleId = $"{role.Id}",
             }
         );
 
@@ -54,13 +52,15 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
             if (accessibleRole.group_name != null)
             {
                 var otherRoles = await connection.QueryAsync<OtherAccessibleRoleInSameGroupDto>(
-                    @"SELECT role_id FROM guilds.guild_accessible_roles
-                        WHERE guild_id = @GuildId AND accessible = TRUE AND role_id != @RoleId AND group_name = @GroupName;",
+                    """
+                    SELECT role_id FROM guilds.guild_accessible_roles
+                    WHERE guild_id = @GuildId AND accessible = TRUE AND role_id != @RoleId AND group_name = @GroupName;
+                    """,
                     new
                     {
-                        GuildId = role.Guild.Id.ToString(),
-                        RoleId = role.Id.ToString(),
-                        GroupName = accessibleRole.group_name
+                        GuildId = $"{role.Guild.Id}",
+                        RoleId = $"{role.Id}",
+                        GroupName = accessibleRole.group_name,
                     }
                 );
                 return new AccessibleRoleWithGroup(
@@ -80,22 +80,20 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         }
     }
 
-    private class AccessibleRoleDto
-    {
-        public string role_id { get; set; } = null!;
-        public string? group_name { get; set; }
-    }
+    private record AccessibleRoleDto(string role_id, string? group_name);
 
     public async ValueTask<IReadOnlyCollection<AccessibleRole>> GetAccessibleRolesAsync(IGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var roles = await connection.QueryAsync<AccessibleRoleDto>(
-            @"SELECT role_id, group_name FROM guilds.guild_accessible_roles
-                WHERE guild_id = @GuildId AND accessible = TRUE;",
+            """
+            SELECT role_id, group_name FROM guilds.guild_accessible_roles
+            WHERE guild_id = @GuildId AND accessible = TRUE;
+            """,
             new
             {
-                GuildId = guild.Id.ToString()
+                GuildId = $"{guild.Id}",
             }
         );
 
@@ -110,14 +108,16 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible)
-                VALUES (@GuildId, @RoleId, TRUE)
-                ON CONFLICT (guild_id, role_id) DO UPDATE
-                    SET accessible = excluded.accessible;",
+            """
+            INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible)
+            VALUES (@GuildId, @RoleId, TRUE)
+            ON CONFLICT (guild_id, role_id) DO UPDATE
+                SET accessible = excluded.accessible;
+            """,
             new
             {
-                GuildId = role.Guild.Id.ToString(),
-                RoleId = role.Id.ToString()
+                GuildId = $"{role.Guild.Id}",
+                RoleId = $"{role.Id}",
             }
         );
     }
@@ -127,15 +127,17 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible, group_name)
-                VALUES (@GuildId, @RoleId, TRUE, @GroupName)
-                ON CONFLICT (guild_id, role_id) DO UPDATE
-                    SET group_name = excluded.group_name;",
+            """
+            INSERT INTO guilds.guild_accessible_roles (guild_id, role_id, accessible, group_name)
+            VALUES (@GuildId, @RoleId, TRUE, @GroupName)
+            ON CONFLICT (guild_id, role_id) DO UPDATE
+                SET group_name = excluded.group_name;
+            """,
             new
             {
-                GuildId = role.Guild.Id.ToString(),
-                RoleId = role.Id.ToString(),
-                GroupName = groupName.Name
+                GuildId = $"{role.Guild.Id}",
+                RoleId = $"{role.Id}",
+                GroupName = groupName.Name,
             }
         );
     }
@@ -145,13 +147,15 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            @"UPDATE guilds.guild_accessible_roles
-                SET accessible = FALSE
-                WHERE guild_id = @GuildId AND role_id = @RoleId;",
+            """
+            UPDATE guilds.guild_accessible_roles
+            SET accessible = FALSE
+            WHERE guild_id = @GuildId AND role_id = @RoleId;
+            """,
             new
             {
-                GuildId = role.Guild.Id.ToString(),
-                RoleId = role.Id.ToString()
+                GuildId = $"{role.Guild.Id}",
+                RoleId = $"{role.Id}",
             }
         );
     }
@@ -163,13 +167,13 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         await connection.ExecuteAsync(
             """
             UPDATE guilds.guild_accessible_roles
-            SET group_name IS NULL
+            SET group_name = NULL
             WHERE guild_id = @GuildId AND role_id = @RoleId;
             """,
             new
             {
-                GuildId = role.Guild.Id.ToString(),
-                RoleId = role.Id.ToString()
+                GuildId = $"{role.Guild.Id}",
+                RoleId = $"{role.Id}",
             }
         );
     }
