@@ -1,5 +1,6 @@
 ﻿using Discord;
 using System.Globalization;
+using System.Text.Json;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
@@ -19,7 +20,8 @@ public record Interaction(
 )
 {
     public record InteractionData(
-        string? id,
+        // Number for MESSAGE_COMPONENT, String for APPLICATION_COMMAND
+        JsonElement? id,
         string? name,
         IReadOnlyList<ApplicationCommandOption>? options,
         string? custom_id,

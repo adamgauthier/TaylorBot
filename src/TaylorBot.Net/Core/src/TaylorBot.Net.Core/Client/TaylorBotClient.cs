@@ -66,18 +66,34 @@ public class TaylorBotClient : ITaylorBotClient
 
         foreach (var shard in DiscordShardedClient.Shards)
         {
-            _rawEventsHandler.HandleRawEvent(shard, "INTERACTION_CREATE", async payload =>
-            {
-                _logger.LogTrace("Received interaction {Payload}", payload);
-
-                var interaction = JsonSerializer.Deserialize<Interaction>(payload);
-                ArgumentNullException.ThrowIfNull(interaction);
-
-                await _interactionCreatedEvent.InvokeAsync(interaction);
-            });
+            _rawEventsHandler.HandleRawEvent(shard, "INTERACTION_CREATE", HandleInteractionAsync);
         }
 
         await DiscordShardedClient.StartAsync();
+    }
+
+    private async Task HandleInteractionAsync(string payload)
+    {
+        _logger.LogTrace("Received interaction {Payload}", payload);
+
+        var interaction = DeserializeInteraction(payload);
+
+        await _interactionCreatedEvent.InvokeAsync(interaction);
+    }
+
+    private Interaction DeserializeInteraction(string payload)
+    {
+        try
+        {
+            var interaction = JsonSerializer.Deserialize<Interaction>(payload);
+            ArgumentNullException.ThrowIfNull(interaction);
+            return interaction;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to deserialize interaction payload: {Payload}", payload);
+            throw;
+        }
     }
 
     public async ValueTask StopAsync()

@@ -69,10 +69,14 @@ public class RunContextFactory(
 
         RunContext.SlashCommandInfo? CreateSlashCommandInfo()
         {
-            if (interaction.Data.id != null)
+            if (interaction.Raw.type is 2 or 4)
             {
+                ArgumentNullException.ThrowIfNull(interaction.Data.id);
+                var stringId = interaction.Data.id.Value.GetString();
+                ArgumentNullException.ThrowIfNull(stringId);
+
                 ArgumentNullException.ThrowIfNull(interaction.Data.name);
-                return new(interaction.Data.id, interaction.Data.name);
+                return new(stringId, interaction.Data.name);
             }
 
             return null;

@@ -73,10 +73,14 @@ public class SlashCommandHandler(
     private static ApplicationCommand CreateApplicationCommand(Interaction interaction, CommandActivity activity)
     {
         var parsed = ParsedInteraction.Parse(interaction, activity);
+
         ArgumentNullException.ThrowIfNull(parsed.Data.id);
+        var stringId = parsed.Data.id.Value.GetString();
+        ArgumentNullException.ThrowIfNull(stringId);
+
         ArgumentNullException.ThrowIfNull(parsed.Data.name);
-        ApplicationCommand command = new(parsed, parsed.Data.id, parsed.Data.name);
-        return command;
+
+        return new(parsed, stringId, parsed.Data.name);
     }
 
     private async ValueTask HandleApplicationCommand(ApplicationCommand command, CommandActivity activity)
