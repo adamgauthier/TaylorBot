@@ -270,6 +270,7 @@ public class DiscordCommandsProgram
             .AddSlashCommand<BirthdayShowSlashCommand>()
             .AddSlashCommand<BirthdayClearSlashCommand>()
             .AddSlashCommand<BirthdaySetSlashCommand>()
+            .AddButtonHandler<BirthdaySetConfirmButtonHandler>()
             .AddSlashCommand<BirthdayCalendarSlashCommand>()
             .AddSlashCommand<BirthdayHoroscopeSlashCommand>()
             .AddTransient<AgeCalculator>()

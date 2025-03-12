@@ -49,6 +49,7 @@ public enum CustomIdNames
     RemindManageClearAll = 105,
     BirthdayRoleCreate = 106,
     BirthdayRoleRemove = 107,
+    BirthdaySetConfirm = 108,
 }
 
 public static class CustomIdExtensions

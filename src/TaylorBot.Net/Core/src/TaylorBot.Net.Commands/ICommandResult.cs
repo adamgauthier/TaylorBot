@@ -20,6 +20,20 @@ public record PageMessageResult(PageMessage PageMessage) : ICommandResult;
 
 public record MessageResult(MessageContent Content, ButtonConfig? Buttons = null) : ICommandResult
 {
+    public static MessageResult CreatePrompt(MessageContent initialContent, InteractionCustomId confirmButtonId)
+    {
+        return new MessageResult(initialContent, new([
+            new ButtonResult(
+                new Button(confirmButtonId.RawId, ButtonStyle.Success, Label: "Confirm"),
+                _ => throw new NotImplementedException()
+            ),
+            new ButtonResult(
+                new Button(InteractionCustomId.Create(CustomIdNames.GenericPromptCancel).RawId, ButtonStyle.Danger, Label: "Cancel"),
+                _ => throw new NotImplementedException()
+            ),
+        ], new PermanentButtonSettings()));
+    }
+
     public static MessageResult CreatePrompt(MessageContent initialContent, Func<ValueTask<MessageContent>> confirm, Func<ValueTask<MessageContent>>? cancel = null)
         => CreatePrompt(initialContent, confirm.ConvertToOnClick(), cancel?.ConvertToOnClick());
 

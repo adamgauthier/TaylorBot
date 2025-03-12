@@ -3,6 +3,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
@@ -17,8 +18,8 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
 
     public record Options(ParsedPositiveInteger day, ParsedPositiveInteger month, ParsedOptionalInteger year, ParsedOptionalBoolean privately);
 
-    private const int MinAge = 13;
-    private const int MaxAge = 115;
+    public const int MinAge = 13;
+    public const int MaxAge = 115;
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -47,6 +48,11 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
                 if (setBirthday != null &&
                     (setBirthday.Date.Month != birthday.Month || setBirthday.Date.Day != birthday.Day))
                 {
+                    List<CustomIdDataEntry> data = [
+                        new("date", $"{birthday.Year:D4}{birthday.Month:D2}{birthday.Day:D2}"),
+                        new("priv", isPrivate ? "1" : "0"),
+                    ];
+
                     return MessageResult.CreatePrompt(
                         new(EmbedFactory.CreateWarning(
                             $"""
@@ -62,8 +68,7 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
 
                             Are you sure you want to change your birthday?
                             """)),
-                        confirm: async () =>
-                            new MessageContent(await SetBirthdayAsync(context, isPrivate, birthday))
+                        InteractionCustomId.Create(BirthdaySetConfirmButtonHandler.CustomIdName, data)
                     );
 
                 }
@@ -75,7 +80,7 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
         ));
     }
 
-    private async ValueTask<Embed> SetBirthdayAsync(RunContext context, bool isPrivate, DateOnly birthday)
+    public async ValueTask<Embed> SetBirthdayAsync(RunContext context, bool isPrivate, DateOnly birthday)
     {
         if (birthday.Year != IBirthdayRepository.Birthday.NoYearValue)
         {
@@ -112,5 +117,28 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
                 """);
 
         return embed.Build();
+    }
+}
+
+
+public class BirthdaySetConfirmButtonHandler(InteractionResponseClient responseClient, BirthdaySetSlashCommand birthdaySetCommand) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.BirthdaySetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var isPrivate = button.CustomId.ParsedData.TryGetValue("priv", out var priv) && priv == "1";
+
+        var dateStr = button.CustomId.ParsedData["date"];
+        var year = int.Parse(dateStr[..4]);
+        var month = int.Parse(dateStr[4..6]);
+        var day = int.Parse(dateStr[6..]);
+        var birthday = new DateOnly(year, month, day);
+
+        var embed = await birthdaySetCommand.SetBirthdayAsync(context, isPrivate, birthday);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(embed));
     }
 }
