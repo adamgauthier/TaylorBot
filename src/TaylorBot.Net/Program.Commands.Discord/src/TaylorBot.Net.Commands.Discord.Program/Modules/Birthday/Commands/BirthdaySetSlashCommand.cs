@@ -18,8 +18,8 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
 
     public record Options(ParsedPositiveInteger day, ParsedPositiveInteger month, ParsedOptionalInteger year, ParsedOptionalBoolean privately);
 
-    public const int MinAge = 13;
-    public const int MaxAge = 115;
+    private const int MinAge = 13;
+    private const int MaxAge = 115;
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

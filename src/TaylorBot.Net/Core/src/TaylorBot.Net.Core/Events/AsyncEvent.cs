@@ -4,7 +4,7 @@ namespace TaylorBot.Net.Core.Events;
 
 public class AsyncEvent<T> where T : class
 {
-    private readonly object _subLock = new();
+    private readonly Lock _subLock = new();
     private ImmutableArray<T> _subscriptions;
 
     public bool HasSubscribers => _subscriptions.Length != 0;

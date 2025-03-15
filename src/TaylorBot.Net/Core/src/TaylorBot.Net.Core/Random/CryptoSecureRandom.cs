@@ -31,8 +31,8 @@ public interface IPseudoRandom : IRandom
 
 public class PseudoRandom : IPseudoRandom
 {
-    private static readonly System.Random Random = new();
-    private static readonly object Lock = new();
+    private readonly System.Random random = new();
+    private readonly Lock lockObject = new();
 
     public int GetInt32(int fromInclusive, int toInclusive)
     {
@@ -41,9 +41,9 @@ public class PseudoRandom : IPseudoRandom
 
     public int GetInt32Exclusive(int fromInclusive, int toExclusive)
     {
-        lock (Lock)
+        lock (lockObject)
         {
-            return Random.Next(fromInclusive, toExclusive);
+            return random.Next(fromInclusive, toExclusive);
         }
     }
 

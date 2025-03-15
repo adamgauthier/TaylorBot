@@ -20,9 +20,9 @@ public record PageMessageResult(PageMessage PageMessage) : ICommandResult;
 
 public record MessageResult(MessageContent Content, ButtonConfig? Buttons = null) : ICommandResult
 {
-    public static MessageResult CreatePrompt(MessageContent initialContent, InteractionCustomId confirmButtonId)
+    public static MessageResult CreatePrompt(MessageContent content, InteractionCustomId confirmButtonId)
     {
-        return new MessageResult(initialContent, new([
+        return new MessageResult(content, new([
             new ButtonResult(
                 new Button(confirmButtonId.RawId, ButtonStyle.Success, Label: "Confirm"),
                 _ => throw new NotImplementedException()

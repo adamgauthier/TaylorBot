@@ -4,7 +4,7 @@ namespace TaylorBot.Net.Core.Tasks;
 
 public class SingletonTaskRunner(ILogger<SingletonTaskRunner> logger, TaskExceptionLogger taskExceptionLogger)
 {
-    private readonly object _lockObject = new();
+    private readonly Lock _lockObject = new();
     private Task? _runningTask;
 
     public Task StartTaskIfNotStarted(Func<Task> action, string taskName)
