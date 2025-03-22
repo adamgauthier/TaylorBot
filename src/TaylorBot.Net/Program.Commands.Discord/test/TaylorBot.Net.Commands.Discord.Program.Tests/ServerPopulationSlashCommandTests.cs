@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -15,7 +16,10 @@ public class ServerPopulationSlashCommandTests
 
     public ServerPopulationSlashCommandTests()
     {
-        _command = new(_serverStatsRepository);
+        var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
+
+        _command = new(_serverStatsRepository, new(services.BuildServiceProvider()));
         _runContext = CommandUtils.CreateTestContext(_command);
     }
 

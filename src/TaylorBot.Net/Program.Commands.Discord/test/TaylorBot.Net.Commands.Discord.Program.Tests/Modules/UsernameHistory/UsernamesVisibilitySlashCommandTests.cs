@@ -16,7 +16,7 @@ public class UsernamesVisibilitySlashCommandTests
 
     public UsernamesVisibilitySlashCommandTests()
     {
-        _command = new UsernamesVisibilitySlashCommand(_usernameHistoryRepository);
+        _command = new UsernamesVisibilitySlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner);
         _runContext = CommandUtils.CreateTestContext(_command);
     }
 

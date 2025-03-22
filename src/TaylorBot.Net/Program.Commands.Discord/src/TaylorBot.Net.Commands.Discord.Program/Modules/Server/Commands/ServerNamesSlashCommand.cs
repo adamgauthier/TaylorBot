@@ -9,7 +9,10 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository) : ISlashCommand<NoOptions>
+public class ServerNamesSlashCommand(
+    IGuildNamesRepository guildNamesRepository,
+    InGuildPrecondition.Factory inGuild)
+    : ISlashCommand<NoOptions>
 {
     public static string CommandName => "server names";
 
@@ -50,9 +53,7 @@ public class ServerNamesSlashCommand(IGuildNamesRepository guildNamesRepository)
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: [
-                new InGuildPrecondition()
-            ]
+            Preconditions: [inGuild.Create()]
         ));
     }
 }

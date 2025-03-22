@@ -37,7 +37,12 @@ public record ActiveMembers(IList<ActiveMembers.Member> members, IList<string> u
     }
 }
 
-public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYearbookActiveMembersSlashCommand> logger, ITaylorBotClient client, PostgresConnectionFactory postgresConnectionFactory)
+public class OwnerRewardYearbookActiveMembersSlashCommand(
+    ILogger<OwnerRewardYearbookActiveMembersSlashCommand> logger,
+    ITaylorBotClient client,
+    PostgresConnectionFactory postgresConnectionFactory,
+    TaylorBotOwnerPrecondition ownerPrecondition,
+    InGuildPrecondition.Factory inGuild)
     : ISlashCommand<OwnerRewardYearbookActiveMembersSlashCommand.Options>
 {
     public static string CommandName => "owner rewardyearbook";
@@ -111,8 +116,8 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(ILogger<OwnerRewardYea
             },
             Preconditions:
             [
-                new TaylorBotOwnerPrecondition(),
-                new InGuildPrecondition(),
+                ownerPrecondition,
+                inGuild.Create(),
             ]
         ));
     }

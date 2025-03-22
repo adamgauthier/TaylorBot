@@ -13,7 +13,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Roll.Commands;
 
-public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class RollLeaderboardSlashCommand(
+    IRollStatsRepository rollStatsRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "roll leaderboard";
 
@@ -59,13 +63,13 @@ public class RollLeaderboardSlashCommand(IRollStatsRepository rollStatsRepositor
                         emptyText:
                         $"""
                         No roll played by members of this server.
-                        Members need to use {context.MentionSlashCommand("roll play")}! 😊
+                        Members need to use {mention.SlashCommand("roll play", context)}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

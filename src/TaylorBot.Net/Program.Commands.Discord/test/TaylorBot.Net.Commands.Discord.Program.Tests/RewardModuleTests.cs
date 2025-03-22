@@ -22,7 +22,7 @@ public class RewardModuleTests
 
     public RewardModuleTests()
     {
-        _rewardModule = new RewardModule(new SimpleCommandRunner(), _taypointRewardRepository);
+        _rewardModule = new RewardModule(new SimpleCommandRunner(), _taypointRewardRepository, new(CommandUtils.Mentioner));
         _rewardModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);

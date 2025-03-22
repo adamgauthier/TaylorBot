@@ -6,6 +6,7 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
@@ -14,16 +15,17 @@ using static TaylorBot.Net.Commands.MessageResult;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailMessageModsSlashCommand(
-    ILogger<ModMailMessageModsSlashCommand> logger,
     IOptionsMonitor<ModMailOptions> modMailOptions,
-    IModMailBlockedUsersRepository modMailBlockedUsersRepository,
-    ModMailChannelLogger modMailChannelLogger) : ISlashCommand<NoOptions>
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail message-mods";
 
     public ISlashCommandInfo Info => new ModalCommandInfo(CommandName);
 
+    public IList<ICommandPrecondition> BuildPreconditions() => [inGuild.Create(botMustBeInGuild: true)];
+
     public static readonly Color EmbedColor = new(255, 255, 240);
+    public const string EmbedFooterText = "Mod mail received";
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)
     {
@@ -34,7 +36,6 @@ public class ModMailMessageModsSlashCommand(
                 var guild = context.Guild?.Fetched;
                 ArgumentNullException.ThrowIfNull(guild);
 
-                // Creates a modal form with subject and message fields for users to compose their message
                 return new(new CreateModalResult(
                     Id: "modmail-message-mods",
                     Title: "Send Message to Moderators",
@@ -46,7 +47,6 @@ public class ModMailMessageModsSlashCommand(
                     IsPrivateResponse: true
                 ));
 
-                // Processes the submitted message and shows a confirmation prompt
                 ValueTask<MessageResult> SubmitAsync(ModalSubmit submit)
                 {
                     var subject = submit.TextInputs.Single(t => t.CustomId == "subject").Value;
@@ -57,65 +57,88 @@ public class ModMailMessageModsSlashCommand(
 
                     var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
 
-                    // Creates an embed containing the user's message and metadata
                     var embed = new EmbedBuilder()
                         .WithColor(EmbedColor)
                         .WithTitle(subject)
                         .WithDescription(messageContent)
                         .AddField("From", context.User.FormatTagAndMention(), inline: true)
-                        .WithFooter("Mod mail received", iconUrl: modMailOptions.CurrentValue.ReceivedLogEmbedFooterIconUrl)
+                        .WithFooter(EmbedFooterText, iconUrl: modMailOptions.CurrentValue.ReceivedLogEmbedFooterIconUrl)
                         .WithCurrentTimestamp()
                         .Build();
 
                     return new(CreatePrompt(
                         new([embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?")]),
-                        confirm: async () => new(await SendAsync(embed))
+                        InteractionCustomId.Create(ModMailMessageModsConfirmButtonHandler.CustomIdName)
                     ));
                 }
-
-                // Handles message delivery to the moderation team's channel
-                async ValueTask<Embed> SendAsync(Embed embed)
-                {
-                    var isBlocked = await modMailBlockedUsersRepository.IsBlockedAsync(guild, context.User);
-                    if (isBlocked)
-                    {
-                        return EmbedFactory.CreateError("Sorry, the moderation team has blocked you from sending mod mail 😕");
-                    }
-
-                    var channel = await modMailChannelLogger.GetModMailLogAsync(guild);
-
-                    if (channel != null)
-                    {
-                        try
-                        {
-                            await channel.SendMessageAsync(embed: embed, components: new ComponentBuilder()
-                                .WithButton(
-                                    customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId,
-                                    label: "Reply", emote: new Emoji("📨"))
-                                .Build());
-                            return EmbedFactory.CreateSuccess(
-                                $"""
-                                Message sent to the moderation team of '{guild.Name}' ✉️
-                                If you're expecting a response, **make sure you're able to send & receive DMs from TaylorBot** ⚙️
-                                """);
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
-                        }
-                    }
-
-                    return EmbedFactory.CreateError(
-                        $"""
-                        I was not able to send the message to the moderation team 😕
-                        Make sure they have a moderation log set up with {context.MentionSlashCommand("mod log set")} and TaylorBot has access to it 🛠️
-                        """);
-                }
             },
-            Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true)
-            ]
+            Preconditions: BuildPreconditions()
         ));
+    }
+}
+
+public class ModMailMessageModsConfirmButtonHandler(
+    ModMailMessageModsSlashCommand command,
+    InteractionResponseClient responseClient,
+    ILogger<ModMailMessageModsConfirmButtonHandler> logger,
+    IModMailBlockedUsersRepository modMailBlockedUsersRepository,
+    ModMailChannelLogger modMailChannelLogger,
+    CommandMentioner mention) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.ModMailMessageModsConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: command.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var promptMessage = button.Interaction.Raw.message;
+        ArgumentNullException.ThrowIfNull(promptMessage);
+
+        var modMailEmbed = promptMessage.embeds.First(e => e.footer?.text.Contains(ModMailMessageModsSlashCommand.EmbedFooterText, StringComparison.OrdinalIgnoreCase) == true);
+
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var isBlocked = await modMailBlockedUsersRepository.IsBlockedAsync(guild, context.User);
+        if (isBlocked)
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                "Sorry, the moderation team has blocked you from sending mod mail 😕"));
+            return;
+        }
+
+        var channel = await modMailChannelLogger.GetModMailLogAsync(guild);
+        if (channel != null)
+        {
+            try
+            {
+                await channel.SendMessageAsync(embed: InteractionMapper.ToDiscordEmbed(modMailEmbed), components: new ComponentBuilder()
+                    .WithButton(
+                        customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId,
+                        label: "Reply", emote: new Emoji("📨"))
+                    .Build());
+
+                await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
+                    $"""
+                    Message sent to the moderation team of '{guild.Name}' ✉️
+                    If you're expecting a response, **make sure you're able to send & receive DMs from TaylorBot** ⚙️
+                    """));
+                return;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
+            }
+        }
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+            $"""
+            I was not able to send the message to the moderation team 😕
+            Make sure they have a moderation log set up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it 🛠️
+            """));
     }
 }
 

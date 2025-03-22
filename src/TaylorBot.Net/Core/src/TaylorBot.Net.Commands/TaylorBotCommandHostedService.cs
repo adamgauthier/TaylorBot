@@ -15,10 +15,8 @@ public interface ITaylorBotTypeReader
     Type ArgumentType { get; }
 }
 
-public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<TaylorBotCommandHostedService> logger) : IHostedService
+public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<TaylorBotCommandHostedService> logger, TaylorBotHostedService taylorBotHostedService) : IHostedService
 {
-    private readonly TaylorBotHostedService _taylorBotHostedService = new(services);
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var commandService = services.GetRequiredService<CommandService>();
@@ -59,11 +57,11 @@ public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<Ta
             services: services
         );
 
-        await _taylorBotHostedService.StartAsync(cancellationToken);
+        await taylorBotHostedService.StartAsync(cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        return _taylorBotHostedService.StopAsync(cancellationToken);
+        return taylorBotHostedService.StopAsync(cancellationToken);
     }
 }

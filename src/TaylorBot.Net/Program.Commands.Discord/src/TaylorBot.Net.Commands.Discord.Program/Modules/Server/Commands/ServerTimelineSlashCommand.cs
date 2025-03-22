@@ -12,7 +12,9 @@ using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<NoOptions>
+public class ServerTimelineSlashCommand(
+    IServerJoinedRepository serverJoinedRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "server timeline";
 
@@ -52,9 +54,7 @@ public class ServerTimelineSlashCommand(IServerJoinedRepository serverJoinedRepo
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-            ]
+            Preconditions: [inGuild.Create()]
         ));
     }
 }

@@ -24,6 +24,7 @@ public class FrameworkModuleTests
     public FrameworkModuleTests()
     {
         var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
         services.AddTransient<PermissionStringMapper>();
         services.AddTransient<TaylorBotOwnerPrecondition>();
         services.AddTransient<InGuildPrecondition.Factory>();

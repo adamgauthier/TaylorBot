@@ -13,7 +13,7 @@ using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.EggHunt.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 
 public record Egg(string egg_number);
 
@@ -204,7 +204,7 @@ public class EggService(IEggRepository eggRepository)
     }
 }
 
-public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<EggVerifySlashCommand.Options>
+public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggService, CommandMentioner mention) : ISlashCommand<EggVerifySlashCommand.Options>
 {
     public static string CommandName => "egg verify";
 
@@ -258,7 +258,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                         $"""
                         Congratulations, you've found 🥚 **#{egg.egg_number}** (`{code}`)! 🎊
 
-                        Your {context.MentionSlashCommand("egg profile")} was not updated because someone finished the hunt! 🏆
+                        Your {mention.SlashCommand("egg profile", context)} was not updated because someone finished the hunt! 🏆
                         You can still hunt and verify codes for fun! 😊
                         """));
                 }
@@ -283,7 +283,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
                                 Congratulations, you've found 🥚 **#{egg.egg_number}** (`{code}`)! 🎊
-                                Your {context.MentionSlashCommand("egg profile")} has been updated! ✅
+                                Your {mention.SlashCommand("egg profile", context)} has been updated! ✅
 
                                 Make sure **all your teammates verify this code as soon as possible** to secure maximum points for your team! 👪
                                 """));
@@ -304,7 +304,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
     }
 }
 
-public class EggProfileSlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<NoOptions>
+public class EggProfileSlashCommand(IEggRepository eggRepository, EggService eggService, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "egg profile";
 
@@ -331,7 +331,7 @@ public class EggProfileSlashCommand(IEggRepository eggRepository, EggService egg
                     description += $"\n{string.Join("\n", eggs.OrderBy(e => e.egg_number).Select(e => $"- 🥚 **#{e.egg_number}**"))}";
                 }
 
-                description += $"\nSee the status of the hunt with {context.MentionSlashCommand("egg status")} 👀";
+                description += $"\nSee the status of the hunt with {mention.SlashCommand("egg status", context)} 👀";
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -344,7 +344,7 @@ public class EggProfileSlashCommand(IEggRepository eggRepository, EggService egg
     }
 }
 
-public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<NoOptions>
+public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggService, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "egg status";
 
@@ -381,7 +381,7 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
                             ? string.Join("\n", unsolved.Select(e => $"- 🥚 **#{e.egg_number}**: Found by no one!"))
                             : "None!")}
 
-                        See the leaderboard of hunters with {context.MentionSlashCommand("egg leaderboard")} 👀
+                        See the leaderboard of hunters with {mention.SlashCommand("egg leaderboard", context)} 👀
                         """)
                     .Build());
             }
@@ -389,7 +389,7 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
     }
 }
 
-public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService eggService) : ISlashCommand<NoOptions>
+public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService eggService, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "egg leaderboard";
 
@@ -415,7 +415,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                         entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"egg".ToQuantity(entry.eggs_found, TaylorBotFormats.BoldReadable)}"
                     ))}
 
-                    See your own progress with {context.MentionSlashCommand("egg profile")} 👀
+                    See your own progress with {mention.SlashCommand("egg profile", context)} 👀
                     """).ToList();
 
                 var baseEmbed = new EmbedBuilder()
@@ -430,7 +430,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                         emptyText:
                             $"""
                             No eggs found yet! 👀
-                            Start hunting and verify your eggs with {context.MentionSlashCommand("egg verify")}! 😊
+                            Start hunting and verify your eggs with {mention.SlashCommand("egg verify", context)}! 😊
                             """)),
                     IsCancellable: true
                 )).Build();
@@ -439,7 +439,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
     }
 }
 
-public class EggSetConfigSlashCommand(IEggRepository eggRepository) : ISlashCommand<EggSetConfigSlashCommand.Options>
+public class EggSetConfigSlashCommand(IEggRepository eggRepository, TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<EggSetConfigSlashCommand.Options>
 {
     public static string CommandName => "owner set-config";
 
@@ -455,11 +455,12 @@ public class EggSetConfigSlashCommand(IEggRepository eggRepository) : ISlashComm
                 await eggRepository.SetConfigAsync(options.key.Value, options.value.Value);
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Set {options.key.Value} to {options.value.Value}"));
             },
-            [new TaylorBotOwnerPrecondition()]));
+            Preconditions: [ownerPrecondition]
+        ));
     }
 }
 
-public class EggRunSlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<EggRunSlashCommand.Options>
+public class EggRunSlashCommand(PostgresConnectionFactory postgresConnectionFactory, TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<EggRunSlashCommand.Options>
 {
     public static string CommandName => "owner run";
 
@@ -487,6 +488,7 @@ public class EggRunSlashCommand(PostgresConnectionFactory postgresConnectionFact
 
                 return new EmbedResult(EmbedFactory.CreateSuccess("Ran"));
             },
-            [new TaylorBotOwnerPrecondition()]));
+            Preconditions: [ownerPrecondition]
+        ));
     }
 }

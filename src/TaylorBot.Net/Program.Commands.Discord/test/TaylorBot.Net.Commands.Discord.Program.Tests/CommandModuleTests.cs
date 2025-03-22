@@ -20,7 +20,7 @@ public class CommandModuleTests
 
     public CommandModuleTests()
     {
-        _commandModule = new CommandModule(new SimpleCommandRunner(), _disabledCommandRepository);
+        _commandModule = new CommandModule(new SimpleCommandRunner(), _disabledCommandRepository, new(CommandUtils.Mentioner));
         _commandModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.IsTestEnv).Returns(true);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);

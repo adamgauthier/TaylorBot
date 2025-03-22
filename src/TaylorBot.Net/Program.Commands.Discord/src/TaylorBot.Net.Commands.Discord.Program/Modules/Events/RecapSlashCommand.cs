@@ -17,8 +17,6 @@ public interface IMemberActivityRepository
     Task<byte[]?> GetRecapImageForUserAsync(DiscordUser user);
 }
 
-public record MemberActivity(string user_id, string username, int messageCountThisYear, int minuteCountThisYear, string first_joined_at_formatted, float messagesPerDay, float minutesPerDay, int serverRank);
-
 public class PostgresMemberActivityRepository(PostgresConnectionFactory postgresConnectionFactory, IMemoryCache memoryCache) : IMemberActivityRepository
 {
     public async Task<string> GetRecapCountAsync()
@@ -63,7 +61,10 @@ public class PostgresMemberActivityRepository(PostgresConnectionFactory postgres
     }
 }
 
-public class RecapSlashCommand(IRateLimiter rateLimiter, IMemberActivityRepository memberActivityRepository) : ISlashCommand<NoOptions>
+public class RecapSlashCommand(
+    IRateLimiter rateLimiter,
+    IMemberActivityRepository memberActivityRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "recap";
 
@@ -106,7 +107,7 @@ public class RecapSlashCommand(IRateLimiter rateLimiter, IMemberActivityReposito
 
                 return new MessageResult(new([embed.Build()], Attachments: [new Attachment(imageStream, filename)]));
             },
-            Preconditions: [new InGuildPrecondition()]
+            Preconditions: [inGuild.Create()]
         ));
     }
 }

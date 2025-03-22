@@ -3,17 +3,21 @@ using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 
 public interface IModChannelLogger
 {
     ValueTask<ITextChannel?> GetModLogAsync(IGuild guild);
-    ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed);
+    ValueTask<bool> TrySendModLogAsync(IGuild guild, DiscordUser moderator, DiscordUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed);
     Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
 }
 
-public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRepository modLogChannelRepository) : IModChannelLogger
+public class ModChannelLogger(
+    ILogger<ModChannelLogger> logger,
+    IModLogChannelRepository modLogChannelRepository,
+    CommandMentioner mention) : IModChannelLogger
 {
     public async ValueTask<ITextChannel?> GetModLogAsync(IGuild guild)
     {
@@ -26,7 +30,7 @@ public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRe
         return null;
     }
 
-    public async ValueTask<bool> TrySendModLogAsync(IGuild guild, IUser moderator, IUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
+    public async ValueTask<bool> TrySendModLogAsync(IGuild guild, DiscordUser moderator, DiscordUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed)
     {
         var channel = await GetModLogAsync(guild);
 
@@ -59,7 +63,7 @@ public class ModChannelLogger(ILogger<ModChannelLogger> logger, IModLogChannelRe
             EmbedFactory.CreateWarning(string.Join('\n', [
                 successMessage,
                 "However, I was not able to log this action in your moderation log channel.",
-                $"Make sure you set it up with {context.MentionSlashCommand("mod log set")} and TaylorBot has access to it."
+                $"Make sure you set it up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it."
             ]));
     }
 }

@@ -14,7 +14,10 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailMessageUserSlashCommand(Lazy<ITaylorBotClient> client, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
+public class ModMailMessageUserSlashCommand(
+    Lazy<ITaylorBotClient> client,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ModMailMessageUserSlashCommand.Options>
 {
     public static string CommandName => "modmail message-user";
 
@@ -38,7 +41,7 @@ public class ModMailMessageUserSlashCommand(Lazy<ITaylorBotClient> client, UserH
                 return CreateModalResult(to: user.User.Id);
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.BanMembers),
             ]
         ));

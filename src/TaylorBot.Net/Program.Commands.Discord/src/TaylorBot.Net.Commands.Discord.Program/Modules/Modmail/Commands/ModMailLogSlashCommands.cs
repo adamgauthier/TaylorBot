@@ -4,18 +4,28 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
 public class ModMailLogSetSlashCommand(
     IModMailLogChannelRepository modMailLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailLogSetSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ModMailLogSetSlashCommand.Options>
 {
     public static string CommandName => "modmail log-set";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public IList<ICommandPrecondition> BuildPreconditions() => [
+        inGuild.Create(botMustBeInGuild: true),
+        userHasPermission.Create(GuildPermission.ManageGuild)
+    ];
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -31,7 +41,7 @@ public class ModMailLogSetSlashCommand(
                 var modMailLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
                 if (modMailLog == null)
                 {
-                    return new EmbedResult(await AddOrUpdateAsync(context, options));
+                    return new EmbedResult(await AddOrUpdateAsync(context, options.channel.Channel));
                 }
                 else
                 {
@@ -42,35 +52,65 @@ public class ModMailLogSetSlashCommand(
                             Mod mail is currently being logged to {MentionUtils.MentionChannel(modMailLog.ChannelId)} 👈
                             """
                         )),
-                        confirm: async () => new(await AddOrUpdateAsync(context, options))
+                        InteractionCustomId.Create(ModMailLogSetConfirmButtonHandler.CustomIdName, [new("channel", $"{options.channel.Channel.Id}")])
                     );
                 }
             },
-            Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
-                userHasPermission.Create(GuildPermission.ManageGuild)
-            ]
+            Preconditions: BuildPreconditions()
         ));
     }
 
-    private async ValueTask<Embed> AddOrUpdateAsync(RunContext context, Options options)
+    public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
-        await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(options.channel.Channel);
+        await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(channel);
 
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithDescription(
                 $"""
-                Ok, I will now log mod mail in {options.channel.Channel.Mention} ✅
-                Use {context.MentionSlashCommand("modmail log-stop")} to undo this action ↩️
+                Ok, I will now log mod mail in {channel.Mention} ✅
+                Use {mention.SlashCommand("modmail log-stop", context)} to undo this action ↩️
                 """)
         .Build();
     }
 }
 
+public class ModMailLogSetConfirmButtonHandler(InteractionResponseClient responseClient, ModMailLogSetSlashCommand command) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.ModMailLogSetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: command.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        SnowflakeId channelId = button.CustomId.ParsedData["channel"];
+        var channel = await guild.GetChannelAsync(channelId);
+
+        if (channel == null)
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                $"The selected channel {MentionUtils.MentionChannel(channelId)} no longer exists 🤔"));
+            return;
+        }
+
+        GuildTextChannel textChannel = new(channelId, guild.Id, channel.ChannelType);
+        var embed = await command.AddOrUpdateAsync(context, textChannel);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(embed));
+    }
+}
+
 public class ModMailLogStopSlashCommand(
     IModMailLogChannelRepository modMailLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail log-stop";
 
@@ -92,12 +132,12 @@ public class ModMailLogStopSlashCommand(
                     .WithDescription(
                         $"""
                         Ok, I will stop logging mod mail in a different channel than your configured moderation log channel ✅
-                        Use {context.MentionSlashCommand("modmail log-set")} to change the mod mail log channel from the moderation log channel configured with {context.MentionSlashCommand("mod log set")}
+                        Use {mention.SlashCommand("modmail log-set", context)} to change the mod mail log channel from the moderation log channel configured with {mention.SlashCommand("mod log set", context)}
                         """)
                 .Build());
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
@@ -106,7 +146,9 @@ public class ModMailLogStopSlashCommand(
 
 public class ModMailLogShowSlashCommand(
     IModMailLogChannelRepository modMailLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail log-show";
 
@@ -133,7 +175,7 @@ public class ModMailLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             This server is configured to log mod mail in {channel.Mention} ✅
-                            Use {context.MentionSlashCommand("modmail log-stop")} to stop logging mod mail in a different channel than the one configured with {context.MentionSlashCommand("mod log set")}
+                            Use {mention.SlashCommand("modmail log-stop", context)} to stop logging mod mail in a different channel than the one configured with {mention.SlashCommand("mod log set", context)}
                             """);
                     }
                     else
@@ -141,7 +183,7 @@ public class ModMailLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             I can't find the previously configured mod mail command usage logging channel in this server ❌
-                            Was it deleted? Use {context.MentionSlashCommand("modmail log-set")} to log mod mail in another channel
+                            Was it deleted? Use {mention.SlashCommand("modmail log-set", context)} to log mod mail in another channel
                             """);
                     }
                 }
@@ -150,15 +192,15 @@ public class ModMailLogShowSlashCommand(
                     embed.WithDescription(
                         $"""
                         There is no mod mail specific logging channel configured in this server ❌
-                        By default, mod mail logs will be sent in the moderation logging channel configured with {context.MentionSlashCommand("mod log set")}
-                        Use {context.MentionSlashCommand("modmail log-set")} to log mod mail in a different channel
+                        By default, mod mail logs will be sent in the moderation logging channel configured with {mention.SlashCommand("mod log set", context)}
+                        Use {mention.SlashCommand("modmail log-set", context)} to log mod mail in a different channel
                         """);
                 }
 
                 return new EmbedResult(embed.Build());
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));

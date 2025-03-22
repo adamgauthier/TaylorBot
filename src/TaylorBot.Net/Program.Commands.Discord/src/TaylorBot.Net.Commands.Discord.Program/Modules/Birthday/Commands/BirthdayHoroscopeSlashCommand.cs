@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Globalization;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSignRepository zodiacSignRepository, IHoroscopeClient horoscopeClient) : ISlashCommand<BirthdayHoroscopeSlashCommand.Options>
+public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSignRepository zodiacSignRepository, IHoroscopeClient horoscopeClient, CommandMentioner mention) : ISlashCommand<BirthdayHoroscopeSlashCommand.Options>
 {
     public static string CommandName => "birthday horoscope";
 
@@ -35,7 +35,7 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         {user.Mention}'s birthday is not set 🚫
-                        They need to use {context.MentionSlashCommand("birthday set")} to set it first.
+                        They need to use {mention.SlashCommand("birthday set", context)} to set it first.
                         """));
                 }
 

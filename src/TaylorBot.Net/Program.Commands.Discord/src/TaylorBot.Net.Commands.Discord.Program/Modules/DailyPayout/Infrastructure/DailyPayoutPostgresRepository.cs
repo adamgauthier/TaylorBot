@@ -1,12 +1,10 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Options;
-using OperationResult;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure.Taypoints;
 using TaylorBot.Net.Core.User;
-using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 
@@ -84,7 +82,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             """,
             new
             {
-                UserId = user.Id.ToString(),
+                UserId = $"{user.Id}",
                 DaysForBonus = (long)settings.DaysForBonus,
                 BaseBonus = (long)settings.BaseBonusAmount,
                 BonusMultiplier = (long)settings.IncreasingBonusModifier
@@ -110,11 +108,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         }
     }
 
-    private class StreakInfoDto
-    {
-        public long streak_count { get; set; }
-        public long max_streak_count { get; set; }
-    }
+    private record StreakInfoDto(long streak_count, long max_streak_count);
 
     public async ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(DiscordUser user)
     {
@@ -128,27 +122,18 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             """,
             new
             {
-                UserId = user.Id.ToString()
+                UserId = $"{user.Id}",
             }
         );
 
         return streakInfo != null ? (streakInfo.streak_count, streakInfo.max_streak_count) : null;
     }
 
-    private class UpdateStreakDto
-    {
-        public long streak_count { get; set; }
-        public long original_streak_count { get; set; }
-    }
+    private record UpdateStreakDto(long streak_count, long original_streak_count);
 
-    private class RemoveTaypointCountDto
-    {
-        public long original_count { get; set; }
-        public long taypoint_count { get; set; }
-        public long lost_count { get; set; }
-    }
+    private record RemoveTaypointCountDto(long original_count, long taypoint_count, long lost_count);
 
-    public async ValueTask<Result<RebuyResult, RebuyFailed>> RebuyMaxStreakAsync(DiscordUser user, int pricePerDay)
+    public async ValueTask<IRebuyResult> RebuyMaxStreakAsync(DiscordUser user, int pricePerDay)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
         connection.Open();
@@ -168,7 +153,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             """,
             new
             {
-                UserId = user.Id.ToString()
+                UserId = $"{user.Id}",
             }
         );
 
@@ -177,25 +162,27 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             var cost = updateStreak.streak_count * pricePerDay;
 
             var removeTaypointCount = await connection.QuerySingleAsync<RemoveTaypointCountDto>(
-                @"UPDATE users.users AS u
+                """
+                UPDATE users.users AS u
                 SET taypoint_count = GREATEST(0, taypoint_count - @PointsToRemove)
                 FROM (
                     SELECT user_id, taypoint_count AS original_count
                     FROM users.users WHERE user_id = @UserId FOR UPDATE
                 ) AS old_u
                 WHERE u.user_id = old_u.user_id
-                RETURNING old_u.original_count, u.taypoint_count, (old_u.original_count - u.taypoint_count) AS lost_count;",
+                RETURNING old_u.original_count, u.taypoint_count, (old_u.original_count - u.taypoint_count) AS lost_count;
+                """,
                 new
                 {
                     PointsToRemove = cost,
-                    UserId = user.Id.ToString()
+                    UserId = $"{user.Id}",
                 }
             );
 
             if (removeTaypointCount.lost_count < cost)
             {
                 await transaction.RollbackAsync();
-                return Error(new RebuyFailed(removeTaypointCount.original_count));
+                return new RebuyFailedInsufficientFunds(removeTaypointCount.original_count, cost);
             }
             else
             {
@@ -206,7 +193,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         else
         {
             await transaction.RollbackAsync();
-            throw new InvalidOperationException();
+            return new RebuyFailedStaleStreak();
         }
     }
 

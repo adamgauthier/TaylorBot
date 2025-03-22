@@ -4,19 +4,29 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
 public class MonitorEditedSetSlashCommand(
-    IPlusRepository plusRepository,
     IEditedLogChannelRepository editedLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    PlusPrecondition.Factory plusPrecondition,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
 {
     public static string CommandName => "monitor edited set";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public IList<ICommandPrecondition> BuildPreconditions() => [
+        inGuild.Create(botMustBeInGuild: true),
+        plusPrecondition.Create(PlusRequirement.PlusGuild),
+        userHasPermission.Create(GuildPermission.ManageGuild)
+    ];
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
 
@@ -42,12 +52,11 @@ public class MonitorEditedSetSlashCommand(
                             - Edited messages that are older than this time window will be logged but the content before edit won't be available.
                             - Bots often use message editing to provide features. These **will not** be logged as they could quickly clutter your logs.
                             """)),
-                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                        InteractionCustomId.Create(MonitorEditedSetConfirmButtonHandler.CustomIdName, [new("channel", $"{channel.Id}")])
                     );
                 }
                 else
                 {
-
                     return MessageResult.CreatePrompt(
                         new(EmbedFactory.CreateWarning(
                             $"""
@@ -55,33 +64,62 @@ public class MonitorEditedSetSlashCommand(
                             Edited messages are currently being logged to {MentionUtils.MentionChannel(log.ChannelId)} 👈
                             """
                         )),
-                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                        InteractionCustomId.Create(MonitorEditedSetConfirmButtonHandler.CustomIdName, [new("channel", $"{channel.Id}")])
                     );
                 }
             },
-            Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
-                new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-                userHasPermission.Create(GuildPermission.ManageGuild)
-            ]
+            Preconditions: BuildPreconditions()
         ));
     }
 
-    private async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
+    public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
         await editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
 
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {context.MentionSlashCommand("monitor edited stop")} to stop monitoring edited messages ↩️
+            Use {mention.SlashCommand("monitor edited stop", context)} to stop monitoring edited messages ↩️
             """);
+    }
+}
+
+public class MonitorEditedSetConfirmButtonHandler(InteractionResponseClient responseClient, MonitorEditedSetSlashCommand command) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.MonitorEditedSetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: command.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        SnowflakeId channelId = button.CustomId.ParsedData["channel"];
+        var discordChannel = await guild.GetChannelAsync(channelId);
+
+        if (discordChannel == null)
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                $"The selected channel {MentionUtils.MentionChannel(channelId)} no longer exists 🤔"));
+            return;
+        }
+
+        GuildTextChannel channel = new(channelId, guild.Id, discordChannel.ChannelType);
+        var embed = await command.AddOrUpdateAsync(context, channel);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(embed));
     }
 }
 
 public class MonitorEditedShowSlashCommand(
     IEditedLogChannelRepository editedLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor edited show";
 
@@ -108,7 +146,7 @@ public class MonitorEditedShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             This server is configured to log edited messages in {channel.Mention} ✅
-                            Use {context.MentionSlashCommand("monitor edited stop")} to stop monitoring edited messages in this server ↩️
+                            Use {mention.SlashCommand("monitor edited stop", context)} to stop monitoring edited messages in this server ↩️
                             """);
                     }
                     else
@@ -116,7 +154,7 @@ public class MonitorEditedShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             I can't find the previously configured edited messages logging channel in this server ❌
-                            Was it deleted? Use {context.MentionSlashCommand("monitor edited set")} to log edited messages in another channel ↩️
+                            Was it deleted? Use {mention.SlashCommand("monitor edited set", context)} to log edited messages in another channel ↩️
                             """);
                     }
                 }
@@ -125,14 +163,14 @@ public class MonitorEditedShowSlashCommand(
                     embed = EmbedFactory.CreateSuccess(
                         $"""
                         Edited message monitoring is not configured in this server ❌
-                        Use {context.MentionSlashCommand("monitor edited set")} to log edited messages in a specific channel ↩️
+                        Use {mention.SlashCommand("monitor edited set", context)} to log edited messages in a specific channel ↩️
                         """);
                 }
 
                 return new EmbedResult(embed);
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
@@ -141,7 +179,9 @@ public class MonitorEditedShowSlashCommand(
 
 public class MonitorEditedStopSlashCommand(
     IEditedLogChannelRepository editedLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor edited stop";
 
@@ -161,11 +201,11 @@ public class MonitorEditedStopSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Ok, I will stop logging edited messages in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
-                    Use {context.MentionSlashCommand("monitor edited set")} to log edited messages in a specific channel ↩️
+                    Use {mention.SlashCommand("monitor edited set", context)} to log edited messages in a specific channel ↩️
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));

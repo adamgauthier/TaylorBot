@@ -10,7 +10,10 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
 
-public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRepository valentinesRepository) : ISlashCommand<LoveSpreadSlashCommand.Options>
+public class LoveSpreadSlashCommand(
+    Lazy<ITaylorBotClient> client,
+    IValentinesRepository valentinesRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<LoveSpreadSlashCommand.Options>
 {
     public static string CommandName => "love spread";
 
@@ -117,7 +120,7 @@ public class LoveSpreadSlashCommand(Lazy<ITaylorBotClient> client, IValentinesRe
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

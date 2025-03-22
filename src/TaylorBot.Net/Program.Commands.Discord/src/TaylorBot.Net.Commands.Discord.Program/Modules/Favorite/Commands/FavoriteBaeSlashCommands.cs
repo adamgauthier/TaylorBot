@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
@@ -15,7 +16,7 @@ public interface IBaeRepository
     ValueTask ClearBaeAsync(DiscordUser user);
 }
 
-public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeShowSlashCommand.Options>
+public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository, CommandMentioner mention) : ISlashCommand<FavoriteBaeShowSlashCommand.Options>
 {
     public const string PrefixCommandName = "bae";
 
@@ -25,12 +26,14 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
 
     public record Options(ParsedUserOrAuthor user);
 
+    public const string EmbedTitle = "Bae ❤️";
+
     public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteBae)
     {
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithUserAsAuthor(user)
-            .WithTitle("Bae ❤️")
+            .WithTitle(EmbedTitle)
             .WithDescription(favoriteBae)
             .Build();
     }
@@ -51,7 +54,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s bae is not set. 🚫
-                    They need to use {context?.MentionSlashCommand("favorite bae set") ?? "</favorite bae set:1169468169140838502>"} to set it first.
+                    They need to use {mention.SlashCommand("favorite bae set", context)} to set it first.
                     """));
             }
         }
@@ -63,7 +66,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository) : ISlashC
     }
 }
 
-public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCommand<FavoriteBaeSetSlashCommand.Options>
+public class FavoriteBaeSetSlashCommand : ISlashCommand<FavoriteBaeSetSlashCommand.Options>
 {
     public static string CommandName => "favorite bae set";
 
@@ -81,26 +84,40 @@ public class FavoriteBaeSetSlashCommand(IBaeRepository baeRepository) : ISlashCo
 
                 return new(MessageResult.CreatePrompt(
                     new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your bae to the above?")]),
-                    confirm: async () => new(await SetAsync(options.bae.Value))
+                    InteractionCustomId.Create(FavoriteBaeSetConfirmButtonHandler.CustomIdName)
                 ));
-
-                async ValueTask<Embed> SetAsync(string favoriteBae)
-                {
-                    await baeRepository.SetBaeAsync(context.User, options.bae.Value);
-
-                    return EmbedFactory.CreateSuccess(
-                        $"""
-                        Your bae has been set successfully. ✅
-                        Others can now use {context?.MentionSlashCommand("favorite bae show") ?? "</favorite bae show:1169468169140838502>"} to see your bae. ❤️
-                        """);
-                }
             }
         );
         return new(command);
     }
 }
 
-public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository) : ISlashCommand<NoOptions>
+public class FavoriteBaeSetConfirmButtonHandler(InteractionResponseClient responseClient, IBaeRepository baeRepository, CommandMentioner mention) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.FavoriteBaeSetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var promptMessage = button.Interaction.Raw.message;
+        ArgumentNullException.ThrowIfNull(promptMessage);
+
+        var baeEmbed = promptMessage.embeds.First(e => e.title?.Contains(FavoriteBaeShowSlashCommand.EmbedTitle, StringComparison.OrdinalIgnoreCase) == true);
+        ArgumentNullException.ThrowIfNull(baeEmbed);
+        ArgumentNullException.ThrowIfNull(baeEmbed.description);
+
+        await baeRepository.SetBaeAsync(context.User, baeEmbed.description);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(EmbedFactory.CreateSuccess(
+            $"""
+            Your bae has been set successfully ✅
+            Others can now use {mention.SlashCommand("favorite bae show", context)} to see your bae ❤️
+            """)));
+    }
+}
+
+public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "favorite bae clear";
 
@@ -117,7 +134,7 @@ public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository) : ISlash
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your bae has been cleared and is no longer visible. ✅
-                    You can set it again with {context.MentionSlashCommand("favorite bae set")}.
+                    You can set it again with {mention.SlashCommand("favorite bae set", context)}.
                     """));
             }
         ));

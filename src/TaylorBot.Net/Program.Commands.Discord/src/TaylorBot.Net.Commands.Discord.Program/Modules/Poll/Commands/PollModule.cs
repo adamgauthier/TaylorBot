@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 
 [Name("Poll ❓")]
-public class PollModule(ICommandRunner commandRunner) : TaylorBotModule
+public class PollModule(ICommandRunner commandRunner, TaylorBotHasPermissionPrecondition.Factory botHasPermission) : TaylorBotModule
 {
     private readonly static List<Emoji> Choices = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"];
 
@@ -56,11 +56,7 @@ public class PollModule(ICommandRunner commandRunner) : TaylorBotModule
                     AdditionalReacts: Choices.Take(allOptions.Length).ToList()
                 ))));
             },
-            Preconditions:
-            [
-                new InGuildPrecondition(),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.AddReactions),
-            ]
+            Preconditions: [botHasPermission.Create(GuildPermission.AddReactions)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

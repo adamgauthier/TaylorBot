@@ -4,8 +4,10 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.Core.User;
 
@@ -40,9 +42,12 @@ public class TaypointsGiftSlashCommand(
 
             var author = context.User;
 
-            if (amountString == null && recipients.Any(r => r.IsBot))
+            if (amountString == null && recipients.Count == 1 && recipients[0].IsBot)
             {
                 var amountText = FormatAmount(amount);
+
+                var data = GetAmountCustomIdData(amount);
+                data.Add(new("user", $"{recipients[0].Id}"));
 
                 return MessageResult.CreatePrompt(
                     new(EmbedFactory.CreateWarning(
@@ -50,7 +55,7 @@ public class TaypointsGiftSlashCommand(
                         Are you sure you want to transfer {amountText} to a bot? ⚠️
                         Bots can **NOT** transfer taypoints back. **Your taypoints will be lost!** 🥶
                         """)),
-                    confirm: async () => new(EmbedFactory.CreateSuccess(await TransferAsync(context, author, recipients, amount)))
+                    InteractionCustomId.Create(TaypointsGiftConfirmButtonHandler.CustomIdName, data)
                 );
             }
             else
@@ -59,7 +64,7 @@ public class TaypointsGiftSlashCommand(
                     ? absolute.Balance >= 1_000 && GetPercent(absolute) >= 0.50
                     : ((RelativeTaypointAmount)amount).Proportion <= 2;
 
-                if (amountString == null && shouldConfirm)
+                if (amountString == null && recipients.Count == 1 && shouldConfirm)
                 {
                     var amountText = FormatAmount(amount);
                     var promptText = amount is AbsoluteTaypointAmount absolute2
@@ -69,9 +74,12 @@ public class TaypointsGiftSlashCommand(
                           """
                         : $"Are you sure you want to transfer {amountText}? ⚠️";
 
+                    var data = GetAmountCustomIdData(amount);
+                    data.Add(new("user", $"{recipients[0].Id}"));
+
                     return MessageResult.CreatePrompt(
                         new(EmbedFactory.CreateWarning(promptText)),
-                        confirm: async () => new(EmbedFactory.CreateSuccess(await TransferAsync(context, author, recipients, amount)))
+                        InteractionCustomId.Create(TaypointsGiftConfirmButtonHandler.CustomIdName, data)
                     );
                 }
                 else
@@ -86,6 +94,24 @@ public class TaypointsGiftSlashCommand(
             }
         }
     );
+
+    private List<CustomIdDataEntry> GetAmountCustomIdData(ITaypointAmount amount)
+    {
+        var data = new List<CustomIdDataEntry>();
+
+        if (amount is AbsoluteTaypointAmount abs)
+        {
+            data.Add(new("type", "abs"));
+            data.Add(new("amt", $"{abs.Amount}"));
+        }
+        else if (amount is RelativeTaypointAmount rel)
+        {
+            data.Add(new("type", "rel"));
+            data.Add(new("prop", rel.Proportion.ToString()));
+        }
+
+        return data;
+    }
 
     private static double GetPercent(AbsoluteTaypointAmount absolute)
     {
@@ -111,7 +137,7 @@ public class TaypointsGiftSlashCommand(
         };
     }
 
-    private async ValueTask<string> TransferAsync(RunContext context, DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount)
+    public async ValueTask<string> TransferAsync(RunContext context, DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount)
     {
         var transfer = await taypointTransferRepository.TransferTaypointsAsync(from, to, amount);
 
@@ -149,6 +175,42 @@ public class TaypointsGiftSlashCommand(
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(Gift(context, [options.user.User], options.amount));
+    }
+}
+
+public class TaypointsGiftConfirmButtonHandler(
+    Lazy<ITaylorBotClient> client,
+    InteractionResponseClient responseClient,
+    TaypointsGiftSlashCommand command) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.TaypointsGiftConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        SnowflakeId userId = button.CustomId.ParsedData["user"];
+        var amount = ParseAmount(button);
+
+        var user = await client.Value.ResolveRequiredUserAsync(userId);
+        var description = await command.TransferAsync(context, context.User, [new(user)], amount);
+
+        await responseClient.EditOriginalResponseAsync(
+            button.Interaction,
+            EmbedFactory.CreateSuccessEmbed(description.Truncate(EmbedBuilder.MaxDescriptionLength)));
+    }
+
+    private static ITaypointAmount ParseAmount(DiscordButtonComponent button)
+    {
+        var type = button.CustomId.ParsedData["type"];
+        return type switch
+        {
+            "abs" => new AbsoluteTaypointAmount(long.Parse(button.CustomId.ParsedData["amt"]), Balance: -1),
+            "rel" => new RelativeTaypointAmount(byte.Parse(button.CustomId.ParsedData["prop"])),
+            _ => throw new NotImplementedException(type),
+        };
     }
 }
 

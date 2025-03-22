@@ -1,7 +1,6 @@
 ﻿using Discord;
 using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.PostExecution;
-using TaylorBot.Net.Core.Embed;
 using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands;
@@ -34,32 +33,6 @@ public record MessageResult(MessageContent Content, ButtonConfig? Buttons = null
         ], new PermanentButtonSettings()));
     }
 
-    public static MessageResult CreatePrompt(MessageContent initialContent, Func<ValueTask<MessageContent>> confirm, Func<ValueTask<MessageContent>>? cancel = null)
-        => CreatePrompt(initialContent, confirm.ConvertToOnClick(), cancel?.ConvertToOnClick());
-
-    public static MessageResult CreatePrompt(MessageContent initialContent, Func<ValueTask<MessageResult>> confirm, Func<ValueTask<MessageResult>>? cancel = null)
-    {
-        Func<ValueTask<MessageResult>> cancelFunc = cancel ??
-            (() => new(new MessageResult(new MessageContent(EmbedFactory.CreateError("Operation cancelled 👍")))));
-
-        async ValueTask<IButtonClickResult> Confirm(string userId)
-        {
-            var result = await confirm();
-            return new UpdateMessage(result);
-        }
-
-        async ValueTask<IButtonClickResult> Cancel(string userId)
-        {
-            var result = await cancelFunc();
-            return new UpdateMessage(result);
-        }
-
-        return new MessageResult(initialContent, new([
-            new ButtonResult(new("confirm", ButtonStyle.Success, Label: "Confirm"), Confirm),
-            new ButtonResult(new("cancel", ButtonStyle.Danger, Label: "Cancel"), Cancel),
-        ]));
-    }
-
     public record ButtonConfig(IReadOnlyList<ButtonResult> Buttons, IButtonSettings Settings)
     {
         public ButtonConfig(IReadOnlyList<ButtonResult> Buttons) : this(Buttons, new TemporaryButtonSettings()) { }
@@ -79,18 +52,6 @@ public record MessageResult(MessageContent Content, ButtonConfig? Buttons = null
     }
     public record DeleteMessage() : IButtonClickResult;
     public record IgnoreClick() : IButtonClickResult;
-}
-
-public static class ButtonOnClickFuncExtensions
-{
-    public static Func<ValueTask<MessageResult>> ConvertToOnClick(this Func<ValueTask<MessageContent>> func)
-    {
-        return async () =>
-        {
-            var content = await func();
-            return new MessageResult(content);
-        };
-    }
 }
 
 public enum TextInputStyle { Short, Paragraph }

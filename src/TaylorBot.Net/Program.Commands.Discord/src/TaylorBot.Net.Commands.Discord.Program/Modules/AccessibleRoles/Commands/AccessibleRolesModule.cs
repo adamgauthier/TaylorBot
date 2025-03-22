@@ -14,7 +14,11 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Command
 [Name("Roles 🆔")]
 [Group("roles")]
 [Alias("role", "gr")]
-public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRoleRepository accessibleRoleRepository, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : TaylorBotModule
+public class AccessibleRolesModule(
+    ICommandRunner commandRunner,
+    IAccessibleRoleRepository accessibleRoleRepository,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    TaylorBotHasPermissionPrecondition.Factory botHasPermission) : TaylorBotModule
 {
     [Priority(-1)]
     [Command]
@@ -148,10 +152,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            ]
+            Preconditions: [botHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -212,10 +213,7 @@ public class AccessibleRolesModule(ICommandRunner commandRunner, IAccessibleRole
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
-            ]
+            Preconditions: [botHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

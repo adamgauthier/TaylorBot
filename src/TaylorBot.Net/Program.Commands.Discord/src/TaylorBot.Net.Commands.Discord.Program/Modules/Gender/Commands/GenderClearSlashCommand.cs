@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderClearSlashCommand(IGenderRepository genderRepository) : ISlashCommand<NoOptions>
+public class GenderClearSlashCommand(IGenderRepository genderRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "gender clear";
 
@@ -21,7 +21,7 @@ public class GenderClearSlashCommand(IGenderRepository genderRepository) : ISlas
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your gender has been cleared. It will no longer be included in </server population:1137547317549998130> stats. ✅
-                    You can set it again with {context.MentionSlashCommand("gender set")}.
+                    You can set it again with {mention.SlashCommand("gender set", context)}.
                     """));
             }
         ));

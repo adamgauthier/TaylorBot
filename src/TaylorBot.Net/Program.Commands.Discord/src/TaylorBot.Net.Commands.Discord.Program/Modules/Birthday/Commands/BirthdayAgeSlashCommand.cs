@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdayAgeSlashCommand.Options>
+public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator, CommandMentioner mention) : ISlashCommand<BirthdayAgeSlashCommand.Options>
 {
     public static string CommandName => "birthday age";
 
@@ -44,7 +44,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Age
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
                             {user.Mention}'s birthday was set without a year so I can't tell how old they are. 🚫
-                            Use {context.MentionSlashCommand("birthday set")} with the **year** option, your age will automatically update and you will get taypoints on your birthday every year! 🎈
+                            Use {mention.SlashCommand("birthday set", context)} with the **year** option, your age will automatically update and you will get taypoints on your birthday every year! 🎈
                             Don't want to share your exact birthday, but want the points, horoscope and age commands? Use the **privately** option. 🕵️
                             """));
                     }
@@ -54,7 +54,7 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Age
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         {user.Mention}'s birthday is not set so I can't tell how old they are. 🚫
-                        They need to use {context.MentionSlashCommand("birthday set")} to set it first.
+                        They need to use {mention.SlashCommand("birthday set", context)} to set it first.
                         """));
                 }
             }

@@ -11,7 +11,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 
-public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistoryRepository) : ISlashCommand<UsernamesShowSlashCommand.Options>
+public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistoryRepository, CommandMentioner mention) : ISlashCommand<UsernamesShowSlashCommand.Options>
 {
     public static string CommandName => "usernames show";
 
@@ -32,7 +32,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
                     .WithDescription(
                         $"""
                         {user.Mention}'s username history is **private** and can't be viewed 🕵️
-                        Use {context?.MentionSlashCommand("usernames visibility") ?? "</usernames visibility:1214813880463921242>"} to change your username history visibility 🫣
+                        Use {mention.SlashCommand("usernames visibility", context)} to change your username history visibility 🫣
                         """)
                 .Build());
             }

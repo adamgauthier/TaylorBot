@@ -5,7 +5,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository) : ISlashCommand<NoOptions>
+public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "birthday clear";
 
@@ -22,7 +22,7 @@ public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository) :
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your birthday has been cleared. Calendar, horoscope, age and birthday taypoints will no longer work. ✅
-                    You can set it again with {context.MentionSlashCommand("birthday set")}.
+                    You can set it again with {mention.SlashCommand("birthday set", context)}.
                     """));
             }
         ));

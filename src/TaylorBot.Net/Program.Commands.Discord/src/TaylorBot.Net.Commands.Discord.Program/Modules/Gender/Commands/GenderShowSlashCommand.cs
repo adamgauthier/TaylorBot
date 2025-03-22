@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlashCommand<GenderShowSlashCommand.Options>
+public class GenderShowSlashCommand(IGenderRepository genderRepository, CommandMentioner mention) : ISlashCommand<GenderShowSlashCommand.Options>
 {
     public const string PrefixCommandName = "gender";
 
@@ -40,7 +40,7 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository) : ISlash
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s gender is not set. 🚫
-                    They need to use {context?.MentionSlashCommand("gender set") ?? "</gender set:1150180971224764510>"} to set it first.
+                    They need to use {mention.SlashCommand("gender set", context)} to set it first.
                     """));
             }
         }

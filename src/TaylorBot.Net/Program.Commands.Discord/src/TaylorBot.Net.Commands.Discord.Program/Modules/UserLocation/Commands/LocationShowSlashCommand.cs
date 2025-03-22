@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationShowCommand(ILocationRepository locationRepository)
+public class LocationShowCommand(ILocationRepository locationRepository, CommandMentioner mention)
 {
     public static readonly CommandMetadata Metadata = new("location show", "Location 🌍");
 
@@ -38,7 +38,7 @@ public class LocationShowCommand(ILocationRepository locationRepository)
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s location is not set. 🚫
-                    They need to use {context?.MentionSlashCommand("location set") ?? "</location set:1141925890448691270>"} to set it first.
+                    They need to use {mention.SlashCommand("location set", context)} to set it first.
                     """
                 ));
             }

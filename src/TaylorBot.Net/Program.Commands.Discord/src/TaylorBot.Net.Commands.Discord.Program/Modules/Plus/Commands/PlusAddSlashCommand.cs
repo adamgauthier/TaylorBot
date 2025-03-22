@@ -7,7 +7,11 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 
-public class PlusAddSlashCommand(IPlusRepository plusRepository, IPlusUserRepository plusUserRepository) : ISlashCommand<NoOptions>
+public class PlusAddSlashCommand(
+    IPlusUserRepository plusUserRepository,
+    PlusPrecondition.Factory plusPrecondition,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "plus add";
 
@@ -33,7 +37,7 @@ public class PlusAddSlashCommand(IPlusRepository plusRepository, IPlusUserReposi
                         .WithDescription(
                             $"""
                             Unfortunately you can't add more **TaylorBot Plus** servers with your current membership 😕
-                            Use {context.MentionSlashCommand("plus show")} to see your plus servers and maybe remove some with {context.MentionSlashCommand("plus remove")}
+                            Use {mention.SlashCommand("plus show", context)} to see your plus servers and maybe remove some with {mention.SlashCommand("plus remove", context)}
                             """);
                 }
                 else
@@ -57,8 +61,8 @@ public class PlusAddSlashCommand(IPlusRepository plusRepository, IPlusUserReposi
                 return new EmbedResult(embed.Build());
             },
             Preconditions: [
-                new InGuildPrecondition(),
-                new PlusPrecondition(plusRepository, PlusRequirement.PlusUser),
+                inGuild.Create(),
+                plusPrecondition.Create(PlusRequirement.PlusUser),
             ]
         ));
     }

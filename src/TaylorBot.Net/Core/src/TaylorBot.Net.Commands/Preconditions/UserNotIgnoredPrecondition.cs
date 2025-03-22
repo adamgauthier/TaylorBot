@@ -14,7 +14,7 @@ public interface IIgnoredUserRepository
     ValueTask IgnoreUntilAsync(DiscordUser user, DateTimeOffset until);
 }
 
-public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService) : ICommandPrecondition
+public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, CommandMentioner mention) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -26,7 +26,7 @@ public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserReposi
             new PreconditionFailed(
                 PrivateReason: $"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}",
                 UserReason: new(
-                    $"You can't use {context.MentionCommand(command)} because you are ignored until {getUserIgnoreUntilResult.IgnoreUntil.Humanize(culture: TaylorBotCulture.Culture)}.",
+                    $"You can't use {mention.Command(command, context)} because you are ignored until {getUserIgnoreUntilResult.IgnoreUntil.Humanize(culture: TaylorBotCulture.Culture)}.",
                     HideInPrefixCommands: true
                 )
             ) :

@@ -18,7 +18,9 @@ public static class Valentines
     public static readonly List<SnowflakeId> VipUserIds = [748723450511753298, 119341483219353602];
 }
 
-public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<ValentinesVerifySlashCommand.Options>
+public class ValentinesVerifySlashCommand(
+    PostgresConnectionFactory postgresConnectionFactory,
+    CommandMentioner mention) : ISlashCommand<ValentinesVerifySlashCommand.Options>
 {
     public static string CommandName => "valentines verify";
 
@@ -92,7 +94,7 @@ public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConn
 
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        Your code is **NOT** the answer. Added 1 failed attempt to your {context.MentionSlashCommand("valentines profile")}
+                        Your code is **NOT** the answer. Added 1 failed attempt to your {mention.SlashCommand("valentines profile", context)}
                         Better luck next time! 🤐
                         """
                     ));
@@ -119,7 +121,7 @@ public class ValentinesVerifySlashCommand(PostgresConnectionFactory postgresConn
                         $"""
                         Congrats, your code is right! 🎉
                         You solved {options.puzzle.Value} after {"attempt".ToQuantity(attemptCount, TaylorBotFormats.BoldReadable)} 🎊
-                        Your {context.MentionSlashCommand("valentines profile")} has been updated! ✅
+                        Your {mention.SlashCommand("valentines profile", context)} has been updated! ✅
                         **IMPORTANT**: Make sure all your teammates verify this code as soon as possible to secure maximum points for your team!
                         """
                     ));
@@ -239,11 +241,14 @@ public class ValentinesStatusSlashCommand(PostgresConnectionFactory postgresConn
     }
 }
 
-public class ValentinesEnableSlashCommand(PostgresConnectionFactory postgresConnectionFactory) : ISlashCommand<ValentinesEnableSlashCommand.Options>
+public class ValentinesEnableSlashCommand(
+    PostgresConnectionFactory postgresConnectionFactory,
+    TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<ValentinesEnableSlashCommand.Options>
 {
     public static string CommandName => "owner enable-puzzle";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
+
     public record Options(ParsedString puzzle, ParsedOptionalBoolean enable);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -268,11 +273,10 @@ public class ValentinesEnableSlashCommand(PostgresConnectionFactory postgresConn
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Set {options.puzzle.Value} Enabled={enabled}"));
             },
             [
-                new TaylorBotOwnerOrIdPrecondition(Valentines.VipUserIds, new TaylorBotOwnerPrecondition())
+                new TaylorBotOwnerOrIdPrecondition(Valentines.VipUserIds, ownerPrecondition)
             ]));
     }
 }
-
 
 public class TaylorBotOwnerOrIdPrecondition(IList<SnowflakeId> userIds, TaylorBotOwnerPrecondition ownerPrecondition) : ICommandPrecondition
 {

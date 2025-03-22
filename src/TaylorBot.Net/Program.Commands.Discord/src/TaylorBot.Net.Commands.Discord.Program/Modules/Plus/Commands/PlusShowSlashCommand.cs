@@ -6,10 +6,11 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Strings;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 
-public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepository plusUserRepository) : ISlashCommand<NoOptions>
+public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepository plusUserRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "plus show";
 
@@ -44,9 +45,9 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                                     These servers benefit from **TaylorBot Plus** features thanks to you!
                                     {string.Join('\n', plusUser.ActivePlusGuilds.Select(name => $"- {name}"))}
 
-                                    Use {context.MentionSlashCommand("plus add")} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
+                                    Use {mention.SlashCommand("plus add", context)} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
                                     """.Truncate(EmbedFieldBuilder.MaxFieldValueLength) :
-                                    $"You don't have any plus server set, add one with {context.MentionSlashCommand("plus add")} (up to **{plusUser.MaxPlusGuilds}**)!"
+                                    $"You don't have any plus server set, add one with {mention.SlashCommand("plus add", context)} (up to **{plusUser.MaxPlusGuilds}**)!"
                             );
                     }
                     else
@@ -84,7 +85,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                         $"'{guild.Name}' is a **TaylorBot Plus** server ✅" :
                         $"""
                         '{guild.Name}' is not a **TaylorBot Plus** server ❌
-                        Use {context.MentionSlashCommand("plus add")} to give it access to exclusive perks ➕
+                        Use {mention.SlashCommand("plus add", context)} to give it access to exclusive perks ➕
                         """;
 
                     embed.AddField("This Server", text);

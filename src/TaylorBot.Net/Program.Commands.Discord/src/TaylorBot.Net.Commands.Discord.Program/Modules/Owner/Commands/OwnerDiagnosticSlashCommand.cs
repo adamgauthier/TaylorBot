@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerDiagnosticSlashCommand(Lazy<ITaylorBotClient> taylorBotClient) : ISlashCommand<NoOptions>
+public class OwnerDiagnosticSlashCommand(Lazy<ITaylorBotClient> taylorBotClient, TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "owner diagnostic";
 
@@ -33,9 +33,7 @@ public class OwnerDiagnosticSlashCommand(Lazy<ITaylorBotClient> taylorBotClient)
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [
-                new TaylorBotOwnerPrecondition(),
-            ]
+            Preconditions: [ownerPrecondition]
         ));
     }
 }

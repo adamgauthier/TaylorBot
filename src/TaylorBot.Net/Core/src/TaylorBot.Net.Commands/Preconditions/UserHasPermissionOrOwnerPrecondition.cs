@@ -4,7 +4,12 @@ using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public class UserHasPermissionOrOwnerPrecondition(InGuildPrecondition.Factory inGuild, TaylorBotOwnerPrecondition taylorBotOwner, PermissionStringMapper permissionMapper, params GuildPermission[] permissions) : ICommandPrecondition
+public class UserHasPermissionOrOwnerPrecondition(
+    InGuildPrecondition.Factory inGuild,
+    TaylorBotOwnerPrecondition taylorBotOwner,
+    PermissionStringMapper permissionMapper,
+    CommandMentioner mention,
+    params GuildPermission[] permissions) : ICommandPrecondition
 {
     public class Factory(IServiceProvider services)
     {
@@ -23,7 +28,7 @@ public class UserHasPermissionOrOwnerPrecondition(InGuildPrecondition.Factory in
         {
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} can only be used by a guild member",
-                UserReason: new($"You can't use {context.MentionCommand(command)} because it can only be used in a server 🚫")
+                UserReason: new($"You can't use {mention.Command(command, context)} because it can only be used in a server 🚫")
             );
         }
 
@@ -53,7 +58,7 @@ public class UserHasPermissionOrOwnerPrecondition(InGuildPrecondition.Factory in
                         PrivateReason: $"{command.Metadata.Name} can only be used with one of {string.Join(',', permissions)}",
                         UserReason: new(
                             $"""
-                            You can't use {context.MentionCommand(command)} because you need {permissionMessage} 🚫
+                            You can't use {mention.Command(command, context)} because you need {permissionMessage} 🚫
                             Ask someone with more permissions than you to use the command or to give you this permission in the server settings ⚙️
                             """)
                     );

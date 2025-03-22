@@ -13,7 +13,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
-public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class RpsLeaderboardSlashCommand(
+    IRpsStatsRepository rpsStatsRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "rps leaderboard";
 
@@ -59,13 +63,13 @@ public class RpsLeaderboardSlashCommand(IRpsStatsRepository rpsStatsRepository, 
                         emptyText:
                         $"""
                         No rps played by members of this server.
-                        Members need to use {context.MentionSlashCommand("rps play")}! 😊
+                        Members need to use {mention.SlashCommand("rps play", context)}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

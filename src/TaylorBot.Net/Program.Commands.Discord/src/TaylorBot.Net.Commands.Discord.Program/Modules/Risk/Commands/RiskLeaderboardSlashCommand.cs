@@ -13,7 +13,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 
-public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class RiskLeaderboardSlashCommand(
+    IRiskStatsRepository riskStatsRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "risk leaderboard";
 
@@ -59,13 +63,13 @@ public class RiskLeaderboardSlashCommand(IRiskStatsRepository riskStatsRepositor
                         emptyText:
                         $"""
                         No risks played by members of this server.
-                        Members need to use {context.MentionSlashCommand("risk play")}! 😊
+                        Members need to use {mention.SlashCommand("risk play", context)}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

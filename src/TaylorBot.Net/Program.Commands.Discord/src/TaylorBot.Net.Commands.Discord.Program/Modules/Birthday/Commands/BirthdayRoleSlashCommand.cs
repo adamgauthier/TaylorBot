@@ -20,17 +20,19 @@ public interface IBirthdayRoleConfigRepository
 }
 
 public class BirthdayRoleSlashCommand(
-    IPlusRepository plusRepository,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    TaylorBotHasPermissionPrecondition.Factory botHasPermission,
+    PlusPrecondition.Factory plusPrecondition,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "birthday role";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public IList<ICommandPrecondition> BuildPreconditions() => [
-        new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-        new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles),
+        plusPrecondition.Create(PlusRequirement.PlusGuild),
+        botHasPermission.Create(GuildPermission.ManageRoles),
         userHasPermission.Create(GuildPermission.ManageRoles),
     ];
 
@@ -111,10 +113,10 @@ public class BirthdayRoleSlashCommand(
         ));
     }
 
-    public static string HowItWorks(RunContext context) =>
+    public string HowItWorks(RunContext context) =>
         $"""
         ### How Does It Work ❓
-        - A member sets their birthday with {context.MentionSlashCommand("birthday set")} 🎂
+        - A member sets their birthday with {mention.SlashCommand("birthday set", context)} 🎂
         - On their birthday, **they automatically get the role** 🎈
         - When the birthday is over, **the role is removed automatically** 🥲
 
@@ -152,7 +154,7 @@ public class BirthdayRoleCreateButtonHandler(
                 $"""
                 Birthday role created: {role.Mention} ✅
                 Feel free to **change the name, color, order, etc.** 🖌️
-                {BirthdayRoleSlashCommand.HowItWorks(context)}
+                {birthdayRoleSlashCommand.HowItWorks(context)}
                 """)
             .Build();
 
@@ -164,7 +166,8 @@ public class BirthdayRoleRemoveButtonHandler(
     ILogger<BirthdayRoleRemoveButtonHandler> logger,
     InteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
-    BirthdayRoleSlashCommand birthdayRoleSlashCommand
+    BirthdayRoleSlashCommand birthdayRoleSlashCommand,
+    CommandMentioner mention
 ) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.BirthdayRoleRemove;
@@ -200,7 +203,7 @@ public class BirthdayRoleRemoveButtonHandler(
             $"""
             Successfully **removed birthday role from this server** ✅
             Members will no longer automatically receive a role on their birthday 🎂
-            Use {context.MentionSlashCommand("birthday role")} again to re-create the role 🎈
+            Use {mention.SlashCommand("birthday role", context)} again to re-create the role 🎈
             """));
     }
 }

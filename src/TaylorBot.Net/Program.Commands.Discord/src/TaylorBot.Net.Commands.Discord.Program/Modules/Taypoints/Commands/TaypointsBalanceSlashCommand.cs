@@ -18,7 +18,8 @@ public record TaypointBalance(long TaypointCount, int? ServerRank);
 public class TaypointsBalanceSlashCommand(
     ITaypointBalanceRepository taypointBalanceRepository,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
-    TaskExceptionLogger taskExceptionLogger) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
+    TaskExceptionLogger taskExceptionLogger,
+    CommandMentioner mention) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
 {
     public static string CommandName => "taypoints balance";
 
@@ -48,9 +49,9 @@ public class TaypointsBalanceSlashCommand(
         }
     );
 
-    private static string GetRankText(RunContext context, bool isLegacyCommand, int serverRank)
+    private string GetRankText(RunContext context, bool isLegacyCommand, int serverRank)
     {
-        var commandMention = isLegacyCommand ? "</taypoints leaderboard:1103846727880028180>" : context.MentionSlashCommand("taypoints leaderboard");
+        var commandMention = isLegacyCommand ? "</taypoints leaderboard:1103846727880028180>" : mention.SlashCommand("taypoints leaderboard", context);
         var emoji = serverRank switch
         {
             1 => "🥇",

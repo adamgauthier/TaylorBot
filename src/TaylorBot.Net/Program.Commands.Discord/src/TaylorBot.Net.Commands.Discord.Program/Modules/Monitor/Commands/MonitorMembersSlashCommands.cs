@@ -4,21 +4,31 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 
 public class MonitorMembersSetSlashCommand(
-    IPlusRepository plusRepository,
     IMemberLogChannelRepository memberLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    PlusPrecondition.Factory plusPrecondition,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
 {
     public static string CommandName => "monitor members set";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedNonThreadTextChannelOrCurrent channel);
+
+    public IList<ICommandPrecondition> BuildPreconditions() => [
+        inGuild.Create(botMustBeInGuild: true),
+        plusPrecondition.Create(PlusRequirement.PlusGuild),
+        userHasPermission.Create(GuildPermission.ManageGuild)
+    ];
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -45,33 +55,62 @@ public class MonitorMembersSetSlashCommand(
                             Member joins, leaves and bans are currently being logged to {MentionUtils.MentionChannel(log.ChannelId)} 👈
                             """
                         )),
-                        confirm: async () => new(await AddOrUpdateAsync(context, channel))
+                        InteractionCustomId.Create(MonitorMembersSetConfirmButtonHandler.CustomIdName, [new("channel", $"{channel.Id}")])
                     );
                 }
             },
-            Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
-                new PlusPrecondition(plusRepository, PlusRequirement.PlusGuild),
-                userHasPermission.Create(GuildPermission.ManageGuild)
-            ]
+            Preconditions: BuildPreconditions()
         ));
     }
 
-    private async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
+    public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
         await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
 
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log member joins, leaves and bans in {channel.Mention} ✅
-            Use {context.MentionSlashCommand("monitor members stop")} to stop monitoring member events ↩️
+            Use {mention.SlashCommand("monitor members stop", context)} to stop monitoring member events ↩️
             """);
+    }
+}
+
+public class MonitorMembersSetConfirmButtonHandler(InteractionResponseClient responseClient, MonitorMembersSetSlashCommand command) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.MonitorMembersSetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: command.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        SnowflakeId channelId = button.CustomId.ParsedData["channel"];
+        var discordChannel = await guild.GetChannelAsync(channelId);
+
+        if (discordChannel == null)
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                $"The selected channel {MentionUtils.MentionChannel(channelId)} no longer exists 🤔"));
+            return;
+        }
+
+        GuildTextChannel channel = new(channelId, guild.Id, discordChannel.ChannelType);
+        var embed = await command.AddOrUpdateAsync(context, channel);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(embed));
     }
 }
 
 public class MonitorMembersShowSlashCommand(
     IMemberLogChannelRepository memberLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor members show";
 
@@ -98,7 +137,7 @@ public class MonitorMembersShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             This server is configured to log member joins, leaves and bans in {channel.Mention} ✅
-                            Use {context.MentionSlashCommand("monitor members stop")} to stop monitoring member events in this server ↩️
+                            Use {mention.SlashCommand("monitor members stop", context)} to stop monitoring member events in this server ↩️
                             """);
                     }
                     else
@@ -106,7 +145,7 @@ public class MonitorMembersShowSlashCommand(
                         embed = EmbedFactory.CreateSuccess(
                             $"""
                             I can't find the previously configured member events logging channel in this server ❌
-                            Was it deleted? Use {context.MentionSlashCommand("monitor members set")} to log member events in another channel ↩️
+                            Was it deleted? Use {mention.SlashCommand("monitor members set", context)} to log member events in another channel ↩️
                             """);
                     }
                 }
@@ -115,14 +154,14 @@ public class MonitorMembersShowSlashCommand(
                     embed = EmbedFactory.CreateSuccess(
                         $"""
                         Member events monitoring is not configured in this server ❌
-                        Use {context.MentionSlashCommand("monitor members set")} to log member events in a specific channel  ↩️
+                        Use {mention.SlashCommand("monitor members set", context)} to log member events in a specific channel  ↩️
                         """);
                 }
 
                 return new EmbedResult(embed);
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));
@@ -131,7 +170,9 @@ public class MonitorMembersShowSlashCommand(
 
 public class MonitorMembersStopSlashCommand(
     IMemberLogChannelRepository memberLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<NoOptions>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "monitor members stop";
 
@@ -151,11 +192,11 @@ public class MonitorMembersStopSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Ok, I will stop logging member events in this server ✅
-                    Use {context.MentionSlashCommand("monitor members set")} to log member events in a specific channel ↩️
+                    Use {mention.SlashCommand("monitor members set", context)} to log member events in a specific channel ↩️
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.ManageGuild)
             ]
         ));

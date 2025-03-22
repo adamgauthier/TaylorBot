@@ -10,7 +10,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdayShowSlashCommand.Options>
+public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator, CommandMentioner mention) : ISlashCommand<BirthdayShowSlashCommand.Options>
 {
     public static string CommandName => "birthday show";
 
@@ -59,7 +59,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         {user.Mention}'s birthday is private. 🙅
-                        To set your birthday privately, use {(!isPrefix ? context.MentionSlashCommand("birthday set") : "</birthday set:1016938623880400907>")} with the **privately** option.
+                        To set your birthday privately, use {mention.SlashCommand("birthday set", context)} with the **privately** option.
                         """));
                 }
             }
@@ -68,7 +68,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s birthday is not set. 🚫
-                    They need to use {(!isPrefix ? context.MentionSlashCommand("birthday set") : "</birthday set:1016938623880400907>")} to set it first.
+                    They need to use {mention.SlashCommand("birthday set", context)} to set it first.
                     """));
             }
         }

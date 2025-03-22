@@ -10,7 +10,7 @@ using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
-public class RemindManageSlashCommand(IReminderRepository reminderRepository) : ISlashCommand<NoOptions>
+public class RemindManageSlashCommand(IReminderRepository reminderRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "remind manage";
 
@@ -35,7 +35,7 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository) : 
                     string.Join("\n", reminderViews.Select(r => $"{r.UserFacingId}. {r.Summary}")) :
                     $"""
                     You don't have any reminders 😶
-                    Add one with {context.MentionSlashCommand("remind add")} ⏲️
+                    Add one with {mention.SlashCommand("remind add", context)} ⏲️
                     """;
 
                 var clearButtons = reminderViews.Select(r =>

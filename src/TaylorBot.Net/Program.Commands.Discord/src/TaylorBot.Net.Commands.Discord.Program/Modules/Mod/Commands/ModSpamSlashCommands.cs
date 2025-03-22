@@ -9,7 +9,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 
 public class ModSpamAddSlashCommand(
     ISpamChannelRepository spamChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModSpamAddSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    CommandMentioner mention) : ISlashCommand<ModSpamAddSlashCommand.Options>
 {
     public static string CommandName => "mod spam add";
 
@@ -29,7 +30,7 @@ public class ModSpamAddSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Users' messages and words in {options.channel.Channel.Mention} will no longer be counted. ✅
-                    Use {context.MentionSlashCommand("mod spam remove")} to revert and mark the channel as non-spam.
+                    Use {mention.SlashCommand("mod spam remove", context)} to revert and mark the channel as non-spam.
                     """));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
@@ -39,7 +40,8 @@ public class ModSpamAddSlashCommand(
 
 public class ModSpamRemoveSlashCommand(
     ISpamChannelRepository spamChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    CommandMentioner mention) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
 {
     public static string CommandName => "mod spam remove";
 
@@ -59,7 +61,7 @@ public class ModSpamRemoveSlashCommand(
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Users' messages and words in {options.channel.Channel.Mention} are now counted. ✅
-                    Use {context.MentionSlashCommand("mod spam add")} to revert and mark the channel as spam.
+                    Use {mention.SlashCommand("mod spam add", context)} to revert and mark the channel as spam.
                     """));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]

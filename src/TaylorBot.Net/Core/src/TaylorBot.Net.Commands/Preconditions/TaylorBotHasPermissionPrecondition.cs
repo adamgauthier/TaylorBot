@@ -1,12 +1,19 @@
 ﻿using Discord;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.StringMappers;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public class TaylorBotHasPermissionPrecondition(GuildPermission permission) : ICommandPrecondition
+public class TaylorBotHasPermissionPrecondition(InGuildPrecondition.Factory inGuild, GuildPermission permission) : ICommandPrecondition
 {
+    public class Factory(IServiceProvider services)
+    {
+        public TaylorBotHasPermissionPrecondition Create(GuildPermission permission) =>
+            ActivatorUtilities.CreateInstance<TaylorBotHasPermissionPrecondition>(services, permission);
+    }
+
     private readonly PermissionStringMapper _permissionStringMapper = new();
-    private readonly InGuildPrecondition _inGuild = new(botMustBeInGuild: true);
+    private readonly InGuildPrecondition _inGuild = inGuild.Create(botMustBeInGuild: true);
 
     public GuildPermission GuildPermission { get; } = permission;
 

@@ -19,7 +19,8 @@ public class TaypointsLeaderboardSlashCommand(
     ITaypointBalanceRepository taypointBalanceRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
-    TaskExceptionLogger taskExceptionLogger) : ISlashCommand<NoOptions>
+    TaskExceptionLogger taskExceptionLogger,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "taypoints leaderboard";
 
@@ -72,7 +73,7 @@ public class TaypointsLeaderboardSlashCommand(
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

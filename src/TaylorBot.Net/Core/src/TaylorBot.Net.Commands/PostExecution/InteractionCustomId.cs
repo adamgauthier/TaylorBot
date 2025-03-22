@@ -50,6 +50,19 @@ public enum CustomIdNames
     BirthdayRoleCreate = 106,
     BirthdayRoleRemove = 107,
     BirthdaySetConfirm = 108,
+    DailyRebuyConfirm = 109,
+    FavoriteBaeSetConfirm = 110,
+    FavoriteObsessionSetConfirm = 111,
+    FavoriteSongsSetConfirm = 112,
+    KickConfirm = 113,
+    ModLogSetConfirm = 114,
+    ModMailLogSetConfirm = 115,
+    ModMailMessageModsConfirm = 116,
+    MonitorDeletedSetConfirm = 117,
+    MonitorEditedSetConfirm = 118,
+    MonitorMembersSetConfirm = 119,
+    TaypointsGiftConfirm = 120,
+    SignatureConfirm = 121,
 }
 
 public static class CustomIdExtensions

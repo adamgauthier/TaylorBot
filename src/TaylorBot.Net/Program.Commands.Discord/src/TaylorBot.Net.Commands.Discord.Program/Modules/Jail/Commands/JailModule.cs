@@ -19,7 +19,8 @@ public class JailModule(
     ICommandRunner commandRunner,
     IJailRepository jailRepository,
     IModChannelLogger modChannelLogger,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : TaylorBotModule
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    TaylorBotHasPermissionPrecondition.Factory botHasPermission) : TaylorBotModule
 {
     [Priority(-1)]
     [Command]
@@ -72,7 +73,7 @@ public class JailModule(
                             }
                         }
 
-                        var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
+                        var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, new(Context.User), new(user), logEmbed => logEmbed
                             .WithColor(new(95, 107, 120))
                             .WithFooter("User jailed")
                         );
@@ -84,7 +85,7 @@ public class JailModule(
             },
             Preconditions: [
                 userHasPermission.Create(GuildPermission.ModerateMembers),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
+                botHasPermission.Create(GuildPermission.ManageRoles),
             ]
         );
 
@@ -151,7 +152,7 @@ public class JailModule(
                             }
                         }
 
-                        var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, Context.User, user, logEmbed => logEmbed
+                        var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, new(Context.User), new(user), logEmbed => logEmbed
                             .WithColor(new(119, 136, 153))
                             .WithFooter("User freed")
                         );
@@ -163,7 +164,7 @@ public class JailModule(
             },
             Preconditions: [
                 userHasPermission.Create(GuildPermission.ModerateMembers),
-                new TaylorBotHasPermissionPrecondition(GuildPermission.ManageRoles)
+                botHasPermission.Create(GuildPermission.ManageRoles),
             ]
         );
 

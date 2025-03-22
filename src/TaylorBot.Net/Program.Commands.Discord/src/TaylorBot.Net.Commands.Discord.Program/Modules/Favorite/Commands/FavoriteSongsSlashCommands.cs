@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
@@ -15,7 +16,7 @@ public interface IFavoriteSongsRepository
     ValueTask ClearFavoriteSongsAsync(DiscordUser user);
 }
 
-public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsShowSlashCommand.Options>
+public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSongsRepository, CommandMentioner mention) : ISlashCommand<FavoriteSongsShowSlashCommand.Options>
 {
     public const string PrefixCommandName = "fav";
     public const string PrefixCommandAlias1 = "favsongs";
@@ -27,12 +28,14 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
     public record Options(ParsedUserOrAuthor user);
 
+    public const string EmbedTitle = "Favorite Songs List 🎵";
+
     public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteSongs)
     {
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithUserAsAuthor(user)
-            .WithTitle("Favorite Songs List 🎵")
+            .WithTitle(EmbedTitle)
             .WithDescription(favoriteSongs)
         .Build();
     }
@@ -53,7 +56,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s favorite songs list is not set. 🚫
-                    They need to use {context?.MentionSlashCommand("favorite songs set") ?? "</favorite songs set:1169468169140838502>"} to set it first.
+                    They need to use {mention.SlashCommand("favorite songs set", context)} to set it first.
                     """));
             }
         }
@@ -65,7 +68,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
     }
 }
 
-public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<FavoriteSongsSetSlashCommand.Options>
+public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongsRepository, CommandMentioner mention) : ISlashCommand<FavoriteSongsSetSlashCommand.Options>
 {
     public const string PrefixCommandName = "setfav";
     public const string PrefixCommandAlias1 = "set fav";
@@ -92,26 +95,26 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 
                 return MessageResult.CreatePrompt(
                     new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your favorite songs list to the above?")]),
-                    confirm: async () => new(await SetAsync(favoriteSongs))
+                    InteractionCustomId.Create(FavoriteSongsSetConfirmButtonHandler.CustomIdName)
                 );
             }
             else
             {
-                return new EmbedResult(await SetAsync(favoriteSongs));
-            }
-
-            async ValueTask<Embed> SetAsync(string favoriteSongs)
-            {
-                await favoriteSongsRepository.SetFavoriteSongsAsync(user, favoriteSongs);
-
-                return EmbedFactory.CreateSuccess(
-                    $"""
-                    Your favorite songs list has been set successfully. ✅
-                    Others can now use {context?.MentionSlashCommand("favorite songs show") ?? "</favorite songs show:1169468169140838502>"} to see your favorite songs. 🎵
-                    """);
+                return new EmbedResult(await SetAsync(favoriteSongs, user, context));
             }
         }
     );
+
+    public async ValueTask<Embed> SetAsync(string favoriteSongs, DiscordUser user, RunContext? context)
+    {
+        await favoriteSongsRepository.SetFavoriteSongsAsync(user, favoriteSongs);
+
+        return EmbedFactory.CreateSuccess(
+            $"""
+            Your favorite songs list has been set successfully ✅
+            Others can now use {mention.SlashCommand("favorite songs show", context)} to see your favorite songs 🎵
+            """);
+    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -119,7 +122,35 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
     }
 }
 
-public class FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSongsRepository) : ISlashCommand<NoOptions>
+public class FavoriteSongsSetConfirmButtonHandler(
+    InteractionResponseClient responseClient,
+    IFavoriteSongsRepository favoriteSongsRepository,
+    CommandMentioner mention) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.FavoriteSongsSetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var promptMessage = button.Interaction.Raw.message;
+        ArgumentNullException.ThrowIfNull(promptMessage);
+
+        var songsEmbed = promptMessage.embeds.First(e => e.title?.Contains(FavoriteSongsShowSlashCommand.EmbedTitle, StringComparison.OrdinalIgnoreCase) == true);
+        ArgumentNullException.ThrowIfNull(songsEmbed);
+        ArgumentNullException.ThrowIfNull(songsEmbed.description);
+
+        await favoriteSongsRepository.SetFavoriteSongsAsync(context.User, songsEmbed.description);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(EmbedFactory.CreateSuccess(
+            $"""
+            Your favorite songs list has been set successfully ✅
+            Others can now use {mention.SlashCommand("favorite songs show", context)} to see your favorite songs 🎵
+            """)));
+    }
+}
+
+public class FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSongsRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "favorite songs clear";
 
@@ -136,7 +167,7 @@ public class FavoriteSongsClearSlashCommand(IFavoriteSongsRepository favoriteSon
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your favorite songs list has been cleared and is no longer be visible. ✅
-                    You can set it again with {context.MentionSlashCommand("favorite songs set")}.
+                    You can set it again with {mention.SlashCommand("favorite songs set", context)}.
                     """));
             }
         ));

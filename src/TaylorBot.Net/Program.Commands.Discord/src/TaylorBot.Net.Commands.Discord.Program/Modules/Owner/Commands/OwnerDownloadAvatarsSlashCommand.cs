@@ -15,11 +15,13 @@ using TaylorBot.Net.Core.User;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
 public class OwnerDownloadAvatarsSlashCommand(
-    ILogger<OwnerAddFeedbackUsersSlashCommand> logger,
+    ILogger<OwnerDownloadAvatarsSlashCommand> logger,
     [FromKeyedServices("AvatarsContainer")]
     Lazy<BlobContainerClient> avatarsContainer,
     ITaylorBotClient client,
-    IHttpClientFactory httpClientFactory)
+    IHttpClientFactory httpClientFactory,
+    TaylorBotOwnerPrecondition ownerPrecondition,
+    InGuildPrecondition.Factory inGuild)
     : ISlashCommand<OwnerDownloadAvatarsSlashCommand.Options>
 {
     public static string CommandName => "owner downloadavatars";
@@ -76,8 +78,8 @@ public class OwnerDownloadAvatarsSlashCommand(
             },
             Preconditions:
             [
-                new TaylorBotOwnerPrecondition(),
-                new InGuildPrecondition(),
+                ownerPrecondition,
+                inGuild.Create(),
             ]
         ));
     }

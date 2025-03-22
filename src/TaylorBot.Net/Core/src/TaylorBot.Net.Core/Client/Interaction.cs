@@ -40,7 +40,7 @@ public record Interaction(
 
     public record User(string id, string username, string discriminator, string? avatar, bool? bot);
 
-    public record Message(string id, IReadOnlyList<DiscordEmbed> embeds, IReadOnlyList<Component>? components = null, InteractionMetadata? interaction_metadata = null);
+    public record Message(string id, DateTimeOffset timestamp, IReadOnlyList<DiscordEmbed> embeds, IReadOnlyList<Component>? components = null, InteractionMetadata? interaction_metadata = null);
 
     public record InteractionMetadata(User user, string? name = null);
 

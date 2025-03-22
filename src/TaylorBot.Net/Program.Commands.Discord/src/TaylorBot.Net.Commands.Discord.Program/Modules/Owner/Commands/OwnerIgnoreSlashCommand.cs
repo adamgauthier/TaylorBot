@@ -9,7 +9,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepository) : ISlashCommand<OwnerIgnoreSlashCommand.Options>
+public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepository, TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<OwnerIgnoreSlashCommand.Options>
 {
     public static string CommandName => "owner ignore";
 
@@ -30,7 +30,7 @@ public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepositor
                 ));
             },
             Preconditions: [
-                new TaylorBotOwnerPrecondition()
+                ownerPrecondition
             ]
         ));
     }

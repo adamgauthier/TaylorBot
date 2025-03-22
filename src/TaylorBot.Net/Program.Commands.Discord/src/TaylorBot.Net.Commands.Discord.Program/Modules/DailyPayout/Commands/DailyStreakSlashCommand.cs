@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
-public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepository) : ISlashCommand<DailyStreakSlashCommand.Options>
+public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepository, CommandMentioner mention) : ISlashCommand<DailyStreakSlashCommand.Options>
 {
     public static string CommandName => "daily streak";
 
@@ -29,7 +29,7 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
                     return new EmbedResult(EmbedFactory.CreateSuccess(
                         $"""
                         {user.Mention} has never claimed their daily reward! ❌
-                        Use {context.MentionSlashCommand("daily claim")} to claim your daily reward!
+                        Use {mention.SlashCommand("daily claim", context)} to claim your daily reward!
                         """));
                 }
                 else if (streakInfo.Value.MaxStreak > streakInfo.Value.CurrentStreak)

@@ -14,7 +14,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
-public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class HeistLeaderboardSlashCommand(
+    IHeistStatsRepository heistStatsRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "heist leaderboard";
 
@@ -60,13 +64,13 @@ public class HeistLeaderboardSlashCommand(IHeistStatsRepository heistStatsReposi
                         emptyText:
                         $"""
                         No heists played by members of this server.
-                        Members need to use {context.MentionSlashCommand("heist play")}! 😊
+                        Members need to use {mention.SlashCommand("heist play", context)}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Core.Snowflake;
@@ -16,7 +17,10 @@ public class InspectServerSlashCommandTests
 
     public InspectServerSlashCommandTests()
     {
-        _command = new();
+        var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
+
+        _command = new(new(services.BuildServiceProvider()));
         _runContext = CommandUtils.CreateTestContext(_command);
     }
 

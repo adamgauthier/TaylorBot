@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -11,7 +12,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.Plus;
 
 public class PlusRemoveSlashCommandTests
 {
-    private readonly IPlusRepository _plusRepository = A.Fake<IPlusRepository>(o => o.Strict());
     private readonly IPlusUserRepository _plusUserRepository = A.Fake<IPlusUserRepository>(o => o.Strict());
 
     private readonly RunContext _runContext;
@@ -19,7 +19,12 @@ public class PlusRemoveSlashCommandTests
 
     public PlusRemoveSlashCommandTests()
     {
-        _command = new(_plusRepository, _plusUserRepository);
+        var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
+        services.AddSingleton(A.Fake<IPlusRepository>());
+        var serviceProvider = services.BuildServiceProvider();
+
+        _command = new(_plusUserRepository, new(serviceProvider), CommandUtils.Mentioner, new(serviceProvider));
         _runContext = CommandUtils.CreateTestContext(_command);
     }
 

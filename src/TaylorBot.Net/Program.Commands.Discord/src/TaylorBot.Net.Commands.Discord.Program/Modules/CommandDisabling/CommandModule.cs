@@ -9,7 +9,10 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling;
 [Name("Command")]
 [Group("command")]
 [Alias("c")]
-public class CommandModule(ICommandRunner commandRunner, IDisabledCommandRepository disabledCommandRepository) : TaylorBotModule
+public class CommandModule(
+    ICommandRunner commandRunner,
+    IDisabledCommandRepository disabledCommandRepository,
+    TaylorBotOwnerPrecondition ownerPrecondition) : TaylorBotModule
 {
     private static readonly string[] GuardedModuleNames = ["framework", "command"];
 
@@ -32,7 +35,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
                     .WithDescription($"Command `{command.Name}` has been enabled globally.")
                 .Build());
             },
-            Preconditions: [new TaylorBotOwnerPrecondition()]
+            Preconditions: [ownerPrecondition]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
@@ -72,7 +75,7 @@ public class CommandModule(ICommandRunner commandRunner, IDisabledCommandReposit
                     .WithDescription($"Command `{command.Name}` has been disabled globally with message '{disabledMessage}'.")
                 .Build());
             },
-            Preconditions: [new TaylorBotOwnerPrecondition()]
+            Preconditions: [ownerPrecondition]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

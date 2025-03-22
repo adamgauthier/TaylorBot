@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
@@ -15,7 +16,7 @@ public interface IObsessionRepository
     ValueTask ClearObsessionAsync(DiscordUser user);
 }
 
-public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<FavoriteObsessionShowSlashCommand.Options>
+public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRepository, CommandMentioner mention) : ISlashCommand<FavoriteObsessionShowSlashCommand.Options>
 {
     public const string PrefixCommandName = "waifu";
 
@@ -25,12 +26,14 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
 
     public record Options(ParsedUserOrAuthor user);
 
+    public const string EmbedTitle = "Obsession ❤️";
+
     public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteObsession)
     {
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithUserAsAuthor(user)
-            .WithTitle("Obsession ❤️")
+            .WithTitle(EmbedTitle)
             .WithImageUrl(favoriteObsession)
             .Build();
     }
@@ -49,7 +52,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         The obsession for this user is not a valid URL to a photo! 😕
-                        They need to use {context?.MentionSlashCommand("favorite obsession set") ?? "</favorite obsession set:1169468169140838502>"} to update it.
+                        They need to use {mention.SlashCommand("favorite obsession set", context)} to update it.
                         """));
                 }
 
@@ -61,7 +64,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
                     {user.Mention}'s obsession is not set. 🚫
-                    They need to use {context?.MentionSlashCommand("favorite obsession set") ?? "</favorite obsession set:1169468169140838502>"} to set it first.
+                    They need to use {mention.SlashCommand("favorite obsession set", context)} to set it first.
                     """));
             }
         }
@@ -73,7 +76,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
     }
 }
 
-public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<FavoriteObsessionSetSlashCommand.Options>
+public class FavoriteObsessionSetSlashCommand : ISlashCommand<FavoriteObsessionSetSlashCommand.Options>
 {
     public static string CommandName => "favorite obsession set";
 
@@ -81,49 +84,58 @@ public class FavoriteObsessionSetSlashCommand(IObsessionRepository obsessionRepo
 
     public record Options(ParsedString obsession);
 
-    public Command Set(DiscordUser user, string favoriteObsession, RunContext? context = null) => new(
-        new(Info.Name),
-        async () =>
-        {
-            if (!Uri.TryCreate(favoriteObsession, UriKind.Absolute, out var url) ||
-                !url.IsWellFormedOriginalString() || url.Scheme is not ("http" or "https"))
-            {
-                return new EmbedResult(EmbedFactory.CreateError("The obsession you specified is not a valid URL to a photo. 😕"));
-            }
-
-            if (context != null)
-            {
-                var embed = FavoriteObsessionShowSlashCommand.BuildDisplayEmbed(user, favoriteObsession);
-                return MessageResult.CreatePrompt(
-                    new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your obsession to the above?")]),
-                    confirm: async () => new(await SetAsync(favoriteObsession))
-                );
-            }
-            else
-            {
-                return new EmbedResult(await SetAsync(favoriteObsession));
-            }
-
-            async ValueTask<Embed> SetAsync(string favoriteObsession)
-            {
-                await obsessionRepository.SetObsessionAsync(user, favoriteObsession);
-
-                return EmbedFactory.CreateSuccess(
-                    $"""
-                    Your obsession has been set successfully. ✅
-                    Others can now use {context?.MentionSlashCommand("favorite obsession show")} to see your obsession. ❤️
-                    """);
-            }
-        }
-    );
-
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Set(context.User, options.obsession.Value, context));
+        return new(new Command(
+            new(Info.Name),
+            () =>
+            {
+                var favoriteObsession = options.obsession.Value;
+                if (!Uri.TryCreate(favoriteObsession, UriKind.Absolute, out var url) ||
+                    !url.IsWellFormedOriginalString() || url.Scheme is not ("http" or "https"))
+                {
+                    return new(new EmbedResult(EmbedFactory.CreateError("The obsession you specified is not a valid URL to a photo 😕")));
+                }
+
+                var embed = FavoriteObsessionShowSlashCommand.BuildDisplayEmbed(context.User, favoriteObsession);
+
+                return new(MessageResult.CreatePrompt(
+                    new([embed, EmbedFactory.CreateWarning("Are you sure you want to set your obsession to the above?")]),
+                    InteractionCustomId.Create(FavoriteObsessionSetConfirmButtonHandler.CustomIdName)
+                ));
+            }
+        ));
     }
 }
 
-public class FavoriteObsessionClearSlashCommand(IObsessionRepository obsessionRepository) : ISlashCommand<NoOptions>
+public class FavoriteObsessionSetConfirmButtonHandler(InteractionResponseClient responseClient, IObsessionRepository obsessionRepository, CommandMentioner mention) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.FavoriteObsessionSetConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText(), RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var promptMessage = button.Interaction.Raw.message;
+        ArgumentNullException.ThrowIfNull(promptMessage);
+
+        var obsessionEmbed = promptMessage.embeds.First(e => e.title?.Contains(FavoriteObsessionShowSlashCommand.EmbedTitle, StringComparison.OrdinalIgnoreCase) == true);
+        ArgumentNullException.ThrowIfNull(obsessionEmbed);
+
+        var obsessionUrl = obsessionEmbed.image?.url;
+        ArgumentNullException.ThrowIfNull(obsessionUrl);
+
+        await obsessionRepository.SetObsessionAsync(context.User, obsessionUrl);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(EmbedFactory.CreateSuccess(
+            $"""
+            Your obsession has been set successfully ✅
+            Others can now use {mention.SlashCommand("favorite obsession show", context)} to see your obsession ❤️
+            """)));
+    }
+}
+
+public class FavoriteObsessionClearSlashCommand(IObsessionRepository obsessionRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "favorite obsession clear";
 
@@ -140,7 +152,7 @@ public class FavoriteObsessionClearSlashCommand(IObsessionRepository obsessionRe
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
                     Your obsession has been cleared and is no longer visible. ✅
-                    You can set it again with {context.MentionSlashCommand("favorite obsession set")}.
+                    You can set it again with {mention.SlashCommand("favorite obsession set", context)}.
                     """));
             }
         ));

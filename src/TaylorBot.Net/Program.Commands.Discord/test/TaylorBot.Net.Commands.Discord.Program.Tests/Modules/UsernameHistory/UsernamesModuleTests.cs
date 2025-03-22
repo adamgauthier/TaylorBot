@@ -21,7 +21,7 @@ public class UsernamesModuleTests
 
     public UsernamesModuleTests()
     {
-        _usernamesModule = new UsernamesModule(new SimpleCommandRunner(), new UsernamesShowSlashCommand(_usernameHistoryRepository));
+        _usernamesModule = new UsernamesModule(new SimpleCommandRunner(), new UsernamesShowSlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner));
         _usernamesModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);

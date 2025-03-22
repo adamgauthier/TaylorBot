@@ -19,7 +19,7 @@ public class WeatherCommandTests
     public WeatherCommandTests()
     {
         _weatherCommand = new WeatherCommand(
-            CommandUtils.UnlimitedRateLimiter, _locationRepository, _weatherClient, new(CommandUtils.UnlimitedRateLimiter, _locationClient));
+            CommandUtils.UnlimitedRateLimiter, _locationRepository, _weatherClient, new(CommandUtils.UnlimitedRateLimiter, _locationClient), CommandUtils.Mentioner);
     }
 
     [Fact]

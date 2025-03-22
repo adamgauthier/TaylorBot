@@ -19,7 +19,7 @@ public class PlusShowSlashCommandTests
 
     public PlusShowSlashCommandTests()
     {
-        _command = new(_plusRepository, _plusUserRepository);
+        _command = new(_plusRepository, _plusUserRepository, CommandUtils.Mentioner);
         _runContext = CommandUtils.CreateTestContext(_command, ContextType.DM);
     }
 

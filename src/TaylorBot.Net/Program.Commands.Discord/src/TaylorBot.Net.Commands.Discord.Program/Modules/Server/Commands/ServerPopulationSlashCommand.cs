@@ -9,7 +9,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepository) : ISlashCommand<NoOptions>
+public class ServerPopulationSlashCommand(
+    IServerStatsRepository serverStatsRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "server population";
 
@@ -55,7 +57,7 @@ public class ServerPopulationSlashCommand(IServerStatsRepository serverStatsRepo
                 return new EmbedResult(embed.Build());
             },
             Preconditions: [
-                new InGuildPrecondition(),
+                inGuild.Create(),
             ]
         ));
     }

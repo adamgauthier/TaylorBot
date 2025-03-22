@@ -13,7 +13,12 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlashCommand> logger, ITaylorBotClient client, PostgresConnectionFactory postgresConnectionFactory)
+public class OwnerAddFeedbackUsersSlashCommand(
+    ILogger<OwnerAddFeedbackUsersSlashCommand> logger,
+    ITaylorBotClient client,
+    PostgresConnectionFactory postgresConnectionFactory,
+    TaylorBotOwnerPrecondition ownerPrecondition,
+    InGuildPrecondition.Factory inGuild)
     : ISlashCommand<OwnerAddFeedbackUsersSlashCommand.Options>
 {
     public static string CommandName => "owner addfeedbackusers";
@@ -89,8 +94,8 @@ public class OwnerAddFeedbackUsersSlashCommand(ILogger<OwnerAddFeedbackUsersSlas
             },
             Preconditions:
             [
-                new TaylorBotOwnerPrecondition(),
-                new InGuildPrecondition(),
+                ownerPrecondition,
+                inGuild.Create(),
             ]
         ));
     }

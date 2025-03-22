@@ -9,7 +9,9 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
 
-public class LoveReadySlashCommand(IValentinesRepository valentinesRepository) : ISlashCommand<NoOptions>
+public class LoveReadySlashCommand(
+    IValentinesRepository valentinesRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "love ready";
 
@@ -49,7 +51,7 @@ public class LoveReadySlashCommand(IValentinesRepository valentinesRepository) :
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

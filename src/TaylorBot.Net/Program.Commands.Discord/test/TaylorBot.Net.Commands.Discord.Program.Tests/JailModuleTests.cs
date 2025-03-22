@@ -31,11 +31,13 @@ public class JailModuleTests
     public JailModuleTests()
     {
         var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
         services.AddTransient<PermissionStringMapper>();
         services.AddTransient<TaylorBotOwnerPrecondition>();
         services.AddTransient<InGuildPrecondition.Factory>();
+        var serviceProvider = services.BuildServiceProvider();
 
-        _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository, _modLogChannelLogger, new(services.BuildServiceProvider()));
+        _jailModule = new JailModule(new SimpleCommandRunner(), _jailRepository, _modLogChannelLogger, new(serviceProvider), new(serviceProvider));
         _jailModule.SetContext(_commandContext);
 
         A.CallTo(() => _guild.Id).Returns(123u);

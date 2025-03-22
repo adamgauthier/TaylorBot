@@ -27,7 +27,9 @@ public interface IServerActivityRepository
     Task<int?> GetOldMinutesAsync(DiscordUser user);
 }
 
-public class ServerMessagesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMessagesSlashCommand.Options>
+public class ServerMessagesSlashCommand(
+    IServerActivityRepository serverActivityRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerMessagesSlashCommand.Options>
 {
     public static string CommandName => "server messages";
 
@@ -58,7 +60,7 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
 
             return new EmbedResult(embed.Build());
         },
-        [new InGuildPrecondition()]
+        [inGuild.Create()]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -67,7 +69,9 @@ public class ServerMessagesSlashCommand(IServerActivityRepository serverActivity
     }
 }
 
-public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityRepository) : ISlashCommand<ServerMinutesSlashCommand.Options>
+public class ServerMinutesSlashCommand(
+    IServerActivityRepository serverActivityRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerMinutesSlashCommand.Options>
 {
     public static string CommandName => "server minutes";
 
@@ -104,7 +108,7 @@ public class ServerMinutesSlashCommand(IServerActivityRepository serverActivityR
 
             return new EmbedResult(embed.Build());
         },
-        [new InGuildPrecondition()]
+        [inGuild.Create()]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

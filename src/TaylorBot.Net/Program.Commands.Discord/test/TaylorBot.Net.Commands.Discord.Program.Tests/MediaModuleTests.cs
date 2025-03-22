@@ -1,6 +1,7 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -17,13 +18,16 @@ public class MediaModuleTests
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
     private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
-    private readonly IPlusRepository _plusRepository = A.Fake<IPlusRepository>(o => o.Strict());
     private readonly IImageSearchClient _imageSearchClient = A.Fake<IImageSearchClient>(o => o.Strict());
     private readonly MediaModule _mediaModule;
 
     public MediaModuleTests()
     {
-        _mediaModule = new MediaModule(new SimpleCommandRunner(), new ImageSlashCommand(_plusRepository, CommandUtils.UnlimitedRateLimiter, _imageSearchClient));
+        var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
+        services.AddSingleton(A.Fake<IPlusRepository>(o => o.Strict()));
+
+        _mediaModule = new MediaModule(new SimpleCommandRunner(), new ImageSlashCommand(CommandUtils.UnlimitedRateLimiter, _imageSearchClient, new(services.BuildServiceProvider())));
         _mediaModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);

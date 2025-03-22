@@ -6,6 +6,7 @@ using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Commands.Tests.Helpers;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Username;
 using Xunit;
@@ -20,7 +21,8 @@ public class CommandExecutedHandlerTests
     private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
     private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition = new(
         A.Fake<IIgnoredUserRepository>(o => o.Strict()),
-        new UsernameTrackerDomainService(A.Fake<ILogger<UsernameTrackerDomainService>>(o => o.Strict()), A.Fake<IUsernameRepository>(o => o.Strict()))
+        new UsernameTrackerDomainService(A.Fake<ILogger<UsernameTrackerDomainService>>(o => o.Strict()), A.Fake<IUsernameRepository>(o => o.Strict())),
+        CommandUtils.Mentioner
     );
 
     private readonly CommandExecutedHandler _commandExecutedHandler;

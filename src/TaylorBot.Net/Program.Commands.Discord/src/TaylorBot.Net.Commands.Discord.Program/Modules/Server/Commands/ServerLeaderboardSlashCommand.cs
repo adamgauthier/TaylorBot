@@ -13,7 +13,10 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
-public class ServerLeaderboardSlashCommand(IServerActivityRepository serverActivityRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
+public class ServerLeaderboardSlashCommand(
+    IServerActivityRepository serverActivityRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
 {
     public static string CommandName => "server leaderboard";
 
@@ -50,7 +53,7 @@ public class ServerLeaderboardSlashCommand(IServerActivityRepository serverActiv
                 )).Build();
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
             ]
         ));
     }

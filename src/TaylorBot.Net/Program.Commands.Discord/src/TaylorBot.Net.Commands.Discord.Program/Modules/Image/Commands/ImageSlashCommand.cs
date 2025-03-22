@@ -10,7 +10,10 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 
-public class ImageSlashCommand(IPlusRepository plusRepository, IRateLimiter rateLimiter, IImageSearchClient imageSearchClient) : ISlashCommand<ImageSlashCommand.Options>
+public class ImageSlashCommand(
+    IRateLimiter rateLimiter,
+    IImageSearchClient imageSearchClient,
+    PlusPrecondition.Factory plusPrecondition) : ISlashCommand<ImageSlashCommand.Options>
 {
     public static string CommandName => "image";
 
@@ -85,7 +88,7 @@ public class ImageSlashCommand(IPlusRepository plusRepository, IRateLimiter rate
                     throw new InvalidOperationException(searchResult.GetType().Name);
             }
         },
-        Preconditions: [new PlusPrecondition(plusRepository, PlusRequirement.PlusUserOrGuild)]
+        Preconditions: [plusPrecondition.Create(PlusRequirement.PlusUserOrGuild)]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

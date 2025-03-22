@@ -11,7 +11,9 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepository) : ISlashCommand<OwnerRewardSlashCommand.Options>
+public class OwnerRewardSlashCommand(
+    ITaypointRewardRepository taypointRepository,
+    TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<OwnerRewardSlashCommand.Options>
 {
     public static string CommandName => "owner reward";
 
@@ -68,7 +70,7 @@ public class OwnerRewardSlashCommand(ITaypointRewardRepository taypointRepositor
                 ));
             },
             Preconditions: [
-                new TaylorBotOwnerPrecondition()
+                ownerPrecondition
             ]
         ));
     }

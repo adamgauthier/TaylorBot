@@ -12,7 +12,7 @@ using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 
-public class PollSlashCommand : ISlashCommand<NoOptions>
+public class PollSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static readonly Color PollColor = new(84, 160, 255);
 
@@ -45,10 +45,7 @@ public class PollSlashCommand : ISlashCommand<NoOptions>
                     IsPrivateResponse: false
                 ));
             },
-            Preconditions:
-            [
-                new InGuildPrecondition(),
-            ]
+            Preconditions: [inGuild.Create()]
         ));
     }
 

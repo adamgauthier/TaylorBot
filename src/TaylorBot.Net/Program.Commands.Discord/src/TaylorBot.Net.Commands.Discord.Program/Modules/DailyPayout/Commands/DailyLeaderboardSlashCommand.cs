@@ -13,7 +13,11 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
-public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class DailyLeaderboardSlashCommand(
+    IDailyPayoutRepository dailyPayoutRepository,
+    MemberNotInGuildUpdater memberNotInGuildUpdater,
+    CommandMentioner mention,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "daily leaderboard";
 
@@ -59,14 +63,12 @@ public class DailyLeaderboardSlashCommand(IDailyPayoutRepository dailyPayoutRepo
                         emptyText:
                         $"""
                         No daily streaks in this server.
-                        Members need to use {context.MentionSlashCommand("daily claim")}! 😊
+                        Members need to use {mention.SlashCommand("daily claim", context)}! 😊
                         """)),
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
-            ]
+            Preconditions: [inGuild.Create(botMustBeInGuild: true)]
         ));
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TaylorBot.Net.Commands.Preconditions;
 
-public class TaylorBotOwnerPrecondition : ICommandPrecondition
+public class TaylorBotOwnerPrecondition(CommandMentioner mention) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -14,7 +14,7 @@ public class TaylorBotOwnerPrecondition : ICommandPrecondition
         {
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} can only be used by owner",
-                UserReason: new($"You can't use {context.MentionCommand(command)} because it can only be used by the bot owner 🚫")
+                UserReason: new($"You can't use {mention.Command(command, context)} because it can only be used by the bot owner 🚫")
             );
         }
     }

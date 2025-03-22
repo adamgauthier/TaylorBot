@@ -16,7 +16,9 @@ public interface IChannelMessageCountRepository
     Task<MessageCount> GetMessageCountAsync(GuildTextChannel channel);
 }
 
-public class ChannelMessagesSlashCommand(IChannelMessageCountRepository channelMessageCountRepository) : ISlashCommand<ChannelMessagesSlashCommand.Options>
+public class ChannelMessagesSlashCommand(
+    IChannelMessageCountRepository channelMessageCountRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ChannelMessagesSlashCommand.Options>
 {
     public static string CommandName => "channel messages";
 
@@ -63,9 +65,7 @@ public class ChannelMessagesSlashCommand(IChannelMessageCountRepository channelM
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [
-                new InGuildPrecondition(),
-            ]
+            Preconditions: [inGuild.Create()]
         ));
     }
 }

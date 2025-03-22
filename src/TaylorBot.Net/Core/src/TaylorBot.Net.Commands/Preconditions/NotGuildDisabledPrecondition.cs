@@ -33,7 +33,7 @@ public class DisabledGuildCommandDomainService(
     }
 }
 
-public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ICommandPrecondition
+public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission, CommandMentioner mention) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -49,7 +49,7 @@ public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disa
                 PrivateReason: $"{command.Metadata.Name} is disabled in {context.Guild.FormatLog()}",
                 UserReason: new(
                     $"""
-                    You can't use {context.MentionCommand(command)} because it is disabled in this server 🚫
+                    You can't use {mention.Command(command, context)} because it is disabled in this server 🚫
                     {(canRun is PreconditionPassed
                         ? $"You can re-enable it by typing </command server-enable:909694280703016991> {command.Metadata.Name} ✅"
                         : "Ask a moderator to re-enable it 🙏")}

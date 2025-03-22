@@ -33,11 +33,13 @@ public class AccessibleRolesModuleTests
     public AccessibleRolesModuleTests()
     {
         var services = new ServiceCollection();
+        services.AddSingleton(CommandUtils.Mentioner);
         services.AddTransient<PermissionStringMapper>();
         services.AddTransient<TaylorBotOwnerPrecondition>();
         services.AddTransient<InGuildPrecondition.Factory>();
+        var serviceProvider = services.BuildServiceProvider();
 
-        _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository, new(services.BuildServiceProvider()));
+        _accessibleRolesModule = new AccessibleRolesModule(new SimpleCommandRunner(), _accessibleRoleRepository, new(serviceProvider), new(serviceProvider));
         _accessibleRolesModule.SetContext(_commandContext);
 
         A.CallTo(() => _guild.Id).Returns(123u);

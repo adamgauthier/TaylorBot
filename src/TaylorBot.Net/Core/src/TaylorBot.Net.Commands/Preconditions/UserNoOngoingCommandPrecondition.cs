@@ -11,7 +11,7 @@ public interface IOngoingCommandRepository
     ValueTask RemoveOngoingCommandAsync(DiscordUser user, string pool);
 }
 
-public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingCommandRepository) : ICommandPrecondition
+public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingCommandRepository, CommandMentioner mention) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -25,7 +25,7 @@ public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingC
         {
             return new PreconditionFailed(
                 PrivateReason: "user has an ongoing command",
-                UserReason: new($"You can't use {context.MentionCommand(command)} because you have an ongoing command.", HideInPrefixCommands: true)
+                UserReason: new($"You can't use {mention.Command(command, context)} because you have an ongoing command.", HideInPrefixCommands: true)
             );
         }
         else

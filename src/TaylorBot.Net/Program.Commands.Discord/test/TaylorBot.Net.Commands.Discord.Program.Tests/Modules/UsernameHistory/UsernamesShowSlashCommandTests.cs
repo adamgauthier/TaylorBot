@@ -16,7 +16,7 @@ public class UsernamesShowSlashCommandTests
 
     public UsernamesShowSlashCommandTests()
     {
-        _command = new UsernamesShowSlashCommand(_usernameHistoryRepository);
+        _command = new UsernamesShowSlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner);
         _runContext = CommandUtils.CreateTestContext(_command);
     }
 

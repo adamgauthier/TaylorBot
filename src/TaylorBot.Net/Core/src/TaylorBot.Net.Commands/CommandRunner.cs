@@ -37,15 +37,6 @@ public record RunContext(
     public record SlashCommandInfo(string Id, string Name);
 
     public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
-
-    public string MentionCommand(Command command) => command.Metadata.IsSlashCommand
-        ? MentionSlashCommand(command.Metadata.Name)
-        : $"**{command.Metadata.Name}**";
-
-    public string MentionSlashCommand(string name) =>
-        SlashCommand != null && name.Split(' ')[0] == SlashCommand.Name.Split(' ')[0] ?
-            $"</{name}:{SlashCommand.Id}>" :
-            $"**/{name}**";
 }
 
 public class RunContextFactory(

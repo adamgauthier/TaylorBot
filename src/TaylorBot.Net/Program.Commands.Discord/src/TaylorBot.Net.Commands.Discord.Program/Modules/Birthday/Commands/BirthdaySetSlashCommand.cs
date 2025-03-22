@@ -10,7 +10,10 @@ using TaylorBot.Net.Core.Globalization;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, AgeCalculator ageCalculator) : ISlashCommand<BirthdaySetSlashCommand.Options>
+public class BirthdaySetSlashCommand(
+    IBirthdayRepository birthdayRepository,
+    AgeCalculator ageCalculator,
+    CommandMentioner mention) : ISlashCommand<BirthdaySetSlashCommand.Options>
 {
     public static string CommandName => "birthday set";
 
@@ -107,12 +110,12 @@ public class BirthdaySetSlashCommand(IBirthdayRepository birthdayRepository, Age
                 $"""
                 Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}** ✅
                 {(birthday.Year == IBirthdayRepository.Birthday.NoYearValue
-                    ? $"Consider setting your birthday with the **year** option for {context.MentionSlashCommand("birthday age")} to work ❓"
-                    : $"You can now use {context.MentionSlashCommand("birthday age")} to display your age 🔢")}
+                    ? $"Consider setting your birthday with the **year** option for {mention.SlashCommand("birthday age", context)} to work ❓"
+                    : $"You can now use {mention.SlashCommand("birthday age", context)} to display your age 🔢")}
                 {(isPrivate
-                    ? $"Since your birthday is private, it won't show up in {context.MentionSlashCommand("birthday calendar")} 🙈"
-                    : $"Your birthday will show up in {context.MentionSlashCommand("birthday calendar")} 📅")}
-                You can now use {context.MentionSlashCommand("birthday horoscope")} to get your horoscope ✨
+                    ? $"Since your birthday is private, it won't show up in {mention.SlashCommand("birthday calendar", context)} 🙈"
+                    : $"Your birthday will show up in {mention.SlashCommand("birthday calendar", context)} 📅")}
+                You can now use {mention.SlashCommand("birthday horoscope", context)} to get your horoscope ✨
                 You will get taypoints on your birthday every year 🎁
                 """);
 

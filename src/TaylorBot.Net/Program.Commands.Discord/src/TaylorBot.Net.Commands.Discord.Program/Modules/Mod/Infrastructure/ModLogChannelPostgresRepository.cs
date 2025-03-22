@@ -41,10 +41,7 @@ public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresC
         );
     }
 
-    private class LogChannelDto
-    {
-        public string channel_id { get; set; } = null!;
-    }
+    private record LogChannelDto(string channel_id);
 
     public async ValueTask<ModLog?> GetModLogForGuildAsync(IGuild guild)
     {

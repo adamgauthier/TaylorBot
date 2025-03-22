@@ -12,7 +12,9 @@ public class ModMailBlockSlashCommand(
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
     ModMailChannelLogger modMailChannelLogger,
     IPlusRepository plusRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailBlockSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<ModMailBlockSlashCommand.Options>
 {
     public static string CommandName => "modmail block";
 
@@ -47,7 +49,7 @@ public class ModMailBlockSlashCommand(
                         return new EmbedResult(EmbedFactory.CreateError(
                             $"""
                             You've reached the limit of blocked users ({MaxBlockedUsersPerGuild}) 😕
-                            Use {context.MentionSlashCommand("plus add")} to remove this limit 💎
+                            Use {mention.SlashCommand("plus add", context)} to remove this limit 💎
                             """));
                     }
                 }
@@ -63,11 +65,11 @@ public class ModMailBlockSlashCommand(
                 return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
                     $"""
                     Blocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍
-                    You can undo this action with {context.MentionSlashCommand("mod mail unblock")}.
+                    You can undo this action with {mention.SlashCommand("mod mail unblock", context)}.
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.BanMembers)
             ]
         ));
@@ -77,7 +79,9 @@ public class ModMailBlockSlashCommand(
 public class ModMailUnblockSlashCommand(
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
     ModMailChannelLogger modMailChannelLogger,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<ModMailUnblockSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<ModMailUnblockSlashCommand.Options>
 {
     public static string CommandName => "modmail unblock";
 
@@ -109,11 +113,11 @@ public class ModMailUnblockSlashCommand(
                 return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
                     $"""
                     Unblocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍
-                    You can block again with {context.MentionSlashCommand("mod mail block")}.
+                    You can block again with {mention.SlashCommand("mod mail block", context)}.
                     """));
             },
             Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
+                inGuild.Create(botMustBeInGuild: true),
                 userHasPermission.Create(GuildPermission.BanMembers)
             ]
         ));

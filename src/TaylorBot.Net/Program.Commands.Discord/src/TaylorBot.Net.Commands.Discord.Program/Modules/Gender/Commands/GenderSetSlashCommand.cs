@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 
-public class GenderSetSlashCommand(IGenderRepository genderRepository) : ISlashCommand<GenderSetSlashCommand.Options>
+public class GenderSetSlashCommand(IGenderRepository genderRepository, CommandMentioner mention) : ISlashCommand<GenderSetSlashCommand.Options>
 {
     public static string CommandName => "gender set";
 
@@ -24,7 +24,7 @@ public class GenderSetSlashCommand(IGenderRepository genderRepository) : ISlashC
                     $"""
                     Your gender has been set to {options.gender.Value}. ✅
                     You are now included in </server population:1137547317549998130> stats for servers you're in. 🧮
-                    People can now use {context.MentionSlashCommand("gender show")} to see your gender. 👁️
+                    People can now use {mention.SlashCommand("gender show", context)} to see your gender. 👁️
                     """));
             }
         ));

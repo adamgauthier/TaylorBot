@@ -12,7 +12,10 @@ using TaylorBot.Net.Core.User;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Commands;
 
 [Name("Reward 🎖")]
-public class RewardModule(ICommandRunner commandRunner, ITaypointRewardRepository taypointRepository) : TaylorBotModule
+public class RewardModule(
+    ICommandRunner commandRunner,
+    ITaypointRewardRepository taypointRepository,
+    TaylorBotOwnerPrecondition ownerPrecondition) : TaylorBotModule
 {
     [Command("reward")]
     [Summary("Rewards a specified amount of taypoints to pinged users.")]
@@ -47,7 +50,7 @@ public class RewardModule(ICommandRunner commandRunner, ITaypointRewardRepositor
                         """.Truncate(EmbedBuilder.MaxDescriptionLength))
                 .Build());
             },
-            Preconditions: new[] { new TaylorBotOwnerPrecondition() }
+            Preconditions: new[] { ownerPrecondition }
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

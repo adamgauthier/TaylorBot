@@ -11,7 +11,9 @@ public partial interface ICouponRepository
     Task<Guid> AddCouponAsync(Coupon coupon);
 }
 
-public class OwnerAddCouponSlashCommand(ICouponRepository couponRepository) : ISlashCommand<OwnerAddCouponSlashCommand.Options>
+public class OwnerAddCouponSlashCommand(
+    ICouponRepository couponRepository,
+    TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<OwnerAddCouponSlashCommand.Options>
 {
     public static string CommandName => "owner addcoupon";
 
@@ -40,9 +42,7 @@ public class OwnerAddCouponSlashCommand(ICouponRepository couponRepository) : IS
                     $"Successfully added coupon with id {id} 👍"
                 ));
             },
-            Preconditions: [
-                new TaylorBotOwnerPrecondition()
-            ]
+            Preconditions: [ownerPrecondition]
         ));
     }
 }

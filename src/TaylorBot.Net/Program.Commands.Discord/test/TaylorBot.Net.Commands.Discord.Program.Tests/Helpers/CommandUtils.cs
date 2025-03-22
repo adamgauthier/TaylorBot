@@ -23,6 +23,16 @@ public class CommandUtils
         }
     }
 
+    public static CommandMentioner Mentioner
+    {
+        get
+        {
+            var repository = A.Fake<IApplicationCommandsRepository>(o => o.Strict());
+            A.CallTo(() => repository.GetCommandId(A<string>.Ignored)).Returns(null);
+            return new(repository);
+        }
+    }
+
     public static RunContext CreateTestContext(ISlashCommand command, ContextType contextType = ContextType.Guild)
     {
         CommandGuild? guild = contextType == ContextType.Guild

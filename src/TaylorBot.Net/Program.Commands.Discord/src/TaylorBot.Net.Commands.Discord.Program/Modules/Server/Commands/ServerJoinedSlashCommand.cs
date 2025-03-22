@@ -23,7 +23,9 @@ public interface IServerJoinedRepository
     Task<IList<JoinedTimelineEntry>> GetTimelineAsync(CommandGuild guild);
 }
 
-public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedRepository) : ISlashCommand<ServerJoinedSlashCommand.Options>
+public class ServerJoinedSlashCommand(
+    IServerJoinedRepository serverJoinedRepository,
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerJoinedSlashCommand.Options>
 {
     public static string CommandName => "server joined";
 
@@ -64,7 +66,7 @@ public class ServerJoinedSlashCommand(IServerJoinedRepository serverJoinedReposi
 
             return new EmbedResult(embed.Build());
         },
-        [new InGuildPrecondition()]
+        [inGuild.Create()]
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

@@ -104,6 +104,7 @@ using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
+using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Random;
 
@@ -140,6 +141,7 @@ public class DiscordCommandsProgram
         services
             .AddHttpClient()
             .AddMemoryCache()
+            .AddTransient<TaylorBotHostedService>()
             .AddHostedService<TaylorBotCommandHostedService>()
             .AddCommandApplication(config, hostBuilderContext.HostingEnvironment)
             .AddCommandInfrastructure(config)
@@ -193,11 +195,13 @@ public class DiscordCommandsProgram
             .AddTransient<IModChannelLogger, ModChannelLogger>()
             .AddTransient<ModMailChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand>()
+            .AddButtonHandler<ModLogSetConfirmButtonHandler>()
             .AddSlashCommand<ModLogStopSlashCommand>()
             .AddSlashCommand<ModLogShowSlashCommand>()
             .ConfigureRequired<ModMailOptions>(config, "ModMail")
             .AddSlashCommand<ModMailMessageUserSlashCommand>()
             .AddSlashCommand<ModMailMessageModsSlashCommand>()
+            .AddButtonHandler<ModMailMessageModsConfirmButtonHandler>()
             .AddButtonHandler<ModMailUserMessageReplyButtonHandler>()
             .AddModalHandler<ModMailUserMessageReplyModalHandler>()
             .AddButtonHandler<ModMailReplyConfirmButtonHandler>()
@@ -208,6 +212,7 @@ public class DiscordCommandsProgram
             .AddSlashCommand<ModMailLogSetSlashCommand>()
             .AddSlashCommand<ModMailLogStopSlashCommand>()
             .AddSlashCommand<ModMailLogShowSlashCommand>()
+            .AddButtonHandler<ModMailLogSetConfirmButtonHandler>()
             .AddSlashCommand<InspectUserSlashCommand>()
             .AddSlashCommand<InspectChannelSlashCommand>()
             .AddSlashCommand<InspectRoleSlashCommand>()
@@ -215,6 +220,7 @@ public class DiscordCommandsProgram
             .AddSlashCommand<AvatarSlashCommand>()
             .AddOptionParser<OptionalAvatarTypeParser, AvatarType?>()
             .AddSlashCommand<KickSlashCommand>()
+            .AddButtonHandler<KickConfirmButtonHandler>()
             .AddSlashCommand<ChooseSlashCommand>()
             .AddSlashCommand<DiceSlashCommand>()
             .AddTransient<IReminderRepository, ReminderPostgresRepository>()
@@ -231,18 +237,22 @@ public class DiscordCommandsProgram
             .AddSlashCommand<OwnerAddFeedbackUsersSlashCommand>()
             .AddSlashCommand<ImageSlashCommand>()
             .AddSlashCommand<DailyRebuySlashCommand>()
+            .AddButtonHandler<DailyRebuyConfirmButtonHandler>()
             .AddTransient<DailyClaimCommand>()
             .AddSlashCommand<DailyClaimSlashCommand>()
             .AddSlashCommand<DailyStreakSlashCommand>()
             .AddSlashCommand<DailyLeaderboardSlashCommand>()
             .AddTransient<IEditedLogChannelRepository, EditedLogChannelPostgresRepository>()
             .AddSlashCommand<MonitorEditedSetSlashCommand>()
+            .AddButtonHandler<MonitorEditedSetConfirmButtonHandler>()
             .AddSlashCommand<MonitorEditedShowSlashCommand>()
             .AddSlashCommand<MonitorEditedStopSlashCommand>()
             .AddSlashCommand<MonitorDeletedSetSlashCommand>()
+            .AddButtonHandler<MonitorDeletedSetConfirmButtonHandler>()
             .AddSlashCommand<MonitorDeletedShowSlashCommand>()
             .AddSlashCommand<MonitorDeletedStopSlashCommand>()
             .AddSlashCommand<MonitorMembersSetSlashCommand>()
+            .AddButtonHandler<MonitorMembersSetConfirmButtonHandler>()
             .AddSlashCommand<MonitorMembersShowSlashCommand>()
             .AddSlashCommand<MonitorMembersStopSlashCommand>()
             .AddSlashCommand<CommandServerDisableSlashCommand>()
@@ -297,6 +307,7 @@ public class DiscordCommandsProgram
             .AddSlashCommand<ModSpamRemoveSlashCommand>()
             .AddTransient<ITaypointTransferRepository, TaypointTransferPostgresRepository>()
             .AddSlashCommand<TaypointsGiftSlashCommand>()
+            .AddButtonHandler<TaypointsGiftConfirmButtonHandler>()
             .AddTransient<IGuildNamesRepository, GuildNamesPostgresRepository>()
             .AddSlashCommand<ServerNamesSlashCommand>()
             .AddSlashCommand<ServerPopulationSlashCommand>()
@@ -327,14 +338,17 @@ public class DiscordCommandsProgram
             .AddTransient<IFavoriteSongsRepository, FavoriteSongsPostgresRepository>()
             .AddSlashCommand<FavoriteSongsShowSlashCommand>()
             .AddSlashCommand<FavoriteSongsSetSlashCommand>()
+            .AddButtonHandler<FavoriteSongsSetConfirmButtonHandler>()
             .AddSlashCommand<FavoriteSongsClearSlashCommand>()
             .AddTransient<IBaeRepository, BaePostgresRepository>()
             .AddSlashCommand<FavoriteBaeShowSlashCommand>()
             .AddSlashCommand<FavoriteBaeSetSlashCommand>()
+            .AddButtonHandler<FavoriteBaeSetConfirmButtonHandler>()
             .AddSlashCommand<FavoriteBaeClearSlashCommand>()
             .AddTransient<IObsessionRepository, ObsessionPostgresRepository>()
             .AddSlashCommand<FavoriteObsessionShowSlashCommand>()
             .AddSlashCommand<FavoriteObsessionSetSlashCommand>()
+            .AddButtonHandler<FavoriteObsessionSetConfirmButtonHandler>()
             .AddSlashCommand<FavoriteObsessionClearSlashCommand>()
             .ConfigureRequired<SignatureOptions>(config, "Signature")
             .AddKeyedSingleton<BlobServiceClient>("SignatureAccount", (provider, key) =>
@@ -352,6 +366,7 @@ public class DiscordCommandsProgram
                 return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("signatures2024"));
             })
             .AddSlashCommand<SignatureSlashCommand>()
+            .AddButtonHandler<SignatureConfirmButtonHandler>()
             .AddKeyedSingleton<Lazy<BlobContainerClient>>("AvatarsContainer", (provider, key) =>
             {
                 return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("avatars2024"));

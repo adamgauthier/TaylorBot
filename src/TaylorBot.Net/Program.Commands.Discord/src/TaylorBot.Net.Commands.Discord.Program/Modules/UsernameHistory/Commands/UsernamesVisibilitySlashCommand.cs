@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 
-public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository usernameHistoryRepository) : ISlashCommand<UsernamesVisibilitySlashCommand.Options>
+public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository usernameHistoryRepository, CommandMentioner mention) : ISlashCommand<UsernamesVisibilitySlashCommand.Options>
 {
     public static string CommandName => "usernames visibility";
 
@@ -29,8 +29,8 @@ public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository username
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(
                                 $"""
-                                Your username history is now **public** (__can__ be viewed with {context.MentionSlashCommand("usernames show")}) ✅
-                                Use {context.MentionSlashCommand("usernames visibility")} again to make it private 🕵️
+                                Your username history is now **public** (__can__ be viewed with {mention.SlashCommand("usernames show", context)}) ✅
+                                Use {mention.SlashCommand("usernames visibility", context)} again to make it private 🕵️
                                 """)
                             .Build());
 
@@ -41,8 +41,8 @@ public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository username
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(
                                 $"""
-                                Your username history is now **private** (__can't__ be viewed with {context.MentionSlashCommand("usernames show")}) ✅
-                                Use {context.MentionSlashCommand("usernames visibility")} again to make it public 📢
+                                Your username history is now **private** (__can't__ be viewed with {mention.SlashCommand("usernames show", context)}) ✅
+                                Use {mention.SlashCommand("usernames visibility", context)} again to make it public 📢
                                 """)
                             .Build());
 

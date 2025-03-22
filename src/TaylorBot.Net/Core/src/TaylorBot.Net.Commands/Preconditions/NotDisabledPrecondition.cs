@@ -7,7 +7,7 @@ public interface IDisabledCommandRepository
     ValueTask<string> DisableGloballyAsync(string commandName, string disabledMessage);
 }
 
-public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandRepository) : ICommandPrecondition
+public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandRepository, CommandMentioner mention) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
@@ -18,7 +18,7 @@ public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandR
                 PrivateReason: $"{command.Metadata.Name} is globally disabled",
                 UserReason: new(
                     $"""
-                    You can't use {context.MentionCommand(command)} because it is globally disabled right now 😕
+                    You can't use {mention.Command(command, context)} because it is globally disabled right now 😕
                     {disabledMessage}
                     """)
             ) :

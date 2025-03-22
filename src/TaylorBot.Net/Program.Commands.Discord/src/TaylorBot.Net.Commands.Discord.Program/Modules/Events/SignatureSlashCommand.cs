@@ -1,11 +1,13 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Http;
 using TaylorBot.Net.Core.User;
@@ -28,19 +30,17 @@ public static class AnniversaryEvent
 }
 
 public class SignatureSlashCommand(
-    ILogger<SignatureSlashCommand> logger,
     IRateLimiter rateLimiter,
-    [FromKeyedServices("SignatureContainer")]
-    Lazy<BlobContainerClient> signatureContainer,
     IServerJoinedRepository serverJoinedRepository,
-    IHttpClientFactory clientFactory
-    ) : ISlashCommand<SignatureSlashCommand.Options>
+    InGuildPrecondition.Factory inGuild) : ISlashCommand<SignatureSlashCommand.Options>
 {
     public static string CommandName => "signature";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public record Options(ParsedOptionalAttachment file, ParsedOptionalString link);
+
+    public IList<ICommandPrecondition> BuildPreconditions() => [inGuild.Create()];
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -77,76 +77,25 @@ public class SignatureSlashCommand(
                 if (rateLimitResult != null)
                     return rateLimitResult;
 
-                return MessageResult.CreatePrompt(
-                    new(EmbedFactory.CreateWarning(
+                var promptEmbed = new EmbedBuilder()
+                    .WithColor(TaylorBotColors.WarningColor)
+                    .WithDescription(
                         """
                         Please confirm the picture you are uploading is:
                         - Your signature either in digital form or a real photo of your writing on a piece of paper ✅
                         - Using a darker color (light colors like white/yellow will blend in with the yearbook's light background) 🖊️
                         - For real photos, the background is easy to remove (blank page, no lines, good lighting) 💡
                         - Not the same picture you've submitted in previous years 🆕
-                        """)),
-                    confirm: async () =>
-                    {
-                        var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
-                        var blob = signatureContainer.Value.GetBlobClient($"{user.Id}-{user.Username}{fileExtension}");
+                        """)
+                    .WithImageUrl(url)
+                    .Build();
 
-                        var signatureExists = await blob.ExistsAsync();
-                        if (signatureExists)
-                        {
-                            return new(EmbedFactory.CreateError(
-                                """
-                                Oops, it looks like you already uploaded your signature 😕
-                                If you want to update your signature, please contact Adam directly!
-                                """));
-                        }
-
-                        using var client = clientFactory.CreateClient();
-                        using var response = await client.GetAsync(url);
-
-                        if (!await response.VerifyStatusAsync(logger))
-                        {
-                            return new(EmbedFactory.CreateError(
-                                """
-                                Oops, something went wrong when trying to download your signature. Try again or upload it to imgur.com beforehand 😕
-                                If this keeps happening, please contact Adam directly!
-                                """));
-                        }
-
-                        const int MaxSizeInBytes = 10 * 1024 * 1024; // 10 MB
-
-                        var contentLength = response.Content.Headers.ContentLength ?? 0;
-                        if (contentLength > MaxSizeInBytes)
-                        {
-                            logger.LogWarning("Signature too large to download, content length is {ContentLength}", contentLength);
-                            return new(EmbedFactory.CreateError(
-                                """
-                                Oops, it seems like your signature file is too large. Please make sure it is under 10MB 😕
-                                If this keeps happening, please contact Adam directly!
-                                """));
-                        }
-
-                        using var stream = await response.Content.ReadAsStreamAsync();
-
-                        var contentType = response.Content.Headers.ContentType?.ToString();
-                        if (!string.IsNullOrWhiteSpace(contentType))
-                        {
-                            await blob.UploadAsync(stream, new BlobUploadOptions { HttpHeaders = new() { ContentType = contentType } });
-                        }
-                        else
-                        {
-                            await blob.UploadAsync(stream);
-                        }
-
-                        return new(EmbedFactory.CreateSuccess(
-                            """
-                            Your Yearbook 2024 signature has been successfully uploaded! Thank you for your contribution to our community 💖
-                            Please take a moment to complete the anniversary survey as well 👀
-                            """));
-                    }
+                return MessageResult.CreatePrompt(
+                    new(promptEmbed),
+                    InteractionCustomId.Create(SignatureConfirmButtonHandler.CustomIdName)
                 );
             },
-            Preconditions: [new InGuildPrecondition()]
+            Preconditions: BuildPreconditions()
         ));
     }
 
@@ -168,5 +117,100 @@ public class SignatureSlashCommand(
             joined = await serverJoinedRepository.GetRankedJoinedAsync(guildUser);
         }
         return joined;
+    }
+}
+
+public class SignatureConfirmButtonHandler(
+    ILogger<SignatureConfirmButtonHandler> logger,
+    SignatureSlashCommand command,
+    InteractionResponseClient responseClient,
+    [FromKeyedServices("SignatureContainer")] Lazy<BlobContainerClient> signatureContainer,
+    IHttpClientFactory clientFactory) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.SignatureConfirm;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: command.BuildPreconditions(),
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var promptMessage = button.Interaction.Raw.message;
+        ArgumentNullException.ThrowIfNull(promptMessage);
+
+        if (DateTimeOffset.UtcNow - promptMessage.timestamp > TimeSpan.FromDays(1))
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                """
+                Oops, looks like it's been too long since you ran this command 😵
+                Please run the command again 🔃
+                """));
+            return;
+        }
+
+        var url = promptMessage.embeds[0].image?.url;
+        ArgumentNullException.ThrowIfNull(url);
+
+        var user = context.User;
+
+        var fileExtension = Path.GetExtension(new Uri(url).AbsolutePath);
+        var blob = signatureContainer.Value.GetBlobClient($"{user.Id}-{user.Username}{fileExtension}");
+
+        var signatureExists = await blob.ExistsAsync();
+        if (signatureExists)
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                """
+                Oops, it looks like you already uploaded your signature 😕
+                If you want to update your signature, please contact Adam directly!
+                """));
+            return;
+        }
+
+        using var client = clientFactory.CreateClient();
+        using var response = await client.GetAsync(url);
+
+        if (!await response.VerifyStatusAsync(logger))
+        {
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                """
+                Oops, something went wrong when trying to download your signature. Try again or upload it to imgur.com beforehand 😕
+                If this keeps happening, please contact Adam directly!
+                """));
+            return;
+        }
+
+        const int MaxSizeInBytes = 10 * 1024 * 1024; // 10 MB
+
+        var contentLength = response.Content.Headers.ContentLength ?? 0;
+        if (contentLength > MaxSizeInBytes)
+        {
+            logger.LogWarning("Signature too large to download, content length is {ContentLength}", contentLength);
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
+                """
+                Oops, it seems like your signature file is too large. Please make sure it is under 10MB 😕
+                If this keeps happening, please contact Adam directly!
+                """));
+            return;
+        }
+
+        using var stream = await response.Content.ReadAsStreamAsync();
+
+        var contentType = response.Content.Headers.ContentType?.ToString();
+        if (!string.IsNullOrWhiteSpace(contentType))
+        {
+            await blob.UploadAsync(stream, new BlobUploadOptions { HttpHeaders = new() { ContentType = contentType } });
+        }
+        else
+        {
+            await blob.UploadAsync(stream);
+        }
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
+            """
+            Your Yearbook 2024 signature has been successfully uploaded! Thank you for your contribution to our community 💖
+            Please take a moment to complete the anniversary survey as well 👀
+            """));
     }
 }

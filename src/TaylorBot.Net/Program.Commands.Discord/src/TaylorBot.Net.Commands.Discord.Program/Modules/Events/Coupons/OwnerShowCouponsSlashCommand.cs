@@ -9,7 +9,9 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
-public class OwnerShowCouponsSlashCommand(ICouponRepository couponRepository) : ISlashCommand<OwnerShowCouponsSlashCommand.Options>
+public class OwnerShowCouponsSlashCommand(
+    ICouponRepository couponRepository,
+    TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<OwnerShowCouponsSlashCommand.Options>
 {
     public static string CommandName => "owner showcoupons";
 
@@ -56,9 +58,7 @@ public class OwnerShowCouponsSlashCommand(ICouponRepository couponRepository) : 
                     ))
                 )).Build();
             },
-            Preconditions: [
-                new TaylorBotOwnerPrecondition()
-            ]
+            Preconditions: [ownerPrecondition]
         ));
     }
 }

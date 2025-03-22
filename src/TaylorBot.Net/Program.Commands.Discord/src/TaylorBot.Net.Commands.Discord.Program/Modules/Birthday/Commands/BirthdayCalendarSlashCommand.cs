@@ -12,7 +12,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository, MemberNotInGuildUpdater memberNotInGuildUpdater) : ISlashCommand<NoOptions>
+public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository, MemberNotInGuildUpdater memberNotInGuildUpdater, CommandMentioner mention, InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "birthday calendar";
 
@@ -58,15 +58,13 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                         emptyText:
                             $"""
                             No upcoming birthdays in this server for the next 6 months.
-                            Members need to use {context.MentionSlashCommand("birthday set")}! 😊
+                            Members need to use {mention.SlashCommand("birthday set", context)}! 😊
                             """
                     )),
                     IsCancellable: true
                 )).Build();
             },
-            Preconditions: [
-                new InGuildPrecondition(botMustBeInGuild: true),
-            ]
+            Preconditions: [inGuild.Create(botMustBeInGuild: true)]
         ));
     }
 }

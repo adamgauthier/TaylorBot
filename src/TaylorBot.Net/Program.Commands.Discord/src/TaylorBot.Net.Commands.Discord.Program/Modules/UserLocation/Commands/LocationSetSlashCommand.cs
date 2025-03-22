@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRepository locationRepository, LocationFetcherDomainService locationFetcherDomainService) : ISlashCommand<LocationSetSlashCommand.Options>
+public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRepository locationRepository, LocationFetcherDomainService locationFetcherDomainService, CommandMentioner mention) : ISlashCommand<LocationSetSlashCommand.Options>
 {
     public static string CommandName => "location set";
 
@@ -38,8 +38,8 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
                                 Your location has been set to **{location.FormattedAddress}** 🌍
-                                You can use {context.MentionSlashCommand("location weather")} to see the current weather at your location 🌦
-                                People can now use {context.MentionSlashCommand("location time")} to see what time it is for you 🕰️
+                                You can use {mention.SlashCommand("location weather", context)} to see the current weather at your location 🌦
+                                People can now use {mention.SlashCommand("location time", context)} to see what time it is for you 🕰️
                                 """));
 
                         default: throw new NotImplementedException();

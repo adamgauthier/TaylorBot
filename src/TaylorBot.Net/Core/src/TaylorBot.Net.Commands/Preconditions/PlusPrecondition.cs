@@ -1,4 +1,5 @@
-﻿using TaylorBot.Net.Core.Strings;
+﻿using Microsoft.Extensions.DependencyInjection;
+using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Preconditions;
@@ -9,10 +10,21 @@ public interface IPlusRepository
     ValueTask<bool> IsActivePlusGuildAsync(CommandGuild guild);
 }
 
-public enum PlusRequirement { PlusUser, PlusGuild, PlusUserOrGuild }
-
-public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement requirement) : ICommandPrecondition
+public enum PlusRequirement
 {
+    PlusUser,
+    PlusGuild,
+    PlusUserOrGuild,
+}
+
+public class PlusPrecondition(IPlusRepository plusRepository, CommandMentioner mention, PlusRequirement requirement) : ICommandPrecondition
+{
+    public class Factory(IServiceProvider services)
+    {
+        public PlusPrecondition Create(PlusRequirement requirement) =>
+            ActivatorUtilities.CreateInstance<PlusPrecondition>(services, requirement);
+    }
+
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         return requirement switch
@@ -24,7 +36,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users",
                         UserReason: new(
                             $"""
-                            You can't use {context.MentionCommand(command)} because it is restricted to **TaylorBot Plus** members 😕
+                            You can't use {mention.Command(command, context)} because it is restricted to **TaylorBot Plus** members 😕
                             {PlusInfo()}
                             """)
                     ),
@@ -36,7 +48,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus guilds",
                         UserReason: new(
                             $"""
-                            You can't use {context.MentionCommand(command)} because it is restricted to **TaylorBot Plus** servers 😕
+                            You can't use {mention.Command(command, context)} because it is restricted to **TaylorBot Plus** servers 😕
                             {PlusInfo()}
                             """)
                     ),
@@ -48,7 +60,7 @@ public class PlusPrecondition(IPlusRepository plusRepository, PlusRequirement re
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users or guilds",
                         UserReason: new(
                             $"""
-                            You can't use {context.MentionCommand(command)} because it is restricted to **TaylorBot Plus** members or servers 😕
+                            You can't use {mention.Command(command, context)} because it is restricted to **TaylorBot Plus** members or servers 😕
                             {PlusInfo()}
                             """)
                     ),

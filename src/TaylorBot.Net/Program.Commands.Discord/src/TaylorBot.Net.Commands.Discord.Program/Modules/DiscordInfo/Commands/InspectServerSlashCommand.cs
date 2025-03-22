@@ -9,7 +9,7 @@ using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class InspectServerSlashCommand : ISlashCommand<NoOptions>
+public class InspectServerSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "inspect server";
 
@@ -65,7 +65,7 @@ public class InspectServerSlashCommand : ISlashCommand<NoOptions>
 
                 return new EmbedResult(embed.Build());
             },
-            Preconditions: [new InGuildPrecondition(botMustBeInGuild: true)]
+            Preconditions: [inGuild.Create(botMustBeInGuild: true)]
         ));
     }
 }

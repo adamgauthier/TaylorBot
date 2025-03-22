@@ -9,7 +9,7 @@ using TaylorBot.Net.Core.Time;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
-public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlusRepository plusRepository) : ISlashCommand<RemindAddSlashCommand.Options>
+public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlusRepository plusRepository, CommandMentioner mention) : ISlashCommand<RemindAddSlashCommand.Options>
 {
     private const uint MinMinutes = 1;
     private const uint MaxDays = 365;
@@ -58,7 +58,7 @@ public class RemindAddSlashCommand(IReminderRepository reminderRepository, IPlus
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
                         Sorry, you can't have more than {maxReminders} set at the same time 😕
-                        Use {context.MentionSlashCommand("remind manage")} to clear some of your current reminders
+                        Use {mention.SlashCommand("remind manage", context)} to clear some of your current reminders
                         By default, you can have at most {MaxRemindersNonPlus}. **TaylorBot Plus** members can have {MaxRemindersPlus}.
                         """
                     ));

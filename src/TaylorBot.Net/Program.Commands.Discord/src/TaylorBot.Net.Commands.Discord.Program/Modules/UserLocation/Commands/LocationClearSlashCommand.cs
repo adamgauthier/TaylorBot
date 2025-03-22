@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationClearSlashCommand(ILocationRepository locationRepository) : ISlashCommand<NoOptions>
+public class LocationClearSlashCommand(ILocationRepository locationRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "location clear";
 
@@ -20,8 +20,8 @@ public class LocationClearSlashCommand(ILocationRepository locationRepository) :
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Your location has been cleared. {context.MentionSlashCommand("location time")} and {context.MentionSlashCommand("location weather")} will no longer work. ✅
-                    You can set it again with {context.MentionSlashCommand("location set")}.
+                    Your location has been cleared. {mention.SlashCommand("location time", context)} and {mention.SlashCommand("location weather", context)} will no longer work. ✅
+                    You can set it again with {mention.SlashCommand("location set", context)}.
                     """));
             }
         ));
