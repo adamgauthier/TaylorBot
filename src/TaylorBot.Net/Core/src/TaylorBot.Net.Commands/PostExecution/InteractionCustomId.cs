@@ -20,19 +20,18 @@ public record InteractionCustomId(string RawId)
 
     public string Data => Split()[2];
 
-    public List<CustomIdDataEntry> DataEntries => Data
+    public IList<CustomIdDataEntry> DataEntries => [.. Data
         .Split(DataSeparator)
         .Select(s => s.Split(DataRowSeparator))
-        .Select(s => new CustomIdDataEntry(s[0], s[1]))
-        .ToList();
+        .Select(s => new CustomIdDataEntry(s[0], s[1]))];
 
     public Dictionary<string, string> ParsedData => DataEntries
         .ToDictionary(e => e.Key, e => e.Value);
 
-    public static InteractionCustomId Create(string name, IReadOnlyList<CustomIdDataEntry>? data = null) =>
+    public static InteractionCustomId Create(string name, IList<CustomIdDataEntry>? data = null) =>
         new($"{0}{Separator}{name}{Separator}{(data != null ? string.Join(DataSeparator, data.Select(kvp => $"{kvp.Key}{DataRowSeparator}{kvp.Value}")) : "")}");
 
-    public static InteractionCustomId Create(CustomIdNames name, IReadOnlyList<CustomIdDataEntry>? data = null) =>
+    public static InteractionCustomId Create(CustomIdNames name, IList<CustomIdDataEntry>? data = null) =>
         Create(name.ToText(), data);
 }
 

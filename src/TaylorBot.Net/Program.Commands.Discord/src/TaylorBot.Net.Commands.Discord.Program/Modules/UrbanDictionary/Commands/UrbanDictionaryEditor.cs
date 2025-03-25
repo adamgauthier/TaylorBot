@@ -14,7 +14,7 @@ public class UrbanDictionaryEditor(UrbanDictionaryResult searchResult) : IMessag
 
     public MessageContent Edit(int currentPage)
     {
-        var embed = new EmbedBuilder();
+        EmbedBuilder embed = new();
         EditEmbed(embed, currentPage);
         return new(embed.Build());
     }
@@ -38,7 +38,7 @@ public class UrbanDictionaryEditor(UrbanDictionaryResult searchResult) : IMessag
             embed
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithTitle(page.Word)
-                .WithSafeUrl(page.Link.Replace("http:", "https:"))
+                .WithSafeUrl(page.Link.Replace("http:", "https:", StringComparison.InvariantCulture))
                 .WithDescription(isLegacy
                     ?
                     $"""

@@ -26,8 +26,8 @@ public class LastFmTracksCommandTests
     public async Task Tracks_ThenReturnsSuccessEmbedWithTrackInformation()
     {
         var period = LastFmPeriod.OneMonth;
-        var lastFmUsername = new LastFmUsername("taylorswift");
-        var track = new TopTrack(
+        LastFmUsername lastFmUsername = new("taylorswift");
+        TopTrack track = new(
             Name: "All Too Well",
             TrackUrl: new Uri("https://www.last.fm/music/Taylor+Swift/_/All+Too+Well"),
             PlayCount: 22,
@@ -52,8 +52,8 @@ public class LastFmTracksCommandTests
     public async Task Tracks_WhenLongArtistNames_ThenReturnsSuccessEmbedWithTrackInformation()
     {
         var period = LastFmPeriod.OneMonth;
-        var lastFmUsername = new LastFmUsername("taylorswift");
-        var track = new TopTrack(
+        LastFmUsername lastFmUsername = new("taylorswift");
+        TopTrack track = new(
             Name: "Ten Duel Commandments",
             TrackUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22/_/Ten+Duel+Commandments"),
             PlayCount: 22,
@@ -61,7 +61,7 @@ public class LastFmTracksCommandTests
             ArtistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22")
         );
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-        A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult(Enumerable.Repeat(track, 10).ToList()));
+        A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult([.. Enumerable.Repeat(track, 10)]));
 
         var result = (EmbedResult)await _lastFmTracksCommand.Tracks(period, _commandUser, isLegacyCommand: false).RunAsync();
 

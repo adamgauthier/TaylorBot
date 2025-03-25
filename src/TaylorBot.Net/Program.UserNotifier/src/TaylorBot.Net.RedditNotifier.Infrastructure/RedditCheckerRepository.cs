@@ -6,7 +6,7 @@ namespace TaylorBot.Net.RedditNotifier.Infrastructure;
 
 public class RedditCheckerRepository(PostgresConnectionFactory postgresConnectionFactory) : IRedditCheckerRepository
 {
-    private class RedditCheckerDto
+    private sealed class RedditCheckerDto
     {
         public string guild_id { get; set; } = null!;
         public string channel_id { get; set; } = null!;
@@ -23,13 +23,13 @@ public class RedditCheckerRepository(PostgresConnectionFactory postgresConnectio
             "SELECT guild_id, channel_id, subreddit, last_post_id, last_created FROM checkers.reddit_checker;"
         );
 
-        return checkers.Select(checker => new RedditChecker(
+        return [.. checkers.Select(checker => new RedditChecker(
             GuildId: checker.guild_id,
             ChannelId: checker.channel_id,
             SubredditName: checker.subreddit,
             LastPostId: checker.last_post_id,
             LastPostCreatedAt: checker.last_created
-        )).ToList();
+        ))];
     }
 
     public async ValueTask UpdateLastPostAsync(RedditChecker redditChecker, RedditPost redditPost)

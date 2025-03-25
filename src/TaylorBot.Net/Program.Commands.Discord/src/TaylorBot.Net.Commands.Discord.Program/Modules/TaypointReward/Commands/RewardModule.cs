@@ -27,7 +27,7 @@ public class RewardModule(
         IReadOnlyList<IMentionedUserNotAuthor<IUser>> users
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
@@ -37,7 +37,7 @@ public class RewardModule(
                     trackedUsers.Add(await user.GetTrackedUserAsync());
                 }
 
-                var rewardedUsers = await taypointRepository.RewardUsersAsync(trackedUsers.Select(u => new DiscordUser(u)).ToList(), taypoints.Parsed);
+                var rewardedUsers = await taypointRepository.RewardUsersAsync([.. trackedUsers.Select(u => new DiscordUser(u))], taypoints.Parsed);
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -50,7 +50,7 @@ public class RewardModule(
                         """.Truncate(EmbedBuilder.MaxDescriptionLength))
                 .Build());
             },
-            Preconditions: new[] { ownerPrecondition }
+            Preconditions: [ownerPrecondition]
         );
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);

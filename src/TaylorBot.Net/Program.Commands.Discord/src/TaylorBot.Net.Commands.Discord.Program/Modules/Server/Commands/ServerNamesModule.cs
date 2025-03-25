@@ -2,7 +2,7 @@
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Embed;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 [Name("Stats 📊")]
 public class ServerNamesModule(ICommandRunner commandRunner) : TaylorBotModule
@@ -15,7 +15,7 @@ public class ServerNamesModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -37,7 +37,7 @@ public class ServerNamesModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

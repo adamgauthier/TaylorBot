@@ -22,7 +22,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
             new(Info.Name),
             async () =>
             {
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 var plusUser = await plusUserRepository.GetPlusUserAsync(context.User);
 

@@ -93,7 +93,7 @@ public class RecapSlashCommand(
                 }
 
                 const string filename = "recap.png";
-                var imageStream = new MemoryStream(imageBytes);
+                MemoryStream imageStream = new(imageBytes);
 
                 var embed = new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)

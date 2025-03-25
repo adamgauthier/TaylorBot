@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.User;
@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
 
 public class PlusUserPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IPlusUserRepository
 {
-    private record PlusGuildDtoDto(bool active, int max_plus_guilds, string? guild_name);
+    private sealed record PlusGuildDtoDto(bool active, int max_plus_guilds, string? guild_name);
 
     public async ValueTask<PlusUser?> GetPlusUserAsync(DiscordUser user)
     {

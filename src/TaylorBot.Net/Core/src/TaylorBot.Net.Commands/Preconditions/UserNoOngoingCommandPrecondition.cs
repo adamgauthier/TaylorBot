@@ -16,7 +16,7 @@ public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingC
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         var pool = command.Metadata.Name is SharedCommands.Help ?
-            $"help.{Assembly.GetEntryAssembly()!.GetName().Name!.ToLowerInvariant()}" :
+            $"help.{GetAssemblyName()}" :
             string.Empty;
 
         var hasAnyOngoingCommand = await ongoingCommandRepository.HasAnyOngoingCommandAsync(context.User, pool);
@@ -34,5 +34,12 @@ public class UserNoOngoingCommandPrecondition(IOngoingCommandRepository ongoingC
             context.OnGoing.OnGoingCommandAddedToPool = pool;
             return new PreconditionPassed();
         }
+    }
+
+    private static string GetAssemblyName()
+    {
+        var assemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
+        ArgumentNullException.ThrowIfNull(assemblyName);
+        return assemblyName.ToUpperInvariant();
     }
 }

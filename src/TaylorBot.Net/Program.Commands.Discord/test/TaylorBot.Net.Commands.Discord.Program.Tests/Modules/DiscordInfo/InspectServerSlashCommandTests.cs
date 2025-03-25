@@ -17,7 +17,7 @@ public class InspectServerSlashCommandTests
 
     public InspectServerSlashCommandTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
 
         _command = new(new(services.BuildServiceProvider()));

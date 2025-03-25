@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.User;
@@ -23,7 +23,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    private record ReminderDto(Guid reminder_id, DateTime remind_at, string reminder_text);
+    private sealed record ReminderDto(Guid reminder_id, DateTime remind_at, string reminder_text);
 
     public async ValueTask<IList<Reminder>> GetRemindersAsync(DiscordUser user)
     {
@@ -41,7 +41,7 @@ public class ReminderPostgresRepository(PostgresConnectionFactory postgresConnec
             }
         );
 
-        return reminders.Select(r => new Reminder(r.reminder_id, r.remind_at, r.reminder_text)).ToList();
+        return [.. reminders.Select(r => new Reminder(r.reminder_id, r.remind_at, r.reminder_text))];
     }
 
     public async ValueTask AddReminderAsync(DiscordUser user, DateTimeOffset remindAt, string text)

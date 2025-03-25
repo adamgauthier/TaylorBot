@@ -62,7 +62,11 @@ public class RunContextFactory(
         {
             if (interaction.Raw.type is 2 or 4)
             {
-                ArgumentNullException.ThrowIfNull(interaction.Data.id);
+                if (!interaction.Data.id.HasValue)
+                {
+                    throw new ArgumentNullException(nameof(interaction.Data.id));
+                }
+
                 var stringId = interaction.Data.id.Value.GetString();
                 ArgumentNullException.ThrowIfNull(stringId);
 
@@ -122,10 +126,10 @@ public class CommandRunner(
 
     public async ValueTask<ICommandResult> RunSlashCommandAsync(Command command, RunContext context)
     {
-        context.Activity.CommandName = command.Metadata.Name;
-        context.Activity.UserId = context.User.Id;
-        context.Activity.ChannelId = context.Channel.Id;
-        context.Activity.GuildId = context.Guild?.Id;
+        context.Activity.SetCommandName(command.Metadata.Name);
+        context.Activity.SetUserId(context.User.Id);
+        context.Activity.SetChannelId(context.Channel.Id);
+        context.Activity.SetGuildId(context.Guild?.Id);
 
         foreach (var precondition in slashCommandsPreconditions.Concat(command.Preconditions ?? []))
         {
@@ -142,10 +146,10 @@ public class CommandRunner(
 
     public async Task<ICommandResult> RunInteractionAsync(Command command, RunContext context)
     {
-        context.Activity.CommandName = command.Metadata.Name;
-        context.Activity.UserId = context.User.Id;
-        context.Activity.ChannelId = context.Channel.Id;
-        context.Activity.GuildId = context.Guild?.Id;
+        context.Activity.SetCommandName(command.Metadata.Name);
+        context.Activity.SetUserId(context.User.Id);
+        context.Activity.SetChannelId(context.Channel.Id);
+        context.Activity.SetGuildId(context.Guild?.Id);
 
         foreach (var precondition in interactionsPreconditions.Concat(command.Preconditions ?? []))
         {

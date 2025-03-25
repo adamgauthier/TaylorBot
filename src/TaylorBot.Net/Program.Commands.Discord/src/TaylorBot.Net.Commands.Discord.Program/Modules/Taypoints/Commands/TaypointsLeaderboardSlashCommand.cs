@@ -44,7 +44,7 @@ public class TaypointsLeaderboardSlashCommand(
                 memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                     nameof(TaypointsLeaderboardSlashCommand),
                     guild.Fetched,
-                    leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id)).ToList());
+                    [.. leaderboardToDisplay.Select(e => new SnowflakeId(e.user_id))]);
 
                 var pages = leaderboardToDisplay.Chunk(15).Select(entries => string.Join('\n', entries.Select(
                     entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"taypoint".ToQuantity(entry.last_known_taypoint_count, TaylorBotFormats.BoldReadable)}"

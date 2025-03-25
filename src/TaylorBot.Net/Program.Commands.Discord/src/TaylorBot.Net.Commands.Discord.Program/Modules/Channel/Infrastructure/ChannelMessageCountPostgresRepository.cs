@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Channel.Commands;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Channel.Infrastructure;
 
 public class ChannelMessageCountPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IChannelMessageCountRepository
 {
-    private record CountDto(long message_count, bool is_spam);
+    private sealed record CountDto(long message_count, bool is_spam);
 
     public async Task<MessageCount> GetMessageCountAsync(GuildTextChannel channel)
     {

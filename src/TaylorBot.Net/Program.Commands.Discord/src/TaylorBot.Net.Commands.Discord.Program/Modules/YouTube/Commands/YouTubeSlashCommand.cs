@@ -42,7 +42,7 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
                     {
                         return new PageMessageResult(new PageMessage(new(
                             new TextPageMessageRenderer(new(
-                                search.VideoUrls.Select(u => $"Use </youtube:861754955728027679> for a better command experience and higher daily limit.\n{u}").ToList(),
+                                [.. search.VideoUrls.Select(u => $"Use </youtube:861754955728027679> for a better command experience and higher daily limit.\n{u}")],
                                 emptyText: "No YouTube video found for your search 😕")),
                             Cancellable: true
                         )));

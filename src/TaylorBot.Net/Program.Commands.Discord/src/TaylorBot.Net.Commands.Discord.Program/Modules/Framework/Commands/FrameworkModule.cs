@@ -22,7 +22,7 @@ public class FrameworkModule(
         Word? prefix = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {

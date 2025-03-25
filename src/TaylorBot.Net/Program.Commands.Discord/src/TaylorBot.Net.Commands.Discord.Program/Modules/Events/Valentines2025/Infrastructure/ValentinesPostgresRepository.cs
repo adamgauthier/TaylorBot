@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.I
 
 public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IValentinesRepository
 {
-    private record ConfigDto(string config_key, string config_value);
+    private sealed record ConfigDto(string config_key, string config_value);
 
     public async ValueTask<ValentinesConfig> GetConfigurationAsync()
     {
@@ -23,7 +23,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         return new(
             SpreadLoveRoleId: new(GetConfigValue("spread_love_role_id")),
             IncubationPeriod: TimeSpan.Parse(GetConfigValue("incubation_period")),
-            BypassSpreadLimitRoleIds: GetConfigValue("bypass_spread_limit_role_ids").Split(',').Select(i => new SnowflakeId(i)).ToList(),
+            BypassSpreadLimitRoleIds: [.. GetConfigValue("bypass_spread_limit_role_ids").Split(',').Select(i => new SnowflakeId(i))],
             SpreadLimit: int.Parse(GetConfigValue("spread_limit")),
             LoungeChannelId: new(GetConfigValue("lounge_channel_id")),
             GiveawaysEndTime: DateTimeOffset.Parse(GetConfigValue("giveaways_end_time")),
@@ -33,7 +33,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         );
     }
 
-    private record RoleObtainedDto(string user_id, string username, string acquired_from_user_id, string acquired_from_username, DateTime acquired_at);
+    private sealed record RoleObtainedDto(string user_id, string username, string acquired_from_user_id, string acquired_from_username, DateTime acquired_at);
 
     public async ValueTask<RoleObtained?> GetRoleObtainedByUserAsync(DiscordMember user)
     {
@@ -96,13 +96,13 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
             }
         );
 
-        return records.Select(r => new RoleObtained(
+        return [.. records.Select(r => new RoleObtained(
             new(r.acquired_from_user_id),
             r.acquired_from_username,
             new(r.user_id),
             r.username,
             r.acquired_at
-        )).ToList();
+        ))];
     }
 
     public async ValueTask<IReadOnlyList<RoleObtained>> GetAllAsync()
@@ -116,13 +116,13 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
             """
         );
 
-        return records.Select(r => new RoleObtained(
+        return [.. records.Select(r => new RoleObtained(
             new(r.acquired_from_user_id),
             r.acquired_from_username,
             new(r.user_id),
             r.username,
             r.acquired_at
-        )).ToList();
+        ))];
     }
 
     public async ValueTask<IReadOnlyList<RoleObtained>> GetAllReadyAsync(ValentinesConfig config)
@@ -145,12 +145,12 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
             }
         );
 
-        return records.Select(r => new RoleObtained(
+        return [.. records.Select(r => new RoleObtained(
             new(r.acquired_from_user_id),
             r.acquired_from_username,
             new(r.user_id),
             r.username,
             r.acquired_at
-        )).ToList();
+        ))];
     }
 }

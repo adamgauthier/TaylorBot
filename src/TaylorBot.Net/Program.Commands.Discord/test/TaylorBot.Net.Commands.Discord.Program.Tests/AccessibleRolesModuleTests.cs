@@ -32,7 +32,7 @@ public class AccessibleRolesModuleTests
 
     public AccessibleRolesModuleTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddTransient<PermissionStringMapper>();
         services.AddTransient<TaylorBotOwnerPrecondition>();
@@ -68,7 +68,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
+        A.CallTo(() => _commandUser.RoleIds).Returns([]);
         A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(null);
 
         var result = (await _accessibleRolesModule.GetAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
@@ -81,7 +81,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
+        A.CallTo(() => _commandUser.RoleIds).Returns([]);
         A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(Group: null));
         A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Returns(Task.CompletedTask);
 
@@ -112,7 +112,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
+        A.CallTo(() => _commandUser.RoleIds).Returns([]);
         A.CallTo(() => _accessibleRoleRepository.GetAccessibleRoleAsync(role)).Returns(new AccessibleRoleWithGroup(Group: null));
         A.CallTo(() => _commandUser.AddRoleAsync(role, A<RequestOptions>.Ignored)).Throws(new HttpException(HttpStatusCode.Forbidden, A.Fake<IRequest>()));
 
@@ -126,7 +126,7 @@ public class AccessibleRolesModuleTests
     {
         const ulong RoleId = 1989;
         var role = CreateFakeRole(RoleId, ARoleName);
-        A.CallTo(() => _commandUser.RoleIds).Returns(Array.Empty<ulong>());
+        A.CallTo(() => _commandUser.RoleIds).Returns([]);
 
         var result = (await _accessibleRolesModule.DropAsync(new RoleNotEveryoneArgument<IRole>(role))).GetResult<EmbedResult>();
 
@@ -185,7 +185,7 @@ public class AccessibleRolesModuleTests
     [Fact]
     public async Task GroupAsync_ThenReturnsSuccessEmbed()
     {
-        var groupName = new AccessibleGroupName("regions");
+        AccessibleGroupName groupName = new("regions");
         var role = CreateFakeRole(ARoleId, ARoleName);
         A.CallTo(() => _accessibleRoleRepository.AddOrUpdateAccessibleRoleWithGroupAsync(role, groupName)).Returns(default);
 

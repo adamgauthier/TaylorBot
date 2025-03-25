@@ -14,7 +14,7 @@ using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
-public class LastFmCollageSlashCommandTests
+public class LastFmCollageSlashCommandTests : IAsyncDisposable
 {
     private readonly DiscordUser _commandUser = CommandUtils.AUser;
 
@@ -24,12 +24,24 @@ public class LastFmCollageSlashCommandTests
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
     private readonly IHttpClientFactory _clientFactory = A.Fake<IHttpClientFactory>(o => o.Strict());
 
+    private readonly AlwaysSucceedHttpMessageHandler _handler = new();
+    private readonly HttpClient _client;
+
     private readonly LastFmCollageSlashCommand _lastFmCollageSlashCommand;
 
     public LastFmCollageSlashCommandTests()
     {
-        A.CallTo(() => _clientFactory.CreateClient(Microsoft.Extensions.Options.Options.DefaultName)).Returns(new HttpClient(new AlwaysSucceedHttpMessageHandler()));
+        _client = new(_handler);
+        A.CallTo(() => _clientFactory.CreateClient(Microsoft.Extensions.Options.Options.DefaultName)).Returns(_client);
         _lastFmCollageSlashCommand = new(_logger, _lastFmUsernameRepository, new(_lastFmPeriodStringMapper), _lastFmPeriodStringMapper, _clientFactory);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _handler.Dispose();
+        _client.Dispose();
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -46,7 +58,7 @@ public class LastFmCollageSlashCommandTests
     [Fact]
     public async Task CollageAsync_ThenReturnsEmbedWithImage()
     {
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
 

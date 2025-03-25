@@ -3,12 +3,13 @@ using Discord.Commands;
 using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.DiscordNet;
+using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests;
+namespace TaylorBot.Net.Commands.Tests;
 
 public class MentionedUserTypeReaderTests
 {

@@ -26,7 +26,7 @@ public class LastFmArtistsCommandTests
     public async Task Artists_ThenReturnsSuccessEmbedWithArtistInformation()
     {
         var period = LastFmPeriod.SixMonth;
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         var artist = new TopArtist(Name: "Taylor Swift", ArtistUrl: new Uri("https://www.last.fm/music/Taylor+Swift"), PlayCount: 15);
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult([artist]));
@@ -44,14 +44,14 @@ public class LastFmArtistsCommandTests
     public async Task Artists_WhenLongArtistNames_ThenReturnsSuccessEmbedWithArtistInformation()
     {
         var period = LastFmPeriod.SixMonth;
-        var lastFmUsername = new LastFmUsername("taylorswift");
-        var artist = new TopArtist(
+        LastFmUsername lastFmUsername = new("taylorswift");
+        TopArtist artist = new(
             Name: "Anthony Ramos, Lin-Manuel Miranda, Jon Rua, Leslie Odom, Jr. & Original Broadway Cast of \"Hamilton\"",
             ArtistUrl: new Uri("https://www.last.fm/music/Anthony+Ramos,+Lin-Manuel+Miranda,+Jon+Rua,+Leslie+Odom,+Jr.+&+Original+Broadway+Cast+of+%22Hamilton%22"),
             PlayCount: 15
         );
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-        A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult(Enumerable.Repeat(artist, 10).ToList()));
+        A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult([.. Enumerable.Repeat(artist, 10)]));
 
         var result = (EmbedResult)await _lastFmArtistsCommand.Artists(period, _commandUser, isLegacyCommand: false).RunAsync();
 

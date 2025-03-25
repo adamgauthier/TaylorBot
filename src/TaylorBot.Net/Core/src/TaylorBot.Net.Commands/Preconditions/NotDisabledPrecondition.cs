@@ -13,7 +13,7 @@ public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandR
     {
         var disabledMessage = await disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(command.Metadata);
 
-        return disabledMessage != string.Empty ?
+        return !string.IsNullOrEmpty(disabledMessage) ?
             new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is globally disabled",
                 UserReason: new(

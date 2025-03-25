@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.WolframAlpha.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
@@ -50,13 +50,13 @@ public class WolframAlphaClient(ILogger<WolframAlphaClient> logger, IOptionsMoni
         return new GenericWolframAlphaError();
     }
 
-    private record WolframResponse(WolframQueryResult queryresult);
+    private sealed record WolframResponse(WolframQueryResult queryresult);
 
-    private record WolframQueryResult(bool success, IReadOnlyList<WolframPod> pods);
+    private sealed record WolframQueryResult(bool success, IReadOnlyList<WolframPod> pods);
 
-    private record WolframPod(IReadOnlyList<WolframSubPod> subpods);
+    private sealed record WolframPod(IReadOnlyList<WolframSubPod> subpods);
 
-    private record WolframSubPod(string plaintext, WolframImg img);
+    private sealed record WolframSubPod(string plaintext, WolframImg img);
 
-    private record WolframImg(string src);
+    private sealed record WolframImg(string src);
 }

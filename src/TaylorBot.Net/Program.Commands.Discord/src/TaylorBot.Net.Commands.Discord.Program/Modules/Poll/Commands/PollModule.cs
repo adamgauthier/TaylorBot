@@ -21,7 +21,7 @@ public class PollModule(ICommandRunner commandRunner, TaylorBotHasPermissionPrec
         string options
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () =>
             {
@@ -53,7 +53,7 @@ public class PollModule(ICommandRunner commandRunner, TaylorBotHasPermissionPrec
                             """)
                         .WithFooter("React to vote!")
                     .Build()),
-                    AdditionalReacts: Choices.Take(allOptions.Length).ToList()
+                    AdditionalReacts: [.. Choices.Take(allOptions.Length)]
                 ))));
             },
             Preconditions: [botHasPermission.Create(GuildPermission.AddReactions)]

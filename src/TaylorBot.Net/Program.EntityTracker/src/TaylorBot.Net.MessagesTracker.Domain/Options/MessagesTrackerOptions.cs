@@ -1,4 +1,4 @@
-﻿namespace TaylorBot.Net.MinutesTracker.Domain.Options;
+﻿namespace TaylorBot.Net.MessagesTracker.Domain.Options;
 
 public class MessagesTrackerOptions
 {

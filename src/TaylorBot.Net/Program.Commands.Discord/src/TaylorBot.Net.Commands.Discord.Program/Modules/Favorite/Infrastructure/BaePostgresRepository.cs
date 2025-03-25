@@ -8,8 +8,8 @@ public class BaePostgresRepository(TextAttributePostgresRepository textAttribute
     public ValueTask<string?> GetBaeAsync(DiscordUser user) =>
         textAttributePostgresRepository.GetAttributeAsync(user, "bae");
 
-    public ValueTask SetBaeAsync(DiscordUser user, string songs) =>
-        textAttributePostgresRepository.SetAttributeAsync(user, "bae", songs);
+    public ValueTask SetBaeAsync(DiscordUser user, string bae) =>
+        textAttributePostgresRepository.SetAttributeAsync(user, "bae", bae);
 
     public ValueTask ClearBaeAsync(DiscordUser user) =>
         textAttributePostgresRepository.ClearAttributeAsync(user, "bae");

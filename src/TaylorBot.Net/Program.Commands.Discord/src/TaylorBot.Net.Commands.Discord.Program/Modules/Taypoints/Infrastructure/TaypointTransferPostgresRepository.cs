@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Infrastructure.Taypoints;
@@ -11,8 +11,8 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
     public async ValueTask<TransferResult> TransferTaypointsAsync(DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var removeInfo = amount is AbsoluteTaypointAmount absolute
             ? new { ToRemove = "@AmountParam", AmountParam = absolute.Amount }
@@ -51,11 +51,11 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
             recipients.Add(new(recipient.User.Id, recipient.Amount, addResult.taypoint_count));
         }
 
-        transaction.Commit();
+        await transaction.CommitAsync();
         return new TransferResult(removedTaypoint.original_count, removedTaypoint.gifted_count, recipients);
     }
 
-    private record RemoveTaypointDto(long original_count, long gifted_count);
+    private sealed record RemoveTaypointDto(long original_count, long gifted_count);
 
-    private record RecipientUser(DiscordUser User, long Amount);
+    private sealed record RecipientUser(DiscordUser User, long Amount);
 }

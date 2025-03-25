@@ -40,7 +40,7 @@ public class RewardModuleTests
         A.CallTo(() => userArgument.GetTrackedUserAsync()).Returns(user);
 
         A.CallTo(() => _taypointRewardRepository.RewardUsersAsync(A<IReadOnlyCollection<DiscordUser>>.That.IsSameSequenceAs(new[] { new DiscordUser(user) }), RewardedTaypointCount))
-            .Returns(new[] { new RewardedUserResult(new SnowflakeId(UserId), NewTaypointCount) });
+            .Returns([new RewardedUserResult(new SnowflakeId(UserId), NewTaypointCount)]);
 
         var result = (await _rewardModule.RewardAsync(new PositiveInt32(RewardedTaypointCount), [userArgument])).GetResult<EmbedResult>();
 

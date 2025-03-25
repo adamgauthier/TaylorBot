@@ -11,7 +11,7 @@ using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.EntityTracker.Domain.Username;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests;
+namespace TaylorBot.Net.Commands.Tests;
 
 public class CommandExecutedHandlerTests
 {
@@ -39,7 +39,8 @@ public class CommandExecutedHandlerTests
     {
         var commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
         A.CallTo(() => commandContext.RunContext).Returns(null);
-        A.CallTo(() => commandContext.Activity).Returns(new(new CommandActivity(null)));
+        using CommandActivity activity = new(null);
+        A.CallTo(() => commandContext.Activity).Returns(new(activity));
         var result = A.Fake<IResult>(o => o.Strict());
         A.CallTo(() => result.Error).Returns(CommandError.UnknownCommand);
 

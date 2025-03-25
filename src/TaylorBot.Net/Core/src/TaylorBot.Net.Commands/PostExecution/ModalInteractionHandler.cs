@@ -108,7 +108,7 @@ public class ModalInteractionHandler(
             parsed,
             interaction.token,
             new(parsed.Data.custom_id),
-            parsed.Data.components
+            [.. parsed.Data.components
                 .Select(c =>
                 {
                     var component = c.components?[0];
@@ -117,8 +117,7 @@ public class ModalInteractionHandler(
                     ArgumentNullException.ThrowIfNull(component.value);
 
                     return new TextInputSubmit(component.custom_id, component.value);
-                })
-                .ToList()
+                })]
         );
     }
 

@@ -6,7 +6,7 @@ public static class StringExtensions
 {
     public static string EscapeNewLines(this string toEscape)
     {
-        return toEscape.Replace("\n", @"\n");
+        return toEscape.Replace("\n", @"\n", StringComparison.InvariantCulture);
     }
 
     public static string LinkToMessage(this string messageId, string channelId, string guildId)
@@ -16,7 +16,7 @@ public static class StringExtensions
 
     public static string DiscordMdLink(this string text, string url)
     {
-        return $"[{text}]({url.Replace(")", "%29")})";
+        return $"[{text}]({url.Replace(")", "%29", StringComparison.InvariantCulture)})";
     }
 
     public static string MdUserLink(this string text, SnowflakeId userId)

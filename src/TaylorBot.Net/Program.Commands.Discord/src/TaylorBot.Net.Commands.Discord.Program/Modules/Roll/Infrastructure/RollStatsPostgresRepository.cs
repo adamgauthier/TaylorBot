@@ -30,7 +30,7 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<RollLeaderboardEntry>(
+        return [.. (await connection.QueryAsync<RollLeaderboardEntry>(
             // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
             // Then we join to filter out users that are not part of the guild and get the top 100
             // Finally we join on users to get their latest username
@@ -53,27 +53,27 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
             {
                 GuildId = $"{guild.Id}",
             }
-        )).ToList();
+        ))];
     }
 
     public async Task WinRollAsync(DiscordUser user, long taypointReward)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         await AddRollCountAsync(connection, user);
 
         await TaypointPostgresUtil.AddTaypointsAsync(connection, user.Id, taypointReward);
 
-        transaction.Commit();
+        await transaction.CommitAsync();
     }
 
     public async Task WinPerfectRollAsync(DiscordUser user, long taypointReward)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         await connection.ExecuteAsync(
             """
@@ -92,7 +92,7 @@ public class RollStatsPostgresRepository(PostgresConnectionFactory postgresConne
 
         await TaypointPostgresUtil.AddTaypointsAsync(connection, user.Id, taypointReward);
 
-        transaction.Commit();
+        await transaction.CommitAsync();
     }
 
     public async Task AddRollCountAsync(DiscordUser user)

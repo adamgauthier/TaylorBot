@@ -108,7 +108,7 @@ public class TaylorBotClient : ITaylorBotClient
             return Task.CompletedTask;
         }
 
-        _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), log.ToString(prependTimestamp: false));
+        _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), "Discord.Net: {Message}", log.ToString(prependTimestamp: false));
         return Task.CompletedTask;
     }
 

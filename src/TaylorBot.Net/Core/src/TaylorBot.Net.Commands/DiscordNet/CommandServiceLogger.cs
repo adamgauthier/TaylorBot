@@ -8,7 +8,7 @@ public class CommandServiceLogger(ILogger<CommandServiceLogger> logger, ILogSeve
 {
     public Task OnCommandServiceLogAsync(LogMessage logMessage)
     {
-        logger.Log(logSeverityToLogLevelMapper.MapFrom(logMessage.Severity), logMessage.ToString(prependTimestamp: false));
+        logger.Log(logSeverityToLogLevelMapper.MapFrom(logMessage.Severity), "CommandService: {Message}", logMessage.ToString(prependTimestamp: false));
         return Task.CompletedTask;
     }
 }

@@ -45,12 +45,12 @@ public class UsernamesModuleTests
         const string AUsername = "Enchanted13";
 
         A.CallTo(() => _usernameHistoryRepository.IsUsernameHistoryHiddenFor(new(_commandUser))).Returns(false);
-        A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(new(_commandUser), 75)).Returns(new[] {
+        A.CallTo(() => _usernameHistoryRepository.GetUsernameHistoryFor(new(_commandUser), 75)).Returns([
             new UsernameChange(Username: AUsername, ChangedAt: DateTimeOffset.UtcNow.AddDays(-1))
-        });
+        ]);
 
         var result = (await _usernamesModule.GetAsync()).GetResult<PageMessageResult>();
-        await result.PageMessage.SendAsync(_commandUser, _message);
+        using var _ = await result.PageMessage.SendAsync(_commandUser, _message);
 
         A.CallTo(() => _channel.SendMessageAsync(
             null,

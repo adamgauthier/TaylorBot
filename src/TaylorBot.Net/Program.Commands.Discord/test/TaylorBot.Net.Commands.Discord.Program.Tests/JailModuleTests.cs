@@ -30,7 +30,7 @@ public class JailModuleTests
 
     public JailModuleTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddTransient<PermissionStringMapper>();
         services.AddTransient<TaylorBotOwnerPrecondition>();

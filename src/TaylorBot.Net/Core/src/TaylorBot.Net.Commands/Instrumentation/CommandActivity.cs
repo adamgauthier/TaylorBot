@@ -25,33 +25,41 @@ public class CommandActivityFactory(TaylorBotInstrumentation instrumentation)
         inner?.SetTag("http.request.method", "_OTHER");
         inner?.SetTag("http.response.status_code", "Success");
 
-        return new(inner)
-        {
-            Type = type,
-        };
+        CommandActivity activity = new(inner);
+        activity.SetType(type);
+        return activity;
     }
 }
 
 public sealed class CommandActivity(Activity? activity) : IDisposable
 {
-    public SnowflakeId UserId { set => activity?.SetTag("user.id", value.Id); }
-
-    public SnowflakeId ChannelId { set => activity?.SetTag("channel.id", value.Id); }
-
-    public SnowflakeId? GuildId { set => activity?.SetTag("guild.id", value?.Id); }
-
-    public string? CommandName
+    public void SetUserId(SnowflakeId value)
     {
-        set
+        activity?.SetTag("user.id", value.Id);
+    }
+
+    public void SetChannelId(SnowflakeId value)
+    {
+        activity?.SetTag("channel.id", value.Id);
+    }
+
+    public void SetGuildId(SnowflakeId? value)
+    {
+        activity?.SetTag("guild.id", value?.Id);
+    }
+
+    public void SetCommandName(string? value)
+    {
+        if (value != null)
         {
-            if (value != null)
-            {
-                activity?.SetTag("command.name", value);
-            }
+            activity?.SetTag("command.name", value);
         }
     }
 
-    public CommandType Type { set => activity?.SetTag("command.type", value); }
+    public void SetType(CommandType value)
+    {
+        activity?.SetTag("command.type", value);
+    }
 
     public void SetOption(string name, string value)
     {

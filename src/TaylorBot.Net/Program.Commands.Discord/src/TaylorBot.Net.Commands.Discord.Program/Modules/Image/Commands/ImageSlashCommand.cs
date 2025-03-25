@@ -40,7 +40,7 @@ public class ImageSlashCommand(
                 case SuccessfulSearch search:
                     if (isLegacyCommand)
                     {
-                        EmbedBuilder BuildBaseEmbed() =>
+                        static EmbedBuilder BuildBaseEmbed() =>
                             new EmbedBuilder()
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithDescription("Use </image:870731803739168860> instead! 😊");

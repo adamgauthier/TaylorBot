@@ -24,7 +24,7 @@ public class CommandModule(
         ICommandRepository.Command command
     )
     {
-        var enableCommand = new Command(
+        Command enableCommand = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
@@ -54,11 +54,11 @@ public class CommandModule(
         string message
     )
     {
-        var disableCommand = new Command(
+        Command disableCommand = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 if (GuardedModuleNames.Contains(command.ModuleName.ToLowerInvariant()))
                 {

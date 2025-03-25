@@ -46,8 +46,8 @@ public class BirthdayRoleConfigPostgresRepository(PostgresConnectionFactory post
     public async Task RemoveRoleForGuildAsync(IGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         await connection.ExecuteAsync(
             """
@@ -71,6 +71,6 @@ public class BirthdayRoleConfigPostgresRepository(PostgresConnectionFactory post
             }
         );
 
-        transaction.Commit();
+        await transaction.CommitAsync();
     }
 }

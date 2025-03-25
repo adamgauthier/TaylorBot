@@ -15,6 +15,7 @@ using TaylorBot.Net.MemberLogging.Domain.Options;
 using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
+using TaylorBot.Net.MessagesTracker.Domain.Options;
 using TaylorBot.Net.MessagesTracker.Infrastructure;
 using TaylorBot.Net.MinutesTracker.Domain;
 using TaylorBot.Net.MinutesTracker.Domain.Options;

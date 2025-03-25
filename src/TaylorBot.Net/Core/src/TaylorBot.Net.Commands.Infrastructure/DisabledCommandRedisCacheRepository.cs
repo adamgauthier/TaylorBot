@@ -5,7 +5,7 @@ namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class DisabledCommandRedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, DisabledCommandPostgresRepository disabledCommandPostgresRepository) : IDisabledCommandRepository
 {
-    private static readonly string Key = "disabled-command-messages";
+    private const string Key = "disabled-command-messages";
 
     public async ValueTask<string> InsertOrGetCommandDisabledMessageAsync(CommandMetadata command)
     {

@@ -16,7 +16,7 @@ public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> 
 
         if (result.IsSuccess)
         {
-            var htmlDocument = new HtmlDocument();
+            HtmlDocument htmlDocument = new();
 
             try
             {

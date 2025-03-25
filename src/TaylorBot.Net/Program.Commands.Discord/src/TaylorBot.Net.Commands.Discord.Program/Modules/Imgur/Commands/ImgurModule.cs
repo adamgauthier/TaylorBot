@@ -14,7 +14,7 @@ public class ImgurModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

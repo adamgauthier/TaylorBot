@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure
 
 public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IBirthdayRepository
 {
-    private record BirthdayDto(DateOnly birthday, bool is_private);
+    private sealed record BirthdayDto(DateOnly birthday, bool is_private);
 
     public async ValueTask<IBirthdayRepository.Birthday?> GetBirthdayAsync(DiscordUser user)
     {
@@ -66,7 +66,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
         );
     }
 
-    private record CalendarEntryDto(string user_id, string username, DateOnly next_birthday);
+    private sealed record CalendarEntryDto(string user_id, string username, DateOnly next_birthday);
 
     public async ValueTask<IList<IBirthdayRepository.BirthdayCalendarEntry>> GetBirthdayCalendarAsync(CommandGuild guild)
     {
@@ -86,14 +86,14 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             }
         );
 
-        return entries.Select(e => new IBirthdayRepository.BirthdayCalendarEntry(
+        return [.. entries.Select(e => new IBirthdayRepository.BirthdayCalendarEntry(
             new(e.user_id),
             e.username,
             e.next_birthday
-        )).ToList();
+        ))];
     }
 
-    private record AgeRoleDto(string age_role_id, int minimum_age);
+    private sealed record AgeRoleDto(string age_role_id, int minimum_age);
 
     public async ValueTask<IList<IBirthdayRepository.AgeRole>> GetAgeRolesAsync(SnowflakeId guildId)
     {
@@ -114,9 +114,9 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             }
         );
 
-        return ageRoles.Select(a => new IBirthdayRepository.AgeRole(
+        return [.. ageRoles.Select(a => new IBirthdayRepository.AgeRole(
             new(a.age_role_id),
             a.minimum_age
-        )).ToList();
+        ))];
     }
 }

@@ -29,7 +29,7 @@ public class CouponPostgresRepository(PostgresConnectionFactory postgresConnecti
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<RedeemedCoupon>(
+        return [.. (await connection.QueryAsync<RedeemedCoupon>(
             """
             SELECT redeemed_at, coupon_code, coupon_reward
             FROM users.redeemed_coupons
@@ -39,13 +39,13 @@ public class CouponPostgresRepository(PostgresConnectionFactory postgresConnecti
             {
                 UserId = $"{user.Id}",
             }
-        )).ToList();
+        ))];
     }
 
     public async Task<TaypointAddResult?> RedeemCouponAsync(DiscordUser user, Coupon coupon)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
+        await connection.OpenAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
         var added = await connection.QuerySingleOrDefaultAsync<bool>(

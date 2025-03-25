@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Humanizer;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -34,7 +33,7 @@ public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLi
 
     public record Options(RpsShape? option);
 
-    private static readonly List<RpsShape> Shapes = Enum.GetValues(typeof(RpsShape)).Cast<RpsShape>().ToList();
+    private static readonly RpsShape[] Shapes = Enum.GetValues<RpsShape>();
 
     public Command Play(RunContext context, RpsShape? shape, string? shapeString = null) => new(
         new(Info.Name, Aliases: [PrefixCommandName]),
@@ -59,7 +58,7 @@ public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLi
 
             var winner = FindWinner(player, opponent);
 
-            var embed = new EmbedBuilder();
+            EmbedBuilder embed = new();
 
             long winReward = AnniversaryEvent.IsActive ? 2 : 1;
             string resultMessage;

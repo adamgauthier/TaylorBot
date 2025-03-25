@@ -40,12 +40,18 @@ public static class ServiceCollectionExtensions
         var maxPoolSize = section.GetValue<uint?>("MaxPoolSize");
 
         ArgumentNullException.ThrowIfNull(host);
-        ArgumentNullException.ThrowIfNull(port);
+        if (!port.HasValue)
+        {
+            throw new ArgumentNullException(nameof(port));
+        }
         ArgumentNullException.ThrowIfNull(username);
         ArgumentNullException.ThrowIfNull(password);
         ArgumentNullException.ThrowIfNull(database);
         ArgumentNullException.ThrowIfNull(applicationName);
-        ArgumentNullException.ThrowIfNull(maxPoolSize);
+        if (!maxPoolSize.HasValue)
+        {
+            throw new ArgumentNullException(nameof(maxPoolSize));
+        }
 
         var connectionString = string.Join(';', [
             $"Server={host}",

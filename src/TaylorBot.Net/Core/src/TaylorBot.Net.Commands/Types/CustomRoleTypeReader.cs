@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using System.Collections.Immutable;
 using System.Globalization;
 
 namespace TaylorBot.Net.Commands.Types;
@@ -13,7 +12,7 @@ public class RoleArgument<T>(T role) where T : class, IRole
 public class CustomRoleTypeReader<T> : TypeReader
     where T : class, IRole
 {
-    private class RoleVal<U>(U role, float score) where U : class, IRole
+    private sealed class RoleVal<U>(U role, float score) where U : class, IRole
     {
         public U Role { get; } = role;
         public float Score { get; } = score;
@@ -68,7 +67,7 @@ public class CustomRoleTypeReader<T> : TypeReader
             if (results.Count > 0)
             {
                 return Task.FromResult(TypeReaderResult.FromSuccess(
-                    results.Values.Select(r => new TypeReaderValue(new RoleArgument<T>(r.Role), r.Score)).ToImmutableArray()
+                    [.. results.Values.Select(r => new TypeReaderValue(new RoleArgument<T>(r.Role), r.Score))]
                 ));
             }
         }

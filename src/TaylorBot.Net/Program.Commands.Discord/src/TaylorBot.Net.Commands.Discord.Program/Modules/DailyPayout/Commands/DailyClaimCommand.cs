@@ -20,7 +20,7 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
         Metadata,
         async () =>
         {
-            var embed = new EmbedBuilder();
+            EmbedBuilder embed = new();
 
             var canRedeem = await dailyPayoutRepository.CanUserRedeemAsync(user);
 
@@ -59,7 +59,7 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
                     You redeemed {"taypoint".ToQuantity(payoutAmount, format)} + {"bonus point".ToQuantity(redeemResult.BonusAmount, format)}. You now have {redeemResult.TotalTaypointCount.ToString(format)} 💰
                     Streak: {redeemResult.CurrentDailyStreak.ToString(format)}/{nextStreakForBonus.ToString(format)}. Don't miss a day and get a bonus! See you tomorrow! 😄
                     ### Daily Message 📨
-                    {messageOfTheDay.Replace("{prefix}", commandPrefix)}
+                    {messageOfTheDay.Replace("{prefix}", commandPrefix, StringComparison.InvariantCulture)}
                     """)
             .Build());
         }

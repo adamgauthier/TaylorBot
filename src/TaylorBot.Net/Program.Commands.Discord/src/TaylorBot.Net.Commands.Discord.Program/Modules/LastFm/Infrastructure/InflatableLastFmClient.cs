@@ -27,7 +27,7 @@ public sealed class InflatableLastFmClient(
 
         if (response.Success)
         {
-            var content = response.Content.FirstOrDefault();
+            var content = response.Content.Count > 0 ? response.Content[0] : null;
 
             return new MostRecentScrobbleResult(
                 TotalScrobbles: response.TotalItems,
@@ -81,11 +81,11 @@ public sealed class InflatableLastFmClient(
         {
             var content = response.Content;
 
-            return new TopArtistsResult(response.Content.Select(a => new TopArtist(
+            return new TopArtistsResult([.. response.Content.Select(a => new TopArtist(
                 Name: a.Name,
                 ArtistUrl: a.Url,
                 PlayCount: a.PlayCount ?? 0
-            )).ToList());
+            ))]);
         }
         else if (response.Status == LastResponseStatus.MissingParameters)
         {
@@ -120,13 +120,13 @@ public sealed class InflatableLastFmClient(
     {
         var tracks = result.Parsed.toptracks.track;
 
-        return new TopTracksResult(tracks.Select(t => new TopTrack(
+        return new TopTracksResult([.. tracks.Select(t => new TopTrack(
             Name: t.name,
             TrackUrl: new(t.url),
             PlayCount: int.Parse(t.playcount),
             ArtistName: t.artist.name,
             ArtistUrl: new(t.artist.url)
-        )).ToList());
+        ))]);
     }
 
     public record TopTracksResponse(TopTracksResponse.TopTracks toptracks)
@@ -166,7 +166,7 @@ public sealed class InflatableLastFmClient(
     {
         var albums = result.Parsed.topalbums.album;
 
-        return new TopAlbumsResult(albums.Select(a =>
+        return new TopAlbumsResult([.. albums.Select(a =>
         {
             var images = a.image;
 
@@ -180,7 +180,7 @@ public sealed class InflatableLastFmClient(
                 ArtistName: a.artist.name,
                 ArtistUrl: new(a.artist.url)
             );
-        }).ToList());
+        })]);
     }
 
     public record TopAlbumsResponse(TopAlbumsResponse.TopAlbums topalbums)

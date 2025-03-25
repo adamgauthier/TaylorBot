@@ -14,7 +14,7 @@ public class PlusModule(ICommandRunner commandRunner) : TaylorBotModule
     [Summary("This command has been moved to </plus show:1246970937321066608>. Please use it instead! 😊")]
     public async Task<RuntimeResult> PlusAsync()
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -32,7 +32,7 @@ public class PlusModule(ICommandRunner commandRunner) : TaylorBotModule
     [Summary("This command has been moved to </plus add:1246970937321066608>. Please use it instead! 😊")]
     public async Task<RuntimeResult> AddAsync()
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -50,7 +50,7 @@ public class PlusModule(ICommandRunner commandRunner) : TaylorBotModule
     [Summary("This command has been moved to </plus remove:1246970937321066608>. Please use it instead! 😊")]
     public async Task<RuntimeResult> RemoveAsync()
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

@@ -95,7 +95,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
         return originalCount != 0 ? (double)investedCount / originalCount : 0;
     }
 
-    private record Reason(string Opportunity, string Outcome);
+    private sealed record Reason(string Opportunity, string Outcome);
 
     private static readonly Reason[] WinReasons = [
         new(

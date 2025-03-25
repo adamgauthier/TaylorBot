@@ -134,7 +134,7 @@ public class InteractionMapper
 
     private static List<SnowflakeId> ParseRoleIds(IReadOnlyList<string> roles)
     {
-        return roles.Select(r => new SnowflakeId(r)).ToList();
+        return [.. roles.Select(r => new SnowflakeId(r))];
     }
 
     public static DiscordEmbed ToInteractionEmbed(Discord.Embed embed)
@@ -148,7 +148,7 @@ public class InteractionMapper
             thumbnail: embed.Thumbnail.HasValue ? new(embed.Thumbnail.Value.Url) : null,
             color: embed.Color.HasValue ? embed.Color.Value.RawValue : null,
             footer: embed.Footer.HasValue ? new(embed.Footer.Value.Text, embed.Footer.Value.IconUrl, embed.Footer.Value.ProxyUrl) : null,
-            fields: embed.Fields.Select(f => new DiscordEmbed.EmbedField(f.Name, f.Value, f.Inline)).ToList(),
+            fields: [.. embed.Fields.Select(f => new DiscordEmbed.EmbedField(f.Name, f.Value, f.Inline))],
             timestamp: embed.Timestamp.HasValue ? embed.Timestamp.Value.ToString("s", CultureInfo.InvariantCulture) : null
         );
     }

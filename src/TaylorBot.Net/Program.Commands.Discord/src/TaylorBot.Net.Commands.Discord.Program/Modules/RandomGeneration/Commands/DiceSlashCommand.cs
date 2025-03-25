@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Random;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 
 public class DiceSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<DiceSlashCommand.Options>
 {

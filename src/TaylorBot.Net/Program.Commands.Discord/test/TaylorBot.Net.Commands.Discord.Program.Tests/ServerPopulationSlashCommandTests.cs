@@ -16,7 +16,7 @@ public class ServerPopulationSlashCommandTests
 
     public ServerPopulationSlashCommandTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
 
         _command = new(_serverStatsRepository, new(services.BuildServiceProvider()));

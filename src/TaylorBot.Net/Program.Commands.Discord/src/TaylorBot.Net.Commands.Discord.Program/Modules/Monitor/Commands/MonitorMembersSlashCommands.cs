@@ -1,5 +1,5 @@
 ﻿using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;

@@ -44,7 +44,7 @@ public class FavoriteModule(
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunSlashCommandAsync(
-            favoriteSongsSetCommand.Set(context.User, text, null),
+            favoriteSongsSetCommand.SetCommand(context.User, text, null),
             context
         );
 
@@ -59,7 +59,7 @@ public class FavoriteModule(
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -100,7 +100,7 @@ public class FavoriteModule(
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -121,7 +121,7 @@ public class FavoriteModule(
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -162,7 +162,7 @@ public class FavoriteModule(
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -184,7 +184,7 @@ public class FavoriteModule(
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

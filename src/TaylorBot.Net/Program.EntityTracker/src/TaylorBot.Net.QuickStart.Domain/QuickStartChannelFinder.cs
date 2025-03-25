@@ -4,11 +4,11 @@ namespace TaylorBot.Net.QuickStart.Domain;
 
 public class QuickStartChannelFinder
 {
-    public async ValueTask<U?> FindQuickStartChannelAsync<T, U>(T guild)
-        where T : IGuild
-        where U : class, ITextChannel
+    public async ValueTask<TChannel?> FindQuickStartChannelAsync<TGuild, TChannel>(TGuild guild)
+        where TGuild : IGuild
+        where TChannel : class, ITextChannel
     {
-        var textChannels = (await guild.GetTextChannelsAsync()).Cast<U>();
+        var textChannels = (await guild.GetTextChannelsAsync()).Cast<TChannel>();
         var currentUser = await guild.GetCurrentUserAsync();
 
         var availableChannels = textChannels.Where(channel =>
@@ -21,7 +21,7 @@ public class QuickStartChannelFinder
 
         foreach (var name in new[] { "general", "main" })
         {
-            var namedGeneral = availableChannels.FirstOrDefault(channel => channel.Name.Contains(name));
+            var namedGeneral = availableChannels.FirstOrDefault(channel => channel.Name.Contains(name, StringComparison.InvariantCulture));
 
             if (namedGeneral != null)
                 return namedGeneral;

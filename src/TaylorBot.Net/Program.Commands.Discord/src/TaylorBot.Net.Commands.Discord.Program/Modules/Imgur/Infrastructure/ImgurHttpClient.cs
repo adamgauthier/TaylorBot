@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
 using TaylorBot.Net.Core.Http;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Infrastructure;
 
 public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient client) : IImgurClient
 {
     public async ValueTask<IImgurResult> UploadAsync(string url)
     {
-        FormUrlEncodedContent content = new(new Dictionary<string, string>
+        using FormUrlEncodedContent content = new(new Dictionary<string, string>
         {
             { "image", url },
         });
@@ -39,13 +39,20 @@ public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient client)
         if (error.Content != null)
         {
             var response = JsonSerializer.Deserialize<ImgurErrorResponse>(error.Content);
+            var errorMessage = response?.data.error;
 
-            return response?.data.error.ToLowerInvariant() switch
+            if (errorMessage?.Equals("we don't support that file type!", StringComparison.OrdinalIgnoreCase) == true)
             {
-                "we don't support that file type!" => new FileTypeInvalid(),
-                "file is over the size limit" => new FileTooLarge(),
-                _ => new GenericImgurError(),
-            };
+                return new FileTypeInvalid();
+            }
+            else if (errorMessage?.Equals("file is over the size limit", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return new FileTooLarge();
+            }
+            else
+            {
+                return new GenericImgurError();
+            }
         }
         else
         {
@@ -53,13 +60,13 @@ public class ImgurHttpClient(ILogger<ImgurHttpClient> logger, HttpClient client)
         }
     }
 
-    private record ImgurSuccessResponse(bool success, ImgurSuccessResponse.ImgurSuccessData data)
+    private sealed record ImgurSuccessResponse(bool success, ImgurSuccessResponse.ImgurSuccessData data)
     {
-        public record ImgurSuccessData(string link);
+        public sealed record ImgurSuccessData(string link);
     }
 
-    private record ImgurErrorResponse(ImgurErrorResponse.ImgurErrorData data)
+    private sealed record ImgurErrorResponse(ImgurErrorResponse.ImgurErrorData data)
     {
-        public record ImgurErrorData(string error);
+        public sealed record ImgurErrorData(string error);
     }
 }

@@ -73,8 +73,11 @@ public class SlashCommandHandler(
     private static ApplicationCommand CreateApplicationCommand(Interaction interaction, CommandActivity activity)
     {
         var parsed = ParsedInteraction.Parse(interaction, activity);
+        if (!parsed.Data.id.HasValue)
+        {
+            throw new ArgumentNullException(nameof(parsed.Data.id));
+        }
 
-        ArgumentNullException.ThrowIfNull(parsed.Data.id);
         var stringId = parsed.Data.id.Value.GetString();
         ArgumentNullException.ThrowIfNull(stringId);
 
@@ -86,7 +89,7 @@ public class SlashCommandHandler(
     private async ValueTask HandleApplicationCommand(ApplicationCommand command, CommandActivity activity)
     {
         var (commandName, options) = GetFullCommandNameAndOptions(command);
-        activity.CommandName = commandName;
+        activity.SetCommandName(commandName);
         foreach (var option in options ?? [])
         {
             activity.SetOption(option.name, $"{option.value}");
@@ -375,7 +378,7 @@ public class SlashCommandHandler(
             args.Add(parseResult.Value);
         }
 
-        return Activator.CreateInstance(command.OptionType, args.ToArray()) ?? throw new InvalidOperationException();
+        return Activator.CreateInstance(command.OptionType, [.. args]) ?? throw new InvalidOperationException();
     }
 
     private List<Button> CreateAndBindButtons(ParsedInteraction interaction, MessageResult m, string authorId)
@@ -411,7 +414,7 @@ public class SlashCommandHandler(
                                                 break;
 
                                             case UpdateMessageContent update:
-                                                await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, message: new(update.Content, buttons.Select(b => b.Button).ToList()));
+                                                await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, message: new(update.Content, [.. buttons.Select(b => b.Button)]));
                                                 if (update.Response != null)
                                                 {
                                                     using var lease = await followUpLimiter.AcquireAsync();
@@ -460,7 +463,7 @@ public class SlashCommandHandler(
                         {
                             await Task.Delay(temporary.ListenToClicksFor ?? TimeSpan.FromMinutes(10));
                             RemoveCallbacks(buttons);
-                            followUpLimiter.Dispose();
+                            await followUpLimiter.DisposeAsync();
 
                             var result = temporary.OnEnded != null ? await temporary.OnEnded() : null;
                             MessageResponse updated = result != null ? new(result.Content) : new(m.Content, []);
@@ -468,11 +471,11 @@ public class SlashCommandHandler(
                             await CreateInteractionClient().EditOriginalResponseAsync(interaction, updated);
                         }, nameof(CreateAndBindButtons)));
 
-                        return buttons.Select(b => b.Button).ToList();
+                        return [.. buttons.Select(b => b.Button)];
                     }
 
                 case PermanentButtonSettings permanent:
-                    return m.Buttons.Buttons.Select(b => b.Button).ToList();
+                    return [.. m.Buttons.Buttons.Select(b => b.Button)];
 
                 default: throw new NotImplementedException();
             }

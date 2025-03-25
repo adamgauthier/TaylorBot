@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -27,9 +27,9 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         );
     }
 
-    private record GetSingleAccessibleRoleDto(string? group_name);
+    private sealed record GetSingleAccessibleRoleDto(string? group_name);
 
-    private record OtherAccessibleRoleInSameGroupDto(string role_id);
+    private sealed record OtherAccessibleRoleInSameGroupDto(string role_id);
 
     public async ValueTask<AccessibleRoleWithGroup?> GetAccessibleRoleAsync(IRole role)
     {
@@ -64,7 +64,7 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
                     }
                 );
                 return new AccessibleRoleWithGroup(
-                    Group: new AccessibleRoleGroup(accessibleRole.group_name, otherRoles.Select(r => new SnowflakeId(r.role_id)).ToList())
+                    Group: new AccessibleRoleGroup(accessibleRole.group_name, [.. otherRoles.Select(r => new SnowflakeId(r.role_id))])
                 );
             }
             else
@@ -80,7 +80,7 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
         }
     }
 
-    private record AccessibleRoleDto(string role_id, string? group_name);
+    private sealed record AccessibleRoleDto(string role_id, string? group_name);
 
     public async ValueTask<IReadOnlyCollection<AccessibleRole>> GetAccessibleRolesAsync(IGuild guild)
     {
@@ -97,10 +97,10 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
             }
         );
 
-        return roles.Select(r => new AccessibleRole(
+        return [.. roles.Select(r => new AccessibleRole(
             RoleId: new SnowflakeId(r.role_id),
             GroupName: r.group_name
-        )).ToList();
+        ))];
     }
 
     public async ValueTask AddAccessibleRoleAsync(IRole role)

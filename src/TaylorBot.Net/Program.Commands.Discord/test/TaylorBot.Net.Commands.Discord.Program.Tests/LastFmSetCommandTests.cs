@@ -23,7 +23,7 @@ public class LastFmSetCommandTests
     [Fact]
     public async Task Set_ThenReturnsSuccessEmbed()
     {
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _lastFmUsernameRepository.SetLastFmUsernameAsync(_commandUser, lastFmUsername)).Returns(default);
 
         var result = (EmbedResult)await _lastFmSetCommand.Set(_commandUser, lastFmUsername, isLegacyCommand: false).RunAsync();

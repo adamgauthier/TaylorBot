@@ -10,8 +10,11 @@ public class MentionedUsersNotAuthorTypeReader<T>(MentionedUserNotAuthorTypeRead
 
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
-        var split = input.Split(' ').Select(u => u.Trim()).Where(i => i != string.Empty).ToList();
-
+        var split = input
+            .Split(' ')
+            .Select(u => u.Trim())
+            .Where(i => i.Length > 0)
+            .ToList();
 
         var results = new List<IMentionedUserNotAuthor<T>>();
 

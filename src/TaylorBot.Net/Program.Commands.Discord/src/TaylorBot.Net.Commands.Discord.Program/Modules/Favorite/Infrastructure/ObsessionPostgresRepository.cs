@@ -8,8 +8,8 @@ public class ObsessionPostgresRepository(TextAttributePostgresRepository textAtt
     public ValueTask<string?> GetObsessionAsync(DiscordUser user) =>
         textAttributePostgresRepository.GetAttributeAsync(user, "waifu");
 
-    public ValueTask SetObsessionAsync(DiscordUser user, string songs) =>
-        textAttributePostgresRepository.SetAttributeAsync(user, "waifu", songs);
+    public ValueTask SetObsessionAsync(DiscordUser user, string obsession) =>
+        textAttributePostgresRepository.SetAttributeAsync(user, "waifu", obsession);
 
     public ValueTask ClearObsessionAsync(DiscordUser user) =>
         textAttributePostgresRepository.ClearAttributeAsync(user, "waifu");

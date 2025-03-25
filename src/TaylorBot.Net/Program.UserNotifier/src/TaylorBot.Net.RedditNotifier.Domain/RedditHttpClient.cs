@@ -34,7 +34,7 @@ public class RedditHttpClient(ILogger<RedditHttpClient> logger, HttpClient httpC
 {
     public async Task<RedditPost> GetNewestPostAsync(string subreddit)
     {
-        var request = new HttpRequestMessage
+        using var request = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
             RequestUri = new($"https://oauth.reddit.com/r/{subreddit}/new.json?limit=1"),

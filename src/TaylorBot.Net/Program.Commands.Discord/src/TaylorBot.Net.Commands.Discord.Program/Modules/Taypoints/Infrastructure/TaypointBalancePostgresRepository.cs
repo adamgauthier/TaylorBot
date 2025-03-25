@@ -46,7 +46,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<TaypointLeaderboardEntry>(
+        return [.. (await connection.QueryAsync<TaypointLeaderboardEntry>(
             // We use the cached last_known_taypoint_count for fast ordering (always NULL for bots)
             // We also request actual taypoint_count so last_known_taypoint_count can be updated in the background
             """
@@ -64,7 +64,7 @@ public class TaypointBalancePostgresRepository(PostgresConnectionFactory postgre
             {
                 GuildId = $"{guild.Id}",
             }
-        )).ToList();
+        ))];
     }
 
     public async Task UpdateLastKnownPointCountsAsync(CommandGuild guild, IReadOnlyList<TaypointCountUpdate> updates)

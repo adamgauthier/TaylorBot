@@ -24,7 +24,7 @@ public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
             (data, included) => (Data: data, Included: included)
         );
 
-        return joined
+        return [.. joined
             .Where(member => member.Included.attributes.social_connections?.discord?.user_id != null)
             .Select(member =>
             {
@@ -43,36 +43,33 @@ public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
                     CurrentlyEntitledAmountCents: member.Data.attributes.currently_entitled_amount_cents,
                     Metadata: member.ToString()
                 );
-            })
-            .ToList();
+            })];
     }
 
-    private record MembersResult(IReadOnlyCollection<CampaignMembersApi.Data> data, IReadOnlyCollection<CampaignMembersApi.Included> included)
+    private sealed record MembersResult(IReadOnlyCollection<CampaignMembersApi.Data> data, IReadOnlyCollection<CampaignMembersApi.Included> included)
     {
         public static readonly MembersResult Default = new([], []);
     }
 
-    private record CampaignMembersApi(
+    private sealed record CampaignMembersApi(
         IReadOnlyCollection<CampaignMembersApi.Data> data,
         IReadOnlyCollection<CampaignMembersApi.Included> included,
         CampaignMembersApi.Links? links
     )
     {
-        public record Data(DataAttributes attributes, Relationships relationships);
-        public record DataAttributes(
+        public sealed record Data(DataAttributes attributes, Relationships relationships);
+        public sealed record DataAttributes(
             string full_name, string email, string? last_charge_status, string? last_charge_date,
             int currently_entitled_amount_cents, int lifetime_support_cents, string? patron_status
         );
-        public record Relationships(UserRelationship user);
-        public record UserRelationship(UserRelationshipData data);
-        public record UserRelationshipData(string id);
-
-        public record Included(string id, IncludedAttributes attributes);
-        public record IncludedAttributes(Socials? social_connections);
-        public record Socials(SocialDiscord? discord);
-        public record SocialDiscord(string user_id);
-
-        public record Links(string next);
+        public sealed record Relationships(UserRelationship user);
+        public sealed record UserRelationship(UserRelationshipData data);
+        public sealed record UserRelationshipData(string id);
+        public sealed record Included(string id, IncludedAttributes attributes);
+        public sealed record IncludedAttributes(Socials? social_connections);
+        public sealed record Socials(SocialDiscord? discord);
+        public sealed record SocialDiscord(string user_id);
+        public sealed record Links(string next);
     }
 
     private async ValueTask<MembersResult> FetchPatronsAsync(string url, MembersResult result)
@@ -85,8 +82,8 @@ public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
 
         var newResult = result with
         {
-            data = result.data.Concat(campaignMembers.data).ToList(),
-            included = result.included.Concat(campaignMembers.included).ToList()
+            data = [.. result.data, .. campaignMembers.data],
+            included = [.. result.included, .. campaignMembers.included]
         };
 
         if (campaignMembers.links != null)

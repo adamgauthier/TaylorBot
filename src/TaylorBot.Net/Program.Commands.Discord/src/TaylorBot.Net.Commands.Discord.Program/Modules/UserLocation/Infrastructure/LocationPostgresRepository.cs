@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.User;
@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastruc
 
 public class LocationPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ILocationRepository
 {
-    private record LocationDto(string latitude, string longitude, string formatted_address, string timezone_id);
+    private sealed record LocationDto(string latitude, string longitude, string formatted_address, string timezone_id);
 
     public async ValueTask<StoredLocation?> GetLocationAsync(DiscordUser user)
     {

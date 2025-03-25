@@ -2,7 +2,7 @@
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
-public class RequireCommandInfoSetAttribute : PreconditionAttribute
+public sealed class RequireCommandInfoSetAttribute : PreconditionAttribute
 {
     public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
     {

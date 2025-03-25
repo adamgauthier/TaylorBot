@@ -4,7 +4,7 @@ using System.Text.Json;
 using TaylorBot.Net.Commands.Parsers;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests;
+namespace TaylorBot.Net.Commands.Tests;
 
 public class TimeSpanParserTests
 {

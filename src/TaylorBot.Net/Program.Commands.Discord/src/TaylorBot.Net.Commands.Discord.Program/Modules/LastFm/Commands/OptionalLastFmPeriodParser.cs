@@ -44,28 +44,28 @@ public class OptionalLastFmPeriodParser : IOptionParser<LastFmPeriod?>
 
     public static Result<LastFmPeriod, ParsingFailed> Parse(string input)
     {
-        return input.Trim().ToLowerInvariant() switch
+        return input.Trim().ToUpperInvariant() switch
         {
-            "7d" or "7day" or "7days" or "1week" or "week" => Ok(
+            "7D" or "7DAY" or "7DAYS" or "1WEEK" or "WEEK" => Ok(
                 LastFmPeriod.SevenDay
             ),
-            "1m" or "1month" or "1months" or "month" or "30day" or "30days" => Ok(
-              LastFmPeriod.OneMonth
+            "1M" or "1MONTH" or "1MONTHS" or "MONTH" or "30DAY" or "30DAYS" => Ok(
+                LastFmPeriod.OneMonth
             ),
-            "3m" or "3month" or "3months" or "90day" or "90days" => Ok(
-              LastFmPeriod.ThreeMonth
+            "3M" or "3MONTH" or "3MONTHS" or "90DAY" or "90DAYS" => Ok(
+                LastFmPeriod.ThreeMonth
             ),
-            "6m" or "6month" or "6months" or "180day" or "180days" => Ok(
-              LastFmPeriod.SixMonth
+            "6M" or "6MONTH" or "6MONTHS" or "180DAY" or "180DAYS" => Ok(
+                LastFmPeriod.SixMonth
             ),
-            "12m" or "12month" or "12months" or "1y" or "1year" or "365day" or "365days" => Ok(
-              LastFmPeriod.TwelveMonth
+            "12M" or "12MONTH" or "12MONTHS" or "1Y" or "1YEAR" or "365DAY" or "365DAYS" => Ok(
+                LastFmPeriod.TwelveMonth
             ),
-            "overall" or "all" or "alltime" => Ok(
-              LastFmPeriod.Overall
+            "OVERALL" or "ALL" or "ALLTIME" => Ok(
+                LastFmPeriod.Overall
             ),
             _ => Error(new ParsingFailed(
-              $"Could not parse '{input}' into a valid Last.fm period. Use one of these: {string.Join(',', Suggestions.Select(p => $"`{p}`"))}."
+                $"Could not parse '{input}' into a valid Last.fm period. Use one of these: {string.Join(',', Suggestions.Select(p => $"`{p}`"))}."
             )),
         };
     }

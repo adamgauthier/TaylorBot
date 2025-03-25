@@ -61,7 +61,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherCommand weather
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

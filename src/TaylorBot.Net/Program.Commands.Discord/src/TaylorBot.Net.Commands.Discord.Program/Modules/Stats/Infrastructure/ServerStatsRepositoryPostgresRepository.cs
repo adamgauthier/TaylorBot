@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 
@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 
 public class ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IServerStatsRepository
 {
-    private class AgeStatsDto
+    private sealed class AgeStatsDto
     {
         public decimal? age_average { get; set; }
         public decimal? age_median { get; set; }
@@ -38,7 +38,7 @@ public class ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory p
         return new AgeStats(ageStats.age_average, ageStats.age_median);
     }
 
-    private class GenderStatsDto
+    private sealed class GenderStatsDto
     {
         public long total_count { get; set; }
         public long female_count { get; set; }

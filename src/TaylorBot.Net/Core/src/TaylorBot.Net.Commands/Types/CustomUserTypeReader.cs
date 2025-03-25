@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Immutable;
 using System.Globalization;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
@@ -11,11 +10,7 @@ namespace TaylorBot.Net.Commands.Types;
 public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTypeReader, IUserTracker userTracker) : TypeReader
     where T : class, IUser
 {
-    private class UserVal<U>(IUserArgument<U> userArgument, float score) where U : class, IUser
-    {
-        public IUserArgument<U> UserArgument { get; } = userArgument;
-        public float Score { get; } = score;
-    }
+    private sealed record UserVal<U>(IUserArgument<U> UserArgument, float Score) where U : class, IUser;
 
     private void AddResultIfTypeMatches(Dictionary<ulong, UserVal<T>> results, IUser user, float score)
     {
@@ -49,7 +44,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
 
         IReadOnlyCollection<IGuildUser> guildUsers = context.Guild != null ?
             await context.Guild.GetUsersAsync(CacheMode.CacheOnly).ConfigureAwait(false) :
-            ImmutableArray.Create<IGuildUser>();
+            [];
 
 
         // By Mention (1.0)
@@ -76,8 +71,8 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
         var index = input.LastIndexOf('#');
         if (index >= 0)
         {
-            var username = input.Substring(0, index);
-            if (ushort.TryParse(input.Substring(index + 1), out var discriminator))
+            var username = input[..index];
+            if (ushort.TryParse(input.AsSpan(index + 1), out var discriminator))
             {
                 var channelUsernameMatches = await channelUsers.Where(u => u.DiscriminatorValue == discriminator)
                     .ToLookupAsync(u => string.Equals(username, u.Username, StringComparison.OrdinalIgnoreCase))
@@ -189,7 +184,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
         if (results.Count > 0)
         {
             return TypeReaderResult.FromSuccess(
-                results.Values.Select(u => new TypeReaderValue(u.UserArgument, u.Score)).ToImmutableArray()
+                [.. results.Values.Select(u => new TypeReaderValue(u.UserArgument, u.Score))]
             );
         }
 

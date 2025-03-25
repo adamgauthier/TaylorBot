@@ -5,11 +5,7 @@ namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class CommandPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ICommandRepository
 {
-    private class CommandDto
-    {
-        public string name { get; set; } = null!;
-        public string module_name { get; set; } = null!;
-    }
+    private sealed record CommandDto(string name, string module_name);
 
     public async ValueTask<IReadOnlyCollection<ICommandRepository.Command>> GetAllCommandsAsync()
     {
@@ -17,13 +13,13 @@ public class CommandPostgresRepository(PostgresConnectionFactory postgresConnect
 
         var commandDtos = await connection.QueryAsync<CommandDto>("SELECT name, module_name FROM commands.commands;");
 
-        return commandDtos.Select(dto => new ICommandRepository.Command(
+        return [.. commandDtos.Select(dto => new ICommandRepository.Command(
             Name: dto.name,
             ModuleName: dto.module_name
-        )).ToList();
+        ))];
     }
 
-    public async ValueTask<ICommandRepository.Command?> FindCommandByAliasAsync(string alias)
+    public async ValueTask<ICommandRepository.Command?> FindCommandByAliasAsync(string commandAlias)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -31,7 +27,7 @@ public class CommandPostgresRepository(PostgresConnectionFactory postgresConnect
             "SELECT name, module_name FROM commands.commands WHERE name = @NameOrAlias OR @NameOrAlias = ANY(aliases);",
             new
             {
-                NameOrAlias = alias
+                NameOrAlias = commandAlias,
             }
         );
 

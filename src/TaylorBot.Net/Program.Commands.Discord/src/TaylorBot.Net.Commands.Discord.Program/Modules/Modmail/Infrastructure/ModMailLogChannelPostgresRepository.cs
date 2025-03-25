@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
@@ -42,7 +42,7 @@ public class ModMailLogChannelPostgresRepository(PostgresConnectionFactory postg
         );
     }
 
-    private class LogChannelDto
+    private sealed class LogChannelDto
     {
         public string channel_id { get; set; } = null!;
     }

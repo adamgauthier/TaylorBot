@@ -1,11 +1,11 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Infrastructure;
 
 public class MemberLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IMemberLogChannelRepository
 {
@@ -28,7 +28,7 @@ public class MemberLogChannelPostgresRepository(PostgresConnectionFactory postgr
         );
     }
 
-    private class LogChannelDto
+    private sealed class LogChannelDto
     {
         public string member_log_channel_id { get; set; } = null!;
     }

@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using TaylorBot.Net.Commands;
-using TaylorBot.Net.Commands.Discord.Program.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.AccessibleRoles.Infrastructure;
@@ -33,6 +32,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
@@ -40,13 +40,12 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Imgur.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
@@ -133,7 +132,7 @@ var host = Host.CreateDefaultBuilder()
 
 await host.RunAsync();
 
-public class DiscordCommandsProgram
+public static class DiscordCommandsProgram
 {
     public static void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {

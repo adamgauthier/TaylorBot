@@ -12,7 +12,7 @@ using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 
 public class HeistLeaderboardSlashCommand(
     IHeistStatsRepository heistStatsRepository,
@@ -40,7 +40,7 @@ public class HeistLeaderboardSlashCommand(
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(HeistLeaderboardSlashCommand),
                         guild.Fetched,
-                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                        [.. leaderboard.Select(e => new SnowflakeId(e.user_id))]);
                 }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(

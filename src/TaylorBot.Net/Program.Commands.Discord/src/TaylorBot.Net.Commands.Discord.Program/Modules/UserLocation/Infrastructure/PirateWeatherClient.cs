@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Options;
@@ -73,8 +73,8 @@ public class PirateWeatherClient(ILogger<PirateWeatherClient> logger, IOptionsMo
         };
     }
 
-    private record ForecastApi(ForecastApi.Currently currently)
+    private sealed record ForecastApi(ForecastApi.Currently currently)
     {
-        public record Currently(long time, string summary, string icon, double temperature, double humidity, double windSpeed);
+        public sealed record Currently(long time, string summary, string icon, double temperature, double humidity, double windSpeed);
     }
 }

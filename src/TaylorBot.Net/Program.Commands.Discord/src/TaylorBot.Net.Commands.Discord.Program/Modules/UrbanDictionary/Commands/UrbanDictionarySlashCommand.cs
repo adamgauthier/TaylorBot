@@ -35,7 +35,7 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
                     }
                     else
                     {
-                        EmbedBuilder BuildBaseEmbed() => new();
+                        static EmbedBuilder BuildBaseEmbed() => new();
 
                         return new PageMessageResult(new PageMessage(new(
                             new EmbedPageMessageRenderer(new UrbanDictionaryEditor(searchResult), BuildBaseEmbed),

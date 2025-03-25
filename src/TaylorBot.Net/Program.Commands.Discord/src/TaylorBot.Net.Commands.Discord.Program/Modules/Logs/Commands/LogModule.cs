@@ -23,7 +23,7 @@ public class LogModule : ModuleBase
             IChannelArgument<ITextChannel>? channel = null
         )
         {
-            var command = new Command(
+            Command command = new(
                 DiscordNetContextMapper.MapToCommandMetadata(Context),
                 () =>
                 {
@@ -44,7 +44,7 @@ public class LogModule : ModuleBase
         [Summary("This command has moved to </monitor deleted stop:887146682146488390>.")]
         public async Task<RuntimeResult> RemoveAsync()
         {
-            var command = new Command(
+            Command command = new(
                 DiscordNetContextMapper.MapToCommandMetadata(Context),
                 () =>
                 {
@@ -75,7 +75,7 @@ public class LogModule : ModuleBase
             IChannelArgument<ITextChannel>? channel = null
         )
         {
-            var command = new Command(
+            Command command = new(
                 DiscordNetContextMapper.MapToCommandMetadata(Context),
                 () =>
                 {
@@ -96,7 +96,7 @@ public class LogModule : ModuleBase
         [Summary("This command has moved to </monitor members stop:887146682146488390>.")]
         public async Task<RuntimeResult> RemoveAsync()
         {
-            var command = new Command(
+            Command command = new(
                 DiscordNetContextMapper.MapToCommandMetadata(Context),
                 () =>
                 {

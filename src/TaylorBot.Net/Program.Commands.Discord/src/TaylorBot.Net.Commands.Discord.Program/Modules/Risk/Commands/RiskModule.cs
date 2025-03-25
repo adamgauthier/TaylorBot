@@ -1,9 +1,8 @@
 ﻿using Discord.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Embed;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 
 [Name("Risk 💰")]
 public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskCommand) : TaylorBotModule
@@ -51,7 +50,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -73,7 +72,7 @@ public class RiskModule(ICommandRunner commandRunner, RiskPlaySlashCommand riskC
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

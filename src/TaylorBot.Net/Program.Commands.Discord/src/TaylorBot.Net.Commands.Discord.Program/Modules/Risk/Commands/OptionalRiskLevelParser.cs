@@ -17,11 +17,11 @@ public class OptionalRiskLevelParser : IOptionParser<RiskLevel?>
 {
     private static Result<RiskLevel, ParsingFailed> Parse(string input)
     {
-        return input.Trim().ToLowerInvariant() switch
+        return input.Trim().ToUpperInvariant() switch
         {
-            "low" => Ok(RiskLevel.Low),
-            "moderate" => Ok(RiskLevel.Moderate),
-            "high" => Ok(RiskLevel.High),
+            "LOW" => Ok(RiskLevel.Low),
+            "MODERATE" => Ok(RiskLevel.Moderate),
+            "HIGH" => Ok(RiskLevel.High),
             _ => Error(new ParsingFailed($"Could not parse '{input}' into a valid risk level.")),
         };
     }

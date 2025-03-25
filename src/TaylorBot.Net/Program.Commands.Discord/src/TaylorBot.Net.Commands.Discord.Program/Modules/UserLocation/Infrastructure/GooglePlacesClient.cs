@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Options;
@@ -41,8 +41,8 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
                     || first.types.Contains("archipelago")
                     || first.types.Contains("continent")
                     || first.types.Contains("colloquial_area")
-                    || first.types.Any(t => t.Contains("administrative_area"))
-                    || first.types.Any(t => t.Contains("sublocality"));
+                    || first.types.Any(t => t.Contains("administrative_area", StringComparison.InvariantCulture))
+                    || first.types.Any(t => t.Contains("sublocality", StringComparison.InvariantCulture));
 
                 var isPrecise = first.types.Contains("street_address")
                     || first.types.Contains("premise")
@@ -68,11 +68,11 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
         return new LocationGenericErrorResult();
     }
 
-    private record PlaceResponse(string status, IReadOnlyList<PlaceResponse.PlaceCandidate> candidates)
+    private sealed record PlaceResponse(string status, IReadOnlyList<PlaceResponse.PlaceCandidate> candidates)
     {
-        public record PlaceCandidate(string formatted_address, PlaceGeometry geometry, IReadOnlyList<string> types);
-        public record PlaceGeometry(PlaceLocation location);
-        public record PlaceLocation(double lat, double lng);
+        public sealed record PlaceCandidate(string formatted_address, PlaceGeometry geometry, IReadOnlyList<string> types);
+        public sealed record PlaceGeometry(PlaceLocation location);
+        public sealed record PlaceLocation(double lat, double lng);
     }
 
     public async ValueTask<ITimeZoneResult> GetTimeZoneForLocationAsync(string latitude, string longitude)
@@ -109,5 +109,5 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
         return new TimeZoneGenericErrorResult();
     }
 
-    private record TimeZoneResponse(string status, string timeZoneId);
+    private sealed record TimeZoneResponse(string status, string timeZoneId);
 }

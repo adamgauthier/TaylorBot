@@ -11,8 +11,8 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
     public async Task<List<HeistResult>> WinHeistAsync(IList<HeistPlayer> players, string payoutMultiplier)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         List<HeistResult> results = [];
 
@@ -39,15 +39,15 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
             results.Add(new(player.UserId, transfer.invested_count, transfer.final_count, transfer.profit_count));
         }
 
-        transaction.Commit();
+        await transaction.CommitAsync();
         return results;
     }
 
     public async Task<List<HeistResult>> LoseHeistAsync(IList<HeistPlayer> players)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         List<HeistResult> results = [];
 
@@ -74,7 +74,7 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
             results.Add(new(player.UserId, transfer.invested_count, transfer.final_count, transfer.profit_count));
         }
 
-        transaction.Commit();
+        await transaction.CommitAsync();
         return results;
     }
 
@@ -99,7 +99,7 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<HeistLeaderboardEntry>(
+        return [.. (await connection.QueryAsync<HeistLeaderboardEntry>(
             // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
             // Then we join to filter out users that are not part of the guild and get the top 100
             // Finally we join on users to get their latest username
@@ -122,6 +122,6 @@ public class HeistStatsPostgresRepository(PostgresConnectionFactory postgresConn
             {
                 GuildId = $"{guild.Id}",
             }
-        )).ToList();
+        ))];
     }
 }

@@ -48,7 +48,7 @@ using TaylorBot.Net.YoutubeNotifier.Infrastructure;
 
 namespace TaylorBot.Net.UserNotifier.Program;
 
-public class UserNotifierProgram
+public sealed class UserNotifierProgram
 {
     public static async Task Main()
     {

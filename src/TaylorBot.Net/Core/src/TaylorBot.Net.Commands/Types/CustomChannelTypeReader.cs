@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using System.Collections.Immutable;
 using System.Globalization;
 
 namespace TaylorBot.Net.Commands.Types;
@@ -8,7 +7,7 @@ namespace TaylorBot.Net.Commands.Types;
 public class CustomChannelTypeReader<T> : TypeReader
     where T : class, IChannel
 {
-    private class ChannelVal<U>(IChannelArgument<U> channel, float score) where U : class, IChannel
+    private sealed class ChannelVal<U>(IChannelArgument<U> channel, float score) where U : class, IChannel
     {
         public IChannelArgument<U> Channel { get; } = channel;
         public float Score { get; } = score;
@@ -72,7 +71,7 @@ public class CustomChannelTypeReader<T> : TypeReader
         if (results.Count > 0)
         {
             return TypeReaderResult.FromSuccess(
-                results.Values.Select(c => new TypeReaderValue(c.Channel, c.Score)).ToImmutableArray()
+                [.. results.Values.Select(c => new TypeReaderValue(c.Channel, c.Score))]
             );
         }
         else

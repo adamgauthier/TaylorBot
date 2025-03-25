@@ -19,7 +19,7 @@ public class PlusAddSlashCommandTests
 
     public PlusAddSlashCommandTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddSingleton(A.Fake<IPlusRepository>(o => o.Strict()));
         var serviceProvider = services.BuildServiceProvider();

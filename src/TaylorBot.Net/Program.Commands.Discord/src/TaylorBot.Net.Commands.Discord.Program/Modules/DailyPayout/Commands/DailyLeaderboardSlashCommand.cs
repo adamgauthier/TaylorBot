@@ -39,7 +39,7 @@ public class DailyLeaderboardSlashCommand(
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(DailyLeaderboardSlashCommand),
                         guild.Fetched,
-                        leaderboard.Select(e => e.UserId).ToList());
+                        [.. leaderboard.Select(e => e.UserId)]);
                 }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(

@@ -48,18 +48,18 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
 
     public async ValueTask<Result<ITaypointAmount, ParsingFailed>> ParseStringAsync(RunContext context, string text)
     {
-        switch (text.ToLowerInvariant())
+        switch (text.ToUpperInvariant())
         {
-            case "all":
+            case "ALL":
                 return new RelativeTaypointAmount(1);
 
-            case "half":
+            case "HALF":
                 return new RelativeTaypointAmount(2);
 
-            case "third":
+            case "THIRD":
                 return new RelativeTaypointAmount(3);
 
-            case "fourth":
+            case "FOURTH":
                 return new RelativeTaypointAmount(4);
 
             default:

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -41,7 +41,7 @@ public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresC
         );
     }
 
-    private record LogChannelDto(string channel_id);
+    private sealed record LogChannelDto(string channel_id);
 
     public async ValueTask<ModLog?> GetModLogForGuildAsync(IGuild guild)
     {

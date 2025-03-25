@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Domain;
 using TaylorBot.Net.Core.Http;
 
@@ -21,7 +21,7 @@ public sealed class UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger,
     {
         var list = result.Parsed.list;
 
-        return new UrbanDictionaryResult(list.Select(a => new UrbanDictionaryResult.SlangDefinition(
+        return new UrbanDictionaryResult([.. list.Select(a => new UrbanDictionaryResult.SlangDefinition(
             Word: a.word,
             Definition: a.definition,
             Author: a.author,
@@ -29,7 +29,7 @@ public sealed class UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger,
             Link: a.permalink,
             UpvoteCount: a.thumbs_up,
             DownvoteCount: a.thumbs_down
-        )).ToList());
+        ))]);
     }
 
     private IUrbanDictionaryResult HandleError(HttpError error)
@@ -37,9 +37,9 @@ public sealed class UrbanDictionaryClient(ILogger<UrbanDictionaryClient> logger,
         return new GenericUrbanError();
     }
 
-    private record UrbanDictionaryResponse(IReadOnlyList<UrbanDictionaryResponse.SlangDefinition> list)
+    private sealed record UrbanDictionaryResponse(IReadOnlyList<UrbanDictionaryResponse.SlangDefinition> list)
     {
-        public record SlangDefinition(
+        public sealed record SlangDefinition(
             string word,
             string definition,
             string author,

@@ -7,6 +7,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Snowflake;
@@ -70,7 +71,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
             }
         );
 
-        return eggs.ToList();
+        return [.. eggs];
     }
 
     public async Task<IEggFindAddResult> AddEggFindAsync(string userId, string username, string eggNumber)
@@ -150,7 +151,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
             """
         );
 
-        return eggRarity.ToList();
+        return [.. eggRarity];
     }
 
     public async Task<IList<EggLeaderboardEntry>> GetLeaderboardAsync()
@@ -172,7 +173,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
             """
         );
 
-        return entries.ToList();
+        return [.. entries];
     }
 }
 
@@ -190,7 +191,7 @@ public class EggService(IEggRepository eggRepository)
             }
         }
 
-        var isDisabledInGuild = (await eggRepository.GetConfigAsync($"is_disabled_in_{context.Guild?.Id}"))?.Equals("true", StringComparison.InvariantCultureIgnoreCase);
+        var isDisabledInGuild = (await eggRepository.GetConfigAsync($"is_disabled_in_{context.Guild?.Id}"))?.Equals("true", StringComparison.OrdinalIgnoreCase);
         if (isDisabledInGuild == true)
         {
             return new EmbedResult(EmbedFactory.CreateError(
@@ -324,7 +325,7 @@ public class EggProfileSlashCommand(IEggRepository eggRepository, EggService egg
 
                 var eggs = await eggRepository.GetEggFindsForUserAsync($"{context.User.Id}");
 
-                var description = $"You have found {"egg".ToQuantity(eggs.Count, TaylorBotFormats.BoldReadable)} out of 13! 🥚";
+                var description = $"You have found {"egg".ToQuantity(eggs.Count, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)} out of 13! 🥚";
 
                 if (eggs.Count > 0)
                 {
@@ -374,7 +375,7 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
                         $"""
                         ### Solved Eggs 🕵️
                         {(solved.Count > 0 ?
-                            string.Join("\n", solved.Select(e => $"- 🥚 **#{e.egg_number}**: Found by {"hunter".ToQuantity(e.found_by, TaylorBotFormats.BoldReadable)}"))
+                            string.Join("\n", solved.Select(e => $"- 🥚 **#{e.egg_number}**: Found by {"hunter".ToQuantity(e.found_by, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)}"))
                             : "None!")}
                         ### Unsolved Eggs 🔮
                         {(unsolved.Count > 0
@@ -412,7 +413,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                 var pages = leaderboard.Chunk(15).Select(entries =>
                     $"""
                     {string.Join('\n', entries.Select(
-                        entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"egg".ToQuantity(entry.eggs_found, TaylorBotFormats.BoldReadable)}"
+                        entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"egg".ToQuantity(entry.eggs_found, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)}"
                     ))}
 
                     See your own progress with {mention.SlashCommand("egg profile", context)} 👀
@@ -465,6 +466,7 @@ public class EggRunSlashCommand(PostgresConnectionFactory postgresConnectionFact
     public static string CommandName => "owner run";
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName, IsPrivateResponse: true);
+
     public record Options(ParsedString value);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
@@ -478,7 +480,7 @@ public class EggRunSlashCommand(PostgresConnectionFactory postgresConnectionFact
                     return new EmbedResult(EmbedFactory.CreateError("Unauthorized"));
                 }
 
-                if (!options.value.Value.Contains("egg"))
+                if (!options.value.Value.Contains("egg", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return new EmbedResult(EmbedFactory.CreateError("Not egg"));
                 }

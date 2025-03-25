@@ -38,22 +38,22 @@ public class HeistRedisRepository(ConnectionMultiplexer connectionMultiplexer) :
         await keyDeleteTask;
         var hash = await hashGetAllTask;
 
-        return hash.Select(entry =>
+        return [.. hash.Select(entry =>
         {
             string? userId = entry.Name;
+            ArgumentNullException.ThrowIfNull(userId);
             string? json = entry.Value;
+            ArgumentNullException.ThrowIfNull(json);
 
-            var deserialized = JsonSerializer.Deserialize<TaypointAmount>(json ?? throw new ArgumentNullException(nameof(entry.Value)))
-                ?? throw new ArgumentNullException(nameof(json));
+            var deserialized = JsonSerializer.Deserialize<TaypointAmount>(json);
+            ArgumentNullException.ThrowIfNull(deserialized);
 
             ITaypointAmount amount = deserialized.Absolute != null
                 ? deserialized.Absolute
                 : deserialized.Relative ?? throw new NotImplementedException();
 
-            return new HeistPlayer(
-                userId ?? throw new ArgumentNullException(nameof(userId)),
-                amount);
-        }).ToList();
+            return new HeistPlayer(userId, amount);
+        })];
     }
 
     private static readonly LuaScript EnterHeistScript = LuaScript.Prepare(
@@ -101,13 +101,13 @@ public class HeistInMemoryRepository : IHeistRepository
 {
     private readonly ConcurrentDictionary<ulong, Heist> heistsByGuild = [];
 
-    private record Heist(ConcurrentDictionary<ulong, ITaypointAmount> Players);
+    private sealed record Heist(ConcurrentDictionary<ulong, ITaypointAmount> Players);
 
     public Task<List<HeistPlayer>> EndHeistAsync(CommandGuild guild)
     {
         if (!heistsByGuild.TryRemove(guild.Id, out var heist))
         {
-            throw new ArgumentNullException(nameof(heist));
+            throw new InvalidOperationException("heist no found");
         }
 
         return Task.FromResult(heist.Players.Select(p => new HeistPlayer($"{p.Key}", p.Value)).ToList());

@@ -23,7 +23,10 @@ public class CommandExecutedHandler(
 
         if (result.Error != CommandError.UnknownCommand)
         {
-            logger.LogInformation("{User} used '{MessageContent}' in {Channel}", context.User.FormatLog(), context.Message.Content.Replace("\n", "\\n"), context.Channel.FormatLog());
+            logger.LogInformation("{User} used '{MessageContent}' in {Channel}",
+                context.User.FormatLog(),
+                context.Message.Content.Replace("\n", "\\n", StringComparison.InvariantCulture),
+                context.Channel.FormatLog());
 
             if (result.IsSuccess)
             {
@@ -39,8 +42,10 @@ public class CommandExecutedHandler(
                         break;
 
                     case PageMessageResult pageResult:
-                        var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Message);
-                        await sentPageMessage.SendReactionsAsync(pageMessageReactionsHandler, logger);
+                        using (var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Message))
+                        {
+                            await sentPageMessage.SendReactionsAsync(pageMessageReactionsHandler, logger);
+                        }
                         break;
 
                     case RateLimitedResult rateLimited:

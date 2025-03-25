@@ -28,7 +28,7 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository, Co
                 {
                     Domain = reminder,
                     UserFacingId = i + 1,
-                    Summary = $"{reminder.Text.Replace("\n", " ").Truncate(75)} ({reminder.RemindAt.FormatRelative()})"
+                    Summary = $"{reminder.Text.Replace("\n", " ", StringComparison.InvariantCulture).Truncate(75)} ({reminder.RemindAt.FormatRelative()})"
                 }).ToList();
 
                 var content = reminderViews.Count > 0 ?
@@ -46,7 +46,7 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository, Co
                         _ => throw new NotImplementedException()
                     );
                 });
-                var clearAllButton = new ButtonResult(
+                ButtonResult clearAllButton = new(
                     new Button(Id: InteractionCustomId.Create(RemindManageClearAllButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Clear all", Emoji: "🗑"),
                     _ => throw new NotImplementedException()
                 );

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Npgsql;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Core.Snowflake;
@@ -9,7 +9,7 @@ public static class RiskPostgresUtil
 {
     public record TaypointTransferDto(long invested_count, long final_count, long profit_count);
 
-    private record TaypointUpdateInfo(string Query, long AmountParam);
+    private sealed record TaypointUpdateInfo(string Query, long AmountParam);
 
     public static async Task<TaypointTransferDto> WinRiskAsync(string payoutMultiplier, NpgsqlConnection connection, SnowflakeId userId, ITaypointAmount amount)
     {

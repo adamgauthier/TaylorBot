@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 
@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Infrastructure;
 
 public class BotInfoRepositoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IBotInfoRepository
 {
-    private class ProductVersionDto
+    private sealed class ProductVersionDto
     {
         public string info_value { get; set; } = null!;
     }

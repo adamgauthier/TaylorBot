@@ -45,7 +45,7 @@ public static class TaypointPostgresUtil
 
     public static async Task<IList<TaypointAddResults>> AddTaypointsForMultipleUsersAsync(NpgsqlConnection connection, long pointsToAdd, IReadOnlyList<SnowflakeId> userIds)
     {
-        return (await connection.QueryAsync<TaypointAddResults>(
+        return [.. (await connection.QueryAsync<TaypointAddResults>(
             """
             UPDATE users.users
             SET taypoint_count = taypoint_count + @PointsToAdd
@@ -57,6 +57,6 @@ public static class TaypointPostgresUtil
                 PointsToAdd = pointsToAdd,
                 UserIds = userIds.Select(u => $"{u.Id}").ToList(),
             }
-        )).ToList();
+        ))];
     }
 }

@@ -70,6 +70,6 @@ public class ServerJoinedPostgresRepository(PostgresConnectionFactory postgresCo
             }
         );
 
-        return entries.ToList();
+        return [.. entries];
     }
 }

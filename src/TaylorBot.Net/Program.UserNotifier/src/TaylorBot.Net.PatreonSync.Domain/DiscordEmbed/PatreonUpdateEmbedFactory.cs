@@ -5,7 +5,7 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.PatreonSync.Domain.DiscordEmbed;
 
-public class PatreonUpdateEmbedFactory
+public sealed class PatreonUpdateEmbedFactory
 {
     public static Embed? Create(IUpdatePlusUserResult result)
     {

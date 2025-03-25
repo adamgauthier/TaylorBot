@@ -32,11 +32,11 @@ public class JailModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 var guildJailRoleResult = await GetGuildJailRoleAsync();
 
@@ -103,11 +103,11 @@ public class JailModule(
     )
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 var guildJailRoleResult = await GetGuildJailRoleAsync();
 
@@ -181,7 +181,7 @@ public class JailModule(
         RoleNotEveryoneArgument<IRole> role
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
@@ -207,9 +207,9 @@ public class JailModule(
 
     private interface IGuildJailRoleResult { }
 
-    private record GuildJailRoleResult(IRole Role) : IGuildJailRoleResult;
+    private sealed record GuildJailRoleResult(IRole Role) : IGuildJailRoleResult;
 
-    private record GuildJailRoleErrorResult(string ErrorMessage) : IGuildJailRoleResult;
+    private sealed record GuildJailRoleErrorResult(string ErrorMessage) : IGuildJailRoleResult;
 
     private async ValueTask<IGuildJailRoleResult> GetGuildJailRoleAsync()
     {

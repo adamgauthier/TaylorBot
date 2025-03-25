@@ -28,7 +28,7 @@ public class PlusAddSlashCommand(
                 var plusUser = await plusUserRepository.GetPlusUserAsync(context.User);
                 ArgumentNullException.ThrowIfNull(plusUser);
 
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 if (plusUser.ActivePlusGuilds.Count + 1 > plusUser.MaxPlusGuilds)
                 {

@@ -12,7 +12,7 @@ public class CustomSearchImageEditor(SuccessfulSearch search) : IMessageEditor
 
     public MessageContent Edit(int currentPage)
     {
-        var embed = new EmbedBuilder();
+        EmbedBuilder embed = new();
 
         if (PageCount > 0)
         {

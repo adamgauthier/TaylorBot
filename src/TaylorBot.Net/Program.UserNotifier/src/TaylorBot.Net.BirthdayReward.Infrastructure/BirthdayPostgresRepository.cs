@@ -10,13 +10,13 @@ namespace TaylorBot.Net.BirthdayReward.Infrastructure;
 
 public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory) : IBirthdayRepository
 {
-    private record EligibleUserDto(string user_id);
+    private sealed record EligibleUserDto(string user_id);
 
     public async ValueTask<List<RewardedUser>> RewardEligibleUsersAsync(long rewardAmount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var eligibleUsers = await connection.QueryAsync<EligibleUserDto>(
             """
@@ -37,11 +37,11 @@ public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logg
 
         var rewardedUsers = await TaypointPostgresUtil.AddTaypointsForMultipleUsersAsync(connection, rewardAmount, userIds);
 
-        transaction.Commit();
+        await transaction.CommitAsync();
 
-        return rewardedUsers.Select(
+        return [.. rewardedUsers.Select(
             u => new RewardedUser(new SnowflakeId(u.user_id), u.taypoint_count)
-        ).ToList();
+        )];
     }
 
     private bool IsNotNewAccount(SnowflakeId id)

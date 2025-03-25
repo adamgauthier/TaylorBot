@@ -4,7 +4,7 @@ using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Core.Client;
 using static OperationResult.Helpers;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
 public enum RpsShape
 {
@@ -19,11 +19,11 @@ public class OptionalRpsShapeParser : IOptionParser<RpsShape?>
 
     public static Result<RpsShape, ParsingFailed> Parse(string input)
     {
-        return input.Trim().ToLowerInvariant() switch
+        return input.Trim().ToUpperInvariant() switch
         {
-            "rock" or "r" => Ok(RpsShape.Rock),
-            "paper" or "p" => Ok(RpsShape.Paper),
-            "scissors" or "s" => Ok(RpsShape.Scissors),
+            "ROCK" or "R" => Ok(RpsShape.Rock),
+            "PAPER" or "P" => Ok(RpsShape.Paper),
+            "SCISSORS" or "S" => Ok(RpsShape.Scissors),
             _ => Error(new ParsingFailed(
                 $"Could not parse '{input}' into a valid rps shape. Use one of these: {string.Join(',', Suggestions.Select(p => $"`{p}`"))}."
             )),

@@ -15,7 +15,7 @@ using TaylorBot.Net.Core.Random;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 
 public class HeistPlaySlashCommand(
     TaskExceptionLogger taskExceptionLogger,
@@ -154,7 +154,7 @@ public class HeistPlaySlashCommand(
         await channel.SendMessageAsync(embed: embed.Build());
     }
 
-    private record Bank(string bankName, ushort? maximumUserCount, ushort minimumRollForSuccess, string payoutMultiplier);
+    private sealed record Bank(string bankName, ushort? maximumUserCount, ushort minimumRollForSuccess, string payoutMultiplier);
 
     private readonly Lazy<List<Bank>> banks = new(() =>
     {
@@ -187,7 +187,7 @@ public class HeistPlaySlashCommand(
     ];
 
     private string GetFailureReason(string userId) =>
-        pseudoRandom.GetRandomElement(FailureReasons).Replace("{user}", $"<@{userId}>");
+        pseudoRandom.GetRandomElement(FailureReasons).Replace("{user}", $"<@{userId}>", StringComparison.InvariantCulture);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

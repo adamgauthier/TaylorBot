@@ -71,7 +71,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     {
                         builder.AddField("Attachments", string.Join(" ", message.Attachments.Select(a => a.ProxyUrl)).Truncate(EmbedFieldBuilder.MaxFieldValueLength));
 
-                        var previewAttachment = message.Attachments.FirstOrDefault(a => a.ContentType?.StartsWith("image") == true)
+                        var previewAttachment = message.Attachments.FirstOrDefault(a => a.ContentType?.StartsWith("image", StringComparison.InvariantCulture) == true)
                             ?? message.Attachments.First();
 
                         builder.WithImageUrl(previewAttachment.ProxyUrl);
@@ -288,7 +288,7 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                 .Build()
         );
 
-        return uncachedEmbeds.Concat(cachedEmbeds).ToList();
+        return [.. uncachedEmbeds, .. cachedEmbeds];
     }
 
     public Embed CreateReactionRemoved(ulong messageId, ITextChannel channel, SocketReaction reaction)

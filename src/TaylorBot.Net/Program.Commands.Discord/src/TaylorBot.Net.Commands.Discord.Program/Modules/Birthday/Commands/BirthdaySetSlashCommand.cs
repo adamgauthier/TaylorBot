@@ -138,7 +138,7 @@ public class BirthdaySetConfirmButtonHandler(InteractionResponseClient responseC
         var year = int.Parse(dateStr[..4]);
         var month = int.Parse(dateStr[4..6]);
         var day = int.Parse(dateStr[6..]);
-        var birthday = new DateOnly(year, month, day);
+        DateOnly birthday = new(year, month, day);
 
         var embed = await birthdaySetCommand.SetBirthdayAsync(context, isPrivate, birthday);
 

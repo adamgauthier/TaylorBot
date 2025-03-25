@@ -12,4 +12,3 @@ public interface ITaypointTransferRepository
 {
     ValueTask<TransferResult> TransferTaypointsAsync(DiscordUser from, IReadOnlyList<DiscordUser> to, ITaypointAmount amount);
 }
-

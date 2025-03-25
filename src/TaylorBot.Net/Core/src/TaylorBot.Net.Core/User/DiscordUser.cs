@@ -38,7 +38,7 @@ public record DiscordUser(SnowflakeId Id, string Username, string? Avatar, strin
 public record DiscordMemberInfo(SnowflakeId GuildId, DateTimeOffset? JoinedAt, IReadOnlyList<SnowflakeId> Roles, GuildPermissions Permissions, string? GuildAvatar)
 {
     public DiscordMemberInfo(IGuildUser user) : this(
-        user.GuildId, user.JoinedAt, user.RoleIds.Select(r => new SnowflakeId(r)).ToList(), user.GuildPermissions, user.GuildAvatarId)
+        user.GuildId, user.JoinedAt, [.. user.RoleIds.Select(r => new SnowflakeId(r))], user.GuildPermissions, user.GuildAvatarId)
     { }
 }
 

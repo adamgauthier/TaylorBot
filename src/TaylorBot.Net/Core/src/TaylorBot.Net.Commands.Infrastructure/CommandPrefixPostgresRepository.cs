@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Commands.Infrastructure;
 
 public class CommandPrefixPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ICommandPrefixRepository
 {
-    private record PrefixDto(string prefix, bool was_inserted, bool guild_name_changed, string? previous_guild_name);
+    private sealed record PrefixDto(string prefix, bool was_inserted, bool guild_name_changed, string? previous_guild_name);
 
     public async ValueTask<CommandPrefix> GetOrInsertGuildPrefixAsync(IGuild guild)
     {

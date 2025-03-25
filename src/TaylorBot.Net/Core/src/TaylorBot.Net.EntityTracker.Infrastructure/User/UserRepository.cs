@@ -7,12 +7,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.User;
 
 public class UserRepository(PostgresConnectionFactory postgresConnectionFactory) : IUserRepository
 {
-    private class UserAddedOrUpdatedDto
-    {
-        public bool was_inserted { get; set; }
-        public bool username_changed { get; set; }
-        public string? previous_username { get; set; }
-    }
+    private sealed record UserAddedOrUpdatedDto(bool was_inserted, bool username_changed, string? previous_username);
 
     public async ValueTask<UserAddedResult> AddNewUserAsync(DiscordUser user)
     {

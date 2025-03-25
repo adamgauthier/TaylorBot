@@ -17,12 +17,12 @@ public class PageMessageResultBuilder
 
         if (_options.Renderer.HasMultiplePages)
         {
-            var previousButton = new ButtonResult(
+            ButtonResult previousButton = new(
                 new Button(Id: "previous", ButtonStyle.Primary, Label: "Previous", Emoji: "◀"),
                 PreviousAsync
             );
 
-            var nextButton = new ButtonResult(
+            ButtonResult nextButton = new(
                 new Button(Id: "next", ButtonStyle.Primary, Label: "Next", Emoji: "▶"),
                 NextAsync
             );
@@ -32,7 +32,7 @@ public class PageMessageResultBuilder
 
         if (_options.IsCancellable)
         {
-            var cancelButton = new ButtonResult(
+            ButtonResult cancelButton = new(
                 new Button(Id: "cancel", ButtonStyle.Danger, Label: "Cancel", Emoji: "🗑"),
                 _ => new(new DeleteMessage())
             );

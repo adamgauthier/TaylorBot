@@ -29,12 +29,12 @@ public class AccessibleRolesModule(
         RoleNotEveryoneArgument<IRole>? role = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
                 var member = (IGuildUser)Context.User;
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 if (role != null)
                 {
@@ -169,12 +169,12 @@ public class AccessibleRolesModule(
         RoleNotEveryoneArgument<IRole> role
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
                 var member = (IGuildUser)Context.User;
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 if (member.RoleIds.Contains(role.Role.Id))
                 {
@@ -230,7 +230,7 @@ public class AccessibleRolesModule(
         RoleNotEveryoneArgument<IRole> role
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
@@ -263,7 +263,7 @@ public class AccessibleRolesModule(
         RoleArgument<IRole> role
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
@@ -298,11 +298,11 @@ public class AccessibleRolesModule(
         RoleNotEveryoneArgument<IRole> role
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var embed = new EmbedBuilder();
+                EmbedBuilder embed = new();
 
                 if (group.Name == "clear")
                 {

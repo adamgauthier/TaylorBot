@@ -38,7 +38,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -81,7 +81,7 @@ public class ActivityModule(ICommandRunner commandRunner, ServerMessagesSlashCom
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

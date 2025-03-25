@@ -45,7 +45,7 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
             }
         );
 
-        return entries.ToList();
+        return [.. entries];
     }
 
     public async Task<int> GetMinutesAsync(DiscordMember member)
@@ -85,7 +85,7 @@ public class ServerActivityPostgresRepository(PostgresConnectionFactory postgres
             }
         );
 
-        return entries.ToList();
+        return [.. entries];
     }
 
     public async Task<int?> GetOldMinutesAsync(DiscordUser user)

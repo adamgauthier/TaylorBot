@@ -12,11 +12,11 @@ public class TaypointRewardPostgresRepository(PostgresConnectionFactory postgres
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        var results = await TaypointPostgresUtil.AddTaypointsForMultipleUsersAsync(connection, taypointCount, users.Select(u => u.Id).ToList());
+        var results = await TaypointPostgresUtil.AddTaypointsForMultipleUsersAsync(connection, taypointCount, [.. users.Select(u => u.Id)]);
 
-        return results.Select(u => new RewardedUserResult(
+        return [.. results.Select(u => new RewardedUserResult(
             UserId: new SnowflakeId(u.user_id),
             NewTaypointCount: u.taypoint_count
-        )).ToList();
+        ))];
     }
 }

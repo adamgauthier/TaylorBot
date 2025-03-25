@@ -12,8 +12,8 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
     public async Task<RiskResult> WinAsync(DiscordUser user, ITaypointAmount amount, RiskLevel level)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var payoutMultiplier = level switch
         {
@@ -42,15 +42,15 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
             }
         );
 
-        transaction.Commit();
+        await transaction.CommitAsync();
         return new(transfer.invested_count, transfer.final_count, transfer.profit_count);
     }
 
     public async Task<RiskResult> LoseAsync(DiscordUser user, ITaypointAmount amount)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var transfer = await RiskPostgresUtil.LoseRiskAsync(connection, user.Id, amount);
 
@@ -71,7 +71,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
             }
         );
 
-        transaction.Commit();
+        await transaction.CommitAsync();
         return new(transfer.invested_count, transfer.final_count, transfer.profit_count);
     }
 
@@ -96,7 +96,7 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<RiskLeaderboardEntry>(
+        return [.. (await connection.QueryAsync<RiskLeaderboardEntry>(
             // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
             // Then we join to filter out users that are not part of the guild and get the top 100
             // Finally we join on users to get their latest username
@@ -119,6 +119,6 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
             {
                 GuildId = $"{guild.Id}",
             }
-        )).ToList();
+        ))];
     }
 }

@@ -26,9 +26,9 @@ public class LastFmAlbumsCommandTests
     public async Task Albums_ThenReturnsSuccessEmbedWithAlbumInformation()
     {
         var period = LastFmPeriod.OneMonth;
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         var albumImageUrl = "https://lastfm.freetls.fastly.net/i/u/174s/8a89bf00eff0d1912f33164d3a15071f.png";
-        var album = new TopAlbum(
+        TopAlbum album = new(
             Name: "Lover",
             AlbumUrl: new Uri("https://www.last.fm/music/Taylor+Swift/Lover"),
             AlbumImageUrl: new Uri(albumImageUrl),
@@ -55,9 +55,9 @@ public class LastFmAlbumsCommandTests
     public async Task Albums_WhenLongAlbumNames_ThenReturnsSuccessEmbedWithAlbumInformation()
     {
         var period = LastFmPeriod.OneMonth;
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         var albumImageUrl = "https://lastfm.freetls.fastly.net/i/u/770x0/432041b069019cbebbf6328cd2703c3d.webp#432041b069019cbebbf6328cd2703c3d";
-        var album = new TopAlbum(
+        TopAlbum album = new(
             Name: "Hamilton: An American Musical (Original Broadway Cast Recording)",
             AlbumUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22/Hamilton:+An+American+Musical+(Original+Broadway+Cast+Recording%29"),
             AlbumImageUrl: new Uri(albumImageUrl),
@@ -66,7 +66,7 @@ public class LastFmAlbumsCommandTests
             ArtistUrl: new Uri("https://www.last.fm/music/Original+Broadway+Cast+of+%22Hamilton%22")
         );
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
-        A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult(Enumerable.Repeat(album, 10).ToList()));
+        A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult([.. Enumerable.Repeat(album, 10)]));
 
         var result = (EmbedResult)await _lastFmAlbumsCommand.Albums(period, _commandUser, isLegacyCommand: false).RunAsync();
 

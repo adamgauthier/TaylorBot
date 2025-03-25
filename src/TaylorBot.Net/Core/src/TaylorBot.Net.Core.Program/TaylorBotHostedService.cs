@@ -9,12 +9,10 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Core.Program;
 
-public class TaylorBotHostedService(IServiceProvider services) : IHostedService
+public partial class TaylorBotHostedService(IServiceProvider services, ILogger<TaylorBotHostedService> _logger, TaskExceptionLogger _taskExceptionLogger) : IHostedService
 {
     private const GatewayIntents IntentMessageContent = (GatewayIntents)(1 << 15);
 
-    private readonly ILogger<TaylorBotHostedService> _logger = services.GetRequiredService<ILogger<TaylorBotHostedService>>();
-    private readonly TaskExceptionLogger _taskExceptionLogger = services.GetRequiredService<TaskExceptionLogger>();
     private ITaylorBotClient? _client;
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -43,10 +41,13 @@ public class TaylorBotHostedService(IServiceProvider services) : IHostedService
         // Wait to login in case of a boot loop
         await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
 
-        _logger.LogInformation("Starting client with intents: {intents} ({value}).", flaggedIntents, (int)flaggedIntents);
+        LogStartingClient(flaggedIntents, (int)flaggedIntents);
 
         await _client.StartAsync();
     }
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Starting client with intents: {Intents} ({Value})")]
+    public partial void LogStartingClient(GatewayIntents Intents, int Value);
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
@@ -57,7 +58,7 @@ public class TaylorBotHostedService(IServiceProvider services) : IHostedService
         }
     }
 
-    private class EventHandlerRegistrar(Action<ITaylorBotClient> register, GatewayIntents[]? intents = null)
+    private sealed class EventHandlerRegistrar(Action<ITaylorBotClient> register, GatewayIntents[]? intents = null)
     {
         public GatewayIntents[] Intents { get; } = intents ?? [];
 

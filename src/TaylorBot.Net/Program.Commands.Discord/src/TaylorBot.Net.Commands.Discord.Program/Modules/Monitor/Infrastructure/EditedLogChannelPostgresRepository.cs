@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -28,7 +28,7 @@ public class EditedLogChannelPostgresRepository(PostgresConnectionFactory postgr
         );
     }
 
-    private class LogChannelDto
+    private sealed class LogChannelDto
     {
         public string edited_log_channel_id { get; set; } = null!;
     }

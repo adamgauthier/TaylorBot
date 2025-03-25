@@ -39,7 +39,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, AvatarSlashCommand 
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -61,7 +61,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, AvatarSlashCommand 
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -83,7 +83,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, AvatarSlashCommand 
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -102,7 +102,7 @@ public class DiscordInfoModule(ICommandRunner commandRunner, AvatarSlashCommand 
     [Summary("This command has been moved to </inspect server:1260489511297749054>. Please use it instead! 😊")]
     public async Task<RuntimeResult> ServerInfoAsync()
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

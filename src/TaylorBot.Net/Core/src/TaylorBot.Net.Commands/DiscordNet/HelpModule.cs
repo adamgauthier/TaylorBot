@@ -5,7 +5,7 @@ using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
-public class SharedCommands
+public static class SharedCommands
 {
     public const string Help = "help";
 }
@@ -30,8 +30,8 @@ public class HelpModule(
         {
             var module = moduleOrCommand == null ? commands.Modules.Single(m => m.Name == "Help") :
                 commands.Modules.FirstOrDefault(m =>
-                     m.Name.Replace("Module", "").Equals(moduleOrCommand, StringComparison.InvariantCultureIgnoreCase) ||
-                     m.Commands.Any(c => c.Aliases.Select(a => a.ToLowerInvariant()).Contains(moduleOrCommand.ToLowerInvariant()))
+                     m.Name.Replace("Module", "", StringComparison.InvariantCulture).Equals(moduleOrCommand, StringComparison.OrdinalIgnoreCase) ||
+                     m.Commands.Any(c => c.Aliases.Select(a => a.ToUpperInvariant()).Contains(moduleOrCommand.ToUpperInvariant()))
                 );
 
             if (module == null)
@@ -53,7 +53,7 @@ public class HelpModule(
                         descriptionLines = descriptionLines.Append(module.Remarks);
 
                     if (module.Aliases.Any(a => !string.IsNullOrWhiteSpace(a)))
-                        descriptionLines = descriptionLines.Append($"Prefix: `{module.Aliases.First()}`");
+                        descriptionLines = descriptionLines.Append($"Prefix: `{module.Aliases[0]}`");
 
                     if (module.Submodules.Any())
                         descriptionLines = descriptionLines.Append($"Submodules:\n{string.Join("\n", module.Submodules.Select(m => $"- '{m.Name}' (`{m.Group}`)"))}");
@@ -66,7 +66,7 @@ public class HelpModule(
                     await disabledCommandRepository.InsertOrGetCommandDisabledMessageAsync(new(command.Aliases[0]));
 
                     var alias = command.Aliases[0];
-                    if (alias.Contains(' '))
+                    if (alias.Contains(' ', StringComparison.Ordinal))
                         alias = string.Join(' ', alias.Split(' ').Skip(1));
 
                     builder.AddField(field => field

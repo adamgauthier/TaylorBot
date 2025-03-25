@@ -20,12 +20,12 @@ public class QuickStartChannelFinderTests
 
         var generalChannel = CreateAvailableChannel("general", botUser, everyone);
 
-        A.CallTo(() => guild.GetTextChannelsAsync(CacheMode.AllowDownload, null)).Returns(new[] {
+        A.CallTo(() => guild.GetTextChannelsAsync(CacheMode.AllowDownload, null)).Returns([
             CreateAvailableChannel("memes", botUser, everyone),
             generalChannel,
             CreateAvailableChannel("serious", botUser, everyone),
             CreateAvailableChannel("commands", botUser, everyone)
-        });
+        ]);
 
 
         var channel = await _quickStartChannelFinder.FindQuickStartChannelAsync<IGuild, ITextChannel>(guild);

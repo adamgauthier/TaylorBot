@@ -9,7 +9,10 @@ public static class DiscordNetContextMapper
     public static RunContext MapToRunContext(ITaylorBotCommandContext context)
     {
         var channelType = context.Channel.GetChannelType();
-        ArgumentNullException.ThrowIfNull(channelType);
+        if (!channelType.HasValue)
+        {
+            throw new ArgumentNullException(nameof(channelType));
+        }
 
         DiscordChannel channel = new(context.Channel.Id, channelType.Value);
 

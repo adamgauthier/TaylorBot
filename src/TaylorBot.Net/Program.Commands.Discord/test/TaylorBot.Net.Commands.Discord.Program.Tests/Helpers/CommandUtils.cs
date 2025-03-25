@@ -9,7 +9,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 
 public enum ContextType { Guild, DM }
 
-public class CommandUtils
+public static class CommandUtils
 {
     public static readonly DiscordUser AUser = new(119341483219353602, "adam", "ecb368bd7eb540754c0bf5a2ce65af62", "0", IsBot: true, MemberInfo: null);
 

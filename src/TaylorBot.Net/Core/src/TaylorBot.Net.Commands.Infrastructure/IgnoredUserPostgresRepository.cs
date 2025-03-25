@@ -37,7 +37,7 @@ public class IgnoredUserPostgresRepository(PostgresConnectionFactory postgresCon
         );
     }
 
-    private class UserAddedOrUpdatedDto
+    private sealed class UserAddedOrUpdatedDto
     {
         public DateTime ignore_until { get; set; }
         public bool was_inserted { get; set; }

@@ -81,7 +81,7 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 
     public record Options(ParsedString songs);
 
-    public Command Set(DiscordUser user, string favoriteSongs, RunContext? context = null) => new(
+    public Command SetCommand(DiscordUser user, string favoriteSongs, RunContext? context = null) => new(
         new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2, PrefixCommandAlias3]),
         async () =>
         {
@@ -118,7 +118,7 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Set(context.User, options.songs.Value, context));
+        return new(SetCommand(context.User, options.songs.Value, context));
     }
 }
 

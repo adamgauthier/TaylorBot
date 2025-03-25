@@ -24,7 +24,7 @@ public class ServerLeaderboardSlashCommand(
 
     public record Options(ParsedString @for);
 
-    private record LeaderboardData(string Title, List<string> Pages);
+    private sealed record LeaderboardData(string Title, List<string> Pages);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -69,7 +69,7 @@ public class ServerLeaderboardSlashCommand(
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(ServerLeaderboardSlashCommand),
                         guild,
-                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                        [.. leaderboard.Select(e => new SnowflakeId(e.user_id))]);
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
                         $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: **~{"message".ToQuantity(entry.message_count, $"{TaylorBotFormats.Readable}**")}"
@@ -85,7 +85,7 @@ public class ServerLeaderboardSlashCommand(
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(ServerLeaderboardSlashCommand),
                         guild,
-                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                        [.. leaderboard.Select(e => new SnowflakeId(e.user_id))]);
 
                     var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(entry =>
                         $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"minute".ToQuantity(entry.minute_count, TaylorBotFormats.BoldReadable)}"

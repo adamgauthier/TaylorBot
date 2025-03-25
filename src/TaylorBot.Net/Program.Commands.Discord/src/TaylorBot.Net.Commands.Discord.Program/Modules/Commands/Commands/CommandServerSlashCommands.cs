@@ -34,12 +34,12 @@ public class CommandServerDisableSlashCommand(
                     return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
                 }
 
-                if (command.Name.StartsWith("command") || command.Name.StartsWith("owner"))
+                if (command.Name.StartsWith("command", StringComparison.Ordinal) || command.Name.StartsWith("owner", StringComparison.Ordinal))
                 {
                     return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential. 😕"));
                 }
 
-                if (command.Name.StartsWith("modmail"))
+                if (command.Name.StartsWith("modmail", StringComparison.Ordinal))
                 {
                     return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
                 }

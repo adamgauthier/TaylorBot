@@ -80,7 +80,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
 
             var result = await taypointWillRepository.AddWillAsync(owner: Context.User, beneficiary: user);
 
-            var embed = new EmbedBuilder();
+            EmbedBuilder embed = new();
 
             switch (result)
             {
@@ -123,7 +123,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
         {
             var result = await taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
 
-            var embed = new EmbedBuilder();
+            EmbedBuilder embed = new();
 
             switch (result)
             {
@@ -166,7 +166,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
             var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.UtcNow.AddDays(-options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
             var expiredWills = isInactive[true].ToList();
 
-            var embed = new EmbedBuilder();
+            EmbedBuilder embed = new();
 
             if (expiredWills.Count != 0)
             {

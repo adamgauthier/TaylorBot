@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -8,7 +8,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastru
 
 public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ITaypointWillRepository
 {
-    private class WillGetDto
+    private sealed class WillGetDto
     {
         public string beneficiary_user_id { get; set; } = null!;
         public string username { get; set; } = null!;
@@ -34,7 +34,7 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
         ) : null;
     }
 
-    private class WillAddDto
+    private sealed class WillAddDto
     {
         public string beneficiary_user_id { get; set; } = null!;
         public string username { get; set; } = null!;
@@ -74,7 +74,7 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
         }
     }
 
-    private class WillRemoveDto
+    private sealed class WillRemoveDto
     {
         public string beneficiary_user_id { get; set; } = null!;
         public string username { get; set; } = null!;
@@ -112,7 +112,7 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
         }
     }
 
-    private class WillWithBeneficiaryDto
+    private sealed class WillWithBeneficiaryDto
     {
         public string user_id { get; set; } = null!;
         public DateTimeOffset max_last_spoke_at { get; set; }
@@ -138,14 +138,14 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
             }
         );
 
-        return willDtos.Select(w => new WillOwner(
+        return [.. willDtos.Select(w => new WillOwner(
             OwnerUserId: new SnowflakeId(w.user_id),
             OwnerUsername: w.owner_username,
             OwnerLatestSpokeAt: w.max_last_spoke_at
-        )).ToList();
+        ))];
     }
 
-    private class TransferDto
+    private sealed class TransferDto
     {
         public string user_id { get; set; } = null!;
         public string username { get; set; } = null!;
@@ -183,12 +183,12 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
             }
         );
 
-        return transferDtos.Select(t => new Transfer(
+        return [.. transferDtos.Select(t => new Transfer(
             UserId: new SnowflakeId(t.user_id),
             Username: t.username,
             TaypointCount: t.taypoint_count,
             OriginalTaypointCount: t.original_taypoint_count
-        )).ToList();
+        ))];
     }
 
     public async ValueTask RemoveWillsWithBeneficiaryAsync(IReadOnlyCollection<SnowflakeId> ownerUserIds, IUser beneficiary)

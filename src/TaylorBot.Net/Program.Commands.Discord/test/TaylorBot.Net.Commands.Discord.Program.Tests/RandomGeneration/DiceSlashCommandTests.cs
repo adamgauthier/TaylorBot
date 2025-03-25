@@ -1,6 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Core.Random;
 using Xunit;

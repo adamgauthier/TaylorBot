@@ -14,7 +14,7 @@ public class RandomModule(ICommandRunner commandRunner, ChooseSlashCommand choos
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

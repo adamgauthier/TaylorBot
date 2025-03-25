@@ -54,7 +54,7 @@ public class TaypointWillModuleTests
     {
         const uint InactiveDaysForClaim = 20;
         A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
-        var beneficiaryId = new SnowflakeId("1");
+        SnowflakeId beneficiaryId = new("1");
         var user = A.Fake<IUser>();
         A.CallTo(() => _taypointWillRepository.GetWillAsync(user)).Returns(new Will(beneficiaryId, AUsername));
         var userArgument = A.Fake<IUserArgument<IUser>>();
@@ -119,9 +119,9 @@ public class TaypointWillModuleTests
         const uint InactiveDaysForClaim = 20;
         A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
         var oneDayAfterThreshold = DateTimeOffset.UtcNow.AddDays((-InactiveDaysForClaim) + 1);
-        A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
+        A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns([ new WillOwner(
             OwnerUserId: new("1"), OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayAfterThreshold
-        )});
+        )]);
 
         var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();
 
@@ -131,20 +131,20 @@ public class TaypointWillModuleTests
     [Fact]
     public async Task ClaimAsync_WhenWillWithInactiveOwner_ThenReturnsSuccessEmbed()
     {
-        var willOwnerId = new SnowflakeId(1);
-        var commandUserId = new SnowflakeId(2);
+        SnowflakeId willOwnerId = new(1);
+        SnowflakeId commandUserId = new(2);
         A.CallTo(() => _commandUser.Id).Returns(commandUserId.Id);
         const uint InactiveDaysForClaim = 20;
         A.CallTo(() => _options.CurrentValue).Returns(new TaypointWillOptions { DaysOfInactivityBeforeWillCanBeClaimed = InactiveDaysForClaim });
         var oneDayBeforeThreshold = DateTimeOffset.UtcNow.AddDays(-(InactiveDaysForClaim + 1));
-        A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns(new[] { new WillOwner(
+        A.CallTo(() => _taypointWillRepository.GetWillsWithBeneficiaryAsync(_commandUser)).Returns([ new WillOwner(
             OwnerUserId: willOwnerId, OwnerUsername: AUsername, OwnerLatestSpokeAt: oneDayBeforeThreshold
-        )});
+        )]);
         var ownerUserIds = new[] { willOwnerId };
-        A.CallTo(() => _taypointWillRepository.TransferAllPointsAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(new[] {
+        A.CallTo(() => _taypointWillRepository.TransferAllPointsAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns([
             new Transfer(willOwnerId, AUsername, TaypointCount: 0, OriginalTaypointCount: 100),
             new Transfer(commandUserId, AUsername, TaypointCount: 100, OriginalTaypointCount: 0)
-        });
+        ]);
         A.CallTo(() => _taypointWillRepository.RemoveWillsWithBeneficiaryAsync(A<IReadOnlyCollection<SnowflakeId>>.That.IsSameSequenceAs(ownerUserIds), _commandUser)).Returns(default);
 
         var result = (await _taypointWillModule.ClaimAsync()).GetResult<EmbedResult>();

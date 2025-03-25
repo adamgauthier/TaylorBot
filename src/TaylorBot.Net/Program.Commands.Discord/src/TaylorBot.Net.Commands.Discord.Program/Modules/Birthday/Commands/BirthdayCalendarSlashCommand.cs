@@ -34,7 +34,7 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(BirthdayCalendarSlashCommand),
                         guild.Fetched,
-                        calendar.Select(e => e.UserId).ToList());
+                        [.. calendar.Select(e => e.UserId)]);
                 }
 
                 var pages = calendar.Chunk(15).Select(entries => string.Join('\n', entries.Select(

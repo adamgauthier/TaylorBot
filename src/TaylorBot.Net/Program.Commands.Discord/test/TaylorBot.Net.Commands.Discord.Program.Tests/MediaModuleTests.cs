@@ -23,7 +23,7 @@ public class MediaModuleTests
 
     public MediaModuleTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddSingleton(A.Fake<IPlusRepository>(o => o.Strict()));
 
@@ -62,7 +62,7 @@ public class MediaModuleTests
         ));
 
         var result = (await _mediaModule.ImageAsync(Text)).GetResult<PageMessageResult>();
-        await result.PageMessage.SendAsync(_commandUser, _message);
+        using var _ = await result.PageMessage.SendAsync(_commandUser, _message);
 
         A.CallTo(() => _channel.SendMessageAsync(
             null,

@@ -14,7 +14,9 @@ public class TumblrPostToEmbedMapper(IOptionsMonitor<TumblrNotifierOptions> opti
         var options = optionsMonitor.CurrentValue;
 
         var builder = new EmbedBuilder()
-            .WithTitle(string.IsNullOrWhiteSpace(post.Summary) ? "(no title)" : post.Summary.Replace("\n", " ").Truncate(65))
+            .WithTitle(string.IsNullOrWhiteSpace(post.Summary)
+                ? "(no title)"
+                : post.Summary.Replace("\n", " ", StringComparison.InvariantCulture).Truncate(65))
             .WithUrl(post.ShortUrl)
             .WithTimestamp(post.Timestamp)
             .WithAuthor(name: blog.Title, url: blog.Url)

@@ -2,7 +2,7 @@
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Core.Embed;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 
 [Name("Heist 💰")]
 public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand heistCommand) : TaylorBotModule
@@ -32,7 +32,7 @@ public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand hei
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -54,7 +54,7 @@ public class HeistModule(ICommandRunner commandRunner, HeistPlaySlashCommand hei
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

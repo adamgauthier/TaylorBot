@@ -10,20 +10,15 @@ namespace TaylorBot.Net.PatreonSync.Infrastructure;
 
 public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory) : IPlusRepository
 {
-    private class PlusUserDto
-    {
-        public string? rewarded_for_charge_at { get; set; }
-        public int max_plus_guilds { get; set; }
-        public string source { get; set; } = null!;
-    }
+    private sealed record PlusUserDto(string? rewarded_for_charge_at, int max_plus_guilds, string source);
 
-    private class PlusGuildDto
+    private sealed class PlusGuildDto
     {
         public string guild_name { get; set; } = null!;
         public string state { get; set; } = null!;
     }
 
-    private class RewardedUserDto
+    private sealed class RewardedUserDto
     {
         public long taypoint_count { get; set; }
     }
@@ -31,12 +26,12 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
     public async ValueTask<IUpdatePlusUserResult> AddOrUpdatePlusUserAsync(Patron patron)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         var result = await UpsertPlusUserAsync(connection, patron);
 
-        transaction.Commit();
+        await transaction.CommitAsync();
         return result;
     }
 
@@ -107,7 +102,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
             if (rewardedForChargeAtUpdate != null)
             {
                 var rewardAmount = patron.CurrentlyEntitledAmountCents * 10;
-                logger.LogDebug("{Prefix} Rewarding {rewardAmount} points because {RewardedForChargeAt}.",
+                logger.LogDebug("{Prefix} Rewarding {RewardAmount} points because {RewardedForChargeAt}.",
                     logPrefix, rewardAmount, $"{nameof(existingPlusUser.rewarded_for_charge_at)}={existingPlusUser.rewarded_for_charge_at}");
 
                 var rewardedUser = await TaypointPostgresUtil.AddTaypointsReturningAsync(connection, userId, rewardAmount);

@@ -15,7 +15,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2024;
 
 public static class Valentines
 {
-    public static readonly List<SnowflakeId> VipUserIds = [748723450511753298, 119341483219353602];
+    public static readonly IList<SnowflakeId> VipUserIds = [748723450511753298, 119341483219353602];
 }
 
 public class ValentinesVerifySlashCommand(
@@ -28,7 +28,7 @@ public class ValentinesVerifySlashCommand(
 
     public record Options(ParsedString puzzle, ParsedString code);
 
-    private record Code(string puzzle_code, bool enabled);
+    private sealed record Code(string puzzle_code, bool enabled);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -137,7 +137,7 @@ public class ValentinesProfileSlashCommand(PostgresConnectionFactory postgresCon
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
-    private record Solved(string puzzle_id, short attempt_count, DateTime? solved_at);
+    private sealed record Solved(string puzzle_id, short attempt_count, DateTime? solved_at);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -188,7 +188,7 @@ public class ValentinesStatusSlashCommand(PostgresConnectionFactory postgresConn
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
-    private record PuzzleStatus(string puzzle_id, long found_by);
+    private sealed record PuzzleStatus(string puzzle_id, long found_by);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
@@ -272,9 +272,7 @@ public class ValentinesEnableSlashCommand(
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Set {options.puzzle.Value} Enabled={enabled}"));
             },
-            [
-                new TaylorBotOwnerOrIdPrecondition(Valentines.VipUserIds, ownerPrecondition)
-            ]));
+            Preconditions: [new TaylorBotOwnerOrIdPrecondition(Valentines.VipUserIds, ownerPrecondition)]));
     }
 }
 

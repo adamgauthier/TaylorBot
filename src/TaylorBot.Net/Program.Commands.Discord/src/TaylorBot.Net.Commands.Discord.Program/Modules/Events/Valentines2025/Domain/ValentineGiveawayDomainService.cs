@@ -12,9 +12,9 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
 
-public record Giveaway(List<SnowflakeId> Entrants, DateTimeOffset EndsAt, int TaypointPrize)
+public record Giveaway(IList<SnowflakeId> Entrants, DateTimeOffset EndsAt, int TaypointPrize)
 {
-    public IUserMessage? OriginalMessage { get; set; } = null;
+    public IUserMessage? OriginalMessage { get; set; }
 }
 
 public class ValentineGiveawayDomainService(
@@ -26,9 +26,9 @@ public class ValentineGiveawayDomainService(
     InteractionResponseClient interactionResponseClient,
     ICryptoSecureRandom cryptoSecureRandom)
 {
-    private Giveaway? _giveaway = null;
+    private Giveaway? _giveaway;
 
-    private record PreviousGiveaway(ulong OriginalMessageId)
+    private sealed record PreviousGiveaway(ulong OriginalMessageId)
     {
         public RewardedUserResult? Winner { get; set; }
         public int AmountWon { get; set; }
@@ -61,8 +61,8 @@ public class ValentineGiveawayDomainService(
                             var entrants = _giveaway.Entrants.ToList();
                             if (entrants.Count != 0)
                             {
-                                var winnerId = cryptoSecureRandom.GetRandomElement(_giveaway.Entrants);
-                                var winner = new DiscordUser(winnerId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
+                                var winnerId = cryptoSecureRandom.GetRandomElement(_giveaway.Entrants.AsReadOnly());
+                                DiscordUser winner = new(winnerId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
 
                                 var rewarded = (await taypointRepository.RewardUsersAsync([winner], _giveaway.TaypointPrize)).Single();
 
@@ -102,7 +102,7 @@ public class ValentineGiveawayDomainService(
                         {
                             if (_giveaway != null && !_giveaway.Entrants.Contains(component.Interaction.UserId))
                             {
-                                var user = new DiscordUser(component.Interaction.UserId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
+                                DiscordUser user = new(component.Interaction.UserId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
                                 var given = await valentinesRepository.GetRoleObtainedFromUserAsync(user);
 
                                 if (given.Count >= config.SpreadLimit)

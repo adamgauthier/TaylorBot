@@ -2,7 +2,7 @@
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Domain;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 
 public record MemberLog(SnowflakeId ChannelId);
 

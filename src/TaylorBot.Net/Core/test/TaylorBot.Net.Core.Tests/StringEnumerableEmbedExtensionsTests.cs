@@ -2,7 +2,7 @@
 using TaylorBot.Net.Core.Embed;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Types.Tests;
+namespace TaylorBot.Net.Core.Tests;
 
 public class StringEnumerableEmbedExtensionsTests
 {

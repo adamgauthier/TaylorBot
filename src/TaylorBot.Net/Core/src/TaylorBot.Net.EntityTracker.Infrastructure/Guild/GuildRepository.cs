@@ -7,7 +7,7 @@ namespace TaylorBot.Net.EntityTracker.Infrastructure.Guild;
 
 public class GuildRepository(PostgresConnectionFactory postgresConnectionFactory) : IGuildRepository
 {
-    private record GuildAddedOrUpdatedDto(bool was_inserted, bool guild_name_changed, string? previous_guild_name);
+    private sealed record GuildAddedOrUpdatedDto(bool was_inserted, bool guild_name_changed, string? previous_guild_name);
 
     public async ValueTask<GuildAddedResult> AddGuildIfNotAddedAsync(IGuild guild)
     {

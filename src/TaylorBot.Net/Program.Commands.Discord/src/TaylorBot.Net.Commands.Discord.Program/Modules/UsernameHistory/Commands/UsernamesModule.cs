@@ -35,7 +35,7 @@ public class UsernamesModule(ICommandRunner commandRunner, UsernamesShowSlashCom
     [Summary("This command has been moved to 👉 </usernames visibility:1214813880463921242> 👈 Please use it instead! 😊")]
     public async Task<RuntimeResult> PrivateAsync()
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -53,7 +53,7 @@ public class UsernamesModule(ICommandRunner commandRunner, UsernamesShowSlashCom
     [Summary("This command has been moved to 👉 </usernames visibility:1214813880463921242> 👈 Please use it instead! 😊")]
     public async Task<RuntimeResult> PublicAsync()
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

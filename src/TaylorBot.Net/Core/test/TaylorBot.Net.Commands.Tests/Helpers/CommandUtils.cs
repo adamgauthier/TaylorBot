@@ -2,7 +2,7 @@
 
 namespace TaylorBot.Net.Commands.Tests.Helpers;
 
-public class CommandUtils
+public static class CommandUtils
 {
     public static CommandMentioner Mentioner
     {

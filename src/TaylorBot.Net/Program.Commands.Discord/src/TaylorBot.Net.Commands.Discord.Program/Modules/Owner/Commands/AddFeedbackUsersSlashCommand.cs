@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using Humanizer;
 using Microsoft.Extensions.Logging;
@@ -131,5 +131,5 @@ public class OwnerAddFeedbackUsersSlashCommand(
         }
     }
 
-    private record MemberDto(string user_id);
+    private sealed record MemberDto(string user_id);
 }

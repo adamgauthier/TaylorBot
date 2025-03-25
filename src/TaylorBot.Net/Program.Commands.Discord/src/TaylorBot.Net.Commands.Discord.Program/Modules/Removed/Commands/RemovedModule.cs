@@ -15,7 +15,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """
@@ -37,7 +37,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
@@ -55,7 +55,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
@@ -73,7 +73,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 
@@ -91,7 +91,7 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError("This command has been removed, sorry! 😕"))));
 

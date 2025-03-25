@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Infrastructure;
 
 public class GuildNamesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IGuildNamesRepository
 {
-    private record GuildNameDto(string guild_name, DateTime changed_at);
+    private sealed record GuildNameDto(string guild_name, DateTime changed_at);
 
     public async ValueTask<List<GuildNameEntry>> GetHistoryAsync(CommandGuild guild, int limit)
     {
@@ -27,6 +27,6 @@ public class GuildNamesPostgresRepository(PostgresConnectionFactory postgresConn
             }
         );
 
-        return serverNames.Select(n => new GuildNameEntry(n.guild_name, n.changed_at)).ToList();
+        return [.. serverNames.Select(n => new GuildNameEntry(n.guild_name, n.changed_at))];
     }
 }

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Jail.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -26,7 +26,7 @@ public class JailPostgresRepository(PostgresConnectionFactory postgresConnection
         );
     }
 
-    private class GetJailRoleDto
+    private sealed class GetJailRoleDto
     {
         public string jail_role_id { get; set; } = null!;
     }

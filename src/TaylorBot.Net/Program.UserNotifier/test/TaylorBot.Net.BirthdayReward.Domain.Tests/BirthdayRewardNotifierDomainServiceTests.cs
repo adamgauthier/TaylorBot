@@ -31,14 +31,14 @@ public class BirthdayRewardNotifierDomainServiceTests
         const uint RewardAmount = 1989;
         SnowflakeId userId = 1;
 
-        var rewardedUser = new RewardedUser(
+        RewardedUser rewardedUser = new(
             userId,
             rewardedPoints: RewardAmount
         );
 
         A.CallTo(() => _options.CurrentValue).Returns(new BirthdayRewardNotifierOptions { RewardAmount = RewardAmount });
         A.CallTo(() => _birthdayRepository.RewardEligibleUsersAsync(RewardAmount)).Returns([rewardedUser]);
-        var exception = new ArgumentException();
+        ArgumentException exception = new();
         A.CallTo(() => _taylorBotClient.ResolveRequiredUserAsync(userId)).Throws(exception);
 
 

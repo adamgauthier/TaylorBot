@@ -11,7 +11,7 @@ public class BirthdayRolePostgresRepository(PostgresConnectionFactory postgresCo
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<BirthdayUser>(
+        return [.. (await connection.QueryAsync<BirthdayUser>(
             """
             SELECT user_id, birthday_end FROM (
             	SELECT
@@ -26,26 +26,26 @@ public class BirthdayRolePostgresRepository(PostgresConnectionFactory postgresCo
             ) AS birthday_windows
             WHERE CURRENT_TIMESTAMP AT TIME ZONE 'UTC' BETWEEN birthday_start AND birthday_end;
             """
-        )).ToList();
+        ))];
     }
 
     public async Task<List<BirthdayRole>> GetRolesAsync()
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<BirthdayRole>(
+        return [.. (await connection.QueryAsync<BirthdayRole>(
             """
             SELECT guild_id, role_id
             FROM plus.birthday_roles;
             """
-        )).ToList();
+        ))];
     }
 
     public async Task<List<SnowflakeId>> GetGuildsForUserAsync(SnowflakeId userId, IReadOnlyList<BirthdayRole> roles)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<string>(
+        return [.. (await connection.QueryAsync<string>(
             """
             SELECT guild_id
             FROM guilds.guild_members
@@ -58,7 +58,7 @@ public class BirthdayRolePostgresRepository(PostgresConnectionFactory postgresCo
                 UserId = $"{userId}",
                 GuildIds = roles.Select(r => r.guild_id).ToList(),
             }
-        )).Select(g => new SnowflakeId(g)).ToList();
+        )).Select(g => new SnowflakeId(g))];
     }
 
     public async Task CreateRoleGivenAsync(BirthdayUser birthdayUser, BirthdayRole role, DateTimeOffset setAt)
@@ -90,13 +90,13 @@ public class BirthdayRolePostgresRepository(PostgresConnectionFactory postgresCo
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<BirthdayRoleToRemove>(
+        return [.. (await connection.QueryAsync<BirthdayRoleToRemove>(
             """
             SELECT guild_id, user_id, role_id, set_at
             FROM plus.birthday_roles_given
             WHERE removed_at IS NULL AND remove_at <= CURRENT_TIMESTAMP;
             """
-        )).ToList();
+        ))];
     }
 
     public async Task SetRoleRemovedAtAsync(BirthdayRoleToRemove toRemove)

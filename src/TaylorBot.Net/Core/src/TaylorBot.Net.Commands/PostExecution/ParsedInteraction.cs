@@ -34,10 +34,10 @@ public record ParsedInteraction(
             user,
             new(raw.channel_id, raw.channel));
 
-        activity.CommandName = parsed.Data.name;
-        activity.UserId = parsed.UserId;
-        activity.ChannelId = parsed.Channel.Id;
-        activity.GuildId = parsed.Guild?.Id;
+        activity.SetCommandName(parsed.Data.name);
+        activity.SetUserId(parsed.UserId);
+        activity.SetChannelId(parsed.Channel.Id);
+        activity.SetGuildId(parsed.Guild?.Id);
 
         return parsed;
     }

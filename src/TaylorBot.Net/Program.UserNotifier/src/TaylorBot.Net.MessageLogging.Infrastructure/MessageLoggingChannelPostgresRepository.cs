@@ -7,7 +7,7 @@ namespace TaylorBot.Net.MessageLogging.Infrastructure;
 
 public class MessageLoggingChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IMessageLoggingChannelRepository
 {
-    private class DeletedLogChannelDto
+    private sealed class DeletedLogChannelDto
     {
         public string deleted_log_channel_id { get; set; } = null!;
         public TimeSpan max_message_content_cache_expiry { get; set; }
@@ -38,7 +38,7 @@ public class MessageLoggingChannelPostgresRepository(PostgresConnectionFactory p
         return logChannel?.ToMessageLog();
     }
 
-    private class EditedLogChannelDto
+    private sealed class EditedLogChannelDto
     {
         public string edited_log_channel_id { get; set; } = null!;
         public TimeSpan max_message_content_cache_expiry { get; set; }

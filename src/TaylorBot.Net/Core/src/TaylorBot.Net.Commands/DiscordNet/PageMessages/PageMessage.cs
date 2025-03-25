@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.DiscordNet.PageMessages;
 
-public record PageMessageOptions(IPageMessageRenderer Renderer, bool Cancellable = false, List<Emoji>? AdditionalReacts = null);
+public record PageMessageOptions(IPageMessageRenderer Renderer, bool Cancellable = false, ICollection<Emoji>? AdditionalReacts = null);
 
 public class PageMessage(PageMessageOptions options)
 {
@@ -22,14 +22,15 @@ public class PageMessage(PageMessageOptions options)
     }
 }
 
-public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMessageOptions options)
+public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMessageOptions options) : IDisposable
 {
     private static readonly Emoji PreviousEmoji = new("◀");
     private static readonly Emoji NextEmoji = new("▶");
     private static readonly Emoji CancelEmoji = new("❌");
 
-    private DateTimeOffset? _lastInteractionAt = null;
-    private Timer? _unsubscribeTimer = null;
+    private DateTimeOffset? _lastInteractionAt;
+    private Timer? _unsubscribeTimer;
+    private bool disposed;
 
     public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
     {
@@ -120,5 +121,24 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
                 await sentMessage.DeleteAsync();
             }
         }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                _unsubscribeTimer?.Dispose();
+            }
+            disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

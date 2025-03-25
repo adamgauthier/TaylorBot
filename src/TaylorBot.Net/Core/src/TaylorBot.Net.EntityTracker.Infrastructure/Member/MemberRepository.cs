@@ -29,7 +29,7 @@ public class MemberRepository(PostgresConnectionFactory postgresConnectionFactor
         return result;
     }
 
-    private class MemberAddedOrUpdatedDto
+    private sealed class MemberAddedOrUpdatedDto
     {
         public DateTimeOffset? first_joined_at { get; set; }
     }

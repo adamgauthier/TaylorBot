@@ -19,7 +19,7 @@ public class KnowledgeModule(ICommandRunner commandRunner, UrbanDictionaryComman
         IUserArgument<IUser>? user = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(
                 EmbedFactory.CreateError("This command has been moved to </birthday horoscope:1016938623880400907>. Please use it instead! 😊")

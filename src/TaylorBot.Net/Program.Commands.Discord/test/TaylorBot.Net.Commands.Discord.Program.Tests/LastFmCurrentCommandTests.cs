@@ -38,7 +38,7 @@ public class LastFmCurrentCommandTests
     [Fact]
     public async Task Current_WhenLastFmLogInRequiredError_ThenReturnsErrorEmbed()
     {
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmLogInRequiredErrorResult());
 
@@ -50,7 +50,7 @@ public class LastFmCurrentCommandTests
     [Fact]
     public async Task Current_WhenLastFmError_ThenReturnsErrorEmbed()
     {
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmGenericErrorResult("Unknown"));
 
@@ -62,7 +62,7 @@ public class LastFmCurrentCommandTests
     [Fact]
     public async Task Current_WhenNoScrobbles_ThenReturnsErrorEmbed()
     {
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new MostRecentScrobbleResult(0, null));
 
@@ -74,7 +74,7 @@ public class LastFmCurrentCommandTests
     [Fact]
     public async Task Current_ThenReturnsSuccessEmbed()
     {
-        var lastFmUsername = new LastFmUsername("taylorswift");
+        LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _options.CurrentValue).Returns(new LastFmOptions { LastFmEmbedFooterIconUrl = "https://last.fm./icon.png" });
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new MostRecentScrobbleResult(

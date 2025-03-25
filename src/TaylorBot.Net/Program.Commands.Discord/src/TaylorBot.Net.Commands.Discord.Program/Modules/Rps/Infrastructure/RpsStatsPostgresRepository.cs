@@ -34,14 +34,14 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
     public async Task WinRpsAsync(DiscordUser user, long taypointReward)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
 
         await AddRpsStatsAsync(connection, user, winCount: 1, 0, 0);
 
         await TaypointPostgresUtil.AddTaypointsAsync(connection, user.Id, taypointReward);
 
-        transaction.Commit();
+        await transaction.CommitAsync();
     }
 
     public async Task DrawRpsAsync(DiscordUser user)
@@ -77,7 +77,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return (await connection.QueryAsync<RpsLeaderboardEntry>(
+        return [.. (await connection.QueryAsync<RpsLeaderboardEntry>(
             // Querying for users with wins first, expectation is the row count will be lower than the guild members count for large guilds
             // Then we join to filter out users that are not part of the guild and get the top 100
             // Finally we join on users to get their latest username
@@ -100,6 +100,6 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
             {
                 GuildId = $"{guild.Id}",
             }
-        )).ToList();
+        ))];
     }
 }

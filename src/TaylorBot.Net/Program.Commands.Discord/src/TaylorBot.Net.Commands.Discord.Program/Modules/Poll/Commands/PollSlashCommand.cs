@@ -49,7 +49,7 @@ public class PollSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashComma
         ));
     }
 
-    private class Poll
+    private sealed class Poll
     {
         private static readonly List<string> Icons =
         [
@@ -65,7 +65,7 @@ public class PollSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashComma
             "🥉",
             "🎀"
         ];
-        private record Option(short Id, string Name, string Icon);
+        private sealed record Option(short Id, string Name, string Icon);
 
         private readonly TimeSpan _duration;
         private readonly DateTimeOffset _startedAt;
@@ -74,7 +74,7 @@ public class PollSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashComma
         private readonly List<Option> _options = [];
         private readonly ConcurrentDictionary<string, short> _voters = new();
 
-        private DateTimeOffset? _endedAt = null;
+        private DateTimeOffset? _endedAt;
 
         public Poll(ModalSubmit submit)
         {
@@ -83,7 +83,7 @@ public class PollSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashComma
             _endsAt = _startedAt + _duration;
             _title = submit.TextInputs.Single(t => t.CustomId == "title").Value;
 
-            foreach (var option in submit.TextInputs.Where(t => t.CustomId.StartsWith("option") && !string.IsNullOrWhiteSpace(t.Value)))
+            foreach (var option in submit.TextInputs.Where(t => t.CustomId.StartsWith("option", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(t.Value)))
             {
                 var id = short.Parse(option.CustomId[6..]);
                 _options.Add(new(id, option.Value, Icons[id - 1]));
@@ -96,7 +96,7 @@ public class PollSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashComma
 
             foreach (var option in _options)
             {
-                var button = new Button($"vote-{option.Id}", ButtonStyle.Primary, Label: "", option.Icon);
+                Button button = new($"vote-{option.Id}", ButtonStyle.Primary, Label: "", option.Icon);
 
                 buttons.Add(new(button, OnClickVote(option), AllowNonAuthor: true));
             }

@@ -19,7 +19,7 @@ public class PlusRemoveSlashCommandTests
 
     public PlusRemoveSlashCommandTests()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddSingleton(A.Fake<IPlusRepository>());
         var serviceProvider = services.BuildServiceProvider();

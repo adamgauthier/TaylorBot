@@ -29,16 +29,17 @@ public record RedditToken(string AccessToken, DateTimeOffset ExpiresAt);
 
 public class RedditAuthHttpClient(ILogger<RedditAuthHttpClient> logger, HttpClient httpClient)
 {
-    private record RedditTokenResponse(string access_token, int expires_in);
+    private sealed record RedditTokenResponse(string access_token, int expires_in);
 
     public async Task<RedditToken> GetTokenAsync()
     {
         var now = DateTimeOffset.UtcNow;
 
-        var response = await httpClient.PostAsync("https://www.reddit.com/api/v1/access_token", new FormUrlEncodedContent([
+        using FormUrlEncodedContent content = new([
             new("grant_type", "client_credentials"),
             new("scope", "read"),
-        ]));
+        ]);
+        var response = await httpClient.PostAsync(new Uri("https://www.reddit.com/api/v1/access_token"), content);
         await response.EnsureSuccessAsync(logger);
 
         var responseAsString = await response.Content.ReadAsStringAsync();

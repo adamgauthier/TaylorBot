@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Reminder.Infrastructure;
 
 public class ReminderRepository(PostgresConnectionFactory postgresConnectionFactory) : IReminderRepository
 {
-    private record ReminderDto(Guid reminder_id, string user_id, string reminder_text, DateTime created_at);
+    private sealed record ReminderDto(Guid reminder_id, string user_id, string reminder_text, DateTime created_at);
 
     public async ValueTask<IReadOnlyCollection<Domain.Reminder>> GetDueRemindersAsync()
     {
@@ -21,12 +21,12 @@ public class ReminderRepository(PostgresConnectionFactory postgresConnectionFact
             """
         );
 
-        return reminders.Select(r => new Domain.Reminder(
+        return [.. reminders.Select(r => new Domain.Reminder(
             r.reminder_id,
             new SnowflakeId(r.user_id),
             r.created_at,
             r.reminder_text
-        )).ToList();
+        ))];
     }
 
     public async ValueTask RemoveReminderAsync(Domain.Reminder reminder)

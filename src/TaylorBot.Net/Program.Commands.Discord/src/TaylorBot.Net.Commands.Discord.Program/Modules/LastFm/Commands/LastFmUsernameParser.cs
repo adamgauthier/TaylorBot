@@ -29,7 +29,7 @@ public partial class LastFmUsernameParser : IOptionParser<LastFmUsername>
         {
             try
             {
-                var url = new Uri(trimmed);
+                Uri url = new(trimmed);
                 if (url.Host == "www.last.fm")
                 {
                     var matches = LinkRegex.Match(url.AbsolutePath);

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.User;
@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Infrast
 
 public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IUsernameHistoryRepository
 {
-    private record UsernameDto(string username, DateTime changed_at);
+    private sealed record UsernameDto(string username, DateTime changed_at);
 
     public async ValueTask<IReadOnlyList<UsernameChange>> GetUsernameHistoryFor(DiscordUser user, int count)
     {
@@ -28,10 +28,10 @@ public class UsernameHistoryPostgresRepository(PostgresConnectionFactory postgre
             }
         );
 
-        return usernames.Select(name => new UsernameChange(
+        return [.. usernames.Select(name => new UsernameChange(
             Username: name.username,
             ChangedAt: name.changed_at
-        )).ToList();
+        ))];
     }
 
     public async ValueTask<bool> IsUsernameHistoryHiddenFor(DiscordUser user)

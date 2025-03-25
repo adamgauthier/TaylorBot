@@ -11,8 +11,8 @@ public class PageMessageReactionsHandler : IReactionAddedHandler, IReactionRemov
 
     public event Func<Cacheable<IUserMessage, ulong>, Cacheable<IMessageChannel, ulong>, SocketReaction, Task> OnReact
     {
-        add { _onReactEvent.Add(value); }
-        remove { _onReactEvent.Remove(value); }
+        add => _onReactEvent.Add(value);
+        remove => _onReactEvent.Remove(value);
     }
 
     public async ValueTask ReactionAddedAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)

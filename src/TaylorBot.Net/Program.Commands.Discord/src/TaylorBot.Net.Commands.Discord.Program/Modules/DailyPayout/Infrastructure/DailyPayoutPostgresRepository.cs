@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
@@ -10,7 +10,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastruct
 
 public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, IOptionsMonitor<DailyPayoutOptions> options) : IDailyPayoutRepository
 {
-    private class CanRedeemDto
+    private sealed class CanRedeemDto
     {
         public bool can_redeem { get; set; }
         public DateTimeOffset can_redeem_at { get; set; }
@@ -39,7 +39,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             new UserCantRedeem(canRedeem.can_redeem_at);
     }
 
-    private class RedeemDto
+    private sealed class RedeemDto
     {
         public bool was_streak_added { get; set; }
         public long streak_count { get; set; }
@@ -51,7 +51,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         var settings = options.CurrentValue;
 
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
+        await connection.OpenAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
         var redeem = await connection.QuerySingleAsync<RedeemDto>(
@@ -108,7 +108,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         }
     }
 
-    private record StreakInfoDto(long streak_count, long max_streak_count);
+    private sealed record StreakInfoDto(long streak_count, long max_streak_count);
 
     public async ValueTask<(long CurrentStreak, long MaxStreak)?> GetStreakInfoAsync(DiscordUser user)
     {
@@ -129,14 +129,14 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         return streakInfo != null ? (streakInfo.streak_count, streakInfo.max_streak_count) : null;
     }
 
-    private record UpdateStreakDto(long streak_count, long original_streak_count);
+    private sealed record UpdateStreakDto(long streak_count, long original_streak_count);
 
-    private record RemoveTaypointCountDto(long original_count, long taypoint_count, long lost_count);
+    private sealed record RemoveTaypointCountDto(long original_count, long taypoint_count, long lost_count);
 
     public async ValueTask<IRebuyResult> RebuyMaxStreakAsync(DiscordUser user, int pricePerDay)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        connection.Open();
+        await connection.OpenAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
         var updateStreak = await connection.QuerySingleAsync<UpdateStreakDto>(
@@ -197,7 +197,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
         }
     }
 
-    private record LeaderboardEntryDto(string user_id, string username, long streak_count, long rank);
+    private sealed record LeaderboardEntryDto(string user_id, string username, long streak_count, long rank);
 
     public async ValueTask<IList<DailyLeaderboardEntry>> GetLeaderboardAsync(CommandGuild guild)
     {
@@ -228,11 +228,11 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             }
         );
 
-        return entries.Select(e => new DailyLeaderboardEntry(
+        return [.. entries.Select(e => new DailyLeaderboardEntry(
             new(e.user_id),
             e.username,
             e.streak_count,
             e.rank
-        )).ToList();
+        ))];
     }
 }

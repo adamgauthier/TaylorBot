@@ -40,7 +40,7 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
         string? _ = null
     )
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             () => new(new EmbedResult(EmbedFactory.CreateError(
                 """

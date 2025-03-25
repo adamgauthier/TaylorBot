@@ -5,7 +5,7 @@ using System.Text;
 var csvPath = args.Single();
 var records = ParseCsv(csvPath);
 
-var output = new StringBuilder(
+StringBuilder output = new(
     """
     digraph love_chain {
         rankdir=LR;

@@ -39,7 +39,7 @@ public class RpsLeaderboardSlashCommand(
                     memberNotInGuildUpdater.UpdateMembersWhoLeftInBackground(
                         nameof(RpsLeaderboardSlashCommand),
                         guild.Fetched,
-                        leaderboard.Select(e => new SnowflakeId(e.user_id)).ToList());
+                        [.. leaderboard.Select(e => new SnowflakeId(e.user_id))]);
                 }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(

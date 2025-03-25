@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 
 public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository) : ISlashCommand<HeistProfileSlashCommand.Options>
 {
@@ -24,7 +24,7 @@ public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository
             async () =>
             {
                 var user = options.user.User;
-                var profile = (await heistStatsRepository.GetProfileAsync(user)) ?? new(0, 0, 0, 0);
+                var profile = await heistStatsRepository.GetProfileAsync(user) ?? new(0, 0, 0, 0);
 
                 var totalHeistPlayed = profile.heist_win_count + profile.heist_lose_count;
                 var winRate = totalHeistPlayed != 0 ? (decimal)profile.heist_win_count / totalHeistPlayed : 0;
