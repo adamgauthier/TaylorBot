@@ -41,7 +41,7 @@ public class LoveReadySlashCommand(
                     .WithGuildAsAuthor(guild)
                     .WithTitle("Members that are ready to spread love");
 
-                return new PageMessageResultBuilder(new(
+                return new PageMessageFactory(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,

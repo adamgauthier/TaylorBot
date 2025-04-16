@@ -32,7 +32,7 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
                     if (!isLegacyCommand)
                     {
                         return search.VideoUrls.Count > 0
-                            ? new PageMessageResultBuilder(new(
+                            ? new PageMessageFactory(new(
                                 new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
                                 IsCancellable: true
                             )).Build()

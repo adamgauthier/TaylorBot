@@ -59,7 +59,7 @@ public class TaypointsLeaderboardSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return new PageMessageFactory(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,

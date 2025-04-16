@@ -52,7 +52,7 @@ public class ImageSlashCommand(
                     }
                     else
                     {
-                        return new PageMessageResultBuilder(new(
+                        return new PageMessageFactory(new(
                             new(new CustomSearchImageEditor(search)),
                             IsCancellable: true
                         )).Build();

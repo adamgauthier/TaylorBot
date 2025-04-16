@@ -423,7 +423,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Egg Hunter Leaderboard 🥚");
 
-                return new PageMessageResultBuilder(new(
+                return new PageMessageFactory(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,

@@ -46,7 +46,7 @@ public class OwnerShowCouponsSlashCommand(
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Coupons 🎫");
 
-                return new PageMessageResultBuilder(new(
+                return new PageMessageFactory(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,

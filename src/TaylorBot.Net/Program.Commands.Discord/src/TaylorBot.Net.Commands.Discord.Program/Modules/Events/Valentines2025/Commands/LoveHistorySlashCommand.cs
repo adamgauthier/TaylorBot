@@ -50,7 +50,7 @@ public class LoveHistorySlashCommand(
                         .Select(lines => string.Join('\n', lines))
                         .ToList();
 
-                    return new PageMessageResultBuilder(new(
+                    return new PageMessageFactory(new(
                         new(new EmbedDescriptionTextEditor(
                             new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(user),
                             pages,

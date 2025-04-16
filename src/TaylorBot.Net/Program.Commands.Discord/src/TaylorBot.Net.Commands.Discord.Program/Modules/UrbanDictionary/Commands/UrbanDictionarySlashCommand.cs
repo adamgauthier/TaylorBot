@@ -28,7 +28,7 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
                 case UrbanDictionaryResult searchResult:
                     if (!isLegacyCommand)
                     {
-                        return new PageMessageResultBuilder(new(
+                        return new PageMessageFactory(new(
                             new(new UrbanDictionaryEditor(searchResult)),
                             IsCancellable: true
                         )).Build();

@@ -42,7 +42,7 @@ public class ServerLeaderboardSlashCommand(
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle(leaderboardData.Title);
 
-                return new PageMessageResultBuilder(new(
+                return new PageMessageFactory(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         leaderboardData.Pages,

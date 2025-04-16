@@ -44,7 +44,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandM
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Redeemed Coupons 🎫");
 
-                return new PageMessageResultBuilder(new(
+                return new PageMessageFactory(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
