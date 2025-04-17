@@ -1,6 +1,13 @@
 ﻿namespace TaylorBot.Net.Commands.Options;
 
-public record CommandApplicationOptions(Dictionary<string, CommandApplicationOptions.DailyLimit> DailyLimits)
+public class CommandApplicationOptions
 {
-    public record DailyLimit(string FriendlyName, uint MaxUsesForUser, uint? MaxUsesForPlusUser);
+    public Dictionary<string, DailyLimit> DailyLimits { get; set; } = null!;
+}
+
+public class DailyLimit
+{
+    public string FriendlyName { get; set; } = null!;
+    public uint MaxUsesForUser { get; set; }
+    public uint? MaxUsesForPlusUser { get; set; }
 }
