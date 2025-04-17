@@ -415,6 +415,14 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<LoveReadySlashCommand>()
             .AddSlashCommand<LoveSpreadSlashCommand>()
             .AddSlashCommand<LoveHistorySlashCommand>()
+            .AddTransient<IEggRepository, EggPostgresRepository>()
+            .AddTransient<EggService>()
+            .AddSlashCommand<EggVerifySlashCommand>()
+            .AddSlashCommand<EggProfileSlashCommand>()
+            .AddSlashCommand<EggStatusSlashCommand>()
+            .AddSlashCommand<EggLeaderboardSlashCommand>()
+            .AddSlashCommand<EggSetConfigSlashCommand>()
+            .AddSlashCommand<EggRunSlashCommand>()
             ;
 
         services.AddHttpClient<ILastFmClient, InflatableLastFmClient>();

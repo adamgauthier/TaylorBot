@@ -46,7 +46,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
         using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<Egg?>(
-            "SELECT egg_number FROM egghunt2024.eggs WHERE egg_code = @EggId;",
+            "SELECT egg_number FROM egghunt2025.eggs WHERE egg_code = @EggId;",
             new
             {
                 EggId = code,
@@ -61,8 +61,8 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
         var eggs = await connection.QueryAsync<Egg>(
             """
             SELECT eggs.egg_number
-            FROM egghunt2024.egg_finds
-            INNER JOIN egghunt2024.eggs ON egghunt2024.egg_finds.egg_number = egghunt2024.eggs.egg_number
+            FROM egghunt2025.egg_finds
+            INNER JOIN egghunt2025.eggs ON egghunt2025.egg_finds.egg_number = egghunt2025.eggs.egg_number
             WHERE user_id = @UserId;
             """,
             new
@@ -80,7 +80,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
 
         var inserted = await connection.QuerySingleOrDefaultAsync<bool>(
             """
-            INSERT INTO egghunt2024.egg_finds (egg_number, user_id, username)
+            INSERT INTO egghunt2025.egg_finds (egg_number, user_id, username)
             VALUES (@EggNumber, @UserId, @Username) ON CONFLICT DO NOTHING
             RETURNING TRUE;
             """,
@@ -112,7 +112,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
 
         await connection.ExecuteAsync(
             """
-            INSERT INTO egghunt2024.config (config_key, config_value)
+            INSERT INTO egghunt2025.config (config_key, config_value)
             VALUES (@Key, @Value)
             ON CONFLICT (config_key) DO UPDATE SET config_value = @Value;
             """,
@@ -129,7 +129,7 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
         using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<string?>(
-            "SELECT config_value FROM egghunt2024.config WHERE config_key = @Key;",
+            "SELECT config_value FROM egghunt2025.config WHERE config_key = @Key;",
             new
             {
                 Key = key,
@@ -144,8 +144,8 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
         var eggRarity = await connection.QueryAsync<EggRarity>(
             """
             SELECT e.egg_number, COUNT(ef.egg_number) AS found_by
-            FROM egghunt2024.eggs e
-            LEFT JOIN egghunt2024.egg_finds ef ON e.egg_number = ef.egg_number
+            FROM egghunt2025.eggs e
+            LEFT JOIN egghunt2025.egg_finds ef ON e.egg_number = ef.egg_number
             GROUP BY e.egg_number
             ORDER BY found_by DESC, egg_number ASC;
             """
@@ -163,8 +163,8 @@ public class EggPostgresRepository(PostgresConnectionFactory postgresConnectionF
             SELECT leaderboard.user_id, u.username, eggs_found, rank() OVER (ORDER BY eggs_found DESC) AS rank
             FROM (
                 SELECT ef.user_id, COUNT(ef.egg_number) AS eggs_found
-                FROM egghunt2024.egg_finds ef
-                JOIN egghunt2024.eggs e ON ef.egg_number = e.egg_number
+                FROM egghunt2025.egg_finds ef
+                JOIN egghunt2025.eggs e ON ef.egg_number = e.egg_number
                 GROUP BY ef.user_id
                 ORDER BY eggs_found DESC
                 LIMIT 75
