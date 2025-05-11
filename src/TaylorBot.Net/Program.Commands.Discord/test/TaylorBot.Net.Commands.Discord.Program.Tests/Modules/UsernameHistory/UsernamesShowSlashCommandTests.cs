@@ -1,5 +1,7 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -8,16 +10,25 @@ using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.UsernameHistory;
 
-public class UsernamesShowSlashCommandTests
+public class UsernamesShowSlashCommandTests : IAsyncDisposable
 {
     private readonly IUsernameHistoryRepository _usernameHistoryRepository = A.Fake<IUsernameHistoryRepository>(o => o.Strict());
     private readonly RunContext _runContext;
     private readonly UsernamesShowSlashCommand _command;
+    private readonly IMemoryCache _memoryCache;
 
     public UsernamesShowSlashCommandTests()
     {
-        _command = new UsernamesShowSlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner);
+        _memoryCache = new MemoryCache(A.Fake<IOptions<MemoryCacheOptions>>());
+        _command = new UsernamesShowSlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner, new(new(_memoryCache)));
         _runContext = CommandUtils.CreateTestContext(_command);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _memoryCache.Dispose();
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 
     [Fact]

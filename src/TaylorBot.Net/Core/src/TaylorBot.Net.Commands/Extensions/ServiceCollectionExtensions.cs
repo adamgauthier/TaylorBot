@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Instrumentation;
+using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.Parsers.Numbers;
@@ -53,6 +54,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<MessageComponentHandler>()
             .AddSingleton<ModalInteractionHandler>()
             .AddButtonHandler<GenericPromptCancelButtonHandler>()
+            .AddButtonHandler<GenericMessageDeleteButtonHandler>()
             .AddTransient<IInteractionCreatedHandler, InteractionCreatedHandler>()
             .AddSingleton<PageMessageReactionsHandler>()
             .AddTransient<IReactionAddedHandler>(c => c.GetRequiredService<PageMessageReactionsHandler>())
@@ -113,6 +115,12 @@ public static class ServiceCollectionExtensions
             .AddOptionParser<PositiveIntegerParser, ParsedPositiveInteger>()
             .AddOptionParser<AttachmentParser, ParsedAttachment>()
             .AddOptionParser<OptionalAttachmentParser, ParsedOptionalAttachment>()
+            .AddMemoryCache()
+            .AddTransient<PageOptionsInMemoryRepository>()
+            .AddTransient<PageMessageFactory>()
+            .AddButtonHandler<PagePreviousButtonHandler>()
+            .AddButtonHandler<PageNextButtonHandler>()
+            .AddButtonHandler<PageCancelButtonHandler>()
             ;
     }
 

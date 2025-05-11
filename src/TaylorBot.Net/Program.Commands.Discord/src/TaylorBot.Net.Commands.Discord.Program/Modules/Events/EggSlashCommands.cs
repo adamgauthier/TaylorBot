@@ -390,7 +390,7 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
     }
 }
 
-public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService eggService, CommandMentioner mention) : ISlashCommand<NoOptions>
+public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService eggService, CommandMentioner mention, PageMessageFactory pageMessageFactory) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "egg leaderboard";
 
@@ -423,7 +423,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Egg Hunter Leaderboard 🥚");
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -434,7 +434,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                             Start hunting and verify your eggs with {mention.SlashCommand("egg verify", context)}! 😊
                             """)),
                     IsCancellable: true
-                )).Build();
+                ));
             }
         ));
     }

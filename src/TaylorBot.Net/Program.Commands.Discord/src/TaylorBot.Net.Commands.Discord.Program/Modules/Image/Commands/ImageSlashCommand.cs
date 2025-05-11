@@ -13,7 +13,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 public class ImageSlashCommand(
     IRateLimiter rateLimiter,
     IImageSearchClient imageSearchClient,
-    PlusPrecondition.Factory plusPrecondition) : ISlashCommand<ImageSlashCommand.Options>
+    PlusPrecondition.Factory plusPrecondition,
+    PageMessageFactory pageMessageFactory) : ISlashCommand<ImageSlashCommand.Options>
 {
     public static string CommandName => "image";
 
@@ -52,10 +53,10 @@ public class ImageSlashCommand(
                     }
                     else
                     {
-                        return new PageMessageResultBuilder(new(
+                        return pageMessageFactory.Create(new(
                             new(new CustomSearchImageEditor(search)),
                             IsCancellable: true
-                        )).Build();
+                        ));
                     }
 
                 case DailyLimitExceeded _:

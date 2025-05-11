@@ -11,7 +11,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 
-public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistoryRepository, CommandMentioner mention) : ISlashCommand<UsernamesShowSlashCommand.Options>
+public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistoryRepository, CommandMentioner mention, PageMessageFactory pageMessageFactory) : ISlashCommand<UsernamesShowSlashCommand.Options>
 {
     public static string CommandName => "usernames show";
 
@@ -48,7 +48,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
 
                 if (context != null)
                 {
-                    return new PageMessageResultBuilder(new(
+                    return pageMessageFactory.Create(new(
                         new(new EmbedDescriptionTextEditor(
                             BuildBaseEmbed(),
                             pages,
@@ -59,7 +59,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
                                 """
                         )),
                         IsCancellable: true
-                    )).Build();
+                    ));
                 }
                 else
                 {

@@ -17,7 +17,7 @@ public partial interface ICouponRepository
     Task<IList<RedeemedCoupon>> GetRedeemedCouponsAsync(DiscordUser user);
 }
 
-public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
+public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandMentioner mention, PageMessageFactory pageMessageFactory) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "coupon show";
 
@@ -44,7 +44,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandM
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Redeemed Coupons 🎫");
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -55,7 +55,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandM
                             You can get coupon codes from events and redeem them with {mention.SlashCommand("coupon redeem", context)} for special rewards ✨
                             """
                     ))
-                )).Build();
+                ));
             }
         ));
     }

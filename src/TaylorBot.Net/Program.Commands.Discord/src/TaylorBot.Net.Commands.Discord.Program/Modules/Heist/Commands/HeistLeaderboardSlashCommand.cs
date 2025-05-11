@@ -18,6 +18,7 @@ public class HeistLeaderboardSlashCommand(
     IHeistStatsRepository heistStatsRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     CommandMentioner mention,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "heist leaderboard";
@@ -56,7 +57,7 @@ public class HeistLeaderboardSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -67,7 +68,7 @@ public class HeistLeaderboardSlashCommand(
                         Members need to use {mention.SlashCommand("heist play", context)}! 😊
                         """)),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

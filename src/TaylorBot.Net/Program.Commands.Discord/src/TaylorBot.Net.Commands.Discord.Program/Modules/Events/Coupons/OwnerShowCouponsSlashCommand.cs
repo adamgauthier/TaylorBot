@@ -11,7 +11,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
 
 public class OwnerShowCouponsSlashCommand(
     ICouponRepository couponRepository,
-    TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<OwnerShowCouponsSlashCommand.Options>
+    TaylorBotOwnerPrecondition ownerPrecondition,
+    PageMessageFactory pageMessageFactory) : ISlashCommand<OwnerShowCouponsSlashCommand.Options>
 {
     public static string CommandName => "owner showcoupons";
 
@@ -46,7 +47,7 @@ public class OwnerShowCouponsSlashCommand(
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle("Coupons 🎫");
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -56,7 +57,7 @@ public class OwnerShowCouponsSlashCommand(
                             No coupon data to display 😵
                             """
                     ))
-                )).Build();
+                ));
             },
             Preconditions: [ownerPrecondition]
         ));

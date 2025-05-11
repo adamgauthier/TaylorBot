@@ -1,7 +1,9 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -12,7 +14,7 @@ using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests;
 
-public class MediaModuleTests
+public class MediaModuleTests : IAsyncDisposable
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
@@ -20,6 +22,7 @@ public class MediaModuleTests
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IImageSearchClient _imageSearchClient = A.Fake<IImageSearchClient>(o => o.Strict());
     private readonly MediaModule _mediaModule;
+    private readonly IMemoryCache _memoryCache;
 
     public MediaModuleTests()
     {
@@ -27,11 +30,19 @@ public class MediaModuleTests
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddSingleton(A.Fake<IPlusRepository>(o => o.Strict()));
 
-        _mediaModule = new MediaModule(new SimpleCommandRunner(), new ImageSlashCommand(CommandUtils.UnlimitedRateLimiter, _imageSearchClient, new(services.BuildServiceProvider())));
+        _memoryCache = new MemoryCache(A.Fake<IOptions<MemoryCacheOptions>>());
+        _mediaModule = new MediaModule(new SimpleCommandRunner(), new ImageSlashCommand(CommandUtils.UnlimitedRateLimiter, _imageSearchClient, new(services.BuildServiceProvider()), new(new(_memoryCache))));
         _mediaModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _message.Channel).Returns(_channel);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _memoryCache.Dispose();
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 
     [Fact]

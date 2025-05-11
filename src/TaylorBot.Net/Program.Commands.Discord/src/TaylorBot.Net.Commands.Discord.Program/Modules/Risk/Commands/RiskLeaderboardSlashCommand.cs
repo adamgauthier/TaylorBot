@@ -17,6 +17,7 @@ public class RiskLeaderboardSlashCommand(
     IRiskStatsRepository riskStatsRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     CommandMentioner mention,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "risk leaderboard";
@@ -55,7 +56,7 @@ public class RiskLeaderboardSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -66,7 +67,7 @@ public class RiskLeaderboardSlashCommand(
                         Members need to use {mention.SlashCommand("risk play", context)}! 😊
                         """)),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

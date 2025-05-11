@@ -11,7 +11,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.C
 
 public class LoveReadySlashCommand(
     IValentinesRepository valentinesRepository,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
+    InGuildPrecondition.Factory inGuild,
+    PageMessageFactory pageMessageFactory) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "love ready";
 
@@ -41,14 +42,14 @@ public class LoveReadySlashCommand(
                     .WithGuildAsAuthor(guild)
                     .WithTitle("Members that are ready to spread love");
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
                         hasPageFooter: true,
                         emptyText: "There are no members ready to spread love! 😭"
                     ))
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

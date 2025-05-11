@@ -1,6 +1,8 @@
 ﻿using Discord;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
@@ -10,7 +12,7 @@ using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.UsernameHistory;
 
-public class UsernamesModuleTests
+public class UsernamesModuleTests : IAsyncDisposable
 {
     private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
@@ -18,15 +20,24 @@ public class UsernamesModuleTests
     private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IUsernameHistoryRepository _usernameHistoryRepository = A.Fake<IUsernameHistoryRepository>(o => o.Strict());
     private readonly UsernamesModule _usernamesModule;
+    private readonly IMemoryCache _memoryCache;
 
     public UsernamesModuleTests()
     {
-        _usernamesModule = new UsernamesModule(new SimpleCommandRunner(), new UsernamesShowSlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner));
+        _memoryCache = new MemoryCache(A.Fake<IOptions<MemoryCacheOptions>>());
+        _usernamesModule = new UsernamesModule(new SimpleCommandRunner(), new UsernamesShowSlashCommand(_usernameHistoryRepository, CommandUtils.Mentioner, new(new(_memoryCache))));
         _usernamesModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.CommandPrefix).Returns("!");
         A.CallTo(() => _message.Channel).Returns(_channel);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _memoryCache.Dispose();
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 
     [Fact]

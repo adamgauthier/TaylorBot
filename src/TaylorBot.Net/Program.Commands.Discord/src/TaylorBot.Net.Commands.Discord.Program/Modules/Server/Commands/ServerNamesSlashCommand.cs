@@ -11,6 +11,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 public class ServerNamesSlashCommand(
     IGuildNamesRepository guildNamesRepository,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild)
     : ISlashCommand<NoOptions>
 {
@@ -44,14 +45,14 @@ public class ServerNamesSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
                         hasPageFooter: true,
                         emptyText: "No server name recorded. 😵")),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [inGuild.Create()]
         ));

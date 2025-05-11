@@ -17,6 +17,7 @@ public class RpsLeaderboardSlashCommand(
     IRpsStatsRepository rpsStatsRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     CommandMentioner mention,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "rps leaderboard";
@@ -55,7 +56,7 @@ public class RpsLeaderboardSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -66,7 +67,7 @@ public class RpsLeaderboardSlashCommand(
                         Members need to use {mention.SlashCommand("rps play", context)}! 😊
                         """)),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

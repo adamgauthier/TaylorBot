@@ -12,7 +12,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
     private const byte ComponentDeferredUpdateMessageInteractionResponseType = 6;
     private const byte ModalInteractionResponseType = 9;
 
-    private sealed record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData? data)
+    public sealed record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData? data)
     {
         public sealed record InteractionApplicationCommandCallbackData(
             string? content = null,
@@ -186,30 +186,35 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         );
     }
 
-    private static InteractionResponse.Component[]? ToInteractionComponents(MessageResponse response)
+    public static InteractionResponse.Component[]? ToInteractionComponents(MessageResponse response)
     {
         if (response.Buttons != null)
         {
-            if (response.Buttons.Count == 0)
-            {
-                return [];
-            }
-
-            return [
-                InteractionResponse.Component.CreateActionRow([.. response.Buttons.Select(b =>
-                    InteractionResponse.Component.CreateButton(
-                        style: (byte)ToInteractionStyle(b.Style),
-                        label: b.Label,
-                        custom_id: b.Id,
-                        emoji: b.Emoji != null ? new(name: b.Emoji) : null
-                    )
-                )])
-            ];
+            return ToInteractionComponents(response.Buttons);
         }
         else
         {
             return null;
         }
+    }
+
+    public static InteractionResponse.Component[] ToInteractionComponents(IReadOnlyList<Button> buttons)
+    {
+        if (buttons.Count == 0)
+        {
+            return [];
+        }
+
+        return [
+            InteractionResponse.Component.CreateActionRow([.. buttons.Select(b =>
+                InteractionResponse.Component.CreateButton(
+                    style: (byte)ToInteractionStyle(b.Style),
+                    label: b.Label,
+                    custom_id: b.Id,
+                    emoji: b.Emoji != null ? new(name: b.Emoji) : null
+                )
+            )])
+        ];
     }
 
     private static InteractionButtonStyle ToInteractionStyle(ButtonStyle style)
@@ -285,10 +290,14 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
 
     private async ValueTask EditOriginalResponseAsync(string token, InteractionResponse.InteractionApplicationCommandCallbackData data)
     {
+        await PatchOriginalResponseAsync(token, data);
+    }
+
+    private async ValueTask PatchOriginalResponseAsync(string token, object data)
+    {
         var applicationInfo = await taylorBotClient.Value.DiscordShardedClient.GetApplicationInfoAsync();
 
         using var content = JsonContent.Create(data);
-
         var response = await httpClient.PatchAsync(
             $"webhooks/{applicationInfo.Id}/{token}/messages/@original",
             content
@@ -304,5 +313,10 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             $"webhooks/{applicationInfo.Id}/{component.Interaction.Token}/messages/@original"
         );
         await response.EnsureSuccessAsync(logger);
+    }
+
+    public async ValueTask PatchComponentsAsync(ParsedInteraction interaction, IReadOnlyList<InteractionResponse.Component> components)
+    {
+        await PatchOriginalResponseAsync(interaction.Token, new { components });
     }
 }

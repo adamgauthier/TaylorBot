@@ -17,6 +17,7 @@ public class RollLeaderboardSlashCommand(
     IRollStatsRepository rollStatsRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     CommandMentioner mention,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "roll leaderboard";
@@ -55,7 +56,7 @@ public class RollLeaderboardSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -66,7 +67,7 @@ public class RollLeaderboardSlashCommand(
                         Members need to use {mention.SlashCommand("roll play", context)}! 😊
                         """)),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

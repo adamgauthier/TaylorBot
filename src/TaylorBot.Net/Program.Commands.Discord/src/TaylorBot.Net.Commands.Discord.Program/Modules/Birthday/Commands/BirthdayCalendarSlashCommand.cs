@@ -12,7 +12,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
-public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository, MemberNotInGuildUpdater memberNotInGuildUpdater, CommandMentioner mention, InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
+public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository, MemberNotInGuildUpdater memberNotInGuildUpdater, CommandMentioner mention, InGuildPrecondition.Factory inGuild, PageMessageFactory pageMessageFactory) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "birthday calendar";
 
@@ -50,7 +50,7 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -62,7 +62,7 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                             """
                     )),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [inGuild.Create(botMustBeInGuild: true)]
         ));

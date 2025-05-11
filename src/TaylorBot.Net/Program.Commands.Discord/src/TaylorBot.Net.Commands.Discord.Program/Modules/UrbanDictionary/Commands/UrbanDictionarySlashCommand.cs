@@ -9,7 +9,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
 
-public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient, IRateLimiter rateLimiter)
+public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient, IRateLimiter rateLimiter, PageMessageFactory pageMessageFactory)
 {
     public static readonly CommandMetadata Metadata = new("urbandictionary", "Knowledge ❓", ["urban"]);
 
@@ -28,10 +28,10 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
                 case UrbanDictionaryResult searchResult:
                     if (!isLegacyCommand)
                     {
-                        return new PageMessageResultBuilder(new(
+                        return pageMessageFactory.Create(new(
                             new(new UrbanDictionaryEditor(searchResult)),
                             IsCancellable: true
-                        )).Build();
+                        ));
                     }
                     else
                     {
@@ -53,7 +53,7 @@ public class UrbanDictionaryCommand(IUrbanDictionaryClient urbanDictionaryClient
 
                 default:
                     throw new InvalidOperationException(result.GetType().Name);
-            };
+            }
         }
     );
 }

@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 
-public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rateLimiter) : ISlashCommand<YouTubeSlashCommand.Options>
+public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rateLimiter, PageMessageFactory pageMessageFactory) : ISlashCommand<YouTubeSlashCommand.Options>
 {
     public static string CommandName => "youtube";
 
@@ -31,12 +31,12 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
                 case SuccessfulSearch search:
                     if (!isLegacyCommand)
                     {
-                        return search.VideoUrls.Count > 0
-                            ? new PageMessageResultBuilder(new(
-                                new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
-                                IsCancellable: true
-                            )).Build()
-                            : new EmbedResult(EmbedFactory.CreateError("No YouTube video found for your search 😕"));
+                    return search.VideoUrls.Count > 0
+                        ? pageMessageFactory.Create(new(
+                            new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
+                            IsCancellable: true
+                        ))
+                        : new EmbedResult(EmbedFactory.CreateError("No YouTube video found for your search 😕"));
                     }
                     else
                     {

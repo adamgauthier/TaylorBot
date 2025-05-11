@@ -11,7 +11,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.C
 
 public class LoveHistorySlashCommand(
     IValentinesRepository valentinesRepository,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<LoveHistorySlashCommand.Options>
+    InGuildPrecondition.Factory inGuild,
+    PageMessageFactory pageMessageFactory) : ISlashCommand<LoveHistorySlashCommand.Options>
 {
     public static string CommandName => "love history";
 
@@ -50,14 +51,14 @@ public class LoveHistorySlashCommand(
                         .Select(lines => string.Join('\n', lines))
                         .ToList();
 
-                    return new PageMessageResultBuilder(new(
+                    return pageMessageFactory.Create(new(
                         new(new EmbedDescriptionTextEditor(
                             new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithUserAsAuthor(user),
                             pages,
                             hasPageFooter: true,
                             emptyText: "No love history 🤔"
                         ))
-                    )).Build();
+                    ));
                 }
                 else
                 {

@@ -14,6 +14,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 public class ServerTimelineSlashCommand(
     IServerJoinedRepository serverJoinedRepository,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "server timeline";
@@ -44,7 +45,7 @@ public class ServerTimelineSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -52,7 +53,7 @@ public class ServerTimelineSlashCommand(
                         emptyText: "No joined dates found in this server 😕"
                     )),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [inGuild.Create()]
         ));

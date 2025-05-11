@@ -16,6 +16,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 public class ServerLeaderboardSlashCommand(
     IServerActivityRepository serverActivityRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerLeaderboardSlashCommand.Options>
 {
     public static string CommandName => "server leaderboard";
@@ -42,7 +43,7 @@ public class ServerLeaderboardSlashCommand(
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithTitle(leaderboardData.Title);
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         leaderboardData.Pages,
@@ -50,7 +51,7 @@ public class ServerLeaderboardSlashCommand(
                         emptyText: "No data found in this server 😕"
                     )),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

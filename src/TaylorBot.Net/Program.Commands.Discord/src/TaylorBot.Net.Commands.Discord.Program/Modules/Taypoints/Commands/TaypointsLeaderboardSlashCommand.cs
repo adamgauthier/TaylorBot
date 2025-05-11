@@ -20,6 +20,7 @@ public class TaypointsLeaderboardSlashCommand(
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
     TaskExceptionLogger taskExceptionLogger,
+    PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "taypoints leaderboard";
@@ -59,7 +60,7 @@ public class TaypointsLeaderboardSlashCommand(
                     baseEmbed.WithGuildAsAuthor(guild.Fetched);
                 }
 
-                return new PageMessageResultBuilder(new(
+                return pageMessageFactory.Create(new(
                     new(new EmbedDescriptionTextEditor(
                         baseEmbed,
                         pages,
@@ -70,7 +71,7 @@ public class TaypointsLeaderboardSlashCommand(
                         Members should automatically get points over time! 😊
                         """)),
                     IsCancellable: true
-                )).Build();
+                ));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),

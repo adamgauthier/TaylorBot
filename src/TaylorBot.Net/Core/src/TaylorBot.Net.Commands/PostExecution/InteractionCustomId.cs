@@ -40,6 +40,10 @@ public enum CustomIdNames
     // 0-100 are reserved for generic ids
     Unknown = 0,
     GenericPromptCancel = 1,
+    GenericMessageDelete = 2,
+    PageMessagePrevious = 3,
+    PageMessageNext = 4,
+    PageMessageCancel = 5,
 
     ModMailUserMessageReply = 101,
     ModMailUserMessageReplyModal = 102,
