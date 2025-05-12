@@ -47,6 +47,11 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "succession",
+      "description": "Manage your taypoint succession (what happens to your points if you become inactive)",
+      "type": 1
     }
   ]
 }

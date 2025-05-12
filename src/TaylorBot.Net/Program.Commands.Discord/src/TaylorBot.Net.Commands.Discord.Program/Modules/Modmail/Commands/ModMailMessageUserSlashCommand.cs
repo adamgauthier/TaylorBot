@@ -113,8 +113,8 @@ public class ModMailUserMessageReplyModalHandler(
             submit.Interaction,
             message: new(new([embed.Build(), EmbedFactory.CreateWarning($"Are you sure you want to send the above message to {guildUser.FormatTagAndMention()}?")]),
             [
-                new(InteractionCustomId.Create(ModMailReplyConfirmButtonHandler.CustomIdName, submit.CustomId.DataEntries).RawId, Style: ButtonStyle.Success, Label: "Confirm"),
-                new(InteractionCustomId.Create(GenericPromptCancelButtonHandler.CustomIdName).RawId, Style: ButtonStyle.Danger, Label: "Cancel"),
+                new Button(InteractionCustomId.Create(ModMailReplyConfirmButtonHandler.CustomIdName, submit.CustomId.DataEntries).RawId, Style: ButtonStyle.Success, Label: "Confirm"),
+                new Button(InteractionCustomId.Create(GenericPromptCancelButtonHandler.CustomIdName).RawId, Style: ButtonStyle.Danger, Label: "Cancel"),
             ],
             IsPrivate: false));
     }

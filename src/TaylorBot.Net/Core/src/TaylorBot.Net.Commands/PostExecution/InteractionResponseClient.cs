@@ -12,86 +12,6 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
     private const byte ComponentDeferredUpdateMessageInteractionResponseType = 6;
     private const byte ModalInteractionResponseType = 9;
 
-    public sealed record InteractionResponse(byte type, InteractionResponse.InteractionApplicationCommandCallbackData? data)
-    {
-        public sealed record InteractionApplicationCommandCallbackData(
-            string? content = null,
-            IReadOnlyList<DiscordEmbed>? embeds = null,
-            byte? flags = null,
-            IReadOnlyList<Component>? components = null,
-            IReadOnlyList<Attachment>? attachments = null,
-            string? custom_id = null,
-            string? title = null
-        );
-
-        public sealed record Component(
-            byte type,
-            byte? style = null,
-            string? label = null,
-            Emoji? emoji = null,
-            string? custom_id = null,
-            string? url = null,
-            bool? disabled = null,
-            int? min_length = null,
-            int? max_length = null,
-            bool? required = null,
-            string? value = null,
-            string? placeholder = null,
-            IReadOnlyList<Component>? components = null,
-            IReadOnlyList<byte>? channel_types = null
-        )
-        {
-            public static Component CreateActionRow(IReadOnlyList<Component> components)
-            {
-                return new Component(1, components: components);
-            }
-
-            public static Component CreateButton(byte style, string label, string custom_id, Emoji? emoji = null, bool? disabled = null)
-            {
-                return new Component(
-                    2,
-                    style: style,
-                    label: label,
-                    custom_id: custom_id,
-                    emoji: emoji,
-                    disabled: disabled
-                );
-            }
-
-            public static Component CreateTextInput(string custom_id, byte style, string label, int? min_length = null, int? max_length = null, bool? required = null, string? value = null, string? placeholder = null)
-            {
-                return new Component(
-                    4,
-                    style: style,
-                    label: label,
-                    custom_id: custom_id,
-                    min_length: min_length,
-                    max_length: max_length,
-                    required: required,
-                    value: value,
-                    placeholder: placeholder
-                );
-            }
-
-            public static Component CreateChannelSelectMenu(string custom_id, IReadOnlyList<byte>? channel_types, string? placeholder = null, bool? disabled = null)
-            {
-                return CreateActionRow([new Component(
-                    8,
-                    channel_types: channel_types,
-                    custom_id: custom_id,
-                    placeholder: placeholder,
-                    disabled: disabled
-                )]);
-            }
-        };
-
-        public sealed record Attachment(int id, string filename, string? description = null);
-
-        public sealed record Emoji(string name);
-    }
-
-    private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
-    private enum InteractionTextInputStyle { Short = 1, Paragraph = 2 }
 
     public async ValueTask SendImmediateResponseAsync(ApplicationCommand command, MessageResponse message)
     {
@@ -140,7 +60,7 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
             InteractionResponse.Component.CreateActionRow([
                 InteractionResponse.Component.CreateTextInput(
                     custom_id: t.Id,
-                    style: (byte)ToInteractionStyle(t.Style),
+                    style: ToInteractionStyle(t.Style),
                     label: t.Label,
                     min_length: t.MinLength,
                     max_length: t.MaxLength,
@@ -177,56 +97,13 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         return new InteractionResponse.InteractionApplicationCommandCallbackData(
             content: response.Content.Content,
             embeds: [.. response.Content.Embeds.Select(InteractionMapper.ToInteractionEmbed)],
-            components: ToInteractionComponents(response),
+            components: response.Components,
             attachments: response.Content.Attachments?.Select((a, i) => new InteractionResponse.Attachment(
                 id: i,
                 filename: a.Filename
             )).ToList(),
             flags: response.IsPrivate ? 64 : null
         );
-    }
-
-    public static InteractionResponse.Component[]? ToInteractionComponents(MessageResponse response)
-    {
-        if (response.Buttons != null)
-        {
-            return ToInteractionComponents(response.Buttons);
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public static InteractionResponse.Component[] ToInteractionComponents(IReadOnlyList<Button> buttons)
-    {
-        if (buttons.Count == 0)
-        {
-            return [];
-        }
-
-        return [
-            InteractionResponse.Component.CreateActionRow([.. buttons.Select(b =>
-                InteractionResponse.Component.CreateButton(
-                    style: (byte)ToInteractionStyle(b.Style),
-                    label: b.Label,
-                    custom_id: b.Id,
-                    emoji: b.Emoji != null ? new(name: b.Emoji) : null
-                )
-            )])
-        ];
-    }
-
-    private static InteractionButtonStyle ToInteractionStyle(ButtonStyle style)
-    {
-        return style switch
-        {
-            ButtonStyle.Primary => InteractionButtonStyle.Primary,
-            ButtonStyle.Secondary => InteractionButtonStyle.Secondary,
-            ButtonStyle.Success => InteractionButtonStyle.Success,
-            ButtonStyle.Danger => InteractionButtonStyle.Danger,
-            _ => throw new ArgumentOutOfRangeException(nameof(style)),
-        };
     }
 
     private static InteractionTextInputStyle ToInteractionStyle(TextInputStyle style)

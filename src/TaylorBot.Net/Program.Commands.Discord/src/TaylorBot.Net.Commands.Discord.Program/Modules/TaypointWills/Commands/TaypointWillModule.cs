@@ -11,6 +11,7 @@ using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Time;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands;
 
@@ -31,7 +32,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
         {
             var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
-            var will = await taypointWillRepository.GetWillAsync(owner: u);
+            var will = await taypointWillRepository.GetWillAsync(owner: new(u));
 
             var embed = new EmbedBuilder().WithUserAsAuthor(u);
 
@@ -80,7 +81,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
         {
             var user = await mentionedUser.GetTrackedUserAsync();
 
-            var result = await taypointWillRepository.AddWillAsync(owner: Context.User, beneficiary: user);
+            var result = await taypointWillRepository.AddWillAsync(owner: new(Context.User), beneficiary: new(user));
 
             EmbedBuilder embed = new();
 
@@ -98,8 +99,9 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
                             If you change your mind at any time, you can use `{prefix}taypointwill clear` to remove them.
                             """);
                     break;
+
                 case WillNotAddedResult willNotAdded:
-                    var formattedBeneficiary = $"{willNotAdded.CurrentBeneficiaryUsername} ({MentionUtils.MentionUser(willNotAdded.CurrentBeneficiaryId.Id)})";
+                    var formattedBeneficiary = $"{willNotAdded.CurrentBeneficiaryUsername} ({MentionUtils.MentionUser(willNotAdded.CurrentBeneficiaryId)})";
                     embed
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(
@@ -125,7 +127,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var result = await taypointWillRepository.RemoveWillWithOwnerAsync(Context.User);
+            var result = await taypointWillRepository.RemoveWillWithOwnerAsync(new(Context.User));
 
             EmbedBuilder embed = new();
 
@@ -167,7 +169,8 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
     {
         var command = new Command(DiscordNetContextMapper.MapToCommandMetadata(Context), async () =>
         {
-            var wills = await taypointWillRepository.GetWillsWithBeneficiaryAsync(Context.User);
+            DiscordUser user = new(Context.User);
+            var wills = await taypointWillRepository.GetWillsWithBeneficiaryAsync(user);
 
             var isInactive = wills.ToLookup(r => r.OwnerLatestSpokeAt < DateTimeOffset.UtcNow.AddDays(-options.CurrentValue.DaysOfInactivityBeforeWillCanBeClaimed));
             var expiredWills = isInactive[true].ToList();
@@ -177,8 +180,8 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
             if (expiredWills.Count != 0)
             {
                 var ownerUserIds = expiredWills.Select(r => r.OwnerUserId).ToList();
-                var transfers = await taypointWillRepository.TransferAllPointsAsync(ownerUserIds, Context.User);
-                await taypointWillRepository.RemoveWillsWithBeneficiaryAsync(ownerUserIds, Context.User);
+                var transfers = await taypointWillRepository.TransferAllPointsAsync(ownerUserIds, user);
+                await taypointWillRepository.RemoveWillsWithBeneficiaryAsync(ownerUserIds, user);
                 var transfersTo = transfers.ToLookup(t => t.UserId.Id == Context.User.Id);
                 var receiver = transfersTo[true].Single();
                 var gifters = transfersTo[false].ToList();
@@ -191,7 +194,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
                     .WithDescription(string.Join("\n",
                         new[] { $"Successfully claimed {FormatTaypointQuantity(gainedPoints)}, you now have {receiver.TaypointCount.ToString(TaylorBotFormats.Readable)}." }
                         .Concat(gifters.Select(g =>
-                            $"Claimed {FormatTaypointQuantity(g.OriginalTaypointCount)} from {g.Username} ({MentionUtils.MentionUser(g.UserId.Id)})."
+                            $"Claimed {FormatTaypointQuantity(g.OriginalTaypointCount)} from {g.Username} ({MentionUtils.MentionUser(g.UserId)})."
                         ))
                     ).Truncate(EmbedBuilder.MaxDescriptionLength));
             }
@@ -203,7 +206,7 @@ public class TaypointWillModule(ICommandRunner commandRunner, IOptionsMonitor<Ta
                     .WithDescription(string.Join("\n",
                         new[] { $"None of the {"taypoint will".ToQuantity(wills.Count)} you are beneficiary of is ready to claim." }
                         .Concat(ongoingWills.Select(w =>
-                            $"{w.OwnerUsername} ({MentionUtils.MentionUser(w.OwnerUserId.Id)}) was active on {w.OwnerLatestSpokeAt.FormatShortUserDate(TaylorBotCulture.Culture)}."
+                            $"{w.OwnerUsername} ({MentionUtils.MentionUser(w.OwnerUserId)}) was active on {w.OwnerLatestSpokeAt.FormatShortUserDate(TaylorBotCulture.Culture)}."
                         ))
                     ).Truncate(EmbedBuilder.MaxDescriptionLength));
             }
