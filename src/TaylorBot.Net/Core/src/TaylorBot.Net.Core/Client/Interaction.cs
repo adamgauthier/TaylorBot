@@ -129,7 +129,7 @@ public class InteractionMapper
 
     private static DateTimeOffset ParseDate(string joined_at)
     {
-        return DateTimeOffset.Parse(joined_at);
+        return DateTimeOffset.Parse(joined_at, CultureInfo.InvariantCulture);
     }
 
     private static List<SnowflakeId> ParseRoleIds(IReadOnlyList<string> roles)

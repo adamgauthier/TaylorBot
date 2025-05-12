@@ -90,8 +90,8 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         public sealed record Emoji(string name);
     }
 
-    private enum InteractionButtonStyle { Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
-    private enum InteractionTextInputStyle { Short = 1, Paragraph = 2 }
+    public enum InteractionButtonStyle { Unknown = 0, Primary = 1, Secondary = 2, Success = 3, Danger = 4, Link = 5 }
+    public enum InteractionTextInputStyle { Unknown = 0, Short = 1, Paragraph = 2 }
 
     public async ValueTask SendImmediateResponseAsync(ApplicationCommand command, MessageResponse message)
     {
@@ -177,56 +177,13 @@ public class InteractionResponseClient(ILogger<InteractionResponseClient> logger
         return new InteractionResponse.InteractionApplicationCommandCallbackData(
             content: response.Content.Content,
             embeds: [.. response.Content.Embeds.Select(InteractionMapper.ToInteractionEmbed)],
-            components: ToInteractionComponents(response),
+            components: response.Components,
             attachments: response.Content.Attachments?.Select((a, i) => new InteractionResponse.Attachment(
                 id: i,
                 filename: a.Filename
             )).ToList(),
             flags: response.IsPrivate ? 64 : null
         );
-    }
-
-    public static InteractionResponse.Component[]? ToInteractionComponents(MessageResponse response)
-    {
-        if (response.Buttons != null)
-        {
-            return ToInteractionComponents(response.Buttons);
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public static InteractionResponse.Component[] ToInteractionComponents(IReadOnlyList<Button> buttons)
-    {
-        if (buttons.Count == 0)
-        {
-            return [];
-        }
-
-        return [
-            InteractionResponse.Component.CreateActionRow([.. buttons.Select(b =>
-                InteractionResponse.Component.CreateButton(
-                    style: (byte)ToInteractionStyle(b.Style),
-                    label: b.Label,
-                    custom_id: b.Id,
-                    emoji: b.Emoji != null ? new(name: b.Emoji) : null
-                )
-            )])
-        ];
-    }
-
-    private static InteractionButtonStyle ToInteractionStyle(ButtonStyle style)
-    {
-        return style switch
-        {
-            ButtonStyle.Primary => InteractionButtonStyle.Primary,
-            ButtonStyle.Secondary => InteractionButtonStyle.Secondary,
-            ButtonStyle.Success => InteractionButtonStyle.Success,
-            ButtonStyle.Danger => InteractionButtonStyle.Danger,
-            _ => throw new ArgumentOutOfRangeException(nameof(style)),
-        };
     }
 
     private static InteractionTextInputStyle ToInteractionStyle(TextInputStyle style)
