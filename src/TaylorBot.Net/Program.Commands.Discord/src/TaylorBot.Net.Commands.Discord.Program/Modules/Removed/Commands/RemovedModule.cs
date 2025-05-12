@@ -100,4 +100,26 @@ public class RemovedModule(ICommandRunner commandRunner) : TaylorBotModule
 
         return new TaylorBotResult(result, context);
     }
+
+    [Command("poll")]
+    [Alias("reactpoll", "rpoll")]
+    [Summary("This command has been removed, sorry! 😕")]
+    public async Task<RuntimeResult> ReactPollAsync(
+        [Remainder]
+        string? _ = null
+    )
+    {
+        Command command = new(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been removed, sorry! 😕
+                Polls are now natively supported by Discord! 🙏
+                """))));
+
+        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
+
+        return new TaylorBotResult(result, context);
+    }
 }

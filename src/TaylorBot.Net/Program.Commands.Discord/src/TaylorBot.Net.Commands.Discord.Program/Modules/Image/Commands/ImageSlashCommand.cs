@@ -1,6 +1,5 @@
 ﻿using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
-using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
@@ -24,13 +23,11 @@ public class ImageSlashCommand(
 
     public record Options(ParsedString search);
 
-    public Command Image(DiscordUser user, string text, bool isLegacyCommand) => new(
+    public Command Image(DiscordUser user, string text) => new(
         Metadata,
         async () =>
         {
-            var action = isLegacyCommand ? "custom-search-legacy" : "custom-search";
-
-            var result = await rateLimiter.VerifyDailyLimitAsync(user, action);
+            var result = await rateLimiter.VerifyDailyLimitAsync(user, "custom-search");
             if (result != null)
                 return result;
 
@@ -39,25 +36,9 @@ public class ImageSlashCommand(
             switch (searchResult)
             {
                 case SuccessfulSearch search:
-                    if (isLegacyCommand)
-                    {
-                        static EmbedBuilder BuildBaseEmbed() =>
-                            new EmbedBuilder()
-                                .WithColor(TaylorBotColors.SuccessColor)
-                                .WithDescription("Use </image:870731803739168860> instead! 😊");
-
-                        return new PageMessageResult(new PageMessage(new(
-                            new EmbedPageMessageRenderer(new CustomSearchImagePageEditor(search.Images), BuildBaseEmbed),
-                            Cancellable: true
-                        )));
-                    }
-                    else
-                    {
-                        return pageMessageFactory.Create(new(
-                            new(new CustomSearchImageEditor(search)),
-                            IsCancellable: true
-                        ));
-                    }
+                    return pageMessageFactory.Create(new(
+                        new(new CustomSearchImageEditor(search)),
+                        IsCancellable: true));
 
                 case DailyLimitExceeded _:
                     {
@@ -94,6 +75,6 @@ public class ImageSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Image(context.User, options.search.Value, isLegacyCommand: false));
+        return new(Image(context.User, options.search.Value));
     }
 }

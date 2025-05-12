@@ -66,6 +66,7 @@ public enum CustomIdNames
     MonitorMembersSetConfirm = 119,
     TaypointsGiftConfirm = 120,
     SignatureConfirm = 121,
+    ModMailMessageModsModal = 122,
 }
 
 public static class CustomIdExtensions

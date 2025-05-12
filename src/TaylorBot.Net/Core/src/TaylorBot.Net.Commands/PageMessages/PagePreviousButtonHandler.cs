@@ -23,7 +23,7 @@ public class PagePreviousButtonHandler(InteractionResponseClient responseClient,
             if (hasCancelButton)
             {
                 var cancelButton = PageMessageFactory.CreateCancelButton(button.CustomId.DataEntries);
-                await responseClient.PatchComponentsAsync(button.Interaction, ToInteractionComponents([cancelButton.Button]));
+                await responseClient.PatchComponentsAsync(button.Interaction, ToInteractionComponents([cancelButton]));
             }
             else
             {
@@ -34,8 +34,8 @@ public class PagePreviousButtonHandler(InteractionResponseClient responseClient,
 
         cached.Renderer.RenderPrevious();
         var pageMessage = pageMessageFactory.Create(cached);
-        ArgumentNullException.ThrowIfNull(pageMessage.Buttons);
+        ArgumentNullException.ThrowIfNull(pageMessage.Message.Buttons);
 
-        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(pageMessage.Content, [.. pageMessage.Buttons.Buttons.Select(b => b.Button)]));
+        await responseClient.EditOriginalResponseAsync(button.Interaction, message: pageMessage.Message);
     }
 }

@@ -10,13 +10,10 @@ using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Strings;
-using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Commands;
 
-public class ModMailMessageModsSlashCommand(
-    IOptionsMonitor<ModMailOptions> modMailOptions,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
+public class ModMailMessageModsSlashCommand(InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
     public static string CommandName => "modmail message-mods";
 
@@ -37,43 +34,57 @@ public class ModMailMessageModsSlashCommand(
                 ArgumentNullException.ThrowIfNull(guild);
 
                 return new(new CreateModalResult(
-                    Id: "modmail-message-mods",
+                    Id: InteractionCustomId.Create(ModMailMessageModsModalHandler.CustomIdName).RawId,
                     Title: "Send Message to Moderators",
                     TextInputs: [
                         new TextInput(Id: "subject", Style: TextInputStyle.Short, Label: "Subject", Required: false, MaxLength: 50),
                         new TextInput(Id: "messagecontent", Style: TextInputStyle.Paragraph, Label: "Message to moderators", Required: true)
-                    ],
-                    SubmitAction: SubmitAsync,
-                    IsPrivateResponse: true
-                ));
-
-                ValueTask<MessageResult> SubmitAsync(ModalSubmit submit)
-                {
-                    var subject = submit.TextInputs.Single(t => t.CustomId == "subject").Value;
-                    if (string.IsNullOrWhiteSpace(subject))
-                    {
-                        subject = "No Subject";
-                    }
-
-                    var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
-
-                    var embed = new EmbedBuilder()
-                        .WithColor(EmbedColor)
-                        .WithTitle(subject)
-                        .WithDescription(messageContent)
-                        .AddField("From", context.User.FormatTagAndMention(), inline: true)
-                        .WithFooter(EmbedFooterText, iconUrl: modMailOptions.CurrentValue.ReceivedLogEmbedFooterIconUrl)
-                        .WithCurrentTimestamp()
-                        .Build();
-
-                    return new(CreatePrompt(
-                        new([embed, EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of '{guild.Name}'?")]),
-                        InteractionCustomId.Create(ModMailMessageModsConfirmButtonHandler.CustomIdName)
-                    ));
-                }
+                    ]));
             },
             Preconditions: BuildPreconditions()
         ));
+    }
+}
+
+public class ModMailMessageModsModalHandler(
+    InteractionResponseClient responseClient,
+    IOptionsMonitor<ModMailOptions> modMailOptions,
+    ModMailMessageModsSlashCommand command) : IModalHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.ModMailMessageModsModal;
+
+    public ModalComponentHandlerInfo Info => new(IsPrivateResponse: true, Preconditions: command.BuildPreconditions());
+
+    public async Task HandleAsync(ModalSubmit submit)
+    {
+        var subject = submit.TextInputs.Single(t => t.CustomId == "subject").Value;
+        if (string.IsNullOrWhiteSpace(subject))
+        {
+            subject = "No Subject";
+        }
+
+        var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
+
+        var guild = submit.Interaction.Guild?.Id;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var embed = new EmbedBuilder()
+            .WithColor(ModMailMessageModsSlashCommand.EmbedColor)
+            .WithTitle(subject)
+            .WithDescription(messageContent)
+            .AddField("From", submit.Interaction.User.FormatTagAndMention(), inline: true)
+            .WithFooter(ModMailMessageModsSlashCommand.EmbedFooterText, iconUrl: modMailOptions.CurrentValue.ReceivedLogEmbedFooterIconUrl)
+            .WithCurrentTimestamp()
+            .Build();
+
+        await responseClient.EditOriginalResponseAsync(
+            submit.Interaction,
+            MessageResponse.CreatePrompt(
+                new([
+                    embed,
+                    EmbedFactory.CreateWarning($"Are you sure you want to send the above message to the moderation team of this server?")]),
+                InteractionCustomId.Create(ModMailMessageModsConfirmButtonHandler.CustomIdName))
+        );
     }
 }
 

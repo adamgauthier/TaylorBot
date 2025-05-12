@@ -7,34 +7,37 @@ using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
-using TaylorBot.Net.Commands.DiscordNet;
+using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using Xunit;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Tests;
+namespace TaylorBot.Net.Commands.Discord.Program.Tests.Modules.Image;
 
-public class MediaModuleTests : IAsyncDisposable
+public class ImageSlashCommandTests : IAsyncDisposable
 {
-    private readonly IUser _commandUser = A.Fake<IUser>();
     private readonly IUserMessage _message = A.Fake<IUserMessage>();
     private readonly IMessageChannel _channel = A.Fake<ITextChannel>();
-    private readonly ITaylorBotCommandContext _commandContext = A.Fake<ITaylorBotCommandContext>();
     private readonly IImageSearchClient _imageSearchClient = A.Fake<IImageSearchClient>(o => o.Strict());
-    private readonly MediaModule _mediaModule;
+    private readonly ImageSlashCommand _command;
     private readonly IMemoryCache _memoryCache;
+    private readonly RunContext _runContext;
 
-    public MediaModuleTests()
+    public ImageSlashCommandTests()
     {
         ServiceCollection services = new();
         services.AddSingleton(CommandUtils.Mentioner);
         services.AddSingleton(A.Fake<IPlusRepository>(o => o.Strict()));
 
         _memoryCache = new MemoryCache(A.Fake<IOptions<MemoryCacheOptions>>());
-        _mediaModule = new MediaModule(new SimpleCommandRunner(), new ImageSlashCommand(CommandUtils.UnlimitedRateLimiter, _imageSearchClient, new(services.BuildServiceProvider()), new(new(_memoryCache))));
-        _mediaModule.SetContext(_commandContext);
-        A.CallTo(() => _commandContext.Channel).Returns(_channel);
-        A.CallTo(() => _commandContext.User).Returns(_commandUser);
+        _command = new ImageSlashCommand(
+            CommandUtils.UnlimitedRateLimiter,
+            _imageSearchClient,
+            new(services.BuildServiceProvider()),
+            new(new(_memoryCache))
+        );
+        _runContext = CommandUtils.CreateTestContext(_command);
+
         A.CallTo(() => _message.Channel).Returns(_channel);
     }
 
@@ -46,18 +49,19 @@ public class MediaModuleTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task ImageAsync_WhenDailyLimitExceeded_ThenReturnsErrorEmbed()
+    public async Task GetCommandAsync_WhenDailyLimitExceeded_ThenReturnsErrorEmbed()
     {
         const string Text = "taylor swift";
         A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new DailyLimitExceeded());
 
-        var result = (await _mediaModule.ImageAsync(Text)).GetResult<EmbedResult>();
+        var command = await _command.GetCommandAsync(_runContext, new(new ParsedString(Text)));
+        var result = (await command.RunAsync()).Should().BeOfType<EmbedResult>().Which;
 
         result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
     }
 
     [Fact]
-    public async Task ImageAsync_ThenReturnsSuccessEmbed()
+    public async Task GetCommandAsync_ThenReturnsSuccessEmbed()
     {
         const string Text = "taylor swift";
         A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new SuccessfulSearch(
@@ -72,21 +76,22 @@ public class MediaModuleTests : IAsyncDisposable
             SearchTimeSeconds: "5"
         ));
 
-        var result = (await _mediaModule.ImageAsync(Text)).GetResult<PageMessageResult>();
-        using var _ = await result.PageMessage.SendAsync(_commandUser, _message);
+        var command = await _command.GetCommandAsync(_runContext, new(new ParsedString(Text)));
+        var result = (await command.RunAsync()).Should().BeOfType<MessageResult>().Which;
 
-        A.CallTo(() => _channel.SendMessageAsync(
-            null,
-            false,
-            A<Embed>.That.Matches(e => e.Color == TaylorBotColors.SuccessColor),
-            null,
-            A<AllowedMentions>.Ignored,
-            A<MessageReference>.Ignored,
-            null,
-            null,
-            null,
-            MessageFlags.None,
-            null
-        )).MustHaveHappenedOnceExactly();
+        result.Message.Content.Embeds.Should().ContainSingle().Which
+            .Color.Should().Be(TaylorBotColors.SuccessColor);
+    }
+
+    [Fact]
+    public async Task GetCommandAsync_WhenGenericError_ThenReturnsErrorEmbed()
+    {
+        const string Text = "taylor swift";
+        A.CallTo(() => _imageSearchClient.SearchImagesAsync(Text)).Returns(new GenericError(new NotImplementedException()));
+
+        var command = await _command.GetCommandAsync(_runContext, new(new ParsedString(Text)));
+        var result = (await command.RunAsync()).Should().BeOfType<EmbedResult>().Which;
+
+        result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
     }
 }

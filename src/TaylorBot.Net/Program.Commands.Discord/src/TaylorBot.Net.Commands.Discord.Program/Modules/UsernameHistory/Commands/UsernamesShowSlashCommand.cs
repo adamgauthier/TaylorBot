@@ -1,6 +1,5 @@
 ﻿using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Domain;
-using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
@@ -19,7 +18,7 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Show(DiscordUser user, RunContext? context = null) => new(
+    public Command Show(DiscordUser user, RunContext context) => new(
         new(Info.Name),
         async () =>
         {
@@ -46,27 +45,17 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
                     .Select(lines => string.Join('\n', lines))
                     .ToList();
 
-                if (context != null)
-                {
-                    return pageMessageFactory.Create(new(
-                        new(new EmbedDescriptionTextEditor(
-                            BuildBaseEmbed(),
-                            pages,
-                            hasPageFooter: true,
-                            emptyText:
-                                """
-                                No username history for this user 🤔
-                                """
-                        )),
-                        IsCancellable: true
-                    ));
-                }
-                else
-                {
-                    return new PageMessageResult(new PageMessage(new(
-                        new EmbedPageMessageRenderer(new DescriptionPageEditor(pages), BuildBaseEmbed)
-                    )));
-                }
+                return pageMessageFactory.Create(new(
+                    new(new EmbedDescriptionTextEditor(
+                        BuildBaseEmbed(),
+                        pages,
+                        hasPageFooter: true,
+                        emptyText:
+                            """
+                            No username history for this user 🤔
+                            """
+                    )),
+                    IsCancellable: true));
             }
         }
     );

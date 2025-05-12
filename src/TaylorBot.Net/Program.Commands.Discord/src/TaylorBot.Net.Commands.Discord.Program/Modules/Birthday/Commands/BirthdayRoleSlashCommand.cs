@@ -8,7 +8,6 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
-using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Commands;
 
@@ -51,7 +50,7 @@ public class BirthdayRoleSlashCommand(
                     var role = guild.GetRole(new SnowflakeId(roleId));
                     if (role != null)
                     {
-                        return new MessageResult(
+                        return new MessageResult(new(
                             new(new EmbedBuilder()
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithGuildAsAuthor(guild)
@@ -61,14 +60,11 @@ public class BirthdayRoleSlashCommand(
                                     {HowItWorks(context)}
                                     """)
                                 .Build()),
-                            new([new ButtonResult(
-                                new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"),
-                                _ => throw new NotImplementedException()
-                            )], new PermanentButtonSettings()));
+                            [new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️")]));
                     }
                     else
                     {
-                        return new MessageResult(
+                        return new MessageResult(new(
                             new(new EmbedBuilder()
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithGuildAsAuthor(guild)
@@ -78,21 +74,15 @@ public class BirthdayRoleSlashCommand(
                                     What do you want to do? 🤔
                                     """)
                                 .Build()),
-                            new([
-                                new ButtonResult(
-                                    new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Re-create birthday role", Emoji: "🎂"),
-                                    _ => throw new NotImplementedException()
-                                ),
-                                new ButtonResult(
-                                    new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"),
-                                    _ => throw new NotImplementedException()
-                                ),
-                            ], new PermanentButtonSettings()));
+                            [
+                                new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Re-create birthday role", Emoji: "🎂"),
+                                new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️"),
+                            ]));
                     }
                 }
                 else
                 {
-                    return new MessageResult(
+                    return new MessageResult(new(
                         new(new EmbedBuilder()
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithGuildAsAuthor(guild)
@@ -103,10 +93,9 @@ public class BirthdayRoleSlashCommand(
                                 {HowItWorks(context)}
                                 """)
                             .Build()),
-                        new([new ButtonResult(
-                            new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂"),
-                            _ => throw new NotImplementedException()
-                        )], new PermanentButtonSettings()));
+                        [
+                            new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂")
+                        ]));
                 }
             },
             Preconditions: BuildPreconditions()

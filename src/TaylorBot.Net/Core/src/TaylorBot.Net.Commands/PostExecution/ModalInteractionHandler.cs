@@ -31,16 +31,12 @@ public interface IModalHandler : IModalComponentHandler
     abstract static CustomIdNames CustomIdName { get; }
 }
 
-public record ModalCallback(Func<ModalSubmit, ValueTask> SubmitAsync, bool IsPrivateResponse);
-
 public class ModalInteractionHandler(
     IServiceProvider services,
     ILogger<ModalInteractionHandler> logger,
     ICommandRunner commandRunner,
     RunContextFactory contextFactory)
 {
-    private readonly Dictionary<string, ModalCallback> _callbacks = [];
-
     private InteractionResponseClient CreateInteractionClient() => services.GetRequiredService<InteractionResponseClient>();
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
@@ -52,33 +48,12 @@ public class ModalInteractionHandler(
             if (handler != null)
             {
                 await CreateInteractionClient().SendAckResponseWithLoadingMessageAsync(submit, handler.Info.IsPrivateResponse);
-
                 logger.LogInformation("Handling modal component {ParsedName} with id {RawId}", submit.CustomId.ParsedName, submit.CustomId.RawId);
 
-                Command command = new(
-                    new($"{submit.CustomId.ParsedName}", IsSlashCommand: false),
-                    RunAsync: async () =>
-                    {
-                        await handler.HandleAsync(submit);
-                        return new EmptyResult();
-                    },
-                    Preconditions: handler.Info.Preconditions);
-                var context = contextFactory.BuildContext(submit.Interaction, activity, wasAcknowledged: true);
-
-                var result = await commandRunner.RunInteractionAsync(command, context);
-                switch (result)
+                var messageResponse = await RunInteractionAsync(activity, submit, handler);
+                if (messageResponse != null)
                 {
-                    case EmptyResult _:
-                        break;
-
-                    case PreconditionFailed failed:
-                        logger.LogWarning("Precondition failed running modal command {CommandName}: {Error}", command.Metadata.Name, failed.PrivateReason);
-                        await CreateInteractionClient().EditOriginalResponseAsync(submit.Interaction, message: new(EmbedFactory.CreateError(failed.UserReason.Reason)));
-                        break;
-
-                    default:
-                        logger.LogWarning("Unhandled result running modal command {CommandName}: {Result}", command.Metadata.Name, result.GetType().FullName);
-                        break;
+                    await CreateInteractionClient().EditOriginalResponseAsync(submit.Interaction, message: messageResponse);
                 }
             }
             else
@@ -86,15 +61,47 @@ public class ModalInteractionHandler(
                 logger.LogWarning("Modal create without handler: {Interaction}", interaction);
             }
         }
-        else if (_callbacks.TryGetValue(submit.CustomId.RawId, out var callback))
-        {
-            await CreateInteractionClient().SendAckResponseWithLoadingMessageAsync(submit, callback.IsPrivateResponse);
-
-            await callback.SubmitAsync(submit);
-        }
         else
         {
             logger.LogWarning("Modal create without callback: {Interaction}", interaction);
+        }
+    }
+
+    private async Task<MessageResponse?> RunInteractionAsync(CommandActivity activity, ModalSubmit submit, IModalComponentHandler handler)
+    {
+        Command command = new(
+            new($"{submit.CustomId.ParsedName}", IsSlashCommand: false),
+            RunAsync: async () =>
+            {
+                await handler.HandleAsync(submit);
+                // We're letting the handler use InteractionResponseClient directly
+                return new EmptyResult();
+            },
+            Preconditions: handler.Info.Preconditions);
+
+        var context = contextFactory.BuildContext(submit.Interaction, activity, wasAcknowledged: true);
+
+        try
+        {
+            var result = await commandRunner.RunInteractionAsync(command, context);
+
+            switch (result)
+            {
+                case EmptyResult:
+                    return null;
+
+                case PreconditionFailed failed:
+                    return new(EmbedFactory.CreateError(failed.UserReason.Reason));
+
+                default:
+                    logger.LogWarning("Unhandled result running modal command {CommandName}: {Result}", command.Metadata.Name, result.GetType().FullName);
+                    return null;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Interaction.Id);
+            return new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that 😕"));
         }
     }
 
@@ -119,15 +126,5 @@ public class ModalInteractionHandler(
                     return new TextInputSubmit(component.custom_id, component.value);
                 })]
         );
-    }
-
-    public void AddCallback(string customId, ModalCallback callback)
-    {
-        _callbacks.Add(customId, callback);
-    }
-
-    public void RemoveCallback(string customId)
-    {
-        _callbacks.Remove(customId);
     }
 }

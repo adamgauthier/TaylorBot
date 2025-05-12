@@ -103,9 +103,10 @@ public class RecapSlashCommand(
                         Here's your 2024 recap **designed by Adam & FullyCustom** 🖌️
                         Submit your [Yearbook](https://discord.com/channels/115332333745340416/123150327456333824/1312535164714483793) signature with **/signature** if you haven't 😊
                         """)
-                    .WithImageUrl($"attachment://{filename}");
+                    .WithImageUrl($"attachment://{filename}")
+                    .Build();
 
-                return new MessageResult(new([embed.Build()], Attachments: [new Attachment(imageStream, filename)]));
+                return new MessageResult(new(new MessageContent([embed], Attachments: [new(imageStream, filename)])));
             },
             Preconditions: [inGuild.Create()]
         ));

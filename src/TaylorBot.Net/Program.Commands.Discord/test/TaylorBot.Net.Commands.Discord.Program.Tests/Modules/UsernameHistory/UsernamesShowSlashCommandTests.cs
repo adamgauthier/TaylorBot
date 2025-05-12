@@ -54,7 +54,7 @@ public class UsernamesShowSlashCommandTests : IAsyncDisposable
 
         var result = (MessageResult)await (await _command.GetCommandAsync(_runContext, new(new(_runContext.User)))).RunAsync();
 
-        result.Content.Embeds.Should().ContainSingle().Which
+        result.Message.Content.Embeds.Should().ContainSingle().Which
             .Description.Should().Contain(AUsername);
     }
 }

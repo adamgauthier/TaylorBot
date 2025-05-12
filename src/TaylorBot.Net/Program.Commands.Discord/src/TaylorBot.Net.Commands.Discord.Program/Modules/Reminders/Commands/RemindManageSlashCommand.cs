@@ -6,7 +6,6 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Time;
-using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 
@@ -41,26 +40,30 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository, Co
                 var clearButtons = reminderViews.Select(r =>
                 {
                     List<CustomIdDataEntry> clearData = [new("rem", $"{r.Domain.Id:N}")];
-                    return new ButtonResult(
-                        new Button(Id: InteractionCustomId.Create(RemindManageClearButtonHandler.CustomIdName, clearData).RawId, ButtonStyle.Danger, Label: $"Clear #{r.UserFacingId}", Emoji: "🗑"),
-                        _ => throw new NotImplementedException()
+                    return new Button(
+                        Id: InteractionCustomId.Create(RemindManageClearButtonHandler.CustomIdName, clearData).RawId,
+                        ButtonStyle.Danger,
+                        Label: $"Clear #{r.UserFacingId}",
+                        Emoji: "🗑"
                     );
                 });
-                ButtonResult clearAllButton = new(
-                    new Button(Id: InteractionCustomId.Create(RemindManageClearAllButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Clear all", Emoji: "🗑"),
-                    _ => throw new NotImplementedException()
+                Button clearAllButton = new(
+                    Id: InteractionCustomId.Create(RemindManageClearAllButtonHandler.CustomIdName).RawId,
+                    ButtonStyle.Danger,
+                    Label: "Clear all",
+                    Emoji: "🗑"
                 );
 
-                return new MessageResult(
+                return new MessageResult(new(
                     new(new EmbedBuilder()
                         .WithColor(TaylorBotColors.SuccessColor)
                         .WithTitle("Your Reminders ⏲️")
                         .WithDescription(content)
                         .Build()),
                     reminderViews.Count > 0
-                        ? new(clearButtons.Append(clearAllButton).ToList(), new PermanentButtonSettings())
+                        ? clearButtons.Append(clearAllButton).ToList()
                         : null
-                );
+                ));
             }
         ));
     }
@@ -92,6 +95,6 @@ public class RemindManageClearAllButtonHandler(InteractionResponseClient respons
     {
         await reminderRepository.ClearAllRemindersAsync(context.User);
 
-        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(new(EmbedFactory.CreateSuccess("All your reminders have been cleared 👍")), []));
+        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(new(EmbedFactory.CreateSuccess("All your reminders have been cleared ��")), []));
     }
 }

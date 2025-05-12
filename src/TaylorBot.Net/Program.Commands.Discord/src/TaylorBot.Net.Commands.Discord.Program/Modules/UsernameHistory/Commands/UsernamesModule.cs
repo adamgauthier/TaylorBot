@@ -1,7 +1,5 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Types;
 using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Commands;
@@ -9,31 +7,34 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UsernameHistory.Command
 [Name("Usernames 🏷️")]
 [Group("usernames")]
 [Alias("names")]
-public class UsernamesModule(ICommandRunner commandRunner, UsernamesShowSlashCommand usernamesShowCommand) : TaylorBotModule
+public class UsernamesModule(ICommandRunner commandRunner) : TaylorBotModule
 {
     [Priority(-1)]
     [Command]
-    [Summary("Gets a list of previous usernames for a user.")]
+    [Summary("This command has been moved to 👉 </usernames show:1214813880463921242> 👈 Please use it instead! 😊")]
     public async Task<RuntimeResult> GetAsync(
-        [Summary("What user would you like to see the username history of?")]
         [Remainder]
-        IUserArgument<IUser>? user = null
-    )
+        string? _ = null)
     {
-        var u = user == null ? Context.User : await user.GetTrackedUserAsync();
+        Command command = new(
+            DiscordNetContextMapper.MapToCommandMetadata(Context),
+            () => new(new EmbedResult(EmbedFactory.CreateError(
+                """
+                This command has been moved to 👉 </usernames show:1214813880463921242> 👈
+                Please use it instead! 😊
+                """))));
 
         var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(
-            usernamesShowCommand.Show(new(u)),
-            context
-        );
+        var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("private")]
     [Summary("This command has been moved to 👉 </usernames visibility:1214813880463921242> 👈 Please use it instead! 😊")]
-    public async Task<RuntimeResult> PrivateAsync()
+    public async Task<RuntimeResult> PrivateAsync(
+        [Remainder]
+        string? _ = null)
     {
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
@@ -51,7 +52,9 @@ public class UsernamesModule(ICommandRunner commandRunner, UsernamesShowSlashCom
 
     [Command("public")]
     [Summary("This command has been moved to 👉 </usernames visibility:1214813880463921242> 👈 Please use it instead! 😊")]
-    public async Task<RuntimeResult> PublicAsync()
+    public async Task<RuntimeResult> PublicAsync(
+        [Remainder]
+        string? _ = null)
     {
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),

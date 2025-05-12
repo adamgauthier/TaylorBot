@@ -58,10 +58,7 @@ public class ModMailMessageUserSlashCommand(
         return new(
             Id: InteractionCustomId.Create(ModMailUserMessageReplyModalHandler.CustomIdName, data).RawId,
             Title: "Send Mod Mail to User",
-            TextInputs: [new TextInput(Id: "messagecontent", TextInputStyle.Paragraph, Label: "Message to user")],
-            SubmitAction: null,
-            IsPrivateResponse: true
-        );
+            TextInputs: [new TextInput(Id: "messagecontent", TextInputStyle.Paragraph, Label: "Message to user")]);
     }
 }
 

@@ -59,7 +59,6 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Plus.Infrastructure;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Poll.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Reminders.Domain;
@@ -202,6 +201,7 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<ModMailMessageModsSlashCommand>()
             .AddButtonHandler<ModMailMessageModsConfirmButtonHandler>()
             .AddButtonHandler<ModMailUserMessageReplyButtonHandler>()
+            .AddModalHandler<ModMailMessageModsModalHandler>()
             .AddModalHandler<ModMailUserMessageReplyModalHandler>()
             .AddButtonHandler<ModMailReplyConfirmButtonHandler>()
             .AddTransient<IModMailBlockedUsersRepository, ModMailBlockedUsersPostgresRepository>()
@@ -288,7 +288,6 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<BirthdayRoleSlashCommand>()
             .AddButtonHandler<BirthdayRoleCreateButtonHandler>()
             .AddButtonHandler<BirthdayRoleRemoveButtonHandler>()
-            .AddTransient<UrbanDictionaryCommand>()
             .AddSlashCommand<UrbanDictionarySlashCommand>()
             .ConfigureRequired<WolframAlphaOptions>(config, "WolframAlpha")
             .AddSlashCommand<WolframAlphaSlashCommand>()
@@ -301,7 +300,6 @@ public static class DiscordCommandsProgram
             .AddTransient<TaypointGuildCacheUpdater>()
             .AddSlashCommand<TaypointsBalanceSlashCommand>()
             .AddSlashCommand<TaypointsLeaderboardSlashCommand>()
-            .AddSlashCommand<PollSlashCommand>()
             .AddSlashCommand<ModSpamAddSlashCommand>()
             .AddSlashCommand<ModSpamRemoveSlashCommand>()
             .AddTransient<ITaypointTransferRepository, TaypointTransferPostgresRepository>()

@@ -5,13 +5,9 @@
   "CommandApplication": {
     "DailyLimits": {
       "custom-search": {
-        "FriendlyName": "Searching images (slash command)",
-        "MaxUsesForUser": 4,
-        "MaxUsesForPlusUser": 7
-      },
-      "custom-search-legacy": {
-        "FriendlyName": "Searching images (prefix command)",
-        "MaxUsesForUser": 3
+        "FriendlyName": "Searching images",
+        "MaxUsesForUser": 7,
+        "MaxUsesForPlusUser": 10
       },
       "google-places-search": {
         "FriendlyName": "Searching a location on Google Maps",
@@ -25,24 +21,20 @@
       },
       "youtube-search": {
         "FriendlyName": "Searching YouTube (slash command)",
-        "MaxUsesForUser": 8,
-        "MaxUsesForPlusUser": 18
+        "MaxUsesForUser": 9,
+        "MaxUsesForPlusUser": 19
       },
       "youtube-search-legacy": {
         "FriendlyName": "Searching YouTube (prefix command)",
-        "MaxUsesForUser": 2
+        "MaxUsesForUser": 1
       },
       "horoscope": {
         "FriendlyName": "Fetching an horoscope",
         "MaxUsesForUser": 20
       },
-      "urbandictionary-search-legacy": {
-        "FriendlyName": "Searching UrbanDictionary (prefix command)",
-        "MaxUsesForUser": 1
-      },
       "urbandictionary-search": {
-        "FriendlyName": "Searching UrbanDictionary (slash command)",
-        "MaxUsesForUser": 99
+        "FriendlyName": "Searching UrbanDictionary",
+        "MaxUsesForUser": 100
       },
       "wolframalpha-query": {
         "FriendlyName": "Querying WolframAlpha",

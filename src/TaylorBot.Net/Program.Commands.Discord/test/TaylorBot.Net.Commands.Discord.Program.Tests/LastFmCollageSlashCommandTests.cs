@@ -65,7 +65,7 @@ public class LastFmCollageSlashCommandTests : IAsyncDisposable
         var command = await _lastFmCollageSlashCommand.GetCommandAsync(null!, new(null, new(null), new(_commandUser)));
         var result = (MessageResult)await command.RunAsync();
 
-        result.Content.Embeds[0].Image.Should().NotBeNull();
+        result.Message.Content.Embeds[0].Image.Should().NotBeNull();
     }
 
     public class AlwaysSucceedHttpMessageHandler : HttpMessageHandler

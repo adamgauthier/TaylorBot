@@ -62,9 +62,10 @@ public class LastFmCollageSlashCommand(
                         url: lastFmUsername.LinkToProfile
                     )
                     .WithTitle($"Collage {size.Parsed}x{size.Parsed} | {lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
-                    .WithImageUrl($"attachment://{filename}");
+                    .WithImageUrl($"attachment://{filename}")
+                    .Build();
 
-                return new MessageResult(new([embed.Build()], Attachments: [new Attachment(collage, filename)]));
+                return new MessageResult(new(new MessageContent([embed], Attachments: [new(collage, filename)])));
             }
         ));
     }

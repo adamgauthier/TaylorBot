@@ -14,43 +14,37 @@ public class PageMessageFactory(PageOptionsInMemoryRepository repository)
 {
     public MessageResult Create(PageOptions options)
     {
-        List<ButtonResult> _buttons = [];
+        List<Button> buttons = [];
 
         if (options.Renderer.HasMultiplePages)
         {
-            ButtonResult previousButton = new(
-                new(
-                    InteractionCustomId.Create(CustomIdNames.PageMessagePrevious, options.CustomIdData).RawId,
-                    ButtonStyle.Primary, Label: "Previous", Emoji: "◀"),
-                _ => throw new NotImplementedException()
+            Button previousButton = new(
+                InteractionCustomId.Create(CustomIdNames.PageMessagePrevious, options.CustomIdData).RawId,
+                ButtonStyle.Primary, Label: "Previous", Emoji: "◀"
             );
 
-            ButtonResult nextButton = new(
-                new(
-                    InteractionCustomId.Create(CustomIdNames.PageMessageNext, options.CustomIdData).RawId,
-                    ButtonStyle.Primary, Label: "Next", Emoji: "▶"),
-                _ => throw new NotImplementedException()
+            Button nextButton = new(
+                InteractionCustomId.Create(CustomIdNames.PageMessageNext, options.CustomIdData).RawId,
+                ButtonStyle.Primary, Label: "Next", Emoji: "▶"
             );
 
-            _buttons.AddRange([previousButton, nextButton]);
+            buttons.AddRange([previousButton, nextButton]);
         }
 
         if (options.IsCancellable)
         {
-            _buttons.Add(CreateCancelButton(options.CustomIdData));
+            buttons.Add(CreateCancelButton(options.CustomIdData));
         }
 
         repository.Register(options);
-        return new(options.Renderer.Render(), new(_buttons, new PermanentButtonSettings()));
+        return new(new(options.Renderer.Render(), buttons));
     }
 
-    public static ButtonResult CreateCancelButton(IList<CustomIdDataEntry> customIdData)
+    public static Button CreateCancelButton(IList<CustomIdDataEntry> customIdData)
     {
         return new(
-            new(
-                InteractionCustomId.Create(CustomIdNames.PageMessageCancel, customIdData).RawId,
-                ButtonStyle.Danger, Label: "Cancel", Emoji: "🗑"),
-            _ => throw new NotImplementedException()
+            InteractionCustomId.Create(CustomIdNames.PageMessageCancel, customIdData).RawId,
+            ButtonStyle.Danger, Label: "Cancel", Emoji: "🗑"
         );
     }
 }
