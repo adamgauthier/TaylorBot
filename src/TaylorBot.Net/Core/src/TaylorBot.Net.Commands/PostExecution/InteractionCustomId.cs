@@ -67,6 +67,10 @@ public enum CustomIdNames
     TaypointsGiftConfirm = 120,
     SignatureConfirm = 121,
     ModMailMessageModsModal = 122,
+    TaypointsSuccessionClaim = 123,
+    TaypointsSuccessionClaimSkip = 124,
+    TaypointsSuccessionChangeSuccessor = 125,
+    TaypointsSuccessionClearSuccessor = 126,
 }
 
 public static class CustomIdExtensions

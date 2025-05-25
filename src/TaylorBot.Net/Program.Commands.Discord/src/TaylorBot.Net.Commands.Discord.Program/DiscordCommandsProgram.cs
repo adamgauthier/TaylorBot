@@ -79,6 +79,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Infrastructu
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointWills.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.UrbanDictionary.Commands;
@@ -300,6 +301,11 @@ public static class DiscordCommandsProgram
             .AddTransient<TaypointGuildCacheUpdater>()
             .AddSlashCommand<TaypointsBalanceSlashCommand>()
             .AddSlashCommand<TaypointsLeaderboardSlashCommand>()
+            .AddSlashCommand<TaypointsSuccessionSlashCommand>()
+            .AddButtonHandler<TaypointsSuccessionClaimTaypointsHandler>()
+            .AddButtonHandler<TaypointsSuccessionClaimSkipHandler>()
+            .AddButtonHandler<TaypointsSuccessionClearSuccessorHandler>()
+            .AddUserSelectHandler<TaypointsSuccessionChangeSuccessorHandler>()
             .AddSlashCommand<ModSpamAddSlashCommand>()
             .AddSlashCommand<ModSpamRemoveSlashCommand>()
             .AddTransient<ITaypointTransferRepository, TaypointTransferPostgresRepository>()

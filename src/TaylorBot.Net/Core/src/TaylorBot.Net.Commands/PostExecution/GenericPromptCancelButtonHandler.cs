@@ -2,7 +2,7 @@
 
 namespace TaylorBot.Net.Commands.PostExecution;
 
-public class GenericPromptCancelButtonHandler(InteractionResponseClient responseClient) : IButtonHandler
+public class GenericPromptCancelButtonHandler(IInteractionResponseClient responseClient) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.GenericPromptCancel;
 

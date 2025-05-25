@@ -115,7 +115,7 @@ public class BirthdayRoleSlashCommand(
 }
 
 public class BirthdayRoleCreateButtonHandler(
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
     BirthdayRoleSlashCommand birthdayRoleSlashCommand) : IButtonHandler
 {
@@ -153,7 +153,7 @@ public class BirthdayRoleCreateButtonHandler(
 
 public class BirthdayRoleRemoveButtonHandler(
     ILogger<BirthdayRoleRemoveButtonHandler> logger,
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
     BirthdayRoleSlashCommand birthdayRoleSlashCommand,
     CommandMentioner mention

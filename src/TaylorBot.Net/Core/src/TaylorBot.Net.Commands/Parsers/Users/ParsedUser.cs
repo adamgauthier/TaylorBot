@@ -21,13 +21,10 @@ public class UserParser(InteractionMapper interactionMapper, IUserTracker userTr
 
         if (resolved?.users?.TryGetValue(option, out var resolvedUser) == true)
         {
-            DiscordUser user = new(
-                resolvedUser.id,
-                resolvedUser.username,
-                resolvedUser.avatar,
-                resolvedUser.discriminator,
-                IsBot: resolvedUser.bot == true,
-                MemberInfo: GetMemberInfo(context, resolved, option));
+            DiscordUser user = interactionMapper.ToUser(
+                resolvedUser,
+                context.Guild != null && resolved.members?.TryGetValue(option, out var resolvedMember) == true ? resolvedMember : null
+            );
 
             // Command user is already tracked
             if (user.Id != context.User.Id && context.Guild?.Fetched != null)
@@ -41,17 +38,5 @@ public class UserParser(InteractionMapper interactionMapper, IUserTracker userTr
         {
             throw new InvalidOperationException($"Can't find {option} in resolved data {JsonSerializer.Serialize(resolved)}");
         }
-    }
-
-    private DiscordMemberInfo? GetMemberInfo(RunContext context, Interaction.Resolved resolved, string option)
-    {
-        DiscordMemberInfo? memberInfo = null;
-
-        if (context.Guild != null && resolved.members?.TryGetValue(option, out var resolvedMember) == true)
-        {
-            memberInfo = interactionMapper.ToMemberInfo(context.Guild.Id, resolvedMember);
-        }
-
-        return memberInfo;
     }
 }

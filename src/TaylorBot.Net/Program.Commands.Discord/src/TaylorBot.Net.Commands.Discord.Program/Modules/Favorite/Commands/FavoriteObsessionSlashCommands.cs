@@ -108,7 +108,7 @@ public class FavoriteObsessionSetSlashCommand : ISlashCommand<FavoriteObsessionS
     }
 }
 
-public class FavoriteObsessionSetConfirmButtonHandler(InteractionResponseClient responseClient, IObsessionRepository obsessionRepository, CommandMentioner mention) : IButtonHandler
+public class FavoriteObsessionSetConfirmButtonHandler(IInteractionResponseClient responseClient, IObsessionRepository obsessionRepository, CommandMentioner mention) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.FavoriteObsessionSetConfirm;
 

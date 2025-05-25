@@ -62,14 +62,14 @@ public class RemindManageSlashCommand(IReminderRepository reminderRepository, Co
                         .Build()),
                     reminderViews.Count > 0
                         ? clearButtons.Append(clearAllButton).ToList()
-                        : null
+                        : []
                 ));
             }
         ));
     }
 }
 
-public class RemindManageClearButtonHandler(InteractionResponseClient responseClient, IReminderRepository reminderRepository) : IButtonHandler
+public class RemindManageClearButtonHandler(IInteractionResponseClient responseClient, IReminderRepository reminderRepository) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.RemindManageClear;
 
@@ -81,11 +81,11 @@ public class RemindManageClearButtonHandler(InteractionResponseClient responseCl
 
         await reminderRepository.ClearReminderAsync(reminderId);
 
-        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(new(EmbedFactory.CreateSuccess($"Reminder has been cleared 👍")), []));
+        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(EmbedFactory.CreateSuccess($"Reminder has been cleared 👍")));
     }
 }
 
-public class RemindManageClearAllButtonHandler(InteractionResponseClient responseClient, IReminderRepository reminderRepository) : IButtonHandler
+public class RemindManageClearAllButtonHandler(IInteractionResponseClient responseClient, IReminderRepository reminderRepository) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.RemindManageClearAll;
 
@@ -95,6 +95,6 @@ public class RemindManageClearAllButtonHandler(InteractionResponseClient respons
     {
         await reminderRepository.ClearAllRemindersAsync(context.User);
 
-        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(new(EmbedFactory.CreateSuccess("All your reminders have been cleared ��")), []));
+        await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(EmbedFactory.CreateSuccess("All your reminders have been cleared 👍")));
     }
 }

@@ -84,7 +84,7 @@ public class MonitorEditedSetSlashCommand(
     }
 }
 
-public class MonitorEditedSetConfirmButtonHandler(InteractionResponseClient responseClient, MonitorEditedSetSlashCommand command) : IButtonHandler
+public class MonitorEditedSetConfirmButtonHandler(IInteractionResponseClient responseClient, MonitorEditedSetSlashCommand command) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.MonitorEditedSetConfirm;
 

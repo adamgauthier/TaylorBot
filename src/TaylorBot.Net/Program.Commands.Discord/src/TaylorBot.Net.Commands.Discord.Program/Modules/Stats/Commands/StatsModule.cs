@@ -13,7 +13,9 @@ public class StatsModule(ICommandRunner commandRunner, IBotInfoRepository botInf
     [Command("serverstats")]
     [Alias("sstats", "genderstats", "agestats")]
     [Summary("Gets age and gender stats for a server.")]
-    public async Task<RuntimeResult> ServerStatsAsync()
+    public async Task<RuntimeResult> ServerStatsAsync(
+        [Remainder]
+        string? _ = null)
     {
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),

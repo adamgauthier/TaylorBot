@@ -124,7 +124,7 @@ public class BirthdaySetSlashCommand(
 }
 
 
-public class BirthdaySetConfirmButtonHandler(InteractionResponseClient responseClient, BirthdaySetSlashCommand birthdaySetCommand) : IButtonHandler
+public class BirthdaySetConfirmButtonHandler(IInteractionResponseClient responseClient, BirthdaySetSlashCommand birthdaySetCommand) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.BirthdaySetConfirm;
 

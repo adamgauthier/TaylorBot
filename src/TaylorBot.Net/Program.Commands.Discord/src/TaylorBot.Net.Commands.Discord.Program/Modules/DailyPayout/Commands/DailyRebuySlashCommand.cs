@@ -58,7 +58,7 @@ public class DailyRebuySlashCommand(IDailyPayoutRepository dailyPayoutRepository
     }
 }
 
-public class DailyRebuyConfirmButtonHandler(InteractionResponseClient responseClient, IDailyPayoutRepository dailyPayoutRepository) : IButtonHandler
+public class DailyRebuyConfirmButtonHandler(IInteractionResponseClient responseClient, IDailyPayoutRepository dailyPayoutRepository) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.DailyRebuyConfirm;
 

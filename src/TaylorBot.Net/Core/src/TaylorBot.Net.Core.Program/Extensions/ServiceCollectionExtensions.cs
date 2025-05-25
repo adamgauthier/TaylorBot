@@ -20,6 +20,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddTaylorBotApplicationServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
+        services.AddSingleton(TimeProvider.System);
+
         TaylorBotInstrumentation instrumentation = new(hostEnvironment.ApplicationName);
 
         var builder = services

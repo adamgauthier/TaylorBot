@@ -47,7 +47,7 @@ public class ModMailMessageModsSlashCommand(InGuildPrecondition.Factory inGuild)
 }
 
 public class ModMailMessageModsModalHandler(
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     IOptionsMonitor<ModMailOptions> modMailOptions,
     ModMailMessageModsSlashCommand command) : IModalHandler
 {
@@ -90,7 +90,7 @@ public class ModMailMessageModsModalHandler(
 
 public class ModMailMessageModsConfirmButtonHandler(
     ModMailMessageModsSlashCommand command,
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     ILogger<ModMailMessageModsConfirmButtonHandler> logger,
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
     ModMailChannelLogger modMailChannelLogger,
@@ -153,7 +153,7 @@ public class ModMailMessageModsConfirmButtonHandler(
     }
 }
 
-public class ModMailUserMessageReplyButtonHandler(InteractionResponseClient responseClient) : IButtonHandler
+public class ModMailUserMessageReplyButtonHandler(IInteractionResponseClient responseClient) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailUserMessageReply;
 

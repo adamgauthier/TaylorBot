@@ -26,8 +26,9 @@ public record Interaction(
         IReadOnlyList<ApplicationCommandOption>? options,
         string? custom_id,
         byte? component_type,
-        IReadOnlyList<ApplicationCommandComponent>? components,
-        Resolved? resolved
+        IReadOnlyList<string>? values,
+        Resolved? resolved,
+        IReadOnlyList<ApplicationCommandComponent>? components
     );
 
     public record ApplicationCommandOption(string name, byte type, object? value, IReadOnlyList<ApplicationCommandOption>? options);
@@ -107,6 +108,17 @@ public record RoleTags(
 
 public class InteractionMapper
 {
+    public DiscordUser ToUser(Interaction.User user, Interaction.PartialMember? member = null)
+    {
+        return new(
+            user.id,
+            user.username,
+            user.avatar,
+            user.discriminator,
+            IsBot: user.bot == true,
+            MemberInfo: member != null ? ToMemberInfo(new SnowflakeId(member.permissions), member) : null);
+    }
+
     public DiscordMemberInfo ToMemberInfo(SnowflakeId guildId, Interaction.PartialMember member)
     {
         return new(
@@ -129,7 +141,7 @@ public class InteractionMapper
 
     private static DateTimeOffset ParseDate(string joined_at)
     {
-        return DateTimeOffset.Parse(joined_at);
+        return DateTimeOffset.Parse(joined_at, CultureInfo.InvariantCulture);
     }
 
     private static List<SnowflakeId> ParseRoleIds(IReadOnlyList<string> roles)

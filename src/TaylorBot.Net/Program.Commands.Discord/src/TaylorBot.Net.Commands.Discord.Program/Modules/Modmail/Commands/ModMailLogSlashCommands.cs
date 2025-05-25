@@ -75,7 +75,7 @@ public class ModMailLogSetSlashCommand(
     }
 }
 
-public class ModMailLogSetConfirmButtonHandler(InteractionResponseClient responseClient, ModMailLogSetSlashCommand command) : IButtonHandler
+public class ModMailLogSetConfirmButtonHandler(IInteractionResponseClient responseClient, ModMailLogSetSlashCommand command) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailLogSetConfirm;
 

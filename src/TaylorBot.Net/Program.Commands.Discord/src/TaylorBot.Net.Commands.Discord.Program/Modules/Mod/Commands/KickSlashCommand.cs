@@ -134,7 +134,7 @@ public class KickSlashCommand(
     }
 }
 
-public class KickConfirmButtonHandler(Lazy<ITaylorBotClient> client, InteractionResponseClient responseClient, KickSlashCommand command) : IButtonHandler
+public class KickConfirmButtonHandler(Lazy<ITaylorBotClient> client, IInteractionResponseClient responseClient, KickSlashCommand command) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.KickConfirm;
 

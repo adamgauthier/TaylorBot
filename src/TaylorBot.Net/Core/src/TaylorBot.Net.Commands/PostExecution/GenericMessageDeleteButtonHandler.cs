@@ -1,6 +1,6 @@
 ﻿namespace TaylorBot.Net.Commands.PostExecution;
 
-public class GenericMessageDeleteButtonHandler(InteractionResponseClient responseClient) : IButtonHandler
+public class GenericMessageDeleteButtonHandler(IInteractionResponseClient responseClient) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.GenericMessageDelete;
 

@@ -3,7 +3,7 @@
 namespace TaylorBot.Net.Commands.PageMessages;
 
 public class PageCancelButtonHandler(
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     PageOptionsInMemoryRepository pageOptionsRepository) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.PageMessageCancel;

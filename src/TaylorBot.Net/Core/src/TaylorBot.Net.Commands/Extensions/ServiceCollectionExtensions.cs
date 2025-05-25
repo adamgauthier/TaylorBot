@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCommandApplication(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
-        services.AddHttpClient<InteractionResponseClient>((provider, client) =>
+        services.AddHttpClient<IInteractionResponseClient, InteractionResponseClient>((provider, client) =>
         {
             client.BaseAddress = new Uri("https://discord.com/api/v10/");
         });
@@ -146,6 +146,14 @@ public static class ServiceCollectionExtensions
         return services
             .AddTransient<T>()
             .AddKeyedTransient<IButtonComponentHandler, T>(T.CustomIdName.ToText());
+    }
+
+    public static IServiceCollection AddUserSelectHandler<T>(this IServiceCollection services)
+        where T : class, IUserSelectHandler
+    {
+        return services
+            .AddTransient<T>()
+            .AddKeyedTransient<IUserSelectComponentHandler, T>(T.CustomIdName.ToText());
     }
 
     public static IServiceCollection AddModalHandler<T>(this IServiceCollection services)

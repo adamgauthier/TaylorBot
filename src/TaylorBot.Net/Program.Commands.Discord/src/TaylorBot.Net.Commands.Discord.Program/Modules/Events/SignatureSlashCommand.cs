@@ -123,7 +123,7 @@ public class SignatureSlashCommand(
 public class SignatureConfirmButtonHandler(
     ILogger<SignatureConfirmButtonHandler> logger,
     SignatureSlashCommand command,
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     [FromKeyedServices("SignatureContainer")] Lazy<BlobContainerClient> signatureContainer,
     IHttpClientFactory clientFactory) : IButtonHandler
 {

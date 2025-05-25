@@ -23,7 +23,7 @@ public class ValentineGiveawayDomainService(
     ITaypointRewardRepository taypointRepository,
     Lazy<ITaylorBotClient> taylorBotClient,
     MessageComponentHandler messageComponentHandler,
-    InteractionResponseClient interactionResponseClient,
+    IInteractionResponseClient IinteractionResponseClient,
     ICryptoSecureRandom cryptoSecureRandom)
 {
     private Giveaway? _giveaway;
@@ -109,19 +109,19 @@ public class ValentineGiveawayDomainService(
                                 {
                                     _giveaway.Entrants.Add(component.Interaction.UserId);
 
-                                    await interactionResponseClient.EditOriginalResponseAsync(component.Interaction, message: new(
+                                    await IinteractionResponseClient.EditOriginalResponseAsync(component.Interaction, message: new(
                                         new([BuildGiveawayEmbed()], Content: _giveaway?.OriginalMessage?.Content ?? ""),
                                         [new Button("enter-giveaway", ButtonStyle.Primary, "Enter", "🎉")]
                                     ));
 
                                     await Task.Delay(100);
 
-                                    await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
+                                    await IinteractionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                         new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
                                 }
                                 else
                                 {
-                                    await interactionResponseClient.SendFollowupResponseAsync(component.Interaction,
+                                    await IinteractionResponseClient.SendFollowupResponseAsync(component.Interaction,
                                         new(new(EmbedFactory.CreateError(
                                             $"""
                                             You can't enter because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔

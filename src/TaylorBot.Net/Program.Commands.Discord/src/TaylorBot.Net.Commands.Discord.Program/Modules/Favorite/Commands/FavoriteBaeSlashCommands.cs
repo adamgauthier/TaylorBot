@@ -92,7 +92,7 @@ public class FavoriteBaeSetSlashCommand : ISlashCommand<FavoriteBaeSetSlashComma
     }
 }
 
-public class FavoriteBaeSetConfirmButtonHandler(InteractionResponseClient responseClient, IBaeRepository baeRepository, CommandMentioner mention) : IButtonHandler
+public class FavoriteBaeSetConfirmButtonHandler(IInteractionResponseClient responseClient, IBaeRepository baeRepository, CommandMentioner mention) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.FavoriteBaeSetConfirm;
 

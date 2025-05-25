@@ -180,7 +180,7 @@ public class TaypointsGiftSlashCommand(
 
 public class TaypointsGiftConfirmButtonHandler(
     Lazy<ITaylorBotClient> client,
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     TaypointsGiftSlashCommand command) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.TaypointsGiftConfirm;

@@ -75,7 +75,7 @@ public class MonitorMembersSetSlashCommand(
     }
 }
 
-public class MonitorMembersSetConfirmButtonHandler(InteractionResponseClient responseClient, MonitorMembersSetSlashCommand command) : IButtonHandler
+public class MonitorMembersSetConfirmButtonHandler(IInteractionResponseClient responseClient, MonitorMembersSetSlashCommand command) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.MonitorMembersSetConfirm;
 

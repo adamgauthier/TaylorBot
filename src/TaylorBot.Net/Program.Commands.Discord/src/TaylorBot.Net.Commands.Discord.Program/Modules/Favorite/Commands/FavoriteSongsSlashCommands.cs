@@ -123,7 +123,7 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 }
 
 public class FavoriteSongsSetConfirmButtonHandler(
-    InteractionResponseClient responseClient,
+    IInteractionResponseClient responseClient,
     IFavoriteSongsRepository favoriteSongsRepository,
     CommandMentioner mention) : IButtonHandler
 {

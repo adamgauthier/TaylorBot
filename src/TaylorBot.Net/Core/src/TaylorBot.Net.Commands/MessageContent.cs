@@ -15,9 +15,42 @@ public record Button(string Id, ButtonStyle Style, string Label, string? Emoji =
 
 public record Attachment(Stream Stream, string Filename);
 
-public record MessageResponse(MessageContent Content, IReadOnlyList<Button>? Buttons = null, bool IsPrivate = false)
+public record MessageResponse(MessageContent Content, IReadOnlyList<InteractionResponse.Component>? Components = null, bool IsPrivate = false)
 {
+    public MessageResponse(MessageContent Content, IReadOnlyList<Button> Buttons, bool IsPrivate = false) : this(Content, ToInteractionComponents(Buttons), IsPrivate) { }
+
     public MessageResponse(Embed Embed) : this(new MessageContent(Embed)) { }
+
+    public static IReadOnlyList<InteractionResponse.Component> ToInteractionComponents(IReadOnlyList<Button> buttons)
+    {
+        if (buttons.Count == 0)
+        {
+            return [];
+        }
+
+        return [
+            InteractionResponse.Component.CreateActionRow([.. buttons.Select(b =>
+                InteractionResponse.Component.CreateButton(
+                    style: ToInteractionStyle(b.Style),
+                    label: b.Label,
+                    custom_id: b.Id,
+                    emoji: b.Emoji != null ? new(name: b.Emoji) : null
+                )
+            )])
+        ];
+    }
+
+    private static InteractionButtonStyle ToInteractionStyle(ButtonStyle style)
+    {
+        return style switch
+        {
+            ButtonStyle.Primary => InteractionButtonStyle.Primary,
+            ButtonStyle.Secondary => InteractionButtonStyle.Secondary,
+            ButtonStyle.Success => InteractionButtonStyle.Success,
+            ButtonStyle.Danger => InteractionButtonStyle.Danger,
+            _ => throw new ArgumentOutOfRangeException(nameof(style)),
+        };
+    }
 
     public static MessageResponse CreatePrompt(MessageContent content, InteractionCustomId confirmButtonId)
     {

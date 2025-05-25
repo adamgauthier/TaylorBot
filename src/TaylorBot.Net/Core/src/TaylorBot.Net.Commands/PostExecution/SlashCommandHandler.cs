@@ -56,7 +56,7 @@ public class SlashCommandHandler(
     IIgnoredUserRepository ignoredUserRepository,
     RunContextFactory contextFactory)
 {
-    private InteractionResponseClient CreateInteractionClient() => services.GetRequiredService<InteractionResponseClient>();
+    private IInteractionResponseClient CreateInteractionClient() => services.GetRequiredService<IInteractionResponseClient>();
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {

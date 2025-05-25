@@ -1,9 +1,8 @@
 ﻿using TaylorBot.Net.Commands.PostExecution;
-using static TaylorBot.Net.Commands.PostExecution.InteractionResponseClient;
 
 namespace TaylorBot.Net.Commands.PageMessages;
 
-public class PagePreviousButtonHandler(InteractionResponseClient responseClient, PageOptionsInMemoryRepository pageOptionsRepository, PageMessageFactory pageMessageFactory) : IButtonHandler
+public class PagePreviousButtonHandler(IInteractionResponseClient responseClient, PageOptionsInMemoryRepository pageOptionsRepository, PageMessageFactory pageMessageFactory) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.PageMessagePrevious;
 
@@ -23,7 +22,7 @@ public class PagePreviousButtonHandler(InteractionResponseClient responseClient,
             if (hasCancelButton)
             {
                 var cancelButton = PageMessageFactory.CreateCancelButton(button.CustomId.DataEntries);
-                await responseClient.PatchComponentsAsync(button.Interaction, ToInteractionComponents([cancelButton]));
+                await responseClient.PatchComponentsAsync(button.Interaction, MessageResponse.ToInteractionComponents([cancelButton]));
             }
             else
             {
@@ -34,7 +33,7 @@ public class PagePreviousButtonHandler(InteractionResponseClient responseClient,
 
         cached.Renderer.RenderPrevious();
         var pageMessage = pageMessageFactory.Create(cached);
-        ArgumentNullException.ThrowIfNull(pageMessage.Message.Buttons);
+        ArgumentNullException.ThrowIfNull(pageMessage.Message.Components);
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, message: pageMessage.Message);
     }

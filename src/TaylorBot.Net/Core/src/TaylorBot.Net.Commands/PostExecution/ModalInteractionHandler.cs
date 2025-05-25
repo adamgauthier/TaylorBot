@@ -37,7 +37,7 @@ public class ModalInteractionHandler(
     ICommandRunner commandRunner,
     RunContextFactory contextFactory)
 {
-    private InteractionResponseClient CreateInteractionClient() => services.GetRequiredService<InteractionResponseClient>();
+    private IInteractionResponseClient CreateInteractionClient() => services.GetRequiredService<IInteractionResponseClient>();
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
@@ -74,7 +74,7 @@ public class ModalInteractionHandler(
             RunAsync: async () =>
             {
                 await handler.HandleAsync(submit);
-                // We're letting the handler use InteractionResponseClient directly
+                // We're letting the handler use IInteractionResponseClient directly
                 return new EmptyResult();
             },
             Preconditions: handler.Info.Preconditions);

@@ -33,7 +33,7 @@ public static class CommandUtils
         }
     }
 
-    public static RunContext CreateTestContext(ISlashCommand command, ContextType contextType = ContextType.Guild)
+    public static RunContext CreateTestContext(ISlashCommand? command = null, ContextType contextType = ContextType.Guild)
     {
         CommandGuild? guild = contextType == ContextType.Guild
             ? new(167845806479638529, A.Fake<IGuild>())
@@ -49,7 +49,7 @@ public static class CommandUtils
             guild,
             guild != null ? new GuildTextChannel(channel.Id, guild.Id, channel.Type) : null,
             null!,
-            new("922354806574678086", command.Info.Name),
+            command is not null ? new("922354806574678086", command.Info.Name) : null,
             null!,
             null!,
             null!);

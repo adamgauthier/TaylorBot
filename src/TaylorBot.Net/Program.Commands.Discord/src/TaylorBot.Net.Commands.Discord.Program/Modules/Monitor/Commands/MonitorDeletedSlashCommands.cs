@@ -83,7 +83,7 @@ public class MonitorDeletedSetSlashCommand(
     }
 }
 
-public class MonitorDeletedSetConfirmButtonHandler(InteractionResponseClient responseClient, MonitorDeletedSetSlashCommand command) : IButtonHandler
+public class MonitorDeletedSetConfirmButtonHandler(IInteractionResponseClient responseClient, MonitorDeletedSetSlashCommand command) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.MonitorDeletedSetConfirm;
 

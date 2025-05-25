@@ -42,7 +42,8 @@ public record RunContext(
 public class RunContextFactory(
     Lazy<ITaylorBotClient> taylorBotClient,
     InteractionMapper interactionMapper,
-    CommandPrefixDomainService commandPrefixDomainService)
+    CommandPrefixDomainService commandPrefixDomainService,
+    TimeProvider timeProvider)
 {
     public RunContext BuildContext(ParsedInteraction interaction, CommandActivity activity, bool wasAcknowledged)
     {
@@ -78,7 +79,7 @@ public class RunContextFactory(
         }
 
         return new RunContext(
-            CreatedAt: DateTimeOffset.UtcNow,
+            CreatedAt: timeProvider.GetUtcNow(),
             User: new(
                 user.id,
                 user.username,

@@ -3,14 +3,29 @@ using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.PostExecution;
+
+public interface IDiscordMessageComponent
+{
+    ParsedInteraction Interaction { get; }
+    InteractionCustomId CustomId { get; }
+    Interaction.Message Message { get; }
+}
 
 public record DiscordButtonComponent(
     ParsedInteraction Interaction,
     InteractionCustomId CustomId,
     Interaction.Message Message
-);
+) : IDiscordMessageComponent;
+
+public record DiscordUserSelectComponent(
+    ParsedInteraction Interaction,
+    InteractionCustomId CustomId,
+    Interaction.Message Message,
+    IReadOnlyList<DiscordUser> SelectedUsers
+) : IDiscordMessageComponent;
 
 public interface IComponentHandlerInfo
 {
@@ -27,7 +42,18 @@ public interface IButtonComponentHandler
     Task HandleAsync(DiscordButtonComponent button, RunContext context);
 }
 
+public interface IUserSelectComponentHandler
+{
+    IComponentHandlerInfo Info { get; }
+    Task HandleAsync(DiscordUserSelectComponent userSelect, RunContext context);
+}
+
 public interface IButtonHandler : IButtonComponentHandler
+{
+    abstract static CustomIdNames CustomIdName { get; }
+}
+
+public interface IUserSelectHandler : IUserSelectComponentHandler
 {
     abstract static CustomIdNames CustomIdName { get; }
 }
@@ -36,13 +62,15 @@ public partial class MessageComponentHandler(
     IServiceProvider services,
     ILogger<MessageComponentHandler> logger,
     ICommandRunner commandRunner,
-    RunContextFactory contextFactory)
+    RunContextFactory contextFactory,
+    InteractionMapper interactionMapper)
 {
     private readonly Dictionary<string, Func<DiscordButtonComponent, ValueTask>> _callbacks = [];
 
-    private InteractionResponseClient CreateInteractionClient() => services.GetRequiredService<InteractionResponseClient>();
+    private IInteractionResponseClient CreateInteractionClient() => services.GetRequiredService<IInteractionResponseClient>();
 
     private const int BUTTON_COMPONENT_TYPE = 2;
+    private const int USER_SELECT_COMPONENT_TYPE = 5;
 
     public async ValueTask HandleAsync(Interaction interaction, CommandActivity activity)
     {
@@ -55,61 +83,24 @@ public partial class MessageComponentHandler(
                     var handler = services.GetKeyedService<IButtonComponentHandler>(button.CustomId.Name);
                     if (handler != null)
                     {
-                        if (ShouldIgnoreForOriginalUser(button, activity, handler.Info))
+                        bool acknowledged = false;
+                        if (handler.Info is MessageHandlerInfo)
                         {
-                            return;
+                            await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(button);
+                            acknowledged = true;
                         }
 
-                        switch (handler.Info)
-                        {
-                            case MessageHandlerInfo messageHandler:
-                                {
-                                    await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(button);
-
-                                    var context = BuildContext(button, activity, wasAcknowledged: true);
-
-                                    Command command = new(
-                                        new($"{button.CustomId.ParsedName}", IsSlashCommand: false),
-                                        RunAsync: async () =>
-                                        {
-                                            await handler.HandleAsync(button, context);
-                                            return new EmptyResult();
-                                        },
-                                        Preconditions: messageHandler.Preconditions);
-
-                                    var result = await commandRunner.RunInteractionAsync(command, context);
-                                    switch (result)
-                                    {
-                                        case EmptyResult _:
-                                            break;
-
-                                        case PreconditionFailed failed:
-                                            logger.LogWarning("Precondition failed running button message command {CommandName}: {Error}", command.Metadata.Name, failed.PrivateReason);
-                                            await CreateInteractionClient().EditOriginalResponseAsync(button.Interaction, message: new(EmbedFactory.CreateError(failed.UserReason.Reason)));
-                                            break;
-
-                                        default:
-                                            logger.LogWarning("Unhandled result running button message command {CommandName}: {Result}", command.Metadata.Name, result.GetType().FullName);
-                                            break;
-                                    }
-                                    break;
-                                }
-
-                            case ModalHandlerInfo _:
-                                {
-                                    // We're creating a modal, we have to answer immediately (no ack), skipping preconditions for fast response
-                                    // Submitting the modal will check for preconditions
-                                    var context = BuildContext(button, activity, wasAcknowledged: false);
-                                    await handler.HandleAsync(button, context);
-                                    break;
-                                }
-
-                            default: throw new NotImplementedException(handler.GetType().FullName);
-                        }
+                        await ProcessParsedComponentAsync(
+                            button,
+                            handler.Info,
+                            (context) => handler.HandleAsync(button, context),
+                            activity,
+                            acknowledged
+                        );
                     }
                     else
                     {
-                        logger.LogWarning("Button component without handler: {Interaction}", interaction);
+                        logger.LogWarning("Button component without handler: {CustomId}, Interaction: {Interaction}", button.CustomId.RawId, interaction);
                     }
                 }
                 else
@@ -117,13 +108,45 @@ public partial class MessageComponentHandler(
                     if (_callbacks.TryGetValue(button.CustomId.RawId, out var callback))
                     {
                         await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(button);
-
                         await callback(button);
                     }
                     else
                     {
-                        logger.LogWarning("Button component without callback: {Interaction}", interaction);
+                        logger.LogWarning("Button component without callback: {CustomId}, Interaction: {Interaction}", button.CustomId.RawId, interaction);
                     }
+                }
+                break;
+
+            case USER_SELECT_COMPONENT_TYPE:
+                var userSelect = CreateUserSelectComponent(interaction, activity);
+                if (userSelect.CustomId.IsValid)
+                {
+                    var handler = services.GetKeyedService<IUserSelectComponentHandler>(userSelect.CustomId.Name);
+                    if (handler != null)
+                    {
+                        bool acknowledged = false;
+                        if (handler.Info is MessageHandlerInfo)
+                        {
+                            await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(userSelect);
+                            acknowledged = true;
+                        }
+
+                        await ProcessParsedComponentAsync(
+                            userSelect,
+                            handler.Info,
+                            (context) => handler.HandleAsync(userSelect, context),
+                            activity,
+                            acknowledged
+                        );
+                    }
+                    else
+                    {
+                        logger.LogWarning("User select component without handler: {CustomId}, Interaction: {Interaction}", userSelect.CustomId.RawId, interaction);
+                    }
+                }
+                else
+                {
+                    logger.LogWarning("User select component with invalid or unhandled custom ID: {CustomId}, Interaction: {Interaction}", userSelect.CustomId.RawId, interaction);
                 }
                 break;
 
@@ -146,27 +169,113 @@ public partial class MessageComponentHandler(
         );
     }
 
-    private bool ShouldIgnoreForOriginalUser(DiscordButtonComponent button, CommandActivity activity, IComponentHandlerInfo info)
+    private DiscordUserSelectComponent CreateUserSelectComponent(Interaction interaction, CommandActivity activity)
+    {
+        var parsed = ParsedInteraction.Parse(interaction, activity);
+        ArgumentNullException.ThrowIfNull(parsed.Data.custom_id);
+        ArgumentNullException.ThrowIfNull(parsed.Data.values);
+        ArgumentNullException.ThrowIfNull(parsed.Data.resolved);
+        ArgumentNullException.ThrowIfNull(parsed.Data.resolved.users);
+        ArgumentNullException.ThrowIfNull(interaction.message);
+
+        var selectedUsers = parsed.Data.values.Select(userId =>
+        {
+            if (!parsed.Data.resolved.users.TryGetValue(userId, out var resolvedUser))
+            {
+                throw new InvalidOperationException($"Can't find user {userId} in resolved data");
+            }
+
+            return interactionMapper.ToUser(
+                resolvedUser,
+                parsed.Data.resolved.members?.TryGetValue(userId, out var resolvedMember) == true ? resolvedMember : null
+            );
+        }).ToList();
+
+        return new(
+            parsed,
+            new(parsed.Data.custom_id),
+            interaction.message,
+            selectedUsers
+        );
+    }
+
+    private async ValueTask ProcessParsedComponentAsync<TComponent>(
+        TComponent component,
+        IComponentHandlerInfo handlerInfo,
+        Func<RunContext, Task> handleAction,
+        CommandActivity activity,
+        bool wasAcknowledged) where TComponent : IDiscordMessageComponent
+    {
+        if (ShouldIgnoreForOriginalUser(component, activity, handlerInfo))
+        {
+            return;
+        }
+
+        var context = BuildContext(component, activity, wasAcknowledged);
+
+        switch (handlerInfo)
+        {
+            case MessageHandlerInfo messageHandler:
+                {
+                    Command command = new(
+                        new($"{component.CustomId.ParsedName}", IsSlashCommand: false),
+                        RunAsync: async () =>
+                        {
+                            await handleAction(context);
+                            return new EmptyResult();
+                        },
+                        Preconditions: messageHandler.Preconditions);
+
+                    var result = await commandRunner.RunInteractionAsync(command, context);
+                    switch (result)
+                    {
+                        case EmptyResult _:
+                            break;
+
+                        case PreconditionFailed failed:
+                            logger.LogWarning("Precondition failed running component command {CommandName}: {Error}", command.Metadata.Name, failed.PrivateReason);
+                            await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, message: new(EmbedFactory.CreateError(failed.UserReason.Reason)));
+                            break;
+
+                        default:
+                            logger.LogWarning("Unhandled result running component command {CommandName}: {Result}", command.Metadata.Name, result.GetType().FullName);
+                            break;
+                    }
+                    break;
+                }
+
+            case ModalHandlerInfo _:
+                {
+                    await handleAction(context);
+                    break;
+                }
+
+            default:
+                throw new NotImplementedException($"Handler info type not implemented: {handlerInfo.GetType().FullName} for component {component.CustomId.RawId}");
+        }
+    }
+
+    private bool ShouldIgnoreForOriginalUser(IDiscordMessageComponent component, CommandActivity activity, IComponentHandlerInfo info)
     {
         if (!info.RequireOriginalUser)
         {
             return false;
         }
 
-        ArgumentNullException.ThrowIfNull(button.Message.interaction_metadata);
-        if (button.Interaction.UserId != button.Message.interaction_metadata.user.id)
+        ArgumentNullException.ThrowIfNull(component.Message.interaction_metadata);
+        if (component.Interaction.UserId != component.Message.interaction_metadata.user.id)
         {
-            var context = contextFactory.BuildContext(button.Interaction, activity, wasAcknowledged: false);
+            var context = contextFactory.BuildContext(component.Interaction, activity, wasAcknowledged: false);
             logger.LogWarning(
-                "Ignoring {User} using button {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}, original user is {OriginalUser}",
+                "Ignoring {User} using component {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}, original user is {OriginalUser}",
                 context.User.FormatLog(),
-                button.CustomId.ParsedName,
-                button.CustomId.RawId,
-                button.Interaction.Id,
-                button.Message.interaction_metadata.name != null ? $"{button.Message.id} from interaction '{button.Message.interaction_metadata.name}'" : $"{button.Message.id}",
+                component.CustomId.ParsedName,
+                component.CustomId.RawId,
+                component.Interaction.Id,
+                component.Message.interaction_metadata.name != null ? $"{component.Message.id} from interaction '{component.Message.interaction_metadata.name}'" : $"{component.Message.id}",
                 context.Channel.Id,
                 context.Guild != null ? $" on {context.Guild.FormatLog()}" : "",
-                button.Message.interaction_metadata.user.id
+                component.Message.interaction_metadata.user.id
             );
             return true;
         }
@@ -174,16 +283,17 @@ public partial class MessageComponentHandler(
         return false;
     }
 
-    private RunContext BuildContext(DiscordButtonComponent button, CommandActivity activity, bool wasAcknowledged)
+    private RunContext BuildContext(IDiscordMessageComponent component, CommandActivity activity, bool wasAcknowledged)
     {
-        var context = contextFactory.BuildContext(button.Interaction, activity, wasAcknowledged);
+        var context = contextFactory.BuildContext(component.Interaction, activity, wasAcknowledged);
         logger.LogInformation(
-            "{User} using button {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}",
+            "{User} using {Component} {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}",
             context.User.FormatLog(),
-            button.CustomId.ParsedName,
-            button.CustomId.RawId,
-            button.Interaction.Id,
-            button.Message.interaction_metadata?.name != null ? $"{button.Message.id} from interaction '{button.Message.interaction_metadata.name}'" : $"{button.Message.id}",
+            component.GetType().Name,
+            component.CustomId.ParsedName,
+            component.CustomId.RawId,
+            component.Interaction.Id,
+            component.Message.interaction_metadata?.name != null ? $"{component.Message.id} from interaction '{component.Message.interaction_metadata.name}'" : $"{component.Message.id}",
             context.Channel.Id,
             context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
         );
