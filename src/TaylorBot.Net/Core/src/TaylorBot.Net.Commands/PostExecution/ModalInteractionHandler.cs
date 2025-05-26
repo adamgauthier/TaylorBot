@@ -63,7 +63,7 @@ public class ModalInteractionHandler(
         }
         else
         {
-            logger.LogWarning("Modal create without callback: {Interaction}", interaction);
+            logger.LogWarning("Modal submit with invalid custom ID: {Interaction}", interaction);
         }
     }
 
@@ -100,6 +100,7 @@ public class ModalInteractionHandler(
         }
         catch (Exception e)
         {
+            activity.SetError(e);
             logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Interaction.Id);
             return new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that 😕"));
         }

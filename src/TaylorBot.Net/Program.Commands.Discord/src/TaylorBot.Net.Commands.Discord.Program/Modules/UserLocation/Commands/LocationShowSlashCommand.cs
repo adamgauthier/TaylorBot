@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class LocationShowCommand(ILocationRepository locationRepository, CommandMentioner mention)
+public class LocationShowCommand(ILocationRepository locationRepository, CommandMentioner mention, TimeProvider timeProvider)
 {
     public static readonly CommandMetadata Metadata = new("location show", "Location 🌍");
 
@@ -20,7 +20,7 @@ public class LocationShowCommand(ILocationRepository locationRepository, Command
             if (location != null)
             {
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById(location.TimeZoneId);
-                var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+                var now = TimeZoneInfo.ConvertTimeFromUtc(timeProvider.GetUtcNow().UtcDateTime, timeZone);
 
                 var embed = new EmbedBuilder()
                     .WithUserAsAuthor(user)

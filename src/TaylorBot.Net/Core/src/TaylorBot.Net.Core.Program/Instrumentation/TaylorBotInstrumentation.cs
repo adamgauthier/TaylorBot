@@ -2,11 +2,13 @@
 
 namespace TaylorBot.Net.Core.Program.Instrumentation;
 
-public sealed class TaylorBotInstrumentation(string activitySourceName) : IDisposable
+public sealed class TaylorBotInstrumentation : IDisposable
 {
     private bool disposed;
 
-    public ActivitySource ActivitySource { get; } = new ActivitySource(activitySourceName, "1.0.0");
+    public const string ActivitySourceName = $"{nameof(TaylorBot)}.{nameof(Net)}.{nameof(Core)}.{nameof(Program)}.{nameof(Instrumentation)}.{nameof(TaylorBotInstrumentation)}";
+
+    public ActivitySource ActivitySource { get; } = new(ActivitySourceName, "1.0.0");
 
     public void Dispose()
     {

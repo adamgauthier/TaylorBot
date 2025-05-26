@@ -416,6 +416,7 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<RecapSlashCommand>()
             .AddTransient<IValentinesRepository, ValentinesPostgresRepository>()
             .AddSingleton<ValentineGiveawayDomainService>()
+            .AddButtonHandler<ValentineGiveawayEnterHandler>()
             .AddSlashCommand<LoveReadySlashCommand>()
             .AddSlashCommand<LoveSpreadSlashCommand>()
             .AddSlashCommand<LoveHistorySlashCommand>()

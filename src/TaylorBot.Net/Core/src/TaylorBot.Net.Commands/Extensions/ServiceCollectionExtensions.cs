@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
         });
 
         return services
-            .AddTaylorBotApplicationServices(configuration, hostEnvironment)
+            .AddTaylorBotApplicationServices(configuration)
             .AddSingleton(services)
             .AddTransient<CommandActivityFactory>()
             .AddSingleton(provider => new CommandService(new CommandServiceConfig
@@ -51,8 +51,8 @@ public static class ServiceCollectionExtensions
             .AddTransient<CommandMentioner>()
             .AddSingleton<ApplicationCommandsRepository>()
             .AddTransient<SlashCommandHandler>()
-            .AddSingleton<MessageComponentHandler>()
-            .AddSingleton<ModalInteractionHandler>()
+            .AddTransient<MessageComponentHandler>()
+            .AddTransient<ModalInteractionHandler>()
             .AddButtonHandler<GenericPromptCancelButtonHandler>()
             .AddButtonHandler<GenericMessageDeleteButtonHandler>()
             .AddTransient<IInteractionCreatedHandler, InteractionCreatedHandler>()

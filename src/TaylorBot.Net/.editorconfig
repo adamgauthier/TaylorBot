@@ -106,6 +106,8 @@ dotnet_diagnostic.CA1003.severity = silent
 dotnet_diagnostic.CA1030.severity = silent
 
 # This project is not a library to be reused elsewhere
+# CA1028: Enum Storage should be Int32
+dotnet_diagnostic.CA1028.severity = silent
 # CA1716: Identifiers should not match keywords
 dotnet_diagnostic.CA1716.severity = none
 # CA1720: Identifier contains type name

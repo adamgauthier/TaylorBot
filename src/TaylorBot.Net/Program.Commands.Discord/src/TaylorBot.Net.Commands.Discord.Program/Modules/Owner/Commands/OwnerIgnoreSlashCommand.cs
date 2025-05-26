@@ -9,7 +9,10 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepository, TaylorBotOwnerPrecondition ownerPrecondition) : ISlashCommand<OwnerIgnoreSlashCommand.Options>
+public class OwnerIgnoreSlashCommand(
+    IIgnoredUserRepository ignoredUserRepository,
+    TaylorBotOwnerPrecondition ownerPrecondition,
+    TimeProvider timeProvider) : ISlashCommand<OwnerIgnoreSlashCommand.Options>
 {
     public static string CommandName => "owner ignore";
 
@@ -23,7 +26,7 @@ public class OwnerIgnoreSlashCommand(IIgnoredUserRepository ignoredUserRepositor
             new(Info.Name),
             async () =>
             {
-                await ignoredUserRepository.IgnoreUntilAsync(options.user.User, DateTimeOffset.UtcNow + options.time.Value);
+                await ignoredUserRepository.IgnoreUntilAsync(options.user.User, timeProvider.GetUtcNow() + options.time.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"Ignoring {options.user.User.FormatTagAndMention()} for **{options.time.Value.Humanize(culture: TaylorBotCulture.Culture)}** 👍"

@@ -30,7 +30,7 @@ public class CommandExecutedHandlerTests
     public CommandExecutedHandlerTests()
     {
         _commandExecutedHandler = new(
-            _logger, _ongoingCommandRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition
+            _logger, _ongoingCommandRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition, TimeProvider.System
         );
     }
 

@@ -7,7 +7,7 @@ using TaylorBot.Net.Core.Infrastructure.Extensions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
-public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMonitor<GoogleOptions> options, HttpClient client) : ILocationClient
+public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMonitor<GoogleOptions> options, HttpClient client, TimeProvider timeProvider) : ILocationClient
 {
     public async ValueTask<ILocationResult> GetLocationAsync(string search)
     {
@@ -79,7 +79,7 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
     {
         var qs = new Dictionary<string, string>() {
             { "key", options.CurrentValue.GoogleApiKey },
-            { "timestamp", $"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}" },
+            { "timestamp", $"{timeProvider.GetUtcNow().ToUnixTimeSeconds()}" },
             { "location", $"{latitude},{longitude}" },
         }.ToUrlQueryString();
 

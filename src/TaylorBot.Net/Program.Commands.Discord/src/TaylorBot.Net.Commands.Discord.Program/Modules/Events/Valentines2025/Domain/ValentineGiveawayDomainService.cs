@@ -22,11 +22,10 @@ public class ValentineGiveawayDomainService(
     IValentinesRepository valentinesRepository,
     ITaypointRewardRepository taypointRepository,
     Lazy<ITaylorBotClient> taylorBotClient,
-    MessageComponentHandler messageComponentHandler,
-    IInteractionResponseClient IinteractionResponseClient,
-    ICryptoSecureRandom cryptoSecureRandom)
+    ICryptoSecureRandom cryptoSecureRandom,
+    TimeProvider timeProvider)
 {
-    private Giveaway? _giveaway;
+    public Giveaway? CurrentGiveaway { get; private set; }
 
     private sealed record PreviousGiveaway(ulong OriginalMessageId)
     {
@@ -42,47 +41,45 @@ public class ValentineGiveawayDomainService(
             try
             {
                 var config = await valentinesRepository.GetConfigurationAsync();
-                if (DateTimeOffset.UtcNow < config.GiveawaysEndTime)
+                if (timeProvider.GetUtcNow() < config.GiveawaysEndTime)
                 {
                     nextRun = config.TimeSpanBetweenGiveaways;
                     var lounge = (ITextChannel)await taylorBotClient.Value.ResolveRequiredChannelAsync(config.LoungeChannelId);
-                    var id = "enter-giveaway";
+                    var id = InteractionCustomId.Create(ValentineGiveawayEnterHandler.CustomIdName).RawId;
 
                     PreviousGiveaway? previousGiveaway = null;
 
-                    if (_giveaway != null)
+                    if (CurrentGiveaway != null)
                     {
-                        messageComponentHandler.RemoveCallback(id);
-
-                        if (_giveaway.OriginalMessage != null)
+                        if (CurrentGiveaway.OriginalMessage != null)
                         {
-                            previousGiveaway = new(_giveaway.OriginalMessage.Id);
+                            previousGiveaway = new(CurrentGiveaway.OriginalMessage.Id);
 
-                            var entrants = _giveaway.Entrants.ToList();
+                            var entrants = CurrentGiveaway.Entrants.ToList();
                             if (entrants.Count != 0)
                             {
-                                var winnerId = cryptoSecureRandom.GetRandomElement(_giveaway.Entrants.AsReadOnly());
+                                var winnerId = cryptoSecureRandom.GetRandomElement(CurrentGiveaway.Entrants.AsReadOnly());
                                 DiscordUser winner = new(winnerId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
 
-                                var rewarded = (await taypointRepository.RewardUsersAsync([winner], _giveaway.TaypointPrize)).Single();
+                                var rewarded = (await taypointRepository.RewardUsersAsync([winner], CurrentGiveaway.TaypointPrize)).Single();
 
-                                await _giveaway.OriginalMessage.ModifyAsync(m =>
+                                await CurrentGiveaway.OriginalMessage.ModifyAsync(m =>
                                 {
                                     m.Embed = EmbedFactory.CreateSuccess(
                                         $"""
                                         This {entrants.Count} entrant giveaway ended!
-                                        Congratulations to {MentionUtils.MentionUser(rewarded.UserId.Id)} for winning {"taypoint".ToQuantity(_giveaway.TaypointPrize, TaylorBotFormats.BoldReadable)}! 🥳💖
+                                        Congratulations to {MentionUtils.MentionUser(rewarded.UserId.Id)} for winning {"taypoint".ToQuantity(CurrentGiveaway.TaypointPrize, TaylorBotFormats.BoldReadable)}! 🥳💖
                                         """
                                     );
                                     m.Components = new ComponentBuilder().Build();
                                 });
 
                                 previousGiveaway.Winner = rewarded;
-                                previousGiveaway.AmountWon = _giveaway.TaypointPrize;
+                                previousGiveaway.AmountWon = CurrentGiveaway.TaypointPrize;
                             }
                             else
                             {
-                                await _giveaway.OriginalMessage.ModifyAsync(m =>
+                                await CurrentGiveaway.OriginalMessage.ModifyAsync(m =>
                                 {
                                     m.Embed = EmbedFactory.CreateError("Giveaway ended, but there were no entrants 😔");
                                     m.Components = new ComponentBuilder().Build();
@@ -90,66 +87,25 @@ public class ValentineGiveawayDomainService(
                             }
                         }
 
-                        _giveaway = null;
+                        CurrentGiveaway = null;
                     }
 
                     var builder = new ComponentBuilder()
                         .WithButton(label: "Enter", customId: id, emote: new Emoji("🎉"));
 
-                    messageComponentHandler.AddCallback(id, async component =>
-                    {
-                        try
-                        {
-                            if (_giveaway != null && !_giveaway.Entrants.Contains(component.Interaction.UserId))
-                            {
-                                DiscordUser user = new(component.Interaction.UserId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
-                                var given = await valentinesRepository.GetRoleObtainedFromUserAsync(user);
-
-                                if (given.Count >= config.SpreadLimit)
-                                {
-                                    _giveaway.Entrants.Add(component.Interaction.UserId);
-
-                                    await IinteractionResponseClient.EditOriginalResponseAsync(component.Interaction, message: new(
-                                        new([BuildGiveawayEmbed()], Content: _giveaway?.OriginalMessage?.Content ?? ""),
-                                        [new Button("enter-giveaway", ButtonStyle.Primary, "Enter", "🎉")]
-                                    ));
-
-                                    await Task.Delay(100);
-
-                                    await IinteractionResponseClient.SendFollowupResponseAsync(component.Interaction,
-                                        new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
-                                }
-                                else
-                                {
-                                    await IinteractionResponseClient.SendFollowupResponseAsync(component.Interaction,
-                                        new(new(EmbedFactory.CreateError(
-                                            $"""
-                                            You can't enter because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
-                                            Please use **/love spread** to give the role to someone who doesn't have it 😊
-                                            """)
-                                        ), IsPrivate: true));
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogError(e, "Unhandled exception in button {Id}:", id);
-                        }
-                    });
-
                     static string GetWinnerMessage(RewardedUserResult r, int won) =>
                         $"{MentionUtils.MentionUser(r.UserId.Id)} You won {"taypoint".ToQuantity(won, TaylorBotFormats.BoldReadable)} from the previous giveaway! You now have {r.NewTaypointCount.ToString(TaylorBotFormats.Readable)} 🥳💖";
 
-                    _giveaway = new([], EndsAt: DateTimeOffset.UtcNow + nextRun, cryptoSecureRandom.GetInt32(config.GiveawayTaypointPrizeMin, config.GiveawayTaypointPrizeMax));
+                    CurrentGiveaway = new([], EndsAt: timeProvider.GetUtcNow() + nextRun, cryptoSecureRandom.GetInt32(config.GiveawayTaypointPrizeMin, config.GiveawayTaypointPrizeMax));
                     var originalMessage = await lounge.SendMessageAsync(
                         text: previousGiveaway?.Winner != null
                             ? GetWinnerMessage(previousGiveaway.Winner, previousGiveaway.AmountWon)
                             : null,
-                        embed: BuildGiveawayEmbed(),
+                        embed: BuildGiveawayEmbed(CurrentGiveaway),
                         components: builder.Build(),
                         messageReference: previousGiveaway != null ? new(previousGiveaway.OriginalMessageId) : null,
                         allowedMentions: previousGiveaway?.Winner != null ? new AllowedMentions { UserIds = [previousGiveaway.Winner.UserId.Id] } : null);
-                    _giveaway.OriginalMessage = originalMessage;
+                    CurrentGiveaway.OriginalMessage = originalMessage;
                 }
             }
             catch (Exception exception)
@@ -161,7 +117,7 @@ public class ValentineGiveawayDomainService(
         }
     }
 
-    private Embed BuildGiveawayEmbed()
+    public static Embed BuildGiveawayEmbed(Giveaway giveaway)
     {
         return new EmbedBuilder()
             .WithColor(new(233, 30, 99))
@@ -169,11 +125,56 @@ public class ValentineGiveawayDomainService(
             .WithDescription(
                 $"""
                 A 💞 lover 💞 taypoint giveaway has started! 🥺
-                💰 Prize: **{_giveaway!.TaypointPrize} taypoints**
-                ⌚ Ending: <t:{_giveaway!.EndsAt.ToUnixTimeSeconds()}:R>
-                🧍 Entrants: **{_giveaway!.Entrants.Count}**
+                💰 Prize: **{giveaway.TaypointPrize} taypoints**
+                ⌚ Ending: <t:{giveaway.EndsAt.ToUnixTimeSeconds()}:R>
+                🧍 Entrants: **{giveaway.Entrants.Count}**
                 Enter using the button below! 👉👈
                 """)
             .Build();
+    }
+}
+
+public class ValentineGiveawayEnterHandler(
+    IValentinesRepository valentinesRepository,
+    IInteractionResponseClient interactionResponseClient,
+    ValentineGiveawayDomainService giveawayService) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.ValentineGiveawayEnter;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(CustomIdName.ToText());
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var config = await valentinesRepository.GetConfigurationAsync();
+        var giveaway = giveawayService.CurrentGiveaway;
+
+        if (giveaway != null && !giveaway.Entrants.Contains(button.Interaction.UserId))
+        {
+            var given = await valentinesRepository.GetRoleObtainedFromUserAsync(context.User);
+            if (given.Count >= config.SpreadLimit)
+            {
+                giveaway.Entrants.Add(button.Interaction.UserId);
+
+                await interactionResponseClient.EditOriginalResponseAsync(button.Interaction, message: new(
+                    new([ValentineGiveawayDomainService.BuildGiveawayEmbed(giveaway)], Content: giveaway.OriginalMessage?.Content ?? ""),
+                    [new Button("enter-giveaway", ButtonStyle.Primary, "Enter", "🎉")]
+                ));
+
+                await Task.Delay(100);
+
+                await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
+                    new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
+            }
+            else
+            {
+                await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
+                    new(new(EmbedFactory.CreateError(
+                        $"""
+                        You can't enter because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
+                        Please use **/love spread** to give the role to someone who doesn't have it 😊
+                        """)
+                    ), IsPrivate: true));
+            }
+        }
     }
 }

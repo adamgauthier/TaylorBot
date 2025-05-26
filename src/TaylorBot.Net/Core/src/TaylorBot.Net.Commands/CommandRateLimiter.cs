@@ -16,11 +16,15 @@ public interface IRateLimiter
     ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(DiscordUser user, string action);
 }
 
-public class CommandRateLimiter(IOptionsMonitor<CommandApplicationOptions> options, IRateLimitRepository rateLimitRepository, IPlusRepository plusRepository) : IRateLimiter
+public class CommandRateLimiter(
+    IOptionsMonitor<CommandApplicationOptions> options,
+    IRateLimitRepository rateLimitRepository,
+    IPlusRepository plusRepository,
+    TimeProvider timeProvider) : IRateLimiter
 {
     public async ValueTask<RateLimitedResult?> VerifyDailyLimitAsync(DiscordUser user, string action)
     {
-        var date = DateTimeOffset.UtcNow.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
+        var date = timeProvider.GetUtcNow().ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
         var key = $"user:{user.Id}:action:{action}:date:{date}";
 
         var dailyUseCount = await rateLimitRepository.IncrementUsageAsync(key);

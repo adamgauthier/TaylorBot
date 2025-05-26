@@ -18,7 +18,7 @@ public interface IInteractionResponseClient
     ValueTask EditOriginalResponseAsync(ParsedInteraction interaction, MessageResponse message);
     ValueTask EditOriginalResponseAsync(ParsedInteraction interaction, DiscordEmbed embed);
     ValueTask DeleteOriginalResponseAsync(DiscordButtonComponent component);
-    ValueTask PatchComponentsAsync(ParsedInteraction interaction, IReadOnlyList<InteractionResponse.Component> components);
+    ValueTask PatchComponentsAsync(ParsedInteraction interaction, IReadOnlyList<InteractionComponent> components);
 }
 
 public class InteractionResponseClient(ILogger<IInteractionResponseClient> logger, Lazy<ITaylorBotClient> taylorBotClient, HttpClient httpClient) : IInteractionResponseClient
@@ -72,8 +72,8 @@ public class InteractionResponseClient(ILogger<IInteractionResponseClient> logge
     {
         // Text inputs fill an entire ActionRow
         var components = createModal.TextInputs.Select(t =>
-            InteractionResponse.Component.CreateActionRow(
-                InteractionResponse.Component.CreateTextInput(
+            InteractionComponent.CreateActionRow(
+                InteractionComponent.CreateTextInput(
                     custom_id: t.Id,
                     style: ToInteractionStyle(t.Style),
                     label: t.Label,
@@ -207,7 +207,7 @@ public class InteractionResponseClient(ILogger<IInteractionResponseClient> logge
         await response.EnsureSuccessAsync(logger);
     }
 
-    public async ValueTask PatchComponentsAsync(ParsedInteraction interaction, IReadOnlyList<InteractionResponse.Component> components)
+    public async ValueTask PatchComponentsAsync(ParsedInteraction interaction, IReadOnlyList<InteractionComponent> components)
     {
         await PatchOriginalResponseAsync(interaction.Token, new { components });
     }

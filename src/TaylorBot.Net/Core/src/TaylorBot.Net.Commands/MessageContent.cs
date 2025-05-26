@@ -15,13 +15,13 @@ public record Button(string Id, ButtonStyle Style, string Label, string? Emoji =
 
 public record Attachment(Stream Stream, string Filename);
 
-public record MessageResponse(MessageContent Content, IReadOnlyList<InteractionResponse.Component>? Components = null, bool IsPrivate = false)
+public record MessageResponse(MessageContent Content, IReadOnlyList<InteractionComponent>? Components = null, bool IsPrivate = false)
 {
     public MessageResponse(MessageContent Content, IReadOnlyList<Button> Buttons, bool IsPrivate = false) : this(Content, ToInteractionComponents(Buttons), IsPrivate) { }
 
     public MessageResponse(Embed Embed) : this(new MessageContent(Embed)) { }
 
-    public static IReadOnlyList<InteractionResponse.Component> ToInteractionComponents(IReadOnlyList<Button> buttons)
+    public static IReadOnlyList<InteractionComponent> ToInteractionComponents(IReadOnlyList<Button> buttons)
     {
         if (buttons.Count == 0)
         {
@@ -29,8 +29,8 @@ public record MessageResponse(MessageContent Content, IReadOnlyList<InteractionR
         }
 
         return [
-            InteractionResponse.Component.CreateActionRow([.. buttons.Select(b =>
-                InteractionResponse.Component.CreateButton(
+            InteractionComponent.CreateActionRow([.. buttons.Select(b =>
+                InteractionComponent.CreateButton(
                     style: ToInteractionStyle(b.Style),
                     label: b.Label,
                     custom_id: b.Id,

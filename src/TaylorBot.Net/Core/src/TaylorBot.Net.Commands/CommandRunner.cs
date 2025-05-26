@@ -127,12 +127,10 @@ public class CommandRunner(
 
     public async ValueTask<ICommandResult> RunSlashCommandAsync(Command command, RunContext context)
     {
-        context.Activity.SetCommandName(command.Metadata.Name);
-        context.Activity.SetUserId(context.User.Id);
-        context.Activity.SetChannelId(context.Channel.Id);
-        context.Activity.SetGuildId(context.Guild?.Id);
+        SetActivityInfo(command, context);
 
-        foreach (var precondition in slashCommandsPreconditions.Concat(command.Preconditions ?? []))
+        var preconditions = command.Preconditions != null ? slashCommandsPreconditions.Concat(command.Preconditions) : slashCommandsPreconditions;
+        foreach (var precondition in preconditions)
         {
             if (await precondition.CanRunAsync(command, context) is PreconditionFailed failed)
                 return failed;
@@ -147,12 +145,13 @@ public class CommandRunner(
 
     public async Task<ICommandResult> RunInteractionAsync(Command command, RunContext context)
     {
-        context.Activity.SetCommandName(command.Metadata.Name);
-        context.Activity.SetUserId(context.User.Id);
-        context.Activity.SetChannelId(context.Channel.Id);
-        context.Activity.SetGuildId(context.Guild?.Id);
+        SetActivityInfo(command, context);
 
-        foreach (var precondition in interactionsPreconditions.Concat(command.Preconditions ?? []))
+        // Some interactions require instant responses (modals), so we skip precondition checks (we'll check on the modal submit)
+        var basePreconditions = context.WasAcknowledged ? interactionsPreconditions : [];
+
+        var preconditions = command.Preconditions != null ? basePreconditions.Concat(command.Preconditions) : basePreconditions;
+        foreach (var precondition in preconditions)
         {
             if (await precondition.CanRunAsync(command, context) is PreconditionFailed failed)
                 return failed;
@@ -161,5 +160,13 @@ public class CommandRunner(
         var result = await command.RunAsync();
 
         return result;
+    }
+
+    private static void SetActivityInfo(Command command, RunContext context)
+    {
+        context.Activity.SetCommandName(command.Metadata.Name);
+        context.Activity.SetUserId(context.User.Id);
+        context.Activity.SetChannelId(context.Channel.Id);
+        context.Activity.SetGuildId(context.Guild?.Id);
     }
 }

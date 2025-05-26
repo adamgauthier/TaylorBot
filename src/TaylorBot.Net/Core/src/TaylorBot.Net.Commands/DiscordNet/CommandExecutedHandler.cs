@@ -15,7 +15,8 @@ public class CommandExecutedHandler(
     IOngoingCommandRepository ongoingCommandRepository,
     IIgnoredUserRepository ignoredUserRepository,
     PageMessageReactionsHandler pageMessageReactionsHandler,
-    UserNotIgnoredPrecondition userNotIgnoredPrecondition)
+    UserNotIgnoredPrecondition userNotIgnoredPrecondition,
+    TimeProvider timeProvider)
 {
     public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
     {
@@ -49,10 +50,11 @@ public class CommandExecutedHandler(
                         break;
 
                     case RateLimitedResult rateLimited:
+                        var now = timeProvider.GetUtcNow();
                         var description =
                             $"""
                             You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕
-                            This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**.
+                            This limit will reset **{now.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**.
                             """;
 
                         if (rateLimited.Uses < rateLimited.Limit + 6)
@@ -73,7 +75,7 @@ public class CommandExecutedHandler(
                                 You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**
                                 """;
 
-                            await ignoredUserRepository.IgnoreUntilAsync(new(context.User), DateTimeOffset.UtcNow + ignoreTime);
+                            await ignoredUserRepository.IgnoreUntilAsync(new(context.User), now + ignoreTime);
                         }
 
                         await context.Channel.SendMessageAsync(

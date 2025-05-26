@@ -68,10 +68,15 @@ public sealed class CommandActivity(Activity? activity) : IDisposable
 
     public void SetError(Exception? e = null)
     {
-        var exceptionName = e?.GetType().Name;
+        if (activity == null)
+        {
+            return;
+        }
 
-        activity?.SetStatus(ActivityStatusCode.Error, exceptionName);
-        activity?.SetTag("http.response.status_code", exceptionName);
+        var errorCode = e?.GetType().Name ?? "Unknown";
+
+        activity.SetStatus(ActivityStatusCode.Error, errorCode);
+        activity.SetTag("http.response.status_code", errorCode);
     }
 
     private bool disposed;

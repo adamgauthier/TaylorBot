@@ -71,6 +71,7 @@ public enum CustomIdNames
     TaypointsSuccessionClaimSkip = 124,
     TaypointsSuccessionChangeSuccessor = 125,
     TaypointsSuccessionClearSuccessor = 126,
+    ValentineGiveawayEnter = 127,
 }
 
 public static class CustomIdExtensions

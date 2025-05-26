@@ -54,7 +54,8 @@ public class SlashCommandHandler(
     ICommandRunner commandRunner,
     IOngoingCommandRepository ongoingCommandRepository,
     IIgnoredUserRepository ignoredUserRepository,
-    RunContextFactory contextFactory)
+    RunContextFactory contextFactory,
+    TimeProvider timeProvider)
 {
     private IInteractionResponseClient CreateInteractionClient() => services.GetRequiredService<IInteractionResponseClient>();
 
@@ -155,9 +156,10 @@ public class SlashCommandHandler(
                         break;
 
                     case RateLimitedResult rateLimited:
+                        var now = timeProvider.GetUtcNow();
                         var baseDescriptionLines = new[] {
                             $"You have exceeded the '{rateLimited.FriendlyLimitName}' daily limit (**{rateLimited.Limit}**). 😕",
-                            $"This limit will reset **{DateTimeOffset.UtcNow.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
+                            $"This limit will reset **{now.Date.AddDays(1).Humanize(culture: TaylorBotCulture.Culture)}**."
                         };
 
                         if (rateLimited.Uses < rateLimited.Limit + 6)
@@ -178,7 +180,7 @@ public class SlashCommandHandler(
                                 $"You won't stop despite being warned, **I think you are a bot and will ignore you for {ignoreTime.Humanize(culture: TaylorBotCulture.Culture)}.**",
                             ];
 
-                            await ignoredUserRepository.IgnoreUntilAsync(context.User, DateTimeOffset.UtcNow + ignoreTime);
+                            await ignoredUserRepository.IgnoreUntilAsync(context.User, now + ignoreTime);
                         }
 
                         await CreateInteractionClient().SendFollowupResponseAsync(command.Interaction, new(EmbedFactory.CreateError(string.Join('\n', baseDescriptionLines))));
@@ -195,11 +197,12 @@ public class SlashCommandHandler(
         }
         else
         {
+            activity.SetError(created.Error);
             await CreateInteractionClient().SendImmediateResponseAsync(command, new(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that 😕")));
         }
     }
 
-    private Result<ISlashCommand?> TryCreateSlashCommand(string commandName)
+    private Result<ISlashCommand?, Exception> TryCreateSlashCommand(string commandName)
     {
         try
         {
@@ -208,7 +211,7 @@ public class SlashCommandHandler(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to create slash command service {CommandName}", commandName);
-            return Error();
+            return Error(ex);
         }
     }
 

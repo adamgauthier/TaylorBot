@@ -3,7 +3,6 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
@@ -18,16 +17,14 @@ namespace TaylorBot.Net.Core.Program.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddTaylorBotApplicationServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
+    public static IServiceCollection AddTaylorBotApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(TimeProvider.System);
-
-        TaylorBotInstrumentation instrumentation = new(hostEnvironment.ApplicationName);
+        services.AddSingleton<TaylorBotInstrumentation>();
 
         var builder = services
-            .AddSingleton(instrumentation)
             .AddOpenTelemetry()
-            .WithTracing(o => o.AddSource(instrumentation.ActivitySource.Name));
+            .WithTracing(o => o.AddSource(TaylorBotInstrumentation.ActivitySourceName));
 
         var appInsightsConnectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
         ArgumentException.ThrowIfNullOrEmpty(appInsightsConnectionString);

@@ -31,12 +31,12 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
                 case SuccessfulSearch search:
                     if (!isLegacyCommand)
                     {
-                    return search.VideoUrls.Count > 0
-                        ? pageMessageFactory.Create(new(
-                            new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
-                            IsCancellable: true
-                        ))
-                        : new EmbedResult(EmbedFactory.CreateError("No YouTube video found for your search 😕"));
+                        return search.VideoUrls.Count > 0
+                            ? pageMessageFactory.Create(new(
+                                new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
+                                IsCancellable: true
+                            ))
+                            : new EmbedResult(EmbedFactory.CreateError("No YouTube video found for your search 😕"));
                     }
                     else
                     {
@@ -58,7 +58,8 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
 
                 default:
                     throw new InvalidOperationException(result.GetType().Name);
-            };
+            }
+            ;
         }
     );
 

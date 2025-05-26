@@ -100,7 +100,7 @@ public class TaypointsSuccessionSlashCommand(
 
         var embed = EmbedFactory.CreateSuccess(string.Join("\n", description));
 
-        List<InteractionResponse.Component> components =
+        List<InteractionComponent> components =
         [
             CreateSuccessorUserSelect(will?.BeneficiaryUserId)
         ];
@@ -120,9 +120,9 @@ public class TaypointsSuccessionSlashCommand(
         return await GetManageSuccessionResponseAsync(user, willsAsBeneficiary, daysRequired);
     }
 
-    public static InteractionResponse.Component CreateSuccessorUserSelect(SnowflakeId? defaultUserId = null)
+    public static InteractionComponent CreateSuccessorUserSelect(SnowflakeId? defaultUserId = null)
     {
-        return InteractionResponse.Component.CreateUserSelect(
+        return InteractionComponent.CreateUserSelect(
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionChangeSuccessor).RawId,
             placeholder: "Select a trusted taypoint successor",
             default_values: defaultUserId != null ? [new($"{defaultUserId}", "user")] : null,
@@ -130,9 +130,9 @@ public class TaypointsSuccessionSlashCommand(
             max_values: 1);
     }
 
-    public static InteractionResponse.Component CreateClearSuccessorButton()
+    public static InteractionComponent CreateClearSuccessorButton()
     {
-        return InteractionResponse.Component.CreateActionRow(InteractionResponse.Component.CreateButton(
+        return InteractionComponent.CreateActionRow(InteractionComponent.CreateButton(
             style: InteractionButtonStyle.Danger,
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionClearSuccessor).RawId,
             label: "Remove successor"));
@@ -150,16 +150,16 @@ public class TaypointsSuccessionSlashCommand(
             {FormatWillOwnersList([.. expiredWills.OrderBy(w => w.OwnerLatestSpokeAt)])}
             """);
 
-        var claimButton = InteractionResponse.Component.CreateButton(
+        var claimButton = InteractionComponent.CreateButton(
             style: InteractionButtonStyle.Success,
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionClaim).RawId,
             label: "Claim");
 
-        var skipButton = InteractionResponse.Component.CreateButton(
+        var skipButton = InteractionComponent.CreateButton(
             style: InteractionButtonStyle.Danger,
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionClaimSkip).RawId,
             label: "Skip");
 
-        return new MessageResult(new(new(embed), [InteractionResponse.Component.CreateActionRow(claimButton, skipButton)]));
+        return new MessageResult(new(new(embed), [InteractionComponent.CreateActionRow(claimButton, skipButton)]));
     }
 }
