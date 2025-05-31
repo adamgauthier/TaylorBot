@@ -1,7 +1,7 @@
 ﻿using Discord;
 using FakeItEasy;
-using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 

@@ -53,30 +53,8 @@
       ]
     },
     {
-      "name": "log-set",
-      "description": "Set a channel for modmail logging (if none is set, it defaults to global moderation log channel)",
-      "type": 1,
-      "options": [
-        {
-          "name": "channel",
-          "description": "The text channel you want modmail logged in, default current channel",
-          "type": 7,
-          "required": false,
-          "channel_types": [
-            0,
-            5
-          ]
-        }
-      ]
-    },
-    {
-      "name": "log-show",
-      "description": "Show the configuration of modmail logging in this server",
-      "type": 1
-    },
-    {
-      "name": "log-stop",
-      "description": "Revert to using global moderation log channel from /mod log set",
+      "name": "config",
+      "description": "Configure mod mail for this server",
       "type": 1
     }
   ]

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Instrumentation;
+using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
@@ -27,6 +28,13 @@ public record DiscordUserSelectComponent(
     IReadOnlyList<DiscordUser> SelectedUsers
 ) : IDiscordMessageComponent;
 
+public record DiscordChannelSelectComponent(
+    ParsedInteraction Interaction,
+    InteractionCustomId CustomId,
+    Interaction.Message Message,
+    IReadOnlyList<DiscordChannel> SelectedChannels
+) : IDiscordMessageComponent;
+
 public interface IComponentHandlerInfo
 {
     string CustomIdName { get; }
@@ -48,12 +56,23 @@ public interface IUserSelectComponentHandler
     Task HandleAsync(DiscordUserSelectComponent userSelect, RunContext context);
 }
 
+public interface IChannelSelectComponentHandler
+{
+    IComponentHandlerInfo Info { get; }
+    Task HandleAsync(DiscordChannelSelectComponent channelSelect, RunContext context);
+}
+
 public interface IButtonHandler : IButtonComponentHandler
 {
     abstract static CustomIdNames CustomIdName { get; }
 }
 
 public interface IUserSelectHandler : IUserSelectComponentHandler
+{
+    abstract static CustomIdNames CustomIdName { get; }
+}
+
+public interface IChannelSelectHandler : IChannelSelectComponentHandler
 {
     abstract static CustomIdNames CustomIdName { get; }
 }
@@ -137,6 +156,39 @@ public partial class MessageComponentHandler(
                 }
                 break;
 
+            case (byte)InteractionComponentType.ChannelSelect:
+                var channelSelect = CreateChannelSelectComponent(interaction, activity);
+                if (channelSelect.CustomId.IsValid)
+                {
+                    var handler = services.GetKeyedService<IChannelSelectComponentHandler>(channelSelect.CustomId.Name);
+                    if (handler != null)
+                    {
+                        bool acknowledged = false;
+                        if (handler.Info is MessageHandlerInfo)
+                        {
+                            await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(channelSelect);
+                            acknowledged = true;
+                        }
+
+                        await ProcessParsedComponentAsync(
+                            channelSelect,
+                            handler.Info,
+                            (context) => handler.HandleAsync(channelSelect, context),
+                            activity,
+                            acknowledged
+                        );
+                    }
+                    else
+                    {
+                        logger.LogWarning("Channel select component without handler: {CustomId}, Interaction: {Interaction}", channelSelect.CustomId.RawId, interaction);
+                    }
+                }
+                else
+                {
+                    logger.LogWarning("Channel select component with invalid or unhandled custom ID: {CustomId}, Interaction: {Interaction}", channelSelect.CustomId.RawId, interaction);
+                }
+                break;
+
             default:
                 logger.LogWarning("Unknown component type: {Interaction}", interaction);
                 break;
@@ -183,6 +235,33 @@ public partial class MessageComponentHandler(
             new(parsed.Data.custom_id),
             interaction.message,
             selectedUsers
+        );
+    }
+
+    private DiscordChannelSelectComponent CreateChannelSelectComponent(Interaction interaction, CommandActivity activity)
+    {
+        var parsed = ParsedInteraction.Parse(interaction, activity);
+        ArgumentNullException.ThrowIfNull(parsed.Data.custom_id);
+        ArgumentNullException.ThrowIfNull(parsed.Data.values);
+        ArgumentNullException.ThrowIfNull(parsed.Data.resolved);
+        ArgumentNullException.ThrowIfNull(parsed.Data.resolved.channels);
+        ArgumentNullException.ThrowIfNull(interaction.message);
+
+        var selectedChannels = parsed.Data.values.Select(channelId =>
+        {
+            if (!parsed.Data.resolved.channels.TryGetValue(channelId, out var resolvedChannel))
+            {
+                throw new InvalidOperationException($"Can't find channel {channelId} in resolved data");
+            }
+
+            return interactionMapper.ToChannel(resolvedChannel);
+        }).ToList();
+
+        return new(
+            parsed,
+            new(parsed.Data.custom_id),
+            interaction.message,
+            selectedChannels
         );
     }
 

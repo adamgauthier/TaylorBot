@@ -1,6 +1,7 @@
 ﻿using Discord;
 using System.Globalization;
 using System.Text.Json;
+using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
@@ -108,6 +109,11 @@ public record RoleTags(
 
 public class InteractionMapper
 {
+    public DiscordChannel ToChannel(Interaction.PartialChannel channel)
+    {
+        return new(channel.id, (ChannelType)channel.type);
+    }
+
     public DiscordUser ToUser(Interaction.User user, Interaction.PartialMember? member = null)
     {
         return new(

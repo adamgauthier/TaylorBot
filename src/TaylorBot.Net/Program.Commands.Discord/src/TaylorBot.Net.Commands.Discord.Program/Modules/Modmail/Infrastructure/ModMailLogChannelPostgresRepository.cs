@@ -1,5 +1,4 @@
-using Dapper;
-using Discord;
+﻿using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -29,7 +28,7 @@ public class ModMailLogChannelPostgresRepository(PostgresConnectionFactory postg
         );
     }
 
-    public async ValueTask RemoveModMailLogAsync(IGuild guild)
+    public async ValueTask RemoveModMailLogAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -42,12 +41,9 @@ public class ModMailLogChannelPostgresRepository(PostgresConnectionFactory postg
         );
     }
 
-    private sealed class LogChannelDto
-    {
-        public string channel_id { get; set; } = null!;
-    }
+    private sealed record LogChannelDto(string channel_id);
 
-    public async ValueTask<ModLog?> GetModMailLogForGuildAsync(IGuild guild)
+    public async ValueTask<ModLog?> GetModMailLogForGuildAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

@@ -1,20 +1,15 @@
 ﻿using Discord;
 using OperationResult;
 using System.Text.Json;
+using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.Client;
-using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Parsers.Channels;
 
-public record DiscordChannel(SnowflakeId Id, ChannelType Type)
-{
-    public string Mention => MentionUtils.MentionChannel(Id);
-}
-
 public record ParsedChannelOrCurrent(DiscordChannel Channel);
 
-public class ChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository) : IOptionParser<ParsedChannelOrCurrent>
+public class ChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository, InteractionMapper interactionMapper) : IOptionParser<ParsedChannelOrCurrent>
 {
     public async ValueTask<Result<ParsedChannelOrCurrent, ParsingFailed>> ParseAsync(RunContext context, JsonElement? optionValue, Interaction.Resolved? resolved)
     {
@@ -25,7 +20,7 @@ public class ChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository
             {
                 await TrackTextChannelAsync(context, resolvedChannel);
 
-                return new ParsedChannelOrCurrent(new(resolvedChannel.id, (ChannelType)resolvedChannel.type));
+                return new ParsedChannelOrCurrent(interactionMapper.ToChannel(resolvedChannel));
             }
             else
             {

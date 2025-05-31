@@ -124,7 +124,7 @@ public class TaypointsSuccessionSlashCommand(
     {
         return InteractionComponent.CreateUserSelect(
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionChangeSuccessor).RawId,
-            placeholder: "Select a trusted taypoint successor",
+            placeholder: "Pick a trusted taypoint successor",
             default_values: defaultUserId != null ? [new($"{defaultUserId}", "user")] : null,
             min_values: 1,
             max_values: 1);
@@ -135,7 +135,7 @@ public class TaypointsSuccessionSlashCommand(
         return InteractionComponent.CreateActionRow(InteractionComponent.CreateButton(
             style: InteractionButtonStyle.Danger,
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionClearSuccessor).RawId,
-            label: "Remove successor"));
+            label: "Remove Successor"));
     }
 
     private MessageResult GetClaimSuccessionResponse(

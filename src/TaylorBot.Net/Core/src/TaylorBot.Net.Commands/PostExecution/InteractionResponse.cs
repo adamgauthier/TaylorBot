@@ -1,5 +1,6 @@
 ﻿using TaylorBot.Net.Core.Client;
 using static TaylorBot.Net.Commands.PostExecution.InteractionResponse;
+using ChannelType = Discord.ChannelType;
 
 namespace TaylorBot.Net.Commands.PostExecution;
 
@@ -36,7 +37,7 @@ public sealed record InteractionComponent(
     string? value = null,
     string? placeholder = null,
     IReadOnlyList<InteractionComponent>? components = null,
-    IReadOnlyList<byte>? channel_types = null,
+    IReadOnlyList<int>? channel_types = null,
     IReadOnlyList<SelectDefaultValue>? default_values = null
 )
 {
@@ -85,14 +86,17 @@ public sealed record InteractionComponent(
         ));
     }
 
-    public static InteractionComponent CreateChannelSelectMenu(string custom_id, IReadOnlyList<byte>? channel_types, string? placeholder = null, bool? disabled = null)
+    public static InteractionComponent CreateChannelSelect(string custom_id, string? placeholder = null, int? min_values = null, int? max_values = null, bool? disabled = null, IReadOnlyList<ChannelType>? channel_types = null, IReadOnlyList<SelectDefaultValue>? default_values = null)
     {
         return CreateActionRow([new InteractionComponent(
             (byte)InteractionComponentType.ChannelSelect,
-            channel_types: channel_types,
+            channel_types: channel_types?.Cast<int>().ToList(),
             custom_id: custom_id,
             placeholder: placeholder,
-            disabled: disabled
+            disabled: disabled,
+            min_length: min_values,
+            max_length: max_values,
+            default_values: default_values
         )]);
     }
 }

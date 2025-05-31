@@ -3,7 +3,7 @@ using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
-using TaylorBot.Net.Commands.Parsers.Channels;
+using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.Client;
 using Xunit;
 
