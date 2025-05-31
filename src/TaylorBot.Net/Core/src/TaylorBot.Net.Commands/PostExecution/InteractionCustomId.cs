@@ -59,7 +59,7 @@ public enum CustomIdNames
     FavoriteSongsSetConfirm = 112,
     KickConfirm = 113,
     ModLogSetConfirm = 114,
-    ModMailLogSetConfirm = 115,
+    ModMailConfigConfirm = 115,
     ModMailMessageModsConfirm = 116,
     MonitorDeletedSetConfirm = 117,
     MonitorEditedSetConfirm = 118,
@@ -72,6 +72,8 @@ public enum CustomIdNames
     TaypointsSuccessionChangeSuccessor = 125,
     TaypointsSuccessionClearSuccessor = 126,
     ValentineGiveawayEnter = 127,
+    ModMailConfigSetChannel = 128,
+    ModMailConfigStop = 129,
 }
 
 public static class CustomIdExtensions

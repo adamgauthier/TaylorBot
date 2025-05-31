@@ -1,32 +1,38 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
+using OperationResult;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
+using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 
-public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMailLogChannelRepository modMailLogChannelRepository, IModChannelLogger modChannelLogger)
+public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMailLogChannelRepository modMailLogChannelRepository, CommandMentioner mention)
 {
-    public async ValueTask<ITextChannel?> GetModMailLogAsync(IGuild guild)
+    public async ValueTask<Result<ITextChannel, Embed>> GetModMailLogAsync(IGuild guild, RunContext context)
     {
-        var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
-        if (modLog != null)
+        var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(new(guild.Id, guild));
+        if (modLog == null)
         {
-            var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId);
-            return channel;
+            return Error(CreateNotConfiguredModMailLogEmbed(context));
         }
 
-        return await modChannelLogger.GetModLogAsync(guild);
+        var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId);
+        if (channel == null)
+        {
+            return Error(CreateChannelNotFoundModMailLogEmbed(context));
+        }
+
+        return Ok(channel);
     }
 
-    public async ValueTask<bool> TrySendModMailLogAsync(IGuild guild, DiscordUser moderator, DiscordUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed, SnowflakeId? replyToMessageId = null)
+    public async ValueTask<bool> TrySendModMailLogAsync(RunContext context, IGuild guild, DiscordUser moderator, DiscordUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed, SnowflakeId? replyToMessageId = null)
     {
-        var channel = await GetModMailLogAsync(guild);
-
-        if (channel != null)
+        var result = await GetModMailLogAsync(guild, context);
+        if (result.IsSuccess)
         {
             try
             {
@@ -35,13 +41,13 @@ public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMail
                     .AddField("User", user.FormatTagAndMention(), inline: true)
                     .WithCurrentTimestamp();
 
-                await channel.SendMessageAsync(embed: buildEmbed(baseEmbed).Build(), messageReference: replyToMessageId != null ? new(replyToMessageId) : null);
+                await result.Value.SendMessageAsync(embed: buildEmbed(baseEmbed).Build(), messageReference: replyToMessageId != null ? new(replyToMessageId) : null);
 
                 return true;
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Error when sending mod mail log in {Channel}:", channel.FormatLog());
+                logger.LogWarning(e, "Error when sending mod mail log in {Channel}:", result.Value.FormatLog());
             }
         }
 
@@ -50,6 +56,31 @@ public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMail
 
     public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
     {
-        return modChannelLogger.CreateResultEmbed(context, wasLogged, successMessage);
+        return wasLogged ?
+            EmbedFactory.CreateSuccess(successMessage) :
+            EmbedFactory.CreateWarning(
+                $"""
+                {successMessage}
+                However, I was not able to log this action in your moderation log channel 😕
+                Make sure you set it up with {mention.SlashCommand("modmail log-set", context)} and TaylorBot has access to it 🛠️
+                """);
+    }
+
+    public Embed CreateNotConfiguredModMailLogEmbed(RunContext context)
+    {
+        return EmbedFactory.CreateError(
+            $"""
+            Sorry, this server hasn't enabled TaylorBot Mod Mail 😕
+            Ask a moderator to set it up with {mention.SlashCommand("modmail log-set", context)} 🛠️
+            """);
+    }
+
+    public Embed CreateChannelNotFoundModMailLogEmbed(RunContext context)
+    {
+        return EmbedFactory.CreateError(
+            $"""
+            Sorry, this server's TaylorBot Mod Mail channel no longer exists or TaylorBot can't access it 😕
+            Ask a moderator to fix it with {mention.SlashCommand("modmail log-set", context)} and make sure TaylorBot has the right permissions 🛠️
+            """);
     }
 }

@@ -76,12 +76,12 @@ public class ModMailUserMessageReplyModalHandler(
 
     public static readonly Color EmbedColor = new(255, 255, 240);
 
-    public async Task HandleAsync(ModalSubmit submit)
+    public async Task HandleAsync(ModalSubmit submit, RunContext context)
     {
         var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
 
-        ArgumentNullException.ThrowIfNull(submit.Interaction.Guild);
-        var guild = taylorBotClient.Value.ResolveRequiredGuild(submit.Interaction.Guild.Id);
+        var guild = context.Guild?.Fetched;
+        ArgumentNullException.ThrowIfNull(guild);
 
         SnowflakeId userId = submit.CustomId.ParsedData["to"];
 
@@ -175,6 +175,7 @@ public class ModMailReplyConfirmButtonHandler(
         }
 
         var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(
+            context,
             user.Guild,
             context.User,
             new(user),

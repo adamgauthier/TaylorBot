@@ -1,5 +1,4 @@
 ﻿using TaylorBot.Net.Commands.PostExecution;
-using static TaylorBot.Net.Commands.MessageResult;
 
 namespace TaylorBot.Net.Commands.PageMessages;
 

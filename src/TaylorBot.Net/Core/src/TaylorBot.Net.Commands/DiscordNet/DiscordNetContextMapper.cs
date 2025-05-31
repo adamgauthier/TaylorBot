@@ -1,6 +1,5 @@
 ﻿using Discord;
-using TaylorBot.Net.Commands.Parsers.Channels;
-using TaylorBot.Net.EntityTracker.Domain.TextChannel;
+using TaylorBot.Net.Core.Channel;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 

@@ -56,7 +56,7 @@ public class ModMailBlockSlashCommand(
 
                 await modMailBlockedUsersRepository.BlockAsync(guild.Fetched, user);
 
-                var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(guild.Fetched, context.User, user, logEmbed =>
+                var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(context, guild.Fetched, context.User, user, logEmbed =>
                     logEmbed
                         .WithColor(EmbedColor)
                         .WithFooter("User blocked from sending mod mail")
@@ -64,8 +64,8 @@ public class ModMailBlockSlashCommand(
 
                 return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
                     $"""
-                    Blocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍
-                    You can undo this action with {mention.SlashCommand("mod mail unblock", context)}.
+                    Blocked {user.FormatTagAndMention()} from sending mod mail in this server 👍
+                    You can undo this action with {mention.SlashCommand("mod mail unblock", context)} ↩️
                     """));
             },
             Preconditions: [
@@ -104,7 +104,7 @@ public class ModMailUnblockSlashCommand(
 
                 await modMailBlockedUsersRepository.UnblockAsync(guild, user);
 
-                var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(guild, context.User, user, logEmbed =>
+                var wasLogged = await modMailChannelLogger.TrySendModMailLogAsync(context, guild, context.User, user, logEmbed =>
                     logEmbed
                         .WithColor(EmbedColor)
                         .WithFooter("User unblocked from sending mod mail")
@@ -112,8 +112,8 @@ public class ModMailUnblockSlashCommand(
 
                 return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
                     $"""
-                    Unblocked {user.FormatTagAndMention()} from sending mod mail in this server. 👍
-                    You can block again with {mention.SlashCommand("mod mail block", context)}.
+                    Unblocked {user.FormatTagAndMention()} from sending mod mail in this server 👍
+                    You can block again with {mention.SlashCommand("mod mail block", context)} ↩️
                     """));
             },
             Preconditions: [

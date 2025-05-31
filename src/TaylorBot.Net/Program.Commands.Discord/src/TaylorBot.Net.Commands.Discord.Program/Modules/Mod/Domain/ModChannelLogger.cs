@@ -60,10 +60,11 @@ public class ModChannelLogger(
     {
         return wasLogged ?
             EmbedFactory.CreateSuccess(successMessage) :
-            EmbedFactory.CreateWarning(string.Join('\n', [
-                successMessage,
-                "However, I was not able to log this action in your moderation log channel.",
-                $"Make sure you set it up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it."
-            ]));
+            EmbedFactory.CreateWarning(
+                $"""
+                {successMessage}
+                However, I was not able to log this action in your moderation log channel 😕
+                Make sure you set it up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it 🛠️
+                """);
     }
 }

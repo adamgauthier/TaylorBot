@@ -23,7 +23,7 @@ public interface IModalComponentHandler
 {
     ModalComponentHandlerInfo Info { get; }
 
-    Task HandleAsync(ModalSubmit submit);
+    Task HandleAsync(ModalSubmit submit, RunContext context);
 }
 
 public interface IModalHandler : IModalComponentHandler
@@ -69,17 +69,17 @@ public class ModalInteractionHandler(
 
     private async Task<MessageResponse?> RunInteractionAsync(CommandActivity activity, ModalSubmit submit, IModalComponentHandler handler)
     {
+        var context = contextFactory.BuildContext(submit.Interaction, activity, wasAcknowledged: true);
+
         Command command = new(
             new($"{submit.CustomId.ParsedName}", IsSlashCommand: false),
             RunAsync: async () =>
             {
-                await handler.HandleAsync(submit);
+                await handler.HandleAsync(submit, context);
                 // We're letting the handler use IInteractionResponseClient directly
                 return new EmptyResult();
             },
             Preconditions: handler.Info.Preconditions);
-
-        var context = contextFactory.BuildContext(submit.Interaction, activity, wasAcknowledged: true);
 
         try
         {

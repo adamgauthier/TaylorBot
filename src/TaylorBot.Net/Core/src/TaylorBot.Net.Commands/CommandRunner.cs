@@ -1,8 +1,8 @@
 ﻿using Discord;
 using TaylorBot.Net.Commands.Instrumentation;
-using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
+using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;

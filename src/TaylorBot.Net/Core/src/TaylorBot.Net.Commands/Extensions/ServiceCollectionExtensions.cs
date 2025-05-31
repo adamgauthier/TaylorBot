@@ -156,6 +156,14 @@ public static class ServiceCollectionExtensions
             .AddKeyedTransient<IUserSelectComponentHandler, T>(T.CustomIdName.ToText());
     }
 
+    public static IServiceCollection AddChannelSelectHandler<T>(this IServiceCollection services)
+        where T : class, IChannelSelectHandler
+    {
+        return services
+            .AddTransient<T>()
+            .AddKeyedTransient<IChannelSelectComponentHandler, T>(T.CustomIdName.ToText());
+    }
+
     public static IServiceCollection AddModalHandler<T>(this IServiceCollection services)
         where T : class, IModalHandler
     {

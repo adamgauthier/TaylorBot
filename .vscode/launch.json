@@ -177,7 +177,7 @@
         {
             "id": "sqitchChangeName",
             "type": "promptString",
-            "description": "Sqitch change name",
+            "description": "Sqitch change name (date will be added as prefix)",
             "default": "bump_version_1.21.0"
         },
         {

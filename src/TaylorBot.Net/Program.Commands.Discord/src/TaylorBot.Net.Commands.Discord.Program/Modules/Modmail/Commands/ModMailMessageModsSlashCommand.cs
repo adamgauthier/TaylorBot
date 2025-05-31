@@ -49,13 +49,15 @@ public class ModMailMessageModsSlashCommand(InGuildPrecondition.Factory inGuild)
 public class ModMailMessageModsModalHandler(
     IInteractionResponseClient responseClient,
     IOptionsMonitor<ModMailOptions> modMailOptions,
-    ModMailMessageModsSlashCommand command) : IModalHandler
+    ModMailMessageModsSlashCommand command,
+    IModMailLogChannelRepository modMailLogChannelRepository,
+    ModMailChannelLogger modMailChannelLogger) : IModalHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailMessageModsModal;
 
     public ModalComponentHandlerInfo Info => new(IsPrivateResponse: true, Preconditions: command.BuildPreconditions());
 
-    public async Task HandleAsync(ModalSubmit submit)
+    public async Task HandleAsync(ModalSubmit submit, RunContext context)
     {
         var subject = submit.TextInputs.Single(t => t.CustomId == "subject").Value;
         if (string.IsNullOrWhiteSpace(subject))
@@ -65,8 +67,15 @@ public class ModMailMessageModsModalHandler(
 
         var messageContent = submit.TextInputs.Single(t => t.CustomId == "messagecontent").Value;
 
-        var guild = submit.Interaction.Guild?.Id;
+        var guild = context.Guild;
         ArgumentNullException.ThrowIfNull(guild);
+
+        var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
+        if (modLog == null)
+        {
+            await responseClient.EditOriginalResponseAsync(submit.Interaction, new MessageResponse(modMailChannelLogger.CreateNotConfiguredModMailLogEmbed(context)));
+            return;
+        }
 
         var embed = new EmbedBuilder()
             .WithColor(ModMailMessageModsSlashCommand.EmbedColor)
@@ -93,8 +102,7 @@ public class ModMailMessageModsConfirmButtonHandler(
     IInteractionResponseClient responseClient,
     ILogger<ModMailMessageModsConfirmButtonHandler> logger,
     IModMailBlockedUsersRepository modMailBlockedUsersRepository,
-    ModMailChannelLogger modMailChannelLogger,
-    CommandMentioner mention) : IButtonHandler
+    ModMailChannelLogger modMailChannelLogger) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailMessageModsConfirm;
 
@@ -121,34 +129,37 @@ public class ModMailMessageModsConfirmButtonHandler(
             return;
         }
 
-        var channel = await modMailChannelLogger.GetModMailLogAsync(guild);
-        if (channel != null)
+        var result = await modMailChannelLogger.GetModMailLogAsync(guild, context);
+        if (!result.IsSuccess)
         {
-            try
-            {
-                await channel.SendMessageAsync(embed: InteractionMapper.ToDiscordEmbed(modMailEmbed), components: new ComponentBuilder()
-                    .WithButton(
-                        customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId,
-                        label: "Reply", emote: new Emoji("📨"))
-                    .Build());
+            await responseClient.EditOriginalResponseAsync(button.Interaction, new MessageResponse(result.Error));
+            return;
+        }
 
-                await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
-                    $"""
+        try
+        {
+            await result.Value.SendMessageAsync(embed: InteractionMapper.ToDiscordEmbed(modMailEmbed), components: new ComponentBuilder()
+                .WithButton(
+                    customId: InteractionCustomId.Create(ModMailUserMessageReplyButtonHandler.CustomIdName, [new("to", context.User.Id)]).RawId,
+                    label: "Reply", emote: new Emoji("📨"))
+                .Build());
+
+            await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
+                $"""
                     Message sent to the moderation team of '{guild.Name}' ✉️
                     If you're expecting a response, **make sure you're able to send & receive DMs from TaylorBot** ⚙️
                     """));
-                return;
-            }
-            catch (Exception e)
-            {
-                logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
-            }
+            return;
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
         }
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
             $"""
-            I was not able to send the message to the moderation team 😕
-            Make sure they have a moderation log set up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it 🛠️
+            Failed to send message to the moderation team because I couldn't access the mod mail log channel 😕
+            Ask a moderator to check if TaylorBot has the necessary permissions in the channel 🛠️
             """));
     }
 }
