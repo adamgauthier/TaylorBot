@@ -1,0 +1,14 @@
+{
+  "name": "help",
+  "description": "Display information about available commands",
+  "integration_types": [
+    0,
+    1
+  ],
+  "contexts": [
+    0,
+    1,
+    2
+  ],
+  "options": []
+}
