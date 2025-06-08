@@ -15,6 +15,7 @@
   <ItemGroup>
     <None Include="Settings\*.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Settings\commands.md" />
   </ItemGroup>
 
   <ItemGroup>

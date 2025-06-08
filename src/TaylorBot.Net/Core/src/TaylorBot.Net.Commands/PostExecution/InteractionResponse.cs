@@ -1,4 +1,5 @@
-﻿using TaylorBot.Net.Core.Client;
+﻿using System.Text.Json.Serialization;
+using TaylorBot.Net.Core.Client;
 using static TaylorBot.Net.Commands.PostExecution.InteractionResponse;
 using ChannelType = Discord.ChannelType;
 
@@ -21,6 +22,15 @@ public sealed record InteractionResponse(byte type, InteractionApplicationComman
     public sealed record Emoji(string name);
 
     public sealed record SelectDefaultValue(string id, string type);
+
+    public sealed record SelectMenuOption(
+        string label,
+        string value,
+        string? description = null,
+        Emoji? emoji = null,
+        [property: JsonPropertyName("default")]
+        bool? default_value = null
+    );
 }
 
 public sealed record InteractionComponent(
@@ -38,7 +48,8 @@ public sealed record InteractionComponent(
     string? placeholder = null,
     IReadOnlyList<InteractionComponent>? components = null,
     IReadOnlyList<int>? channel_types = null,
-    IReadOnlyList<SelectDefaultValue>? default_values = null
+    IReadOnlyList<SelectDefaultValue>? default_values = null,
+    IReadOnlyList<SelectMenuOption>? options = null
 )
 {
     public static InteractionComponent CreateActionRow(params IReadOnlyList<InteractionComponent> components)
@@ -71,6 +82,17 @@ public sealed record InteractionComponent(
             value: value,
             placeholder: placeholder
         );
+    }
+
+    public static InteractionComponent CreateStringSelect(string custom_id, IReadOnlyList<SelectMenuOption> options, string? placeholder = null, bool? disabled = null)
+    {
+        return CreateActionRow([new InteractionComponent(
+            (byte)InteractionComponentType.StringSelect,
+            custom_id: custom_id,
+            placeholder: placeholder,
+            disabled: disabled,
+            options: options
+        )]);
     }
 
     public static InteractionComponent CreateUserSelect(string custom_id, string? placeholder = null, int? min_values = null, int? max_values = null, bool? disabled = null, IReadOnlyList<SelectDefaultValue>? default_values = null)

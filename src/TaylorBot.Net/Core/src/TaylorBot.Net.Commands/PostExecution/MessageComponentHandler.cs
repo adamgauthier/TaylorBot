@@ -35,6 +35,13 @@ public record DiscordChannelSelectComponent(
     IReadOnlyList<DiscordChannel> SelectedChannels
 ) : IDiscordMessageComponent;
 
+public record DiscordStringSelectComponent(
+    ParsedInteraction Interaction,
+    InteractionCustomId CustomId,
+    Interaction.Message Message,
+    IReadOnlyList<string> Values
+) : IDiscordMessageComponent;
+
 public interface IComponentHandlerInfo
 {
     string CustomIdName { get; }
@@ -62,6 +69,12 @@ public interface IChannelSelectComponentHandler
     Task HandleAsync(DiscordChannelSelectComponent channelSelect, RunContext context);
 }
 
+public interface IStringSelectComponentHandler
+{
+    IComponentHandlerInfo Info { get; }
+    Task HandleAsync(DiscordStringSelectComponent select, RunContext context);
+}
+
 public interface IButtonHandler : IButtonComponentHandler
 {
     abstract static CustomIdNames CustomIdName { get; }
@@ -73,6 +86,11 @@ public interface IUserSelectHandler : IUserSelectComponentHandler
 }
 
 public interface IChannelSelectHandler : IChannelSelectComponentHandler
+{
+    abstract static CustomIdNames CustomIdName { get; }
+}
+
+public interface IStringSelectHandler : IStringSelectComponentHandler
 {
     abstract static CustomIdNames CustomIdName { get; }
 }
@@ -120,6 +138,39 @@ public partial class MessageComponentHandler(
                 else
                 {
                     logger.LogWarning("Button component with invalid custom ID: {CustomId}, Interaction: {Interaction}", button.CustomId.RawId, interaction);
+                }
+                break;
+
+            case (byte)InteractionComponentType.StringSelect:
+                var stringSelect = CreateStringSelectComponent(interaction, activity);
+                if (stringSelect.CustomId.IsValid)
+                {
+                    var handler = services.GetKeyedService<IStringSelectComponentHandler>(stringSelect.CustomId.Name);
+                    if (handler != null)
+                    {
+                        bool acknowledged = false;
+                        if (handler.Info is MessageHandlerInfo)
+                        {
+                            await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(stringSelect);
+                            acknowledged = true;
+                        }
+
+                        await ProcessParsedComponentAsync(
+                            stringSelect,
+                            handler.Info,
+                            (context) => handler.HandleAsync(stringSelect, context),
+                            activity,
+                            acknowledged
+                        );
+                    }
+                    else
+                    {
+                        logger.LogWarning("String select component without handler: {CustomId}, Interaction: {Interaction}", stringSelect.CustomId.RawId, interaction);
+                    }
+                }
+                else
+                {
+                    logger.LogWarning("String select component with invalid custom ID: {CustomId}, Interaction: {Interaction}", stringSelect.CustomId.RawId, interaction);
                 }
                 break;
 
@@ -205,6 +256,21 @@ public partial class MessageComponentHandler(
             parsed,
             new(parsed.Data.custom_id),
             interaction.message
+        );
+    }
+
+    private DiscordStringSelectComponent CreateStringSelectComponent(Interaction interaction, CommandActivity activity)
+    {
+        var parsed = ParsedInteraction.Parse(interaction, activity);
+        ArgumentNullException.ThrowIfNull(parsed.Data.custom_id);
+        ArgumentNullException.ThrowIfNull(parsed.Data.values);
+        ArgumentNullException.ThrowIfNull(interaction.message);
+
+        return new(
+            parsed,
+            new(parsed.Data.custom_id),
+            interaction.message,
+            parsed.Data.values
         );
     }
 

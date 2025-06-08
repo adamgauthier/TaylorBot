@@ -74,6 +74,7 @@ public enum CustomIdNames
     ValentineGiveawayEnter = 127,
     ModMailConfigSetChannel = 128,
     ModMailConfigStop = 129,
+    HelpCategory = 130,
 }
 
 public static class CustomIdExtensions

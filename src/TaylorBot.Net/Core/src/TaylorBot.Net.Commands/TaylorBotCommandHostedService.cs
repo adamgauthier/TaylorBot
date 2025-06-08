@@ -51,7 +51,6 @@ public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<Ta
 
         logger.LogInformation("Adding command modules");
 
-        await commandService.AddModuleAsync<HelpModule>(services);
         await commandService.AddModulesAsync(
             assembly: Assembly.GetEntryAssembly(),
             services: services

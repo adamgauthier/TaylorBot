@@ -13,7 +13,7 @@
   "options": [
     {
       "name": "add",
-      "description": "Add a new reminder",
+      "description": "Add a new reminder for the future",
       "type": 1,
       "options": [
         {

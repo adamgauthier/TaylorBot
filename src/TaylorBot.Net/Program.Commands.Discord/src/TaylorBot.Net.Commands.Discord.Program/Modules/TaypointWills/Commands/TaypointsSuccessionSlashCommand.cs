@@ -135,7 +135,8 @@ public class TaypointsSuccessionSlashCommand(
         return InteractionComponent.CreateActionRow(InteractionComponent.CreateButton(
             style: InteractionButtonStyle.Danger,
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionClearSuccessor).RawId,
-            label: "Remove Successor"));
+            label: "Remove Successor",
+            emoji: new("🗑️")));
     }
 
     private MessageResult GetClaimSuccessionResponse(

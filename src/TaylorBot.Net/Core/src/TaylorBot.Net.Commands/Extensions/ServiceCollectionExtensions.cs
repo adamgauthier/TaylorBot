@@ -148,6 +148,14 @@ public static class ServiceCollectionExtensions
             .AddKeyedTransient<IButtonComponentHandler, T>(T.CustomIdName.ToText());
     }
 
+    public static IServiceCollection AddStringSelectHandler<T>(this IServiceCollection services)
+        where T : class, IStringSelectHandler
+    {
+        return services
+            .AddTransient<T>()
+            .AddKeyedTransient<IStringSelectComponentHandler, T>(T.CustomIdName.ToText());
+    }
+
     public static IServiceCollection AddUserSelectHandler<T>(this IServiceCollection services)
         where T : class, IUserSelectHandler
     {

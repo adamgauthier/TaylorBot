@@ -52,7 +52,7 @@
     },
     {
       "name": "weather",
-      "description": "Get current weather forecast for a user's location. Icons by Dr. Lex.",
+      "description": "Get current weather for a user's location. Icons by Dr. Lex.",
       "type": 1,
       "options": [
         {

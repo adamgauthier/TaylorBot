@@ -35,6 +35,9 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Help.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Help.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Help.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
@@ -176,6 +179,10 @@ public static class DiscordCommandsProgram
             .AddTransient<IBotInfoRepository, BotInfoRepositoryPostgresRepository>()
             .AddTransient<IUsernameHistoryRepository, UsernameHistoryPostgresRepository>()
             .AddTransient<IPlusUserRepository, PlusUserPostgresRepository>()
+            .AddTransient<ICommandsHelpRepository, CommandsHelpPostgresRepository>()
+            .AddTransient<CommandCategoryService>()
+            .AddSlashCommand<HelpSlashCommand>()
+            .AddStringSelectHandler<HelpCategoryHandler>()
             .AddSlashCommand<PlusShowSlashCommand>()
             .AddSlashCommand<PlusAddSlashCommand>()
             .AddSlashCommand<PlusRemoveSlashCommand>()
