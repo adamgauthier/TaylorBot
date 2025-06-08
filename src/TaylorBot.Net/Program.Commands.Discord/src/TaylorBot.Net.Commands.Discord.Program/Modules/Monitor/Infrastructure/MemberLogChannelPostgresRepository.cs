@@ -51,7 +51,7 @@ public class MemberLogChannelPostgresRepository(PostgresConnectionFactory postgr
         return logChannel != null ? new MemberLog(new SnowflakeId(logChannel.member_log_channel_id)) : null;
     }
 
-    public async ValueTask RemoveMemberLogAsync(IGuild guild)
+    public async ValueTask RemoveMemberLogAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

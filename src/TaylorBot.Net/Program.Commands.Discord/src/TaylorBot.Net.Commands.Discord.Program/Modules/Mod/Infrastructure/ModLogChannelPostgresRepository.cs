@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Core.Infrastructure;
@@ -28,7 +28,7 @@ public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresC
         );
     }
 
-    public async ValueTask RemoveModLogAsync(IGuild guild)
+    public async ValueTask RemoveModLogAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

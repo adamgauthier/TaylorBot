@@ -34,11 +34,6 @@
           "name": "show",
           "description": "Show the configuration of members monitoring in this server",
           "type": 1
-        },
-        {
-          "name": "stop",
-          "description": "Stop monitoring member events in this server",
-          "type": 1
         }
       ]
     },
@@ -68,11 +63,6 @@
           "name": "show",
           "description": "Show the configuration of deleted messages monitoring in this server",
           "type": 1
-        },
-        {
-          "name": "stop",
-          "description": "Stop monitoring deleted messages in this server",
-          "type": 1
         }
       ]
     },
@@ -101,11 +91,6 @@
         {
           "name": "show",
           "description": "Show the configuration of edited messages monitoring in this server",
-          "type": 1
-        },
-        {
-          "name": "stop",
-          "description": "Stop monitoring edited messages in this server",
           "type": 1
         }
       ]

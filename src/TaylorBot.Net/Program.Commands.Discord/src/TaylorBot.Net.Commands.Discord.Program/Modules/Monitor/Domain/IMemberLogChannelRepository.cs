@@ -10,5 +10,5 @@ public interface IMemberLogChannelRepository
 {
     ValueTask AddOrUpdateMemberLogAsync(GuildTextChannel textChannel);
     ValueTask<MemberLog?> GetMemberLogForGuildAsync(IGuild guild);
-    ValueTask RemoveMemberLogAsync(IGuild guild);
+    ValueTask RemoveMemberLogAsync(CommandGuild guild);
 }

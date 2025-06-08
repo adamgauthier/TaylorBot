@@ -10,5 +10,5 @@ public interface IDeletedLogChannelRepository
 {
     ValueTask AddOrUpdateDeletedLogAsync(GuildTextChannel textChannel);
     ValueTask<DeletedLog?> GetDeletedLogForGuildAsync(IGuild guild);
-    ValueTask RemoveDeletedLogAsync(IGuild guild);
+    ValueTask RemoveDeletedLogAsync(CommandGuild guild);
 }

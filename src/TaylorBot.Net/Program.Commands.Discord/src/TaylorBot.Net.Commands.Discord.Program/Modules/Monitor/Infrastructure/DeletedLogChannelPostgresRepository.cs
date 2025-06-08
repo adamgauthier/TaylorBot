@@ -51,7 +51,7 @@ public class DeletedLogChannelPostgresRepository(PostgresConnectionFactory postg
         return logChannel != null ? new DeletedLog(new SnowflakeId(logChannel.deleted_log_channel_id)) : null;
     }
 
-    public async ValueTask RemoveDeletedLogAsync(IGuild guild)
+    public async ValueTask RemoveDeletedLogAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

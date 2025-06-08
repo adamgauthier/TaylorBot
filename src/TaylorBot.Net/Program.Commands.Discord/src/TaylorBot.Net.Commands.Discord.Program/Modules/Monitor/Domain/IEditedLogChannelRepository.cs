@@ -10,5 +10,5 @@ public interface IEditedLogChannelRepository
 {
     ValueTask AddOrUpdateEditedLogAsync(GuildTextChannel textChannel);
     ValueTask<EditedLog?> GetEditedLogForGuildAsync(IGuild guild);
-    ValueTask RemoveEditedLogAsync(IGuild guild);
+    ValueTask RemoveEditedLogAsync(CommandGuild guild);
 }

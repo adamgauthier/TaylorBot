@@ -9,6 +9,6 @@ public record ModLog(SnowflakeId ChannelId);
 public interface IModLogChannelRepository
 {
     ValueTask AddOrUpdateModLogAsync(GuildTextChannel textChannel);
-    ValueTask RemoveModLogAsync(IGuild guild);
+    ValueTask RemoveModLogAsync(CommandGuild guild);
     ValueTask<ModLog?> GetModLogForGuildAsync(IGuild guild);
 }

@@ -34,11 +34,6 @@
           "name": "show",
           "description": "Show the configuration of moderation command usage logging in this server",
           "type": 1
-        },
-        {
-          "name": "stop",
-          "description": "Stop logging moderation command usage in this server",
-          "type": 1
         }
       ]
     },

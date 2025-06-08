@@ -51,7 +51,7 @@ public class EditedLogChannelPostgresRepository(PostgresConnectionFactory postgr
         return logChannel != null ? new EditedLog(new SnowflakeId(logChannel.edited_log_channel_id)) : null;
     }
 
-    public async ValueTask RemoveEditedLogAsync(IGuild guild)
+    public async ValueTask RemoveEditedLogAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 

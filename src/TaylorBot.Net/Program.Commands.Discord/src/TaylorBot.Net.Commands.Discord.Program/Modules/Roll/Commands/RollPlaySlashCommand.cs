@@ -32,12 +32,14 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
 
             switch (roll)
             {
-                case 1:
-                case 7:
-                case 13:
-                case 15:
-                case 22:
-                case 420:
+                case 0001: // the one
+                case 0007: // seven
+                case 0013: // 13
+                case 0015: // Fifteen
+                case 0022: // 22
+                case 0429: // April 29
+                case 0709: // July 9
+                case 1213: // December 13
                     reward = AnniversaryEvent.IsActive ? 200 : 100;
                     color = "#43b581";
                     await rollStatsRepository.WinRollAsync(context.User, reward);

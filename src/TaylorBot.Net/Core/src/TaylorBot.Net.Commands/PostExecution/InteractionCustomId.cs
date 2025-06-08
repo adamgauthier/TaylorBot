@@ -75,6 +75,10 @@ public enum CustomIdNames
     ModMailConfigSetChannel = 128,
     ModMailConfigStop = 129,
     HelpCategory = 130,
+    ModLogStop = 131,
+    MonitorEditedStop = 132,
+    MonitorDeletedStop = 133,
+    MonitorMembersStop = 134,
 }
 
 public static class CustomIdExtensions

@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
@@ -70,7 +71,7 @@ public class MonitorMembersSetSlashCommand(
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log member joins, leaves and bans in {channel.Mention} ✅
-            Use {mention.SlashCommand("monitor members stop", context)} to stop monitoring member events ↩️
+            Use {mention.SlashCommand("monitor members show", context)} to see the current configuration ↩️
             """);
     }
 }
@@ -127,22 +128,27 @@ public class MonitorMembersShowSlashCommand(
 
                 var log = await memberLogChannelRepository.GetMemberLogForGuildAsync(guild);
 
-                Embed? embed = null;
+                var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
+                List<InteractionComponent> components = [];
 
                 if (log != null)
                 {
                     var channel = (ITextChannel?)await guild.GetChannelAsync(log.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed = EmbedFactory.CreateSuccess(
+                        embed.WithDescription(
                             $"""
                             This server is configured to log member joins, leaves and bans in {channel.Mention} ✅
-                            Use {mention.SlashCommand("monitor members stop", context)} to stop monitoring member events in this server ↩️
                             """);
+                        components.Add(InteractionComponent.CreateActionRow(InteractionComponent.CreateButton(
+                            style: InteractionButtonStyle.Danger,
+                            custom_id: InteractionCustomId.Create(MonitorMembersStopButtonHandler.CustomIdName).RawId,
+                            label: "Stop Monitoring",
+                            emoji: new("🗑"))));
                     }
                     else
                     {
-                        embed = EmbedFactory.CreateSuccess(
+                        embed.WithDescription(
                             $"""
                             I can't find the previously configured member events logging channel in this server ❌
                             Was it deleted? Use {mention.SlashCommand("monitor members set", context)} to log member events in another channel ↩️
@@ -151,14 +157,14 @@ public class MonitorMembersShowSlashCommand(
                 }
                 else
                 {
-                    embed = EmbedFactory.CreateSuccess(
+                    embed.WithDescription(
                         $"""
                         Member events monitoring is not configured in this server ❌
                         Use {mention.SlashCommand("monitor members set", context)} to log member events in a specific channel  ↩️
                         """);
                 }
 
-                return new EmbedResult(embed);
+                return new MessageResult(new(new(embed.Build()), components));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),
@@ -168,37 +174,36 @@ public class MonitorMembersShowSlashCommand(
     }
 }
 
-public class MonitorMembersStopSlashCommand(
+public class MonitorMembersStopButtonHandler(
     IMemberLogChannelRepository memberLogChannelRepository,
+    IInteractionResponseClient responseClient,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : ISlashCommand<NoOptions>
+    CommandMentioner mention) : IButtonHandler
 {
-    public static string CommandName => "monitor members stop";
+    public static CustomIdNames CustomIdName => CustomIdNames.MonitorMembersStop;
 
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: [
+            inGuild.Create(),
+            userHasPermission.Create(GuildPermission.ManageGuild),
+        ],
+        RequireOriginalUser: true);
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
-        return new(new Command(
-            new(Info.Name),
-            async () =>
-            {
-                var guild = context.Guild?.Fetched;
-                ArgumentNullException.ThrowIfNull(guild);
+        var guild = context.Guild;
+        ArgumentNullException.ThrowIfNull(guild);
 
-                await memberLogChannelRepository.RemoveMemberLogAsync(guild);
+        await memberLogChannelRepository.RemoveMemberLogAsync(guild);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
-                    Ok, I will stop logging member events in this server ✅
-                    Use {mention.SlashCommand("monitor members set", context)} to log member events in a specific channel ↩️
-                    """));
-            },
-            Preconditions: [
-                inGuild.Create(botMustBeInGuild: true),
-                userHasPermission.Create(GuildPermission.ManageGuild)
-            ]
-        ));
+        var embed = EmbedFactory.CreateSuccessEmbed(
+            $"""
+            Member event logging is now disabled in this server ✅
+            Use {mention.SlashCommand("monitor members set", context)} to re-enable it ↩️
+            """);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }
 }

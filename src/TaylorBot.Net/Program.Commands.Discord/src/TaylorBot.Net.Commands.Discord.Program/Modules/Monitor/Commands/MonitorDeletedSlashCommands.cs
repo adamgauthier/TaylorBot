@@ -5,6 +5,7 @@ using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
@@ -78,7 +79,7 @@ public class MonitorDeletedSetSlashCommand(
         return EmbedFactory.CreateSuccess(
             $"""
             Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {mention.SlashCommand("monitor deleted stop", context)} to stop monitoring deleted messages ↩️
+            Use {mention.SlashCommand("monitor deleted show", context)} to see the current configuration ↩️
             """);
     }
 }
@@ -135,22 +136,27 @@ public class MonitorDeletedShowSlashCommand(
 
                 var log = await deletedLogChannelRepository.GetDeletedLogForGuildAsync(guild);
 
-                Embed? embed = null;
+                var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
+                List<InteractionComponent> components = [];
 
                 if (log != null)
                 {
                     var channel = (ITextChannel?)await guild.GetChannelAsync(log.ChannelId.Id);
                     if (channel != null)
                     {
-                        embed = EmbedFactory.CreateSuccess(
+                        embed.WithDescription(
                             $"""
                             This server is configured to log deleted messages in {channel.Mention} ✅
-                            Use {mention.SlashCommand("monitor deleted stop", context)} to stop monitoring deleted messages in this server ↩️
                             """);
+                        components.Add(InteractionComponent.CreateActionRow(InteractionComponent.CreateButton(
+                            style: InteractionButtonStyle.Danger,
+                            custom_id: InteractionCustomId.Create(MonitorDeletedStopButtonHandler.CustomIdName).RawId,
+                            label: "Stop Monitoring",
+                            emoji: new("🗑"))));
                     }
                     else
                     {
-                        embed = EmbedFactory.CreateSuccess(
+                        embed.WithDescription(
                             $"""
                             I can't find the previously configured deleted messages logging channel in this server ❌
                             Was it deleted? Use {mention.SlashCommand("monitor deleted set", context)} to log deleted messages in another channel ↩️
@@ -159,14 +165,14 @@ public class MonitorDeletedShowSlashCommand(
                 }
                 else
                 {
-                    embed = EmbedFactory.CreateSuccess(
+                    embed.WithDescription(
                         $"""
                         Deleted message monitoring is not configured in this server ❌
                         Use {mention.SlashCommand("monitor deleted set", context)} to log deleted messages in a specific channel ↩️
                         """);
                 }
 
-                return new EmbedResult(embed);
+                return new MessageResult(new(new(embed.Build()), components));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),
@@ -176,37 +182,36 @@ public class MonitorDeletedShowSlashCommand(
     }
 }
 
-public class MonitorDeletedStopSlashCommand(
+public class MonitorDeletedStopButtonHandler(
     IDeletedLogChannelRepository deletedLogChannelRepository,
+    IInteractionResponseClient responseClient,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : ISlashCommand<NoOptions>
+    CommandMentioner mention) : IButtonHandler
 {
-    public static string CommandName => "monitor deleted stop";
+    public static CustomIdNames CustomIdName => CustomIdNames.MonitorDeletedStop;
 
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: [
+            inGuild.Create(),
+            userHasPermission.Create(GuildPermission.ManageGuild),
+        ],
+        RequireOriginalUser: true);
 
-    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
-        return new(new Command(
-            new(Info.Name),
-            async () =>
-            {
-                var guild = context.Guild?.Fetched;
-                ArgumentNullException.ThrowIfNull(guild);
+        var guild = context.Guild;
+        ArgumentNullException.ThrowIfNull(guild);
 
-                await deletedLogChannelRepository.RemoveDeletedLogAsync(guild);
+        await deletedLogChannelRepository.RemoveDeletedLogAsync(guild);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
-                    Ok, I will stop logging deleted messages in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
-                    Use {mention.SlashCommand("monitor deleted set", context)} to log deleted messages in a specific channel ↩️
-                    """));
-            },
-            Preconditions: [
-                inGuild.Create(botMustBeInGuild: true),
-                userHasPermission.Create(GuildPermission.ManageGuild)
-            ]
-        ));
+        var embed = EmbedFactory.CreateSuccessEmbed(
+            $"""
+            Deleted message logging is now disabled in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
+            Use {mention.SlashCommand("monitor deleted set", context)} to re-enable it ↩️
+            """);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }
 }

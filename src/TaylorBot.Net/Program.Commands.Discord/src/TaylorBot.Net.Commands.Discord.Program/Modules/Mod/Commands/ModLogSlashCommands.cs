@@ -15,8 +15,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 public class ModLogSetSlashCommand(
     IModLogChannelRepository modLogChannelRepository,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
-    CommandMentioner mention,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<ModLogSetSlashCommand.Options>
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<ModLogSetSlashCommand.Options>
 {
     public static string CommandName => "mod log set";
 
@@ -69,7 +69,7 @@ public class ModLogSetSlashCommand(
             .WithDescription(
                 $"""
                 Ok, I will now log moderation command usage in {channel.Mention} ✅
-                Use {mention.SlashCommand("mod log stop", context)} to undo this action ↩️
+                Use {mention.SlashCommand("mod log show", context)} to see the current configuration ↩️
                 """)
         .Build();
     }
@@ -106,44 +106,6 @@ public class ModLogSetConfirmButtonHandler(IInteractionResponseClient responseCl
     }
 }
 
-public class ModLogStopSlashCommand(
-    IModLogChannelRepository modLogChannelRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
-    CommandMentioner mention,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
-{
-    public static string CommandName => "mod log stop";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
-    {
-        return new(new Command(
-            new(Info.Name),
-            async () =>
-            {
-                var guild = context.Guild?.Fetched;
-                ArgumentNullException.ThrowIfNull(guild);
-
-                await modLogChannelRepository.RemoveModLogAsync(guild);
-
-                return new EmbedResult(new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription(
-                        $"""
-                        Ok, I will stop logging moderation command usage in this server ✅
-                        Use {mention.SlashCommand("mod log set", context)} to log moderation command usage in a specific channel ↩️
-                        """)
-                .Build());
-            },
-            Preconditions: [
-                inGuild.Create(botMustBeInGuild: true),
-                userHasPermission.Create(GuildPermission.ManageGuild)
-            ]
-        ));
-    }
-}
-
 public class ModLogShowSlashCommand(
     IModLogChannelRepository modLogChannelRepository,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
@@ -166,6 +128,7 @@ public class ModLogShowSlashCommand(
                 var modLog = await modLogChannelRepository.GetModLogForGuildAsync(guild);
 
                 var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor);
+                List<InteractionComponent> components = [];
 
                 if (modLog != null)
                 {
@@ -175,8 +138,12 @@ public class ModLogShowSlashCommand(
                         embed.WithDescription(
                             $"""
                             This server is configured to log moderation command usage in {channel.Mention} ✅
-                            Use {mention.SlashCommand("mod log stop", context)} to stop logging moderation command usage in this server ↩️
                             """);
+                        components.Add(InteractionComponent.CreateActionRow(InteractionComponent.CreateButton(
+                            style: InteractionButtonStyle.Danger,
+                            custom_id: InteractionCustomId.Create(ModLogStopButtonHandler.CustomIdName).RawId,
+                            label: "Stop Logging",
+                            emoji: new("🗑"))));
                     }
                     else
                     {
@@ -196,12 +163,46 @@ public class ModLogShowSlashCommand(
                         """);
                 }
 
-                return new EmbedResult(embed.Build());
+                return new MessageResult(new(new(embed.Build()), components));
             },
             Preconditions: [
                 inGuild.Create(botMustBeInGuild: true),
-                userHasPermission.Create(GuildPermission.ManageGuild)
+                userHasPermission.Create(GuildPermission.ManageGuild),
             ]
         ));
+    }
+}
+
+public class ModLogStopButtonHandler(
+    IModLogChannelRepository modLogChannelRepository,
+    IInteractionResponseClient responseClient,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : IButtonHandler
+{
+    public static CustomIdNames CustomIdName => CustomIdNames.ModLogStop;
+
+    public IComponentHandlerInfo Info => new MessageHandlerInfo(
+        CustomIdName.ToText(),
+        Preconditions: [
+            inGuild.Create(),
+            userHasPermission.Create(GuildPermission.ManageGuild),
+        ],
+        RequireOriginalUser: true);
+
+    public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
+    {
+        var guild = context.Guild;
+        ArgumentNullException.ThrowIfNull(guild);
+
+        await modLogChannelRepository.RemoveModLogAsync(guild);
+
+        var embed = EmbedFactory.CreateSuccessEmbed(
+            $"""
+            Moderation command usage logging is now disabled in this server ✅
+            Use {mention.SlashCommand("mod log set", context)} to re-enable it ↩️
+            """);
+
+        await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }
 }
