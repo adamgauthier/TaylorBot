@@ -1,5 +1,4 @@
 ﻿using Discord;
-using System.Text.RegularExpressions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Help.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Stats.Domain;
 using TaylorBot.Net.Commands.Parsers;
@@ -46,7 +45,7 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
                 {applicationInfo.Description}
                 {(isSlashCommand
                     ? "### Pick a command category below to learn more 👇"
-                    : $"### Use {mention.SlashCommand("help")} to learn more about commands! ✨")}                
+                    : $"### Use {mention.SlashCommand("help")} to learn more about commands! ✨")}
                 """)
             .Build();
 
@@ -81,21 +80,13 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
     }
 }
 
-public partial class HelpCategoryHandler(IInteractionResponseClient interactionResponseClient, CommandCategoryService categoryService, HelpSlashCommand helpCommand, CommandMentioner mention) : IStringSelectHandler
+public class HelpCategoryHandler(IInteractionResponseClient interactionResponseClient, CommandCategoryService categoryService, HelpSlashCommand helpCommand, CommandMentioner mention) : IStringSelectHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.HelpCategory;
 
     public IComponentHandlerInfo Info => new MessageHandlerInfo(
         CustomIdName.ToText(),
         RequireOriginalUser: true);
-
-    [GeneratedRegex(@"`/([^`]+)`")]
-    private static partial Regex SlashCommandRegex();
-
-    private string ReplaceSlashCommandMentions(string markdown)
-    {
-        return SlashCommandRegex().Replace(markdown, match => mention.SlashCommand(match.Groups[1].Value));
-    }
 
     public async Task HandleAsync(DiscordStringSelectComponent select, RunContext context)
     {
@@ -112,7 +103,7 @@ public partial class HelpCategoryHandler(IInteractionResponseClient interactionR
         var embed = EmbedFactory.CreateSuccess(
             $"""
             # {categoryInfo.Name} {categoryInfo.Emoji}
-            {ReplaceSlashCommandMentions(categoryInfo.Description)}
+            {mention.ReplaceSlashCommandMentions(categoryInfo.Description)}
             """);
         var selectMenu = await helpCommand.CreateCategorySelectAsync(categoryId);
 

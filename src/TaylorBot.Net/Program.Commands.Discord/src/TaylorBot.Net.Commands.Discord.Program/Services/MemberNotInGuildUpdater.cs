@@ -28,7 +28,7 @@ public class MemberNotInGuildUpdater(ILogger<MemberNotInGuildUpdater> logger, IT
             if (guildUser == null)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(300));
-                guildUser = await taylorBotClient.DiscordShardedClient.Rest.GetGuildUserAsync(guild.Id, userId.Id);
+                guildUser = await taylorBotClient.RestClient.GetGuildUserAsync(guild.Id, userId.Id);
             }
 
             if (guildUser == null)

@@ -6,17 +6,27 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Time;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
-public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDailyPayoutRepository dailyPayoutRepository, IMessageOfTheDayRepository messageOfTheDayRepository)
+public class DailyClaimSlashCommand(
+    IOptionsMonitor<DailyPayoutOptions> options,
+    IDailyPayoutRepository dailyPayoutRepository,
+    IMessageOfTheDayRepository messageOfTheDayRepository,
+    TimeProvider timeProvider,
+    CommandMentioner mention) : ISlashCommand<NoOptions>
 {
+    public static string CommandName => "daily claim";
+
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
     public static readonly CommandMetadata Metadata = new("daily", "Daily Payout 👔", ["dailypayout"]);
 
-    public Command Claim(DiscordUser user, string commandPrefix, bool isLegacyCommand) => new(
+    public Command Claim(DiscordUser user, bool isLegacyCommand) => new(
         Metadata,
         async () =>
         {
@@ -50,16 +60,19 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
             var messageOfTheDay = await GetMessageOfTheDayAsync();
 
             var nextStreakForBonus = redeemResult.CurrentDailyStreak - redeemResult.CurrentDailyStreak % redeemResult.DaysForBonus + redeemResult.DaysForBonus;
-            var format = TaylorBotFormats.BoldReadable;
+
+            var bold = TaylorBotFormats.BoldReadable;
+            string BoldReadable(long num) => num.ToString(bold, TaylorBotCulture.Culture);
+            string BoldQuantity(long num, string word) => word.ToQuantity(num, bold, TaylorBotCulture.Culture);
 
             return new EmbedResult(embed
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(
                     $"""
-                    You redeemed {"taypoint".ToQuantity(payoutAmount, format)} + {"bonus point".ToQuantity(redeemResult.BonusAmount, format)}. You now have {redeemResult.TotalTaypointCount.ToString(format)} 💰
-                    Streak: {redeemResult.CurrentDailyStreak.ToString(format)}/{nextStreakForBonus.ToString(format)}. Don't miss a day and get a bonus! See you tomorrow! 😄
+                    You redeemed {BoldQuantity(payoutAmount, "taypoint")} + {BoldQuantity(redeemResult.BonusAmount, "bonus point")}. You now have {BoldReadable(redeemResult.TotalTaypointCount)} 💰
+                    Streak: {BoldReadable(redeemResult.CurrentDailyStreak)}/{BoldReadable(nextStreakForBonus)}. Don't miss a day and get a bonus! See you tomorrow! 😄
                     ### Daily Message 📨
-                    {messageOfTheDay.Replace("{prefix}", commandPrefix, StringComparison.InvariantCulture)}
+                    {messageOfTheDay}
                     """)
             .Build());
         }
@@ -67,11 +80,19 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
 
     private async Task<string> GetMessageOfTheDayAsync()
     {
-        var messages = await messageOfTheDayRepository.GetAllMessagesAsync();
+        var defaultMessages = DailyMessages.Default;
+        var databaseMessages = await messageOfTheDayRepository.GetAllMessagesAsync();
 
-        var now = DateTimeOffset.UtcNow;
+        // Treat database messages as additional messages or overrides for default messages
+        var allMessages = defaultMessages.ToDictionary(m => m.Id);
+        foreach (var dbMessage in databaseMessages)
+        {
+            allMessages[dbMessage.Id] = dbMessage;
+        }
 
-        var messagePriorities = messages.ToLookup(m => m.MessagePriority != null && now >= m.MessagePriority.From && now <= m.MessagePriority.To);
+        var now = timeProvider.GetUtcNow();
+
+        var messagePriorities = allMessages.Values.ToLookup(m => m.MessagePriority != null && now >= m.MessagePriority.From && now <= m.MessagePriority.To);
         var priorities = messagePriorities[true].ToList();
         var nonPriorities = messagePriorities[false].ToList();
 
@@ -79,19 +100,11 @@ public class DailyClaimCommand(IOptionsMonitor<DailyPayoutOptions> options, IDai
 
         var messageOfTheDay = messagesToConsider[now.DayOfYear % messagesToConsider.Count].Message;
 
-        return messageOfTheDay;
+        return mention.ReplaceSlashCommandMentions(messageOfTheDay);
     }
-}
 
-public class DailyClaimSlashCommand(DailyClaimCommand dailyClaimCommand) : ISlashCommand<NoOptions>
-{
-    public static string CommandName => "daily claim";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public async ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
+    public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
-        var prefix = await context.CommandPrefix.Value;
-        return dailyClaimCommand.Claim(context.User, prefix, isLegacyCommand: false);
+        return new(Claim(context.User, isLegacyCommand: false));
     }
 }

@@ -102,7 +102,7 @@ public class LoveSpreadSlashCommand(
                 var memberCanSpreadAt = acquiredAt + config.IncubationPeriod;
                 var canStillGiveTo = config.SpreadLimit - (given.Count + 1);
 
-                await client.Value.DiscordShardedClient.Rest.AddRoleAsync(member.Member.GuildId, member.User.Id, config.SpreadLoveRoleId);
+                await client.Value.RestClient.AddRoleAsync(member.Member.GuildId, member.User.Id, config.SpreadLoveRoleId);
 
                 var lounge = (ITextChannel)await client.Value.ResolveRequiredChannelAsync(config.LoungeChannelId);
                 await lounge.SendMessageAsync(

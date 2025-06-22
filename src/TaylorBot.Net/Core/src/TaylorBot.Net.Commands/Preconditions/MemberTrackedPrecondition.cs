@@ -8,17 +8,21 @@ public interface IMemberTrackingRepository
     ValueTask<bool> AddOrUpdateMemberAsync(DiscordMember member, DateTimeOffset? lastSpokeAt);
 }
 
-public class MemberTrackedPrecondition(ILogger<MemberTrackedPrecondition> logger, IMemberTrackingRepository memberRepository) : ICommandPrecondition
+public class MemberTrackedPrecondition(
+    ILogger<MemberTrackedPrecondition> logger,
+    IMemberTrackingRepository memberRepository,
+    CommandPrefixDomainService commandPrefixDomainService) : ICommandPrecondition
 {
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
-        if (context.Guild?.Fetched == null)
+        var guild = context.Guild?.Fetched;
+        if (guild == null)
         {
             return new PreconditionPassed();
         }
 
         // Bot is joined to the current guild, make sure it is tracked by resolving prefix from database
-        _ = await context.CommandPrefix.Value;
+        _ = await commandPrefixDomainService.GetPrefixAsync(guild);
 
         if (!context.User.TryGetMember(out var member))
         {

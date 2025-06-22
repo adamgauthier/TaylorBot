@@ -51,7 +51,6 @@ public static class CommandUtils
             null!,
             command is not null ? new("922354806574678086", command.Info.Name) : null,
             null!,
-            null!,
             null!);
     }
 }

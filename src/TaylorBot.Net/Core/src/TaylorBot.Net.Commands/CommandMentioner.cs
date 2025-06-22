@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using System.Text.RegularExpressions;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.Tasks;
@@ -32,7 +33,7 @@ public class ApplicationCommandsRepository(TaskExceptionLogger taskExceptionLogg
     {
         _ = await memoryCache.GetOrCreateAsync("global-application-commands", async entry =>
         {
-            var commands = await taylorBotClient.Value.DiscordShardedClient.Rest.GetGlobalApplicationCommands();
+            var commands = await taylorBotClient.Value.RestClient.GetGlobalApplicationCommands();
             return commands.ToDictionary(c => c.Name, c => new SnowflakeId(c.Id));
         },
         new()
@@ -42,7 +43,7 @@ public class ApplicationCommandsRepository(TaskExceptionLogger taskExceptionLogg
     }
 }
 
-public class CommandMentioner(IApplicationCommandsRepository commands)
+public partial class CommandMentioner(IApplicationCommandsRepository commands)
 {
     public string Command(Command command, RunContext? context = null) => command.Metadata.IsSlashCommand
         ? SlashCommand(command.Metadata.Name, context)
@@ -61,5 +62,13 @@ public class CommandMentioner(IApplicationCommandsRepository commands)
         return context?.SlashCommand != null && rootName == context.SlashCommand.Name.Split(' ')[0]
             ? $"</{name}:{context.SlashCommand.Id}>"
             : $"**/{name}**";
+    }
+
+    [GeneratedRegex(@"`/([^`]+)`")]
+    private static partial Regex SlashCommandRegex();
+
+    public string ReplaceSlashCommandMentions(string input)
+    {
+        return SlashCommandRegex().Replace(input, match => SlashCommand(match.Groups[1].Value));
     }
 }

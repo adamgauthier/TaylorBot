@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<CommandPrefixDomainService>()
             .AddTransient<DisabledGuildCommandDomainService>()
             .AddTransient<SingletonTaskRunner>()
+            .AddTransient<IShardReadyHandler, ShardReadyHandler>()
             .AddTransient<IUserMessageReceivedHandler, CommandHandler>()
             .AddTransient<PermissionStringMapper>()
             .AddTransient<InteractionMapper>()

@@ -2,7 +2,7 @@
 
 public record MessagePriority(DateTimeOffset From, DateTimeOffset To);
 
-public record MessageOfTheDay(string Message, MessagePriority? MessagePriority);
+public record MessageOfTheDay(Guid Id, string Message, MessagePriority? MessagePriority = null);
 
 public interface IMessageOfTheDayRepository
 {

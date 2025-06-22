@@ -28,7 +28,6 @@ public record RunContext(
     GuildTextChannel? GuildTextChannel,
     IDiscordClient Client,
     RunContext.SlashCommandInfo? SlashCommand,
-    Lazy<Task<string>> CommandPrefix,
     RunContext.OnGoingState OnGoing,
     CommandActivity Activity,
     bool WasAcknowledged = true
@@ -42,7 +41,6 @@ public record RunContext(
 public class RunContextFactory(
     Lazy<ITaylorBotClient> taylorBotClient,
     InteractionMapper interactionMapper,
-    CommandPrefixDomainService commandPrefixDomainService,
     TimeProvider timeProvider)
 {
     public RunContext BuildContext(ParsedInteraction interaction, CommandActivity activity, bool wasAcknowledged)
@@ -95,7 +93,6 @@ public class RunContextFactory(
             GuildTextChannel: guild != null ? new GuildTextChannel(channel.Id, guild.Id, channel.Type) : null,
             Client: taylorBotClient.Value.DiscordShardedClient,
             SlashCommand: CreateSlashCommandInfo(),
-            CommandPrefix: new(() => commandPrefixDomainService.GetPrefixAsync(fetchedGuild)),
             OnGoing: new(),
             activity,
             WasAcknowledged: wasAcknowledged

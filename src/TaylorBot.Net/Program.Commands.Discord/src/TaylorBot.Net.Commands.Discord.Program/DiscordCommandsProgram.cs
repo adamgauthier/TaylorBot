@@ -245,7 +245,6 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<ImageSlashCommand>()
             .AddSlashCommand<DailyRebuySlashCommand>()
             .AddButtonHandler<DailyRebuyConfirmButtonHandler>()
-            .AddTransient<DailyClaimCommand>()
             .AddSlashCommand<DailyClaimSlashCommand>()
             .AddSlashCommand<DailyStreakSlashCommand>()
             .AddSlashCommand<DailyLeaderboardSlashCommand>()

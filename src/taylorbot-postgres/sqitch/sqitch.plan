@@ -53,3 +53,4 @@
 20240611_bump_version_1.21.0 2024-06-12T02:20:13Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 1.21.0
 20241130_coupons 2024-11-30T18:48:28Z Adam Gauthier <adamgauthier12@gmail.com> # Add redeemable coupons
 20250525_modmail_log 2025-05-26T05:33:56Z Adam Gauthier <adamgauthier12@gmail.com> # Separate modmail logs from mod logs
+20250614_daily_messages_overrides 2025-06-14T21:44:19Z Adam Gauthier <adamgauthier12@gmail.com> # Move daily messages to app

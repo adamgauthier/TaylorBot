@@ -6,11 +6,6 @@ namespace TaylorBot.Net.Core.Client;
 
 public class RawEventsHandler(TaskExceptionLogger taskExceptionLogger)
 {
-    private static readonly MethodInfo GetApiClientProperty = typeof(DiscordSocketClient)
-        .GetProperty("ApiClient", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-        ?.GetGetMethod(nonPublic: true)
-        ?? throw new ArgumentNullException(nameof(GetApiClientProperty));
-
     private static readonly MethodInfo Handler = typeof(RawEventsHandler)
         .GetMethod(nameof(ProcessMessageAsync), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
@@ -18,19 +13,7 @@ public class RawEventsHandler(TaskExceptionLogger taskExceptionLogger)
 
     public void HandleRawEvent(DiscordSocketClient client, string eventName, Func<string, Task> callback)
     {
-        var apiClient = GetApiClientProperty.Invoke(client, []);
-        ArgumentNullException.ThrowIfNull(apiClient);
-
-        var receivedEvent = apiClient.GetType().GetEvent("ReceivedGatewayEvent");
-        ArgumentNullException.ThrowIfNull(receivedEvent);
-        ArgumentNullException.ThrowIfNull(receivedEvent.EventHandlerType);
-
-        var delegateInstance = Delegate.CreateDelegate(receivedEvent.EventHandlerType, this, Handler);
-
-        var addHandler = receivedEvent.GetAddMethod();
-        ArgumentNullException.ThrowIfNull(addHandler);
-
-        addHandler.Invoke(apiClient, [delegateInstance]);
+        ApiClientAccessor.AddReceivedGatewayEventHandler(client, this, Handler);
 
         Callbacks.TryAdd(eventName, callback);
     }

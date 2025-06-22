@@ -14,6 +14,7 @@ public interface ITaylorBotClient
     event Func<Interaction, Task> InteractionCreated;
 
     DiscordShardedClient DiscordShardedClient { get; }
+    DiscordSocketRestClient RestClient { get; }
 
     ValueTask StartAsync();
     ValueTask StopAsync();
@@ -42,6 +43,9 @@ public class TaylorBotClient : ITaylorBotClient
 
     public DiscordShardedClient DiscordShardedClient { get; }
 
+    private readonly Lazy<DiscordSocketRestClient> _restClient;
+    public DiscordSocketRestClient RestClient => _restClient.Value;
+
     public TaylorBotClient(
         ILogger<TaylorBotClient> logger,
         ILogSeverityToLogLevelMapper logSeverityToLogLevelMapper,
@@ -55,6 +59,7 @@ public class TaylorBotClient : ITaylorBotClient
         _taylorBotToken = taylorBotToken;
         _rawEventsHandler = rawEventsHandler;
         DiscordShardedClient = discordShardedClient;
+        _restClient = new(GetRestClient);
 
         DiscordShardedClient.Log += LogAsync;
         DiscordShardedClient.ShardReady += ShardReadyAsync;
@@ -79,6 +84,28 @@ public class TaylorBotClient : ITaylorBotClient
         var interaction = DeserializeInteraction(payload);
 
         await _interactionCreatedEvent.InvokeAsync(interaction);
+    }
+
+    private DiscordSocketRestClient GetRestClient()
+    {
+        var shards = DiscordShardedClient.Shards;
+        DiscordSocketRestClient? restClient = null;
+
+        foreach (var shard in shards)
+        {
+            if (shard != null)
+            {
+                restClient = shard.Rest;
+                // Indicates that the shard went through READY event and is initialized
+                if (restClient.CurrentUser != null)
+                {
+                    return restClient;
+                }
+            }
+        }
+
+        ArgumentNullException.ThrowIfNull(restClient);
+        return restClient;
     }
 
     private Interaction DeserializeInteraction(string payload)
@@ -130,7 +157,7 @@ public class TaylorBotClient : ITaylorBotClient
         var user = await ((IDiscordClient)DiscordShardedClient).GetUserAsync(id.Id);
         if (user == null)
         {
-            var restUser = await DiscordShardedClient.Rest.GetUserAsync(id.Id);
+            var restUser = await RestClient.GetUserAsync(id.Id);
             if (restUser != null)
             {
                 return restUser;
@@ -148,7 +175,7 @@ public class TaylorBotClient : ITaylorBotClient
 
         if (channel == null)
         {
-            var restChannel = await DiscordShardedClient.Rest.GetChannelAsync(id.Id);
+            var restChannel = await RestClient.GetChannelAsync(id.Id);
             if (restChannel != null)
             {
                 return restChannel;
@@ -176,7 +203,7 @@ public class TaylorBotClient : ITaylorBotClient
 
         if (user == null)
         {
-            var restUser = await DiscordShardedClient.Rest.GetGuildUserAsync(guild.Id, userId.Id);
+            var restUser = await RestClient.GetGuildUserAsync(guild.Id, userId.Id);
             return restUser;
         }
 

@@ -5,7 +5,7 @@ using TaylorBot.Net.Core.Embed;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
 [Name("Daily Payout 👔")]
-public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand dailyClaimCommand) : TaylorBotModule
+public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimSlashCommand dailyClaimCommand) : TaylorBotModule
 {
     [Command("daily")]
     [Alias("dailypayout")]
@@ -14,7 +14,7 @@ public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimCommand d
     {
         var context = DiscordNetContextMapper.MapToRunContext(Context);
         var result = await commandRunner.RunSlashCommandAsync(
-            dailyClaimCommand.Claim(context.User, Context.CommandPrefix, isLegacyCommand: true),
+            dailyClaimCommand.Claim(context.User, isLegacyCommand: true),
             context
         );
 
