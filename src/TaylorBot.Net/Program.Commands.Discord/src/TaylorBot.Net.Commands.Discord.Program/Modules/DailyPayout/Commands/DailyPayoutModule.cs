@@ -1,20 +1,18 @@
 ﻿using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Commands;
 
 [Name("Daily Payout 👔")]
-public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimSlashCommand dailyClaimCommand) : TaylorBotModule
+public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimSlashCommand dailyClaimCommand, PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
 {
     [Command("daily")]
     [Alias("dailypayout")]
-    [Summary("Awards you with your daily amount of taypoints.")]
     public async Task<RuntimeResult> DailyAsync()
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: DailyClaimSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            dailyClaimCommand.Claim(context.User, isLegacyCommand: true),
+            dailyClaimCommand.Claim(context.User, context),
             context
         );
 
@@ -23,45 +21,13 @@ public class DailyPayoutModule(ICommandRunner commandRunner, DailyClaimSlashComm
 
     [Command("dailystreak")]
     [Alias("dstreak")]
-    [Summary("This command has been moved to </daily streak:870731803739168859>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> DailyStreakAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </daily streak:870731803739168859> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> StreakAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: DailyStreakSlashCommand.CommandName, IsRemoved: true));
 
     [Command("rankdailystreak")]
     [Alias("rank dailystreak", "rankdstreak", "rank dstreak")]
-    [Summary("This command has been moved to </daily leaderboard:870731803739168859>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> RankDailyStreakAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </daily leaderboard:870731803739168859> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> LeaderboardAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: DailyLeaderboardSlashCommand.CommandName, IsRemoved: true));
 }

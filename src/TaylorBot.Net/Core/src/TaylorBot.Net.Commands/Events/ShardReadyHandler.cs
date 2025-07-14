@@ -9,7 +9,7 @@ public class ShardReadyHandler(SingletonTaskRunner commandMentionCacheRunner, IA
     public Task ShardReadyAsync(DiscordSocketClient shardClient)
     {
         // Cache command ids for mentions
-        _ = commandMentionCacheRunner.StartTaskIfNotStarted(
+        _ = commandMentionCacheRunner.RunTaskIfNotRan(
             commandRepository.CacheCommandsAsync,
             nameof(IApplicationCommandsRepository.CacheCommandsAsync)
         );

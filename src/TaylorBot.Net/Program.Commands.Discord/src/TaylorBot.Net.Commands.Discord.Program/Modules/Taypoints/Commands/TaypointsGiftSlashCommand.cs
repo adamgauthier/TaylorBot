@@ -17,7 +17,8 @@ public class TaypointsGiftSlashCommand(
     ITaypointTransferRepository taypointTransferRepository,
     TaypointAmountParser amountParser,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
-    TaskExceptionLogger taskExceptionLogger) : ISlashCommand<TaypointsGiftSlashCommand.Options>
+    TaskExceptionLogger taskExceptionLogger,
+    CommandMentioner mention) : ISlashCommand<TaypointsGiftSlashCommand.Options>
 {
     public static string CommandName => "taypoints gift";
 
@@ -26,7 +27,7 @@ public class TaypointsGiftSlashCommand(
     public record Options(ITaypointAmount amount, ParsedUserNotAuthor user);
 
     public Command Gift(RunContext context, IReadOnlyList<DiscordUser> recipients, ITaypointAmount? amount, string? amountString = null) => new(
-        new(Info.Name),
+        new(Info.Name, IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             if (amountString != null)
@@ -87,7 +88,7 @@ public class TaypointsGiftSlashCommand(
                     var description = await TransferAsync(context, author, recipients, amount);
                     if (amountString != null)
                     {
-                        description += "\n\nCheck out </taypoints gift:1103846727880028180>!";
+                        description += $"\n\nCheck out {mention.SlashCommand("taypoints gift", context)}!";
                     }
                     return new EmbedResult(EmbedFactory.CreateSuccess(description.Truncate(EmbedBuilder.MaxDescriptionLength)));
                 }

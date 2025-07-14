@@ -17,7 +17,7 @@ public class DiscordInfoModuleTests
 
     public DiscordInfoModuleTests()
     {
-        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), new AvatarSlashCommand());
+        _discordInfoModule = new DiscordInfoModule(new SimpleCommandRunner(), new(new SimpleCommandRunner()), new AvatarSlashCommand(CommandUtils.Mentioner));
         _discordInfoModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
     }

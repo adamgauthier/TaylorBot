@@ -13,11 +13,11 @@ public class LastFmClearCommandTests
 {
     private readonly DiscordUser _commandUser = CommandUtils.AUser;
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
-    private readonly LastFmClearCommand _lastFmClearCommand;
+    private readonly LastFmClearSlashCommand _lastFmClearCommand;
 
     public LastFmClearCommandTests()
     {
-        _lastFmClearCommand = new(_lastFmUsernameRepository);
+        _lastFmClearCommand = new(_lastFmUsernameRepository, CommandUtils.Mentioner);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class LastFmClearCommandTests
     {
         A.CallTo(() => _lastFmUsernameRepository.ClearLastFmUsernameAsync(_commandUser)).Returns(default);
 
-        var result = (EmbedResult)await _lastFmClearCommand.Clear(_commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmClearCommand.Clear(_commandUser, CommandUtils.CreateTestContext(_lastFmClearCommand)).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
     }

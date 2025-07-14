@@ -22,9 +22,9 @@ public class GenderSetSlashCommand(IGenderRepository genderRepository, CommandMe
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Your gender has been set to {options.gender.Value}. ✅
-                    You are now included in </server population:1137547317549998130> stats for servers you're in. 🧮
-                    People can now use {mention.SlashCommand("gender show", context)} to see your gender. 👁️
+                    Your gender has been set to {options.gender.Value} ✅
+                    You are now included in {mention.SlashCommand("server population", context)} stats for servers you're in 🧮
+                    People can now use {mention.SlashCommand("gender show", context)} to see your gender 👁️
                     """));
             }
         ));

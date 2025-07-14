@@ -32,47 +32,47 @@ public class ShardReadyHandler(
 {
     public Task ShardReadyAsync(DiscordSocketClient shardClient)
     {
-        _ = redditSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = redditSingletonTaskRunner.RunTaskIfNotRan(
             redditNotiferService.StartCheckingRedditsAsync,
             nameof(RedditNotifierService)
         );
 
-        _ = youtubeSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = youtubeSingletonTaskRunner.RunTaskIfNotRan(
             youtubeNotiferService.StartCheckingYoutubesAsync,
             nameof(YoutubeNotifierService)
         );
 
-        _ = tumblrSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = tumblrSingletonTaskRunner.RunTaskIfNotRan(
             tumblrNotifierService.StartCheckingTumblrsAsync,
             nameof(TumblrNotifierService)
         );
 
-        _ = birthdayCalendarSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = birthdayCalendarSingletonTaskRunner.RunTaskIfNotRan(
             birthdayCalendarDomainService.StartRefreshingBirthdayCalendarAsync,
             nameof(birthdayCalendarDomainService.StartRefreshingBirthdayCalendarAsync)
         );
 
-        _ = reminderSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = reminderSingletonTaskRunner.RunTaskIfNotRan(
             reminderNotifierDomainService.StartCheckingRemindersAsync,
             nameof(ReminderNotifierDomainService)
         );
 
-        _ = patreonSyncSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = patreonSyncSingletonTaskRunner.RunTaskIfNotRan(
             patreonSyncDomainService.StartSyncingPatreonSupportersAsync,
             nameof(PatreonSyncDomainService)
         );
 
-        _ = birthdayRoleAddSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = birthdayRoleAddSingletonTaskRunner.RunTaskIfNotRan(
             birthdayRoleDomainService.StartAddingBirthdayRolesAsync,
             nameof(birthdayRoleDomainService.StartAddingBirthdayRolesAsync)
         );
 
-        _ = birthdayRoleRemoveSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = birthdayRoleRemoveSingletonTaskRunner.RunTaskIfNotRan(
             birthdayRoleDomainService.StartRemovingBirthdayRolesAsync,
             nameof(birthdayRoleDomainService.StartRemovingBirthdayRolesAsync)
         );
 
-        _ = birthdaySingletonTaskRunner.StartTaskIfNotStarted(
+        _ = birthdaySingletonTaskRunner.RunTaskIfNotRan(
             birthdayRewardNotifierDomainService.StartCheckingBirthdaysAsync,
             nameof(BirthdayRewardNotifierDomainService)
         );

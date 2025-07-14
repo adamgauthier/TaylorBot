@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
@@ -15,10 +15,8 @@ public class FrameworkModule(
 {
     [Command("prefix")]
     [Alias("setprefix")]
-    [Summary("Gets or changes the command prefix for this server.")]
     public async Task<RuntimeResult> PrefixAsync(
         [Remainder]
-        [Summary("What would you like to set the prefix to?")]
         Word? prefix = null
     )
     {
@@ -51,7 +49,7 @@ public class FrameworkModule(
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);

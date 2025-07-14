@@ -40,8 +40,8 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
         .Build();
     }
 
-    public Command Show(DiscordUser user, RunContext? context = null) => new(
-        new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2]),
+    public Command Show(DiscordUser user, RunContext context) => new(
+        new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2], IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             var favoriteSongs = await favoriteSongsRepository.GetFavoriteSongsAsync(user);
@@ -81,11 +81,11 @@ public class FavoriteSongsSetSlashCommand(IFavoriteSongsRepository favoriteSongs
 
     public record Options(ParsedString songs);
 
-    public Command SetCommand(DiscordUser user, string favoriteSongs, RunContext? context = null) => new(
-        new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2, PrefixCommandAlias3]),
+    public Command SetCommand(DiscordUser user, string favoriteSongs, RunContext context) => new(
+        new(Info.Name, Aliases: [PrefixCommandName, PrefixCommandAlias1, PrefixCommandAlias2, PrefixCommandAlias3], IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
-            if (context != null)
+            if (context.SlashCommand != null)
             {
                 favoriteSongs = string.Join(
                     '\n',

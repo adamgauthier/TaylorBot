@@ -12,7 +12,7 @@ public class UrbanDictionarySlashCommand(
     IRateLimiter rateLimiter,
     PageMessageFactory pageMessageFactory) : ISlashCommand<UrbanDictionarySlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("urbandictionary", "Knowledge ❓", ["urban"]);
+    public static readonly CommandMetadata Metadata = new("urbandictionary", ["urban"]);
 
     public static string CommandName => "urbandictionary";
 

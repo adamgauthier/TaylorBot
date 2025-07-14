@@ -8,13 +8,12 @@ public class HelpModule(ICommandRunner commandRunner, HelpSlashCommand helpComma
 {
     [Command("help")]
     [Alias("botinfo", "version", "invite")]
-    [Summary("Lists help and information for a module's commands.")]
     public async Task<RuntimeResult> HelpAsync(
         [Remainder]
         string? _ = null)
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var response = await helpCommand.GetHelpResponseAsync(context, isSlashCommand: false);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: HelpSlashCommand.CommandName));
+        var response = await helpCommand.GetHelpResponseAsync(context);
 
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),

@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Commands;
 using Discord.Net;
 using Humanizer;
@@ -22,9 +22,7 @@ public class AccessibleRolesModule(
 {
     [Priority(-1)]
     [Command]
-    [Summary("Assigns you a role that set to accessible in this server.")]
     public async Task<RuntimeResult> GetAsync(
-        [Summary("What role would you like to get?")]
         [Remainder]
         RoleNotEveryoneArgument<IRole>? role = null
     )
@@ -155,16 +153,14 @@ public class AccessibleRolesModule(
             Preconditions: [botHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("drop")]
-    [Summary("Removes an accessible role you currently have.")]
     public async Task<RuntimeResult> DropAsync(
-        [Summary("What role would you like to be removed?")]
         [Remainder]
         RoleNotEveryoneArgument<IRole> role
     )
@@ -216,16 +212,14 @@ public class AccessibleRolesModule(
             Preconditions: [botHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("add")]
-    [Summary("Adds a role as accessible to everyone in this server.")]
     public async Task<RuntimeResult> AddAsync(
-        [Summary("What role would you like to make accessible?")]
         [Remainder]
         RoleNotEveryoneArgument<IRole> role
     )
@@ -249,16 +243,14 @@ public class AccessibleRolesModule(
             Preconditions: [userHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("remove")]
-    [Summary("Removes a previously accessible role.")]
     public async Task<RuntimeResult> RemoveAsync(
-        [Summary("What role would you like to make inaccessible?")]
         [Remainder]
         RoleArgument<IRole> role
     )
@@ -282,18 +274,15 @@ public class AccessibleRolesModule(
             Preconditions: [userHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("group")]
-    [Summary("Adds an accessible role to a group. Users can only get one accessible role of the same group. Use clear as group name to remove a role from its group.")]
     public async Task<RuntimeResult> GroupAsync(
-        [Summary("What group would you like to add an accessible role to?")]
         AccessibleGroupName group,
-        [Summary("What role would you like to make accessible in the group?")]
         [Remainder]
         RoleNotEveryoneArgument<IRole> role
     )
@@ -335,7 +324,7 @@ public class AccessibleRolesModule(
             Preconditions: [userHasPermission.Create(GuildPermission.ManageRoles)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);

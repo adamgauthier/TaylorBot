@@ -1,8 +1,6 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Colors;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Logs.Commands;
 
@@ -12,105 +10,33 @@ public class LogModule : ModuleBase
 {
     [Name("Deleted Logs 🗑")]
     [Group("deleted")]
-    public class DeletedModule(ICommandRunner commandRunner) : TaylorBotModule
+    public class DeletedModule(PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
     {
         [Priority(-1)]
         [Command]
-        [Summary("This command has moved to </monitor deleted set:887146682146488390>.")]
-        public async Task<RuntimeResult> AddAsync(
-            [Summary("What channel would you like deleted messages to be logged in?")]
-            [Remainder]
-            IChannelArgument<ITextChannel>? channel = null
-        )
-        {
-            Command command = new(
-                DiscordNetContextMapper.MapToCommandMetadata(Context),
-                () =>
-                {
-                    return new(new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription("This command has moved to </monitor deleted set:887146682146488390>.")
-                    .Build()));
-                }
-            );
-
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-            return new TaylorBotResult(result, context);
-        }
+        public async Task<RuntimeResult> AddAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+            Context,
+            new(ReplacementSlashCommand: MonitorDeletedSetSlashCommand.CommandName, IsRemoved: true));
 
         [Command("stop")]
-        [Summary("This command has moved to </monitor deleted stop:887146682146488390>.")]
-        public async Task<RuntimeResult> RemoveAsync()
-        {
-            Command command = new(
-                DiscordNetContextMapper.MapToCommandMetadata(Context),
-                () =>
-                {
-                    return new(new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription("This command has moved to </monitor deleted stop:887146682146488390>.")
-                    .Build()));
-                }
-            );
-
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-            return new TaylorBotResult(result, context);
-        }
+        public async Task<RuntimeResult> RemoveAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+            Context,
+            new(ReplacementSlashCommand: MonitorDeletedShowSlashCommand.CommandName, IsRemoved: true));
     }
 
     [Name("Member Logs 🧍")]
     [Group("member")]
-    public class MemberModule(ICommandRunner commandRunner) : TaylorBotModule
+    public class MemberModule(PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
     {
         [Priority(-1)]
         [Command]
-        [Summary("This command has moved to </monitor members set:887146682146488390>.")]
-        public async Task<RuntimeResult> AddAsync(
-            [Summary("What channel would you like member events to be logged in?")]
-            [Remainder]
-            IChannelArgument<ITextChannel>? channel = null
-        )
-        {
-            Command command = new(
-                DiscordNetContextMapper.MapToCommandMetadata(Context),
-                () =>
-                {
-                    return new(new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription("This command has moved to </monitor members set:887146682146488390>.")
-                    .Build()));
-                }
-            );
-
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-            return new TaylorBotResult(result, context);
-        }
+        public async Task<RuntimeResult> AddAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+            Context,
+            new(ReplacementSlashCommand: MonitorMembersSetSlashCommand.CommandName, IsRemoved: true));
 
         [Command("stop")]
-        [Summary("This command has moved to </monitor members stop:887146682146488390>.")]
-        public async Task<RuntimeResult> RemoveAsync()
-        {
-            Command command = new(
-                DiscordNetContextMapper.MapToCommandMetadata(Context),
-                () =>
-                {
-                    return new(new EmbedResult(new EmbedBuilder()
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription("This command has moved to </monitor members stop:887146682146488390>.")
-                    .Build()));
-                }
-            );
-
-            var context = DiscordNetContextMapper.MapToRunContext(Context);
-            var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-            return new TaylorBotResult(result, context);
-        }
+        public async Task<RuntimeResult> RemoveAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+            Context,
+            new(ReplacementSlashCommand: MonitorMembersShowSlashCommand.CommandName, IsRemoved: true));
     }
 }

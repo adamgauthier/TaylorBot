@@ -37,7 +37,7 @@ public class LastFmCollageSlashCommand(
                 var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
                 if (lastFmUsername == null)
                 {
-                    return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user);
+                    return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
                 }
 
                 var queryString = new Dictionary<string, string>

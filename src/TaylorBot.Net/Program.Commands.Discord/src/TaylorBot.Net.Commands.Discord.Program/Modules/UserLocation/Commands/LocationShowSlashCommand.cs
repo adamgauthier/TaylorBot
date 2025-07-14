@@ -9,9 +9,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
 public class LocationShowCommand(ILocationRepository locationRepository, CommandMentioner mention, TimeProvider timeProvider)
 {
-    public static readonly CommandMetadata Metadata = new("location show", "Location 🌍");
+    public static readonly CommandMetadata Metadata = new("location show");
 
-    public Command Location(DiscordUser user, RunContext? context = null) => new(
+    public Command Location(DiscordUser user, RunContext context) => new(
         Metadata,
         async () =>
         {

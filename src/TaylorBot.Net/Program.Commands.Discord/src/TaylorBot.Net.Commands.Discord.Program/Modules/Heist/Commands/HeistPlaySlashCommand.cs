@@ -38,7 +38,7 @@ public class HeistPlaySlashCommand(
     public record Options(ITaypointAmount amount);
 
     public Command Heist(RunContext context, ITaypointAmount? amount, string? amountString = null) => new(
-        new(Info.Name, Aliases: [PrefixCommandName]),
+        new(Info.Name, Aliases: [PrefixCommandName], IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             if (amountString != null)

@@ -5,5 +5,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code", Justification = "False positive, thread-safety optimization", Scope = "member", Target = "~M:TaylorBot.Net.Core.Tasks.SingletonTaskRunner.StartTaskIfNotStarted(System.Func{System.Threading.Tasks.Task},System.String)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code", Justification = "False positive, thread-safety optimization", Scope = "member", Target = "~M:TaylorBot.Net.Core.Tasks.SingletonTaskRunner.RunTaskIfNotRan(System.Func{System.Threading.Tasks.Task},System.String)~System.Threading.Tasks.Task")]
 [assembly: SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "Class explicitly made to not be cryptographically safe", Scope = "member", Target = "~M:TaylorBot.Net.Core.Random.PseudoRandom.GetInt32Exclusive(System.Int32,System.Int32)~System.Int32")]

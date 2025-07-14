@@ -8,11 +8,23 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Commands;
 
-public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locationRepository, IWeatherClient weatherClient, LocationFetcherDomainService locationFetcherDomainService, CommandMentioner mention)
+public class WeatherSlashCommand(
+    IRateLimiter rateLimiter,
+    ILocationRepository locationRepository,
+    IWeatherClient weatherClient,
+    LocationFetcherDomainService locationFetcherDomainService,
+    CommandMentioner mention
+) : ISlashCommand<WeatherSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("location weather", "Location 🌍");
+    public static string CommandName => "location weather";
 
-    public Command Weather(DiscordUser author, DiscordUser user, string? locationOverride, RunContext? context = null) => new(
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public static readonly CommandMetadata Metadata = new("location weather");
+
+    public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
+
+    public Command Weather(DiscordUser author, DiscordUser user, string? locationOverride, RunContext context) => new(
         Metadata,
         async () =>
         {
@@ -92,20 +104,11 @@ public class WeatherCommand(IRateLimiter rateLimiter, ILocationRepository locati
     {
         return celsius * 9d / 5d + 32d;
     }
-}
-
-public class WeatherSlashCommand(WeatherCommand weatherCommand) : ISlashCommand<WeatherSlashCommand.Options>
-{
-    public static string CommandName => "location weather";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public record Options(ParsedUserOrAuthor user, ParsedOptionalString location);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            weatherCommand.Weather(context.User, options.user.User, options.location.Value, context)
+            Weather(context.User, options.user.User, options.location.Value, context)
         );
     }
 }

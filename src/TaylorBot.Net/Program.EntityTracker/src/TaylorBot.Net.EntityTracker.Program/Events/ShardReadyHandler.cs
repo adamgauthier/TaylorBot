@@ -24,22 +24,22 @@ public class ShardReadyHandler(
             entityTrackerDomainService.OnShardReadyAsync(shardClient), nameof(entityTrackerDomainService.OnShardReadyAsync)
         ));
 
-        _ = minuteSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = minuteSingletonTaskRunner.RunTaskIfNotRan(
             minutesTrackerDomainService.StartMinutesAdderAsync,
             nameof(MinutesTrackerDomainService)
         );
 
-        _ = lastSpokeSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = lastSpokeSingletonTaskRunner.RunTaskIfNotRan(
             messagesTrackerDomainService.StartPersistingLastSpokeAsync,
             nameof(MessagesTrackerDomainService.StartPersistingLastSpokeAsync)
         );
 
-        _ = channelMessageCountSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = channelMessageCountSingletonTaskRunner.RunTaskIfNotRan(
             messagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync,
             nameof(MessagesTrackerDomainService.StartPersistingTextChannelMessageCountAsync)
         );
 
-        _ = memberMessageAndWordsSingletonTaskRunner.StartTaskIfNotStarted(
+        _ = memberMessageAndWordsSingletonTaskRunner.RunTaskIfNotRan(
             messagesTrackerDomainService.StartPersistingMemberMessagesAndWordsAsync,
             nameof(MessagesTrackerDomainService.StartPersistingMemberMessagesAndWordsAsync)
         );

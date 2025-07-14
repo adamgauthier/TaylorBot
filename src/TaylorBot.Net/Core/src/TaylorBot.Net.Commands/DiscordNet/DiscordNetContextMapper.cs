@@ -1,11 +1,12 @@
 ﻿using Discord;
 using TaylorBot.Net.Core.Channel;
+using static TaylorBot.Net.Commands.RunContext;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
 public static class DiscordNetContextMapper
 {
-    public static RunContext MapToRunContext(ITaylorBotCommandContext context)
+    public static RunContext MapToRunContext(ITaylorBotCommandContext context, PrefixCommandInfo? prefixInfo)
     {
         var channelType = context.Channel.GetChannelType();
         if (!channelType.HasValue)
@@ -25,9 +26,10 @@ public static class DiscordNetContextMapper
             guild,
             GuildTextChannel: guild != null ? new(channel.Id, guild.Id, channel.Type) : null,
             context.Client,
-            new(string.Empty, string.Empty),
-            new(),
-            context.Activity.Value
+            SlashCommand: null,
+            OnGoing: new(),
+            context.Activity.Value,
+            PrefixCommand: prefixInfo ?? new()
         );
         context.RunContext = runContext;
         return runContext;
@@ -37,11 +39,11 @@ public static class DiscordNetContextMapper
     {
         if (context.IsTestEnv)
         {
-            return new CommandMetadata(null!, IsSlashCommand: false);
+            return new(null!, IsSlashCommand: false);
         }
 
         var commandInfo = context.CommandInfos.OrderByDescending(c => c.Priority).First();
 
-        return new(commandInfo.Aliases[0], commandInfo.Module.Name, commandInfo.Aliases, IsSlashCommand: false);
+        return new(commandInfo.Aliases[0], commandInfo.Aliases, IsSlashCommand: false);
     }
 }

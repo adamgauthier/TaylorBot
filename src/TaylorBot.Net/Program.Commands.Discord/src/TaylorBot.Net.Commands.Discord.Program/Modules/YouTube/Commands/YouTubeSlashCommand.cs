@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 
-public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rateLimiter, PageMessageFactory pageMessageFactory) : ISlashCommand<YouTubeSlashCommand.Options>
+public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rateLimiter, PageMessageFactory pageMessageFactory, CommandMentioner mention) : ISlashCommand<YouTubeSlashCommand.Options>
 {
     public static string CommandName => "youtube";
 
@@ -16,11 +16,11 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
 
     public record Options(ParsedString search);
 
-    public Command Search(DiscordUser author, string query, bool isLegacyCommand = false) => new(
-        new(Info.Name),
+    public Command Search(DiscordUser author, string query, RunContext context) => new(
+        new(Info.Name, IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
-            var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(author, isLegacyCommand ? "youtube-search-legacy" : "youtube-search");
+            var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(author, context.SlashCommand == null ? "youtube-search-legacy" : "youtube-search");
             if (rateLimitResult != null)
                 return rateLimitResult;
 
@@ -29,7 +29,7 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
             switch (result)
             {
                 case SuccessfulSearch search:
-                    if (!isLegacyCommand)
+                    if (context.SlashCommand != null)
                     {
                         return search.VideoUrls.Count > 0
                             ? pageMessageFactory.Create(new(
@@ -42,7 +42,7 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
                     {
                         return new PageMessageResult(new PageMessage(new(
                             new TextPageMessageRenderer(new(
-                                [.. search.VideoUrls.Select(u => $"Use </youtube:861754955728027679> for a better command experience and higher daily limit.\n{u}")],
+                                [.. search.VideoUrls.Select(u => $"Use {mention.SlashCommand("youtube")} for a better command experience and higher daily limit.\n{u}")],
                                 emptyText: "No YouTube video found for your search 😕")),
                             Cancellable: true
                         )));
@@ -64,5 +64,5 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
     );
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options) =>
-        new(Search(context.User, options.search.Value));
+        new(Search(context.User, options.search.Value, context));
 }

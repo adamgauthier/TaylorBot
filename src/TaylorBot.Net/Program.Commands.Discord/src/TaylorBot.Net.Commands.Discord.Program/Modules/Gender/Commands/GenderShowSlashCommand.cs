@@ -17,8 +17,8 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository, CommandM
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Show(DiscordUser user, RunContext? context = null) => new(
-        new(Info.Name, Aliases: [PrefixCommandName]),
+    public Command Show(DiscordUser user, RunContext context) => new(
+        new(Info.Name, Aliases: [PrefixCommandName], IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             var gender = await genderRepository.GetGenderAsync(user);

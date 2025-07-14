@@ -74,12 +74,12 @@ public class PlusPrecondition(IPlusRepository plusRepository, CommandMentioner m
         return context.Guild != null && await plusRepository.IsActivePlusGuildAsync(context.Guild);
     }
 
-    private static string PlusInfo()
+    private string PlusInfo()
     {
         return
             $"""
             TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")} 💖
-            Some features are exclusive to **TaylorBot Plus**, learn more with </plus show:1246970937321066608> 💎
+            Some features are exclusive to **TaylorBot Plus**, learn more with {mention.SlashCommand("plus show")} 💎
             """;
     }
 }

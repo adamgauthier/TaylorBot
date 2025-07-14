@@ -18,7 +18,8 @@ public interface IChannelMessageCountRepository
 
 public class ChannelMessagesSlashCommand(
     IChannelMessageCountRepository channelMessageCountRepository,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<ChannelMessagesSlashCommand.Options>
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<ChannelMessagesSlashCommand.Options>
 {
     public static string CommandName => "channel messages";
 
@@ -48,13 +49,13 @@ public class ChannelMessagesSlashCommand(
                     .AddField(
                         "Spam Status",
                         result.IsSpam ?
-                            """
+                            $"""
                             This channel is considered as spam. Users' messages and words are **NOT** counted. 🐟
-                             Use </mod spam remove:838266590294048778> to mark the channel as non-spam.
+                             Use {mention.SlashCommand("mod spam remove", context)} to mark the channel as non-spam.
                             """ :
-                            """
+                            $"""
                             This channel is not considered as spam. Users' messages and words are counted. ✅
-                            Use </mod spam add:838266590294048778> to mark the channel as spam.
+                            Use {mention.SlashCommand("mod spam add", context)} to mark the channel as spam.
                             """,
                         inline: true);
 

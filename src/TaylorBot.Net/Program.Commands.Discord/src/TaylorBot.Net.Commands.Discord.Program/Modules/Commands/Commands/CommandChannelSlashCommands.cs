@@ -29,12 +29,12 @@ public class CommandChannelDisableSlashCommand(
 
                 if (command == null)
                 {
-                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
+                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}' 😕"));
                 }
 
                 if (command.Name.StartsWith("command", StringComparison.Ordinal) || command.Name.StartsWith("owner", StringComparison.Ordinal))
                 {
-                    return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential. 😕"));
+                    return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential 😕"));
                 }
 
                 if (command.Name.StartsWith("modmail", StringComparison.Ordinal))
@@ -44,7 +44,7 @@ public class CommandChannelDisableSlashCommand(
 
                 await disabledGuildChannelCommandRepository.DisableInAsync(options.channel.Channel, command.Name);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
+                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in {options.channel.Channel.Mention} ✅"));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageChannels)]
         ));
@@ -74,12 +74,12 @@ public class CommandChannelEnableSlashCommand(
 
                 if (command == null)
                 {
-                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
+                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}' 😕"));
                 }
 
                 await disabledGuildChannelCommandRepository.EnableInAsync(options.channel.Channel, command.Name);
 
-                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in {options.channel.Channel.Mention}. ✅"));
+                return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in {options.channel.Channel.Mention} ✅"));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageChannels)]
         ));

@@ -39,7 +39,7 @@ public class DailyClaimCommandTests
             DaysForBonus: daysForBonus
         ));
 
-        var result = (EmbedResult)await _dailyClaimCommand.Claim(_commandUser, isLegacyCommand: true).RunAsync();
+        var result = (EmbedResult)await _dailyClaimCommand.Claim(_commandUser, CommandUtils.CreateTestContext(_dailyClaimCommand)).RunAsync();
 
         result.Embed.Description.Should().MatchRegex(@$".*({currentStreak})\S*\/\S*({streakForNextBonus}).*");
     }

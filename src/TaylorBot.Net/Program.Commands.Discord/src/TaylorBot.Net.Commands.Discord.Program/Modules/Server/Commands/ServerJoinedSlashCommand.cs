@@ -25,7 +25,8 @@ public interface IServerJoinedRepository
 
 public class ServerJoinedSlashCommand(
     IServerJoinedRepository serverJoinedRepository,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerJoinedSlashCommand.Options>
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<ServerJoinedSlashCommand.Options>
 {
     public static string CommandName => "server joined";
 
@@ -44,7 +45,7 @@ public class ServerJoinedSlashCommand(
         return joined;
     }
 
-    public Command Joined(DiscordMember member) => new(
+    public Command Joined(DiscordMember member, RunContext context) => new(
         new("joined"),
         async () =>
         {
@@ -61,7 +62,7 @@ public class ServerJoinedSlashCommand(
                     {member.User.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
                     This was roughly **{sinceCreation.Humanize(maxUnit: TimeUnit.Year, culture: TaylorBotCulture.Culture)}** after the server was created 📆
 
-                    Check out </server timeline:1137547317549998130> for a history of who joined first! 📃
+                    Check out {mention.SlashCommand("server timeline", context)} for a history of who joined first! 📃
                     """);
 
             return new EmbedResult(embed.Build());
@@ -71,6 +72,6 @@ public class ServerJoinedSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Joined(options.user.Member));
+        return new(Joined(options.user.Member, context));
     }
 }

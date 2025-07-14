@@ -2,19 +2,16 @@
 using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Commands;
 
 [Name("Taypoints 🪙")]
-public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlashCommand balanceCommand, TaypointsGiftSlashCommand giftCommand) : TaylorBotModule
+public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlashCommand balanceCommand, TaypointsGiftSlashCommand giftCommand, PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
 {
     [Command("taypoints")]
     [Alias("points")]
-    [Summary("Show the current taypoint balance of a user")]
     public async Task<RuntimeResult> BalanceAsync(
-        [Summary("What user would you like to see the balance of?")]
         [Remainder]
         IUserArgument<IUser>? user = null
     )
@@ -23,9 +20,9 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
             Context.User :
             await user.GetTrackedUserAsync();
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: TaypointsBalanceSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            balanceCommand.Balance(new(u), context, isLegacyCommand: true),
+            balanceCommand.Balance(new(u), context),
             context
         );
 
@@ -34,33 +31,14 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
 
     [Command("ranktaypoints")]
     [Alias("rank taypoints", "rankpoints", "rank points")]
-    [Summary("This command has been moved to </taypoints leaderboard:1103846727880028180>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> RankTaypointsAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </taypoints leaderboard:1103846727880028180> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> RankTaypointsAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: TaypointsLeaderboardSlashCommand.CommandName, IsRemoved: true));
 
     [Command("gift")]
     [Alias("give")]
-    [Summary("Gifts a specified amount of taypoints to pinged users.")]
     public async Task<RuntimeResult> GiftAsync(
-        [Summary("How much of your taypoints do you want to gift?")]
         string amount,
-        [Summary("What users would you like to gift taypoints to (must be mentioned)?")]
         [Remainder]
         IReadOnlyList<IMentionedUserNotAuthor<IUser>> users
     )
@@ -71,7 +49,7 @@ public class TaypointsModule(ICommandRunner commandRunner, TaypointsBalanceSlash
             trackedUsers.Add(new(await user.GetTrackedUserAsync()));
         }
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: TaypointsGiftSlashCommand.CommandName));
 
         var result = await commandRunner.RunSlashCommandAsync(
             giftCommand.Gift(context, trackedUsers, amount: null, amountString: amount),

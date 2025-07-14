@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Tests.Helpers;
 using TaylorBot.Net.Core.Random;
 using Xunit;
 
@@ -13,7 +14,7 @@ public class ChooseSlashCommandTests
 
     public ChooseSlashCommandTests()
     {
-        _chooseCommand = new(_cryptoSecureRandom);
+        _chooseCommand = new(_cryptoSecureRandom, CommandUtils.Mentioner);
     }
 
     [Fact]
@@ -22,7 +23,7 @@ public class ChooseSlashCommandTests
         const string ChosenOption = "Speak Now";
         A.CallTo(() => _cryptoSecureRandom.GetRandomElement(A<IReadOnlyList<string>>.That.Contains(ChosenOption))).Returns(ChosenOption);
 
-        var result = (EmbedResult)await _chooseCommand.Choose($"Taylor Swift, Fearless, {ChosenOption}, Red, 1989, reputation, Lover").RunAsync();
+        var result = (EmbedResult)await _chooseCommand.Choose($"Taylor Swift, Fearless, {ChosenOption}, Red, 1989, reputation, Lover", CommandUtils.CreateTestContext(_chooseCommand)).RunAsync();
 
         result.Embed.Description.Should().Be(ChosenOption);
     }

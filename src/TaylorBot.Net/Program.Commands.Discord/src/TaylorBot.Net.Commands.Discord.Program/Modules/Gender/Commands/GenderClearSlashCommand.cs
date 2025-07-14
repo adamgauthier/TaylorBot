@@ -20,7 +20,7 @@ public class GenderClearSlashCommand(IGenderRepository genderRepository, Command
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     $"""
-                    Your gender has been cleared. It will no longer be included in </server population:1137547317549998130> stats. ✅
+                    Your gender has been cleared. It will no longer be included in {mention.SlashCommand("server population", context)} stats ✅
                     You can set it again with {mention.SlashCommand("gender set", context)}.
                     """));
             }

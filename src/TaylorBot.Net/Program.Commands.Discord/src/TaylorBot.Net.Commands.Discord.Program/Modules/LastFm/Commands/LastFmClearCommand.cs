@@ -7,24 +7,29 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameRepository)
+public class LastFmClearSlashCommand(ILastFmUsernameRepository lastFmUsernameRepository, CommandMentioner mention) : ISlashCommand<NoOptions>
 {
-    public static readonly CommandMetadata Metadata = new("lastfm clear", "Last.fm 🎶", ["fm clear", "np clear"]);
+    public static string CommandName => "lastfm clear";
 
-    public Command Clear(DiscordUser user, bool isLegacyCommand) => new(
-        Metadata,
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public static readonly CommandMetadata Metadata = new("lastfm clear", ["fm clear", "np clear"]);
+
+    public Command Clear(DiscordUser user, RunContext context) => new(
+        context.SlashCommand == null ? Metadata with { IsSlashCommand = false } : Metadata,
         async () =>
         {
             await lastFmUsernameRepository.ClearLastFmUsernameAsync(user);
 
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
-                .WithDescription(string.Join('\n', [
-                    $"Your Last.fm username has been cleared. Last.fm commands will no longer work. ✅",
-                    $"You can set it again with </lastfm set:922354806574678086>."
-                ]));
+                .WithDescription(
+                    $"""
+                    Your Last.fm username has been cleared. Last.fm commands will no longer work ✅
+                    You can set it again with {mention.SlashCommand("lastfm set", context)}.
+                    """);
 
-            if (isLegacyCommand)
+            if (context.SlashCommand == null)
             {
                 embed.WithFooter(text: "⭐ Type /lastfm clear for an improved command experience!");
             }
@@ -32,18 +37,9 @@ public class LastFmClearCommand(ILastFmUsernameRepository lastFmUsernameReposito
             return new EmbedResult(embed.Build());
         }
     );
-}
-
-public class LastFmClearSlashCommand(LastFmClearCommand lastFmClearCommand) : ISlashCommand<NoOptions>
-{
-    public static string CommandName => "lastfm clear";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
-        return new(
-            lastFmClearCommand.Clear(context.User, isLegacyCommand: false)
-        );
+        return new(Clear(context.User, context));
     }
 }

@@ -17,7 +17,7 @@ public class ImageSlashCommand(
 {
     public static string CommandName => "image";
 
-    public static readonly CommandMetadata Metadata = new(CommandName, "Media 📷", ["imagen"]);
+    public static readonly CommandMetadata Metadata = new(CommandName, ["imagen"]);
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 

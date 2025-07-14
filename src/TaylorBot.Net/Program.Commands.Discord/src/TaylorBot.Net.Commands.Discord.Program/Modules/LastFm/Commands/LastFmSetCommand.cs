@@ -7,12 +7,18 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository)
+public class LastFmSetSlashCommand(ILastFmUsernameRepository lastFmUsernameRepository, CommandMentioner mention) : ISlashCommand<LastFmSetSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("lastfm set", "Last.fm 🎶", ["fm set", "np set"]);
+    public static string CommandName => "lastfm set";
 
-    public Command Set(DiscordUser user, LastFmUsername lastFmUsername, bool isLegacyCommand) => new(
-        Metadata,
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public static readonly CommandMetadata Metadata = new("lastfm set", ["fm set", "np set"]);
+
+    public record Options(LastFmUsername username);
+
+    public Command Set(DiscordUser user, LastFmUsername lastFmUsername, RunContext context) => new(
+        context.SlashCommand == null ? Metadata with { IsSlashCommand = false } : Metadata,
         async () =>
         {
             await lastFmUsernameRepository.SetLastFmUsernameAsync(user, lastFmUsername);
@@ -22,10 +28,10 @@ public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository
                 .WithDescription(
                     $"""
                     Your Last.fm username has been set to {lastFmUsername.Username.DiscordMdLink(lastFmUsername.LinkToProfile)}. ✅
-                    You can now use Last.fm commands, get started with </lastfm current:922354806574678086>.
+                    You can now use Last.fm commands, get started with {mention.SlashCommand("lastfm current", context)}.
                     """);
 
-            if (isLegacyCommand)
+            if (context.SlashCommand == null)
             {
                 embed.WithFooter(text: "⭐ Type /lastfm set for an improved command experience!");
             }
@@ -33,20 +39,9 @@ public class LastFmSetCommand(ILastFmUsernameRepository lastFmUsernameRepository
             return new EmbedResult(embed.Build());
         }
     );
-}
-
-public class LastFmSetSlashCommand(LastFmSetCommand lastFmSetCommand) : ISlashCommand<LastFmSetSlashCommand.Options>
-{
-    public static string CommandName => "lastfm set";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public record Options(LastFmUsername username);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(
-            lastFmSetCommand.Set(context.User, options.username, isLegacyCommand: false)
-        );
+        return new(Set(context.User, options.username, context));
     }
 }

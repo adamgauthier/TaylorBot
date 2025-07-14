@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
@@ -17,9 +17,7 @@ public class CommandModule(
     private static readonly string[] GuardedModuleNames = ["framework", "command"];
 
     [Command("enable-global")]
-    [Summary("Enables a command globally.")]
     public async Task<RuntimeResult> EnableGlobalAsync(
-        [Summary("What command would you like to enable?")]
         [Remainder]
         ICommandRepository.Command command
     )
@@ -38,19 +36,16 @@ public class CommandModule(
             Preconditions: [ownerPrecondition]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(enableCommand, context);
 
         return new TaylorBotResult(result, context);
     }
 
     [Command("disable-global")]
-    [Summary("Disables a command globally.")]
     public async Task<RuntimeResult> DisableGlobalAsync(
-        [Summary("What command would you like to disable?")]
         ICommandRepository.Command command,
         [Remainder]
-        [Summary("What message should be shown to someone using the disabled command?")]
         string message
     )
     {
@@ -78,7 +73,7 @@ public class CommandModule(
             Preconditions: [ownerPrecondition]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(disableCommand, context);
 
         return new TaylorBotResult(result, context);

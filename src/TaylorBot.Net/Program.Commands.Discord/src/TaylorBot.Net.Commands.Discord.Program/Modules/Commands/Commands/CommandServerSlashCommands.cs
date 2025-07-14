@@ -31,12 +31,12 @@ public class CommandServerDisableSlashCommand(
 
                 if (command == null)
                 {
-                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
+                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}' 😕"));
                 }
 
                 if (command.Name.StartsWith("command", StringComparison.Ordinal) || command.Name.StartsWith("owner", StringComparison.Ordinal))
                 {
-                    return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential. 😕"));
+                    return new EmbedResult(EmbedFactory.CreateError($"Sorry, '{command.Name}' can't be disabled because it's essential 😕"));
                 }
 
                 if (command.Name.StartsWith("modmail", StringComparison.Ordinal))
@@ -78,7 +78,7 @@ public class CommandServerEnableSlashCommand(
 
                 if (command == null)
                 {
-                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}'."));
+                    return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}' 😕"));
                 }
 
                 await disabledGuildCommandRepository.EnableInAsync(guild, command.Name);

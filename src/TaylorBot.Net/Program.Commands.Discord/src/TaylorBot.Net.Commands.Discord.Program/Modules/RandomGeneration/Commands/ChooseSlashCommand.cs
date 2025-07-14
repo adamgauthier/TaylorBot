@@ -6,14 +6,14 @@ using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
 
-public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCommand<ChooseSlashCommand.Options>
+public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom, CommandMentioner mention) : ISlashCommand<ChooseSlashCommand.Options>
 {
     public static string CommandName => "choose";
 
-    public static readonly CommandMetadata Metadata = new(CommandName, "Random 🎲");
+    public static readonly CommandMetadata Metadata = new(CommandName);
 
-    public Command Choose(string options, IUser? author = null) => new(
-        Metadata,
+    public Command Choose(string options, RunContext context) => new(
+        context.SlashCommand != null ? Metadata : Metadata with { IsSlashCommand = false },
         () =>
         {
             var parsedOptions = options.Split(',').Select(o => o.Trim()).Where(o => !string.IsNullOrWhiteSpace(o)).ToList();
@@ -23,9 +23,9 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlash
             var description = new List<string> { randomOption };
             EmbedBuilder embed = new();
 
-            if (author != null)
+            if (context.SlashCommand == null)
             {
-                description.AddRange(["", "Use </choose:843563366751404063> instead! 😊"]);
+                description.AddRange(["", $"Use {mention.SlashCommand("choose", context)} instead! 😊"]);
             }
 
             embed
@@ -43,6 +43,6 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlash
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Choose(options.options.Value));
+        return new(Choose(options.options.Value, context));
     }
 }

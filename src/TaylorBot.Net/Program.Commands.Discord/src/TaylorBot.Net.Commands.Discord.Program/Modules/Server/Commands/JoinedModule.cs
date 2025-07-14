@@ -2,17 +2,14 @@
 using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Server.Commands;
 
 [Name("Joined 🚪")]
-public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand serverJoinedCommand) : TaylorBotModule
+public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand serverJoinedCommand, PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
 {
     [Command("joined")]
-    [Summary("Show the first recorded joined date of a server member")]
     public async Task<RuntimeResult> JoinedAsync(
-        [Summary("What user would you like to see the joined date of?")]
         [Remainder]
         IUserArgument<IGuildUser>? user = null
     )
@@ -21,9 +18,9 @@ public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand
             Context.User :
             await user.GetTrackedUserAsync();
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: ServerJoinedSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            serverJoinedCommand.Joined(new((IGuildUser)u)),
+            serverJoinedCommand.Joined(new((IGuildUser)u), context),
             context
         );
 
@@ -32,23 +29,7 @@ public class JoinedModule(ICommandRunner commandRunner, ServerJoinedSlashCommand
 
     [Command("rankjoined")]
     [Alias("rank joined")]
-    [Summary("This command has been moved to </server timeline:1137547317549998130>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> RankJoinedAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </server timeline:1137547317549998130> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> RankJoinedAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: ServerTimelineSlashCommand.CommandName, IsRemoved: true));
 }

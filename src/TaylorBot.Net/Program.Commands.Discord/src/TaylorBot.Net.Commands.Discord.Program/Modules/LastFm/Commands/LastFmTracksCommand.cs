@@ -10,12 +10,23 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmTracksCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient, LastFmPeriodStringMapper lastFmPeriodStringMapper)
+public class LastFmTracksSlashCommand(
+    LastFmEmbedFactory lastFmEmbedFactory,
+    ILastFmUsernameRepository lastFmUsernameRepository,
+    ILastFmClient lastFmClient,
+    LastFmPeriodStringMapper lastFmPeriodStringMapper
+) : ISlashCommand<LastFmTracksSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("lastfm tracks", "Last.fm 🎶", ["fm tracks", "np tracks"]);
+    public static string CommandName => "lastfm tracks";
 
-    public Command Tracks(LastFmPeriod? period, DiscordUser user, bool isLegacyCommand) => new(
-        Metadata,
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public static readonly CommandMetadata Metadata = new("lastfm tracks", ["fm tracks", "np tracks"]);
+
+    public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
+
+    public Command Tracks(LastFmPeriod? period, DiscordUser user, RunContext context) => new(
+        context.SlashCommand == null ? Metadata with { IsSlashCommand = false } : Metadata,
         async () =>
         {
             period ??= LastFmPeriod.SevenDay;
@@ -23,14 +34,14 @@ public class LastFmTracksCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user);
+                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
 
             var result = await lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period.Value);
 
             switch (result)
             {
                 case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
+                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult, context);
 
                 case TopTracksResult success:
                     if (success.TopTracks.Count > 0)
@@ -44,7 +55,7 @@ public class LastFmTracksCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
                             .WithTitle($"Top tracks | {lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period.Value)}")
                             .WithDescription(formattedTracks.CreateEmbedDescriptionWithMaxAmountOfLines());
 
-                        if (isLegacyCommand)
+                        if (context.SlashCommand == null)
                         {
                             embed.WithFooter("⭐ Type /lastfm tracks for an improved command experience!");
                         }
@@ -60,23 +71,14 @@ public class LastFmTracksCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
             }
         }
     );
-}
-
-public class LastFmTracksSlashCommand(LastFmTracksCommand lastFmTracksCommand) : ISlashCommand<LastFmTracksSlashCommand.Options>
-{
-    public static string CommandName => "lastfm tracks";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            lastFmTracksCommand.Tracks(
+            Tracks(
                 options.period,
                 options.user.User,
-                isLegacyCommand: false
+                context
             )
         );
     }

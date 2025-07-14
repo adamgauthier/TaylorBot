@@ -2,7 +2,6 @@
 using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Types;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
@@ -12,22 +11,21 @@ public class FavoriteModule(
     FavoriteSongsShowSlashCommand favoriteSongsShowCommand,
     FavoriteSongsSetSlashCommand favoriteSongsSetCommand,
     FavoriteBaeShowSlashCommand favoriteBaeShowCommand,
-    FavoriteObsessionShowSlashCommand favoriteObsessionShowCommand) : TaylorBotModule
+    FavoriteObsessionShowSlashCommand favoriteObsessionShowCommand,
+    PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
 {
     [Command(FavoriteSongsShowSlashCommand.PrefixCommandName)]
     [Alias(FavoriteSongsShowSlashCommand.PrefixCommandAlias1, FavoriteSongsShowSlashCommand.PrefixCommandAlias2)]
-    [Summary("Show the favorite songs of a user")]
     public async Task<RuntimeResult> ShowFavAsync(
-        [Summary("What user would you like to see the favorite songs of?")]
         [Remainder]
         IUserArgument<IUser>? user = null
     )
     {
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: FavoriteSongsShowSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            favoriteSongsShowCommand.Show(new(u)),
+            favoriteSongsShowCommand.Show(new(u), context),
             context
         );
 
@@ -36,15 +34,14 @@ public class FavoriteModule(
 
     [Command(FavoriteSongsSetSlashCommand.PrefixCommandName)]
     [Alias(FavoriteSongsSetSlashCommand.PrefixCommandAlias1, FavoriteSongsSetSlashCommand.PrefixCommandAlias2, FavoriteSongsSetSlashCommand.PrefixCommandAlias3)]
-    [Summary("Register your favorite songs for others to see")]
     public async Task<RuntimeResult> SetFavAsync(
         [Remainder]
         string text
     )
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: FavoriteSongsSetSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            favoriteSongsSetCommand.SetCommand(context.User, text, null),
+            favoriteSongsSetCommand.SetCommand(context.User, text, context),
             context
         );
 
@@ -53,39 +50,21 @@ public class FavoriteModule(
 
     [Command("clearfav")]
     [Alias("clear fav", "clearfavsongs", "clear favsongs", "clearfavoritesongs", "clear favoritesongs")]
-    [Summary("This command has been moved to </favorite songs clear:1169468169140838502>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> ClearFavAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </favorite songs clear:1169468169140838502> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> ClearSongsAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: FavoriteSongsClearSlashCommand.CommandName, IsRemoved: true));
 
     [Command(FavoriteBaeShowSlashCommand.PrefixCommandName)]
-    [Summary("Show the bae of a user")]
     public async Task<RuntimeResult> ShowBaeAsync(
-        [Summary("What user would you like to see the bae of?")]
         [Remainder]
         IUserArgument<IUser>? user = null
     )
     {
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: FavoriteBaeShowSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            favoriteBaeShowCommand.Show(new(u)),
+            favoriteBaeShowCommand.Show(new(u), context),
             context
         );
 
@@ -94,60 +73,26 @@ public class FavoriteModule(
 
     [Command("setbae")]
     [Alias("set bae")]
-    [Summary("This command has been moved to </favorite bae set:1169468169140838502>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> SetBaeAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </favorite bae set:1169468169140838502> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> SetBaeAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: FavoriteBaeSetSlashCommand.CommandName, IsRemoved: true));
 
     [Command("clearbae")]
-    [Summary("This command has been moved to </favorite bae clear:1169468169140838502>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> ClearBaeAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </favorite bae clear:1169468169140838502> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> ClearBaeAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: FavoriteBaeClearSlashCommand.CommandName, IsRemoved: true));
 
     [Command(FavoriteObsessionShowSlashCommand.PrefixCommandName)]
-    [Summary("Show the obsession of a user")]
     public async Task<RuntimeResult> ShowWaifuAsync(
-        [Summary("What user would you like to see the obsession of?")]
         [Remainder]
         IUserArgument<IUser>? user = null
     )
     {
         var u = user == null ? Context.User : await user.GetTrackedUserAsync();
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: FavoriteObsessionShowSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            favoriteObsessionShowCommand.Show(new(u)),
+            favoriteObsessionShowCommand.Show(new(u), context),
             context
         );
 
@@ -156,45 +101,13 @@ public class FavoriteModule(
 
     [Command("setwaifu")]
     [Alias("set waifu")]
-    [Summary("This command has been moved to </favorite obsession set:1169468169140838502>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> SetWaifuAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </favorite obsession set:1169468169140838502> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> SetWaifuAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: FavoriteObsessionSetSlashCommand.CommandName, IsRemoved: true));
 
     [Command("clearwaifu")]
     [Alias("clear waifu")]
-    [Summary("This command has been moved to </favorite obsession clear:1169468169140838502>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> ClearWaifuAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </favorite obsession clear:1169468169140838502> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> ClearWaifuAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: FavoriteObsessionClearSlashCommand.CommandName, IsRemoved: true));
 }

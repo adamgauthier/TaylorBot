@@ -4,10 +4,11 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
+using TaylorBot.Net.Commands;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMapper)
+public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMapper, CommandMentioner mention)
 {
     public EmbedResult CreateLastFmNoScrobbleErrorEmbedResult(LastFmUsername lastFmUsername, DiscordUser user, LastFmPeriod period)
     {
@@ -30,32 +31,32 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
         );
     }
 
-    public EmbedResult CreateLastFmNotSetEmbedResult(DiscordUser user)
+    public EmbedResult CreateLastFmNotSetEmbedResult(DiscordUser user, RunContext context)
     {
         return new(EmbedFactory.CreateError(
             $"""
             {user.Mention}'s Last.fm username is not set 🚫
             Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.
-            You can then link it to TaylorBot with </lastfm set:922354806574678086>.
+            You can then link it to TaylorBot with {mention.SlashCommand("lastfm set", context)}.
             """
         ));
     }
 
-    private EmbedResult CreateLastFmNotFoundEmbedResult(LastFmUserNotFound notFound)
+    private EmbedResult CreateLastFmNotFoundEmbedResult(LastFmUserNotFound notFound, RunContext context)
     {
         return new(EmbedFactory.CreateError(
             $"""
             This Last.fm account ({notFound.Username}) can't be found 🚫
-            Make sure the username set with </lastfm set:922354806574678086> is an existing Last.fm account 👆
+            Make sure the username set with {mention.SlashCommand("lastfm set", context)} is an existing Last.fm account 👆
             """
         ));
     }
 
-    public EmbedResult CreateLastFmErrorEmbedResult(LastFmGenericErrorResult error)
+    public EmbedResult CreateLastFmErrorEmbedResult(LastFmGenericErrorResult error, RunContext context)
     {
         if (error is LastFmUserNotFound notFound)
         {
-            return CreateLastFmNotFoundEmbedResult(notFound);
+            return CreateLastFmNotFoundEmbedResult(notFound, context);
         }
 
         return new(EmbedFactory.CreateError(

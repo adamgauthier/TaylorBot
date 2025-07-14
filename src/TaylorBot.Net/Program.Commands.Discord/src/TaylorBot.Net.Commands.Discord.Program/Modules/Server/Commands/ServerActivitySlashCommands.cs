@@ -71,7 +71,8 @@ public class ServerMessagesSlashCommand(
 
 public class ServerMinutesSlashCommand(
     IServerActivityRepository serverActivityRepository,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<ServerMinutesSlashCommand.Options>
+    InGuildPrecondition.Factory inGuild,
+    CommandMentioner mention) : ISlashCommand<ServerMinutesSlashCommand.Options>
 {
     public static string CommandName => "server minutes";
 
@@ -79,13 +80,13 @@ public class ServerMinutesSlashCommand(
 
     public record Options(ParsedMemberOrAuthor user);
 
-    public Command Minutes(DiscordMember member) => new(
+    public Command Minutes(DiscordMember member, RunContext context) => new(
         new("minutes"),
         async () =>
         {
             var minutes = await serverActivityRepository.GetMinutesAsync(member);
 
-            var bottomText = "Check out </server leaderboard:1137547317549998130> to see the most active server members! 📃";
+            var bottomText = $"Check out {mention.SlashCommand("server leaderboard", context)} to see the most active server members! 📃";
             if (member.Member.GuildId == 115332333745340416)
             {
                 var oldMinutes = await serverActivityRepository.GetOldMinutesAsync(member.User);
@@ -113,6 +114,6 @@ public class ServerMinutesSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Minutes(options.user.Member));
+        return new(Minutes(options.user.Member, context));
     }
 }

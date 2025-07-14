@@ -15,11 +15,13 @@ public class LastFmTracksCommandTests
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly ILastFmClient _lastFmClient = A.Fake<ILastFmClient>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
-    private readonly LastFmTracksCommand _lastFmTracksCommand;
+    private readonly LastFmTracksSlashCommand _lastFmTracksCommand;
+    private readonly RunContext _context;
 
     public LastFmTracksCommandTests()
     {
-        _lastFmTracksCommand = new(new(_lastFmPeriodStringMapper), _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+        _lastFmTracksCommand = new(new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+        _context = CommandUtils.CreateTestContext(_lastFmTracksCommand);
     }
 
     [Fact]
@@ -37,7 +39,7 @@ public class LastFmTracksCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult([track]));
 
-        var result = (EmbedResult)await _lastFmTracksCommand.Tracks(period, _commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmTracksCommand.Tracks(period, _commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         result.Embed.Description
@@ -63,7 +65,7 @@ public class LastFmTracksCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period)).Returns(new TopTracksResult([.. Enumerable.Repeat(track, 10)]));
 
-        var result = (EmbedResult)await _lastFmTracksCommand.Tracks(period, _commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmTracksCommand.Tracks(period, _commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         result.Embed.Description

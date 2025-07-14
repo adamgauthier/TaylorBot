@@ -15,11 +15,13 @@ public class LastFmArtistsCommandTests
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly ILastFmClient _lastFmClient = A.Fake<ILastFmClient>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
-    private readonly LastFmArtistsCommand _lastFmArtistsCommand;
+    private readonly LastFmArtistsSlashCommand _lastFmArtistsCommand;
+    private readonly RunContext _context;
 
     public LastFmArtistsCommandTests()
     {
-        _lastFmArtistsCommand = new(new(_lastFmPeriodStringMapper), _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+        _lastFmArtistsCommand = new(new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+        _context = CommandUtils.CreateTestContext(_lastFmArtistsCommand);
     }
 
     [Fact]
@@ -31,7 +33,7 @@ public class LastFmArtistsCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult([artist]));
 
-        var result = (EmbedResult)await _lastFmArtistsCommand.Artists(period, _commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmArtistsCommand.Artists(period, _commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         result.Embed.Description
@@ -53,7 +55,7 @@ public class LastFmArtistsCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period)).Returns(new TopArtistsResult([.. Enumerable.Repeat(artist, 10)]));
 
-        var result = (EmbedResult)await _lastFmArtistsCommand.Artists(period, _commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmArtistsCommand.Artists(period, _commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         result.Embed.Description

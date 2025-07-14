@@ -30,7 +30,7 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
         ));
     }
 
-    public async Task<MessageResponse> GetHelpResponseAsync(RunContext context, bool isSlashCommand = true)
+    public async Task<MessageResponse> GetHelpResponseAsync(RunContext context)
     {
         var productVersion = await botInfoRepository.GetProductVersionAsync();
         var applicationInfo = await context.Client.GetApplicationInfoAsync();
@@ -43,13 +43,13 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
                 # TaylorBot {productVersion} ⭐
                 {"TaylorBot".DiscordMdLink("https://taylorbot.app/")} is a multi-purpose Discord bot created with love in **November 2015** by {applicationInfo.Owner.Mention} 💖
                 {applicationInfo.Description}
-                {(isSlashCommand
+                {(context.SlashCommand != null
                     ? "### Pick a command category below to learn more 👇"
                     : $"### Use {mention.SlashCommand("help")} to learn more about commands! ✨")}
                 """)
             .Build();
 
-        if (!isSlashCommand)
+        if (context.SlashCommand == null)
         {
             return new(embed);
         }

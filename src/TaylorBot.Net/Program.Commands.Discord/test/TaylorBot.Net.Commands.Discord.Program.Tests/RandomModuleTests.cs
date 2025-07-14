@@ -19,7 +19,7 @@ public class RandomModuleTests
 
     public RandomModuleTests()
     {
-        _randomModule = new RandomModule(new SimpleCommandRunner(), new ChooseSlashCommand(_cryptoSecureRandom));
+        _randomModule = new RandomModule(new SimpleCommandRunner(), new(new SimpleCommandRunner()), new ChooseSlashCommand(_cryptoSecureRandom, CommandUtils.Mentioner));
         _randomModule.SetContext(_commandContext);
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => _commandContext.User).Returns(_commandUser);

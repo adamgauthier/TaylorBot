@@ -18,12 +18,9 @@ public class RewardModule(
     TaylorBotOwnerPrecondition ownerPrecondition) : TaylorBotModule
 {
     [Command("reward")]
-    [Summary("Rewards a specified amount of taypoints to pinged users.")]
     public async Task<RuntimeResult> RewardAsync(
-        [Summary("How much taypoints do you want to reward each user?")]
         PositiveInt32 taypoints,
         [Remainder]
-        [Summary("What users would you like to reward taypoints to (must be mentioned)?")]
         IReadOnlyList<IMentionedUserNotAuthor<IUser>> users
     )
     {
@@ -53,7 +50,7 @@ public class RewardModule(
             Preconditions: [ownerPrecondition]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);

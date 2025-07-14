@@ -18,11 +18,13 @@ public class LastFmCurrentCommandTests
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly ILastFmClient _lastFmClient = A.Fake<ILastFmClient>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
-    private readonly LastFmCurrentCommand _lastFmCurrentCommand;
+    private readonly LastFmCurrentSlashCommand _lastFmCurrentSlashCommand;
+    private readonly RunContext _context;
 
     public LastFmCurrentCommandTests()
     {
-        _lastFmCurrentCommand = new(_options, new(_lastFmPeriodStringMapper), _lastFmUsernameRepository, _lastFmClient);
+        _lastFmCurrentSlashCommand = new(_options, new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmUsernameRepository, _lastFmClient);
+        _context = CommandUtils.CreateTestContext(_lastFmCurrentSlashCommand);
     }
 
     [Fact]
@@ -30,7 +32,7 @@ public class LastFmCurrentCommandTests
     {
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(null);
 
-        var result = (EmbedResult)await _lastFmCurrentCommand.Current(_commandUser).RunAsync();
+        var result = (EmbedResult)await _lastFmCurrentSlashCommand.Current(_commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
     }
@@ -42,7 +44,7 @@ public class LastFmCurrentCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmLogInRequiredErrorResult());
 
-        var result = (EmbedResult)await _lastFmCurrentCommand.Current(_commandUser).RunAsync();
+        var result = (EmbedResult)await _lastFmCurrentSlashCommand.Current(_commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
     }
@@ -54,7 +56,7 @@ public class LastFmCurrentCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new LastFmGenericErrorResult("Unknown"));
 
-        var result = (EmbedResult)await _lastFmCurrentCommand.Current(_commandUser).RunAsync();
+        var result = (EmbedResult)await _lastFmCurrentSlashCommand.Current(_commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
     }
@@ -66,7 +68,7 @@ public class LastFmCurrentCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username)).Returns(new MostRecentScrobbleResult(0, null));
 
-        var result = (EmbedResult)await _lastFmCurrentCommand.Current(_commandUser).RunAsync();
+        var result = (EmbedResult)await _lastFmCurrentSlashCommand.Current(_commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.ErrorColor);
     }
@@ -88,7 +90,7 @@ public class LastFmCurrentCommandTests
             )
         ));
 
-        var result = (EmbedResult)await _lastFmCurrentCommand.Current(_commandUser).RunAsync();
+        var result = (EmbedResult)await _lastFmCurrentSlashCommand.Current(_commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
     }

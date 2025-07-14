@@ -13,11 +13,11 @@ public class LastFmSetCommandTests
 {
     private readonly DiscordUser _commandUser = CommandUtils.AUser;
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
-    private readonly LastFmSetCommand _lastFmSetCommand;
+    private readonly LastFmSetSlashCommand _lastFmSetCommand;
 
     public LastFmSetCommandTests()
     {
-        _lastFmSetCommand = new(_lastFmUsernameRepository);
+        _lastFmSetCommand = new(_lastFmUsernameRepository, CommandUtils.Mentioner);
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class LastFmSetCommandTests
         LastFmUsername lastFmUsername = new("taylorswift");
         A.CallTo(() => _lastFmUsernameRepository.SetLastFmUsernameAsync(_commandUser, lastFmUsername)).Returns(default);
 
-        var result = (EmbedResult)await _lastFmSetCommand.Set(_commandUser, lastFmUsername, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmSetCommand.Set(_commandUser, lastFmUsername, CommandUtils.CreateTestContext(_lastFmSetCommand)).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
     }

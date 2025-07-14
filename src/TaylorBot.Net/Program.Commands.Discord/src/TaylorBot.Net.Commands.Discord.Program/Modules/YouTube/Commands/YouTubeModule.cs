@@ -8,16 +8,14 @@ public class YouTubeModule(ICommandRunner commandRunner, YouTubeSlashCommand you
 {
     [Command("youtube")]
     [Alias("yt")]
-    [Summary("Search videos on YouTube")]
     public async Task<RuntimeResult> SearchAsync(
-        [Summary("What search text would you like to get YouTube results for?")]
         [Remainder]
         string text
     )
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: YouTubeSlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
-            youTubeCommand.Search(context.User, text, isLegacyCommand: true),
+            youTubeCommand.Search(context.User, text, context),
             context
         );
 

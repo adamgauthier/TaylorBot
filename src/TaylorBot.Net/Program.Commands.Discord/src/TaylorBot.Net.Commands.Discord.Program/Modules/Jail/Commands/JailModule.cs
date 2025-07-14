@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Commands;
 using Discord.Net;
 using System.Net;
@@ -24,14 +24,12 @@ public class JailModule(
 {
     [Priority(-1)]
     [Command]
-    [Summary("Jails a user in this server by giving them the jail role.")]
     public async Task<RuntimeResult> JailAsync(
-        [Summary("What user would you like to be jailed?")]
         [Remainder]
         IMentionedUserNotAuthorOrClient<IGuildUser> mentionedUser
     )
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
@@ -95,14 +93,12 @@ public class JailModule(
     }
 
     [Command("free")]
-    [Summary("Frees a previously jailed user in this server by removing the jail role.")]
     public async Task<RuntimeResult> FreeAsync(
-        [Summary("What user would you like to be freed?")]
         [Remainder]
         IMentionedUserNotAuthor<IGuildUser> mentionedUser
     )
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
@@ -174,9 +170,7 @@ public class JailModule(
     }
 
     [Command("set")]
-    [Summary("Sets the jail role for this server.")]
     public async Task<RuntimeResult> SetAsync(
-        [Summary("What role would you like to set to the jail role?")]
         [Remainder]
         RoleNotEveryoneArgument<IRole> role
     )
@@ -198,7 +192,7 @@ public class JailModule(
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);

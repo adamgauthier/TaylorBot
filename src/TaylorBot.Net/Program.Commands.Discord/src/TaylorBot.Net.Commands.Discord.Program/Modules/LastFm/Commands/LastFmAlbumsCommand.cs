@@ -10,12 +10,23 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient, LastFmPeriodStringMapper lastFmPeriodStringMapper)
+public class LastFmAlbumsSlashCommand(
+    LastFmEmbedFactory lastFmEmbedFactory,
+    ILastFmUsernameRepository lastFmUsernameRepository,
+    ILastFmClient lastFmClient,
+    LastFmPeriodStringMapper lastFmPeriodStringMapper
+) : ISlashCommand<LastFmAlbumsSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("lastfm albums", "Last.fm 🎶", ["fm albums", "np albums"]);
+    public static string CommandName => "lastfm albums";
 
-    public Command Albums(LastFmPeriod? period, DiscordUser user, bool isLegacyCommand) => new(
-        Metadata,
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public static readonly CommandMetadata Metadata = new("lastfm albums", ["fm albums", "np albums"]);
+
+    public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
+
+    public Command Albums(LastFmPeriod? period, DiscordUser user, RunContext context) => new(
+        context.SlashCommand == null ? Metadata with { IsSlashCommand = false } : Metadata,
         async () =>
         {
             period ??= LastFmPeriod.SevenDay;
@@ -23,7 +34,9 @@ public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user);
+            {
+                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
+            }
 
             var result = await lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period.Value);
 
@@ -45,7 +58,7 @@ public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
                         if (firstImageUrl != null)
                             embed.WithThumbnailUrl(firstImageUrl.ToString());
 
-                        if (isLegacyCommand)
+                        if (context.SlashCommand == null)
                         {
                             embed.WithFooter("⭐ Type /lastfm albums for an improved command experience!");
                         }
@@ -58,29 +71,20 @@ public class LastFmAlbumsCommand(LastFmEmbedFactory lastFmEmbedFactory, ILastFmU
                     }
 
                 case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
+                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult, context);
 
                 default: throw new NotImplementedException();
             }
         }
     );
-}
-
-public class LastFmAlbumsSlashCommand(LastFmAlbumsCommand lastFmAlbumsCommand) : ISlashCommand<LastFmAlbumsSlashCommand.Options>
-{
-    public static string CommandName => "lastfm albums";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public record Options(LastFmPeriod? period, ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(
-            lastFmAlbumsCommand.Albums(
+            Albums(
                 options.period,
                 options.user.User,
-                isLegacyCommand: false
+                context
             )
         );
     }

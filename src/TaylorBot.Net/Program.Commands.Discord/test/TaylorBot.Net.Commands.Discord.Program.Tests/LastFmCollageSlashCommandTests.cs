@@ -33,7 +33,7 @@ public class LastFmCollageSlashCommandTests : IAsyncDisposable
     {
         _client = new(_handler);
         A.CallTo(() => _clientFactory.CreateClient(Microsoft.Extensions.Options.Options.DefaultName)).Returns(_client);
-        _lastFmCollageSlashCommand = new(_logger, _lastFmUsernameRepository, new(_lastFmPeriodStringMapper), _lastFmPeriodStringMapper, _clientFactory);
+        _lastFmCollageSlashCommand = new(_logger, _lastFmUsernameRepository, new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmPeriodStringMapper, _clientFactory);
     }
 
     public ValueTask DisposeAsync()

@@ -1,21 +1,18 @@
 ﻿using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Rps.Commands;
 
 [Name("Rps ✂️")]
-public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCommand) : TaylorBotModule
+public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCommand, PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
 {
     [Command(RpsPlaySlashCommand.PrefixCommandName)]
-    [Summary("Play a game of rock paper scissors with the bot. If you win, you gain 1 taypoint.")]
     public async Task<RuntimeResult> RockPaperScissorsAsync(
-        [Summary("What move do you want to pick (rock, paper or scissors)?")]
         [Remainder]
         string? option = null
     )
     {
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: RpsPlaySlashCommand.CommandName));
         var result = await commandRunner.RunSlashCommandAsync(
             playCommand.Play(context, shape: null, shapeString: option),
             context
@@ -25,45 +22,13 @@ public class RpsModule(ICommandRunner commandRunner, RpsPlaySlashCommand playCom
     }
 
     [Command("rpswins")]
-    [Summary("This command has been moved to </rps profile:1185806478435680387>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> RpsWinsAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </rps profile:1185806478435680387> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> RpsWinsAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: RpsProfileSlashCommand.CommandName, IsRemoved: true));
 
     [Command("rankrpswins")]
     [Alias("rank rpswins")]
-    [Summary("This command has been moved to </rps leaderboard:1185806478435680387>. Please use it instead! 😊")]
-    public async Task<RuntimeResult> RankRpsWinsAsync(
-        [Remainder]
-        string? _ = null
-    )
-    {
-        Command command = new(
-            DiscordNetContextMapper.MapToCommandMetadata(Context),
-            () => new(new EmbedResult(EmbedFactory.CreateError(
-                """
-                This command has been moved to 👉 </rps leaderboard:1185806478435680387> 👈
-                Please use it instead! 😊
-                """))));
-
-        var context = DiscordNetContextMapper.MapToRunContext(Context);
-        var result = await commandRunner.RunSlashCommandAsync(command, context);
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> RankRpsWinsAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: RpsLeaderboardSlashCommand.CommandName, IsRemoved: true));
 }

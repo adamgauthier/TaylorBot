@@ -7,18 +7,18 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 
-public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
+public class AvatarSlashCommand(CommandMentioner mention) : ISlashCommand<AvatarSlashCommand.Options>
 {
     public static string CommandName => "avatar";
 
-    public static readonly CommandMetadata Metadata = new(CommandName, "DiscordInfo 💬", ["av", "avi"]);
+    public static readonly CommandMetadata Metadata = new(CommandName, ["av", "avi"]);
 
     public ISlashCommandInfo Info => new MessageCommandInfo(Metadata.Name);
 
     public record Options(ParsedUserOrAuthor user, AvatarType? type);
 
-    public Command Avatar(DiscordUser user, AvatarType? type, string? description = null) => new(
-        Metadata,
+    public Command Avatar(DiscordUser user, AvatarType? type, RunContext context) => new(
+        context.SlashCommand != null ? Metadata : Metadata with { IsSlashCommand = false },
         () =>
         {
             type ??= AvatarType.Guild;
@@ -31,8 +31,10 @@ public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithImageUrl(avatarUrl);
 
-            if (description != null)
-                embed.WithDescription(description);
+            if (context.SlashCommand == null)
+            {
+                embed.WithDescription($"Use {mention.SlashCommand("avatar", context)} instead! 😊");
+            }
 
             return new(new EmbedResult(embed.Build()));
         }
@@ -42,7 +44,8 @@ public class AvatarSlashCommand : ISlashCommand<AvatarSlashCommand.Options>
     {
         return new(Avatar(
             options.user.User,
-            options.type
+            options.type,
+            context
         ));
     }
 }

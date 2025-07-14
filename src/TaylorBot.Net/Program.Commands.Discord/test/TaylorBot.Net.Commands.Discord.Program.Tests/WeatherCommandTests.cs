@@ -14,11 +14,11 @@ public class WeatherCommandTests
     private readonly ILocationRepository _locationRepository = A.Fake<ILocationRepository>(o => o.Strict());
     private readonly ILocationClient _locationClient = A.Fake<ILocationClient>(o => o.Strict());
     private readonly IWeatherClient _weatherClient = A.Fake<IWeatherClient>(o => o.Strict());
-    private readonly WeatherCommand _weatherCommand;
+    private readonly WeatherSlashCommand _weatherCommand;
 
     public WeatherCommandTests()
     {
-        _weatherCommand = new WeatherCommand(
+        _weatherCommand = new(
             CommandUtils.UnlimitedRateLimiter, _locationRepository, _weatherClient, new(CommandUtils.UnlimitedRateLimiter, _locationClient), CommandUtils.Mentioner);
     }
 
@@ -30,7 +30,7 @@ public class WeatherCommandTests
         A.CallTo(() => _locationRepository.GetLocationAsync(_commandUser)).Returns(new StoredLocation(location, ""));
         A.CallTo(() => _weatherClient.GetCurrentForecastAsync(location.Latitude, location.Longitude)).Returns(new CurrentForecast("", Temperature, 0, 0, 0, ""));
 
-        var result = (EmbedResult)await _weatherCommand.Weather(_commandUser, _commandUser, locationOverride: null).RunAsync();
+        var result = (EmbedResult)await _weatherCommand.Weather(_commandUser, _commandUser, locationOverride: null, CommandUtils.CreateTestContext(_weatherCommand)).RunAsync();
 
         result.Embed.Description.Should().Contain($"{Temperature}°C");
         result.Embed.Footer?.Text.Should().Contain(location.FormattedAddress);

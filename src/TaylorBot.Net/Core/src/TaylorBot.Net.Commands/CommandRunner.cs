@@ -8,6 +8,7 @@ using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
+using static TaylorBot.Net.Commands.RunContext;
 
 namespace TaylorBot.Net.Commands;
 
@@ -27,13 +28,19 @@ public record RunContext(
     CommandGuild? Guild,
     GuildTextChannel? GuildTextChannel,
     IDiscordClient Client,
-    RunContext.SlashCommandInfo? SlashCommand,
-    RunContext.OnGoingState OnGoing,
+    SlashCommandInfo? SlashCommand,
+    OnGoingState OnGoing,
     CommandActivity Activity,
-    bool WasAcknowledged = true
+    bool WasAcknowledged = true,
+    PrefixCommandInfo? PrefixCommand = null
 )
 {
     public record SlashCommandInfo(string Id, string Name);
+
+    public record PrefixCommandInfo(IReadOnlyList<string>? ReplacementSlashCommands, bool IsRemoved = false, string? RemovedMessage = null)
+    {
+        public PrefixCommandInfo(string? ReplacementSlashCommand = null, bool IsRemoved = false, string? RemovedMessage = null) : this(ReplacementSlashCommand != null ? [ReplacementSlashCommand] : null, IsRemoved, RemovedMessage) { }
+    }
 
     public class OnGoingState { public string? OnGoingCommandAddedToPool { get; set; } }
 }
@@ -102,7 +109,7 @@ public class RunContextFactory(
 
 public record Command(CommandMetadata Metadata, Func<ValueTask<ICommandResult>> RunAsync, IList<ICommandPrecondition>? Preconditions = null);
 
-public record CommandMetadata(string Name, string? ModuleName = null, IReadOnlyList<string>? Aliases = null, bool IsSlashCommand = true);
+public record CommandMetadata(string Name, IReadOnlyList<string>? Aliases = null, bool IsSlashCommand = true);
 
 public interface ICommandRunner
 {
@@ -117,10 +124,11 @@ public class CommandRunner(
     UserNotIgnoredPrecondition userNotIgnored,
     MemberTrackedPrecondition memberTracked,
     TextChannelTrackedPrecondition textChannelTracked,
-    UserNoOngoingCommandPrecondition userNoOngoingCommand
+    UserNoOngoingCommandPrecondition userNoOngoingCommand,
+    NotRemovedPrecondition notRemoved
     ) : ICommandRunner
 {
-    private readonly List<ICommandPrecondition> slashCommandsPreconditions = [notDisabled, notGuildDisabled, notGuildChannelDisabled, userNotIgnored, memberTracked, textChannelTracked, userNoOngoingCommand];
+    private readonly List<ICommandPrecondition> slashCommandsPreconditions = [notDisabled, notGuildDisabled, notGuildChannelDisabled, userNotIgnored, memberTracked, textChannelTracked, userNoOngoingCommand, notRemoved];
 
     public async ValueTask<ICommandResult> RunSlashCommandAsync(Command command, RunContext context)
     {

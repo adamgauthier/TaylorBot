@@ -15,11 +15,13 @@ public class LastFmAlbumsCommandTests
     private readonly ILastFmUsernameRepository _lastFmUsernameRepository = A.Fake<ILastFmUsernameRepository>(o => o.Strict());
     private readonly ILastFmClient _lastFmClient = A.Fake<ILastFmClient>(o => o.Strict());
     private readonly LastFmPeriodStringMapper _lastFmPeriodStringMapper = new();
-    private readonly LastFmAlbumsCommand _lastFmAlbumsCommand;
+    private readonly LastFmAlbumsSlashCommand _lastFmAlbumsCommand;
+    private readonly RunContext _context;
 
     public LastFmAlbumsCommandTests()
     {
-        _lastFmAlbumsCommand = new(new(_lastFmPeriodStringMapper), _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+        _lastFmAlbumsCommand = new(new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmUsernameRepository, _lastFmClient, _lastFmPeriodStringMapper);
+        _context = CommandUtils.CreateTestContext(_lastFmAlbumsCommand);
     }
 
     [Fact]
@@ -39,7 +41,7 @@ public class LastFmAlbumsCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult([album]));
 
-        var result = (EmbedResult)await _lastFmAlbumsCommand.Albums(period, _commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmAlbumsCommand.Albums(period, _commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         result.Embed.Thumbnail!.Value.Url.Should().Be(albumImageUrl);
@@ -68,7 +70,7 @@ public class LastFmAlbumsCommandTests
         A.CallTo(() => _lastFmUsernameRepository.GetLastFmUsernameAsync(_commandUser)).Returns(lastFmUsername);
         A.CallTo(() => _lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period)).Returns(new TopAlbumsResult([.. Enumerable.Repeat(album, 10)]));
 
-        var result = (EmbedResult)await _lastFmAlbumsCommand.Albums(period, _commandUser, isLegacyCommand: false).RunAsync();
+        var result = (EmbedResult)await _lastFmAlbumsCommand.Albums(period, _commandUser, _context).RunAsync();
 
         result.Embed.Color.Should().Be(TaylorBotColors.SuccessColor);
         result.Embed.Thumbnail!.Value.Url.Should().Be(albumImageUrl);

@@ -38,8 +38,8 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
             .Build();
     }
 
-    public Command Show(DiscordUser user, RunContext? context = null) => new(
-        new(Info.Name, Aliases: [PrefixCommandName]),
+    public Command Show(DiscordUser user, RunContext context) => new(
+        new(Info.Name, Aliases: [PrefixCommandName], IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             var favoriteObsession = await obsessionRepository.GetObsessionAsync(user);

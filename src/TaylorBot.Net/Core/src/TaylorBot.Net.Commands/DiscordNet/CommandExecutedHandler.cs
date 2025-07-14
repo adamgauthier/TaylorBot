@@ -92,7 +92,7 @@ public class CommandExecutedHandler(
                             await context.Channel.SendMessageAsync(
                                 messageReference: new(context.Message.Id),
                                 allowedMentions: new AllowedMentions { MentionRepliedUser = false },
-                                embed: EmbedFactory.CreateError($"{context.User.Mention} {failed.UserReason.Reason}"));
+                                embed: EmbedFactory.CreateError(failed.UserReason.Reason));
                         }
                         break;
 
@@ -131,7 +131,7 @@ public class CommandExecutedHandler(
                         // Preconditions have not been executed, we must make sure the user is not ignored.
                         var runResult = await userNotIgnoredPrecondition.CanRunAsync(
                             new Command(DiscordNetContextMapper.MapToCommandMetadata(commandContext), () => new()),
-                            DiscordNetContextMapper.MapToRunContext(commandContext)
+                            DiscordNetContextMapper.MapToRunContext(commandContext, new())
                         );
 
                         if (runResult is not PreconditionFailed failed || !failed.UserReason.HideInPrefixCommands)

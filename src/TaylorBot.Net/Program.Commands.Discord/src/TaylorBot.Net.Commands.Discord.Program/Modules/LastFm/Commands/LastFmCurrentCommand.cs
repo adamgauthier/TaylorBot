@@ -10,18 +10,29 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFmEmbedFactory lastFmEmbedFactory, ILastFmUsernameRepository lastFmUsernameRepository, ILastFmClient lastFmClient)
+public class LastFmCurrentSlashCommand(
+    IOptionsMonitor<LastFmOptions> options,
+    LastFmEmbedFactory lastFmEmbedFactory,
+    ILastFmUsernameRepository lastFmUsernameRepository,
+    ILastFmClient lastFmClient
+) : ISlashCommand<LastFmCurrentSlashCommand.Options>
 {
-    public static readonly CommandMetadata Metadata = new("lastfm current", "Last.fm 🎶", ["fm", "np"]);
+    public static string CommandName => "lastfm current";
 
-    public Command Current(DiscordUser user) => new(
-        Metadata,
+    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
+
+    public static readonly CommandMetadata Metadata = new("lastfm current", ["fm", "np"]);
+
+    public record Options(ParsedUserOrAuthor user);
+
+    public Command Current(DiscordUser user, RunContext context) => new(
+        context.SlashCommand != null ? Metadata : Metadata with { IsSlashCommand = false },
         async () =>
         {
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user);
+                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
 
             var result = await lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username);
 
@@ -63,26 +74,15 @@ public class LastFmCurrentCommand(IOptionsMonitor<LastFmOptions> options, LastFm
                         """));
 
                 case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult);
+                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult, context);
 
                 default: throw new NotImplementedException();
             }
         }
     );
-}
-
-public class LastFmCurrentSlashCommand(LastFmCurrentCommand lastFmCurrentCommand) : ISlashCommand<LastFmCurrentSlashCommand.Options>
-{
-    public static string CommandName => "lastfm current";
-
-    public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
-
-    public record Options(ParsedUserOrAuthor user);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(
-            lastFmCurrentCommand.Current(options.user.User)
-        );
+        return new(Current(options.user.User, context));
     }
 }

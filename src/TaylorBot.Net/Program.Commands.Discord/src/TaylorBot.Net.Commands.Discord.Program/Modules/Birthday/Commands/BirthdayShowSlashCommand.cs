@@ -18,8 +18,8 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Birthday(DiscordUser user, DateTimeOffset createdAt, RunContext context, bool isPrefix = false) => new(
-        new(Info.Name),
+    public Command Birthday(DiscordUser user, DateTimeOffset createdAt, RunContext context) => new(
+        new(Info.Name, IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             var birthday = await birthdayRepository.GetBirthdayAsync(user);
@@ -47,9 +47,9 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                         .WithTitle("Birthday")
                         .WithDescription($"{birthday.Date.ToString("MMMM d", TaylorBotCulture.Culture)} ({nextBirthday.ToDateTime(TimeOnly.MinValue).Humanize(culture: TaylorBotCulture.Culture)})");
 
-                    if (isPrefix)
+                    if (context.SlashCommand == null)
                     {
-                        embed.Description += "\nPlease use </birthday show:1016938623880400907> instead! 😊";
+                        embed.Description += $"\nPlease use {mention.SlashCommand("birthday show", context)} instead! 😊";
                     }
 
                     return new EmbedResult(embed.Build());
@@ -58,7 +58,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        {user.Mention}'s birthday is private. 🙅
+                        {user.Mention}'s birthday is private 🙅
                         To set your birthday privately, use {mention.SlashCommand("birthday set", context)} with the **privately** option.
                         """));
                 }
@@ -67,7 +67,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
             {
                 return new EmbedResult(EmbedFactory.CreateError(
                     $"""
-                    {user.Mention}'s birthday is not set. 🚫
+                    {user.Mention}'s birthday is not set 🚫
                     They need to use {mention.SlashCommand("birthday set", context)} to set it first.
                     """));
             }

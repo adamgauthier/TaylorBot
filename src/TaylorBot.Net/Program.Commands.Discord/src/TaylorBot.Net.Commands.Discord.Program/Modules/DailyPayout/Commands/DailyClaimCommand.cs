@@ -24,10 +24,10 @@ public class DailyClaimSlashCommand(
 
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
 
-    public static readonly CommandMetadata Metadata = new("daily", "Daily Payout 👔", ["dailypayout"]);
+    public static readonly CommandMetadata Metadata = new("daily", ["dailypayout"]);
 
-    public Command Claim(DiscordUser user, bool isLegacyCommand) => new(
-        Metadata,
+    public Command Claim(DiscordUser user, RunContext context) => new(
+        context.SlashCommand != null ? Metadata : Metadata with { IsSlashCommand = false },
         async () =>
         {
             EmbedBuilder embed = new();
@@ -46,7 +46,7 @@ public class DailyClaimSlashCommand(
                 .Build());
             }
 
-            var payoutAmount = isLegacyCommand ? options.CurrentValue.LegacyDailyPayoutAmount : options.CurrentValue.DailyPayoutAmount;
+            var payoutAmount = context.SlashCommand == null ? options.CurrentValue.LegacyDailyPayoutAmount : options.CurrentValue.DailyPayoutAmount;
             var redeemResult = await dailyPayoutRepository.RedeemDailyPayoutAsync(user, payoutAmount);
 
             if (redeemResult == null)
@@ -105,6 +105,6 @@ public class DailyClaimSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)
     {
-        return new(Claim(context.User, isLegacyCommand: false));
+        return new(Claim(context.User, context));
     }
 }

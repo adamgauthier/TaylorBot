@@ -27,8 +27,8 @@ public class TaypointsBalanceSlashCommand(
 
     public record Options(ParsedUserOrAuthor user);
 
-    public Command Balance(DiscordUser user, RunContext context, bool isLegacyCommand) => new(
-        new("taypoints", "Taypoints 🪙", ["points"]),
+    public Command Balance(DiscordUser user, RunContext context) => new(
+        new("taypoints", ["points"], IsSlashCommand: context.SlashCommand != null),
         async () =>
         {
             TaypointBalance balance = new(
@@ -43,24 +43,23 @@ public class TaypointsBalanceSlashCommand(
                 .WithDescription(
                     $"""
                     {user.Mention} has {"taypoint".ToQuantity(balance.TaypointCount, TaylorBotFormats.BoldReadable)} 🪙
-                    {(balance.ServerRank != null ? GetRankText(context, isLegacyCommand, balance.ServerRank.Value) : "")}
+                    {(balance.ServerRank != null ? GetRankText(context, balance.ServerRank.Value) : "")}
                     """)
             .Build());
         }
     );
 
-    private string GetRankText(RunContext context, bool isLegacyCommand, int serverRank)
+    private string GetRankText(RunContext context, int serverRank)
     {
-        var commandMention = isLegacyCommand ? "</taypoints leaderboard:1103846727880028180>" : mention.SlashCommand("taypoints leaderboard", context);
         var emoji = serverRank switch
         {
             1 => "🥇",
             2 => "🥈",
             3 => "🥉",
-            _ => "🏆"
+            _ => "🏆",
         };
 
-        return $"{emoji} **{serverRank.Ordinalize(TaylorBotCulture.Culture)}** in this server's {commandMention}";
+        return $"{emoji} **{serverRank.Ordinalize(TaylorBotCulture.Culture)}** in this server's {mention.SlashCommand("taypoints leaderboard", context)}";
     }
 
     private async Task<int?> GetServerRankAsync(DiscordUser user, CommandGuild? guild)
@@ -84,6 +83,6 @@ public class TaypointsBalanceSlashCommand(
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new(Balance(options.user.User, context, isLegacyCommand: false));
+        return new(Balance(options.user.User, context));
     }
 }
