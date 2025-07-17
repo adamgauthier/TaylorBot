@@ -9,7 +9,7 @@ trigger:
 pr:
   branches:
     include:
-    - master
+    - hotfix20250717
   paths:
     include:
     - src/taylorbot-postgres
@@ -101,7 +101,7 @@ stages:
 - stage: deploy
   displayName: 'TaylorBot'
   dependsOn: build
-  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/hotfix20250717')))
   jobs:
     - deployment: deploy_database
       displayName: 'Deploy to remote database'

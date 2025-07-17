@@ -1,9 +1,9 @@
 parameters:
   - name: pushImage
     displayName: 'Push image to registry'
-    default: master-only
+    default: hotfix20250717-only
     values:
-    - master-only
+    - hotfix20250717-only
     - force
   - name: deployAzureContainerAppEnv
     displayName: 'Deploy azure container app'
@@ -23,7 +23,7 @@ trigger:
 pr:
   branches:
     include:
-    - master
+    - hotfix20250717
   paths:
     include:
     - src/TaylorBot.Net

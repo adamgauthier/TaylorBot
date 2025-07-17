@@ -9,7 +9,7 @@ trigger:
 pr:
   branches:
     include:
-    - master
+    - hotfix20250717
   paths:
     include:
     - src/slash-commands
@@ -43,7 +43,7 @@ stages:
 
 - stage: deploy
   displayName: 'TaylorBot'
-  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
+  condition: and(succeeded(), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/hotfix20250717')))
   jobs:
     - deployment: deploy_discord
       displayName: 'Deploy to Discord API'
