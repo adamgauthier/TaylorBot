@@ -107,6 +107,8 @@ public record RoleTags(
     bool? guild_connections
 );
 
+public record MemberMappingInfo(Interaction.PartialMember Member, SnowflakeId GuildId);
+
 public class InteractionMapper
 {
     public DiscordChannel ToChannel(Interaction.PartialChannel channel)
@@ -114,7 +116,7 @@ public class InteractionMapper
         return new(channel.id, (ChannelType)channel.type);
     }
 
-    public DiscordUser ToUser(Interaction.User user, Interaction.PartialMember? member = null)
+    public DiscordUser ToUser(Interaction.User user, MemberMappingInfo? info = null)
     {
         return new(
             user.id,
@@ -122,13 +124,14 @@ public class InteractionMapper
             user.avatar,
             user.discriminator,
             IsBot: user.bot == true,
-            MemberInfo: member != null ? ToMemberInfo(new SnowflakeId(member.permissions), member) : null);
+            MemberInfo: info != null ? ToMemberInfo(info) : null);
     }
 
-    public DiscordMemberInfo ToMemberInfo(SnowflakeId guildId, Interaction.PartialMember member)
+    public DiscordMemberInfo ToMemberInfo(MemberMappingInfo info)
     {
+        var member = info.Member;
         return new(
-            guildId,
+            info.GuildId,
             ParseDate(member.joined_at),
             ParseRoleIds(member.roles),
             new GuildPermissions(member.permissions),

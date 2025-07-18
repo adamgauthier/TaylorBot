@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         var database = section.GetValue<string>("Database");
         var applicationName = section.GetValue<string>("ApplicationName");
         var maxPoolSize = section.GetValue<uint?>("MaxPoolSize");
+        var includeErrorDetail = section.GetValue<bool?>("IncludeErrorDetail") ?? false;
 
         ArgumentNullException.ThrowIfNull(host);
         if (!port.HasValue)
@@ -53,7 +54,8 @@ public static class ServiceCollectionExtensions
             throw new ArgumentNullException(nameof(maxPoolSize));
         }
 
-        var connectionString = string.Join(';', [
+        List<string> connectionStringParts =
+        [
             $"Server={host}",
             $"Port={port}",
             $"Username={username}",
@@ -62,9 +64,15 @@ public static class ServiceCollectionExtensions
             $"ApplicationName={applicationName}",
             $"Maximum Pool Size={maxPoolSize}",
             "SSL Mode=Prefer",
-            "Trust Server Certificate=true",
-        ]);
-        return connectionString;
+            "Trust Server Certificate=true"
+        ];
+
+        if (includeErrorDetail)
+        {
+            connectionStringParts.Add("Include Error Detail=true");
+        }
+
+        return string.Join(';', connectionStringParts);
     }
 
     public static IServiceCollection AddRedisConnection(this IServiceCollection services, IConfiguration configuration)

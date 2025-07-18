@@ -21,10 +21,11 @@ public class UserParser(InteractionMapper interactionMapper, IUserTracker userTr
 
         if (resolved?.users?.TryGetValue(option, out var resolvedUser) == true)
         {
-            DiscordUser user = interactionMapper.ToUser(
-                resolvedUser,
-                context.Guild != null && resolved.members?.TryGetValue(option, out var resolvedMember) == true ? resolvedMember : null
-            );
+            MemberMappingInfo? memberInfo = context.Guild != null && resolved.members?.TryGetValue(option, out var resolvedMember) == true
+                ? new(resolvedMember, context.Guild.Id)
+                : null;
+
+            var user = interactionMapper.ToUser(resolvedUser, memberInfo);
 
             // Command user is already tracked
             if (user.Id != context.User.Id && context.Guild?.Fetched != null)

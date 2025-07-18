@@ -2,6 +2,7 @@
   "DatabaseConnection": {
     "Database": "taylorbot",
     "ApplicationName": "commands-discord",
-    "MaxPoolSize": 6
+    "MaxPoolSize": 6,
+    "IncludeErrorDetail": false
   }
 }

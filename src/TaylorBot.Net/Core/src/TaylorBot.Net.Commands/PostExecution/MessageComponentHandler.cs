@@ -290,10 +290,11 @@ public partial class MessageComponentHandler(
                 throw new InvalidOperationException($"Can't find user {userId} in resolved data");
             }
 
-            return interactionMapper.ToUser(
-                resolvedUser,
-                parsed.Data.resolved.members?.TryGetValue(userId, out var resolvedMember) == true ? resolvedMember : null
-            );
+            MemberMappingInfo? memberInfo = parsed.Guild != null && parsed.Data.resolved.members?.TryGetValue(userId, out var resolvedMember) == true
+                ? new(resolvedMember, parsed.Guild.Id)
+                : null;
+
+            return interactionMapper.ToUser(resolvedUser, memberInfo);
         }).ToList();
 
         return new(
