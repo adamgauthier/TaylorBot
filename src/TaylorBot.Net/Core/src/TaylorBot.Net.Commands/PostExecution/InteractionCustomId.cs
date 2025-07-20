@@ -79,6 +79,7 @@ public enum CustomIdNames
     MonitorEditedStop = 132,
     MonitorDeletedStop = 133,
     MonitorMembersStop = 134,
+    CommandPrefixToggle = 135,
 }
 
 public static class CustomIdExtensions

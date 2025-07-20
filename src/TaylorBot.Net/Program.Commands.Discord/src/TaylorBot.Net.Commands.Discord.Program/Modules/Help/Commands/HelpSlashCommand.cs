@@ -45,7 +45,7 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
                 {applicationInfo.Description}
                 {(context.SlashCommand != null
                     ? "### Pick a command category below to learn more 👇"
-                    : $"### Use {mention.SlashCommand("help")} to learn more about commands! ✨")}
+                    : $"### Use {mention.SlashCommand("help")} to learn more about commands! 💫")}
                 """)
             .Build();
 

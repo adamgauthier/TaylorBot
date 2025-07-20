@@ -192,7 +192,7 @@ public class SlashCommandHandler(
             }
             else
             {
-                logger.LogWarning("Slash command {CommandName} not found", commandName);
+                logger.LogWarning("Slash command '{CommandName}' not found", commandName);
             }
         }
         else

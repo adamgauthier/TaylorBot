@@ -265,6 +265,8 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<CommandServerEnableSlashCommand>()
             .AddSlashCommand<CommandChannelDisableSlashCommand>()
             .AddSlashCommand<CommandChannelEnableSlashCommand>()
+            .AddSlashCommand<CommandServerPrefixSlashCommand>()
+            .AddButtonHandler<CommandPrefixToggleHandler>()
             .AddTransient<LastFmEmbedFactory>()
             .AddSlashCommand<LastFmCurrentSlashCommand>()
             .AddSlashCommand<LastFmSetSlashCommand>()

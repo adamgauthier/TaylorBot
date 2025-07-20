@@ -33,29 +33,58 @@ public class DisabledGuildCommandDomainService(
     }
 }
 
-public class NotGuildDisabledPrecondition(DisabledGuildCommandDomainService disabledGuildCommandDomainService, UserHasPermissionOrOwnerPrecondition.Factory userHasPermission, CommandMentioner mention) : ICommandPrecondition
+public class NotGuildDisabledPrecondition(
+    DisabledGuildCommandDomainService disabledGuildCommandDomainService,
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    IDisabledGuildCommandRepository disabledGuildCommandRepository,
+    CommandMentioner mention) : ICommandPrecondition
 {
+    private readonly UserHasPermissionOrOwnerPrecondition userHasManageGuild = userHasPermission.Create(GuildPermission.ManageGuild);
+
     public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.Guild == null)
+        {
             return new PreconditionPassed();
+        }
 
         var isDisabled = await disabledGuildCommandDomainService.IsGuildCommandDisabledAsync(context.Guild, command.Metadata, context);
-
-        var canRun = await userHasPermission.Create(GuildPermission.ManageGuild).CanRunAsync(command, context);
-
-        return isDisabled ?
-            new PreconditionFailed(
+        if (isDisabled)
+        {
+            return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is disabled in {context.Guild.FormatLog()}",
                 UserReason: new(
                     $"""
                     You can't use {mention.Command(command, context)} because it is disabled in this server 🚫
-                    {(canRun is PreconditionPassed
-                        ? $"You can re-enable it by typing </command server-enable:909694280703016991> {command.Metadata.Name} ✅"
+                    {(await userHasManageGuild.CanRunAsync(command, context) is PreconditionPassed
+                        ? $"You can re-enable it by typing {mention.SlashCommand("command server-enable")} {command.Metadata.Name} ✅"
                         : "Ask a moderator to re-enable it 🙏")}
                     """,
                     HideInPrefixCommands: true)
-            ) :
-            new PreconditionPassed();
+            );
+        }
+
+        if (context.PrefixCommand != null)
+        {
+            var result = await disabledGuildCommandRepository.IsGuildCommandDisabledAsync(context.Guild, new("all-prefix"));
+            var arePrefixCommandsDisabled = result.IsDisabled;
+            if (arePrefixCommandsDisabled)
+            {
+                return new PreconditionFailed(
+                    PrivateReason: $"Prefix commands disabled in {context.Guild.FormatLog()}",
+                    UserReason: new(
+                        $"""
+                        You can't use {mention.Command(command, context)} because prefix commands are disabled in this server 🚫
+                        {(context.PrefixCommand.ReplacementSlashCommands != null && context.PrefixCommand.ReplacementSlashCommands.Count > 1
+                            ? $"Use these slash commands instead ⚡\n{string.Join('\n', context.PrefixCommand.ReplacementSlashCommands.Select(c => $"👉 {mention.SlashCommand(c, context)} 👈"))}"
+                            : context.PrefixCommand.ReplacementSlashCommands != null && context.PrefixCommand.ReplacementSlashCommands.Count == 1
+                                ? $"Use the slash command 👉 {mention.SlashCommand(context.PrefixCommand.ReplacementSlashCommands[0], context)} 👈 instead ⚡"
+                                : $"Sorry, slash commands starting with **/** are the future of commands on Discord 😕")}
+                        """)
+                );
+            }
+        }
+
+        return new PreconditionPassed();
     }
 }

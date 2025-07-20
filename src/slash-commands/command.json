@@ -87,6 +87,12 @@
           ]
         }
       ]
+    },
+    {
+      "name": "prefix",
+      "description": "Configure use of legacy prefix commands in this server",
+      "type": 1,
+      "options": []
     }
   ]
 }
