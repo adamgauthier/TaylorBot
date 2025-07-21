@@ -26,6 +26,7 @@ public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logg
                 (birthday + (INTERVAL '1 YEAR' * (date_part('year', CURRENT_DATE) - date_part('year', birthday))))
                 BETWEEN CURRENT_DATE - 2 AND CURRENT_DATE
             )
+            AND birthday != '0001-01-01'
             RETURNING user_id;
             """
         );

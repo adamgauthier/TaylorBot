@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
@@ -10,7 +10,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 {
     private sealed record BirthdayDto(DateOnly birthday, bool is_private);
 
-    public async ValueTask<IBirthdayRepository.Birthday?> GetBirthdayAsync(DiscordUser user)
+    public async ValueTask<UserBirthday?> GetBirthdayAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -34,18 +34,11 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
     public async ValueTask ClearBirthdayAsync(DiscordUser user)
     {
-        await using var connection = postgresConnectionFactory.CreateConnection();
-
-        await connection.ExecuteAsync(
-            "DELETE FROM attributes.birthdays WHERE user_id = @UserId;",
-            new
-            {
-                UserId = $"{user.Id}",
-            }
-        );
+        // Set birthday to 0001-01-01 to preserve last_reward_at (avoids clear as an exploit to get more points)
+        await SetBirthdayAsync(user, new(UserBirthday.ClearedDate, IsPrivate: true));
     }
 
-    public async ValueTask SetBirthdayAsync(DiscordUser user, IBirthdayRepository.Birthday birthday)
+    public async ValueTask SetBirthdayAsync(DiscordUser user, UserBirthday birthday)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -68,7 +61,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
     private sealed record CalendarEntryDto(string user_id, string username, DateOnly next_birthday);
 
-    public async ValueTask<IList<IBirthdayRepository.BirthdayCalendarEntry>> GetBirthdayCalendarAsync(CommandGuild guild)
+    public async ValueTask<IList<BirthdayCalendarEntry>> GetBirthdayCalendarAsync(CommandGuild guild)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -86,7 +79,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             }
         );
 
-        return [.. entries.Select(e => new IBirthdayRepository.BirthdayCalendarEntry(
+        return [.. entries.Select(e => new BirthdayCalendarEntry(
             new(e.user_id),
             e.username,
             e.next_birthday
@@ -95,7 +88,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
     private sealed record AgeRoleDto(string age_role_id, int minimum_age);
 
-    public async ValueTask<IList<IBirthdayRepository.AgeRole>> GetAgeRolesAsync(SnowflakeId guildId)
+    public async ValueTask<IList<AgeRole>> GetAgeRolesAsync(SnowflakeId guildId)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
@@ -114,7 +107,7 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
             }
         );
 
-        return [.. ageRoles.Select(a => new IBirthdayRepository.AgeRole(
+        return [.. ageRoles.Select(a => new AgeRole(
             new(a.age_role_id),
             a.minimum_age
         ))];

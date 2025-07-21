@@ -35,7 +35,7 @@ public class BirthdaySetSlashCommand(
                 DateOnly birthday;
                 try
                 {
-                    birthday = new(options.year.Value ?? IBirthdayRepository.Birthday.NoYearValue, options.month.Value, options.day.Value);
+                    birthday = new(options.year.Value ?? UserBirthday.NoYearValue, options.month.Value, options.day.Value);
                 }
                 catch (ArgumentOutOfRangeException)
                 {
@@ -47,9 +47,7 @@ public class BirthdaySetSlashCommand(
                 }
 
                 var setBirthday = await birthdayRepository.GetBirthdayAsync(context.User);
-
-                if (setBirthday != null &&
-                    (setBirthday.Date.Month != birthday.Month || setBirthday.Date.Day != birthday.Day))
+                if (setBirthday != null && setBirthday.IsSet && (setBirthday.Date.Month != birthday.Month || setBirthday.Date.Day != birthday.Day))
                 {
                     List<CustomIdDataEntry> data = [
                         new("date", $"{birthday.Year:D4}{birthday.Month:D2}{birthday.Day:D2}"),
@@ -85,7 +83,7 @@ public class BirthdaySetSlashCommand(
 
     public async ValueTask<Embed> SetBirthdayAsync(RunContext context, bool isPrivate, DateOnly birthday)
     {
-        if (birthday.Year != IBirthdayRepository.Birthday.NoYearValue)
+        if (birthday.Year != UserBirthday.NoYearValue)
         {
             int age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday);
 
@@ -109,7 +107,7 @@ public class BirthdaySetSlashCommand(
             .WithDescription(
                 $"""
                 Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}** ✅
-                {(birthday.Year == IBirthdayRepository.Birthday.NoYearValue
+                {(birthday.Year == UserBirthday.NoYearValue
                     ? $"Consider setting your birthday with the **year** option for {mention.SlashCommand("birthday age", context)} to work ❓"
                     : $"You can now use {mention.SlashCommand("birthday age", context)} to display your age 🔢")}
                 {(isPrivate
