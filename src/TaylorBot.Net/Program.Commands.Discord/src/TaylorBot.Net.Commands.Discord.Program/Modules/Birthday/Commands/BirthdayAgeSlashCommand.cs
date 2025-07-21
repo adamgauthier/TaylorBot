@@ -24,9 +24,9 @@ public class BirthdayAgeSlashCommand(IBirthdayRepository birthdayRepository, Age
                 var user = options.user.User;
                 var birthday = await birthdayRepository.GetBirthdayAsync(user);
 
-                if (birthday != null)
+                if (birthday != null && birthday.IsSet)
                 {
-                    if (birthday.Date.Year != IBirthdayRepository.Birthday.NoYearValue)
+                    if (birthday.Date.Year != UserBirthday.NoYearValue)
                     {
                         var age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday.Date);
                         ageCalculator.TryAddAgeRolesInBackground(context, user, age);
