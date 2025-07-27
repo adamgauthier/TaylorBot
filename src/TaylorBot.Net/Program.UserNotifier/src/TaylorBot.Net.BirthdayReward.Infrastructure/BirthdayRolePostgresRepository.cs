@@ -21,7 +21,7 @@ public class BirthdayRolePostgresRepository(PostgresConnectionFactory postgresCo
             	FROM (
             		SELECT user_id, (birthday + (INTERVAL '1 YEAR' * (date_part('year', CURRENT_DATE) - date_part('year', birthday))))::date as birthday_date
             		FROM attributes.birthdays
-                    WHERE is_private IS FALSE AND birthday != '0001-01-01'
+                    WHERE is_private IS FALSE AND birthday != '-infinity'
             	) AS birthdays
             ) AS birthday_windows
             WHERE CURRENT_TIMESTAMP AT TIME ZONE 'UTC' BETWEEN birthday_start AND birthday_end;

@@ -12,7 +12,7 @@ public class ZodiacSignPostgresRepository(PostgresConnectionFactory postgresConn
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<string?>(
-            "SELECT zodiac(birthday) FROM attributes.birthdays WHERE user_id = @UserId AND birthday != '0001-01-01';",
+            "SELECT zodiac(birthday) FROM attributes.birthdays WHERE user_id = @UserId AND birthday != '-infinity';",
             new
             {
                 UserId = $"{user.Id}",

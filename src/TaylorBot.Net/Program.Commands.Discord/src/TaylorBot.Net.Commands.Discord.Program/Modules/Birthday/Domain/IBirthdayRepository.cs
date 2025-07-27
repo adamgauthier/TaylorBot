@@ -7,7 +7,7 @@ public record UserBirthday(DateOnly Date, bool IsPrivate)
 {
     public const int NoYearValue = 1804;
 
-    public static readonly DateOnly ClearedDate = new(1, 1, 1);
+    public static readonly DateOnly ClearedDate = DateOnly.MinValue;
 
     public bool IsSet => Date != ClearedDate;
 }
