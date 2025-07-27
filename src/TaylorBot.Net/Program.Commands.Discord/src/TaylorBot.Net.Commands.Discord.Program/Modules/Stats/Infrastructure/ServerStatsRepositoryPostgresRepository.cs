@@ -22,7 +22,7 @@ public class ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory p
             FROM (
                 SELECT date_part('year', age(birthday))::int AS human_age
                 FROM attributes.birthdays
-                WHERE date_part('year', birthday)::int != 1804 AND birthday != '0001-01-01' AND user_id IN (
+                WHERE date_part('year', birthday)::int != 1804 AND birthday != '-infinity' AND user_id IN (
                     SELECT user_id
                     FROM guilds.guild_members
                     WHERE guild_id = @GuildId AND alive = TRUE

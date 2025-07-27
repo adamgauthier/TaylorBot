@@ -34,7 +34,8 @@ public class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnec
 
     public async ValueTask ClearBirthdayAsync(DiscordUser user)
     {
-        // Set birthday to 0001-01-01 to preserve last_reward_at (avoids clear as an exploit to get more points)
+        // Don't fully clear birthday to preserve last_reward_at (avoids clear as an exploit to get more points)
+        // ClearedDate (0001-01-01 maps to '-infinity' in PostgreSQL)
         await SetBirthdayAsync(user, new(UserBirthday.ClearedDate, IsPrivate: true));
     }
 
