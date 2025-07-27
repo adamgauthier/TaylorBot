@@ -6,10 +6,6 @@ namespace TaylorBot.Net.Commands.Discord.Program.Options;
 public class HeistOptions
 {
     [Required]
-    [MinLength(1)]
-    public string BanksJsonBase64 { get; set; } = null!;
-
-    [Required]
     public TimeSpan? TimeSpanBeforeHeistStarts { get; set; }
 }
 

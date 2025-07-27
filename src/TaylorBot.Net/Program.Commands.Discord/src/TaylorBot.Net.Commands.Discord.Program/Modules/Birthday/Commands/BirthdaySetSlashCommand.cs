@@ -1,4 +1,5 @@
 ﻿using Discord;
+using System.Globalization;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Numbers;
@@ -121,7 +122,6 @@ public class BirthdaySetSlashCommand(
     }
 }
 
-
 public class BirthdaySetConfirmButtonHandler(IInteractionResponseClient responseClient, BirthdaySetSlashCommand birthdaySetCommand) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.BirthdaySetConfirm;
@@ -133,9 +133,9 @@ public class BirthdaySetConfirmButtonHandler(IInteractionResponseClient response
         var isPrivate = button.CustomId.ParsedData.TryGetValue("priv", out var priv) && priv == "1";
 
         var dateStr = button.CustomId.ParsedData["date"];
-        var year = int.Parse(dateStr[..4]);
-        var month = int.Parse(dateStr[4..6]);
-        var day = int.Parse(dateStr[6..]);
+        var year = int.Parse(dateStr[..4], CultureInfo.InvariantCulture);
+        var month = int.Parse(dateStr[4..6], CultureInfo.InvariantCulture);
+        var day = int.Parse(dateStr[6..], CultureInfo.InvariantCulture);
         DateOnly birthday = new(year, month, day);
 
         var embed = await birthdaySetCommand.SetBirthdayAsync(context, isPrivate, birthday);

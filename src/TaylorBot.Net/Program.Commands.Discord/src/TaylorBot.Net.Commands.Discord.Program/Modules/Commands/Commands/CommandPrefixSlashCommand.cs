@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 
-public class CommandServerPrefixSlashCommand(
+public class CommandPrefixSlashCommand(
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     CommandMentioner mention,
     InGuildPrecondition.Factory inGuild,
@@ -103,7 +103,7 @@ public class CommandServerPrefixSlashCommand(
 
 public class CommandPrefixToggleHandler(
     IInteractionResponseClient responseClient,
-    CommandServerPrefixSlashCommand command,
+    CommandPrefixSlashCommand command,
     IDisabledGuildCommandRepository disabledGuildCommandRepository,
     CommandMentioner mention,
     ICommandPrefixRepository commandPrefixRepository

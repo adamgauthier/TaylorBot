@@ -265,7 +265,7 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<CommandServerEnableSlashCommand>()
             .AddSlashCommand<CommandChannelDisableSlashCommand>()
             .AddSlashCommand<CommandChannelEnableSlashCommand>()
-            .AddSlashCommand<CommandServerPrefixSlashCommand>()
+            .AddSlashCommand<CommandPrefixSlashCommand>()
             .AddButtonHandler<CommandPrefixToggleHandler>()
             .AddTransient<LastFmEmbedFactory>()
             .AddSlashCommand<LastFmCurrentSlashCommand>()
@@ -379,6 +379,7 @@ public static class DiscordCommandsProgram
             .ConfigureRequired<HeistOptions>(config, "Heist")
             .AddSingleton<IValidateOptions<HeistOptions>, HeistOptionsValidator>()
             .AddTransient<IHeistStatsRepository, HeistStatsPostgresRepository>()
+            .AddTransient<IHeistConfigRepository, HeistConfigPostgresRepository>()
             .AddSingleton<HeistInMemoryRepository>()
             .AddTransient<HeistRedisRepository>()
             .AddTransient(provider =>

@@ -1,9 +1,8 @@
 ﻿using Discord;
 using Humanizer;
 using Microsoft.Extensions.Options;
-using System.Text;
-using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Taypoints.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.PostExecution;
@@ -27,7 +26,8 @@ public class HeistPlaySlashCommand(
     ICryptoSecureRandom cryptoSecureRandom,
     IPseudoRandom pseudoRandom,
     CommandMentioner mention,
-    InGuildPrecondition.Factory inGuild) : ISlashCommand<HeistPlaySlashCommand.Options>
+    InGuildPrecondition.Factory inGuild,
+    IHeistConfigRepository heistConfigRepository) : ISlashCommand<HeistPlaySlashCommand.Options>
 {
     public const string PrefixCommandName = "heist";
 
@@ -65,7 +65,9 @@ public class HeistPlaySlashCommand(
             if (rateLimitResult != null)
                 return rateLimitResult;
 
-            var delay = options.CurrentValue.TimeSpanBeforeHeistStarts!.Value;
+            var delay = options.CurrentValue.TimeSpanBeforeHeistStarts != null
+                ? options.CurrentValue.TimeSpanBeforeHeistStarts.Value
+                : throw new ArgumentNullException(nameof(options.CurrentValue.TimeSpanBeforeHeistStarts));
 
             var result = await heistRepository.EnterHeistAsync(member, amount, delay);
             switch (result)
@@ -126,7 +128,7 @@ public class HeistPlaySlashCommand(
         var channel = await guild.GetTextChannelAsync(context.Channel.Id);
 
         var heisters = await heistRepository.EndHeistAsync(commandGuild);
-        var bank = GetBank(heisters.Count);
+        var bank = await GetBankAsync(heisters.Count);
 
         var roll = cryptoSecureRandom.GetInt32(1, 100);
         var won = roll >= bank.minimumRollForSuccess;
@@ -154,18 +156,10 @@ public class HeistPlaySlashCommand(
         await channel.SendMessageAsync(embed: embed.Build());
     }
 
-    private sealed record Bank(string bankName, ushort? maximumUserCount, ushort minimumRollForSuccess, string payoutMultiplier);
-
-    private readonly Lazy<List<Bank>> banks = new(() =>
+    private async Task<Bank> GetBankAsync(int playerCount)
     {
-        var encoded = options.CurrentValue.BanksJsonBase64;
-        var json = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
-        return JsonSerializer.Deserialize<List<Bank>>(json) ?? throw new ArgumentNullException();
-    });
-
-    private Bank GetBank(int playerCount)
-    {
-        return banks.Value.First(b => b.maximumUserCount == null || playerCount <= b.maximumUserCount);
+        var banks = await heistConfigRepository.GetBanksAsync();
+        return banks.First(b => b.maximumUserCount == null || playerCount <= b.maximumUserCount);
     }
 
     private static readonly string[] FailureReasons = [
