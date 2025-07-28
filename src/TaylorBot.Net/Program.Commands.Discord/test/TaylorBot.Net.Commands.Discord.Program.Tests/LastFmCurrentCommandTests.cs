@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
@@ -23,7 +24,7 @@ public class LastFmCurrentCommandTests
 
     public LastFmCurrentCommandTests()
     {
-        _lastFmCurrentSlashCommand = new(_options, new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmUsernameRepository, _lastFmClient);
+        _lastFmCurrentSlashCommand = new(A.Fake<ILogger<LastFmCurrentSlashCommand>>(), _options, new(_lastFmPeriodStringMapper, CommandUtils.Mentioner), _lastFmUsernameRepository, _lastFmClient);
         _context = CommandUtils.CreateTestContext(_lastFmCurrentSlashCommand);
     }
 

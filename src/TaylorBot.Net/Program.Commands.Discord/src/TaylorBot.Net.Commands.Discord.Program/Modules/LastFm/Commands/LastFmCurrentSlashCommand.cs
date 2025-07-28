@@ -1,16 +1,21 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Humanizer;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Options;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Number;
 using TaylorBot.Net.Core.Strings;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
 public class LastFmCurrentSlashCommand(
+    ILogger<LastFmCurrentSlashCommand> logger,
     IOptionsMonitor<LastFmOptions> options,
     LastFmEmbedFactory lastFmEmbedFactory,
     ILastFmUsernameRepository lastFmUsernameRepository,
@@ -44,20 +49,26 @@ public class LastFmCurrentSlashCommand(
                         var embed = lastFmEmbedFactory.CreateBaseLastFmEmbed(lastFmUsername, user);
 
                         var mostRecentTrack = success.MostRecentTrack;
-
                         if (mostRecentTrack.TrackImageUrl != null)
                         {
                             embed.WithThumbnailUrl(mostRecentTrack.TrackImageUrl);
+                        }
+
+                        var footer = mostRecentTrack.IsNowPlaying ? "Now Playing" : "Last Played";
+
+                        var userTrackPlayCount = await TryGetTrackPlayCountAsync(lastFmUsername, mostRecentTrack);
+                        if (userTrackPlayCount != null)
+                        {
+                            footer += mostRecentTrack.IsNowPlaying && userTrackPlayCount.Value == 0
+                                ? $" | First time playing this song!"
+                                : $" | Song played {"time".ToQuantity(userTrackPlayCount.Value, TaylorBotFormats.Readable, TaylorBotCulture.Culture)} total";
                         }
 
                         return new EmbedResult(embed
                             .WithColor(TaylorBotColors.SuccessColor)
                             .AddField("Artist", mostRecentTrack.Artist.Name.DiscordMdLink(mostRecentTrack.Artist.Url), inline: true)
                             .AddField("Track", mostRecentTrack.TrackName.DiscordMdLink(mostRecentTrack.TrackUrl), inline: true)
-                            .WithFooter(text: string.Join(" | ", [
-                                mostRecentTrack.IsNowPlaying ? "Now Playing" : "Most Recent Track",
-                                $"Total Scrobbles: {success.TotalScrobbles}"
-                            ]), iconUrl: options.CurrentValue.LastFmEmbedFooterIconUrl)
+                            .WithFooter(text: footer, iconUrl: options.CurrentValue.LastFmEmbedFooterIconUrl)
                             .Build()
                         );
                     }
@@ -69,7 +80,7 @@ public class LastFmCurrentSlashCommand(
                 case LastFmLogInRequiredErrorResult _:
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        Last.fm says your recent tracks are not public. 😢
+                        Last.fm says your recent tracks are not public 😢
                         Make sure 'Hide recent listening information' is off in your {"Last.fm privacy settings".DiscordMdLink("https://www.last.fm/settings/privacy")}!
                         """));
 
@@ -80,6 +91,20 @@ public class LastFmCurrentSlashCommand(
             }
         }
     );
+
+    private async Task<int?> TryGetTrackPlayCountAsync(LastFmUsername lastFmUsername, MostRecentScrobble mostRecentTrack)
+    {
+        try
+        {
+            var trackInfo = await lastFmClient.GetTrackInfoAsync(lastFmUsername.Username, mostRecentTrack);
+            return trackInfo?.UserPlayCount;
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to fetch user track play count for {Username} - {Artist} - {Track}", lastFmUsername.Username, mostRecentTrack.Artist.Name, mostRecentTrack.TrackName);
+            return null;
+        }
+    }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

@@ -22,8 +22,7 @@ public sealed class InflatableLastFmClient(
     {
         var response = await client.User.GetRecentScrobbles(
             username: lastFmUsername,
-            count: 1
-        );
+            count: 1);
 
         if (response.Success)
         {
@@ -99,7 +98,7 @@ public sealed class InflatableLastFmClient(
 
     public async ValueTask<ITopTracksResult> GetTopTracksAsync(string lastFmUsername, LastFmPeriod period)
     {
-        var queryString = new[] {
+        string[] queryString = [
             "method=user.gettoptracks",
             $"user={lastFmUsername}",
             $"api_key={options.CurrentValue.LastFmApiKey}",
@@ -107,7 +106,7 @@ public sealed class InflatableLastFmClient(
             "format=json",
             "page=1",
             "limit=10"
-        };
+        ];
 
         return await httpClient.ReadJsonWithErrorLogging<TopTracksResponse, ITopTracksResult>(
             c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}"),
@@ -145,7 +144,7 @@ public sealed class InflatableLastFmClient(
 
     public async ValueTask<ITopAlbumsResult> GetTopAlbumsAsync(string lastFmUsername, LastFmPeriod period)
     {
-        var queryString = new[] {
+        string[] queryString = [
             "method=user.gettopalbums",
             $"user={lastFmUsername}",
             $"api_key={options.CurrentValue.LastFmApiKey}",
@@ -153,7 +152,7 @@ public sealed class InflatableLastFmClient(
             "format=json",
             "page=1",
             "limit=10"
-        };
+        ];
 
         return await httpClient.ReadJsonWithErrorLogging<TopAlbumsResponse, ITopAlbumsResult>(
             c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join('&', queryString)}"),
@@ -198,6 +197,35 @@ public sealed class InflatableLastFmClient(
         public record AlbumImage(string size, [property: JsonPropertyName("#text")] string text);
 
         public record Artist(string name, string url);
+    }
+
+    public record TrackInfoResponse(TrackInfoResponse.TrackInfoTrack? track)
+    {
+        public record TrackInfoTrack(int userplaycount);
+    }
+
+    public async ValueTask<TrackInfoResult?> GetTrackInfoAsync(string lastFmUsername, MostRecentScrobble track)
+    {
+        string[] queryString = [
+            "method=track.getInfo",
+            $"user={lastFmUsername}",
+            $"api_key={options.CurrentValue.LastFmApiKey}",
+            "format=json",
+            $"artist={Uri.EscapeDataString(track.Artist.Name)}",
+            $"track={Uri.EscapeDataString(track.TrackName)}",
+        ];
+
+        return await httpClient.ReadJsonWithErrorLogging<TrackInfoResponse, TrackInfoResult?>(
+            c => c.GetAsync($"https://ws.audioscrobbler.com/2.0/?{string.Join("&", queryString)}"),
+            handleSuccessAsync: success => Task.FromResult(HandleTrackInfoSuccess(success)),
+            handleErrorAsync: error => Task.FromResult<TrackInfoResult?>(null),
+            logger);
+    }
+
+    private static TrackInfoResult? HandleTrackInfoSuccess(HttpSuccess<TrackInfoResponse> result)
+    {
+        ArgumentNullException.ThrowIfNull(result.Parsed.track);
+        return new(result.Parsed.track.userplaycount);
     }
 
     private LastFmGenericErrorResult HandleLastFmHttpError(HttpError error, string lastFmUsername)

@@ -42,10 +42,13 @@ public record TopAlbumsResult(IReadOnlyList<TopAlbum> TopAlbums) : ITopAlbumsRes
 
 public record TopAlbum(string Name, Uri AlbumUrl, Uri? AlbumImageUrl, int PlayCount, string ArtistName, Uri ArtistUrl);
 
+public record TrackInfoResult(int UserPlayCount);
+
 public interface ILastFmClient
 {
     ValueTask<IMostRecentScrobbleResult> GetMostRecentScrobbleAsync(string lastFmUsername);
     ValueTask<ITopArtistsResult> GetTopArtistsAsync(string lastFmUsername, LastFmPeriod period);
     ValueTask<ITopTracksResult> GetTopTracksAsync(string lastFmUsername, LastFmPeriod period);
     ValueTask<ITopAlbumsResult> GetTopAlbumsAsync(string lastFmUsername, LastFmPeriod period);
+    ValueTask<TrackInfoResult?> GetTrackInfoAsync(string lastFmUsername, MostRecentScrobble track);
 }
