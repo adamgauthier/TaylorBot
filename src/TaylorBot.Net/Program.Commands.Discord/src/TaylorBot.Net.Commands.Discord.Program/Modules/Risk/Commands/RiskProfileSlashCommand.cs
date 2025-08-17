@@ -25,10 +25,10 @@ public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) :
                 var user = options.user.User;
                 var profile = (await riskStatsRepository.GetProfileAsync(user)) ?? new(0, 0, 0, 0);
 
-                var totalRiskPlayed = profile.gamble_win_count + profile.gamble_lose_count;
-                var winRate = totalRiskPlayed != 0 ? (decimal)profile.gamble_win_count / totalRiskPlayed : 0;
+                var totalRiskPlayed = profile.risk_win_count + profile.risk_lose_count;
+                var winRate = totalRiskPlayed != 0 ? (decimal)profile.risk_win_count / totalRiskPlayed : 0;
                 var hasPositiveRecord = winRate >= (decimal)0.5;
-                var profits = profile.gamble_win_amount - profile.gamble_lose_amount;
+                var profits = profile.risk_win_amount - profile.risk_lose_amount;
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(hasPositiveRecord ? TaylorBotColors.SuccessColor : TaylorBotColors.ErrorColor)
@@ -38,8 +38,8 @@ public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) :
                     .AddField("Risk Profits",
                         $"""
                         **{(profits >= 0 ? "🟢 +" : "🔴 —")}{"taypoint".ToQuantity(Math.Abs(profits), TaylorBotFormats.Readable)}**
-                        Won {"taypoint".ToQuantity(profile.gamble_win_amount, TaylorBotFormats.BoldReadable)} 📈
-                        Lost {"taypoint".ToQuantity(profile.gamble_lose_amount, TaylorBotFormats.BoldReadable)} 📉
+                        Won {"taypoint".ToQuantity(profile.risk_win_amount, TaylorBotFormats.BoldReadable)} 📈
+                        Lost {"taypoint".ToQuantity(profile.risk_lose_amount, TaylorBotFormats.BoldReadable)} 📉
                         """)
                     .Build());
             }

@@ -12,9 +12,9 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Risk.Commands;
 
 public record RiskResult(long invested_count, long final_count, long profit_count);
 
-public record RiskProfile(long gamble_win_count, long gamble_win_amount, long gamble_lose_count, long gamble_lose_amount);
+public record RiskProfile(long risk_win_count, long risk_win_amount, long risk_lose_count, long risk_lose_amount);
 
-public record RiskLeaderboardEntry(string user_id, string username, long gamble_win_count, long rank);
+public record RiskLeaderboardEntry(string user_id, string username, long risk_win_count, long rank);
 
 public interface IRiskStatsRepository
 {

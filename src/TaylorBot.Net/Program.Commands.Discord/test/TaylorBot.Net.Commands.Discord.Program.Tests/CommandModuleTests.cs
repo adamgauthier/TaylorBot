@@ -32,7 +32,7 @@ public class CommandModuleTests
     {
         const string CommandName = "avatar";
         A.CallTo(() => _disabledCommandRepository.EnableGloballyAsync(CommandName)).Returns(default);
-        var command = new ICommandRepository.Command(Name: CommandName, ModuleName: string.Empty);
+        var command = new ICommandRepository.Command(Name: CommandName);
 
         var result = (await _commandModule.EnableGlobalAsync(command)).GetResult<EmbedResult>();
 
@@ -40,12 +40,12 @@ public class CommandModuleTests
     }
 
     [Fact]
-    public async Task DisableGlobalAsync_WhenGuardedModule_ThenReturnsErrorEmbed()
+    public async Task DisableGlobalAsync_WhenGuarded_ThenReturnsErrorEmbed()
     {
-        const string CommandName = "avatar";
+        const string CommandName = "command enable-globally";
         const string DisabledMesssage = "The command is down for maintenance.";
         A.CallTo(() => _disabledCommandRepository.DisableGloballyAsync(CommandName, DisabledMesssage)).Returns(DisabledMesssage);
-        var command = new ICommandRepository.Command(Name: CommandName, ModuleName: "Framework");
+        var command = new ICommandRepository.Command(Name: CommandName);
 
         var result = (await _commandModule.DisableGlobalAsync(command, DisabledMesssage)).GetResult<EmbedResult>();
 
@@ -58,7 +58,7 @@ public class CommandModuleTests
         const string CommandName = "avatar";
         const string DisabledMesssage = "The command is down for maintenance.";
         A.CallTo(() => _disabledCommandRepository.DisableGloballyAsync(CommandName, DisabledMesssage)).Returns(DisabledMesssage);
-        var command = new ICommandRepository.Command(Name: CommandName, ModuleName: string.Empty);
+        var command = new ICommandRepository.Command(Name: CommandName);
 
         var result = (await _commandModule.DisableGlobalAsync(command, DisabledMesssage)).GetResult<EmbedResult>();
 

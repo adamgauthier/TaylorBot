@@ -1,8 +1,7 @@
-using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
-using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.CommandDisabling;
 
@@ -14,8 +13,6 @@ public class CommandModule(
     IDisabledCommandRepository disabledCommandRepository,
     TaylorBotOwnerPrecondition ownerPrecondition) : TaylorBotModule
 {
-    private static readonly string[] GuardedModuleNames = ["framework", "command"];
-
     [Command("enable-global")]
     public async Task<RuntimeResult> EnableGlobalAsync(
         [Remainder]
@@ -28,10 +25,7 @@ public class CommandModule(
             {
                 await disabledCommandRepository.EnableGloballyAsync(command.Name);
 
-                return new EmbedResult(new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription($"Command `{command.Name}` has been enabled globally.")
-                .Build());
+                return new EmbedResult(EmbedFactory.CreateSuccess($"Command `{command.Name}` has been enabled globally."));
             },
             Preconditions: [ownerPrecondition]
         );
@@ -53,22 +47,16 @@ public class CommandModule(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                EmbedBuilder embed = new();
-
-                if (GuardedModuleNames.Contains(command.ModuleName.ToLowerInvariant()))
+                if (command.Name.StartsWith("command", StringComparison.Ordinal))
                 {
-                    return new EmbedResult(embed
-                        .WithColor(TaylorBotColors.ErrorColor)
-                        .WithDescription($"Command `{command.Name}` can't be disabled because it's a framework command.")
-                    .Build());
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        $"Command `{command.Name}` can't be disabled because it's a framework command."));
                 }
 
                 var disabledMessage = await disabledCommandRepository.DisableGloballyAsync(command.Name, message);
 
-                return new EmbedResult(embed
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithDescription($"Command `{command.Name}` has been disabled globally with message '{disabledMessage}'.")
-                .Build());
+                return new EmbedResult(EmbedFactory.CreateSuccess(
+                    $"Command `{command.Name}` has been disabled globally with message '{disabledMessage}'."));
             },
             Preconditions: [ownerPrecondition]
         );

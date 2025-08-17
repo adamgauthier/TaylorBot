@@ -27,11 +27,11 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
 
         await connection.ExecuteAsync(
             """
-            INSERT INTO users.gamble_stats (user_id, gamble_win_count, gamble_win_amount)
+            INSERT INTO users.risk_stats (user_id, risk_win_count, risk_win_amount)
             VALUES (@UserId, @WinCount, @WinAmount)
             ON CONFLICT (user_id) DO UPDATE SET
-                gamble_win_count = gamble_stats.gamble_win_count + @WinCount,
-                gamble_win_amount = gamble_stats.gamble_win_amount + @WinAmount
+                risk_win_count = risk_stats.risk_win_count + @WinCount,
+                risk_win_amount = risk_stats.risk_win_amount + @WinAmount
             ;
             """,
             new
@@ -56,11 +56,11 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
 
         await connection.ExecuteAsync(
             """
-            INSERT INTO users.gamble_stats (user_id, gamble_lose_count, gamble_lose_amount)
+            INSERT INTO users.risk_stats (user_id, risk_lose_count, risk_lose_amount)
             VALUES (@UserId, @LoseCount, @LoseAmount)
             ON CONFLICT (user_id) DO UPDATE SET
-                gamble_lose_count = gamble_stats.gamble_lose_count + @LoseCount,
-                gamble_lose_amount = gamble_stats.gamble_lose_amount + @LoseAmount
+                risk_lose_count = risk_stats.risk_lose_count + @LoseCount,
+                risk_lose_amount = risk_stats.risk_lose_amount + @LoseAmount
             ;
             """,
             new
@@ -81,8 +81,8 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
 
         return await connection.QuerySingleOrDefaultAsync<RiskProfile?>(
             """
-            SELECT gamble_win_count, gamble_win_amount, gamble_lose_count, gamble_lose_amount
-            FROM users.gamble_stats
+            SELECT risk_win_count, risk_win_amount, risk_lose_count, risk_lose_amount
+            FROM users.risk_stats
             WHERE user_id = @UserId;
             """,
             new
@@ -101,16 +101,16 @@ public class RiskStatsPostgresRepository(PostgresConnectionFactory postgresConne
             // Then we join to filter out users that are not part of the guild and get the top 100
             // Finally we join on users to get their latest username
             """
-            SELECT leaderboard.user_id, username, gamble_win_count, rank FROM
+            SELECT leaderboard.user_id, username, risk_win_count, rank FROM
             (
-                SELECT risk_users.user_id, gamble_win_count, rank() OVER (ORDER BY gamble_win_count DESC) AS rank FROM
+                SELECT risk_users.user_id, risk_win_count, rank() OVER (ORDER BY risk_win_count DESC) AS rank FROM
                 (
-                    SELECT user_id, gamble_win_count
-                    FROM users.gamble_stats
-                    WHERE gamble_win_count > 0
+                    SELECT user_id, risk_win_count
+                    FROM users.risk_stats
+                    WHERE risk_win_count > 0
                 ) risk_users
                 JOIN guilds.guild_members AS gm ON risk_users.user_id = gm.user_id AND gm.guild_id = @GuildId AND gm.alive = TRUE
-                ORDER BY gamble_win_count DESC
+                ORDER BY risk_win_count DESC
                 LIMIT 150
             ) leaderboard
             JOIN users.users AS u ON leaderboard.user_id = u.user_id;
