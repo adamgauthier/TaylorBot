@@ -55,3 +55,4 @@
 20250525_modmail_log 2025-05-26T05:33:56Z Adam Gauthier <adamgauthier12@gmail.com> # Separate modmail logs from mod logs
 20250614_daily_messages_overrides 2025-06-14T21:44:19Z Adam Gauthier <adamgauthier12@gmail.com> # Move daily messages to app
 20250720_prefix_commands_disable 2025-07-20T23:03:48Z Adam Gauthier <adamgauthier12@gmail.com> # Add stub prefix command to disable
+20250816_bump_version_2.0.0 2025-08-17T02:07:35Z Adam Gauthier <adamgauthier12@gmail.com> # Bump product version to 2.0.0

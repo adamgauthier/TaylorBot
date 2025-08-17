@@ -2,8 +2,7 @@
 
 public interface ICommandRepository
 {
-    public record Command(string Name, string ModuleName);
+    public record Command(string Name);
 
-    ValueTask<IReadOnlyCollection<Command>> GetAllCommandsAsync();
     ValueTask<Command?> FindCommandByAliasAsync(string commandAlias);
 }

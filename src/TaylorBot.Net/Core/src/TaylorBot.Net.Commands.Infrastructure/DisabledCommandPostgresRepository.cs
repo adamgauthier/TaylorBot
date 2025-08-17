@@ -12,7 +12,7 @@ public class DisabledCommandPostgresRepository(PostgresConnectionFactory postgre
 
         return await connection.QuerySingleAsync<string>(
             """
-            INSERT INTO commands.commands (name, aliases, module_name) VALUES (@CommandName, @Aliases, '')
+            INSERT INTO commands.commands (name, aliases) VALUES (@CommandName, @Aliases)
             ON CONFLICT (name) DO UPDATE SET
                 aliases = excluded.aliases
             RETURNING disabled_message;

@@ -44,7 +44,7 @@ public class RiskLeaderboardSlashCommand(
                 }
 
                 var pages = leaderboard.Chunk(15).Select(entries => string.Join('\n', entries.Select(
-                    entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.gamble_win_count, TaylorBotFormats.BoldReadable)}"
+                    entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"win".ToQuantity(entry.risk_win_count, TaylorBotFormats.BoldReadable)}"
                 ))).ToList();
 
                 var baseEmbed = new EmbedBuilder()

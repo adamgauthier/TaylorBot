@@ -1,11 +1,11 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.301 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0.304 AS build
 WORKDIR /app
 
 ARG FEED_ACCESS_TOKEN
 RUN if test -n "${FEED_ACCESS_TOKEN}" ; then \
         curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | sh ; \
     fi
-ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/louistio/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESS_TOKEN}\"}]}"
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESS_TOKEN}\"}]}"
 
 # copy csproj and restore as distinct layers
 COPY ./Directory.Build.props ./Directory.Build.props
@@ -41,7 +41,7 @@ ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Releas
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0.6 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0.8 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.EntityTracker.Program.dll"]
