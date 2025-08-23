@@ -94,7 +94,10 @@ public class HelpCategoryHandler(IInteractionResponseClient interactionResponseC
         if (categoryId == "home")
         {
             var response = await helpCommand.GetHelpResponseAsync(context);
-            await interactionResponseClient.EditOriginalResponseAsync(select.Interaction, response);
+            // Ensure the select menu is always included when returning to home, even if context.SlashCommand is null
+            var selectMenu = await helpCommand.CreateCategorySelectAsync("home");
+            var responseWithMenu = new MessageResponse(response.Content, [selectMenu]);
+            await interactionResponseClient.EditOriginalResponseAsync(select.Interaction, responseWithMenu);
             return;
         }
 
