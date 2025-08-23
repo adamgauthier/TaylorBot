@@ -49,7 +49,7 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
                 """)
             .Build();
 
-        if (context.SlashCommand == null)
+        if (context.PrefixCommand != null)
         {
             return new(embed);
         }
@@ -94,10 +94,7 @@ public class HelpCategoryHandler(IInteractionResponseClient interactionResponseC
         if (categoryId == "home")
         {
             var response = await helpCommand.GetHelpResponseAsync(context);
-            // Ensure the select menu is always included when returning to home, even if context.SlashCommand is null
-            var selectMenu = await helpCommand.CreateCategorySelectAsync("home");
-            var responseWithMenu = new MessageResponse(response.Content, [selectMenu]);
-            await interactionResponseClient.EditOriginalResponseAsync(select.Interaction, responseWithMenu);
+            await interactionResponseClient.EditOriginalResponseAsync(select.Interaction, response);
             return;
         }
 
