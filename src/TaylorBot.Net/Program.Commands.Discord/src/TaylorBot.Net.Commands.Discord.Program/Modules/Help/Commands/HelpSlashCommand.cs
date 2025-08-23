@@ -43,13 +43,13 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
                 # TaylorBot {productVersion} ⭐
                 {"TaylorBot".DiscordMdLink("https://taylorbot.app/")} is a multi-purpose Discord bot created with love in **November 2015** by {applicationInfo.Owner.Mention} 💖
                 {applicationInfo.Description}
-                {(context.SlashCommand != null
+                {(context.PrefixCommand == null
                     ? "### Pick a command category below to learn more 👇"
                     : $"### Use {mention.SlashCommand("help")} to learn more about commands! 💫")}
                 """)
             .Build();
 
-        if (context.SlashCommand == null)
+        if (context.PrefixCommand != null)
         {
             return new(embed);
         }
