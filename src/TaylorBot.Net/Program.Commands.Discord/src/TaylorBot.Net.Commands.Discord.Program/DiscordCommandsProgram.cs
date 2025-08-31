@@ -319,6 +319,13 @@ public static class DiscordCommandsProgram
             .AddTransient<IChannelMessageCountRepository, ChannelMessageCountPostgresRepository>()
             .AddSlashCommand<ChannelMessagesSlashCommand>()
             .AddTransient<ILocationRepository, LocationPostgresRepository>()
+            .AddTransient<ILocationClient>(provider =>
+            {
+                var random = provider.GetRequiredService<IPseudoRandom>();
+                return random.GetInt32(0, 1) == 1
+                    ? provider.GetRequiredService<GooglePlacesNewClient>()
+                    : provider.GetRequiredService<GooglePlacesClient>();
+            })
             .AddTransient<LocationFetcherDomainService>()
             .AddTransient<LocationShowCommand>()
             .AddSlashCommand<LocationShowSlashCommand>()
@@ -434,7 +441,8 @@ public static class DiscordCommandsProgram
 
         services.AddHttpClient<ILastFmClient, InflatableLastFmClient>();
         services.AddHttpClient<IUrbanDictionaryClient, UrbanDictionaryClient>();
-        services.AddHttpClient<ILocationClient, GooglePlacesClient>();
+        services.AddHttpClient<GooglePlacesClient>();
+        services.AddHttpClient<GooglePlacesNewClient>();
         services.AddHttpClient<IWeatherClient, PirateWeatherClient>();
         services.AddHttpClient<IWolframAlphaClient, WolframAlphaClient>();
         services.AddHttpClient<IHoroscopeClient, GaneshaSpeaksHoroscopeClient>();
