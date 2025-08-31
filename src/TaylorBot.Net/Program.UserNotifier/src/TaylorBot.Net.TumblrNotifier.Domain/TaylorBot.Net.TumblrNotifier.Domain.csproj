@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewTumblrSharp" Version="1.1.141" />
+    <PackageReference Include="NewTumblrSharp" Version="1.2.1.160" />
   </ItemGroup>
 
   <ItemGroup>
