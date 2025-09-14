@@ -322,7 +322,7 @@ public static class DiscordCommandsProgram
             .AddTransient<ILocationClient>(provider =>
             {
                 var random = provider.GetRequiredService<IPseudoRandom>();
-                return random.GetInt32(0, 1) == 1
+                return random.GetInt32(0, 100) < 75
                     ? provider.GetRequiredService<GooglePlacesNewClient>()
                     : provider.GetRequiredService<GooglePlacesClient>();
             })
