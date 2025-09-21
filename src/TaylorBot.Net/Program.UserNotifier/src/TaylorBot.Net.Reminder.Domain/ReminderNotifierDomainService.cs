@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Client;
@@ -26,7 +27,7 @@ public class ReminderNotifierDomainService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(RemindUsersAsync)}.");
+                logger.LogError(e, $"Unhandled exception in {nameof(RemindUsersAsync)}");
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks);
@@ -45,7 +46,7 @@ public class ReminderNotifierDomainService(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when attempting to notify {Reminder}.", reminder);
+                logger.LogError(exception, "Exception occurred when attempting to notify {Reminder}", reminder);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
@@ -54,7 +55,7 @@ public class ReminderNotifierDomainService(
 
     private async Task RemindUserAsync(Reminder reminder)
     {
-        logger.LogDebug("Reminding {Reminder}.", reminder);
+        logger.LogDebug("Reminding {Reminder}", reminder);
 
         var user = await taylorBotClient.Value.ResolveRequiredUserAsync(reminder.UserId);
 
@@ -62,21 +63,14 @@ public class ReminderNotifierDomainService(
         {
             await user.SendMessageAsync(embed: reminderEmbedFactory.Create(reminder));
         }
-        catch (Discord.Net.HttpException httpException)
+        catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
         {
-            if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
-            {
-                logger.LogWarning("Could not remind {User} with {Reminder} because they can't receive DMs.", user.FormatLog(), reminder);
-                await reminderRepository.RemoveReminderAsync(reminder);
-                return;
-            }
-            else
-            {
-                throw;
-            }
+            logger.LogWarning("Could not remind {User} with {Reminder} because of their DM settings", user.FormatLog(), reminder);
+            await reminderRepository.RemoveReminderAsync(reminder);
+            return;
         }
 
-        logger.LogDebug("Reminded {User} with {Reminder}.", user.FormatLog(), reminder);
+        logger.LogDebug("Reminded {User} with {Reminder}", user.FormatLog(), reminder);
 
         await reminderRepository.RemoveReminderAsync(reminder);
     }

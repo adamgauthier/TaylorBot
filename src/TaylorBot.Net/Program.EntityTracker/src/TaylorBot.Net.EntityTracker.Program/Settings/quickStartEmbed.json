@@ -1,19 +1,19 @@
 ﻿{
   "QuickStartEmbed": {
     "Title": "TaylorBot Quick Start Guide",
-    "Description": "Thank you for inviting me! Here's a few tips to start. 😊",
+    "Description": "Thank you for adding me to your server! Here's a few tips to start 😊",
     "Fields": [
       {
-        "Name": "Prefix",
-        "Value": "My default prefix is `!`, which means I will only answer to commands starting with it. To change it, server managers can use the `setprefix` command. ❕"
+        "Name": "Spam Channels",
+        "Value": "TaylorBot counts user messages in your server (see </server messages:1137547317549998130>). If you have any commands/bots channels, use the </mod spam add:838266590294048778> command in each of them so they don't inflate message counts! 🤖"
       },
       {
-        "Name": "Spam Channels",
-        "Value": "If you have any commands/bots channels, please use the `addspamchannel` command in each of them! 🤖"
+        "Name": "Prefix",
+        "Value": "TaylorBot uses slash commands (starting with **/**), but some older commands are still available through prefix commands 💬\nThe default prefix for TaylorBot is `!`, allowing you to use commands by typing `!help` for example ❗\nTaylorBot allows you to change the prefix for your server with \"<@119572982178906114> setprefix\" command ⚙️"
       },
       {
         "Name": "More Help",
-        "Value": "Looking for help or have more questions? Use the `help` command or [click here to join the TaylorBot server](https://discord.gg/3qVNd5P). 📖\nCheck out our [privacy policy](https://privacy.taylorbot.app/) as well. 🔏"
+        "Value": "Looking for help or have more questions? Use the </help:1406524374881796239> command or [click here to join the TaylorBot server](https://discord.gg/3qVNd5P) 🆘"
       }
     ],
     "Color": "#00c3ff"

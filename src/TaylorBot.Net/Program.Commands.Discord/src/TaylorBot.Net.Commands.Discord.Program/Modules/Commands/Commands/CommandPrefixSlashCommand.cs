@@ -41,7 +41,7 @@ public class CommandPrefixSlashCommand(
                 var description =
                     $"""
                     ## Prefix Commands 👴
-                    Prefix commands are commands that are used in text channels by typing a prefix followed by the command name 💬
+                    Prefix commands are commands that are used by typing a prefix followed by the command name 💬
                     The default prefix for TaylorBot is `!`, allowing you to use commands by typing `!help` for example ❗
                     ## This Server's Prefix 🖌️
                     - **Current server prefix:** `{currentPrefix}`
@@ -49,7 +49,7 @@ public class CommandPrefixSlashCommand(
                     This means typing `!help` could trigger multiple bots at once, which can be confusing/spammy 😵
                     To solve this, TaylorBot allows you to change the prefix for your server with "<@119572982178906114> setprefix" command ⚙️
                     ## Disabling Prefix Commands 🚫
-                    
+
                     """;
 
                 InteractionComponent button;
@@ -70,7 +70,7 @@ public class CommandPrefixSlashCommand(
                         While prefix commands used to be the only way to interact with bots on Discord, they have many downsides 🥲
                         Slash commands are now the preferred modern way to interact with bots, with many improvements such as buttons, modals, etc. 💪
                         For example, you can use {mention.SlashCommand("help")} instead of typing `{currentPrefix}help` ⚡
-                        
+
                         Some servers may want to disable prefix commands entirely to avoid confusion and encourage users to use slash commands instead 🐣
                         Use the button below to disable prefix commands in this server ⬇️
                         """;
