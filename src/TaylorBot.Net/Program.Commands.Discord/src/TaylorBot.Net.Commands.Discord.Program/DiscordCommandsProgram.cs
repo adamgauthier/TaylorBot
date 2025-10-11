@@ -319,13 +319,7 @@ public static class DiscordCommandsProgram
             .AddTransient<IChannelMessageCountRepository, ChannelMessageCountPostgresRepository>()
             .AddSlashCommand<ChannelMessagesSlashCommand>()
             .AddTransient<ILocationRepository, LocationPostgresRepository>()
-            .AddTransient<ILocationClient>(provider =>
-            {
-                var random = provider.GetRequiredService<IPseudoRandom>();
-                return random.GetInt32(0, 100) < 90
-                    ? provider.GetRequiredService<GooglePlacesNewClient>()
-                    : provider.GetRequiredService<GooglePlacesClient>();
-            })
+            .AddTransient<ILocationClient, GooglePlacesNewClient>()
             .AddTransient<LocationFetcherDomainService>()
             .AddTransient<LocationShowCommand>()
             .AddSlashCommand<LocationShowSlashCommand>()
