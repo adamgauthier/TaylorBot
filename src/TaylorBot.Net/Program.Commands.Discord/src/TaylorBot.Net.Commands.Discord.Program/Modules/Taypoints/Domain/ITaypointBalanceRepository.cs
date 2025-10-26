@@ -62,27 +62,42 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
             case "FOURTH":
                 return new RelativeTaypointAmount(4);
 
+            // TODO: Find a long-term solution for percentages
+            case "1%":
+                return new RelativeTaypointAmount(100);
+
+            case "2%":
+                return new RelativeTaypointAmount(50);
+
+            case "4%":
+                return new RelativeTaypointAmount(25);
+
+            case "5%":
+                return new RelativeTaypointAmount(20);
+
+            case "10%":
+                return new RelativeTaypointAmount(10);
+
+            case "20%":
+                return new RelativeTaypointAmount(5);
+
+            case "25%":
+                return new RelativeTaypointAmount(4);
+
+            case "33%":
+                return new RelativeTaypointAmount(3);
+
+            case "50%":
+                return new RelativeTaypointAmount(2);
+
+            case "100%":
+                return new RelativeTaypointAmount(1);
+
             default:
-                var inPercent = text.EndsWith("%");
-                if (inPercent)
-                {
-                    text = text.Substring(0, text.Length - 1);
-                }
-                
                 if (long.TryParse(text, out var amount))
                 {
                     if (amount > 0)
                     {
-                        if (inPercent)
-                        {
-                            if (amount > 100)
-                            {
-                                return Error(new ParsingFailed($"You can't spend more than you have (100%). 😕"));
-                            }
-                            
-                            return new RelativeTaypointAmount(100 / amount);
-                        };
-                        
                         var balance = await taypointBalanceRepository.GetBalanceAsync(context.User);
 
                         if (amount > balance)
