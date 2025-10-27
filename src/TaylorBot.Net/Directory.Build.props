@@ -5,7 +5,9 @@
     <Features>strict</Features>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <AnalysisMode>All</AnalysisMode>
-    <!-- Private feed for custom packages -->
-    <RestoreAdditionalProjectSources>https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json</RestoreAdditionalProjectSources>
+    <!-- Private feed for custom packages (off by default for external contributors) -->
+    <UseTaylorBotFeed Condition="'$(UseTaylorBotFeed)' == ''">$([System.Environment]::GetEnvironmentVariable('USE_TAYLORBOT_FEED'))</UseTaylorBotFeed>
+    <UseTaylorBotFeed Condition="'$(UseTaylorBotFeed)' == ''">false</UseTaylorBotFeed>
+    <RestoreAdditionalProjectSources Condition="'$(UseTaylorBotFeed)' == 'true'">https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
 </Project>

@@ -16,7 +16,7 @@ RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Cor
 COPY ./Program.EntityTracker/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.EntityTracker/src/${file%.*}/ && mv $file Program.EntityTracker/src/${file%.*}/; done
 
-RUN dotnet restore -p:TreatWarningsAsErrors=true ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
+RUN dotnet restore -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=$(test -n "${FEED_ACCESS_TOKEN}" && echo "true" || echo "false") ./Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj
 
 # copy and build app and libraries
 COPY ./Core/src ./Core/src

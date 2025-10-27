@@ -16,7 +16,7 @@ RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Cor
 COPY ./Program.Commands.Discord/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.Commands.Discord/src/${file%.*}/ && mv $file Program.Commands.Discord/src/${file%.*}/; done
 
-RUN dotnet restore -p:TreatWarningsAsErrors=true ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
+RUN dotnet restore -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=$(test -n "${FEED_ACCESS_TOKEN}" && echo "true" || echo "false") ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
 # copy and build app and libraries
 COPY ./Core/src ./Core/src

@@ -16,7 +16,7 @@ RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Cor
 COPY ./Program.UserNotifier/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.UserNotifier/src/${file%.*}/ && mv $file Program.UserNotifier/src/${file%.*}/; done
 
-RUN dotnet restore -p:TreatWarningsAsErrors=true ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
+RUN dotnet restore -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=$(test -n "${FEED_ACCESS_TOKEN}" && echo "true" || echo "false") ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
