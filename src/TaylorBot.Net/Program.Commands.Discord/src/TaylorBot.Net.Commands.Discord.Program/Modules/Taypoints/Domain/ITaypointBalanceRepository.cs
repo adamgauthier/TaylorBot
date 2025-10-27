@@ -62,6 +62,34 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
             case "FOURTH":
                 return new RelativeTaypointAmount(4);
 
+            // TODO: Find a long-term solution for percentages
+            case "1%":
+                return new RelativeTaypointAmount(100);
+
+            case "2%":
+                return new RelativeTaypointAmount(50);
+
+            case "4%":
+                return new RelativeTaypointAmount(25);
+
+            case "5%":
+                return new RelativeTaypointAmount(20);
+
+            case "10%":
+                return new RelativeTaypointAmount(10);
+
+            case "20%":
+                return new RelativeTaypointAmount(5);
+
+            case "25%":
+                return new RelativeTaypointAmount(4);
+
+            case "50%":
+                return new RelativeTaypointAmount(2);
+
+            case "100%":
+                return new RelativeTaypointAmount(1);
+
             default:
                 if (long.TryParse(text, out var amount))
                 {
@@ -83,7 +111,7 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
                 }
                 else
                 {
-                    return Error(new ParsingFailed("Must be a valid number or fraction ('all', 'half' or 'third')."));
+                    return Error(new ParsingFailed("Must be a valid number, fraction ('all', 'half' or 'third') or special percent (1%,2%,4%,5%,10%,20%,25%,50%,100%)."));
                 }
         }
     }
