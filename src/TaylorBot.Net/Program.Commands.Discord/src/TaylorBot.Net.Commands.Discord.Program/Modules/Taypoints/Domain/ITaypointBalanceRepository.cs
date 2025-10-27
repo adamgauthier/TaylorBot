@@ -84,9 +84,6 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
             case "25%":
                 return new RelativeTaypointAmount(4);
 
-            case "33%":
-                return new RelativeTaypointAmount(3);
-
             case "50%":
                 return new RelativeTaypointAmount(2);
 
@@ -114,7 +111,7 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
                 }
                 else
                 {
-                    return Error(new ParsingFailed("Must be a valid number or fraction ('all', 'half' or 'third')."));
+                    return Error(new ParsingFailed("Must be a valid number, fraction ('all', 'half' or 'third') or special percent (1%,2%,4%,5%,10%,20%,25%,50%,100%)."));
                 }
         }
     }
