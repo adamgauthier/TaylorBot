@@ -72,8 +72,8 @@ public class WeatherSlashCommand(
                         .WithTitle(forecast.Summary)
                         .WithDescription(
                             $"""
-                            {forecast.TemperatureCelsius:0.#}°C/{ConvertCelsiusToFahrenheit(forecast.TemperatureCelsius):0.#}°F
-                            Wind: {forecast.WindSpeed:0.#} m/s/{ConvertMetersPerSecondToMph(forecast.WindSpeed):0.#} mph
+                            {forecast.TemperatureCelsius:0.#}°C ({ConvertCelsiusToFahrenheit(forecast.TemperatureCelsius):0.#}°F)
+                            Wind: {forecast.WindSpeed:0.#} m/s ({ConvertMetersPerSecondToMph(forecast.WindSpeed):0.#} mph)
                             Humidity: {Math.Round(forecast.Humidity * 100)}%
                             """
                         )
