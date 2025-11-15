@@ -72,8 +72,8 @@ public class WeatherSlashCommand(
                         .WithTitle(forecast.Summary)
                         .WithDescription(
                             $"""
-                            {forecast.TemperatureCelsius:0.#}°C/{ConvertCelsiusToFahrenheit(forecast.TemperatureCelsius):0.#}°F
-                            Wind: {forecast.WindSpeed} m/s
+                            {forecast.TemperatureCelsius:0.#}°C ({ConvertCelsiusToFahrenheit(forecast.TemperatureCelsius):0.#}°F)
+                            Wind: {forecast.WindSpeed:0.#} m/s ({ConvertMetersPerSecondToMph(forecast.WindSpeed):0.#} mph)
                             Humidity: {Math.Round(forecast.Humidity * 100)}%
                             """
                         )
@@ -103,6 +103,11 @@ public class WeatherSlashCommand(
     private static double ConvertCelsiusToFahrenheit(double celsius)
     {
         return celsius * 9d / 5d + 32d;
+    }
+
+    private static double ConvertMetersPerSecondToMph(double metersPerSecond)
+    {
+        return metersPerSecond * 2.23694d;
     }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)

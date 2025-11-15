@@ -35,4 +35,18 @@ public class WeatherCommandTests
         result.Embed.Description.Should().Contain($"{Temperature}°C");
         result.Embed.Footer?.Text.Should().Contain(location.FormattedAddress);
     }
+
+    [Fact]
+    public async Task Weather_ThenReturnsEmbedWithWindSpeedInBothMsAndMph()
+    {
+        const double WindSpeed = 5.5;
+        Location location = new("46.8130816", "-71.20745959999999", "Québec City, QC, Canada", null);
+        A.CallTo(() => _locationRepository.GetLocationAsync(_commandUser)).Returns(new StoredLocation(location, ""));
+        A.CallTo(() => _weatherClient.GetCurrentForecastAsync(location.Latitude, location.Longitude)).Returns(new CurrentForecast("", 0, WindSpeed, 0, 0, ""));
+
+        var result = (EmbedResult)await _weatherCommand.Weather(_commandUser, _commandUser, locationOverride: null, CommandUtils.CreateTestContext(_weatherCommand)).RunAsync();
+
+        result.Embed.Description.Should().Contain($"{WindSpeed} m/s");
+        result.Embed.Description.Should().Contain("mph");
+    }
 }
