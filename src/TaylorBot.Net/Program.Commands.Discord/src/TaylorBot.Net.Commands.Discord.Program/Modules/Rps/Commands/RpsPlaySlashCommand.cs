@@ -60,7 +60,7 @@ public class RpsPlaySlashCommand(IRpsStatsRepository rpsStatsRepository, IRateLi
 
             EmbedBuilder embed = new();
 
-            long winReward = AnniversaryEvent.IsActive ? 2 : 1;
+            long winReward = AnniversaryEvent.IsActive ? 5 : 1;
             string resultMessage;
             if (winner == player)
             {
