@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Random;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.RandomGeneration.Commands;
@@ -17,6 +18,13 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom, CommandM
         () =>
         {
             var parsedOptions = options.Split(',').Select(o => o.Trim()).Where(o => !string.IsNullOrWhiteSpace(o)).ToList();
+
+            if (parsedOptions.Count == 0)
+            {
+                return new(new EmbedResult(EmbedFactory.CreateError(
+                    "Please provide at least one option to choose from! 😊"
+                )));
+            }
 
             var randomOption = cryptoSecureRandom.GetRandomElement(parsedOptions);
 
