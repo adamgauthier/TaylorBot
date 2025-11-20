@@ -27,4 +27,17 @@ public class ChooseSlashCommandTests
 
         result.Embed.Description.Should().Be(ChosenOption);
     }
+
+    [Theory]
+    [InlineData(",")]
+    [InlineData("  ,  ")]
+    [InlineData(", ,")]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Choose_WithEmptyOptions_ThenReturnsErrorEmbed(string emptyOptions)
+    {
+        var result = (EmbedResult)await _chooseCommand.Choose(emptyOptions, CommandUtils.CreateTestContext(_chooseCommand)).RunAsync();
+
+        result.Embed.Description.Should().Contain("Please provide at least one option");
+    }
 }
