@@ -65,7 +65,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
                 await using var connection = postgresConnectionFactory.CreateConnection();
                 var activeMembers = JsonSerializer.Deserialize<ActiveMembers>(await connection.QuerySingleAsync<string>(
                     """
-                    SELECT info_value FROM configuration.application_info WHERE info_key = 'rewardyearbook2024';
+                    SELECT info_value FROM configuration.application_info WHERE info_key = 'rewardyearbook2025';
                     """
                 )) ?? throw new NotImplementedException();
 
@@ -87,7 +87,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
                         member.processedInfo.completed = true;
 
                         await connection.ExecuteAsync(
-                            "UPDATE configuration.application_info SET info_value = @InfoValue WHERE info_key = 'rewardyearbook2024';",
+                            "UPDATE configuration.application_info SET info_value = @InfoValue WHERE info_key = 'rewardyearbook2025';",
                             new
                             {
                                 InfoValue = JsonSerializer.Serialize(activeMembers),
@@ -156,7 +156,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
                     $"""
 
                     ## Yearbook Signature 🖊️
-                    It seems like you haven't submitted **your signature for Yearbook 2024** yet ⚠️
+                    It seems like you haven't submitted **your signature for Yearbook 2025** yet ⚠️
                     Please take a minute to submit it using the **/signature** command in #bots. 😊
                     Click here for more details: https://discord.com/channels/115332333745340416/123150327456333824/1312535164714483793 ✨
                     """;

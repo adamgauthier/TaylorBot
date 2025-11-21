@@ -16,8 +16,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 
 public static class AnniversaryEvent
 {
-    public static readonly DateTimeOffset Start = new DateTimeOffset(2024, 11, 22, 0, 0, 0, TimeSpan.Zero) - TimeSpan.FromHours(12);
-    public static readonly DateTimeOffset End = new DateTimeOffset(2024, 11, 23, 0, 0, 0, TimeSpan.Zero) + TimeSpan.FromHours(12);
+    public static readonly DateTimeOffset Start = new DateTimeOffset(2025, 11, 22, 0, 0, 0, TimeSpan.Zero) - TimeSpan.FromHours(12);
+    public static readonly DateTimeOffset End = new DateTimeOffset(2025, 11, 23, 0, 0, 0, TimeSpan.Zero) + TimeSpan.FromHours(12);
 
     public static bool IsActive
     {
@@ -209,7 +209,7 @@ public class SignatureConfirmButtonHandler(
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
             """
-            Your Yearbook 2024 signature has been successfully uploaded! Thank you for your contribution to our community 💖
+            Your Yearbook 2025 signature has been successfully uploaded! Thank you for your contribution to our community 💖
             Please take a moment to complete the anniversary survey as well 👀
             """));
     }

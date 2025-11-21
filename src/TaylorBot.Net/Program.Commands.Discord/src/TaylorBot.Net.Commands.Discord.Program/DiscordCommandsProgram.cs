@@ -368,13 +368,13 @@ public static class DiscordCommandsProgram
             })
             .AddKeyedSingleton<Lazy<BlobContainerClient>>("SignatureContainer", (provider, key) =>
             {
-                return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("signatures2024"));
+                return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("signatures2025"));
             })
             .AddSlashCommand<SignatureSlashCommand>()
             .AddButtonHandler<SignatureConfirmButtonHandler>()
             .AddKeyedSingleton<Lazy<BlobContainerClient>>("AvatarsContainer", (provider, key) =>
             {
-                return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("avatars2024"));
+                return new(() => provider.GetRequiredKeyedService<BlobServiceClient>("SignatureAccount").GetBlobContainerClient("avatars2025"));
             })
             .AddSlashCommand<OwnerDownloadAvatarsSlashCommand>()
             .ConfigureRequired<HeistOptions>(config, "Heist")
