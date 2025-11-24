@@ -6,7 +6,7 @@ using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Infrastructure;
 
-public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient client) : IHoroscopeClient
+public partial class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> logger, HttpClient client) : IHoroscopeClient
 {
     public async ValueTask<IHoroscopeResult> GetHoroscopeAsync(string zodiacSign)
     {
@@ -33,7 +33,7 @@ public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> 
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Unable to parse horoscope: {Content}", result.Value);
+                LogUnableToParseHoroscope(e, result.Value);
                 throw;
             }
         }
@@ -42,4 +42,7 @@ public class GaneshaSpeaksHoroscopeClient(ILogger<GaneshaSpeaksHoroscopeClient> 
             return new GaneshaSpeaksGenericErrorResult();
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unable to parse horoscope: {Content}")]
+    private partial void LogUnableToParseHoroscope(Exception exception, string content);
 }

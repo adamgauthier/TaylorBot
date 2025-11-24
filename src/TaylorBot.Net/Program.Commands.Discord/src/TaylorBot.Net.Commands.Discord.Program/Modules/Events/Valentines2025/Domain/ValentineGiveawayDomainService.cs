@@ -17,7 +17,7 @@ public record Giveaway(IList<SnowflakeId> Entrants, DateTimeOffset EndsAt, int T
     public IUserMessage? OriginalMessage { get; set; }
 }
 
-public class ValentineGiveawayDomainService(
+public partial class ValentineGiveawayDomainService(
     ILogger<ValentineGiveawayDomainService> logger,
     IValentinesRepository valentinesRepository,
     ITaypointRewardRepository taypointRepository,
@@ -110,7 +110,7 @@ public class ValentineGiveawayDomainService(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when attempting to send valentine giveaway.");
+                LogExceptionSendingValentineGiveaway(exception);
             }
 
             await Task.Delay(nextRun);
@@ -132,6 +132,9 @@ public class ValentineGiveawayDomainService(
                 """)
             .Build();
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to send valentine giveaway.")]
+    private partial void LogExceptionSendingValentineGiveaway(Exception exception);
 }
 
 public class ValentineGiveawayEnterHandler(

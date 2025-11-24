@@ -11,7 +11,7 @@ public partial class WordCounter
 
     public int CountWords(string input)
     {
-        var matchesCount = Space.Matches(input).Count;
+        var matchesCount = Space.Count(input);
 
         return matchesCount != 0 ? matchesCount + 1 : 1;
     }

@@ -13,7 +13,7 @@ using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerAddFeedbackUsersSlashCommand(
+public partial class OwnerAddFeedbackUsersSlashCommand(
     ILogger<OwnerAddFeedbackUsersSlashCommand> logger,
     ITaylorBotClient client,
     PostgresConnectionFactory postgresConnectionFactory,
@@ -56,7 +56,7 @@ public class OwnerAddFeedbackUsersSlashCommand(
                     commandTimeout: CommandTimeout
                 )).ToList();
 
-                logger.LogDebug("Processing {Count} eligible users to add them to feedback.", members.Count);
+                LogProcessingEligibleUsers(members.Count);
 
                 List<IGuildUser> roleAdded = [];
                 List<MemberDto> unresolvedGuildMember = [];
@@ -65,7 +65,7 @@ public class OwnerAddFeedbackUsersSlashCommand(
 
                 foreach (var member in members)
                 {
-                    logger.LogDebug("Processing {Member} to add them to feedback.", member);
+                    LogProcessingMember(member.ToString()!);
 
                     try
                     {
@@ -73,7 +73,7 @@ public class OwnerAddFeedbackUsersSlashCommand(
                     }
                     catch (Exception exception)
                     {
-                        logger.LogError(exception, "Exception occurred when attempting to add {Member} to feedback:", member);
+                        LogExceptionAddingFeedback(exception, member.ToString()!);
                         unexpectedError.Add(member);
                     }
                     await Task.Delay(TimeSpan.FromMilliseconds(5));
@@ -132,4 +132,13 @@ public class OwnerAddFeedbackUsersSlashCommand(
     }
 
     private sealed record MemberDto(string user_id);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Processing {Count} eligible users to add them to feedback.")]
+    private partial void LogProcessingEligibleUsers(int count);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Processing {Member} to add them to feedback.")]
+    private partial void LogProcessingMember(string member);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to add {Member} to feedback:")]
+    private partial void LogExceptionAddingFeedback(Exception exception, string member);
 }

@@ -120,7 +120,7 @@ public class SignatureSlashCommand(
     }
 }
 
-public class SignatureConfirmButtonHandler(
+public partial class SignatureConfirmButtonHandler(
     ILogger<SignatureConfirmButtonHandler> logger,
     SignatureSlashCommand command,
     IInteractionResponseClient responseClient,
@@ -186,7 +186,7 @@ public class SignatureConfirmButtonHandler(
         var contentLength = response.Content.Headers.ContentLength ?? 0;
         if (contentLength > MaxSizeInBytes)
         {
-            logger.LogWarning("Signature too large to download, content length is {ContentLength}", contentLength);
+            LogSignatureTooLarge(contentLength);
             await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
                 """
                 Oops, it seems like your signature file is too large. Please make sure it is under 10MB 😕
@@ -213,4 +213,7 @@ public class SignatureConfirmButtonHandler(
             Please take a moment to complete the anniversary survey as well 👀
             """));
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Signature too large to download, content length is {ContentLength}")]
+    private partial void LogSignatureTooLarge(long contentLength);
 }

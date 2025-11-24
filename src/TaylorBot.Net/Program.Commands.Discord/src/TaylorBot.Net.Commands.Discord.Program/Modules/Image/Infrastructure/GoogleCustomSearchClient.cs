@@ -7,7 +7,7 @@ using TaylorBot.Net.Commands.Discord.Program.Options;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Image.Infrastructure;
 
-public class GoogleCustomSearchClient(ILogger<GoogleCustomSearchClient> logger, IOptionsMonitor<ImageOptions> options, CustomSearchAPIService customSearchAPIService) : IImageSearchClient
+public partial class GoogleCustomSearchClient(ILogger<GoogleCustomSearchClient> logger, IOptionsMonitor<ImageOptions> options, CustomSearchAPIService customSearchAPIService) : IImageSearchClient
 {
     public async ValueTask<IImageSearchResult> SearchImagesAsync(string query)
     {
@@ -36,8 +36,11 @@ public class GoogleCustomSearchClient(ILogger<GoogleCustomSearchClient> logger, 
         }
         catch (Exception e)
         {
-            logger.LogWarning(e, "Unhandled error in Google Custom Search API");
+            LogUnhandledErrorInGoogleCustomSearch(e);
             return new GenericError(e);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unhandled error in Google Custom Search API")]
+    private partial void LogUnhandledErrorInGoogleCustomSearch(Exception exception);
 }

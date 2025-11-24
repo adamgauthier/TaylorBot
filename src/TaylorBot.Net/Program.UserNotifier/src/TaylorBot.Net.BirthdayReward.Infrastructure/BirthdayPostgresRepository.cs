@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.BirthdayReward.Infrastructure;
 
-public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory) : IBirthdayRepository
+public partial class BirthdayPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, ILogger<BirthdayPostgresRepository> logger) : IBirthdayRepository
 {
     private sealed record EligibleUserDto(string user_id);
 
@@ -53,9 +53,12 @@ public class BirthdayPostgresRepository(ILogger<BirthdayPostgresRepository> logg
         var isNewAccount = timeSinceCreation < TimeSpan.FromDays(7);
         if (isNewAccount)
         {
-            logger.LogWarning("Excluding new account {UserId}, timeSinceCreation={TimeSinceCreation}.", id, timeSinceCreation);
+            LogExcludingNewAccount(id, timeSinceCreation);
         }
 
         return !isNewAccount;
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Excluding new account {UserId}, timeSinceCreation={TimeSinceCreation}.")]
+    private partial void LogExcludingNewAccount(SnowflakeId userId, TimeSpan timeSinceCreation);
 }

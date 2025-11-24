@@ -10,7 +10,7 @@ public interface IMinuteRepository
     Task AddMinuteAndPointToActiveUsersAsync(TimeSpan minimumTimeSpanSinceLastSpoke);
 }
 
-public class MinutesTrackerDomainService(
+public partial class MinutesTrackerDomainService(
     ILogger<MinutesTrackerDomainService> logger,
     IOptionsMonitor<MinutesTrackerOptions> optionsMonitor,
     IMinuteRepository minuteRepository)
@@ -30,22 +30,31 @@ public class MinutesTrackerDomainService(
                 {
                     await minuteRepository.AddMinuteAndPointToActiveUsersAsync(options.MinimumTimeSpanSinceLastSpoke);
                     minuteCount = 0;
-                    logger.LogDebug("Added a minute and point to active users");
+                    LogAddedMinuteAndPointToActiveUsers();
                 }
                 else
                 {
                     await minuteRepository.AddMinuteToActiveUsersAsync(options.MinimumTimeSpanSinceLastSpoke);
-                    logger.LogDebug("Added a minute to active users");
+                    LogAddedMinuteToActiveUsers();
                 }
 
                 minuteCount++;
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when attempting to add minutes to active members.");
+                LogExceptionAddingMinutes(exception);
             }
 
             await Task.Delay(TimeSpan.FromMinutes(1));
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Added a minute and point to active users")]
+    private partial void LogAddedMinuteAndPointToActiveUsers();
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Added a minute to active users")]
+    private partial void LogAddedMinuteToActiveUsers();
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to add minutes to active members.")]
+    private partial void LogExceptionAddingMinutes(Exception exception);
 }

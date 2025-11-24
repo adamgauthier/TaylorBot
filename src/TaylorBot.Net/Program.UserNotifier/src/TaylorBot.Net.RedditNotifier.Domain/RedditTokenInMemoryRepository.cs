@@ -5,7 +5,7 @@ using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.RedditNotifier.Domain;
 
-public class RedditTokenInMemoryRepository(IServiceProvider serviceProvider, ILogger<RedditTokenInMemoryRepository> logger)
+public partial class RedditTokenInMemoryRepository(IServiceProvider serviceProvider, ILogger<RedditTokenInMemoryRepository> logger)
 {
     private RedditToken? _token;
 
@@ -15,7 +15,7 @@ public class RedditTokenInMemoryRepository(IServiceProvider serviceProvider, ILo
         {
             return _token.AccessToken;
         }
-        logger.LogInformation("Current token expires at {TokenExpiresAt}, requesting new token", _token?.ExpiresAt);
+        LogRequestingNewToken(_token?.ExpiresAt);
 
         var client = serviceProvider.GetRequiredService<RedditAuthHttpClient>();
 
@@ -23,6 +23,9 @@ public class RedditTokenInMemoryRepository(IServiceProvider serviceProvider, ILo
         _token = token;
         return token.AccessToken;
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Current token expires at {TokenExpiresAt}, requesting new token")]
+    private partial void LogRequestingNewToken(DateTimeOffset? tokenExpiresAt);
 }
 
 public record RedditToken(string AccessToken, DateTimeOffset ExpiresAt);

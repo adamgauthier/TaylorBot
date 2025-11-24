@@ -7,7 +7,7 @@ using TaylorBot.Net.EntityTracker.Domain.Member;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
-public class MemberNotInGuildUpdater(ILogger<MemberNotInGuildUpdater> logger, ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, TaskExceptionLogger taskExceptionLogger)
+public partial class MemberNotInGuildUpdater(ILogger<MemberNotInGuildUpdater> logger, ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, TaskExceptionLogger taskExceptionLogger)
 {
     public void UpdateMembersWhoLeftInBackground(string taskName, IGuild guild, IReadOnlyList<SnowflakeId> userIds)
     {
@@ -39,12 +39,18 @@ public class MemberNotInGuildUpdater(ILogger<MemberNotInGuildUpdater> logger, IT
 
         if (membersNotInGuild.Count > 0)
         {
-            logger.LogDebug("{TaskName}: Updating {Count}/{Total} members not in guild anymore", taskName, membersNotInGuild.Count, userIds.Count);
+            LogUpdatingMembersNotInGuild(taskName, membersNotInGuild.Count, userIds.Count);
             await memberRepository.UpdateMembersNotInGuildAsync(guild, membersNotInGuild);
         }
         else
         {
-            logger.LogDebug("{TaskName}: All {Total} members are still in guild", taskName, userIds.Count);
+            LogAllMembersStillInGuild(taskName, userIds.Count);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{TaskName}: Updating {Count}/{Total} members not in guild anymore")]
+    private partial void LogUpdatingMembersNotInGuild(string taskName, int count, int total);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{TaskName}: All {Total} members are still in guild")]
+    private partial void LogAllMembersStillInGuild(string taskName, int total);
 }

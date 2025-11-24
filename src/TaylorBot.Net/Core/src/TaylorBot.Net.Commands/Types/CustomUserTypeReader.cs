@@ -36,11 +36,16 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
         }
     }
 
+    private static IAsyncEnumerable<TElement> Flatten<TElement>(IAsyncEnumerable<IEnumerable<TElement>> source)
+    {
+        return AsyncEnumerable.SelectMany(source, AsyncEnumerable.ToAsyncEnumerable);
+    }
+
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
         var results = new Dictionary<ulong, UserVal<T>>();
 
-        var channelUsers = context.Channel.GetUsersAsync(CacheMode.CacheOnly).Flatten();
+        var channelUsers = Flatten(context.Channel.GetUsersAsync(CacheMode.CacheOnly));
 
         IReadOnlyCollection<IGuildUser> guildUsers = context.Guild != null ?
             await context.Guild.GetUsersAsync(CacheMode.CacheOnly).ConfigureAwait(false) :
@@ -96,26 +101,24 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
 
         // By Username (0.1-0.65)
         {
-            await channelUsers
-                .ForEachAsync(u =>
+            await foreach (var u in channelUsers)
+            {
+                if (u.Username.Contains(input, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (u.Username.Contains(input, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(input, u.Username, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (string.Equals(input, u.Username, StringComparison.OrdinalIgnoreCase))
-                        {
-                            AddResultIfTypeMatches(results, u, u.Username == input ? 0.65f : 0.55f);
-                        }
-                        else if (u.Username.StartsWith(input, StringComparison.OrdinalIgnoreCase))
-                        {
-                            AddResultIfTypeMatches(results, u, 0.25f);
-                        }
-                        else
-                        {
-                            AddResultIfTypeMatches(results, u, 0.20f);
-                        }
+                        AddResultIfTypeMatches(results, u, u.Username == input ? 0.65f : 0.55f);
                     }
-                });
-
+                    else if (u.Username.StartsWith(input, StringComparison.OrdinalIgnoreCase))
+                    {
+                        AddResultIfTypeMatches(results, u, 0.25f);
+                    }
+                    else
+                    {
+                        AddResultIfTypeMatches(results, u, 0.20f);
+                    }
+                }
+            }
 
             foreach (var guildUser in guildUsers)
             {
@@ -139,27 +142,28 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
 
         // By Nickname (0.1-0.65)
         {
-            await channelUsers
+            var guildUsersWithNickname = channelUsers
                 .OfType<IGuildUser>()
-                .Where(u => u.Nickname != null)
-                .ForEachAsync(u =>
+                .Where(u => u.Nickname != null);
+
+            await foreach (var u in guildUsersWithNickname)
+            {
+                if (u.Nickname.Contains(input, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (u.Nickname.Contains(input, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(input, u.Nickname, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (string.Equals(input, u.Nickname, StringComparison.OrdinalIgnoreCase))
-                        {
-                            AddResultIfTypeMatches(results, u, u.Nickname == input ? 0.65f : 0.55f);
-                        }
-                        else if (u.Nickname.StartsWith(input, StringComparison.OrdinalIgnoreCase))
-                        {
-                            AddResultIfTypeMatches(results, u, 0.25f);
-                        }
-                        else
-                        {
-                            AddResultIfTypeMatches(results, u, 0.20f);
-                        }
+                        AddResultIfTypeMatches(results, u, u.Nickname == input ? 0.65f : 0.55f);
                     }
-                });
+                    else if (u.Nickname.StartsWith(input, StringComparison.OrdinalIgnoreCase))
+                    {
+                        AddResultIfTypeMatches(results, u, 0.25f);
+                    }
+                    else
+                    {
+                        AddResultIfTypeMatches(results, u, 0.20f);
+                    }
+                }
+            }
 
             foreach (var guildUser in guildUsers.Where(u => u.Nickname != null))
             {

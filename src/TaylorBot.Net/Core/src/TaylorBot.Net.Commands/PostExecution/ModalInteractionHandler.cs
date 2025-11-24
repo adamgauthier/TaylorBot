@@ -31,7 +31,7 @@ public interface IModalHandler : IModalComponentHandler
     abstract static CustomIdNames CustomIdName { get; }
 }
 
-public class ModalInteractionHandler(
+public partial class ModalInteractionHandler(
     IServiceProvider services,
     ILogger<ModalInteractionHandler> logger,
     ICommandRunner commandRunner,
@@ -48,7 +48,7 @@ public class ModalInteractionHandler(
             if (handler != null)
             {
                 await CreateInteractionClient().SendAckResponseWithLoadingMessageAsync(submit, handler.Info.IsPrivateResponse);
-                logger.LogInformation("Handling modal component {ParsedName} with id {RawId}", submit.CustomId.ParsedName, submit.CustomId.RawId);
+                LogHandlingModalComponent(submit.CustomId.ParsedName, submit.CustomId.RawId);
 
                 var messageResponse = await RunInteractionAsync(activity, submit, handler);
                 if (messageResponse != null)
@@ -58,12 +58,12 @@ public class ModalInteractionHandler(
             }
             else
             {
-                logger.LogWarning("Modal create without handler: {Interaction}", interaction);
+                LogModalWithoutHandler(interaction);
             }
         }
         else
         {
-            logger.LogWarning("Modal submit with invalid custom ID: {Interaction}", interaction);
+            LogModalWithInvalidCustomId(interaction);
         }
     }
 
@@ -94,14 +94,14 @@ public class ModalInteractionHandler(
                     return new(EmbedFactory.CreateError(failed.UserReason.Reason));
 
                 default:
-                    logger.LogWarning("Unhandled result running modal command {CommandName}: {Result}", command.Metadata.Name, result.GetType().FullName);
+                    LogUnhandledModalResult(command.Metadata.Name, result.GetType().FullName);
                     return null;
             }
         }
         catch (Exception e)
         {
             activity.SetError(e);
-            logger.LogError(e, "Unhandled exception in modal submit {Id} action:", submit.Interaction.Id);
+            LogUnhandledExceptionInModal(e, submit.Interaction.Id);
             return new(EmbedFactory.CreateError("Oops, an unknown error occurred. Sorry about that 😕"));
         }
     }
@@ -128,4 +128,19 @@ public class ModalInteractionHandler(
                 })]
         );
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Handling modal component {ParsedName} with id {RawId}")]
+    private partial void LogHandlingModalComponent(CustomIdNames parsedName, string rawId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Modal create without handler: {Interaction}")]
+    private partial void LogModalWithoutHandler(Interaction interaction);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Modal submit with invalid custom ID: {Interaction}")]
+    private partial void LogModalWithInvalidCustomId(Interaction interaction);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unhandled result running modal command {CommandName}: {Result}")]
+    private partial void LogUnhandledModalResult(string commandName, string? result);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in modal submit {Id} action:")]
+    private partial void LogUnhandledExceptionInModal(Exception exception, string id);
 }

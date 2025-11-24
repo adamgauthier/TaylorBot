@@ -22,7 +22,7 @@ public class PageMessage(PageMessageOptions options)
     }
 }
 
-public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMessageOptions options) : IDisposable
+public partial class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMessageOptions options) : IDisposable
 {
     private static readonly Emoji PreviousEmoji = new("◀");
     private static readonly Emoji NextEmoji = new("▶");
@@ -59,7 +59,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
             }
             catch
             {
-                logger.LogWarning("Could not add reactions for page message {Message} by {User}.", sentMessage.FormatLog(), commandUser.FormatLog());
+                LogCouldNotAddReactions(logger, sentMessage.FormatLog(), commandUser.FormatLog());
             }
             finally
             {
@@ -141,4 +141,7 @@ public class SentPageMessage(IUser commandUser, IUserMessage sentMessage, PageMe
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not add reactions for page message {Message} by {User}.")]
+    private static partial void LogCouldNotAddReactions(ILogger logger, string message, string user);
 }

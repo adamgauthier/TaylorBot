@@ -8,7 +8,7 @@ using TaylorBot.Net.TumblrNotifier.Domain.Options;
 
 namespace TaylorBot.Net.TumblrNotifier.Domain;
 
-public class TumblrNotifierService(
+public partial class TumblrNotifierService(
     ILogger<TumblrNotifierService> logger,
     IOptionsMonitor<TumblrNotifierOptions> optionsMonitor,
     ITumblrCheckerRepository tumblrCheckerRepository,
@@ -29,7 +29,7 @@ public class TumblrNotifierService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(CheckAllTumblrsAsync)}.");
+                LogUnhandledExceptionCheckingTumblrs(e);
             }
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
@@ -49,17 +49,26 @@ public class TumblrNotifierService(
 
                 if (newestPost.ShortUrl != tumblrChecker.LastPostShortUrl)
                 {
-                    logger.LogDebug("Found new Tumblr post for {TumblrChecker}: {PostShortUrl}.", tumblrChecker, newestPost.ShortUrl);
+                    LogFoundNewTumblrPost(tumblrChecker, newestPost.ShortUrl);
                     await channel.SendMessageAsync(embed: tumblrPostToEmbedMapper.ToEmbed(newestPost, blog));
                     await tumblrCheckerRepository.UpdateLastPostAsync(tumblrChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when checking {TumblrChecker}.", tumblrChecker);
+                LogExceptionCheckingTumblr(exception, tumblrChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Found new Tumblr post for {TumblrChecker}: {PostShortUrl}.")]
+    private partial void LogFoundNewTumblrPost(TumblrChecker tumblrChecker, string postShortUrl);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when checking {TumblrChecker}.")]
+    private partial void LogExceptionCheckingTumblr(Exception exception, TumblrChecker tumblrChecker);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in " + nameof(CheckAllTumblrsAsync) + ".")]
+    private partial void LogUnhandledExceptionCheckingTumblrs(Exception exception);
 }

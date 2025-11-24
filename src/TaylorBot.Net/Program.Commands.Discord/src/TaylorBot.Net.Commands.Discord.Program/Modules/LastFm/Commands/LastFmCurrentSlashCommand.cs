@@ -14,7 +14,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
 
-public class LastFmCurrentSlashCommand(
+public partial class LastFmCurrentSlashCommand(
     ILogger<LastFmCurrentSlashCommand> logger,
     IOptionsMonitor<LastFmOptions> options,
     LastFmEmbedFactory lastFmEmbedFactory,
@@ -101,7 +101,7 @@ public class LastFmCurrentSlashCommand(
         }
         catch (Exception e)
         {
-            logger.LogWarning(e, "Failed to fetch user track play count for {Username} - {Artist} - {Track}", lastFmUsername.Username, mostRecentTrack.Artist.Name, mostRecentTrack.TrackName);
+            LogFailedToFetchTrackPlayCount(e, lastFmUsername.Username, mostRecentTrack.Artist.Name, mostRecentTrack.TrackName);
             return null;
         }
     }
@@ -110,4 +110,7 @@ public class LastFmCurrentSlashCommand(
     {
         return new(Current(options.user.User, context));
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to fetch user track play count for {Username} - {Artist} - {Track}")]
+    private partial void LogFailedToFetchTrackPlayCount(Exception exception, string username, string artist, string track);
 }

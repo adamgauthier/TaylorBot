@@ -8,7 +8,7 @@ public interface IMemberTrackingRepository
     ValueTask<bool> AddOrUpdateMemberAsync(DiscordMember member, DateTimeOffset? lastSpokeAt);
 }
 
-public class MemberTrackedPrecondition(
+public partial class MemberTrackedPrecondition(
     ILogger<MemberTrackedPrecondition> logger,
     IMemberTrackingRepository memberRepository,
     CommandPrefixDomainService commandPrefixDomainService) : ICommandPrecondition
@@ -33,9 +33,12 @@ public class MemberTrackedPrecondition(
 
         if (memberAdded)
         {
-            logger.LogInformation("Added new member {GuildUser}.", context.User.FormatLog());
+            LogAddedNewMemberInPrecondition(context.User.FormatLog());
         }
 
         return new PreconditionPassed();
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Added new member {GuildUser}.")]
+    private partial void LogAddedNewMemberInPrecondition(string guildUser);
 }

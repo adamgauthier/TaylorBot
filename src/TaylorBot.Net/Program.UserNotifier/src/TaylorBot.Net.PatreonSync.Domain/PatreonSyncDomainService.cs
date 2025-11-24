@@ -39,7 +39,7 @@ public interface IPlusRepository
     ValueTask<IUpdatePlusUserResult> AddOrUpdatePlusUserAsync(Patron patron);
 }
 
-public class PatreonSyncDomainService(
+public partial class PatreonSyncDomainService(
     IServiceProvider serviceProvider,
     ILogger<PatreonSyncDomainService> logger,
     IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
@@ -58,7 +58,7 @@ public class PatreonSyncDomainService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(SyncPatreonSupportersAsync)}.");
+                LogUnhandledExceptionSyncingPatreon(e);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenSyncs);
@@ -67,7 +67,7 @@ public class PatreonSyncDomainService(
 
     private async ValueTask SyncPatreonSupportersAsync()
     {
-        logger.LogInformation("Syncing Patreon supporters.");
+        LogSyncingPatreonSupporters();
 
         var patreonClient = serviceProvider.GetRequiredService<IPatreonClient>();
 
@@ -88,8 +88,17 @@ public class PatreonSyncDomainService(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when attempting to sync patron {Patron}.", patron);
+                LogExceptionSyncingPatron(exception, patron);
             }
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to sync patron {Patron}.")]
+    private partial void LogExceptionSyncingPatron(Exception exception, Patron patron);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in " + nameof(SyncPatreonSupportersAsync) + ".")]
+    private partial void LogUnhandledExceptionSyncingPatreon(Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Syncing Patreon supporters.")]
+    private partial void LogSyncingPatreonSupporters();
 }

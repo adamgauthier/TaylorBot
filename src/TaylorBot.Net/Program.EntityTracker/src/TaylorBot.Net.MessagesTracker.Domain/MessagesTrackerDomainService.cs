@@ -25,7 +25,7 @@ public interface IMessageRepository
     ValueTask PersistQueuedMessagesAndWordsAsync();
 }
 
-public class MessagesTrackerDomainService(
+public partial class MessagesTrackerDomainService(
     ILogger<MessagesTrackerDomainService> logger,
     IOptionsMonitor<MessagesTrackerOptions> messagesTrackerOptions,
     ISpamChannelRepository spamChannelRepository,
@@ -58,7 +58,7 @@ public class MessagesTrackerDomainService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync)}.");
+                LogUnhandledExceptionPersistingTextChannelMessages(e);
             }
 
             await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);
@@ -75,7 +75,7 @@ public class MessagesTrackerDomainService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(messageRepository.PersistQueuedMessagesAndWordsAsync)}.");
+                LogUnhandledExceptionPersistingMemberMessages(e);
             }
 
             await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingMemberMessagesAndWords);
@@ -92,10 +92,19 @@ public class MessagesTrackerDomainService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync)}.");
+                LogUnhandledExceptionPersistingLastSpoke(e);
             }
 
             await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingLastSpoke);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in PersistQueuedMessageCountIncrementsAsync.")]
+    private partial void LogUnhandledExceptionPersistingTextChannelMessages(Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in PersistQueuedMessagesAndWordsAsync.")]
+    private partial void LogUnhandledExceptionPersistingMemberMessages(Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in PersistQueuedLastSpokeUpdatesAsync.")]
+    private partial void LogUnhandledExceptionPersistingLastSpoke(Exception exception);
 }

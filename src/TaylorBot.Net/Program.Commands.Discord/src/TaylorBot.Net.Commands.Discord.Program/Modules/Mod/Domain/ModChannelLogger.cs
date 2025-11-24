@@ -14,7 +14,7 @@ public interface IModChannelLogger
     Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
 }
 
-public class ModChannelLogger(
+public partial class ModChannelLogger(
     ILogger<ModChannelLogger> logger,
     IModLogChannelRepository modLogChannelRepository,
     CommandMentioner mention) : IModChannelLogger
@@ -49,7 +49,7 @@ public class ModChannelLogger(
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Error when sending mod log in {Channel}:", channel.FormatLog());
+                LogErrorSendingModLog(e, channel.FormatLog());
             }
         }
 
@@ -67,4 +67,7 @@ public class ModChannelLogger(
                 Make sure you set it up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it 🛠️
                 """);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Error when sending mod log in {Channel}:")]
+    private partial void LogErrorSendingModLog(Exception exception, string channel);
 }

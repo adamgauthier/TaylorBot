@@ -13,7 +13,7 @@ public interface IHeistConfigRepository
     Task<List<Bank>> GetBanksAsync();
 }
 
-public class HeistConfigPostgresRepository(ILogger<HeistConfigPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory, IMemoryCache memoryCache) : IHeistConfigRepository
+public partial class HeistConfigPostgresRepository(ILogger<HeistConfigPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory, IMemoryCache memoryCache) : IHeistConfigRepository
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(24);
     private static readonly TimeSpan FailureCacheDuration = TimeSpan.FromMinutes(5);
@@ -37,7 +37,7 @@ public class HeistConfigPostgresRepository(ILogger<HeistConfigPostgresRepository
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to fetch banks from DB, using default");
+                LogFailedToFetchBanks(e);
                 entry.AbsoluteExpirationRelativeToNow = FailureCacheDuration;
                 return DefaultBanks;
             }
@@ -52,4 +52,7 @@ public class HeistConfigPostgresRepository(ILogger<HeistConfigPostgresRepository
         return await connection.QuerySingleAsync<string>(
             "SELECT info_value FROM configuration.application_info WHERE info_key = 'banks_json';");
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to fetch banks from DB, using default")]
+    private partial void LogFailedToFetchBanks(Exception exception);
 }

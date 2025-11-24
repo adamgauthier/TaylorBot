@@ -27,7 +27,7 @@ public interface ITaylorBotClient
     ValueTask<IGuildUser?> ResolveGuildUserAsync(SnowflakeId guildId, SnowflakeId userId);
 }
 
-public class TaylorBotClient : ITaylorBotClient
+public partial class TaylorBotClient : ITaylorBotClient
 {
     private readonly ILogger<TaylorBotClient> _logger;
     private readonly ILogSeverityToLogLevelMapper _logSeverityToLogLevelMapper;
@@ -79,7 +79,7 @@ public class TaylorBotClient : ITaylorBotClient
 
     private async Task HandleInteractionAsync(string payload)
     {
-        _logger.LogTrace("Received interaction {Payload}", payload);
+        LogReceivedInteraction(payload);
 
         var interaction = DeserializeInteraction(payload);
 
@@ -118,7 +118,7 @@ public class TaylorBotClient : ITaylorBotClient
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Failed to deserialize interaction payload: {Payload}", payload);
+            LogFailedToDeserializeInteraction(e, payload);
             throw;
         }
     }
@@ -135,14 +135,13 @@ public class TaylorBotClient : ITaylorBotClient
             return Task.CompletedTask;
         }
 
-        _logger.Log(_logSeverityToLogLevelMapper.MapFrom(log.Severity), "Discord.Net: {Message}", log.ToString(prependTimestamp: false));
+        LogDiscordNetMessage(_logSeverityToLogLevelMapper.MapFrom(log.Severity), log.ToString(prependTimestamp: false));
         return Task.CompletedTask;
     }
 
     private Task ShardReadyAsync(DiscordSocketClient shardClient)
     {
-        _logger.LogInformation("Shard #{ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}. ShardCount {ShardCount}",
-            shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count, DiscordShardedClient.Shards.Count);
+        LogShardReady(shardClient.ShardId, "guild".ToQuantity(shardClient.Guilds.Count), DiscordShardedClient.Guilds.Count, DiscordShardedClient.Shards.Count);
 
         return Task.CompletedTask;
     }
@@ -209,4 +208,16 @@ public class TaylorBotClient : ITaylorBotClient
 
         return user;
     }
+
+    [LoggerMessage(Level = LogLevel.Trace, Message = "Received interaction {Payload}")]
+    private partial void LogReceivedInteraction(string payload);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to deserialize interaction payload: {Payload}")]
+    private partial void LogFailedToDeserializeInteraction(Exception exception, string payload);
+
+    [LoggerMessage(Message = "Discord.Net: {Message}")]
+    private partial void LogDiscordNetMessage(LogLevel logLevel, string message);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Shard #{ShardId} is ready! Serving {GuildCountText} out of {TotalGuildCount}. ShardCount {ShardCount}")]
+    private partial void LogShardReady(int shardId, string guildCountText, int totalGuildCount, int shardCount);
 }

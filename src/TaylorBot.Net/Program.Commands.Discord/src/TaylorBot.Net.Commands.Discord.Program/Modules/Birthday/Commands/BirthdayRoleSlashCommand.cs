@@ -151,7 +151,7 @@ public class BirthdayRoleCreateButtonHandler(
     }
 }
 
-public class BirthdayRoleRemoveButtonHandler(
+public partial class BirthdayRoleRemoveButtonHandler(
     ILogger<BirthdayRoleRemoveButtonHandler> logger,
     IInteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
@@ -184,7 +184,7 @@ public class BirthdayRoleRemoveButtonHandler(
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Unhandled exception when deleting birthday role {RoleId} in {Guild}", role.Id, guild.FormatLog());
+                LogUnhandledExceptionDeletingBirthdayRole(e, role.Id, guild.FormatLog());
             }
         }
 
@@ -195,4 +195,7 @@ public class BirthdayRoleRemoveButtonHandler(
             Use {mention.SlashCommand("birthday role", context)} again to re-create the role 🎈
             """));
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception when deleting birthday role {RoleId} in {Guild}")]
+    private partial void LogUnhandledExceptionDeletingBirthdayRole(Exception exception, ulong roleId, string guild);
 }

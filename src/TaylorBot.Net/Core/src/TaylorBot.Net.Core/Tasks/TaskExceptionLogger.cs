@@ -2,8 +2,11 @@
 
 namespace TaylorBot.Net.Core.Tasks;
 
-public class TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
+public partial class TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
 {
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in {TaskName}")]
+    private partial void LogUnhandledException(Exception exception, string taskName);
+
     public async ValueTask LogOnError(ValueTask valueTask, string taskName)
     {
         try
@@ -12,7 +15,7 @@ public class TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Unhandled exception in {TaskName}", taskName);
+            LogUnhandledException(exception, taskName);
             throw;
         }
     }
@@ -25,7 +28,7 @@ public class TaskExceptionLogger(ILogger<TaskExceptionLogger> logger)
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Unhandled exception in {TaskName}", taskName);
+            LogUnhandledException(exception, taskName);
             throw;
         }
     }

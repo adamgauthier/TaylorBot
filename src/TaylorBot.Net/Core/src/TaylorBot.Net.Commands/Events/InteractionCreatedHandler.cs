@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Client;
@@ -7,7 +8,7 @@ using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Commands.Events;
 
-public class InteractionCreatedHandler(
+public partial class InteractionCreatedHandler(
     ILogger<InteractionCreatedHandler> logger,
     CommandActivityFactory commandActivityFactory,
     SlashCommandHandler slashCommandHandler,
@@ -81,10 +82,13 @@ public class InteractionCreatedHandler(
                 break;
 
             default:
-                logger.LogWarning("Unknown interaction type: {Interaction}", interaction);
+                LogUnknownInteractionType(interaction);
                 break;
         }
 
         return Task.CompletedTask;
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unknown interaction type: {Interaction}")]
+    private partial void LogUnknownInteractionType(Interaction interaction);
 }

@@ -14,7 +14,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public class OwnerDownloadAvatarsSlashCommand(
+public partial class OwnerDownloadAvatarsSlashCommand(
     ILogger<OwnerDownloadAvatarsSlashCommand> logger,
     [FromKeyedServices("AvatarsContainer")]
     Lazy<BlobContainerClient> avatarsContainer,
@@ -47,11 +47,11 @@ public class OwnerDownloadAvatarsSlashCommand(
                 List<string> unresolvedGuildMember = [];
                 List<string> unexpectedError = [];
 
-                logger.LogDebug("Processing {Count} user ids to download their avatars.", userIds.Count);
+                LogProcessingUserIds(userIds.Count);
 
                 foreach (var userId in userIds)
                 {
-                    logger.LogDebug("Processing user {UserId}.", userId);
+                    LogProcessingUser(userId);
 
                     try
                     {
@@ -59,7 +59,7 @@ public class OwnerDownloadAvatarsSlashCommand(
                     }
                     catch (Exception exception)
                     {
-                        logger.LogError(exception, "Exception occurred for user {UserId}:", userId);
+                        LogExceptionForUser(exception, userId);
                         unexpectedError.Add(userId);
                     }
                     await Task.Delay(TimeSpan.FromMilliseconds(250));
@@ -114,9 +114,21 @@ public class OwnerDownloadAvatarsSlashCommand(
         }
         else
         {
-            logger.LogError("Can't resolve member {UserId}:", userId);
+            LogCantResolveMember(userId);
             unresolvedGuildMember.Add(userId);
             await Task.Delay(TimeSpan.FromMilliseconds(250));
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Processing {Count} user ids to download their avatars.")]
+    private partial void LogProcessingUserIds(int count);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Processing user {UserId}.")]
+    private partial void LogProcessingUser(string userId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred for user {UserId}:")]
+    private partial void LogExceptionForUser(Exception exception, string userId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Can't resolve member {UserId}:")]
+    private partial void LogCantResolveMember(string userId);
 }

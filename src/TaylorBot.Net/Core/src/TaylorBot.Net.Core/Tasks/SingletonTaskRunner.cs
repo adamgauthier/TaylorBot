@@ -2,10 +2,13 @@
 
 namespace TaylorBot.Net.Core.Tasks;
 
-public class SingletonTaskRunner(ILogger<SingletonTaskRunner> logger, TaskExceptionLogger taskExceptionLogger)
+public partial class SingletonTaskRunner(ILogger<SingletonTaskRunner> logger, TaskExceptionLogger taskExceptionLogger)
 {
     private readonly Lock _lockObject = new();
     private Task? _ranTask;
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Attempted to run {TaskName} but it was already ran.")]
+    private partial void LogTaskAlreadyRan(string taskName);
 
     public Task RunTaskIfNotRan(Func<Task> action, string taskName)
     {
@@ -21,13 +24,13 @@ public class SingletonTaskRunner(ILogger<SingletonTaskRunner> logger, TaskExcept
                 }
                 else
                 {
-                    logger.LogWarning("Attempted to run {TaskName} but it was already ran.", taskName);
+                    LogTaskAlreadyRan(taskName);
                 }
             }
         }
         else
         {
-            logger.LogWarning("Attempted to run {TaskName} but it was already ran.", taskName);
+            LogTaskAlreadyRan(taskName);
         }
 
         return _ranTask;

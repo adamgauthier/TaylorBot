@@ -132,12 +132,12 @@ public partial class MessageComponentHandler(
                     }
                     else
                     {
-                        logger.LogWarning("Button component without handler: {CustomId}, Interaction: {Interaction}", button.CustomId.RawId, interaction);
+                        LogButtonWithoutHandler(button.CustomId.RawId, interaction);
                     }
                 }
                 else
                 {
-                    logger.LogWarning("Button component with invalid custom ID: {CustomId}, Interaction: {Interaction}", button.CustomId.RawId, interaction);
+                    LogButtonWithInvalidCustomId(button.CustomId.RawId, interaction);
                 }
                 break;
 
@@ -165,12 +165,12 @@ public partial class MessageComponentHandler(
                     }
                     else
                     {
-                        logger.LogWarning("String select component without handler: {CustomId}, Interaction: {Interaction}", stringSelect.CustomId.RawId, interaction);
+                        LogStringSelectWithoutHandler(stringSelect.CustomId.RawId, interaction);
                     }
                 }
                 else
                 {
-                    logger.LogWarning("String select component with invalid custom ID: {CustomId}, Interaction: {Interaction}", stringSelect.CustomId.RawId, interaction);
+                    LogStringSelectWithInvalidCustomId(stringSelect.CustomId.RawId, interaction);
                 }
                 break;
 
@@ -198,12 +198,12 @@ public partial class MessageComponentHandler(
                     }
                     else
                     {
-                        logger.LogWarning("User select component without handler: {CustomId}, Interaction: {Interaction}", userSelect.CustomId.RawId, interaction);
+                        LogUserSelectWithoutHandler(userSelect.CustomId.RawId, interaction);
                     }
                 }
                 else
                 {
-                    logger.LogWarning("User select component with invalid or unhandled custom ID: {CustomId}, Interaction: {Interaction}", userSelect.CustomId.RawId, interaction);
+                    LogUserSelectWithInvalidCustomId(userSelect.CustomId.RawId, interaction);
                 }
                 break;
 
@@ -231,17 +231,17 @@ public partial class MessageComponentHandler(
                     }
                     else
                     {
-                        logger.LogWarning("Channel select component without handler: {CustomId}, Interaction: {Interaction}", channelSelect.CustomId.RawId, interaction);
+                        LogChannelSelectWithoutHandler(channelSelect.CustomId.RawId, interaction);
                     }
                 }
                 else
                 {
-                    logger.LogWarning("Channel select component with invalid or unhandled custom ID: {CustomId}, Interaction: {Interaction}", channelSelect.CustomId.RawId, interaction);
+                    LogChannelSelectWithInvalidCustomId(channelSelect.CustomId.RawId, interaction);
                 }
                 break;
 
             default:
-                logger.LogWarning("Unknown component type: {Interaction}", interaction);
+                LogUnknownComponentType(interaction);
                 break;
         }
     }
@@ -365,12 +365,12 @@ public partial class MessageComponentHandler(
                 break;
 
             case PreconditionFailed failed:
-                logger.LogWarning("Precondition failed running component command {CommandName}: {Error}", command.Metadata.Name, failed.PrivateReason);
+                LogPreconditionFailedComponentCommand(command.Metadata.Name, failed.PrivateReason);
                 await CreateInteractionClient().EditOriginalResponseAsync(component.Interaction, EmbedFactory.CreateErrorEmbed(failed.UserReason.Reason));
                 break;
 
             default:
-                logger.LogWarning("Unhandled result running component command {CommandName}: {Result}", command.Metadata.Name, result.GetType().FullName);
+                LogUnhandledComponentCommandResult(command.Metadata.Name, result.GetType().FullName);
                 break;
         }
     }
@@ -378,8 +378,7 @@ public partial class MessageComponentHandler(
     private RunContext BuildContext(IDiscordMessageComponent component, CommandActivity activity, bool wasAcknowledged)
     {
         var context = contextFactory.BuildContext(component.Interaction, activity, wasAcknowledged);
-        logger.LogInformation(
-            "{User} using {Component} {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}",
+        LogUserUsingComponent(
             context.User.FormatLog(),
             component.GetType().Name,
             component.CustomId.ParsedName,
@@ -402,8 +401,7 @@ public partial class MessageComponentHandler(
         ArgumentNullException.ThrowIfNull(component.Message.interaction_metadata);
         if (component.Interaction.UserId != component.Message.interaction_metadata.user.id)
         {
-            logger.LogWarning(
-                "Ignoring {User} using component {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}, original user is {OriginalUser}",
+            LogIgnoringUserUsingComponent(
                 context.User.FormatLog(),
                 component.CustomId.ParsedName,
                 component.CustomId.RawId,
@@ -418,4 +416,46 @@ public partial class MessageComponentHandler(
 
         return false;
     }
+
+    [LoggerMessage(LogLevel.Information, "Handling component {ParsedName} ({CustomId}, {InteractionId}) from {User} in channel {ChannelId}{GuildInfo}")]
+    private partial void LogHandlingComponent(string parsedName, string customId, string interactionId, string user, string channelId, string guildInfo);
+
+    [LoggerMessage(LogLevel.Information, "{User} using {Component} {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}")]
+    private partial void LogUserUsingComponent(string user, string component, CustomIdNames parsedName, string customId, string interactionId, string messageInfo, string channelId, string guildInfo);
+
+    [LoggerMessage(LogLevel.Warning, "Button component without handler: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogButtonWithoutHandler(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "Button component with invalid custom ID: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogButtonWithInvalidCustomId(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "String select without handler: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogStringSelectWithoutHandler(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "String select with invalid custom ID: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogStringSelectWithInvalidCustomId(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "User select without handler: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogUserSelectWithoutHandler(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "User select with invalid custom ID: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogUserSelectWithInvalidCustomId(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "Channel select without handler: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogChannelSelectWithoutHandler(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "Channel select with invalid custom ID: {CustomId}, Interaction: {Interaction}")]
+    private partial void LogChannelSelectWithInvalidCustomId(string customId, Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "Unknown component type: {Interaction}")]
+    private partial void LogUnknownComponentType(Interaction interaction);
+
+    [LoggerMessage(LogLevel.Warning, "Precondition failed running component command {CommandName}: {Error}")]
+    private partial void LogPreconditionFailedComponentCommand(string commandName, string error);
+
+    [LoggerMessage(LogLevel.Warning, "Unhandled result running component command {CommandName}: {Result}")]
+    private partial void LogUnhandledComponentCommandResult(string commandName, string? result);
+
+    [LoggerMessage(LogLevel.Warning, "Ignoring {User} using component {ParsedName} ({CustomId}, {InteractionId}) on message {MessageInfo} in channel {ChannelId}{GuildInfo}, original user is {OriginalUser}")]
+    private partial void LogIgnoringUserUsingComponent(string user, CustomIdNames parsedName, string customId, string interactionId, string messageInfo, string channelId, string guildInfo, string originalUser);
 }

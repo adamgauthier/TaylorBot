@@ -37,7 +37,7 @@ public record ActiveMembers(IList<ActiveMembers.Member> members, IList<string> u
     }
 }
 
-public class OwnerRewardYearbookActiveMembersSlashCommand(
+public partial class OwnerRewardYearbookActiveMembersSlashCommand(
     ILogger<OwnerRewardYearbookActiveMembersSlashCommand> logger,
     ITaylorBotClient client,
     PostgresConnectionFactory postgresConnectionFactory,
@@ -70,7 +70,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
                 )) ?? throw new NotImplementedException();
 
                 var membersToProcess = activeMembers.members.Where(m => m.processedInfo.completed != true).ToList();
-                logger.LogDebug("Processing {Count} members.", membersToProcess.Count);
+                LogProcessingMembers(membersToProcess.Count);
 
                 List<IGuildUser> successful = [];
                 List<string> unresolvedGuildMembers = [];
@@ -79,7 +79,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
 
                 foreach (var member in membersToProcess.Take(options.count.Value))
                 {
-                    logger.LogDebug("Processing user {UserId}.", member.userId);
+                    LogProcessingUser(member.userId);
 
                     try
                     {
@@ -95,7 +95,7 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
                     }
                     catch (Exception exception)
                     {
-                        logger.LogError(exception, "Exception occurred for user {UserId}:", member.userId);
+                        LogExceptionProcessingUser(exception, member.userId);
                         unexpectedError.Add(member.userId);
                     }
 
@@ -170,14 +170,14 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
                     .Build());
                 member.processedInfo.messaged = true;
 
-                logger.LogDebug("Sent a message to {User}.", ((IUser)guildUser).FormatLog());
+                LogSentMessage(((IUser)guildUser).FormatLog());
             }
             catch (HttpException httpException)
             {
                 if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                 {
                     member.processedInfo.cantMessage = true;
-                    logger.LogError("Can't DM member {UserId}", member.userId);
+                    LogCantDmMember(member.userId);
                     cantMessageGuildMembers.Add(member.userId);
                     return;
                 }
@@ -192,8 +192,26 @@ public class OwnerRewardYearbookActiveMembersSlashCommand(
         else
         {
             member.processedInfo.unresolvedMember = true;
-            logger.LogError("Can't resolve member {UserId}", member.userId);
+            LogCantResolveMember(member.userId);
             unresolvedGuildMembers.Add(member.userId);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Processing {Count} members.")]
+    private partial void LogProcessingMembers(int count);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Processing user {UserId}.")]
+    private partial void LogProcessingUser(string userId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred for user {UserId}:")]
+    private partial void LogExceptionProcessingUser(Exception exception, string userId);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Sent a message to {User}.")]
+    private partial void LogSentMessage(string user);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Can't DM member {UserId}")]
+    private partial void LogCantDmMember(string userId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Can't resolve member {UserId}")]
+    private partial void LogCantResolveMember(string userId);
 }

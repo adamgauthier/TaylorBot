@@ -10,7 +10,7 @@ public interface IUserTracker
     ValueTask TrackUserFromArgumentAsync(DiscordUser user);
 }
 
-public class UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, IMemberTrackingRepository memberRepository) : IUserTracker
+public partial class UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ignoredUserRepository, UsernameTrackerDomainService usernameTrackerDomainService, IMemberTrackingRepository memberRepository) : IUserTracker
 {
     public async ValueTask TrackUserFromArgumentAsync(DiscordUser user)
     {
@@ -23,8 +23,11 @@ public class UserTracker(ILogger<UserTracker> logger, IIgnoredUserRepository ign
 
             if (memberAdded)
             {
-                logger.LogInformation("Added new member {GuildUser}.", user.FormatLog());
+                LogAddedNewMemberFromArgument(user.FormatLog());
             }
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Added new member {GuildUser}.")]
+    private partial void LogAddedNewMemberFromArgument(string guildUser);
 }

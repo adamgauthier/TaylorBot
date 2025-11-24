@@ -54,9 +54,12 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         if (_client != null)
         {
             await _client.StopAsync();
-            logger.LogInformation("Clients unloaded!");
+            LogClientsUnloaded();
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Clients unloaded!")]
+    private partial void LogClientsUnloaded();
 
     private sealed class EventHandlerRegistrar(Action<ITaylorBotClient> register, GatewayIntents[]? intents = null)
     {

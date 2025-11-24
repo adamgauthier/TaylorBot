@@ -7,7 +7,7 @@ using TaylorBot.Net.YoutubeNotifier.Domain.Options;
 
 namespace TaylorBot.Net.YoutubeNotifier.Domain;
 
-public class YoutubeNotifierService(
+public partial class YoutubeNotifierService(
     ILogger<YoutubeNotifierService> logger,
     IOptionsMonitor<YoutubeNotifierOptions> optionsMonitor,
     IYoutubeCheckerRepository youtubeCheckerRepository,
@@ -28,7 +28,7 @@ public class YoutubeNotifierService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(CheckAllYoutubesAsync)}.");
+                LogUnhandledExceptionCheckingYoutubes(e);
             }
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
@@ -47,7 +47,7 @@ public class YoutubeNotifierService(
                 var response = await request.ExecuteAsync();
                 var newestPost = response.Items.First().Snippet;
 
-                logger.LogDebug("Checking if Youtube post '{VideoId}' for {YoutubeChecker} is new.", newestPost.ResourceId.VideoId, youtubeChecker);
+                LogCheckingIfYoutubePostIsNew(newestPost.ResourceId.VideoId, youtubeChecker);
 
                 if (youtubeChecker.LastVideoId == null || (
                     newestPost.ResourceId.VideoId != youtubeChecker.LastVideoId &&
@@ -55,17 +55,29 @@ public class YoutubeNotifierService(
                     newestPost.PublishedAtDateTimeOffset.Value > youtubeChecker.LastPublishedAt.Value)
                 ))
                 {
-                    logger.LogDebug("Found new Youtube post for {YoutubeChecker}: '{VideoId}'.", youtubeChecker, newestPost.ResourceId.VideoId);
+                    LogFoundNewYoutubePost(youtubeChecker, newestPost.ResourceId.VideoId);
                     await channel.SendMessageAsync(embed: youtubePostToEmbedMapper.ToEmbed(newestPost));
                     await youtubeCheckerRepository.UpdateLastPostAsync(youtubeChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when checking {YoutubeChecker}.", youtubeChecker);
+                LogExceptionCheckingYoutube(exception, youtubeChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Checking if Youtube post '{VideoId}' for {YoutubeChecker} is new.")]
+    private partial void LogCheckingIfYoutubePostIsNew(string videoId, YoutubeChecker youtubeChecker);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Found new Youtube post for {YoutubeChecker}: '{VideoId}'.")]
+    private partial void LogFoundNewYoutubePost(YoutubeChecker youtubeChecker, string videoId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when checking {YoutubeChecker}.")]
+    private partial void LogExceptionCheckingYoutube(Exception exception, YoutubeChecker youtubeChecker);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in " + nameof(CheckAllYoutubesAsync) + ".")]
+    private partial void LogUnhandledExceptionCheckingYoutubes(Exception exception);
 }

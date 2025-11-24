@@ -1,7 +1,6 @@
 ﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TaylorBot.Net.BirthdayReward.Domain.DiscordEmbed;
 using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Snowflake;
@@ -20,8 +19,10 @@ public class BirthdayRewardNotifierDomainServiceTests
 
     public BirthdayRewardNotifierDomainServiceTests()
     {
-        _birthdayRewardNotifierDomainService = new BirthdayRewardNotifierDomainService(
-            _logger, _options, _birthdayRepository, new BirthdayRewardEmbedFactory(), new(_taylorBotClient)
+        A.CallTo(() => _logger.IsEnabled(A<LogLevel>._)).Returns(true);
+
+        _birthdayRewardNotifierDomainService = new(
+            _logger, _options, _birthdayRepository, new(), new(_taylorBotClient)
         );
     }
 

@@ -9,7 +9,7 @@ public record HttpError(Exception? Exception, string? Content, bool WasHttpSucce
 
 public record HttpSuccess<T>(T Parsed, HttpResponseMessage Response);
 
-public static class HttpExtensions
+public static partial class HttpExtensions
 {
     public static async Task<TResult> ReadJsonWithErrorLogging<TJson, TResult>(this HttpClient client,
         Func<HttpClient, Task<HttpResponseMessage>> makeRequestAsync,
@@ -46,11 +46,11 @@ public static class HttpExtensions
             }
             catch (Exception stringException)
             {
-                logger.LogError(stringException, "Unhandled error when parsing success content {JsonExceptionMessage}", jsonException.Message);
+                LogUnhandledErrorParsingSuccessContent(logger, stringException, jsonException.Message);
                 return await handleErrorAsync(new HttpError(stringException, Content: null, WasHttpSuccess: true));
             }
 
-            logger.LogError(jsonException, "Unhandled error when handling success content {Content}", content);
+            LogUnhandledErrorHandlingSuccessContent(logger, jsonException, content);
             return await handleErrorAsync(new HttpError(jsonException, content, WasHttpSuccess: true));
         }
 
@@ -87,7 +87,7 @@ public static class HttpExtensions
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Unhandled error when parsing success content");
+            LogUnhandledErrorParsingContent(logger, e);
             return Error(new HttpError(e, Content: null, WasHttpSuccess: true));
         }
     }
@@ -100,7 +100,7 @@ public static class HttpExtensions
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Unhandled error when making request");
+            LogUnhandledErrorMakingRequest(logger, e);
             return Error(new HttpError(e, Content: null, WasHttpSuccess: false));
         }
     }
@@ -112,12 +112,12 @@ public static class HttpExtensions
             try
             {
                 var content = await response.Content.ReadAsStringAsync();
-                logger.LogWarning("Error response ({StatusCode}): {Content}", response.StatusCode, content);
+                LogErrorResponse(logger, response.StatusCode, content);
                 return Error(new HttpError(null, content, WasHttpSuccess: false));
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Unhandled error when reading error content ({StatusCode})", response.StatusCode);
+                LogUnhandledErrorReadingErrorContent(logger, e, response.StatusCode);
                 return Error(new HttpError(e, Content: null, WasHttpSuccess: false));
             }
         }
@@ -137,11 +137,11 @@ public static class HttpExtensions
         }
         catch (Exception e)
         {
-            logger.LogError(e, "{Message}: can't read content", message);
+            LogCannotReadContent(logger, e, message);
             return;
         }
 
-        logger.Log(level, "{Message}: {Content}", message, content);
+        LogMessageWithContent(logger, level, message, content);
     }
 
     public static async Task EnsureSuccessAsync(this HttpResponseMessage response, ILogger logger)
@@ -152,4 +152,28 @@ public static class HttpExtensions
             response.EnsureSuccessStatusCode();
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error when parsing success content {JsonExceptionMessage}")]
+    private static partial void LogUnhandledErrorParsingSuccessContent(ILogger logger, Exception exception, string jsonExceptionMessage);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error when handling success content {Content}")]
+    private static partial void LogUnhandledErrorHandlingSuccessContent(ILogger logger, Exception exception, string content);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error when parsing success content")]
+    private static partial void LogUnhandledErrorParsingContent(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error when making request")]
+    private static partial void LogUnhandledErrorMakingRequest(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Error response ({StatusCode}): {Content}")]
+    private static partial void LogErrorResponse(ILogger logger, System.Net.HttpStatusCode statusCode, string content);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unhandled error when reading error content ({StatusCode})")]
+    private static partial void LogUnhandledErrorReadingErrorContent(ILogger logger, Exception exception, System.Net.HttpStatusCode statusCode);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "{Message}: can't read content")]
+    private static partial void LogCannotReadContent(ILogger logger, Exception exception, string message);
+
+    [LoggerMessage(Message = "{Message}: {Content}")]
+    private static partial void LogMessageWithContent(ILogger logger, LogLevel logLevel, string message, string content);
 }

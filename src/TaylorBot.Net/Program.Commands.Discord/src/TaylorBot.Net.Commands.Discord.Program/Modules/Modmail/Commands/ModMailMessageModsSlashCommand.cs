@@ -97,7 +97,7 @@ public class ModMailMessageModsModalHandler(
     }
 }
 
-public class ModMailMessageModsConfirmButtonHandler(
+public partial class ModMailMessageModsConfirmButtonHandler(
     ModMailMessageModsSlashCommand command,
     IInteractionResponseClient responseClient,
     ILogger<ModMailMessageModsConfirmButtonHandler> logger,
@@ -153,7 +153,7 @@ public class ModMailMessageModsConfirmButtonHandler(
         }
         catch (Exception e)
         {
-            logger.LogWarning(e, "Error occurred when sending mod mail in {Guild}:", guild.FormatLog());
+            LogErrorSendingModMail(e, guild.FormatLog());
         }
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateErrorEmbed(
@@ -162,6 +162,9 @@ public class ModMailMessageModsConfirmButtonHandler(
             Ask a moderator to check if TaylorBot has the necessary permissions in the channel 🛠️
             """));
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Error occurred when sending mod mail in {Guild}:")]
+    private partial void LogErrorSendingModMail(Exception exception, string guild);
 }
 
 public class ModMailUserMessageReplyButtonHandler(IInteractionResponseClient responseClient) : IButtonHandler

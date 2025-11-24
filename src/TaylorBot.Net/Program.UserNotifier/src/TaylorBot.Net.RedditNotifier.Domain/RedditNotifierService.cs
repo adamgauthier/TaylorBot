@@ -7,7 +7,7 @@ using TaylorBot.Net.RedditNotifier.Domain.Options;
 
 namespace TaylorBot.Net.RedditNotifier.Domain;
 
-public class RedditNotifierService(
+public partial class RedditNotifierService(
     IServiceProvider serviceProvider,
     ILogger<RedditNotifierService> logger,
     IOptionsMonitor<RedditNotifierOptions> optionsMonitor,
@@ -28,7 +28,7 @@ public class RedditNotifierService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(CheckAllRedditsAsync)}.");
+                LogUnhandledExceptionCheckingReddits(e);
             }
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
@@ -37,7 +37,7 @@ public class RedditNotifierService(
     public async ValueTask CheckAllRedditsAsync()
     {
         var redditCheckers = await redditCheckerRepository.GetRedditCheckersAsync();
-        logger.LogInformation("Found {Count} reddit checkers", redditCheckers.Count);
+        LogFoundRedditCheckers(redditCheckers.Count);
 
         Lazy<RedditHttpClient> redditClient = new(valueFactory: serviceProvider.GetRequiredService<RedditHttpClient>);
 
@@ -52,17 +52,29 @@ public class RedditNotifierService(
                 if (redditChecker.LastPostId == null || !redditChecker.LastPostCreatedAt.HasValue ||
                     (newestPost.id != redditChecker.LastPostId && newestPost.CreatedAt > redditChecker.LastPostCreatedAt.Value))
                 {
-                    logger.LogDebug("Found new Reddit post for {RedditChecker}: {PostId}.", redditChecker, newestPost.id);
+                    LogFoundNewRedditPost(redditChecker, newestPost.id);
                     await channel.SendMessageAsync(embed: redditPostToEmbedMapper.ToEmbed(newestPost));
                     await redditCheckerRepository.UpdateLastPostAsync(redditChecker, newestPost);
                 }
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when checking {RedditChecker}.", redditChecker);
+                LogExceptionCheckingReddit(exception, redditChecker);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Found {Count} reddit checkers")]
+    private partial void LogFoundRedditCheckers(int count);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Found new Reddit post for {RedditChecker}: {PostId}.")]
+    private partial void LogFoundNewRedditPost(RedditChecker redditChecker, string postId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when checking {RedditChecker}.")]
+    private partial void LogExceptionCheckingReddit(Exception exception, RedditChecker redditChecker);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in " + nameof(CheckAllRedditsAsync) + ".")]
+    private partial void LogUnhandledExceptionCheckingReddits(Exception exception);
 }

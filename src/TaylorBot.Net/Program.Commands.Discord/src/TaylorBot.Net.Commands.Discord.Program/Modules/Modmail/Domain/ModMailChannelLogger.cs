@@ -10,7 +10,7 @@ using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 
-public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMailLogChannelRepository modMailLogChannelRepository, CommandMentioner mention)
+public partial class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMailLogChannelRepository modMailLogChannelRepository, CommandMentioner mention)
 {
     public async ValueTask<Result<ITextChannel, Embed>> GetModMailLogAsync(IGuild guild, RunContext context)
     {
@@ -47,7 +47,7 @@ public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMail
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Error when sending mod mail log in {Channel}:", result.Value.FormatLog());
+                LogErrorSendingModMailLog(e, result.Value.FormatLog());
             }
         }
 
@@ -83,4 +83,7 @@ public class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, IModMail
             Ask a moderator to fix it with {mention.SlashCommand("modmail log-set", context)} and make sure TaylorBot has the right permissions 🛠️
             """);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Error when sending mod mail log in {Channel}:")]
+    private partial void LogErrorSendingModMailLog(Exception exception, string channel);
 }

@@ -13,7 +13,7 @@ using TaylorBot.Net.EntityTracker.Domain.User;
 
 namespace TaylorBot.Net.EntityTracker.Domain;
 
-public class EntityTrackerDomainService(
+public partial class EntityTrackerDomainService(
     ILogger<EntityTrackerDomainService> logger,
     IOptionsMonitor<EntityTrackerOptions> optionsMonitor,
     UsernameTrackerDomainService usernameTrackerDomainService,
@@ -57,7 +57,7 @@ public class EntityTrackerDomainService(
 
     public async Task OnShardReadyAsync(DiscordSocketClient shardClient)
     {
-        logger.LogInformation("Starting startup entity tracking sequence for shard {ShardId}.", shardClient.ShardId);
+        LogStartingStartupSequence(shardClient.ShardId);
 
         foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
         {
@@ -65,7 +65,7 @@ public class EntityTrackerDomainService(
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
         }
 
-        logger.LogInformation("Completed startup entity tracking sequence for shard {ShardId}.", shardClient.ShardId);
+        LogCompletedStartupSequence(shardClient.ShardId);
     }
 
     public async Task OnUserUpdatedAsync(SocketUser oldUser, SocketUser newUser)
@@ -100,7 +100,7 @@ public class EntityTrackerDomainService(
             var memberAdded = await memberRepository.AddNewMemberAsync(guildUser);
             if (memberAdded)
             {
-                logger.LogInformation("Added new member {GuildUser}.", guildUser.FormatLog());
+                LogAddedNewMember(guildUser.FormatLog());
                 await guildMemberFirstJoinedEvent.InvokeAsync(guildUser);
             }
         }
@@ -127,6 +127,18 @@ public class EntityTrackerDomainService(
     public async Task OnTextChannelCreatedAsync(SocketTextChannel textChannel)
     {
         _ = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(new(textChannel.Id, textChannel.Guild.Id, textChannel.GetChannelType() ?? ChannelType.Text));
-        logger.LogInformation("Added new text channel {TextChannel}.", textChannel.FormatLog());
+        LogAddedNewTextChannel(textChannel.FormatLog());
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Starting startup entity tracking sequence for shard {ShardId}.")]
+    private partial void LogStartingStartupSequence(int shardId);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Completed startup entity tracking sequence for shard {ShardId}.")]
+    private partial void LogCompletedStartupSequence(int shardId);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Added new member {GuildUser}.")]
+    private partial void LogAddedNewMember(string guildUser);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Added new text channel {TextChannel}.")]
+    private partial void LogAddedNewTextChannel(string textChannel);
 }

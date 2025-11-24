@@ -9,7 +9,7 @@ using TaylorBot.Net.Reminder.Domain.Options;
 
 namespace TaylorBot.Net.Reminder.Domain;
 
-public class ReminderNotifierDomainService(
+public partial class ReminderNotifierDomainService(
     ILogger<ReminderNotifierDomainService> logger,
     IOptionsMonitor<ReminderNotifierOptions> optionsMonitor,
     IReminderRepository reminderRepository,
@@ -27,7 +27,7 @@ public class ReminderNotifierDomainService(
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Unhandled exception in {nameof(RemindUsersAsync)}");
+                LogUnhandledExceptionRemindingUsers(e);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks);
@@ -36,7 +36,7 @@ public class ReminderNotifierDomainService(
 
     public async ValueTask RemindUsersAsync()
     {
-        logger.LogDebug("Checking for due reminders");
+        LogCheckingForDueReminders();
 
         foreach (var reminder in await reminderRepository.GetDueRemindersAsync())
         {
@@ -46,7 +46,7 @@ public class ReminderNotifierDomainService(
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "Exception occurred when attempting to notify {Reminder}", reminder);
+                LogExceptionNotifyingReminder(exception, reminder);
             }
 
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
@@ -55,7 +55,7 @@ public class ReminderNotifierDomainService(
 
     private async Task RemindUserAsync(Reminder reminder)
     {
-        logger.LogDebug("Reminding {Reminder}", reminder);
+        LogRemindingUser(reminder);
 
         var user = await taylorBotClient.Value.ResolveRequiredUserAsync(reminder.UserId);
 
@@ -65,13 +65,31 @@ public class ReminderNotifierDomainService(
         }
         catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
         {
-            logger.LogWarning("Could not remind {User} with {Reminder} because of their DM settings", user.FormatLog(), reminder);
+            LogCouldNotRemindDueToSettings(user.FormatLog(), reminder);
             await reminderRepository.RemoveReminderAsync(reminder);
             return;
         }
 
-        logger.LogDebug("Reminded {User} with {Reminder}", user.FormatLog(), reminder);
+        LogRemindedUser(user.FormatLog(), reminder);
 
         await reminderRepository.RemoveReminderAsync(reminder);
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Checking for due reminders")]
+    private partial void LogCheckingForDueReminders();
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to notify {Reminder}")]
+    private partial void LogExceptionNotifyingReminder(Exception exception, Reminder reminder);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Reminding {Reminder}")]
+    private partial void LogRemindingUser(Reminder reminder);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not remind {User} with {Reminder} because of their DM settings")]
+    private partial void LogCouldNotRemindDueToSettings(string user, Reminder reminder);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Reminded {User} with {Reminder}")]
+    private partial void LogRemindedUser(string user, Reminder reminder);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in " + nameof(RemindUsersAsync) + ".")]
+    private partial void LogUnhandledExceptionRemindingUsers(Exception exception);
 }

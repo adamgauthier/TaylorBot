@@ -48,7 +48,7 @@ public interface IKeyedSlashCommand
 
 public record ApplicationCommand(ParsedInteraction Interaction, SnowflakeId Id, string Name);
 
-public class SlashCommandHandler(
+public partial class SlashCommandHandler(
     IServiceProvider services,
     ILogger<SlashCommandHandler> logger,
     ICommandRunner commandRunner,
@@ -141,7 +141,7 @@ public class SlashCommandHandler(
                         break;
 
                     case PreconditionFailed preconditionFailed:
-                        logger.LogInformation("{User} precondition failure: {PrivateReason}.", context.User.FormatLog(), preconditionFailed.PrivateReason);
+                        LogSlashPreconditionFailure(context.User.FormatLog(), preconditionFailed.PrivateReason);
                         if (context.WasAcknowledged)
                         {
                             await CreateInteractionClient().SendFollowupResponseAsync(command.Interaction, new(EmbedFactory.CreateError(preconditionFailed.UserReason.Reason)));
@@ -192,7 +192,7 @@ public class SlashCommandHandler(
             }
             else
             {
-                logger.LogWarning("Slash command '{CommandName}' not found", commandName);
+                LogSlashCommandNotFound(commandName);
             }
         }
         else
@@ -210,7 +210,7 @@ public class SlashCommandHandler(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to create slash command service {CommandName}", commandName);
+            LogFailedToCreateSlashCommand(ex, commandName);
             return Error(ex);
         }
     }
@@ -227,8 +227,7 @@ public class SlashCommandHandler(
 
                     context = contextFactory.BuildContext(command.Interaction, activity, wasAcknowledged: true);
 
-                    logger.LogInformation(
-                        "{User} using slash command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
+                    LogUsingSlashCommand(
                         context.User.FormatLog(), slashCommand.Info.Name, command.Interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
                     );
                     break;
@@ -238,8 +237,7 @@ public class SlashCommandHandler(
                 {
                     context = contextFactory.BuildContext(command.Interaction, activity, wasAcknowledged: false);
 
-                    logger.LogInformation(
-                        "{User} using modal command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}",
+                    LogUsingModalCommand(
                         context.User.FormatLog(), slashCommand.Info.Name, command.Interaction.Data.id, context.Channel.Id, context.Guild != null ? $" on {context.Guild.FormatLog()}" : ""
                     );
                     break;
@@ -298,7 +296,7 @@ public class SlashCommandHandler(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Unhandled exception in slash command '{CommandName}':", slashCommand.Info.Name);
+            LogUnhandledExceptionInSlashCommand(e, slashCommand.Info.Name);
             activity.SetError(e);
             return new EmbedResult(EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that 😕"));
         }
@@ -341,4 +339,22 @@ public class SlashCommandHandler(
 
         return Activator.CreateInstance(command.OptionType, [.. args]) ?? throw new InvalidOperationException();
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{User} precondition failure: {PrivateReason}.")]
+    private partial void LogSlashPreconditionFailure(string user, string privateReason);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Slash command '{CommandName}' not found")]
+    private partial void LogSlashCommandNotFound(string commandName);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create slash command service {CommandName}")]
+    private partial void LogFailedToCreateSlashCommand(Exception exception, string commandName);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{User} using slash command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}")]
+    private partial void LogUsingSlashCommand(string user, string commandName, JsonElement? interactionId, string channelId, string guildInfo);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{User} using modal command '{CommandName}' ({InteractionId}) in channel {ChannelId}{GuildInfo}")]
+    private partial void LogUsingModalCommand(string user, string commandName, JsonElement? interactionId, string channelId, string guildInfo);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in slash command '{CommandName}':")]
+    private partial void LogUnhandledExceptionInSlashCommand(Exception exception, string commandName);
 }

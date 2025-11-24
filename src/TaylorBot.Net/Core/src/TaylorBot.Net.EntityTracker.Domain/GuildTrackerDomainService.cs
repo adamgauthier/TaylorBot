@@ -6,7 +6,7 @@ using TaylorBot.Net.EntityTracker.Domain.GuildName;
 
 namespace TaylorBot.Net.EntityTracker.Domain;
 
-public class GuildTrackerDomainService(ILogger<GuildTrackerDomainService> logger, IGuildRepository guildRepository, IGuildNameRepository guildNameRepository)
+public partial class GuildTrackerDomainService(ILogger<GuildTrackerDomainService> logger, IGuildRepository guildRepository, IGuildNameRepository guildNameRepository)
 {
     public async ValueTask TrackGuildAndNameAsync(IGuild guild)
     {
@@ -19,16 +19,21 @@ public class GuildTrackerDomainService(ILogger<GuildTrackerDomainService> logger
     {
         if (guildAddedResult.WasAdded)
         {
-            logger.LogInformation("Added new guild {Guild}.", guild.FormatLog());
+            LogAddedNewGuild(guild.FormatLog());
             await guildNameRepository.AddNewGuildNameAsync(guild);
         }
         else if (guildAddedResult.WasGuildNameChanged)
         {
             await guildNameRepository.AddNewGuildNameAsync(guild);
-            logger.LogInformation(
-                "Added new guild name for {Guild}{PreviousNameText}.",
+            LogAddedNewGuildName(
                 guild.FormatLog(),
                 guildAddedResult.PreviousGuildName != null ? $", previously was '{guildAddedResult.PreviousGuildName}'" : "");
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Added new guild {Guild}.")]
+    private partial void LogAddedNewGuild(string guild);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Added new guild name for {Guild}{PreviousNameText}.")]
+    private partial void LogAddedNewGuildName(string guild, string previousNameText);
 }

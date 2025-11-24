@@ -10,7 +10,7 @@ using TaylorBot.Net.Core.Logging;
 
 namespace TaylorBot.Net.Commands.DiscordNet;
 
-public class CommandExecutedHandler(
+public partial class CommandExecutedHandler(
     ILogger<CommandExecutedHandler> logger,
     IOngoingCommandRepository ongoingCommandRepository,
     IIgnoredUserRepository ignoredUserRepository,
@@ -24,7 +24,7 @@ public class CommandExecutedHandler(
 
         if (result.Error != CommandError.UnknownCommand)
         {
-            logger.LogInformation("{User} used '{MessageContent}' in {Channel}",
+            LogUserUsedCommand(
                 context.User.FormatLog(),
                 context.Message.Content.Replace("\n", "\\n", StringComparison.InvariantCulture),
                 context.Channel.FormatLog());
@@ -86,7 +86,7 @@ public class CommandExecutedHandler(
                         break;
 
                     case PreconditionFailed failed:
-                        logger.LogInformation("{User} precondition failure: {PrivateReason}.", commandContext.User.FormatLog(), failed.PrivateReason);
+                        LogPreconditionFailure(commandContext.User.FormatLog(), failed.PrivateReason);
                         if (!failed.UserReason.HideInPrefixCommands)
                         {
                             await context.Channel.SendMessageAsync(
@@ -111,11 +111,11 @@ public class CommandExecutedHandler(
                         switch (result.Error)
                         {
                             case CommandError.Exception:
-                                logger.LogError(executeResult.Exception, "Unhandled exception in command:");
+                                LogUnhandledExceptionInCommand(executeResult.Exception);
                                 break;
 
                             default:
-                                logger.LogError(executeResult.Exception, "Unhandled error in command - {Error}, {ErrorReason}:", result.Error, result.ErrorReason);
+                                LogUnhandledErrorInCommand(executeResult.Exception, result.Error, result.ErrorReason);
                                 break;
                         }
                         commandContext.Activity.Value.SetError(executeResult.Exception);
@@ -150,12 +150,12 @@ public class CommandExecutedHandler(
                         }
                         else
                         {
-                            logger.LogInformation("{User} precondition failure: {PrivateReason}.", commandContext.User.FormatLog(), failed.PrivateReason);
+                            LogPreconditionFailure(commandContext.User.FormatLog(), failed.PrivateReason);
                         }
                         break;
 
                     default:
-                        logger.LogError("Unhandled error in command - {Error}, {ErrorReason}", result.Error, result.ErrorReason);
+                        LogUnhandledError(result.Error, result.ErrorReason);
                         commandContext.Activity.Value.SetError();
 
                         await context.Channel.SendMessageAsync(
@@ -183,4 +183,19 @@ public class CommandExecutedHandler(
     {
         return EmbedFactory.CreateError($"Oops, an unknown command error occurred. Sorry about that. 😕");
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{User} used '{MessageContent}' in {Channel}")]
+    private partial void LogUserUsedCommand(string user, string messageContent, string channel);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{User} precondition failure: {PrivateReason}.")]
+    private partial void LogPreconditionFailure(string user, string privateReason);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in command:")]
+    private partial void LogUnhandledExceptionInCommand(Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error in command - {Error}, {ErrorReason}:")]
+    private partial void LogUnhandledErrorInCommand(Exception exception, CommandError? error, string? errorReason);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled error in command - {Error}, {ErrorReason}")]
+    private partial void LogUnhandledError(CommandError? error, string? errorReason);
 }

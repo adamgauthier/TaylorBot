@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Humanizer;
-using Humanizer.Localisation;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;

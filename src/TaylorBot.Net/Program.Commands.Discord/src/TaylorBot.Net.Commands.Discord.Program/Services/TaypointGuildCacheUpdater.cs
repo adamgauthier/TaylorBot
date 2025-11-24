@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
-public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger, ITaypointBalanceRepository taypointBalanceRepository)
+public partial class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger, ITaypointBalanceRepository taypointBalanceRepository)
 {
     public async Task UpdateLastKnownPointCountAsync(DiscordUser user, long updatedCount)
     {
@@ -13,11 +13,11 @@ public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger
             var rowsAffected = await taypointBalanceRepository.UpdateLastKnownPointCountAsync(member, updatedCount);
             if (rowsAffected > 0)
             {
-                logger.LogDebug("Last known count for member updated ({RowsAffected})", rowsAffected);
+                LogLastKnownCountUpdated(rowsAffected);
             }
             else
             {
-                logger.LogDebug("Last known count for member was already up to date");
+                LogLastKnownCountAlreadyUpToDate();
             }
         }
     }
@@ -26,12 +26,12 @@ public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger
     {
         if (updates.Count > 0)
         {
-            logger.LogDebug("Updating last known point counts for {Count} members", updates.Count);
+            LogUpdatingLastKnownPointCounts(updates.Count);
             return new(taypointBalanceRepository.UpdateLastKnownPointCountsAsync(guild, updates));
         }
         else
         {
-            logger.LogDebug("No last known point counts to update");
+            LogNoLastKnownPointCountsToUpdate();
             return new();
         }
     }
@@ -39,6 +39,21 @@ public class TaypointGuildCacheUpdater(ILogger<TaypointGuildCacheUpdater> logger
     public async Task UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(CommandGuild guild)
     {
         var rowsAffected = await taypointBalanceRepository.UpdateLastKnownPointCountsForRecentlyActiveMembersAsync(guild);
-        logger.LogDebug("{RowsAffected} last known counts updated for active members", rowsAffected);
+        LogLastKnownCountsUpdatedForActiveMembers(rowsAffected);
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Last known count for member updated ({RowsAffected})")]
+    private partial void LogLastKnownCountUpdated(int rowsAffected);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Last known count for member was already up to date")]
+    private partial void LogLastKnownCountAlreadyUpToDate();
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Updating last known point counts for {Count} members")]
+    private partial void LogUpdatingLastKnownPointCounts(int count);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "No last known point counts to update")]
+    private partial void LogNoLastKnownPointCountsToUpdate();
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{RowsAffected} last known counts updated for active members")]
+    private partial void LogLastKnownCountsUpdatedForActiveMembers(int rowsAffected);
 }

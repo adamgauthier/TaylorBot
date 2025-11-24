@@ -4,7 +4,7 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Infrastructure;
 
-public class YouTubeClient(ILogger<YouTubeClient> logger, YouTubeService youTubeService) : IYouTubeClient
+public partial class YouTubeClient(ILogger<YouTubeClient> logger, YouTubeService youTubeService) : IYouTubeClient
 {
     public async ValueTask<IYouTubeSearchResult> SearchAsync(string query)
     {
@@ -22,8 +22,11 @@ public class YouTubeClient(ILogger<YouTubeClient> logger, YouTubeService youTube
         }
         catch (Exception e)
         {
-            logger.LogWarning(e, "Unhandled error in YouTube Search API");
+            LogUnhandledErrorInYouTubeSearch(e);
             return new GenericError(e);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unhandled error in YouTube Search API")]
+    private partial void LogUnhandledErrorInYouTubeSearch(Exception exception);
 }

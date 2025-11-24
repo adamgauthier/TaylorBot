@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.306 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.100 AS build
 WORKDIR /app
 
 ARG FEED_ACCESS_TOKEN
@@ -29,19 +29,19 @@ FROM build AS test
 RUN dotnet new sln --name Tests --output .
 
 COPY ./Core/test ./Core/test
-RUN dotnet sln ./Tests.sln add ./Core/test/**/*.csproj
+RUN dotnet sln ./Tests.slnx add ./Core/test/**/*.csproj
 
 COPY ./Program.Commands.Discord/test ./Program.Commands.Discord/test
-RUN dotnet sln ./Tests.sln add ./Program.Commands.Discord/test/**/*.csproj
+RUN dotnet sln ./Tests.slnx add ./Program.Commands.Discord/test/**/*.csproj
 
-RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true ./Tests.sln
+RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true ./Tests.slnx
 
-ENTRYPOINT ["dotnet", "test", "Tests.sln", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:\"XPlat Code Coverage\""]
+ENTRYPOINT ["dotnet", "test", "Tests.slnx", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:XPlat Code Coverage"]
 
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0.10 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.0 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.Commands.Discord.Program.dll"]

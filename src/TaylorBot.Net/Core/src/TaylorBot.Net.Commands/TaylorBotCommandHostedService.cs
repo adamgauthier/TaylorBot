@@ -15,7 +15,7 @@ public interface ITaylorBotTypeReader
     Type ArgumentType { get; }
 }
 
-public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<TaylorBotCommandHostedService> logger, TaylorBotHostedService taylorBotHostedService) : IHostedService
+public partial class TaylorBotCommandHostedService(IServiceProvider services, ILogger<TaylorBotCommandHostedService> logger, TaylorBotHostedService taylorBotHostedService) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -26,7 +26,7 @@ public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<Ta
         commandService.Log += commandServiceLogger.OnCommandServiceLogAsync;
         commandService.CommandExecuted += commandExecutedHandler.OnCommandExecutedAsync;
 
-        logger.LogInformation("Adding type readers");
+        LogAddingTypeReaders();
 
         commandService.AddTypeReader<IUserArgument<IUser>>(services.GetRequiredService<CustomUserTypeReader<IUser>>());
         commandService.AddTypeReader<IUserArgument<IGuildUser>>(services.GetRequiredService<CustomUserTypeReader<IGuildUser>>());
@@ -49,7 +49,7 @@ public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<Ta
             commandService.AddTypeReader(typeReader.ArgumentType, (TypeReader)typeReader);
         }
 
-        logger.LogInformation("Adding command modules");
+        LogAddingCommandModules();
 
         await commandService.AddModulesAsync(
             assembly: Assembly.GetEntryAssembly(),
@@ -63,4 +63,10 @@ public class TaylorBotCommandHostedService(IServiceProvider services, ILogger<Ta
     {
         return taylorBotHostedService.StopAsync(cancellationToken);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Adding type readers")]
+    private partial void LogAddingTypeReaders();
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Adding command modules")]
+    private partial void LogAddingCommandModules();
 }

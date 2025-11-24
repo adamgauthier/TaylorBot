@@ -167,9 +167,9 @@ dotnet_diagnostic.CA1812.severity = silent
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = silent
 
-# Need to investigate and fix this
-# CA1848: Use the LoggerMessage delegates
-dotnet_diagnostic.CA1848.severity = silent
+# Can't find an easy way to do simple reusable string formatting like .FormatLog() lazily
+# CA1873: Avoid potentially expensive logging
+dotnet_diagnostic.CA1873.severity = suggestion
 
 # Existing design sometimes depends on lowercase
 # CA1308: Normalize strings to uppercase

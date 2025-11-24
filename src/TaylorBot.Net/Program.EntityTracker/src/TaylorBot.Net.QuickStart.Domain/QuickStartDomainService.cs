@@ -10,7 +10,7 @@ using TaylorBot.Net.QuickStart.Domain.Options;
 
 namespace TaylorBot.Net.QuickStart.Domain;
 
-public class QuickStartDomainService(
+public partial class QuickStartDomainService(
     ILogger<QuickStartDomainService> logger,
     IOptionsMonitor<QuickStartEmbedOptions> optionsMonitor,
     Lazy<ITaylorBotClient> taylorBotClient,
@@ -36,7 +36,7 @@ public class QuickStartDomainService(
         if (quickStartChannel != null)
         {
             await quickStartChannel.SendMessageAsync(embed: quickStartEmbed);
-            logger.LogInformation("Sent Quick Start embed in {QuickStartChannel}", quickStartChannel.FormatLog());
+            LogSentQuickStartEmbedInChannel(quickStartChannel.FormatLog());
         }
         else
         {
@@ -46,17 +46,29 @@ public class QuickStartDomainService(
                 try
                 {
                     await owner.SendMessageAsync(embed: quickStartEmbed);
-                    logger.LogInformation("Sent Quick Start embed to {GuildOwner}", owner.FormatLog());
+                    LogSentQuickStartEmbedToOwner(owner.FormatLog());
                 }
                 catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                 {
-                    logger.LogWarning("Can't send QuickStart embed to {GuildOwner} because of their DM settings", owner.FormatLog());
+                    LogCannotSendQuickStartDueToDmSettings(owner.FormatLog());
                 }
             }
             else
             {
-                logger.LogWarning("Could not find suitable channel or owner to send Quick Start embed in {Guild}", guild.FormatLog());
+                LogCouldNotFindSuitableChannelOrOwner(guild.FormatLog());
             }
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Sent Quick Start embed in {QuickStartChannel}")]
+    private partial void LogSentQuickStartEmbedInChannel(string quickStartChannel);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Sent Quick Start embed to {GuildOwner}")]
+    private partial void LogSentQuickStartEmbedToOwner(string guildOwner);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Can't send QuickStart embed to {GuildOwner} because of their DM settings")]
+    private partial void LogCannotSendQuickStartDueToDmSettings(string guildOwner);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not find suitable channel or owner to send Quick Start embed in {Guild}")]
+    private partial void LogCouldNotFindSuitableChannelOrOwner(string guild);
 }

@@ -8,7 +8,7 @@ using TaylorBot.Net.PatreonSync.Domain;
 
 namespace TaylorBot.Net.PatreonSync.Infrastructure;
 
-public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory) : IPlusRepository
+public partial class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, PostgresConnectionFactory postgresConnectionFactory) : IPlusRepository
 {
     private sealed record PlusUserDto(string? rewarded_for_charge_at, int max_plus_guilds, string source);
 
@@ -72,8 +72,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 patron.LastCharge.Date != existingPlusUser.rewarded_for_charge_at ?
                 patron.LastCharge.Date : null;
 
-            logger.LogDebug("{Prefix} Plus user already exists, updating with {Properties}.",
-                logPrefix, $"{nameof(patron.IsActive)}={patron.IsActive}, {nameof(maxPlusGuilds)}={maxPlusGuilds}, {nameof(rewardedForChargeAtUpdate)}={rewardedForChargeAtUpdate}");
+            LogPlusUserExists(logPrefix, patron.IsActive, maxPlusGuilds, rewardedForChargeAtUpdate);
 
             await connection.ExecuteAsync(
                 """
@@ -102,8 +101,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
             if (rewardedForChargeAtUpdate != null)
             {
                 var rewardAmount = patron.CurrentlyEntitledAmountCents * 10;
-                logger.LogDebug("{Prefix} Rewarding {RewardAmount} points because {RewardedForChargeAt}.",
-                    logPrefix, rewardAmount, $"{nameof(existingPlusUser.rewarded_for_charge_at)}={existingPlusUser.rewarded_for_charge_at}");
+                LogRewardingPoints(logPrefix, rewardAmount, existingPlusUser.rewarded_for_charge_at);
 
                 var rewardedUser = await TaypointPostgresUtil.AddTaypointsReturningAsync(connection, userId, rewardAmount);
 
@@ -114,7 +112,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 if (plusGuilds.Count(g => g.state == "enabled") > maxPlusGuilds)
                 {
                     var enabledPlusGuilds = plusGuilds.Where(g => g.state == "enabled").Select(g => g.guild_name).ToList();
-                    logger.LogDebug("{Prefix} Disabling plus guilds because enabled count is {EnabledPlusGuildsCount}.", logPrefix, enabledPlusGuilds.Count);
+                    LogDisablingGuildsForLoweredPledge(logPrefix, enabledPlusGuilds.Count);
 
                     await connection.ExecuteAsync(
                         """
@@ -132,7 +130,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
                 else if (plusGuilds.Any(g => g.state == "auto_disabled") &&
                          plusGuilds.Count(g => g.state is "enabled" or "auto_disabled") <= maxPlusGuilds)
                 {
-                    logger.LogDebug("{Prefix} Enabling {AutoDisabledGuildCount} auto disabled plus guilds.", logPrefix, plusGuilds.Count(g => g.state == "auto_disabled"));
+                    LogEnablingAutoDisabledGuilds(logPrefix, plusGuilds.Count(g => g.state == "auto_disabled"));
 
                     await connection.ExecuteAsync(
                         """
@@ -155,7 +153,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
             else if (plusGuilds.Any(g => g.state == "enabled"))
             {
                 var enabledPlusGuilds = plusGuilds.Where(g => g.state == "enabled").Select(g => g.guild_name).ToList();
-                logger.LogDebug("{Prefix} Disabling {EnabledPlusGuildsCount} plus guilds because patron isn't active.", logPrefix, enabledPlusGuilds.Count);
+                LogDisablingGuildsForInactivity(logPrefix, enabledPlusGuilds.Count);
 
                 await connection.ExecuteAsync(
                     """
@@ -177,8 +175,7 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
         }
         else
         {
-            logger.LogDebug("{Prefix} Plus user doesn't exist, adding with {Properties}.",
-                logPrefix, $"{nameof(patron.IsActive)}={patron.IsActive}, {nameof(maxPlusGuilds)}={maxPlusGuilds}");
+            LogPlusUserDoesntExist(logPrefix, patron.IsActive, maxPlusGuilds);
 
             await connection.ExecuteAsync(
                 """
@@ -197,4 +194,22 @@ public class PlusPostgresRepository(ILogger<PlusPostgresRepository> logger, Post
             return patron.IsActive ? new ActiveUserAdded() : new InactiveUserAdded();
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{Prefix} Plus user already exists, updating with IsActive={IsActive}, MaxPlusGuilds={MaxPlusGuilds}, RewardedForChargeAtUpdate={RewardedForChargeAtUpdate}.")]
+    private partial void LogPlusUserExists(string prefix, bool isActive, long maxPlusGuilds, string? rewardedForChargeAtUpdate);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{Prefix} Rewarding {RewardAmount} points because rewarded_for_charge_at={RewardedForChargeAt}.")]
+    private partial void LogRewardingPoints(string prefix, long rewardAmount, string? rewardedForChargeAt);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{Prefix} Disabling plus guilds because enabled count is {EnabledPlusGuildsCount}.")]
+    private partial void LogDisablingGuildsForLoweredPledge(string prefix, int enabledPlusGuildsCount);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{Prefix} Enabling {AutoDisabledGuildCount} auto disabled plus guilds.")]
+    private partial void LogEnablingAutoDisabledGuilds(string prefix, int autoDisabledGuildCount);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{Prefix} Disabling {EnabledPlusGuildsCount} plus guilds because patron isn't active.")]
+    private partial void LogDisablingGuildsForInactivity(string prefix, int enabledPlusGuildsCount);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "{Prefix} Plus user doesn't exist, adding with IsActive={IsActive}, MaxPlusGuilds={MaxPlusGuilds}.")]
+    private partial void LogPlusUserDoesntExist(string prefix, bool isActive, long maxPlusGuilds);
 }

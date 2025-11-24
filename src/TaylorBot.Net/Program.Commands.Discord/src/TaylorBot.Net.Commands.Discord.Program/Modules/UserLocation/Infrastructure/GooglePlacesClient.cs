@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Infrastructure.Extensions;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastructure;
 
-public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMonitor<GoogleOptions> options, HttpClient client, TimeProvider timeProvider) : ILocationClient
+public partial class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMonitor<GoogleOptions> options, HttpClient client, TimeProvider timeProvider) : ILocationClient
 {
     public async ValueTask<ILocationResult> GetLocationAsync(string search)
     {
@@ -65,7 +65,7 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
 
     private ILocationResult HandleLocationError(HttpError error)
     {
-        logger.LogWarning(error.Exception, "Error occurred while calling Google Places Text Search (New) API");
+        LogErrorCallingGooglePlaces(error.Exception);
         return new LocationGenericErrorResult();
     }
 
@@ -111,4 +111,7 @@ public class GooglePlacesClient(ILogger<GooglePlacesClient> logger, IOptionsMoni
     }
 
     private sealed record TimeZoneResponse(string status, string timeZoneId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Error occurred while calling Google Places Text Search (New) API")]
+    private partial void LogErrorCallingGooglePlaces(Exception? exception);
 }
