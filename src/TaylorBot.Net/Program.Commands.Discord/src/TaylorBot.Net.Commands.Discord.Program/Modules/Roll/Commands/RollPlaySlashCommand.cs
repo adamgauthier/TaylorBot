@@ -40,13 +40,13 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
                 case 0429: // April 29
                 case 0709: // July 9
                 case 1213: // December 13
-                    reward = AnniversaryEvent.IsActive ? 500 : 100;
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
                     color = "#43b581";
                     await rollStatsRepository.WinRollAsync(context.User, reward);
                     break;
 
                 case 1989:
-                    reward = AnniversaryEvent.IsActive ? 25_000 : 5_000;
+                    reward = AnniversaryEvent.IsActive ? 10_000 : 5_000;
                     color = "#00c3ff";
                     await rollStatsRepository.WinPerfectRollAsync(context.User, reward);
                     break;
