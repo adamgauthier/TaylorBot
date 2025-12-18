@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using System.Data;
 
 namespace TaylorBot.Net.Core.Infrastructure;
