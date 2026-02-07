@@ -6,11 +6,11 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Npgsql" Version="10.0.0" />
-    <PackageReference Include="Npgsql.DependencyInjection" Version="10.0.0" />
-    <PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.0" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
+    <PackageReference Include="Npgsql" Version="10.0.1" />
+    <PackageReference Include="Npgsql.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.10.14" />
   </ItemGroup>
 
   <ItemGroup>

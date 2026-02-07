@@ -1,5 +1,5 @@
 $solutionName = "TaylorBot.Net";
-$solutionPath = "$PSScriptRoot/$solutionName.sln";
+$solutionPath = "$PSScriptRoot/$solutionName.slnx";
 
 if (Test-Path $solutionPath) {
     Remove-Item $solutionPath
