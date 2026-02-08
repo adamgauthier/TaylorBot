@@ -83,7 +83,7 @@ public class SignatureSlashCommand(
                         """
                         Please confirm the picture you are uploading is:
                         - Your signature either in digital form or a real photo of your writing on a piece of paper ✅
-                        - Using a darker color (light colors like white/yellow will blend in with the yearbook's light background) 🖊️
+                        - Using a dark color (light colors like white/yellow blend in with the yearbook's light background) 🖊️
                         - For real photos, the background is easy to remove (blank page, no lines, good lighting) 💡
                         - Not the same picture you've submitted in previous years 🆕
                         """)

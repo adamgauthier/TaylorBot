@@ -139,6 +139,7 @@ public partial class ValentineGiveawayDomainService(
 
 public class ValentineGiveawayEnterHandler(
     IValentinesRepository valentinesRepository,
+    CommandMentioner mention,
     IInteractionResponseClient interactionResponseClient,
     ValentineGiveawayDomainService giveawayService) : IButtonHandler
 {
@@ -174,7 +175,7 @@ public class ValentineGiveawayEnterHandler(
                     new(new(EmbedFactory.CreateError(
                         $"""
                         You can't enter because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
-                        Please use **/love spread** to give the role to someone who doesn't have it 😊
+                        Please use {mention.GuildSlashCommand("love spread", context.Guild?.Id ?? throw new InvalidOperationException())} to give the role to someone who doesn't have it 😊
                         """)
                     ), IsPrivate: true));
             }

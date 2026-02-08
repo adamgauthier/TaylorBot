@@ -259,7 +259,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                         $"""
                         Congratulations, you've found 🥚 **#{egg.egg_number}** (`{code}`)! 🎊
 
-                        Your {mention.SlashCommand("egg profile", context)} was not updated because someone finished the hunt! 🏆
+                        Your {mention.GuildSlashCommand("egg profile", context.Guild?.Id ?? throw new InvalidOperationException())} was not updated because someone finished the hunt! 🏆
                         You can still hunt and verify codes for fun! 😊
                         """));
                 }
@@ -284,7 +284,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
                                 Congratulations, you've found 🥚 **#{egg.egg_number}** (`{code}`)! 🎊
-                                Your {mention.SlashCommand("egg profile", context)} has been updated! ✅
+                                Your {mention.GuildSlashCommand("egg profile", context.Guild?.Id ?? throw new InvalidOperationException())} has been updated! ✅
 
                                 Make sure **all your teammates verify this code as soon as possible** to secure maximum points for your team! 👪
                                 """));
@@ -332,7 +332,7 @@ public class EggProfileSlashCommand(IEggRepository eggRepository, EggService egg
                     description += $"\n{string.Join("\n", eggs.OrderBy(e => e.egg_number).Select(e => $"- 🥚 **#{e.egg_number}**"))}";
                 }
 
-                description += $"\nSee the status of the hunt with {mention.SlashCommand("egg status", context)} 👀";
+                description += $"\nSee the status of the hunt with {mention.GuildSlashCommand("egg status", context.Guild?.Id ?? throw new InvalidOperationException())} 👀";
 
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
@@ -382,7 +382,7 @@ public class EggStatusSlashCommand(IEggRepository eggRepository, EggService eggS
                             ? string.Join("\n", unsolved.Select(e => $"- 🥚 **#{e.egg_number}**: Found by no one!"))
                             : "None!")}
 
-                        See the leaderboard of hunters with {mention.SlashCommand("egg leaderboard", context)} 👀
+                        See the leaderboard of hunters with {mention.GuildSlashCommand("egg leaderboard", context.Guild?.Id ?? throw new InvalidOperationException())} 👀
                         """)
                     .Build());
             }
@@ -416,7 +416,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                         entry => $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"egg".ToQuantity(entry.eggs_found, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)}"
                     ))}
 
-                    See your own progress with {mention.SlashCommand("egg profile", context)} 👀
+                    See your own progress with {mention.GuildSlashCommand("egg profile", context.Guild?.Id ?? throw new InvalidOperationException())} 👀
                     """).ToList();
 
                 var baseEmbed = new EmbedBuilder()
@@ -431,7 +431,7 @@ public class EggLeaderboardSlashCommand(IEggRepository eggRepository, EggService
                         emptyText:
                             $"""
                             No eggs found yet! 👀
-                            Start hunting and verify your eggs with {mention.SlashCommand("egg verify", context)}! 😊
+                            Start hunting and verify your eggs with {mention.GuildSlashCommand("egg verify", context.Guild?.Id ?? throw new InvalidOperationException())}! 😊
                             """)),
                     IsCancellable: true
                 ));

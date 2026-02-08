@@ -52,7 +52,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandM
                         emptyText:
                             $"""
                             You've never redeemed a coupon before 😵
-                            You can get coupon codes from events and redeem them with {mention.SlashCommand("coupon redeem", context)} for special rewards ✨
+                            You can get coupon codes from events and redeem them with {mention.GuildSlashCommand("coupon redeem", context.Guild?.Id ?? throw new InvalidOperationException())} for special rewards ✨
                             """
                     ))
                 ));

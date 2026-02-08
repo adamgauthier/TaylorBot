@@ -94,7 +94,7 @@ public class ValentinesVerifySlashCommand(
 
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                        Your code is **NOT** the answer. Added 1 failed attempt to your {mention.SlashCommand("valentines profile", context)}
+                        Your code is **NOT** the answer. Added 1 failed attempt to your {mention.GuildSlashCommand("valentines profile", context.Guild?.Id ?? throw new InvalidOperationException())}
                         Better luck next time! 🤐
                         """
                     ));
@@ -121,7 +121,7 @@ public class ValentinesVerifySlashCommand(
                         $"""
                         Congrats, your code is right! 🎉
                         You solved {options.puzzle.Value} after {"attempt".ToQuantity(attemptCount, TaylorBotFormats.BoldReadable)} 🎊
-                        Your {mention.SlashCommand("valentines profile", context)} has been updated! ✅
+                        Your {mention.GuildSlashCommand("valentines profile", context.Guild?.Id ?? throw new InvalidOperationException())} has been updated! ✅
                         **IMPORTANT**: Make sure all your teammates verify this code as soon as possible to secure maximum points for your team!
                         """
                     ));

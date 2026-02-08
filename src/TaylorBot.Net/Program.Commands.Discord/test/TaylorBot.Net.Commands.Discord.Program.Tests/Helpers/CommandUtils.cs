@@ -2,6 +2,7 @@
 using FakeItEasy;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Channel;
+using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
@@ -29,6 +30,7 @@ public static class CommandUtils
         {
             var repository = A.Fake<IApplicationCommandsRepository>(o => o.Strict());
             A.CallTo(() => repository.GetCommandId(A<string>.Ignored)).Returns(null);
+            A.CallTo(() => repository.GetGuildCommandId(A<SnowflakeId>.Ignored, A<string>.Ignored)).Returns(null);
             return new(repository);
         }
     }

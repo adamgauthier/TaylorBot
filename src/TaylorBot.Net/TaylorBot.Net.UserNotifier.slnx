@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.BirthdayReward.Domain.Tests/TaylorBot.Net.BirthdayReward.Domain.Tests.csproj" />
+  </Folder>
+  <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core/TaylorBot.Net.Core.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.MemberLogging.Domain/TaylorBot.Net.MemberLogging.Domain.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.MemberLogging.Infrastructure/TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.BirthdayReward.Domain/TaylorBot.Net.BirthdayReward.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.BirthdayReward.Infrastructure/TaylorBot.Net.BirthdayReward.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.MessageLogging.Domain/TaylorBot.Net.MessageLogging.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.MessageLogging.Infrastructure/TaylorBot.Net.MessageLogging.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.PatreonSync.Domain/TaylorBot.Net.PatreonSync.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.PatreonSync.Infrastructure/TaylorBot.Net.PatreonSync.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.RedditNotifier.Domain/TaylorBot.Net.RedditNotifier.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.RedditNotifier.Infrastructure/TaylorBot.Net.RedditNotifier.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.Reminder.Domain/TaylorBot.Net.Reminder.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.Reminder.Infrastructure/TaylorBot.Net.Reminder.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.TumblrNotifier.Domain/TaylorBot.Net.TumblrNotifier.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.TumblrNotifier.Infrastructure/TaylorBot.Net.TumblrNotifier.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.YoutubeNotifier.Domain/TaylorBot.Net.YoutubeNotifier.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.YoutubeNotifier.Infrastructure/TaylorBot.Net.YoutubeNotifier.Infrastructure.csproj" />
+</Solution>

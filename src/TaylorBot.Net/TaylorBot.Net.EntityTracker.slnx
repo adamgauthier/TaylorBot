@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />
+    <Project Path="Program.EntityTracker/test/TaylorBot.Net.MessagesTracker.Domain.Tests/TaylorBot.Net.MessagesTracker.Domain.Tests.csproj" />
+    <Project Path="Program.EntityTracker/test/TaylorBot.Net.QuickStart.Domain.Tests/TaylorBot.Net.QuickStart.Domain.Tests.csproj" />
+  </Folder>
+  <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core/TaylorBot.Net.Core.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.EntityTracker.Domain/TaylorBot.Net.EntityTracker.Domain.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.EntityTracker.Infrastructure/TaylorBot.Net.EntityTracker.Infrastructure.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.MemberLogging.Domain/TaylorBot.Net.MemberLogging.Domain.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.MemberLogging.Infrastructure/TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
+  <Project Path="Program.EntityTracker/src/TaylorBot.Net.EntityTracker.Program/TaylorBot.Net.EntityTracker.Program.csproj" />
+  <Project Path="Program.EntityTracker/src/TaylorBot.Net.MessagesTracker.Domain/TaylorBot.Net.MessagesTracker.Domain.csproj" />
+  <Project Path="Program.EntityTracker/src/TaylorBot.Net.MessagesTracker.Infrastructure/TaylorBot.Net.MessagesTracker.Infrastructure.csproj" />
+  <Project Path="Program.EntityTracker/src/TaylorBot.Net.MinutesTracker.Domain/TaylorBot.Net.MinutesTracker.Domain.csproj" />
+  <Project Path="Program.EntityTracker/src/TaylorBot.Net.MinutesTracker.Infrastructure/TaylorBot.Net.MinutesTracker.Infrastructure.csproj" />
+  <Project Path="Program.EntityTracker/src/TaylorBot.Net.QuickStart.Domain/TaylorBot.Net.QuickStart.Domain.csproj" />
+</Solution>

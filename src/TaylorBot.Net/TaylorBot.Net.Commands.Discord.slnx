@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Core/test/TaylorBot.Net.Commands.Tests/TaylorBot.Net.Commands.Tests.csproj" />
+    <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />
+    <Project Path="Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.Program.Tests/TaylorBot.Net.Commands.Discord.Program.Tests.csproj" />
+  </Folder>
+  <Project Path="Core/src/TaylorBot.Net.Commands.Infrastructure/TaylorBot.Net.Commands.Infrastructure.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Commands/TaylorBot.Net.Commands.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.Core/TaylorBot.Net.Core.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.EntityTracker.Domain/TaylorBot.Net.EntityTracker.Domain.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.EntityTracker.Infrastructure/TaylorBot.Net.EntityTracker.Infrastructure.csproj" />
+  <Project Path="Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj" />
+</Solution>
