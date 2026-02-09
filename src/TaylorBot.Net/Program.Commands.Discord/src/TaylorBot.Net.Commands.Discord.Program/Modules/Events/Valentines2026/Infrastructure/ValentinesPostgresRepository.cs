@@ -1,10 +1,10 @@
 using Dapper;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Infrastructure;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Infrastructure;
 
 public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IValentinesRepository
 {
@@ -15,7 +15,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         var configs = (await connection.QueryAsync<ConfigDto>(
-            "SELECT config_key, config_value FROM valentines2025.config;")).ToList();
+            "SELECT config_key, config_value FROM valentines2026.config;")).ToList();
 
         string GetConfigValue(string key) =>
             configs.Single(c => c.config_key == key).config_value;
@@ -42,7 +42,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         var obtainedByUser = await connection.QuerySingleOrDefaultAsync<RoleObtainedDto?>(
             """
             SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
-            FROM valentines2025.role_obtained WHERE user_id = @UserId;
+            FROM valentines2026.role_obtained WHERE user_id = @UserId;
             """,
             new
             {
@@ -65,7 +65,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
 
         var acquiredAt = await connection.QuerySingleAsync<DateTime>(
             """
-            INSERT INTO valentines2025.role_obtained (user_id, username, acquired_from_user_id, acquired_from_username)
+            INSERT INTO valentines2026.role_obtained (user_id, username, acquired_from_user_id, acquired_from_username)
             VALUES (@ToUserId, @ToUserUsername, @FromUserId, @FromUserUsername)
             RETURNING acquired_at;
             """,
@@ -88,7 +88,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         var records = await connection.QueryAsync<RoleObtainedDto>(
             """
             SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
-            FROM valentines2025.role_obtained WHERE acquired_from_user_id = @UserId;
+            FROM valentines2026.role_obtained WHERE acquired_from_user_id = @UserId;
             """,
             new
             {
@@ -112,7 +112,7 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         var records = await connection.QueryAsync<RoleObtainedDto>(
             """
             SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
-            FROM valentines2025.role_obtained;
+            FROM valentines2026.role_obtained;
             """
         );
 
@@ -132,9 +132,9 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         var records = await connection.QueryAsync<RoleObtainedDto>(
             """
             SELECT user_id, username, acquired_from_user_id, acquired_from_username, acquired_at
-            FROM valentines2025.role_obtained AS acquired
+            FROM valentines2026.role_obtained AS acquired
             WHERE
-                (SELECT COUNT(*) FROM valentines2025.role_obtained AS givenTo WHERE givenTo.acquired_from_user_id = acquired.user_id) < @SpreadLimit
+                (SELECT COUNT(*) FROM valentines2026.role_obtained AS givenTo WHERE givenTo.acquired_from_user_id = acquired.user_id) < @SpreadLimit
             AND
                 acquired_at + @IncubationPeriod < CURRENT_TIMESTAMP;
             """,
@@ -152,5 +152,29 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
             r.username,
             r.acquired_at
         ))];
+    }
+
+    public async ValueTask<string?> GetLastGiveawayMessageIdAsync()
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        return await connection.QuerySingleOrDefaultAsync<string?>(
+            """
+            SELECT config_value FROM valentines2026.config WHERE config_key = 'last_giveaway_message_id';
+            """
+        );
+    }
+
+    public async ValueTask SetLastGiveawayMessageIdAsync(string messageId)
+    {
+        await using var connection = postgresConnectionFactory.CreateConnection();
+
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO valentines2026.config (config_key, config_value) VALUES ('last_giveaway_message_id', @MessageId)
+            ON CONFLICT (config_key) DO UPDATE SET config_value = @MessageId;
+            """,
+            new { MessageId = messageId }
+        );
     }
 }

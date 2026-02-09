@@ -10,7 +10,7 @@ using TaylorBot.Net.Core.Random;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
 
 public record Giveaway(IList<SnowflakeId> Entrants, DateTimeOffset EndsAt, int TaypointPrize)
 {
@@ -35,6 +35,15 @@ public partial class ValentineGiveawayDomainService(
 
     public async Task StartGiveawayAsync()
     {
+        try
+        {
+            await CleanUpStaleGiveawayMessageAsync();
+        }
+        catch (Exception exception)
+        {
+            LogExceptionSendingValentineGiveaway(exception);
+        }
+
         while (true)
         {
             var nextRun = TimeSpan.FromMinutes(5);
@@ -106,6 +115,7 @@ public partial class ValentineGiveawayDomainService(
                         messageReference: previousGiveaway != null ? new(previousGiveaway.OriginalMessageId) : null,
                         allowedMentions: previousGiveaway?.Winner != null ? new AllowedMentions { UserIds = [previousGiveaway.Winner.UserId.Id] } : null);
                     CurrentGiveaway.OriginalMessage = originalMessage;
+                    await valentinesRepository.SetLastGiveawayMessageIdAsync($"{originalMessage.Id}");
                 }
             }
             catch (Exception exception)
@@ -114,6 +124,27 @@ public partial class ValentineGiveawayDomainService(
             }
 
             await Task.Delay(nextRun);
+        }
+    }
+
+    private async Task CleanUpStaleGiveawayMessageAsync()
+    {
+        var config = await valentinesRepository.GetConfigurationAsync();
+        var lastMessageId = await valentinesRepository.GetLastGiveawayMessageIdAsync();
+
+        if (lastMessageId != null)
+        {
+            var lounge = (ITextChannel)await taylorBotClient.Value.ResolveRequiredChannelAsync(config.LoungeChannelId);
+            var message = await lounge.GetMessageAsync(new SnowflakeId(lastMessageId));
+
+            if (message is IUserMessage userMessage)
+            {
+                await userMessage.ModifyAsync(m =>
+                {
+                    m.Embed = EmbedFactory.CreateError("Oops, giveaway ended because TaylorBot had to restart, no winner 😔");
+                    m.Components = new ComponentBuilder().Build();
+                });
+            }
         }
     }
 
@@ -161,7 +192,7 @@ public class ValentineGiveawayEnterHandler(
 
                 await interactionResponseClient.EditOriginalResponseAsync(button.Interaction, message: new(
                     new([ValentineGiveawayDomainService.BuildGiveawayEmbed(giveaway)], Content: giveaway.OriginalMessage?.Content ?? ""),
-                    [new Button("enter-giveaway", ButtonStyle.Primary, "Enter", "🎉")]
+                    [new Button(InteractionCustomId.Create(CustomIdName).RawId, ButtonStyle.Primary, "Enter", "🎉")]
                 ));
 
                 await Task.Delay(100);

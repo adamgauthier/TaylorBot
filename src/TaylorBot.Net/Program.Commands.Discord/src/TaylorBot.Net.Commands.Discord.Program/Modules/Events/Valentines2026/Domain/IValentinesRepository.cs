@@ -1,7 +1,7 @@
 ﻿using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
 
 public record ValentinesConfig(
     SnowflakeId SpreadLoveRoleId,
@@ -25,4 +25,6 @@ public interface IValentinesRepository
     ValueTask<IReadOnlyList<RoleObtained>> GetRoleObtainedFromUserAsync(DiscordUser user);
     ValueTask<IReadOnlyList<RoleObtained>> GetAllAsync();
     ValueTask<IReadOnlyList<RoleObtained>> GetAllReadyAsync(ValentinesConfig config);
+    ValueTask<string?> GetLastGiveawayMessageIdAsync();
+    ValueTask SetLastGiveawayMessageIdAsync(string messageId);
 }

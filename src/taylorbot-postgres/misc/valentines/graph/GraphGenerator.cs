@@ -1,3 +1,5 @@
+#:package CsvHelper@33.0.1
+
 using CsvHelper;
 using System.Globalization;
 using System.Text;

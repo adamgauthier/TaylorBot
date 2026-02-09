@@ -73,14 +73,19 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
 
     private IEnumerable<EventHandlerRegistrar> GetBaseRegistrars()
     {
-        var shardReadyHandler = services.GetService<IShardReadyHandler>();
-        if (shardReadyHandler != null)
+        var shardReadyHandlers = services.GetServices<IShardReadyHandler>().ToList();
+        if (shardReadyHandlers.Count > 0)
         {
             yield return new EventHandlerRegistrar((client) =>
             {
                 client.DiscordShardedClient.ShardReady += async (socketClient) =>
                     await taskExceptionLogger.LogOnError(async () =>
-                        await shardReadyHandler.ShardReadyAsync(socketClient),
+                    {
+                        foreach (var handler in shardReadyHandlers)
+                        {
+                            await handler.ShardReadyAsync(socketClient);
+                        }
+                    },
                         nameof(IShardReadyHandler)
                     );
             }, [GatewayIntents.Guilds, GatewayIntents.GuildMembers]);

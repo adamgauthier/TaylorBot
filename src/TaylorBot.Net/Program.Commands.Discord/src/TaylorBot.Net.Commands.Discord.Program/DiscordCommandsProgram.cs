@@ -25,9 +25,10 @@ using TaylorBot.Net.Commands.Discord.Program.Modules.DailyPayout.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.DiscordInfo.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Coupons;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Infrastructure;
+using TaylorBot.Net.Commands.Discord.Program.Events;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Commands;
@@ -108,7 +109,9 @@ using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Extensions;
+using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Random;
+using TaylorBot.Net.Core.Tasks;
 
 var host = Host.CreateDefaultBuilder()
     .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
@@ -423,6 +426,7 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<LoveReadySlashCommand>()
             .AddSlashCommand<LoveSpreadSlashCommand>()
             .AddSlashCommand<LoveHistorySlashCommand>()
+            .AddTransient<IShardReadyHandler, ValentineGiveawayReadyHandler>()
             .AddTransient<IEggRepository, EggPostgresRepository>()
             .AddTransient<EggService>()
             .AddSlashCommand<EggVerifySlashCommand>()

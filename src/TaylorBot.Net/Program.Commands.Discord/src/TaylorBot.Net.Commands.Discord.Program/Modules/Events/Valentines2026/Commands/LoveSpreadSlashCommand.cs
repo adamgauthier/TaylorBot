@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Humanizer;
-using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Domain;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -8,7 +8,7 @@ using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Number;
 
-namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2025.Commands;
+namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Commands;
 
 public class LoveSpreadSlashCommand(
     Lazy<ITaylorBotClient> client,
