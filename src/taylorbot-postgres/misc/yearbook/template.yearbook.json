@@ -1,0 +1,19 @@
+{
+    "year": 2025,
+    "dumpMonth": 11,
+    "dumpDay": 22,
+    "dumpPreviousYear": {
+        "host": "localhost",
+        "port": 5437,
+        "database": "taylorbot",
+        "user": "taylorbot",
+        "password": "YOUR_TAYLORBOT_ROLE_PASSWORD_HERE"
+    },
+    "dumpCurrentYear": {
+        "host": "localhost",
+        "port": 5438,
+        "database": "taylorbot",
+        "user": "taylorbot",
+        "password": "YOUR_TAYLORBOT_ROLE_PASSWORD_HERE"
+    }
+}

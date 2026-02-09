@@ -1,0 +1,5 @@
+# Credential configs (actual values, not templates)
+yearbook.json
+
+# All generated output
+output/

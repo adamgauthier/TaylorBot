@@ -122,9 +122,9 @@ public class RecapSlashCommand(
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
                         $"""
-                            Sorry, it looks like you were not part of the {await memberActivityRepository.GetRecapCountAsync()} most active members of 2025 😕
-                            Maybe next year! 🙏
-                            """));
+                        Sorry, it looks like you were not part of the {await memberActivityRepository.GetRecapCountAsync()} most active members of 2025 😕
+                        Maybe next year! 🙏
+                        """));
                 }
 
                 const string filename = "recap.png";

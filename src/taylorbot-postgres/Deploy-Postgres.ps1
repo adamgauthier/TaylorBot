@@ -16,7 +16,10 @@ param (
     [string]$PostgresPort = "5432",
 
     [Parameter(Mandatory = $false)]
-    [string]$DatabaseBackupFile
+    [string]$DatabaseBackupFile,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$SkipSqitch
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -126,6 +129,8 @@ if (-not [string]::IsNullOrWhiteSpace($DatabaseBackupFile)) {
     . "$PSScriptRoot/Run-PsqlFile.ps1" -ConnectionString $connection -SqlFile $DatabaseBackupFile
 }
 
-Write-Output "Deploying sqitch schema"
+if (-not $SkipSqitch) {
+    Write-Output "Deploying sqitch schema"
 
-. "$PSScriptRoot/Deploy-Sqitch.ps1" -ConnectionString "postgresql://taylorbot:$TaylorBotRolePassword@$($PostgresHost):$PostgresPort"
+    . "$PSScriptRoot/Deploy-Sqitch.ps1" -ConnectionString "postgresql://taylorbot:$TaylorBotRolePassword@$($PostgresHost):$PostgresPort"
+}
