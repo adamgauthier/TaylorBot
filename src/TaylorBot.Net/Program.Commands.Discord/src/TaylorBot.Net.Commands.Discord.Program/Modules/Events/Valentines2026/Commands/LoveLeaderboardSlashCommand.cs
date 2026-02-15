@@ -1,4 +1,5 @@
 using Discord;
+using Humanizer;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
@@ -6,6 +7,8 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Globalization;
+using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Commands;
 
@@ -70,7 +73,7 @@ public class LoveLeaderboardSlashCommand(
                 chains = [.. chains.OrderByDescending(c => c.ChainLength)];
 
                 var lines = chains.Select((c, i) =>
-                    $"{i + 1}\\. **{c.ChainStartedBy}** ➡️ **{c.CurrentHolder}** — 💌 {c.ChainLength} spread{(c.ChainLength != 1 ? "s" : "")}"
+                    $"{i + 1}\\. **{c.ChainStartedBy}** ➡️ {c.CurrentHolder}: 💌 {"bestie".ToQuantity(c.ChainLength, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)}"
                 );
 
                 var pages = lines
@@ -82,7 +85,7 @@ public class LoveLeaderboardSlashCommand(
                     new(new EmbedDescriptionTextEditor(
                         new EmbedBuilder()
                             .WithColor(TaylorBotColors.SuccessColor)
-                            .WithTitle("Love Chain Leaderboard 💌"),
+                            .WithTitle("Love Chain Leaderboard 🔗"),
                         pages,
                         hasPageFooter: true,
                         emptyText: "No love chains yet 🤔"

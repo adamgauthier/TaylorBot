@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Collections.Concurrent;
+using Discord;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.TaypointReward.Domain;
@@ -12,7 +13,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Domain;
 
-public record Giveaway(IList<SnowflakeId> Entrants, DateTimeOffset EndsAt, int TaypointPrize)
+public record Giveaway(ConcurrentDictionary<SnowflakeId, byte> Entrants, DateTimeOffset EndsAt, int TaypointPrize)
 {
     public IUserMessage? OriginalMessage { get; set; }
 }
@@ -64,10 +65,10 @@ public partial class ValentineGiveawayDomainService(
                         {
                             previousGiveaway = new(CurrentGiveaway.OriginalMessage.Id);
 
-                            var entrants = CurrentGiveaway.Entrants.ToList();
+                            var entrants = CurrentGiveaway.Entrants.Keys.ToList();
                             if (entrants.Count != 0)
                             {
-                                var winnerId = cryptoSecureRandom.GetRandomElement(CurrentGiveaway.Entrants.AsReadOnly());
+                                var winnerId = cryptoSecureRandom.GetRandomElement(entrants);
                                 DiscordUser winner = new(winnerId, string.Empty, string.Empty, string.Empty, IsBot: false, null);
 
                                 var rewarded = (await taypointRepository.RewardUsersAsync([winner], CurrentGiveaway.TaypointPrize)).Single();
@@ -105,7 +106,7 @@ public partial class ValentineGiveawayDomainService(
                     static string GetWinnerMessage(RewardedUserResult r, int won) =>
                         $"{MentionUtils.MentionUser(r.UserId.Id)} You won {"taypoint".ToQuantity(won, TaylorBotFormats.BoldReadable)} from the previous giveaway! You now have {r.NewTaypointCount.ToString(TaylorBotFormats.Readable)} 🥳💖";
 
-                    CurrentGiveaway = new([], EndsAt: timeProvider.GetUtcNow() + nextRun, cryptoSecureRandom.GetInt32(config.GiveawayTaypointPrizeMin, config.GiveawayTaypointPrizeMax));
+                    CurrentGiveaway = new(new(), EndsAt: timeProvider.GetUtcNow() + nextRun, cryptoSecureRandom.GetInt32(config.GiveawayTaypointPrizeMin, config.GiveawayTaypointPrizeMax));
                     var originalMessage = await lounge.SendMessageAsync(
                         text: previousGiveaway?.Winner != null
                             ? GetWinnerMessage(previousGiveaway.Winner, previousGiveaway.AmountWon)
@@ -183,22 +184,23 @@ public class ValentineGiveawayEnterHandler(
         var config = await valentinesRepository.GetConfigurationAsync();
         var giveaway = giveawayService.CurrentGiveaway;
 
-        if (giveaway != null && !giveaway.Entrants.Contains(button.Interaction.UserId))
+        if (giveaway != null && !giveaway.Entrants.ContainsKey(button.Interaction.UserId))
         {
             var given = await valentinesRepository.GetRoleObtainedFromUserAsync(context.User);
             if (given.Count >= config.SpreadLimit)
             {
-                giveaway.Entrants.Add(button.Interaction.UserId);
+                if (giveaway.Entrants.TryAdd(button.Interaction.UserId, 0))
+                {
+                    await interactionResponseClient.EditOriginalResponseAsync(button.Interaction, message: new(
+                        new([ValentineGiveawayDomainService.BuildGiveawayEmbed(giveaway)], Content: giveaway.OriginalMessage?.Content ?? ""),
+                        [new Button(InteractionCustomId.Create(CustomIdName).RawId, ButtonStyle.Primary, "Enter", "🎉")]
+                    ));
 
-                await interactionResponseClient.EditOriginalResponseAsync(button.Interaction, message: new(
-                    new([ValentineGiveawayDomainService.BuildGiveawayEmbed(giveaway)], Content: giveaway.OriginalMessage?.Content ?? ""),
-                    [new Button(InteractionCustomId.Create(CustomIdName).RawId, ButtonStyle.Primary, "Enter", "🎉")]
-                ));
+                    await Task.Delay(100);
 
-                await Task.Delay(100);
-
-                await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
-                    new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
+                    await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
+                        new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));
+                }
             }
             else
             {
