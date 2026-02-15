@@ -32,6 +32,11 @@
       "name": "ready",
       "description": "Find out who's ready to spread love",
       "type": 1
+    },
+    {
+      "name": "leaderboard",
+      "description": "See the longest love chains",
+      "type": 1
     }
   ]
 }

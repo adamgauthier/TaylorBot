@@ -140,6 +140,7 @@
             "args": [
                 "-ApplicationId ${input:applicationId}",
                 "-BotToken ${input:botToken}",
+                "-GuildCommandsGuildId ${input:guildCommandsGuildId}",
             ]
         },
         {
@@ -172,6 +173,12 @@
             "id": "botToken",
             "type": "promptString",
             "description": "Discord Bot Token",
+            "default": ""
+        },
+        {
+            "id": "guildCommandsGuildId",
+            "type": "promptString",
+            "description": "Guild ID to deploy all guild commands to (leave empty to deploy to each guild's own directory)",
             "default": ""
         },
         {

@@ -426,6 +426,7 @@ public static class DiscordCommandsProgram
             .AddSlashCommand<LoveReadySlashCommand>()
             .AddSlashCommand<LoveSpreadSlashCommand>()
             .AddSlashCommand<LoveHistorySlashCommand>()
+            .AddSlashCommand<LoveLeaderboardSlashCommand>()
             .AddTransient<IShardReadyHandler, ValentineGiveawayReadyHandler>()
             .AddTransient<IEggRepository, EggPostgresRepository>()
             .AddTransient<EggService>()
