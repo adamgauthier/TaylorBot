@@ -7,6 +7,8 @@ using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 
+using TaylorBot.Net.Core.Strings;
+
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Commands;
 
 public class LoveHistorySlashCommand(
@@ -44,7 +46,7 @@ public class LoveHistorySlashCommand(
                     BuildChain(givenTo, chain, targetUserReceived);
                     chain.Reverse();
 
-                    var obtainedAsLines = chain.Select(o => $"{o.AcquiredAt:MMM d}: **{o.FromName}** 💌➡️ **{o.ToUserName}**");
+                    var obtainedAsLines = chain.Select(o => $"{o.AcquiredAt:MMM d}: {o.FromName.MdUserLink(o.FromUserId)} 💌➡️ {o.ToUserName.MdUserLink(o.ToUserId)}");
 
                     var pages =
                         obtainedAsLines.Chunk(size: 15)

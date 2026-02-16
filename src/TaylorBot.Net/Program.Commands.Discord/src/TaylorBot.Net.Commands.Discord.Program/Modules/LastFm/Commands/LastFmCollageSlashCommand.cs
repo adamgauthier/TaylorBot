@@ -1,12 +1,13 @@
-﻿using Discord;
+﻿using System.Net.Http.Json;
+using Discord;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
 using TaylorBot.Net.Commands.Parsers.Numbers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Colors;
+using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Http;
-using TaylorBot.Net.Core.Infrastructure.Extensions;
 using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Commands;
@@ -24,6 +25,20 @@ public class LastFmCollageSlashCommand(
     public ISlashCommandInfo Info => new MessageCommandInfo(CommandName);
     public record Options(LastFmPeriod? period, ParsedOptionalInteger size, ParsedUserOrAuthor user);
 
+    private sealed record CollageRequest(string username, string period, string rowNum, string colNum, string type, string showName, string hideMissing);
+    private sealed record CollageResponse(string downloadPath);
+
+    private static string MapPeriodToCollageApi(LastFmPeriod period) => period switch
+    {
+        LastFmPeriod.SevenDay => "1week",
+        LastFmPeriod.OneMonth => "1month",
+        LastFmPeriod.ThreeMonth => "3month",
+        LastFmPeriod.SixMonth => "6month",
+        LastFmPeriod.TwelveMonth => "1year",
+        LastFmPeriod.Overall => "forever",
+        _ => throw new ArgumentOutOfRangeException(nameof(period)),
+    };
+
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
         return new(new Command(
@@ -40,32 +55,45 @@ public class LastFmCollageSlashCommand(
                     return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
                 }
 
-                var queryString = new Dictionary<string, string>
-                {
-                    { "user", lastFmUsername.Username },
-                    { "type", lastFmPeriodStringMapper.MapLastFmPeriodToUrlString(period) },
-                    { "size", $"{size.Parsed}x{size.Parsed}" },
-                }.ToUrlQueryString();
-
                 using var client = clientFactory.CreateClient();
-                var response = await client.GetAsync($"https://www.tapmusic.net/collage.php?{queryString}");
-                await response.EnsureSuccessAsync(logger);
 
-                var collage = await response.Content.ReadAsStreamAsync();
-                const string filename = "collage.png";
+                CollageRequest request = new(
+                    username: lastFmUsername.Username,
+                    period: MapPeriodToCollageApi(period),
+                    rowNum: $"{size.Parsed}",
+                    colNum: $"{size.Parsed}",
+                    type: "albums",
+                    showName: "true",
+                    hideMissing: "false"
+                );
 
-                var embed = new EmbedBuilder()
-                    .WithColor(TaylorBotColors.SuccessColor)
-                    .WithAuthor(
-                        name: lastFmUsername.Username,
-                        iconUrl: user.GetGuildAvatarUrlOrDefault(),
-                        url: lastFmUsername.LinkToProfile
-                    )
-                    .WithTitle($"Collage {size.Parsed}x{size.Parsed} | {lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
-                    .WithImageUrl($"attachment://{filename}")
-                    .Build();
+                return await client.ReadJsonWithErrorLogging<CollageResponse, ICommandResult>(
+                    async c => await c.PostAsJsonAsync("https://lastcollage.io/api/collage", request),
+                    async success =>
+                    {
+                        var response = await client.GetAsync($"https://lastcollage.io/{success.Parsed.downloadPath}");
+                        await response.EnsureSuccessAsync(logger);
 
-                return new MessageResult(new(new MessageContent([embed], Attachments: [new(collage, filename)])));
+                        var collage = await response.Content.ReadAsStreamAsync();
+                        const string filename = "collage.png";
+
+                        var embed = new EmbedBuilder()
+                            .WithColor(TaylorBotColors.SuccessColor)
+                            .WithAuthor(
+                                name: lastFmUsername.Username,
+                                iconUrl: user.GetGuildAvatarUrlOrDefault(),
+                                url: lastFmUsername.LinkToProfile
+                            )
+                            .WithTitle($"Collage {size.Parsed}x{size.Parsed} | {lastFmPeriodStringMapper.MapLastFmPeriodToReadableString(period)}")
+                            .WithImageUrl($"attachment://{filename}")
+                            .Build();
+
+                        return new MessageResult(new(new MessageContent([embed], Attachments: [new(collage, filename)])));
+                    },
+                    error => Task.FromResult<ICommandResult>(new EmbedResult(EmbedFactory.CreateError(
+                        "The collage service is currently unavailable. Please try again later 😕"))),
+                    logger
+                );
             }
         ));
     }

@@ -72,12 +72,11 @@ public class LastFmCollageSlashCommandTests : IAsyncDisposable
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes("Some file content")))
-            };
+            HttpContent content = request.Method == HttpMethod.Post
+                ? new StringContent("""{"downloadPath":"api/collage/abc123"}""", Encoding.UTF8, "application/json")
+                : new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes("Some file content")));
 
-            return Task.FromResult(response);
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = content });
         }
     }
 }

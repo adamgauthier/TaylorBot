@@ -9,6 +9,8 @@ using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
 using TaylorBot.Net.Core.Number;
+using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Commands;
 
@@ -50,7 +52,7 @@ public class LoveLeaderboardSlashCommand(
                     .Where(id => !children.ContainsKey(id) || children[id].Count == 0)
                     .ToList();
 
-                List<(string ChainStartedBy, string CurrentHolder, int ChainLength)> chains = [];
+                List<(string ChainStartedBy, SnowflakeId ChainStartedById, string CurrentHolder, SnowflakeId CurrentHolderId, int ChainLength)> chains = [];
 
                 foreach (var leafId in leaves)
                 {
@@ -64,16 +66,16 @@ public class LoveLeaderboardSlashCommand(
                     path.Reverse();
 
                     // path[0] is the self-give (adam), path[1] is the chain originator
-                    var originator = path.Count > 1 ? path[1].ToUserName : path[0].ToUserName;
-                    var currentHolder = path[^1].ToUserName;
+                    var originator = path.Count > 1 ? path[1] : path[0];
+                    var currentHolder = path[^1];
                     var chainLength = path.Count - 1; // Exclude the self-give
-                    chains.Add((originator, currentHolder, chainLength));
+                    chains.Add((originator.ToUserName, originator.ToUserId, currentHolder.ToUserName, currentHolder.ToUserId, chainLength));
                 }
 
                 chains = [.. chains.OrderByDescending(c => c.ChainLength)];
 
                 var lines = chains.Select((c, i) =>
-                    $"{i + 1}\\. **{c.ChainStartedBy}** ➡️ {c.CurrentHolder}: 💌 {"bestie".ToQuantity(c.ChainLength, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)}"
+                    $"{i + 1}\\. {c.ChainStartedBy.MdUserLink(c.ChainStartedById)} ➡️ {c.CurrentHolder.MdUserLink(c.CurrentHolderId)}: 💌 {"bestie".ToQuantity(c.ChainLength, TaylorBotFormats.BoldReadable, TaylorBotCulture.Culture)}"
                 );
 
                 var pages = lines
