@@ -20,13 +20,28 @@ public class ValentinesPostgresRepository(PostgresConnectionFactory postgresConn
         string GetConfigValue(string key) =>
             configs.Single(c => c.config_key == key).config_value;
 
+        string? GetOptionalConfigValue(string key) =>
+            configs.SingleOrDefault(c => c.config_key == key)?.config_value;
+
+        var spreadLimit = int.Parse(GetConfigValue("spread_limit"));
+        var giveawaysEndTime = DateTimeOffset.Parse(GetConfigValue("giveaways_end_time"));
+
         return new(
             SpreadLoveRoleId: new(GetConfigValue("spread_love_role_id")),
             IncubationPeriod: TimeSpan.Parse(GetConfigValue("incubation_period")),
-            BypassSpreadLimitRoleIds: [.. GetConfigValue("bypass_spread_limit_role_ids").Split(',').Select(i => new SnowflakeId(i))],
-            SpreadLimit: int.Parse(GetConfigValue("spread_limit")),
+            BypassSpreadLimitRoleIds: GetOptionalConfigValue("bypass_spread_limit_role_ids") is { } r
+                ? [.. r.Split(',').Select(i => new SnowflakeId(i))]
+                : [],
+            BypassSpreadLimitUserIds: GetOptionalConfigValue("bypass_spread_limit_user_ids") is { } u
+                ? [.. u.Split(',').Select(i => new SnowflakeId(i))]
+                : [],
+            SpreadLimit: spreadLimit,
+            GiveawayEntrySpreadRequirement: GetOptionalConfigValue("giveaway_entry_spread_requirement") is { } g ? int.Parse(g) : spreadLimit,
             LoungeChannelId: new(GetConfigValue("lounge_channel_id")),
-            GiveawaysEndTime: DateTimeOffset.Parse(GetConfigValue("giveaways_end_time")),
+            GiveawaysEndTime: giveawaysEndTime,
+            SpreadEndTime: GetOptionalConfigValue("spread_end_time") is { } s
+                ? DateTimeOffset.Parse(s)
+                : giveawaysEndTime,
             TimeSpanBetweenGiveaways: TimeSpan.Parse(GetConfigValue("timespan_between_giveaways")),
             GiveawayTaypointPrizeMin: int.Parse(GetConfigValue("giveaway_prize_min")),
             GiveawayTaypointPrizeMax: int.Parse(GetConfigValue("giveaway_prize_max"))

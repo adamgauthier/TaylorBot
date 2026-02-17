@@ -19,10 +19,13 @@ INSERT INTO valentines2026.config (config_key, config_value) VALUES
 ('spread_love_role_id', 'REPLACE_WITH_NEW_ROLE_ID'),
 ('incubation_period', '0.02:00:00'),
 ('bypass_spread_limit_role_ids', '827370245667946526'),
+('bypass_spread_limit_user_ids', '119341483219353602'),
 ('spread_limit', '1'),
 ('lounge_channel_id', '587420269191364648'),
 ('giveaways_end_time', '2026-02-16T07:59:59.0000000Z'),
+('spread_end_time', '2026-02-16T07:59:59.0000000Z'),
 ('timespan_between_giveaways', '0.00:30:00'),
+('giveaway_entry_spread_requirement', '1'),
 ('giveaway_prize_min', '100'),
 ('giveaway_prize_max', '501');
 

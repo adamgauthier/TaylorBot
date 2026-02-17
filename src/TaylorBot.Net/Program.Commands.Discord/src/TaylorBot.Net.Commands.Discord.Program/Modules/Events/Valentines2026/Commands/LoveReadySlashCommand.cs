@@ -6,6 +6,7 @@ using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
+using TaylorBot.Net.Core.Strings;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events.Valentines2026.Commands;
 
@@ -30,7 +31,11 @@ public class LoveReadySlashCommand(
                 var config = await valentinesRepository.GetConfigurationAsync();
                 var ready = await valentinesRepository.GetAllReadyAsync(config);
 
-                var obtainedAsLines = ready.Select(o => $"{o.ToUserName}");
+                var obtainedAsLines = ready.Select(o =>
+                {
+                    var readySince = o.AcquiredAt + config.IncubationPeriod;
+                    return $"{o.ToUserName.MdUserLink(o.ToUserId)} (ready <t:{readySince.ToUnixTimeSeconds()}:R>)";
+                });
 
                 var pages =
                     obtainedAsLines.Chunk(size: 15)

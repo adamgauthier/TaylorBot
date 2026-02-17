@@ -1,7 +1,9 @@
-﻿using Dapper;
+﻿using Azure.Storage.Blobs;
+using Dapper;
 using Discord;
 using Discord.Net;
 using Humanizer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Diagnostics;
@@ -18,7 +20,7 @@ using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Owner.Commands;
 
-public record ActiveMembers(IList<ActiveMembers.Member> members, IList<string> usersIdWhoSubmittedSignatures)
+public record ActiveMembers(IList<ActiveMembers.Member> members)
 {
     public class Member
     {
@@ -42,7 +44,8 @@ public partial class OwnerRewardYearbookActiveMembersSlashCommand(
     ITaylorBotClient client,
     PostgresConnectionFactory postgresConnectionFactory,
     TaylorBotOwnerPrecondition ownerPrecondition,
-    InGuildPrecondition.Factory inGuild)
+    InGuildPrecondition.Factory inGuild,
+    [FromKeyedServices("SignatureContainer")] Lazy<BlobContainerClient> signatureContainer)
     : ISlashCommand<OwnerRewardYearbookActiveMembersSlashCommand.Options>
 {
     public static string CommandName => "owner rewardyearbook";
@@ -83,7 +86,7 @@ public partial class OwnerRewardYearbookActiveMembersSlashCommand(
 
                     try
                     {
-                        await ProcessMemberAsync(connection, guild, member, successful, cantMessageGuildMembers, unresolvedGuildMembers, activeMembers.usersIdWhoSubmittedSignatures);
+                        await ProcessMemberAsync(connection, guild, member, successful, cantMessageGuildMembers, unresolvedGuildMembers);
                         member.processedInfo.completed = true;
 
                         await connection.ExecuteAsync(
@@ -122,7 +125,7 @@ public partial class OwnerRewardYearbookActiveMembersSlashCommand(
         ));
     }
 
-    private async Task ProcessMemberAsync(NpgsqlConnection connection, IGuild guild, ActiveMembers.Member member, List<IGuildUser> successful, List<string> cantMessageGuildMembers, List<string> unresolvedGuildMembers, IList<string> usersIdWhoSubmittedSignatures)
+    private async Task ProcessMemberAsync(NpgsqlConnection connection, IGuild guild, ActiveMembers.Member member, List<IGuildUser> successful, List<string> cantMessageGuildMembers, List<string> unresolvedGuildMembers)
     {
         var taypointReward = member.isMod ? 25_000 : 10_000;
 
@@ -135,30 +138,33 @@ public partial class OwnerRewardYearbookActiveMembersSlashCommand(
         var guildUser = await client.ResolveGuildUserAsync(guild, member.userId);
         if (guildUser != null)
         {
+            var hasSubmittedSignature = await HasSubmittedSignatureAsync($"{guildUser.Id}", guildUser.Username);
+
             var description = member.isMod
                 ? $"""
                 ## Thank You 💖
-                Thank you for your dedication this year as a Taylor Swift Discord moderator 🛡️
+                Thank you for your dedication in 2025 as a Taylor Swift Discord moderator 🛡️
                 Your commitment to keep our community safe is essential to our continued growth 🥺
                 I know it's not always easy, especially when dealing with challenging situations and negative feedback from members 🙏
                 As a small token of appreciation, I've gifted you {"taypoint".ToQuantity(taypointReward, TaylorBotFormats.BoldReadable)}! 🎁
                 """
                 : $"""
                 ## Congratulations 🎉
-                You were in the Taylor Swift Discord's **top 100 most active members** this year 🏆
+                You were in the Taylor Swift Discord's **top 100 most active members** in 2025 🏆
                 Thank you for being a part of our community and contributing to it 💝
                 I just gave you {"taypoint".ToQuantity(taypointReward, TaylorBotFormats.BoldReadable)} as a gift! 🎁
                 """;
 
-            if (!usersIdWhoSubmittedSignatures.Contains($"{guildUser.Id}"))
+            if (!hasSubmittedSignature)
             {
                 description +=
                     $"""
 
-                    ## Yearbook Signature 🖊️
-                    It seems like you haven't submitted **your signature for Yearbook 2025** yet ⚠️
-                    Please take a minute to submit it using the **/signature** command in #bots. 😊
-                    Click here for more details: https://discord.com/channels/115332333745340416/123150327456333824/1312535164714483793 ✨
+                    ## ⚠️⚠️🖊️ Yearbook Signature MISSING 🖊️⚠️⚠️
+                    You **still haven't submitted your signature for Yearbook 2025**! 🚨
+                    You are running out of time, we are making the yearbook! ⏳
+                    Please submit it **in the next day** using the **/signature** command in #bots!
+                    Click here for more details: https://discord.com/channels/115332333745340416/123150327456333824/1467198708465795290 ✨
                     """;
             }
 
@@ -195,6 +201,20 @@ public partial class OwnerRewardYearbookActiveMembersSlashCommand(
             LogCantResolveMember(member.userId);
             unresolvedGuildMembers.Add(member.userId);
         }
+    }
+
+    private async Task<bool> HasSubmittedSignatureAsync(string userId, string username)
+    {
+        var blobs = signatureContainer.Value.GetBlobsAsync(
+            Azure.Storage.Blobs.Models.BlobTraits.None,
+            Azure.Storage.Blobs.Models.BlobStates.None,
+            $"{userId}-",
+            CancellationToken.None);
+        await foreach (var blob in blobs)
+        {
+            return true;
+        }
+        return false;
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Processing {Count} members.")]

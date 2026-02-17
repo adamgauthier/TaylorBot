@@ -187,7 +187,7 @@ public class ValentineGiveawayEnterHandler(
         if (giveaway != null && !giveaway.Entrants.ContainsKey(button.Interaction.UserId))
         {
             var given = await valentinesRepository.GetRoleObtainedFromUserAsync(context.User);
-            if (given.Count >= config.SpreadLimit)
+            if (given.Count >= config.GiveawayEntrySpreadRequirement)
             {
                 if (giveaway.Entrants.TryAdd(button.Interaction.UserId, 0))
                 {
@@ -207,7 +207,7 @@ public class ValentineGiveawayEnterHandler(
                 await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
                     new(new(EmbedFactory.CreateError(
                         $"""
-                        You can't enter because you haven't spread love to **{config.SpreadLimit}** people yet ({given.Count}/{config.SpreadLimit})! ⛔
+                        You can't enter because you haven't spread love to **{config.GiveawayEntrySpreadRequirement}** people yet ({given.Count}/{config.GiveawayEntrySpreadRequirement})! ⛔
                         Please use {mention.GuildSlashCommand("love spread", context.Guild?.Id ?? throw new InvalidOperationException())} to give the role to someone who doesn't have it 😊
                         """)
                     ), IsPrivate: true));

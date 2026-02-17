@@ -29,6 +29,12 @@ public class LoveSpreadSlashCommand(
             {
                 var config = await valentinesRepository.GetConfigurationAsync();
 
+                if (DateTimeOffset.UtcNow >= config.SpreadEndTime)
+                {
+                    return new EmbedResult(EmbedFactory.CreateError(
+                        "The love spreading period has ended 😭💔"));
+                }
+
                 ArgumentNullException.ThrowIfNull(context.Guild);
 
                 var author = context.FetchedUser != null
@@ -86,7 +92,8 @@ public class LoveSpreadSlashCommand(
                 }
 
                 var given = await valentinesRepository.GetRoleObtainedFromUserAsync(new(author));
-                if (!author.RoleIds.Intersect(config.BypassSpreadLimitRoleIds.Select(i => i.Id)).Any())
+                if (!author.RoleIds.Intersect(config.BypassSpreadLimitRoleIds.Select(i => i.Id)).Any()
+                    && !config.BypassSpreadLimitUserIds.Any(i => i.Id == author.Id))
                 {
                     if (given.Count >= config.SpreadLimit)
                     {

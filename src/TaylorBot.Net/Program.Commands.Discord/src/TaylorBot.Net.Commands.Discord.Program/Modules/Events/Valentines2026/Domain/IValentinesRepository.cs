@@ -7,9 +7,12 @@ public record ValentinesConfig(
     SnowflakeId SpreadLoveRoleId,
     TimeSpan IncubationPeriod,
     IReadOnlyList<SnowflakeId> BypassSpreadLimitRoleIds,
+    IReadOnlyList<SnowflakeId> BypassSpreadLimitUserIds,
     int SpreadLimit,
+    int GiveawayEntrySpreadRequirement,
     SnowflakeId LoungeChannelId,
     DateTimeOffset GiveawaysEndTime,
+    DateTimeOffset SpreadEndTime,
     TimeSpan TimeSpanBetweenGiveaways,
     int GiveawayTaypointPrizeMin,
     int GiveawayTaypointPrizeMax
