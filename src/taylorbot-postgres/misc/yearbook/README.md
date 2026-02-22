@@ -8,18 +8,18 @@ Make sure you have [.NET](https://dotnet.microsoft.com/) and [Docker](https://ww
 
 ## Steps
 
-### 1. Deploy Databases
+### 1. Configure
 
-Deploy local PostgreSQL instances and restore database backup dumps for both the previous and current year.
+Create a copy of [`template.yearbook.json`](template.yearbook.json) and rename it to `yearbook.json`. Set `year` to the yearbook year, `dumpMonth` and `dumpDay` to the date the dumps were taken (e.g. `11` and `22` for the November 22 server anniversary), and configure database connection details for both the previous and current year dumps.
+
+### 2. Deploy Databases
+
+Deploy local PostgreSQL instances and restore database backup dumps for both the previous and current year. Ports and passwords are read from `yearbook.json`.
 
 ```pwsh
-./1-DeployDatabase.ps1 -DatabaseBackupFile "path/to/previous-year-dump.sql"
-./1-DeployDatabase.ps1 -DatabaseBackupFile "path/to/current-year-dump.sql"
+./1-DeployDatabase.ps1 -DatabaseBackupFile "path/to/previous-year-dump.sql" -Dump PreviousYear
+./1-DeployDatabase.ps1 -DatabaseBackupFile "path/to/current-year-dump.sql" -Dump CurrentYear
 ```
-
-### 2. Configure
-
-Create a copy of [`template.yearbook.json`](template.yearbook.json) and rename it to `yearbook.json`. Set `year` to the yearbook year, `dumpMonth` and `dumpDay` to the date the dumps were taken (e.g. `11` and `22` for the November 22 server anniversary), and configure database connection details for both the previous and current year dumps deployed in the previous step.
 
 ### 3. Cleanup Database
 
@@ -76,3 +76,15 @@ Converts the generated recap images into SQL INSERT statements for importing int
 ```pwsh
 ./8-GenerateRecapSql.ps1
 ```
+
+## Historical Notes
+
+- **2018**: Only the new-users JSON was generated (no all-users, no CSVs). There was no previous-year dump; the single dump was used as the current year. The `first_joined_at` column was stored as `bigint` (epoch milliseconds); the query auto-detects this and converts using `to_timestamp()`.
+- **2018–2020**: The new-users JSON was sorted by `minutesPerDay` only; use `./4-GenerateMostActiveNew.ps1 -SortByMinutes` to reproduce.
+- **2019**: The `users.users` table did not have a `username` column; the query auto-detects this and falls back to joining on `users.usernames` (history table with `MAX(changed_at)`).
+- **2019–2020**: Both dumps (2018 and 2019 previous-year) are `pg_dumpall` (cluster dumps). The deploy script uses `-LocalRestore` (via `docker exec`) to avoid password issues from `ALTER ROLE` in cluster dumps.
+- **2019–2022**: The all-users JSON included all users without the `messageCountThisYear > 10` filter; use `./3-GenerateMostActiveAll.ps1 -IncludeAllUsers` to reproduce. No CSVs were generated for 2019–2021.
+- **2020–2023**: The all-users query joined on `users.usernames` (history table with `MAX(changed_at)`) to get usernames. This was replaced with a simpler `JOIN users.users` which has the current username directly. The old join excluded a small number of guild members (~25) that had no username history entry, all with negligible activity.
+- **2022–2023**: Both CSVs were ranked by `minutesPerDay`. Use `./5-ExportAllToCsv.ps1 -SortByMinutes` and `./6-ExportNewToCsv.ps1 -SortByMinutes` to reproduce.
+- **2024**: New-users CSV was ranked by `minutesPerDay`. Use `./6-ExportNewToCsv.ps1 -SortByMinutes` to reproduce.
+- **2025+**: CSVs are ranked by a weighted activity score `(messagesPerDay + minutesPerDay * 1.5) / 2`.

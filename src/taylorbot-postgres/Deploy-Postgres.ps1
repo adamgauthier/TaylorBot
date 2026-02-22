@@ -16,7 +16,19 @@ param (
     [string]$PostgresPort = "5432",
 
     [Parameter(Mandatory = $false)]
+    [string]$ContainerName,
+
+    [Parameter(Mandatory = $false)]
+    [string]$PublishedPort,
+
+    [Parameter(Mandatory = $false)]
     [string]$DatabaseBackupFile,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$ContinueOnError,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$LocalRestore,
 
     [Parameter(Mandatory = $false)]
     [switch]$SkipSqitch
@@ -71,9 +83,14 @@ if ([string]::IsNullOrWhiteSpace($PostgresHost)) {
     else {
         Write-Output "Creating local container"
 
-        $containerName = $config.ContainerName
+        if ([string]::IsNullOrWhiteSpace($ContainerName)) {
+            $ContainerName = $config.ContainerName
+        }
+        if ([string]::IsNullOrWhiteSpace($PublishedPort)) {
+            $PublishedPort = $config.PublishedPort
+        }
         $currentDate = Get-Date -Format "yyyy.MM.dd-HH.mm.ss"
-        $containerPath = "$mountsDir/$currentDate-$containerName"
+        $containerPath = "$mountsDir/$currentDate-$ContainerName"
 
         $dataPath = Join-Path $containerPath "pg-data"
         New-Item -ItemType Directory -Path $dataPath -Force | Out-Null
@@ -85,16 +102,16 @@ if ([string]::IsNullOrWhiteSpace($PostgresHost)) {
 
         docker container run `
             --detach `
-            --name $containerName `
+            --name $ContainerName `
             --network $networkName `
             --env "POSTGRES_PASSWORD=$PostgresPassword" `
             --mount "type=bind,source=$dataPath,destination=/var/lib/postgresql/data" `
             --mount "type=bind,source=$backupsPath,destination=/home/pg-backups" `
             --mount "type=bind,source=$psqlrc,destination=/root/.psqlrc,readonly" `
-            --publish "$($config.PublishedPort):5432" `
+            --publish "$($PublishedPort):5432" `
             postgres:15
 
-        $PostgresHost = $containerName
+        $PostgresHost = $ContainerName
         $PostgresPort = "5432"
 
         Write-Host "Waiting for database server to be ready..."
@@ -126,7 +143,24 @@ docker container run `
 if (-not [string]::IsNullOrWhiteSpace($DatabaseBackupFile)) {
     Write-Output "Restoring from backup"
 
-    . "$PSScriptRoot/Run-PsqlFile.ps1" -ConnectionString $connection -SqlFile $DatabaseBackupFile
+    if ($LocalRestore -and -not [string]::IsNullOrWhiteSpace($ContainerName)) {
+        # Use docker exec for local containers to avoid password issues with cluster dumps (pg_dumpall)
+        $sqlFileName = Split-Path -Path $DatabaseBackupFile -Leaf
+        docker cp $DatabaseBackupFile "${ContainerName}:/tmp/$sqlFileName"
+        docker exec $ContainerName psql -U postgres -f "/tmp/$sqlFileName"
+
+        # Cluster dumps may contain ALTER ROLE that overwrites passwords, reset them
+        docker exec $ContainerName psql -U postgres -c "ALTER ROLE postgres WITH PASSWORD '$PostgresPassword';"
+        docker exec $ContainerName psql -U postgres -c "ALTER ROLE taylorbot WITH PASSWORD '$TaylorBotRolePassword';"
+    }
+    else {
+        $restoreArgs = @{
+            ConnectionString = $connection
+            SqlFile          = $DatabaseBackupFile
+        }
+        if ($ContinueOnError) { $restoreArgs.ContinueOnError = $true }
+        . "$PSScriptRoot/Run-PsqlFile.ps1" @restoreArgs
+    }
 }
 
 if (-not $SkipSqitch) {

@@ -7,13 +7,13 @@
         "port": 5437,
         "database": "taylorbot",
         "user": "taylorbot",
-        "password": "YOUR_TAYLORBOT_ROLE_PASSWORD_HERE"
+        "password": "yearbook"
     },
     "dumpCurrentYear": {
         "host": "localhost",
         "port": 5438,
         "database": "taylorbot",
         "user": "taylorbot",
-        "password": "YOUR_TAYLORBOT_ROLE_PASSWORD_HERE"
+        "password": "yearbook"
     }
 }

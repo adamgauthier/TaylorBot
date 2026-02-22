@@ -3,7 +3,10 @@ param (
     [string]$SqlFile,
 
     [Parameter(Mandatory = $false)]
-    [string]$ConnectionString
+    [string]$ConnectionString,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$ContinueOnError
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -24,9 +27,19 @@ if (-not $networkExists) {
 
 $sqlFileName = Split-Path -Path $SqlFile -Leaf
 
-docker container run `
-    --rm `
-    --network $networkName `
-    --mount "type=bind,source=$SqlFile,destination=/sqlscripts/$sqlFileName,readonly" `
-    postgres:15 `
-    psql --variable=ON_ERROR_STOP=1 --file=/sqlscripts/$sqlFileName "$ConnectionString/taylorbot"
+if ($ContinueOnError) {
+    docker container run `
+        --rm `
+        --network $networkName `
+        --mount "type=bind,source=$SqlFile,destination=/sqlscripts/$sqlFileName,readonly" `
+        postgres:15 `
+        psql --file=/sqlscripts/$sqlFileName "$ConnectionString/taylorbot"
+}
+else {
+    docker container run `
+        --rm `
+        --network $networkName `
+        --mount "type=bind,source=$SqlFile,destination=/sqlscripts/$sqlFileName,readonly" `
+        postgres:15 `
+        psql --variable=ON_ERROR_STOP=1 --file=/sqlscripts/$sqlFileName "$ConnectionString/taylorbot"
+}

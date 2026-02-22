@@ -37,6 +37,7 @@ switch (mode)
     case "query-all-activity":
         {
             var config = JsonSerializer.Deserialize(File.ReadAllText("yearbook.json"), YearbookJsonContext.Default.YearbookConfig)!;
+            var includeAllUsers = args.Length > 1 && args[1] == "--include-all-users";
             var year = config.year;
             await using NpgsqlConnection connPrev = new(config.dumpPreviousYear.ToConnectionString());
             await using NpgsqlConnection connCurr = new(config.dumpCurrentYear.ToConnectionString());
@@ -58,11 +59,16 @@ switch (mode)
             }
             Console.WriteLine($"Got {rowsPrev.Count} rows from previous year dump");
 
+            var hasUsernameColumn = await Constants.HasUsernameColumn(connCurr);
+            var (usernameSelect, joinClause) = Constants.GetUsernameJoin(hasUsernameColumn);
+            var isBigintJoinedAt = await Constants.IsFirstJoinedAtBigint(connCurr);
+            var firstJoinedAtSelect = Constants.GetFirstJoinedAtSelect(isBigintJoinedAt);
+
             List<CurrentYearRow> rowsCurr = [];
-            await using (NpgsqlCommand cmd = new("""
-            SELECT gm.user_id, gm.message_count, gm.first_joined_at, gm.minute_count, u.username
+            await using (NpgsqlCommand cmd = new($"""
+            SELECT gm.user_id, gm.message_count, {firstJoinedAtSelect}, gm.minute_count, {usernameSelect}
             FROM guilds.guild_members AS gm
-            JOIN users.users AS u ON gm.user_id = u.user_id
+            {joinClause}
             WHERE gm.guild_id = '115332333745340416'
             """, connCurr))
             await using (var reader = await cmd.ExecuteReaderAsync())
@@ -103,19 +109,20 @@ switch (mode)
                     (double)minuteCount / daysDiff
                 );
             })
-            .Where(u => u.messageCountThisYear > 10)
+            .Where(u => includeAllUsers || u.messageCountThisYear > 10)
             .OrderByDescending(u => u.minutesPerDay)
             .ToList();
 
             Directory.CreateDirectory("output");
             var outputFile = Path.Combine("output", $"most_active_users_{year}.json");
             File.WriteAllText(outputFile, JsonSerializer.Serialize(users, YearbookJsonContext.Default.ListAllActivityUser));
-            Console.WriteLine($"Wrote {users.Count} users to {outputFile}");
+            Console.WriteLine($"Wrote {users.Count} users to {outputFile}{(includeAllUsers ? " (all users, no activity filter)" : "")}");
             break;
         }
     case "query-new-activity":
         {
             var config = JsonSerializer.Deserialize(File.ReadAllText("yearbook.json"), YearbookJsonContext.Default.YearbookConfig)!;
+            var sortByMinutes = args.Length > 1 && args[1] == "--sort-by-minutes";
             var year = config.year;
             await using NpgsqlConnection connCurr = new(config.dumpCurrentYear.ToConnectionString());
             await connCurr.OpenAsync();
@@ -124,18 +131,31 @@ switch (mode)
             DateTimeOffset joinedBefore = new DateTimeOffset(year, config.dumpMonth, config.dumpDay, 0, 0, 0, TimeSpan.Zero).AddMonths(-1);
             DateTimeOffset referenceEnd = new(year, config.dumpMonth, config.dumpDay, 0, 0, 0, TimeSpan.Zero);
 
+            var hasUsernameColumn = await Constants.HasUsernameColumn(connCurr);
+            var (usernameSelect, joinClause) = Constants.GetUsernameJoin(hasUsernameColumn);
+            var isBigintJoinedAt = await Constants.IsFirstJoinedAtBigint(connCurr);
+            var firstJoinedAtSelect = Constants.GetFirstJoinedAtSelect(isBigintJoinedAt);
+
             List<CurrentYearRow> rows = [];
-            await using (NpgsqlCommand cmd = new("""
-            SELECT gm.user_id, gm.message_count, gm.first_joined_at, gm.minute_count, u.username
+            await using (NpgsqlCommand cmd = new($"""
+            SELECT gm.user_id, gm.message_count, {firstJoinedAtSelect}, gm.minute_count, {usernameSelect}
             FROM guilds.guild_members AS gm
-            INNER JOIN users.users AS u ON gm.user_id = u.user_id
+            {joinClause}
             WHERE gm.guild_id = '115332333745340416'
                 AND gm.first_joined_at >= @joinedAfter
                 AND gm.first_joined_at <= @joinedBefore
             """, connCurr))
             {
-                cmd.Parameters.AddWithValue("joinedAfter", joinedAfter.UtcDateTime);
-                cmd.Parameters.AddWithValue("joinedBefore", joinedBefore.UtcDateTime);
+                if (isBigintJoinedAt)
+                {
+                    cmd.Parameters.AddWithValue("joinedAfter", joinedAfter.ToUnixTimeMilliseconds());
+                    cmd.Parameters.AddWithValue("joinedBefore", joinedBefore.ToUnixTimeMilliseconds());
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("joinedAfter", joinedAfter.UtcDateTime);
+                    cmd.Parameters.AddWithValue("joinedBefore", joinedBefore.UtcDateTime);
+                }
                 await using var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
@@ -167,72 +187,79 @@ switch (mode)
                     (double)r.MinuteCount / daysDiff
                 );
             })
-            .OrderByDescending(u => u.minutesPerDay + u.messagesPerDay)
+            .OrderByDescending(u => sortByMinutes ? u.minutesPerDay : u.minutesPerDay + u.messagesPerDay)
             .ToList();
 
             Directory.CreateDirectory("output");
             var outputFile = Path.Combine("output", $"most_active_new_users_{year}.json");
             File.WriteAllText(outputFile, JsonSerializer.Serialize(users, YearbookJsonContext.Default.ListNewActivityUser));
-            Console.WriteLine($"Wrote {users.Count} users to {outputFile}");
+            Console.WriteLine($"Wrote {users.Count} users to {outputFile}{(sortByMinutes ? " (sorted by minutesPerDay)" : "")}");
             break;
         }
     case "csv-all":
         {
             var config = JsonSerializer.Deserialize(File.ReadAllText("yearbook.json"), YearbookJsonContext.Default.YearbookConfig)!;
+            var sortByMinutes = args.Length > 1 && args[1] == "--sort-by-minutes";
             var jsonFilePath = Path.Combine("output", $"most_active_users_{config.year}.json");
             var csvFilePath = Path.Combine("output", Path.ChangeExtension(Path.GetFileName(jsonFilePath), ".csv"));
 
             var jsonText = File.ReadAllText(jsonFilePath);
             var users = JsonSerializer.Deserialize(jsonText, YearbookJsonContext.Default.ListCsvAllUser) ?? throw new InvalidOperationException();
 
+            var filtered = users
+                .Where(u =>
+                    !Constants.BotUserIds.Contains(u.user_id)
+                    && u.messagesPerDay.HasValue
+                    && u.minutesPerDay.HasValue
+                    && u.messageCountThisYear.HasValue
+                    && u.minuteCountThisYear.HasValue
+                    && u.messageCountThisYear > 10)
+                .Select(u => u with { activityScore = (u.messageCountThisYear!.Value + u.minuteCountThisYear!.Value * 1.5) / 2 });
+
             using (StreamWriter writer = new(csvFilePath))
             using (CsvWriter csv = new(writer, new CsvConfiguration(CultureInfo.InvariantCulture)))
             {
                 csv.WriteRecords(
-                    users
-                    .Where(u =>
-                        !Constants.BotUserIds.Contains(u.user_id)
-                        && u.messagesPerDay.HasValue
-                        && u.minutesPerDay.HasValue
-                        && u.messageCountThisYear.HasValue
-                        && u.minuteCountThisYear.HasValue
-                        && u.messageCountThisYear > 10)
-                    .Select(u => u with { activityScore = (u.messageCountThisYear!.Value + u.minuteCountThisYear!.Value * 1.5) / 2 })
-                    .OrderByDescending(u => u.activityScore)
+                    (sortByMinutes
+                        ? filtered.OrderByDescending(u => u.minutesPerDay)
+                        : filtered.OrderByDescending(u => u.activityScore))
                     .Select((u, i) => u with { serverRank = i + 1 }));
             }
 
-            Console.WriteLine($"CSV file '{csvFilePath}' has been created successfully.");
+            Console.WriteLine($"CSV file '{csvFilePath}' has been created successfully.{(sortByMinutes ? " (sorted by minutesPerDay)" : "")}");
             break;
         }
     case "csv-new":
         {
             var config = JsonSerializer.Deserialize(File.ReadAllText("yearbook.json"), YearbookJsonContext.Default.YearbookConfig)!;
+            var sortByMinutes = args.Length > 1 && args[1] == "--sort-by-minutes";
             var jsonFilePath = Path.Combine("output", $"most_active_new_users_{config.year}.json");
             var csvFilePath = Path.Combine("output", Path.ChangeExtension(Path.GetFileName(jsonFilePath), ".csv"));
 
             var jsonText = File.ReadAllText(jsonFilePath);
             var users = JsonSerializer.Deserialize(jsonText, YearbookJsonContext.Default.ListCsvNewUser) ?? throw new InvalidOperationException();
 
+            var filtered = users.Where(u =>
+                u.first_joined_at != null
+                && u.messagesPerDay.HasValue
+                && u.minutesPerDay.HasValue
+                && u.message_count.HasValue
+                && u.minute_count.HasValue
+                && u.message_count > 10
+                && u.minute_count > 10
+                && u.minutesPerDay >= 1);
+
             using (StreamWriter writer = new(csvFilePath))
             using (CsvWriter csv = new(writer, new CsvConfiguration(CultureInfo.InvariantCulture)))
             {
-                csv.WriteRecords(users.Where(u =>
-                    u.first_joined_at != null
-                    && u.messagesPerDay.HasValue
-                    && u.minutesPerDay.HasValue
-                    && u.message_count.HasValue
-                    && u.minute_count.HasValue
-                    && u.message_count > 10
-                    && u.minute_count > 10
-                    && u.minutesPerDay >= 1)
+                csv.WriteRecords(filtered
                     .Select(u => u with { perDayActivityScore = (u.messagesPerDay!.Value + u.minutesPerDay!.Value * 1.5) / 2 })
-                    .OrderByDescending(u => u.perDayActivityScore)
+                    .OrderByDescending(u => sortByMinutes ? u.minutesPerDay!.Value : u.perDayActivityScore!.Value)
                     .Take(300)
                     .Select((u, i) => u with { perDayActivityRank = i + 1 }));
             }
 
-            Console.WriteLine($"CSV file '{csvFilePath}' has been created successfully.");
+            Console.WriteLine($"CSV file '{csvFilePath}' has been created successfully.{(sortByMinutes ? " (sorted by minutesPerDay)" : "")}");
             break;
         }
     case "generate-images":
@@ -409,6 +436,42 @@ static class Constants
         };
         return $"{date:MMMM} {day}{suffix} {date:yyyy}";
     }
+
+    public static async Task<bool> HasUsernameColumn(NpgsqlConnection conn)
+    {
+        await using NpgsqlCommand cmd = new("""
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema = 'users' AND table_name = 'users' AND column_name = 'username'
+            )
+            """, conn);
+        return (bool)(await cmd.ExecuteScalarAsync())!;
+    }
+
+    public static async Task<bool> IsFirstJoinedAtBigint(NpgsqlConnection conn)
+    {
+        await using NpgsqlCommand cmd = new("""
+            SELECT data_type FROM information_schema.columns
+            WHERE table_schema = 'guilds' AND table_name = 'guild_members' AND column_name = 'first_joined_at'
+            """, conn);
+        var dataType = (string)(await cmd.ExecuteScalarAsync())!;
+        return dataType == "bigint";
+    }
+
+    public static string GetFirstJoinedAtSelect(bool isBigint) =>
+        isBigint ? "to_timestamp(gm.first_joined_at / 1000.0) AS first_joined_at" : "gm.first_joined_at";
+
+    // Returns (usernameSelect, joinClause) for the current year query
+    public static (string usernameSelect, string joinClause) GetUsernameJoin(bool hasUsernameColumn) =>
+        hasUsernameColumn
+            ? ("u.username", "JOIN users.users AS u ON gm.user_id = u.user_id")
+            : ("un.username", """
+                JOIN (
+                    SELECT maxed.user_id, u.username FROM (
+                        SELECT user_id, MAX(changed_at) AS max_changed_at FROM users.usernames GROUP BY user_id
+                    ) AS maxed JOIN users.usernames AS u ON u.user_id = maxed.user_id AND u.changed_at = maxed.max_changed_at
+                ) AS un ON gm.user_id = un.user_id
+                """);
 }
 
 record YearbookConfig(int year, int dumpMonth, int dumpDay, DbConfig dumpPreviousYear, DbConfig dumpCurrentYear);
