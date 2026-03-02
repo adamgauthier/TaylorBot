@@ -197,7 +197,23 @@ public static class DiscordCommandsProgram
             })
             .AddTransient<CustomSearchAPIService>()
             .ConfigureRequired<ImageOptions>(config, "Image")
-            .AddTransient<IImageSearchClient, GoogleCustomSearchClient>()
+            .ConfigureRequired<SerpApiOptions>(config, "SerpApi")
+            .AddSingleton<IValidateOptions<SerpApiOptions>, SerpApiOptionsValidator>()
+            .AddTransient<GoogleCustomSearchClient>()
+            .AddHttpClient<SerpApiImageSearchClient>().Services
+            .AddTransient<IImageSearchClient>(provider =>
+            {
+                var random = provider.GetRequiredService<IPseudoRandom>();
+                if (random.GetInt32Exclusive(0, 100) < 5)
+                {
+                    return provider.GetRequiredService<SerpApiImageSearchClient>();
+                }
+
+                var env = provider.GetRequiredService<IHostEnvironment>();
+                return env.IsDevelopment()
+                    ? provider.GetRequiredService<SerpApiImageSearchClient>()
+                    : provider.GetRequiredService<GoogleCustomSearchClient>();
+            })
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
