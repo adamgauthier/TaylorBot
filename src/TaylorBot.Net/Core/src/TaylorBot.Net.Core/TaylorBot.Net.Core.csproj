@@ -14,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseTaylorBotFeed)' == 'true'">
-    <PackageReference Include="Discord.Net" Version="3.18.0-nightly.20250814.611" />
+    <PackageReference Include="Discord.Net" Version="3.19.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseTaylorBotFeed)' != 'true'">
-    <PackageReference Include="Discord.Net" Version="3.18.0" />
+    <PackageReference Include="Discord.Net" Version="3.19.0" />
   </ItemGroup>
 
 </Project>
