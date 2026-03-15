@@ -29,7 +29,7 @@ public class InspectServerSlashCommand(InGuildPrecondition.Factory inGuild) : IS
 
                 var embed = new EmbedBuilder()
                     .WithGuildAsAuthor(guild)
-                    .WithColor(orderedRoles.First().Color)
+                    .WithColor(orderedRoles.First().Colors.PrimaryColor)
                     .AddField("Id", $"`{guild.Id}`", inline: true)
                     .AddField("Owner", MentionUtils.MentionUser(guild.OwnerId), inline: true)
                     .AddField("Members", guild is SocketGuild socketGuild ? $"{socketGuild.MemberCount}" : "?", inline: true)
