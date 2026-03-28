@@ -1,0 +1,34 @@
+{
+  "name": "egg",
+  "description": "Easter egg hunt commands",
+  "options": [
+    {
+      "name": "verify",
+      "description": "Verify if an egg is valid or not",
+      "type": 1,
+      "options": [
+        {
+          "name": "code",
+          "description": "The egg code to verify",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "description": "List all eggs and how many people solved them",
+      "type": 1
+    },
+    {
+      "name": "leaderboard",
+      "description": "Show the leaderboard of the hunters who found the most eggs",
+      "type": 1
+    },
+    {
+      "name": "profile",
+      "description": "List all eggs you have found",
+      "type": 1
+    }
+  ]
+}
