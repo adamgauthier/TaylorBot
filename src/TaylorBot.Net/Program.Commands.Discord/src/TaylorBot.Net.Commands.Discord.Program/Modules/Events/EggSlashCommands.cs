@@ -234,7 +234,7 @@ public class EggVerifySlashCommand(IEggRepository eggRepository, EggService eggS
 
                         Here are some tips:
                         - Egg codes are always **16 characters long**
-                        - Egg codes are made up of **uppercase letters** and **numbers**
+                        - Egg codes are made up of **uppercase letters** and/or **numbers**
                         - Egg codes are usually **hidden next to an egg emoji, picture or text**
 
                         Here's an example of a valid code: `ABCDEFGH12345678` ✅
