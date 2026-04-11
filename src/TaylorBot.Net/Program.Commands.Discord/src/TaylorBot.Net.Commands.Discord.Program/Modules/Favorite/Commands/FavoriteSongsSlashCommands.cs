@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -11,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 public interface IFavoriteSongsRepository
 {
-    ValueTask<string?> GetFavoriteSongsAsync(DiscordUser user);
+    ValueTask<TextAttributeValue?> GetFavoriteSongsAsync(DiscordUser user);
     ValueTask SetFavoriteSongsAsync(DiscordUser user, string songs);
     ValueTask ClearFavoriteSongsAsync(DiscordUser user);
 }
@@ -30,14 +31,18 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
     public const string EmbedTitle = "Favorite Songs List 🎵";
 
-    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteSongs)
+    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteSongs, DateTimeOffset? setAt = null)
     {
-        return new EmbedBuilder()
+        var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithUserAsAuthor(user)
             .WithTitle(EmbedTitle)
-            .WithDescription(favoriteSongs)
-        .Build();
+            .WithDescription(favoriteSongs);
+
+        if (setAt is { } s && s != DateTimeOffset.MinValue)
+            embed.WithTimestamp(s);
+
+        return embed.Build();
     }
 
     public Command Show(DiscordUser user, RunContext context) => new(
@@ -48,7 +53,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
             if (favoriteSongs != null)
             {
-                Embed embed = BuildDisplayEmbed(user, favoriteSongs);
+                Embed embed = BuildDisplayEmbed(user, favoriteSongs.Value, favoriteSongs.SetAt);
                 return new EmbedResult(embed);
             }
             else

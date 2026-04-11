@@ -5,7 +5,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure
 
 public class FavoriteSongsPostgresRepository(TextAttributePostgresRepository textAttributePostgresRepository) : IFavoriteSongsRepository
 {
-    public ValueTask<string?> GetFavoriteSongsAsync(DiscordUser user) =>
+    public ValueTask<TextAttributeValue?> GetFavoriteSongsAsync(DiscordUser user) =>
         textAttributePostgresRepository.GetAttributeAsync(user, "favoritesongs");
 
     public ValueTask SetFavoriteSongsAsync(DiscordUser user, string songs) =>

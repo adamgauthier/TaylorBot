@@ -3,7 +3,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
-public record UserBirthday(DateOnly Date, bool IsPrivate)
+public record UserBirthday(DateOnly Date, bool IsPrivate, DateTimeOffset SetAt)
 {
     public const int NoYearValue = 1804;
 

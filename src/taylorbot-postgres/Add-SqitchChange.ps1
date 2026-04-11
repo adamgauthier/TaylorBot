@@ -34,5 +34,11 @@ Set-Location "$PSScriptRoot/sqitch"
 $Date = Get-Date -Format "yyyyMMdd"
 $FullChangeName = "${Date}_${ChangeName}"
 
-C:\WINDOWS\system32\wsl.exe --distribution Ubuntu-20.04 -- `
-    bash -c "export SQITCH_FULLNAME='$FullName' && export SQITCH_EMAIL='$Email' && ./sqitch.sh add --change-name '$FullChangeName' --note '$Note'"
+$env:SQITCH_FULLNAME = $FullName
+$env:SQITCH_EMAIL = $Email
+
+if ($env:OS -like "Windows*") {
+    & cmd /c "sqitch.bat add --change-name `"$FullChangeName`" --note `"$Note`""
+} else {
+    & bash -c "./sqitch.sh add --change-name '$FullChangeName' --note '$Note'"
+}

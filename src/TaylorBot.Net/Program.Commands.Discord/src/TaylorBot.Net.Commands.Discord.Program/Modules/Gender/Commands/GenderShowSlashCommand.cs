@@ -30,8 +30,11 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository, CommandM
                     .WithUserAsAuthor(user)
                     .WithDescription(
                         $"""
-                        {user.Mention}'s gender is **{gender}**. 🆔
+                        {user.Mention}'s gender is **{gender.Value}**. 🆔
                         """);
+
+                if (gender.SetAt != DateTimeOffset.MinValue)
+                    embed.WithTimestamp(gender.SetAt);
 
                 return new EmbedResult(embed.Build());
             }

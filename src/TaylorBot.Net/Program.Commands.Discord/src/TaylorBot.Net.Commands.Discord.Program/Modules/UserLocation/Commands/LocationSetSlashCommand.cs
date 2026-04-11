@@ -34,7 +34,7 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
                                 """));
 
                         case TimeZoneResult timeZone:
-                            await locationRepository.SetLocationAsync(context.User, new(location, timeZone.TimeZoneId));
+                            await locationRepository.SetLocationAsync(context.User, new(location, timeZone.TimeZoneId, SetAt: default));
                             return new EmbedResult(EmbedFactory.CreateSuccess(
                                 $"""
                                 Your location has been set to **{location.FormattedAddress}** 🌍

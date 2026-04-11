@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -11,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 public interface IObsessionRepository
 {
-    ValueTask<string?> GetObsessionAsync(DiscordUser user);
+    ValueTask<TextAttributeValue?> GetObsessionAsync(DiscordUser user);
     ValueTask SetObsessionAsync(DiscordUser user, string obsession);
     ValueTask ClearObsessionAsync(DiscordUser user);
 }
@@ -28,14 +29,18 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
 
     public const string EmbedTitle = "Obsession ❤️";
 
-    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteObsession)
+    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteObsession, DateTimeOffset? setAt = null)
     {
-        return new EmbedBuilder()
+        var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithUserAsAuthor(user)
             .WithTitle(EmbedTitle)
-            .WithImageUrl(favoriteObsession)
-            .Build();
+            .WithImageUrl(favoriteObsession);
+
+        if (setAt is { } s && s != DateTimeOffset.MinValue)
+            embed.WithTimestamp(s);
+
+        return embed.Build();
     }
 
     public Command Show(DiscordUser user, RunContext context) => new(
@@ -46,7 +51,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
 
             if (favoriteObsession != null)
             {
-                if (!Uri.TryCreate(favoriteObsession, UriKind.Absolute, out var url) ||
+                if (!Uri.TryCreate(favoriteObsession.Value, UriKind.Absolute, out var url) ||
                     !url.IsWellFormedOriginalString() || url.Scheme is not ("http" or "https"))
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
@@ -56,7 +61,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                         """));
                 }
 
-                Embed embed = BuildDisplayEmbed(user, favoriteObsession);
+                Embed embed = BuildDisplayEmbed(user, favoriteObsession.Value, favoriteObsession.SetAt);
                 return new EmbedResult(embed);
             }
             else

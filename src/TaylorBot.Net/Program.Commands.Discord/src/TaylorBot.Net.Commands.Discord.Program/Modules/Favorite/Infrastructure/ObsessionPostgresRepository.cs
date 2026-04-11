@@ -5,7 +5,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure
 
 public class ObsessionPostgresRepository(TextAttributePostgresRepository textAttributePostgresRepository) : IObsessionRepository
 {
-    public ValueTask<string?> GetObsessionAsync(DiscordUser user) =>
+    public ValueTask<TextAttributeValue?> GetObsessionAsync(DiscordUser user) =>
         textAttributePostgresRepository.GetAttributeAsync(user, "waifu");
 
     public ValueTask SetObsessionAsync(DiscordUser user, string obsession) =>

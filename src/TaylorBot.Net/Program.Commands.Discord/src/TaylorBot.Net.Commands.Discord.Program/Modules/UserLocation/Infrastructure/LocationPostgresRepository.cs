@@ -7,7 +7,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.UserLocation.Infrastruc
 
 public class LocationPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : ILocationRepository
 {
-    private sealed record LocationDto(string latitude, string longitude, string formatted_address, string timezone_id);
+    private sealed record LocationDto(string latitude, string longitude, string formatted_address, string timezone_id, DateTime set_at);
 
     public async ValueTask<StoredLocation?> GetLocationAsync(DiscordUser user)
     {
@@ -15,7 +15,7 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
 
         var location = await connection.QuerySingleOrDefaultAsync<LocationDto?>(
             """
-            SELECT latitude, longitude, formatted_address, timezone_id
+            SELECT latitude, longitude, formatted_address, timezone_id, set_at
             FROM attributes.location_attributes
             WHERE user_id = @UserId;
             """,
@@ -31,7 +31,8 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
                 Longitude: location.longitude,
                 FormattedAddress: location.formatted_address,
                 IsGeneral: null),
-            TimeZoneId: location.timezone_id
+            TimeZoneId: location.timezone_id,
+            SetAt: new DateTimeOffset(location.set_at, TimeSpan.Zero)
         ) : null;
     }
 
@@ -47,7 +48,8 @@ public class LocationPostgresRepository(PostgresConnectionFactory postgresConnec
               formatted_address = excluded.formatted_address,
               longitude = excluded.longitude,
               latitude = excluded.latitude,
-              timezone_id = excluded.timezone_id;
+              timezone_id = excluded.timezone_id,
+              set_at = NOW();
             """,
             new
             {

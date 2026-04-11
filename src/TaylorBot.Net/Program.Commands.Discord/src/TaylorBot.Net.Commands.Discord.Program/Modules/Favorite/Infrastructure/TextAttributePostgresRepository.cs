@@ -4,15 +4,19 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 
+public record TextAttributeValue(string Value, DateTimeOffset SetAt);
+
 public class TextAttributePostgresRepository(PostgresConnectionFactory postgresConnectionFactory)
 {
-    public async ValueTask<string?> GetAttributeAsync(DiscordUser user, string attributeId)
+    private sealed record TextAttributeDto(string attribute_value, DateTime set_at);
+
+    public async ValueTask<TextAttributeValue?> GetAttributeAsync(DiscordUser user, string attributeId)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
 
-        return await connection.QuerySingleOrDefaultAsync<string>(
+        var dto = await connection.QuerySingleOrDefaultAsync<TextAttributeDto?>(
             """
-            SELECT attribute_value FROM attributes.text_attributes
+            SELECT attribute_value, set_at FROM attributes.text_attributes
             WHERE user_id = @UserId AND attribute_id = @AttributeId;
             """,
             new
@@ -21,6 +25,8 @@ public class TextAttributePostgresRepository(PostgresConnectionFactory postgresC
                 AttributeId = attributeId,
             }
         );
+
+        return dto != null ? new(dto.attribute_value, new DateTimeOffset(dto.set_at, TimeSpan.Zero)) : null;
     }
 
     public async ValueTask SetAttributeAsync(DiscordUser user, string attributeId, string attributeValue)
@@ -32,7 +38,8 @@ public class TextAttributePostgresRepository(PostgresConnectionFactory postgresC
             INSERT INTO attributes.text_attributes (attribute_id, user_id, attribute_value)
             VALUES (@AttributeId, @UserId, @AttributeValue)
             ON CONFLICT (attribute_id, user_id) DO UPDATE
-              SET attribute_value = excluded.attribute_value;
+              SET attribute_value = excluded.attribute_value,
+                  set_at = NOW();
             """,
             new
             {

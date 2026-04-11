@@ -101,7 +101,7 @@ public class BirthdaySetSlashCommand(
             ageCalculator.TryAddAgeRolesInBackground(context, context.User, age);
         }
 
-        await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate));
+        await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate, SetAt: default));
 
         var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)

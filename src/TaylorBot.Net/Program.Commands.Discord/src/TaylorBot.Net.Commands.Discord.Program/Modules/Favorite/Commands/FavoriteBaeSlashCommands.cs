@@ -2,6 +2,7 @@
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Users;
 using TaylorBot.Net.Commands.PostExecution;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Embed;
@@ -11,7 +12,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Commands;
 
 public interface IBaeRepository
 {
-    ValueTask<string?> GetBaeAsync(DiscordUser user);
+    ValueTask<TextAttributeValue?> GetBaeAsync(DiscordUser user);
     ValueTask SetBaeAsync(DiscordUser user, string bae);
     ValueTask ClearBaeAsync(DiscordUser user);
 }
@@ -28,14 +29,18 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository, CommandMe
 
     public const string EmbedTitle = "Bae ❤️";
 
-    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteBae)
+    public static Embed BuildDisplayEmbed(DiscordUser user, string favoriteBae, DateTimeOffset? setAt = null)
     {
-        return new EmbedBuilder()
+        var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithUserAsAuthor(user)
             .WithTitle(EmbedTitle)
-            .WithDescription(favoriteBae)
-            .Build();
+            .WithDescription(favoriteBae);
+
+        if (setAt is { } s && s != DateTimeOffset.MinValue)
+            embed.WithTimestamp(s);
+
+        return embed.Build();
     }
 
     public Command Show(DiscordUser user, RunContext context) => new(
@@ -46,7 +51,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository, CommandMe
 
             if (favoriteBae != null)
             {
-                Embed embed = BuildDisplayEmbed(user, favoriteBae);
+                Embed embed = BuildDisplayEmbed(user, favoriteBae.Value, favoriteBae.SetAt);
                 return new EmbedResult(embed);
             }
             else

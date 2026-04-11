@@ -5,7 +5,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Favorite.Infrastructure
 
 public class BaePostgresRepository(TextAttributePostgresRepository textAttributePostgresRepository) : IBaeRepository
 {
-    public ValueTask<string?> GetBaeAsync(DiscordUser user) =>
+    public ValueTask<TextAttributeValue?> GetBaeAsync(DiscordUser user) =>
         textAttributePostgresRepository.GetAttributeAsync(user, "bae");
 
     public ValueTask SetBaeAsync(DiscordUser user, string bae) =>

@@ -6,7 +6,7 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Gender.Infrastructure;
 
 public class GenderPostgresRepository(TextAttributePostgresRepository textAttributePostgresRepository) : IGenderRepository
 {
-    public ValueTask<string?> GetGenderAsync(DiscordUser user) =>
+    public ValueTask<TextAttributeValue?> GetGenderAsync(DiscordUser user) =>
         textAttributePostgresRepository.GetAttributeAsync(user, "gender");
 
     public ValueTask SetGenderAsync(DiscordUser user, string gender) =>

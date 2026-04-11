@@ -29,7 +29,7 @@ public class LastFmUsernamePostgresRepository(PostgresConnectionFactory postgres
         await connection.ExecuteAsync(
             """
             INSERT INTO attributes.text_attributes (user_id, attribute_id, attribute_value) VALUES (@UserId, 'lastfm', @LastFmUsername)
-            ON CONFLICT (user_id, attribute_id) DO UPDATE SET attribute_value = excluded.attribute_value;
+            ON CONFLICT (user_id, attribute_id) DO UPDATE SET attribute_value = excluded.attribute_value, set_at = NOW();
             """,
             new
             {
