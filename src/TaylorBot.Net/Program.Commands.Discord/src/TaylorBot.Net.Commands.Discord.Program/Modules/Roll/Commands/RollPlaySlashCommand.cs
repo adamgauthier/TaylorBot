@@ -29,25 +29,70 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
 
             string color;
             int reward;
+            string? flair = null;
 
             switch (roll)
             {
-                case 0001: // the one
-                case 0007: // seven
-                case 0013: // 13
-                case 0015: // Fifteen
-                case 0022: // 22
-                case 0429: // April 29
-                case 0709: // July 9
-                case 1213: // December 13
+                case 0001:
                     reward = AnniversaryEvent.IsActive ? 200 : 100;
                     color = "#43b581";
+                    flair = "✨ *In my defense, I have none*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 0007:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "🍂 *Please picture me in the trees...*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 0013:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "🍀 *Lucky number 13*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 0015:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "🎒 *You just might find who you're supposed to be*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 0022:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "🥳 *I don't know about you, but I'm feeling 22*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 0429:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "🗓️ *Do you really want to know where I was April 29th?*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 0709:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "💋 *That July 9th, the beat of your heart...*";
+                    await rollStatsRepository.WinRollAsync(context.User, reward);
+                    break;
+
+                case 1213:
+                    reward = AnniversaryEvent.IsActive ? 200 : 100;
+                    color = "#43b581";
+                    flair = "🎂 *Taylor Day*";
                     await rollStatsRepository.WinRollAsync(context.User, reward);
                     break;
 
                 case 1989:
                     reward = AnniversaryEvent.IsActive ? 10_000 : 5_000;
                     color = "#00c3ff";
+                    flair = "💎 *I think I am finally clean*";
                     await rollStatsRepository.WinPerfectRollAsync(context.User, reward);
                     break;
 
@@ -63,13 +108,12 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
 
             return new EmbedResult(new EmbedBuilder()
                 .WithColor(DiscordColor.FromHexString(color))
-                .WithTitle("Rolling the Taylor Machine 🎲")
                 .WithDescription(
                     $"""
-                    You get: {string.Join("", paddedRoll.Select(digit => numberEmoji[byte.Parse($"{digit}")]))}
+                    ## 🎲 {string.Join("", paddedRoll.Select(digit => numberEmoji[byte.Parse($"{digit}")]))} 🎲
                     {(reward == 0
                         ? "Better luck next time! 😕"
-                        : $"You won {"taypoint".ToQuantity(reward, TaylorBotFormats.BoldReadable)}! 💰"
+                        : $"{flair}\nYou won {"taypoint".ToQuantity(reward, TaylorBotFormats.BoldReadable)}! 💰"
                     )}
                     """)
                 .Build());
