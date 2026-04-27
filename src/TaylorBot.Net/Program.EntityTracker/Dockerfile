@@ -9,6 +9,8 @@ ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":
 
 # copy csproj and restore as distinct layers
 COPY ./Directory.Build.props ./Directory.Build.props
+COPY ./Directory.Packages.props ./Directory.Packages.props
+COPY ./NuGet.Config ./NuGet.Config
 COPY ./.editorconfig ./.editorconfig
 COPY ./Core/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Core/src/${file%.*}/; done

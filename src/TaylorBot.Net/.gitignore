@@ -473,4 +473,4 @@ healthchecksdb
 # End of https://www.gitignore.io/api/aspnetcore,visualstudio
 
 # Ignore temporary manage nuget solution
-TaylorBot.Net.sln
+TaylorBot.Net.slnx
