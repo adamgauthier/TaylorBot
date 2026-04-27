@@ -383,7 +383,7 @@ public static class DiscordCommandsProgram
                 var env = provider.GetRequiredService<IHostEnvironment>();
                 return env.IsDevelopment()
                     ? new(accountUri, new DefaultAzureCredential())
-                    : new(accountUri, new ManagedIdentityCredential());
+                    : new(accountUri, new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned));
             })
             .AddKeyedSingleton<Lazy<BlobContainerClient>>("SignatureContainer", (provider, key) =>
             {

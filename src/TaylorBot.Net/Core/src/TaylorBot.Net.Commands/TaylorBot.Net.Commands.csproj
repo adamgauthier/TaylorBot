@@ -12,12 +12,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="System.Threading.RateLimiting" />
-    <PackageReference Include="System.Interactive.Async">
-      <ExcludeAssets>compile</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Linq.Async">
-      <ExcludeAssets>compile</ExcludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>
