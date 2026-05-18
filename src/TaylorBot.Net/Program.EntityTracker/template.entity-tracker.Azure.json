@@ -1,7 +1,0 @@
-{
-    "AzureResourceGroupName": "YOUR_GROUP_NAME_HERE",
-    "AzureResourceName": "YOUR_RESOURCE_NAME_HERE",
-    "AzureContainerAppEnvName": "YOUR_ENV_NAME_HERE",
-    "ContainerCpu": "0.25",
-    "ContainerMemory": "0.5Gi"
-}

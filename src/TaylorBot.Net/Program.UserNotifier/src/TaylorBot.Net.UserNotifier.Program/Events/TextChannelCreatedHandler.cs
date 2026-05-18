@@ -3,7 +3,7 @@ using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.EntityTracker.Domain;
 
-namespace TaylorBot.Net.EntityTracker.Program.Events;
+namespace TaylorBot.Net.UserNotifier.Program.Events;
 
 public class TextChannelCreatedHandler(TaskExceptionLogger taskExceptionLogger, EntityTrackerDomainService entityTrackerDomainService) : ITextChannelCreatedHandler
 {

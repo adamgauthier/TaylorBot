@@ -1,0 +1,13 @@
+{
+  "UserNotifierStartup": {
+    "RedditInitialDelay": "0.00:00:30",
+    "YoutubeInitialDelay": "0.00:00:45",
+    "TumblrInitialDelay": "0.00:01:00",
+    "BirthdayCalendarInitialDelay": "0.00:00:45",
+    "ReminderInitialDelay": "0.00:00:15",
+    "PatreonSyncInitialDelay": "0.00:02:00",
+    "BirthdayRoleAddInitialDelay": "0.00:01:00",
+    "BirthdayRoleRemoveInitialDelay": "0.00:01:30",
+    "BirthdayRewardInitialDelay": "0.00:05:00"
+  }
+}

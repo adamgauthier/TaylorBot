@@ -1,7 +1,0 @@
-﻿{
-  "DatabaseConnection": {
-    "Host": "localhost",
-    "Port": 14487,
-    "IncludeErrorDetail": true
-  }
-}

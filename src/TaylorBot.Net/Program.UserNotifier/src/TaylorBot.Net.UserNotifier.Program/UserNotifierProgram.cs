@@ -19,15 +19,26 @@ using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.EntityTracker.Domain;
+using TaylorBot.Net.EntityTracker.Domain.Options;
+using TaylorBot.Net.EntityTracker.Infrastructure;
 using TaylorBot.Net.MemberLogging.Domain;
 using TaylorBot.Net.MemberLogging.Domain.DiscordEmbed;
 using TaylorBot.Net.MemberLogging.Domain.Options;
 using TaylorBot.Net.MemberLogging.Domain.TextChannel;
 using TaylorBot.Net.MemberLogging.Infrastructure;
 using TaylorBot.Net.MessageLogging.Infrastructure;
+using TaylorBot.Net.MessagesTracker.Domain;
+using TaylorBot.Net.MessagesTracker.Domain.Options;
+using TaylorBot.Net.MessagesTracker.Infrastructure;
+using TaylorBot.Net.MinutesTracker.Domain;
+using TaylorBot.Net.MinutesTracker.Domain.Options;
+using TaylorBot.Net.MinutesTracker.Infrastructure;
 using TaylorBot.Net.PatreonSync.Domain;
 using TaylorBot.Net.PatreonSync.Domain.Options;
 using TaylorBot.Net.PatreonSync.Infrastructure;
+using TaylorBot.Net.QuickStart.Domain;
+using TaylorBot.Net.QuickStart.Domain.Options;
 using TaylorBot.Net.RedditNotifier.Domain;
 using TaylorBot.Net.RedditNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.RedditNotifier.Domain.Options;
@@ -61,7 +72,13 @@ public sealed class UserNotifierProgram
                     .AddTaylorBotApplication(env)
                     .AddDatabaseConnection(env)
                     .AddRedisConnection(env)
+                    .AddEntityTracker(env)
                     .AddMessageLogging(env)
+                    .AddJsonFile(path: "Settings/memberLogging.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: "Settings/quickStartEmbed.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: "Settings/minutesTracker.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: "Settings/messagesTracker.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile(path: "Settings/userNotifierStartup.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/birthdayRewardNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/reminderNotifier.json", optional: false, reloadOnChange: true)
                     .AddJsonFile(path: "Settings/memberLog.json", optional: false, reloadOnChange: true)
@@ -84,8 +101,14 @@ public sealed class UserNotifierProgram
                     .AddTaylorBotApplicationServices(config)
                     .AddPostgresConnection(config, withTracing: false)
                     .AddRedisConnection(config)
+                    .AddEntityTrackerInfrastructure(config)
                     .AddMessageLogging(config)
+                    .ConfigureUserNotifierStartup(config)
+                    .AddQuickStart(config)
+                    .AddMemberJoinLogging(config)
                     .AddMemberLeaveLogging(config)
+                    .AddMinutesTracker(config)
+                    .AddMessagesTracker(config)
                     .AddBirthdayReward(config)
                     .AddBirthdayRole(config)
                     .AddPatreonSync(config)
@@ -96,13 +119,20 @@ public sealed class UserNotifierProgram
                     .AddBirthdayCalendarRefresh()
                     .AddTransient<SingletonTaskRunner>()
                     .AddTransient<IShardReadyHandler, ShardReadyHandler>()
+                    .AddTransient<IJoinedGuildHandler, QuickStartJoinedGuildHandler>()
+                    .AddTransient<IJoinedGuildHandler, UsernameJoinedGuildHandler>()
+                    .AddTransient<IUserUpdatedHandler, UserUpdatedHandler>()
+                    .AddTransient<IGuildUpdatedHandler, GuildUpdatedHandler>()
+                    .AddTransient<IGuildUserJoinedHandler, GuildUserJoinedHandler>()
                     .AddTransient<IGuildUserLeftHandler, GuildUserLeftHandler>()
+                    .AddTransient<ITextChannelCreatedHandler, TextChannelCreatedHandler>()
                     .AddTransient<IGuildUserBannedHandler, GuildUserBanHandler>()
                     .AddTransient<IGuildUserUnbannedHandler, GuildUserBanHandler>()
                     .AddTransient<IMessageDeletedHandler, MessageDeletedHandler>()
                     .AddTransient<IMessageUpdatedHandler, MessageUpdatedHandler>()
                     .AddTransient<IMessageBulkDeletedHandler, MessageBulkDeletedHandler>()
                     .AddTransient<IMessageReceivedHandler, MessageReceivedHandler>()
+                    .AddTransient<IUserMessageReceivedHandler, UserMessageReceivedHandler>()
                     .AddTransient<IReactionRemovedHandler, ReactionRemovedHandler>()
                     ;
             })
@@ -114,6 +144,48 @@ public sealed class UserNotifierProgram
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection ConfigureUserNotifierStartup(this IServiceCollection services, IConfiguration config)
+    {
+        return services.ConfigureRequired<Options.UserNotifierStartupOptions>(config, "UserNotifierStartup");
+    }
+
+    public static IServiceCollection AddQuickStart(this IServiceCollection services, IConfiguration config)
+    {
+        return services
+            .ConfigureRequired<QuickStartEmbedOptions>(config, "QuickStartEmbed")
+            .AddTransient<QuickStartDomainService>()
+            .AddTransient<QuickStartChannelFinder>();
+    }
+
+    public static IServiceCollection AddMemberJoinLogging(this IServiceCollection services, IConfiguration config)
+    {
+        return services
+            .ConfigureRequired<MemberLoggingOptions>(config, "MemberLogging")
+            .AddTransient<MemberLogChannelFinder>()
+            .AddTransient<GuildMemberJoinedLoggerService>()
+            .AddTransient<GuildMemberJoinedEmbedFactory>()
+            .AddTransient<IMemberLoggingChannelRepository, MemberLoggingChannelRepository>();
+    }
+
+    public static IServiceCollection AddMinutesTracker(this IServiceCollection services, IConfiguration config)
+    {
+        return services
+            .ConfigureRequired<MinutesTrackerOptions>(config, "MinutesTracker")
+            .AddTransient<IMinuteRepository, MinutePostgresRepository>()
+            .AddTransient<MinutesTrackerDomainService>();
+    }
+
+    public static IServiceCollection AddMessagesTracker(this IServiceCollection services, IConfiguration config)
+    {
+        return services
+            .ConfigureRequired<MessagesTrackerOptions>(config, "MessagesTracker")
+            .AddTransient<IMessageRepository, MessagesPostgresRepository>()
+            .AddTransient<ITextChannelMessageCountRepository, TextChannelMessageCountPostgresRepository>()
+            .AddTransient<IGuildUserLastSpokeRepository, GuildUserLastSpokePostgresRepository>()
+            .AddTransient<WordCounter>()
+            .AddTransient<MessagesTrackerDomainService>();
+    }
+
     public static IServiceCollection AddBirthdayCalendarRefresh(this IServiceCollection services)
     {
         return services

@@ -5,13 +5,22 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.MessagesTracker.Domain.Tests/TaylorBot.Net.MessagesTracker.Domain.Tests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.QuickStart.Domain.Tests/TaylorBot.Net.QuickStart.Domain.Tests.csproj" />
     <Project Path="Program.UserNotifier/test/TaylorBot.Net.BirthdayReward.Domain.Tests/TaylorBot.Net.BirthdayReward.Domain.Tests.csproj" />
   </Folder>
   <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />
   <Project Path="Core/src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj" />
   <Project Path="Core/src/TaylorBot.Net.Core/TaylorBot.Net.Core.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.EntityTracker.Domain/TaylorBot.Net.EntityTracker.Domain.csproj" />
+  <Project Path="Core/src/TaylorBot.Net.EntityTracker.Infrastructure/TaylorBot.Net.EntityTracker.Infrastructure.csproj" />
   <Project Path="Core/src/TaylorBot.Net.MemberLogging.Domain/TaylorBot.Net.MemberLogging.Domain.csproj" />
   <Project Path="Core/src/TaylorBot.Net.MemberLogging.Infrastructure/TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.MessagesTracker.Domain/TaylorBot.Net.MessagesTracker.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.MessagesTracker.Infrastructure/TaylorBot.Net.MessagesTracker.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.MinutesTracker.Domain/TaylorBot.Net.MinutesTracker.Domain.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.MinutesTracker.Infrastructure/TaylorBot.Net.MinutesTracker.Infrastructure.csproj" />
+  <Project Path="Program.UserNotifier/src/TaylorBot.Net.QuickStart.Domain/TaylorBot.Net.QuickStart.Domain.csproj" />
   <Project Path="Program.UserNotifier/src/TaylorBot.Net.BirthdayReward.Domain/TaylorBot.Net.BirthdayReward.Domain.csproj" />
   <Project Path="Program.UserNotifier/src/TaylorBot.Net.BirthdayReward.Infrastructure/TaylorBot.Net.BirthdayReward.Infrastructure.csproj" />
   <Project Path="Program.UserNotifier/src/TaylorBot.Net.MessageLogging.Domain/TaylorBot.Net.MessageLogging.Domain.csproj" />

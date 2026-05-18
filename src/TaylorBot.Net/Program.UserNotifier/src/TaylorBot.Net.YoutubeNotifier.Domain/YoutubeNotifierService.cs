@@ -18,8 +18,6 @@ public partial class YoutubeNotifierService(
 {
     public async Task StartCheckingYoutubesAsync()
     {
-        await Task.Delay(TimeSpan.FromSeconds(30));
-
         while (true)
         {
             try

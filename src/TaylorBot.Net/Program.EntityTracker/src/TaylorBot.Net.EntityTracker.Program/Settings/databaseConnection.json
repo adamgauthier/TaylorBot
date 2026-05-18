@@ -1,8 +1,0 @@
-﻿{
-  "DatabaseConnection": {
-    "Database": "taylorbot",
-    "ApplicationName": "entity-tracker",
-    "MaxPoolSize": 4,
-    "IncludeErrorDetail": false
-  }
-}

@@ -19,8 +19,6 @@ public partial class TumblrNotifierService(
 {
     public async Task StartCheckingTumblrsAsync()
     {
-        await Task.Delay(TimeSpan.FromSeconds(30));
-
         while (true)
         {
             try

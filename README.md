@@ -11,9 +11,8 @@ graph TD
     A(Discord API)
     B[taylorbot-postgres]
     C[taylorbot-redis]
-    D(entity-tracker)
-    E(user-notifier)
-    F(commands-discord)
+    D(user-notifier)
+    E(commands-discord)
 
     subgraph Data
         B
@@ -23,7 +22,6 @@ graph TD
     subgraph Applications
         D
         E
-        F
     end
 
     D -->A
@@ -33,10 +31,6 @@ graph TD
     E -->A
     E -->B
     E -->C
-
-    F -->A
-    F -->B
-    F -->C
 ```
 
 ### taylorbot-postgres
@@ -47,13 +41,9 @@ graph TD
 
 [taylorbot-redis](./src/taylorbot-redis) is a [Redis](https://redis.io/) server used as a cache for heavily fetched data from `taylorbot-postgres`. Caching avoids frequent round-trips to the database, which could significantly impact performance.
 
-### entity-tracker
-
-[taylorbot-entity-tracker](./src/TaylorBot.Net) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are remembering usernames/joined dates, counting messages/minutes and logging member joins.
-
 ### user-notifier
 
-[taylorbot-user-notifier](./src/TaylorBot.Net) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are sending out reminders, logging member leaves/bans, logging messages and notifying of new social posts.
+[taylorbot-user-notifier](./src/TaylorBot.Net) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are remembering usernames/joined dates, counting messages/minutes, sending out reminders, logging member joins/leaves/bans, logging messages and notifying of new social posts.
 
 ### commands-discord
 

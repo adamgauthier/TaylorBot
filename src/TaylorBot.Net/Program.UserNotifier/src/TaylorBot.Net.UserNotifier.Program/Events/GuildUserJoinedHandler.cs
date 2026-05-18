@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.MemberLogging.Domain;
 
-namespace TaylorBot.Net.EntityTracker.Program.Events;
+namespace TaylorBot.Net.UserNotifier.Program.Events;
 
 public class GuildUserJoinedHandler : IGuildUserJoinedHandler
 {

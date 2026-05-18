@@ -10,12 +10,17 @@
     <ProjectReference Include="..\TaylorBot.Net.BirthdayReward.Infrastructure\TaylorBot.Net.BirthdayReward.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.Core.Infrastructure\TaylorBot.Net.Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
+    <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.EntityTracker.Domain\TaylorBot.Net.EntityTracker.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.EntityTracker.Infrastructure\TaylorBot.Net.EntityTracker.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.MemberLogging.Domain\TaylorBot.Net.MemberLogging.Domain.csproj" />
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.MemberLogging.Infrastructure\TaylorBot.Net.MemberLogging.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MessageLogging.Domain\TaylorBot.Net.MessageLogging.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.MessageLogging.Infrastructure\TaylorBot.Net.MessageLogging.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.PatreonSync.Domain\TaylorBot.Net.PatreonSync.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.PatreonSync.Infrastructure\TaylorBot.Net.PatreonSync.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.QuickStart.Domain\TaylorBot.Net.QuickStart.Domain.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MessagesTracker.Infrastructure\TaylorBot.Net.MessagesTracker.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaylorBot.Net.MinutesTracker.Infrastructure\TaylorBot.Net.MinutesTracker.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Domain\TaylorBot.Net.Reminder.Domain.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.Reminder.Infrastructure\TaylorBot.Net.Reminder.Infrastructure.csproj" />
     <ProjectReference Include="..\TaylorBot.Net.RedditNotifier.Infrastructure\TaylorBot.Net.RedditNotifier.Infrastructure.csproj" />

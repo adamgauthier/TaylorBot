@@ -3,7 +3,7 @@ using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.MessagesTracker.Domain;
 
-namespace TaylorBot.Net.EntityTracker.Program.Events;
+namespace TaylorBot.Net.UserNotifier.Program.Events;
 
 public class UserMessageReceivedHandler(TaskExceptionLogger taskExceptionLogger, MessagesTrackerDomainService messagesTrackerDomainService) : IUserMessageReceivedHandler
 {
