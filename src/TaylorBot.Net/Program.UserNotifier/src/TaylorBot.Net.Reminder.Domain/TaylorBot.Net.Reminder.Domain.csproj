@@ -12,8 +12,4 @@
     <ProjectReference Include="..\..\..\Core\src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="TaylorBot.Net.Reminder.Domain.Tests" />
-  </ItemGroup>
-
 </Project>

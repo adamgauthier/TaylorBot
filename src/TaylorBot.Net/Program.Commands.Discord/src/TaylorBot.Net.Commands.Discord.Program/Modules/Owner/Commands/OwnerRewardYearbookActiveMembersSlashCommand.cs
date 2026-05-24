@@ -180,7 +180,7 @@ public partial class OwnerRewardYearbookActiveMembersSlashCommand(
             }
             catch (HttpException httpException)
             {
-                if (httpException.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+                if (DiscordDmError.IsUndeliverable(httpException))
                 {
                     member.processedInfo.cantMessage = true;
                     LogCantDmMember(member.userId);

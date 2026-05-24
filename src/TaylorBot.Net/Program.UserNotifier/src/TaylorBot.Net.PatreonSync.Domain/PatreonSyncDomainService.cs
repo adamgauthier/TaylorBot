@@ -1,4 +1,5 @@
-﻿using Discord;
+using Discord;
+using Discord.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -86,6 +87,10 @@ public partial class PatreonSyncDomainService(
                     await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
                 }
             }
+            catch (HttpException exception) when (DiscordDmError.IsUndeliverable(exception))
+            {
+                LogCannotDmPatron(patron, exception.DiscordCode);
+            }
             catch (Exception exception)
             {
                 LogExceptionSyncingPatron(exception, patron);
@@ -95,6 +100,9 @@ public partial class PatreonSyncDomainService(
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to sync patron {Patron}.")]
     private partial void LogExceptionSyncingPatron(Exception exception, Patron patron);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not notify patron {Patron} because Discord rejected the DM with {DiscordErrorCode}.")]
+    private partial void LogCannotDmPatron(Patron patron, DiscordErrorCode? discordErrorCode);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in " + nameof(SyncPatreonSupportersAsync) + ".")]
     private partial void LogUnhandledExceptionSyncingPatreon(Exception exception);

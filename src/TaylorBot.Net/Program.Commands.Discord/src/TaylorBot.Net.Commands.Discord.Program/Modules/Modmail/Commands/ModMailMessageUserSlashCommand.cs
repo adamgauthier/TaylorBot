@@ -158,7 +158,7 @@ public class ModMailReplyConfirmButtonHandler(
         {
             await user.SendMessageAsync(embed: InteractionMapper.ToDiscordEmbed(modMailEmbed));
         }
-        catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+        catch (HttpException e) when (DiscordDmError.IsUndeliverable(e))
         {
             await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(EmbedFactory.CreateError(
                 $"""

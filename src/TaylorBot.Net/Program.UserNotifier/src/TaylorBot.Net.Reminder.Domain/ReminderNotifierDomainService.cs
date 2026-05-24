@@ -17,8 +17,6 @@ public partial class ReminderNotifierDomainService(
     Lazy<ITaylorBotClient> taylorBotClient
     )
 {
-    internal const int CannotSendMessagesToUserDueToNoMutualGuildsDiscordCode = 50278;
-
     public async Task StartCheckingRemindersAsync()
     {
         while (true)
@@ -65,7 +63,7 @@ public partial class ReminderNotifierDomainService(
         {
             await user.SendMessageAsync(embed: reminderEmbedFactory.Create(reminder));
         }
-        catch (HttpException e) when (IsUndeliverableReminder(e.DiscordCode))
+        catch (HttpException e) when (DiscordDmError.IsUndeliverable(e))
         {
             LogCouldNotRemind(user.FormatLog(), reminder, e.DiscordCode);
             await reminderRepository.RemoveReminderAsync(reminder);
@@ -75,12 +73,6 @@ public partial class ReminderNotifierDomainService(
         LogRemindedUser(user.FormatLog(), reminder);
 
         await reminderRepository.RemoveReminderAsync(reminder);
-    }
-
-    internal static bool IsUndeliverableReminder(DiscordErrorCode? discordErrorCode)
-    {
-        return discordErrorCode is DiscordErrorCode.CannotSendMessageToUser ||
-            (int?)discordErrorCode == CannotSendMessagesToUserDueToNoMutualGuildsDiscordCode;
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Checking for due reminders")]

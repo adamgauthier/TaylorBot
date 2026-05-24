@@ -48,9 +48,9 @@ public partial class QuickStartDomainService(
                     await owner.SendMessageAsync(embed: quickStartEmbed);
                     LogSentQuickStartEmbedToOwner(owner.FormatLog());
                 }
-                catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+                catch (HttpException e) when (DiscordDmError.IsUndeliverable(e))
                 {
-                    LogCannotSendQuickStartDueToDmSettings(owner.FormatLog());
+                    LogCannotSendQuickStart(owner.FormatLog(), e.DiscordCode);
                 }
             }
             else
@@ -66,8 +66,8 @@ public partial class QuickStartDomainService(
     [LoggerMessage(Level = LogLevel.Information, Message = "Sent Quick Start embed to {GuildOwner}")]
     private partial void LogSentQuickStartEmbedToOwner(string guildOwner);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Can't send QuickStart embed to {GuildOwner} because of their DM settings")]
-    private partial void LogCannotSendQuickStartDueToDmSettings(string guildOwner);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Can't send QuickStart embed to {GuildOwner} because Discord rejected the DM with {DiscordErrorCode}")]
+    private partial void LogCannotSendQuickStart(string guildOwner, DiscordErrorCode? discordErrorCode);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Could not find suitable channel or owner to send Quick Start embed in {Guild}")]
     private partial void LogCouldNotFindSuitableChannelOrOwner(string guild);

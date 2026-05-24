@@ -53,9 +53,9 @@ public partial class BirthdayRewardNotifierDomainService(
                 var user = await taylorBotClient.Value.ResolveRequiredUserAsync(rewardedUser.UserId);
                 await user.SendMessageAsync(embed: birthdayRewardEmbedFactory.Create(rewardAmount, rewardedUser));
             }
-            catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+            catch (HttpException e) when (DiscordDmError.IsUndeliverable(e))
             {
-                LogCannotNotifyDueToDmSettings(rewardedUser);
+                LogCannotNotify(rewardedUser, e.DiscordCode);
             }
             catch (Exception exception)
             {
@@ -72,8 +72,8 @@ public partial class BirthdayRewardNotifierDomainService(
     [LoggerMessage(Level = LogLevel.Debug, Message = "Rewarded {RewardAmount} birthday point(s) to {RewardedUser}.")]
     private partial void LogRewardedBirthdayPoints(long rewardAmount, RewardedUser rewardedUser);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Can't notify {RewardedUser} about their birthday because of their DM settings.")]
-    private partial void LogCannotNotifyDueToDmSettings(RewardedUser rewardedUser);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Can't notify {RewardedUser} about their birthday because Discord rejected the DM with {DiscordErrorCode}.")]
+    private partial void LogCannotNotify(RewardedUser rewardedUser, DiscordErrorCode? discordErrorCode);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Exception occurred when attempting to notify {RewardedUser} about their birthday reward.")]
     private partial void LogExceptionNotifyingBirthday(Exception exception, RewardedUser rewardedUser);
