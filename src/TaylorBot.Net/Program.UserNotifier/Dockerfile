@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0.102 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.108 AS build
 WORKDIR /app
 
 ARG FEED_ACCESS_TOKEN
