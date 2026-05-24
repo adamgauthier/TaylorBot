@@ -8,6 +8,7 @@
     <Project Path="Program.UserNotifier/test/TaylorBot.Net.MessagesTracker.Domain.Tests/TaylorBot.Net.MessagesTracker.Domain.Tests.csproj" />
     <Project Path="Program.UserNotifier/test/TaylorBot.Net.QuickStart.Domain.Tests/TaylorBot.Net.QuickStart.Domain.Tests.csproj" />
     <Project Path="Program.UserNotifier/test/TaylorBot.Net.BirthdayReward.Domain.Tests/TaylorBot.Net.BirthdayReward.Domain.Tests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.Reminder.Domain.Tests/TaylorBot.Net.Reminder.Domain.Tests.csproj" />
   </Folder>
   <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />
   <Project Path="Core/src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj" />

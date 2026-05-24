@@ -17,6 +17,8 @@ public partial class ReminderNotifierDomainService(
     Lazy<ITaylorBotClient> taylorBotClient
     )
 {
+    internal const int CannotSendMessagesToUserDueToNoMutualGuildsDiscordCode = 50278;
+
     public async Task StartCheckingRemindersAsync()
     {
         while (true)
@@ -63,9 +65,9 @@ public partial class ReminderNotifierDomainService(
         {
             await user.SendMessageAsync(embed: reminderEmbedFactory.Create(reminder));
         }
-        catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+        catch (HttpException e) when (IsUndeliverableReminder(e.DiscordCode))
         {
-            LogCouldNotRemindDueToSettings(user.FormatLog(), reminder);
+            LogCouldNotRemind(user.FormatLog(), reminder, e.DiscordCode);
             await reminderRepository.RemoveReminderAsync(reminder);
             return;
         }
@@ -73,6 +75,12 @@ public partial class ReminderNotifierDomainService(
         LogRemindedUser(user.FormatLog(), reminder);
 
         await reminderRepository.RemoveReminderAsync(reminder);
+    }
+
+    internal static bool IsUndeliverableReminder(DiscordErrorCode? discordErrorCode)
+    {
+        return discordErrorCode is DiscordErrorCode.CannotSendMessageToUser ||
+            (int?)discordErrorCode == CannotSendMessagesToUserDueToNoMutualGuildsDiscordCode;
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Checking for due reminders")]
@@ -84,8 +92,8 @@ public partial class ReminderNotifierDomainService(
     [LoggerMessage(Level = LogLevel.Debug, Message = "Reminding {Reminder}")]
     private partial void LogRemindingUser(Reminder reminder);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not remind {User} with {Reminder} because of their DM settings")]
-    private partial void LogCouldNotRemindDueToSettings(string user, Reminder reminder);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not remind {User} with {Reminder} because Discord rejected the DM with {DiscordErrorCode}")]
+    private partial void LogCouldNotRemind(string user, Reminder reminder, DiscordErrorCode? discordErrorCode);
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Reminded {User} with {Reminder}")]
     private partial void LogRemindedUser(string user, Reminder reminder);
