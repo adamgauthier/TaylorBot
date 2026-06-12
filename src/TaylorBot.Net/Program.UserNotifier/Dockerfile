@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0.300 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.301 AS build
 WORKDIR /app
 
 ARG FEED_ACCESS_TOKEN
@@ -43,7 +43,7 @@ ENTRYPOINT ["dotnet", "test", "Tests.slnx", "--no-build", "--configuration:Relea
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.8 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.9 AS runtime
 WORKDIR /app
 COPY --from=publish /app/out ./
 ENTRYPOINT ["dotnet", "TaylorBot.Net.UserNotifier.Program.dll"]
