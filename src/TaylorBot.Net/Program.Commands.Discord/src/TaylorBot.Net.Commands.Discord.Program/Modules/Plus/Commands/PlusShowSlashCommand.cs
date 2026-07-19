@@ -35,7 +35,7 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                                 $"""
                                 You are currently a **TaylorBot Plus** member 💎
                                 Thank you for supporting {"TaylorBot on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")}! 💖
-                                If you have any questions, join the {"TaylorBot support server".DiscordMdLink("https://discord.gg/3qVNd5P")} 😊
+                                If you have any questions, visit the {"TaylorBot website".DiscordMdLink("https://taylorbot.app")} 😊
                                 """)
                             .AddField(
                                 "Plus Servers",

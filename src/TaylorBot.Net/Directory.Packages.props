@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.5.0" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.1" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="CSharp.OperationResult" Version="0.1.6" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
@@ -15,29 +15,29 @@
     <PackageVersion Include="FakeItEasy" Version="9.0.1" />
     <PackageVersion Include="FluentAssertions" Version="7.2.2" />
     <PackageVersion Include="Google.Apis.CustomSearchAPI.v1" Version="1.74.0.3520" />
-    <PackageVersion Include="Google.Apis.YouTube.v3" Version="1.75.0.4176" />
+    <PackageVersion Include="Google.Apis.YouTube.v3" Version="1.75.0.4207" />
     <PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
     <PackageVersion Include="Inflatable.Lastfm" Version="1.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.10" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="NewTumblrSharp" Version="1.2.1.160" />
     <PackageVersion Include="Npgsql" Version="10.0.3" />
     <PackageVersion Include="Npgsql.DependencyInjection" Version="10.0.3" />
     <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
-    <PackageVersion Include="OpenTelemetry.Api" Version="1.15.3" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Propagators" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Api" Version="1.17.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Propagators" Version="1.17.0" />
     <PackageVersion Include="StackExchange.Redis" Version="2.13.17" />
-    <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.9" />
+    <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.10" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
   </ItemGroup>
