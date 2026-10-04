@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Discord;
+using Npgsql;
 using StackExchange.Redis;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
@@ -28,26 +29,40 @@ public class TextChannelMessageCountPostgresRepository(PostgresConnectionFactory
         {
             var entries = await redis.HashGetAllAsync(tempKey);
 
-            foreach (var entry in entries)
+            try
             {
-                var nameParts = entry.Name.ToString().Split(':');
-                var guildId = nameParts[1];
-                var channelId = nameParts[3];
-                var increment = (long)entry.Value;
-
                 await using var connection = postgresConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
+                await using var transaction = await connection.BeginTransactionAsync();
 
-                await connection.ExecuteAsync(
-                    @"UPDATE guilds.text_channels
+                foreach (var entry in entries)
+                {
+                    var nameParts = entry.Name.ToString().Split(':');
+                    var guildId = nameParts[1];
+                    var channelId = nameParts[3];
+                    var increment = (long)entry.Value;
+
+                    await connection.ExecuteAsync(
+                        """
+                        UPDATE guilds.text_channels
                         SET message_count = message_count + @MessageCountToAdd
-                        WHERE guild_id = @GuildId AND channel_id = @ChannelId;",
-                    new
-                    {
-                        MessageCountToAdd = increment,
-                        GuildId = guildId,
-                        ChannelId = channelId
-                    }
-                );
+                        WHERE guild_id = @GuildId AND channel_id = @ChannelId;
+                        """,
+                        new
+                        {
+                            MessageCountToAdd = increment,
+                            GuildId = guildId,
+                            ChannelId = channelId,
+                        },
+                        transaction: transaction
+                    );
+                }
+                await transaction.CommitAsync();
+            }
+            catch (PostgresException failure)
+            {
+                await TrackingQueueRecovery.RestoreCountsAsync(redis, failure, (MessageCountIncrementsHashKey, tempKey, entries));
+                throw;
             }
 
             await redis.KeyDeleteAsync(tempKey);

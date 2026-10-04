@@ -1,0 +1,182 @@
+﻿namespace TaylorBot.Net.UserNotifier.IntegrationTests.Notifications;
+
+public sealed class MessageLoggingTests(DataServices data)
+{
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    public async Task DeletedMessage_UsesAvailableCache(int messageCacheSize)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var message = await scenario.Discord.MessageAsync(guild, user, "A remembered message");
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.DeleteAsync(message);
+
+        output.Text.Should().Contain("A remembered message");
+    }
+
+    [Fact]
+    public async Task EditedMessage_LogsBeforeAndAfterContent()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, user, "Original content");
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.EditAsync(message, "Updated content");
+
+        output.Text.Should().Contain("Original content");
+        output.Messages.Single().Body!.Value.GetRawText().Should().Contain("Updated content");
+    }
+
+    [Fact]
+    public async Task NoLogChannel_DoesNotSendDeletionLog()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var message = await scenario.Discord.MessageAsync(guild, user, "Unlogged");
+
+        var output = await scenario.Discord.DeleteAsync(message);
+
+        output.Messages.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RemovedReaction_LogsMessageAndUser()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var message = await scenario.Discord.MessageAsync(guild, user, "React here");
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.RemoveReactionAsync(message, user);
+
+        output.Messages.Single().Body!.Value.GetRawText().Should().Contain(message.Id).And.Contain(user.Username);
+    }
+
+    [Fact]
+    public async Task BulkDeletion_BatchesCachedMessagesWithinDiscordEmbedLimit()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var messages = await scenario.Discord.MessagesAsync(guild, user, count: 13);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.BulkDeleteAsync(guild, messages);
+
+        output.Messages.Select(message => message.Body!.Value.GetProperty("embeds").GetArrayLength()).Should().Equal(10, 3);
+        output.Text.Should().Contain("Message 12");
+    }
+
+    [Fact]
+    public async Task DisabledPlusGuild_DoesNotSendConfiguredLogs()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted", enabled: false);
+        var message = await scenario.Discord.MessageAsync(guild, user, "Not entitled");
+
+        var output = await scenario.Discord.DeleteAsync(message);
+
+        output.Messages.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UnknownDeletedMessage_StillLogsItsIdentity()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var message = await scenario.Discord.MessageAsync(guild, user, "Not cached");
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        await scenario.Given.ExpireLogChannelCacheAsync(guild);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.DeleteAsync(message);
+
+        output.Messages.Single().Body!.Value.GetRawText().Should().Contain(message.Id).And.NotContain("Not cached");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    public async Task DeletedReply_PreservesAttachmentAndReferencedMessage(int messageCacheSize)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var original = await scenario.Discord.MessageAsync(guild, user, "Original");
+        var reply = await scenario.Discord.MessageAsync(guild, user, "With a photo", type: 19, attachmentUrl: "https://images.invalid/photo.png", replyTo: original);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.DeleteAsync(reply);
+
+        output.Messages.Single().Body!.Value.GetRawText().Should().Contain(original.Id).And.Contain("https://images.invalid/photo.png");
+    }
+
+    [Fact]
+    public async Task BotEdit_UpdatesDeletionCacheWithoutSendingEditLog()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, scenario.Given.Bot, "Bot message");
+
+        var edit = await scenario.Discord.EditAsync(message, "Updated bot message");
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        var deleted = await scenario.Discord.DeleteAsync(message);
+
+        edit.Messages.Should().BeEmpty();
+        deleted.Text.Should().Contain("Updated bot message");
+    }
+
+    [Fact]
+    public async Task SystemMessage_IsLoggedWithoutIncrementingUserCounters()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var message = await scenario.Discord.MessageAsync(guild, user, "", type: 6);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.DeleteAsync(message);
+        await scenario.StopAsync();
+
+        output.Text.Should().Contain("A message was pinned");
+        (await scenario.State.MemberAsync(guild, user)).Messages.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task EmbedOnlyEdit_WithDiscordCache_DoesNotSendEditLog()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = "100" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, user, "https://example.invalid");
+
+        var output = await scenario.Discord.RefreshEmbedsAsync(message);
+
+        output.Messages.Should().BeEmpty();
+    }
+}

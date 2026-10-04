@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Discord;
+using Npgsql;
 using StackExchange.Redis;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
@@ -30,12 +31,20 @@ public class MessagesPostgresRepository(PostgresConnectionFactory postgresConnec
         var redis = connectionMultiplexer.GetDatabase();
 
         var messageTempKey = $"{MessageCountIncrementsHashKey}:{Guid.NewGuid():N}";
-        var messageRenameSucceeded = await TryRenameKeyAsync(redis, MessageCountIncrementsHashKey, messageTempKey);
-
         var wordTempKey = $"{WordCountIncrementsHashKey}:{Guid.NewGuid():N}";
-        var wordRenameSucceeded = await TryRenameKeyAsync(redis, WordCountIncrementsHashKey, wordTempKey);
+        var renamed = (bool)await redis.ScriptEvaluateAsync(
+            """
+            local messages = redis.call('EXISTS', KEYS[1])
+            local words = redis.call('EXISTS', KEYS[2])
+            if messages == 0 and words == 0 then return 0 end
+            if messages ~= words then return redis.error_reply('Message and word tracking queues are incomplete') end
+            redis.call('RENAME', KEYS[1], KEYS[3])
+            redis.call('RENAME', KEYS[2], KEYS[4])
+            return 1
+            """,
+            [MessageCountIncrementsHashKey, WordCountIncrementsHashKey, messageTempKey, wordTempKey]);
 
-        if (messageRenameSucceeded && wordRenameSucceeded)
+        if (renamed)
         {
             var messageEntries = await redis.HashGetAllAsync(messageTempKey);
             var wordEntries = await redis.HashGetAllAsync(wordTempKey);
@@ -56,23 +65,39 @@ public class MessagesPostgresRepository(PostgresConnectionFactory postgresConnec
                 }
             ).ToList();
 
-            foreach (var entry in grouped)
+            try
             {
                 await using var connection = postgresConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
+                await using var postgresTransaction = await connection.BeginTransactionAsync();
 
-                await connection.ExecuteAsync(
-                    @"UPDATE guilds.guild_members SET
+                foreach (var entry in grouped)
+                {
+                    await connection.ExecuteAsync(
+                        """
+                        UPDATE guilds.guild_members SET
                             message_count = message_count + @MessageCountToAdd,
                             word_count = word_count + @WordCountToAdd
-                        WHERE guild_id = @GuildId AND user_id = @UserId;",
-                    new
-                    {
-                        MessageCountToAdd = entry.MessageIncrement,
-                        WordCountToAdd = entry.WordIncrement,
-                        GuildId = entry.GuildId,
-                        UserId = entry.UserId
-                    }
-                );
+                        WHERE guild_id = @GuildId AND user_id = @UserId;
+                        """,
+                        new
+                        {
+                            MessageCountToAdd = entry.MessageIncrement,
+                            WordCountToAdd = entry.WordIncrement,
+                            GuildId = entry.GuildId,
+                            UserId = entry.UserId,
+                        },
+                        transaction: postgresTransaction
+                    );
+                }
+                await postgresTransaction.CommitAsync();
+            }
+            catch (PostgresException failure)
+            {
+                await TrackingQueueRecovery.RestoreCountsAsync(redis, failure,
+                    (MessageCountIncrementsHashKey, messageTempKey, messageEntries),
+                    (WordCountIncrementsHashKey, wordTempKey, wordEntries));
+                throw;
             }
 
             var transaction = redis.CreateTransaction();
@@ -83,19 +108,6 @@ public class MessagesPostgresRepository(PostgresConnectionFactory postgresConnec
             var wasCommitted = await transaction.ExecuteAsync();
             if (!wasCommitted)
                 throw new InvalidOperationException($"Transaction was not committed for deleting keys {messageTempKey},{wordTempKey}.");
-        }
-    }
-
-    private static async ValueTask<bool> TryRenameKeyAsync(IDatabase redis, RedisKey key, RedisKey newKey)
-    {
-        try
-        {
-            await redis.KeyRenameAsync(key, newKey);
-            return true;
-        }
-        catch (RedisServerException e) when (e.Message == "ERR no such key")
-        {
-            return false;
         }
     }
 }

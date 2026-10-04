@@ -5,14 +5,14 @@ using TaylorBot.Net.QuickStart.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class QuickStartJoinedGuildHandler(QuickStartDomainService quickStartDomainService, TaskExceptionLogger taskExceptionLogger) : IJoinedGuildHandler
+public class QuickStartJoinedGuildHandler(QuickStartDomainService quickStartDomainService, TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks) : IJoinedGuildHandler
 {
     public Task JoinedGuildAsync(SocketGuild guild)
     {
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             quickStartDomainService.OnGuildJoinedAsync(guild),
             nameof(QuickStartDomainService)
-        ));
+        ), nameof(QuickStartJoinedGuildHandler));
         return Task.CompletedTask;
     }
 }

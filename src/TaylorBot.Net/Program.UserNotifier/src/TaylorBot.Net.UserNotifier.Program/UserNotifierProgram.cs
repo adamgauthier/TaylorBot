@@ -52,6 +52,7 @@ using TaylorBot.Net.TumblrNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.TumblrNotifier.Domain.Options;
 using TaylorBot.Net.TumblrNotifier.Infrastructure;
 using TaylorBot.Net.UserNotifier.Program.Events;
+using TaylorBot.Net.UserNotifier.Program.Jobs;
 using TaylorBot.Net.YoutubeNotifier.Domain;
 using TaylorBot.Net.YoutubeNotifier.Domain.DiscordEmbed;
 using TaylorBot.Net.YoutubeNotifier.Domain.Options;
@@ -63,8 +64,12 @@ public sealed class UserNotifierProgram
 {
     public static async Task Main()
     {
-        var host = Host.CreateDefaultBuilder()
-            .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
+        using var host = CreateHostBuilder(AddApplicationConfiguration(Host.CreateDefaultBuilder())).Build();
+        await host.RunAsync();
+    }
+
+    public static IHostBuilder AddApplicationConfiguration(IHostBuilder builder) => builder
+        .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
             {
                 var env = hostBuilderContext.HostingEnvironment;
 
@@ -92,11 +97,15 @@ public sealed class UserNotifierProgram
                     ;
 
                 appConfig.AddEnvironmentVariables("TaylorBot_");
-            })
-            .ConfigureServices((hostBuilderContext, services) =>
+            });
+
+    public static IHostBuilder CreateHostBuilder(IHostBuilder builder) => builder
+        .ConfigureServices((hostBuilderContext, services) =>
             {
                 var config = hostBuilderContext.Configuration;
                 services
+                    .AddSingleton<UserNotifierJobs>()
+                    .AddHostedService(provider => provider.GetRequiredService<UserNotifierJobs>())
                     .AddHostedService<TaylorBotHostedService>()
                     .AddTaylorBotApplicationServices(config)
                     .AddPostgresConnection(config, withTracing: false)
@@ -117,7 +126,6 @@ public sealed class UserNotifierProgram
                     .AddYoutubeNotify(config)
                     .AddReminderNotify(config)
                     .AddBirthdayCalendarRefresh()
-                    .AddTransient<SingletonTaskRunner>()
                     .AddTransient<IShardReadyHandler, ShardReadyHandler>()
                     .AddTransient<IJoinedGuildHandler, QuickStartJoinedGuildHandler>()
                     .AddTransient<IJoinedGuildHandler, UsernameJoinedGuildHandler>()
@@ -135,11 +143,7 @@ public sealed class UserNotifierProgram
                     .AddTransient<IUserMessageReceivedHandler, UserMessageReceivedHandler>()
                     .AddTransient<IReactionRemovedHandler, ReactionRemovedHandler>()
                     ;
-            })
-            .Build();
-
-        await host.RunAsync();
-    }
+            });
 }
 
 public static class ServiceCollectionExtensions
@@ -260,6 +264,7 @@ public static class ServiceCollectionExtensions
             {
                 var auth = provider.GetRequiredService<IOptionsMonitor<TumblrAuthOptions>>().CurrentValue;
                 return new TumblrClientFactory().Create<TumblrClient>(
+                    httpClientFactory: provider.GetRequiredService<IHttpClientFactory>(),
                     consumerKey: auth.ConsumerKey,
                     consumerSecret: auth.ConsumerSecret,
                     new Token(key: auth.Token, secret: auth.TokenSecret)

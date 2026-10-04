@@ -12,6 +12,8 @@ dotnet test
 
 No Discord credentials or manual database setup are needed. The suite manages isolated containers, applies the checked-in Sqitch schema, and gives each scenario fresh application and data state. Existing development resources are untouched.
 
+Data helpers reuse a scenario-owned PostgreSQL connection pool to avoid unnecessary TCP connection churn. The application and helper pools are disposed before dropping the scenario database.
+
 `dotnet test` runs on your current OS; CI runs it directly on a Linux agent. For a local Linux run, use the [Linux test script](../../Test-CommandsDiscordLinux.ps1), which runs the commands-discord solution using the Dockerfile's SDK image on an isolated Docker network and cleans up afterward.
 
 ## Design principles
@@ -20,6 +22,8 @@ No Discord credentials or manual database setup are needed. The suite manages is
 - **Compose, don't inherit.** Tests should be as simple as small unit tests: linear arrange/act/assert, evident from names and spacing without explanatory comments. Keep setup boilerplate, SQL, JSON, and SDK details in reusable helpers, not branches or loops in test methods.
 - **Assert behavior, not implementation.** Check outgoing Discord responses and relevant persisted effects, not internal calls or cosmetic emoji/Markdown. Keep seed data and read-back queries independent of production repositories, and SDK-specific glue outside the scenario API.
 - **Keep scenarios isolated and failures visible.** Use synthetic fixtures and fresh state, await command completion, and drain owned work before cleanup. Unexpected requests, unused external responses, errors, and timeouts must fail rather than silently pass.
+
+Both applications compose the [shared Discord stub](../../../Testing/TaylorBot.Net.IntegrationTests.Shared/Discord/DiscordApiStub.cs) for request capture, expectations, resources, startup responses, and failure reporting, alongside shared transports and message payload construction. Keep command manifests and interaction flows in this suite; notifier member discovery and notification setup belong in its adapter.
 
 ## Fixtures
 

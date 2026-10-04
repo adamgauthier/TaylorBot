@@ -19,25 +19,22 @@ public partial class BirthdayRewardNotifierDomainService(
     IOptionsMonitor<BirthdayRewardNotifierOptions> optionsMonitor,
     IBirthdayRepository birthdayRepository,
     BirthdayRewardEmbedFactory birthdayRewardEmbedFactory,
-    Lazy<ITaylorBotClient> taylorBotClient)
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider)
 {
-    public async Task StartCheckingBirthdaysAsync()
+    public async Task<TimeSpan> RunCheckingBirthdaysCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await RewardBirthdaysAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionRewardingBirthdays(e);
-                await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
-                continue;
-            }
-
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRewards);
+            await RewardBirthdaysAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionRewardingBirthdays(e);
+            return optionsMonitor.CurrentValue.TimeSpanBetweenMessages;
+        }
+
+        return optionsMonitor.CurrentValue.TimeSpanBetweenRewards;
     }
 
     public async ValueTask RewardBirthdaysAsync()
@@ -62,7 +59,7 @@ public partial class BirthdayRewardNotifierDomainService(
                 LogExceptionNotifyingBirthday(exception, rewardedUser);
             }
 
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages, timeProvider);
         }
     }
 

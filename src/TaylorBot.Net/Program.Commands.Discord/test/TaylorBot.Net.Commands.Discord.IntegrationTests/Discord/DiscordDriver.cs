@@ -10,22 +10,25 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
     private long _id = 100000000000001000;
 
     internal static object UserPayload(ScenarioUser user) =>
-        new { id = user.Id, username = user.Username, discriminator = "0", avatar = user.Avatar, bot = user.Id == DiscordApi.ApplicationId };
+        DiscordApiStub.User(user.Id, user.Username, bot: user.Id == DiscordApi.ApplicationId, avatar: user.Avatar);
 
     private static JsonObject CreateInteraction(string id, string token, int type, ScenarioUser user, ScenarioGuild? guild,
         string permissions = "8", ScenarioDm? dm = null)
     {
         if (guild != null && dm != null)
             throw new ArgumentException("An interaction cannot be in both a guild and a DM.", nameof(dm));
+
         var recipient = dm?.Recipient ?? new(DiscordApi.ApplicationId, "IntegrationBot");
         var isBotDm = recipient.Id == DiscordApi.ApplicationId;
         if (guild == null && !isBotDm && dm?.InstallationOwner == null)
             throw new ArgumentException("A private-channel interaction requires a user installation.", nameof(dm));
+
         JsonObject owners = [];
         if (guild != null || isBotDm)
             owners["0"] = guild?.Id ?? "0";
         if (dm?.InstallationOwner != null)
             owners["1"] = dm.InstallationOwner.Id;
+
         JsonObject channel = new()
         {
             ["id"] = guild?.ChannelId ?? (isBotDm ? "100000000000000004" : "100000000000000007"),
@@ -47,6 +50,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
             ["channel_id"] = channel["id"]!.DeepClone(),
             ["channel"] = channel,
         };
+
         if (guild == null)
         {
             channel["recipients"] = new JsonArray(JsonSerializer.SerializeToNode(UserPayload(recipient)));
@@ -69,6 +73,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
                 mute = false,
             });
         }
+
         return payload;
     }
 
@@ -86,6 +91,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
                     permissions = "8",
                 });
             }
+
             if (members.Count != 0)
             {
                 resolved["members"] = members;
@@ -100,6 +106,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
         var parts = command.Split(' ');
         var id = $"{Interlocked.Increment(ref _id)}";
         var token = $"interaction-{id}";
+
         JsonArray options = [];
         JsonObject resolved = [];
         foreach (var argument in arguments ?? [])
@@ -111,10 +118,12 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
                 resolved[argument.ResolvedCollection]![argument.Value.GetValue<string>()] = argument.Resolved!.DeepClone();
             }
         }
+
         if (selectedUser != null)
         {
             options.Add(new JsonObject { ["name"] = "user", ["type"] = 6, ["value"] = selectedUser.Id });
         }
+
         var leafOptions = options;
         for (var index = parts.Length - 1; index > 0; index--)
         {
@@ -138,18 +147,22 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
         {
             data["options"] = parts.Length == 1 ? leafOptions : options;
         }
+
         if (selectedUser != null)
         {
             resolved["users"] ??= new JsonObject();
             resolved["users"]![selectedUser.Id] = JsonSerializer.SerializeToNode(UserPayload(selectedUser));
         }
+
         AddResolvedMembers(resolved, guild);
         if (resolved.Count != 0)
         {
             data["resolved"] = resolved;
         }
+
         api.ExpectInteraction(payload);
         await dispatch("INTERACTION_CREATE", payload);
+
         return new(api.ForInteraction(id, token), user, guild, dm: dm);
     }
 
@@ -212,13 +225,16 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
                 };
             })]),
         };
-        DiscordJson.AssignComponentIds(payload["data"]!["components"]!.AsArray());
+
+        DiscordMessageJson.AssignComponentIds(payload["data"]!["components"]!.AsArray());
         if (previous.OriginMessage is { } message)
         {
             payload["message"] = JsonNode.Parse(message.GetRawText());
         }
+
         api.ExpectInteraction(payload, modalTrigger: previous);
         await dispatch("INTERACTION_CREATE", payload);
+
         return new(api.ForInteraction(id, token), previous.Author, previous.Guild, expectedEditAcknowledgement: 5, dm: previous.Dm);
     }
 
@@ -230,6 +246,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
         var receivedComponent = message["components"]!.AsArray()
             .SelectMany(row => row!["components"]!.AsArray())
             .Single(item => item!["custom_id"]?.GetValue<string>() == component.GetProperty("custom_id").GetString())!;
+
         var payload = CreateInteraction(id, token, type: 3, user, previous.Guild, dm: previous.Dm);
         payload["message"] = message;
         payload["data"] = new JsonObject
@@ -238,6 +255,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
             ["custom_id"] = component.GetProperty("custom_id").GetString(),
             ["component_type"] = component.GetProperty("type").GetInt32(),
         };
+
         if (selected != null)
         {
             payload["data"]!["values"] = new JsonArray(selected.Value.DeepClone());
@@ -250,8 +268,10 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
                 AddResolvedMembers(payload["data"]!["resolved"]!.AsObject(), previous.Guild);
             }
         }
+
         api.ExpectInteraction(payload);
         await dispatch("INTERACTION_CREATE", payload);
+
         return new(api.ForInteraction(id, token), previous.Author, previous.Guild, JsonSerializer.SerializeToElement(message), dm: previous.Dm);
     }
 
@@ -279,6 +299,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
             pinned = false,
             type = 0,
         });
+
         return new(api.ForMessage(guild.ChannelId, id), user, guild);
     }
 
@@ -302,6 +323,7 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
             burst = false,
             type = 0,
         });
+
         return new(api.RequestsFor(method, path).Skip(before).ToArray(), previous.Author, guild);
     }
 }
@@ -314,6 +336,7 @@ public sealed class DiscordExchange(IReadOnlyList<DiscordRequest> requests, Scen
     internal ScenarioGuild? Guild { get; } = guild;
     internal ScenarioDm? Dm { get; } = dm;
     internal JsonElement? OriginMessage { get; } = originMessage;
+
     public JsonElement Modal
     {
         get
@@ -322,9 +345,11 @@ public sealed class DiscordExchange(IReadOnlyList<DiscordRequest> requests, Scen
             request.Method.Should().Be("POST");
             request.Path.Should().EndWith("/callback");
             request.Body!.Value.GetProperty("type").GetInt32().Should().Be(9);
+
             return request.Body.Value.GetProperty("data");
         }
     }
+
     public JsonElement Message
     {
         get
@@ -336,12 +361,14 @@ public sealed class DiscordExchange(IReadOnlyList<DiscordRequest> requests, Scen
                 Requests[0].Body!.Value.GetProperty("type").GetInt32().Should().BeOneOf(4, 7);
                 return Requests[0].Body!.Value.GetProperty("data");
             }
+
             if (Requests[0].Path.StartsWith("channels/", StringComparison.Ordinal))
             {
                 Requests.Should().ContainSingle();
                 Requests[0].Method.Should().BeOneOf("POST", "PATCH");
                 return Requests[0].Body!.Value;
             }
+
             Requests.Should().HaveCount(2);
             if (Requests[1].Method == "PATCH")
             {
@@ -351,9 +378,11 @@ public sealed class DiscordExchange(IReadOnlyList<DiscordRequest> requests, Scen
                 Requests[1].Path.Should().StartWith($"webhooks/{DiscordApi.ApplicationId}/").And.EndWith("/messages/@original");
                 return Requests[1].Body!.Value;
             }
+
             return ShouldBeDeferredMessage();
         }
     }
+
     public JsonElement Embed => Message.GetProperty("embeds").EnumerateArray().Should().ContainSingle().Which;
     public string Description => Embed.GetProperty("description").GetString()!;
     public string Field(string name) => Embed.GetProperty("fields").EnumerateArray()
@@ -379,6 +408,7 @@ public sealed class DiscordExchange(IReadOnlyList<DiscordRequest> requests, Scen
         Requests[0].Body!.Value.GetProperty("type").GetInt32().Should().Be(5);
         Requests[1].Method.Should().Be("POST");
         Requests[1].Path.Should().StartWith($"webhooks/{DiscordApi.ApplicationId}/");
+
         return Requests[1].Body!.Value;
     }
 

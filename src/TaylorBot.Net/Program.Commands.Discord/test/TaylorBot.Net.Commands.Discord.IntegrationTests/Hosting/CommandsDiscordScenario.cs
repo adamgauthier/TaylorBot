@@ -26,6 +26,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     private bool _disposed;
     private bool _failureReported;
     private readonly CancellationToken _cancellationToken;
+
     public ScenarioData Given { get; }
     public ScenarioState State { get; }
     public DiscordDriver Discord { get; }
@@ -38,6 +39,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         _database = database;
         _cancellationToken = cancellationToken;
         _session = new(_api);
+
         Given = new(database, DispatchAsync, _api);
         State = new(database);
         Discord = new(_api, DispatchAsync);
@@ -47,6 +49,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         IReadOnlyDictionary<string, string?>? settings = null)
     {
         CommandsDiscordScenario scenario = new(data, await data.CreateDatabaseAsync(), cancellationToken);
+
         try
         {
             await scenario.StartAsync(data, dailyBonusInterval, settings, cancellationToken);
@@ -62,6 +65,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
             {
                 throw new AggregateException("Application startup and cleanup failed.", startupFailure, cleanupFailure);
             }
+
             throw;
         }
     }
@@ -106,6 +110,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
             ["Signature:StorageAccountUri"] = "https://storage.invalid",
             ["Heist:TimeSpanBeforeHeistStarts"] = "00:00:01",
         };
+
         foreach (var action in new[]
         {
             "google-places-search", "youtube-search", "youtube-search-legacy", "horoscope", "urbandictionary-search",
@@ -115,6 +120,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
             configuration[$"CommandApplication:DailyLimits:{action}:MaxUsesForUser"] = "20";
             configuration[$"CommandApplication:DailyLimits:{action}:FriendlyName"] = action;
         }
+
         if (settings != null)
         {
             foreach (var setting in settings)
@@ -135,11 +141,14 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
                 services.AddSingleton<IPseudoRandom>(new SeededRandom());
             })
             .Build();
+
         using var startup = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         startup.CancelAfter(OperationTimeout);
+
         await _host.StartAsync(startup.Token);
         await _session.WaitUntilReadyAsync(startup.Token);
         await DrainAsync(startup.Token);
+
         _session.ObservePrefixCommands(_host.Services);
     }
 
@@ -147,8 +156,10 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     {
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(_cancellationToken);
         deadline.CancelAfter(OperationTimeout);
+
         await _session.DispatchAsync(eventName, data, deadline.Token);
         await DrainAsync(deadline.Token);
+
         if (eventName == "MESSAGE_CREATE")
         {
             var message = System.Text.Json.JsonSerializer.SerializeToElement(data);
@@ -162,6 +173,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     private async Task DrainAsync(CancellationToken cancellationToken)
     {
         var host = _host ?? throw new InvalidOperationException("Application has not started.");
+
         try
         {
             await host.Services.GetRequiredService<BackgroundTasks>().DrainAsync(cancellationToken);
@@ -182,7 +194,9 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         {
             return;
         }
+
         _disposed = true;
+
         try
         {
             if (_host != null)
@@ -202,7 +216,9 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
             _host?.Dispose();
             _logs.Dispose();
         }
+
         await _database.DisposeAsync();
+
         if (!_failureReported)
         {
             _api.EnsureExpectationsMet();
@@ -214,6 +230,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     private sealed class SeededRandom : IPseudoRandom
     {
         private readonly Random _random = new(Seed: 42);
+
         public int GetInt32Exclusive(int fromInclusive, int toExclusive) => _random.Next(fromInclusive, toExclusive);
     }
 }

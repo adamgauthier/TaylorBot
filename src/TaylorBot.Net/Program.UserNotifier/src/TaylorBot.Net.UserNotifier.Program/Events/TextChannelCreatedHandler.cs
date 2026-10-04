@@ -5,13 +5,13 @@ using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class TextChannelCreatedHandler(TaskExceptionLogger taskExceptionLogger, EntityTrackerDomainService entityTrackerDomainService) : ITextChannelCreatedHandler
+public class TextChannelCreatedHandler(TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks, EntityTrackerDomainService entityTrackerDomainService) : ITextChannelCreatedHandler
 {
     public Task TextChannelCreatedAsync(SocketTextChannel textChannel)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             entityTrackerDomainService.OnTextChannelCreatedAsync(textChannel), nameof(entityTrackerDomainService.OnTextChannelCreatedAsync)
-        ));
+        ), nameof(TextChannelCreatedHandler));
         return Task.CompletedTask;
     }
 }

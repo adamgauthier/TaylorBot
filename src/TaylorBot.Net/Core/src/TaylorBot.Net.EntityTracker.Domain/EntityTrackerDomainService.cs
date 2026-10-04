@@ -20,7 +20,8 @@ public partial class EntityTrackerDomainService(
     IUserRepository userRepository,
     ISpamChannelRepository spamChannelRepository,
     IMemberRepository memberRepository,
-    GuildTrackerDomainService guildTrackerDomainService)
+    GuildTrackerDomainService guildTrackerDomainService,
+    TimeProvider timeProvider)
 {
     private readonly AsyncEvent<Func<IGuildUser, Task>> guildMemberFirstJoinedEvent = new();
     public event Func<IGuildUser, Task> GuildMemberFirstJoinedEvent
@@ -62,7 +63,7 @@ public partial class EntityTrackerDomainService(
         foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
         {
             await OnGuildJoinedAsync(guild, downloadAllUsers: false);
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady, timeProvider);
         }
 
         LogCompletedStartupSequence(shardClient.ShardId);

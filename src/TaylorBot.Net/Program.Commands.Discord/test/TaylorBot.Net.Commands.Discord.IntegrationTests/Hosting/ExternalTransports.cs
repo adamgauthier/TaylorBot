@@ -16,11 +16,13 @@ internal static class ExternalTransports
     public static void Configure(IServiceCollection services, DiscordApi api, ExternalApi external)
     {
         services.ConfigureHttpClientDefaults(builder => builder.ConfigurePrimaryHttpMessageHandler(() => new DiscordHttpHandler(api, external)));
+
         services.Replace(ServiceDescriptor.Singleton(new BaseClientService.Initializer
         {
             ApiKey = "synthetic",
             HttpClientFactory = new GoogleTransport(api, external),
         }));
+
         services.AddKeyedSingleton("BlobTransport", (provider, _) =>
             provider.GetRequiredService<IHttpClientFactory>().CreateClient("BlobTransport"));
         services.RemoveAllKeyed<BlobServiceClient>("SignatureAccount");

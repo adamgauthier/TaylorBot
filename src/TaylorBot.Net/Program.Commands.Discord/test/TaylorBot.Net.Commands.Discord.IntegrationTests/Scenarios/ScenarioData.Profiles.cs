@@ -25,6 +25,7 @@ public sealed partial class ScenarioData
             await MemberAsync(guild, user);
             await BirthdayAsync(user, date.AddDays(index).AddYears(-25));
         }
+
         await RefreshBirthdayCalendarAsync();
     }
 

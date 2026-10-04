@@ -25,6 +25,7 @@ public sealed partial class ScenarioData
             "rps" => "INSERT INTO users.rps_stats (user_id, rps_win_count, rps_draw_count, rps_lose_count) VALUES (@Id, @wins, @draws, @losses);",
             _ => throw new ArgumentOutOfRangeException(nameof(game)),
         };
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync(sql, new { user.Id, wins, draws, losses });
     }
@@ -35,12 +36,14 @@ public sealed partial class ScenarioData
         {
             var member = await UserAsync(taypoints: 1000 - index, username: $"Rank{index:D2}");
             await MemberAsync(guild, member);
+
             await using var connection = _database.CreateConnection();
             await connection.ExecuteAsync("""
                 UPDATE guilds.guild_members SET last_known_taypoint_count = @Score,
                     message_count = @Score, minute_count = @Score, first_joined_at = @Joined
                 WHERE guild_id = @GuildId AND user_id = @Id;
                 """, new { GuildId = guild.Id, member.Id, Score = 1000 - index, Joined = new DateTime(year: 2020, month: 1, day: index, hour: 0, minute: 0, second: 0, DateTimeKind.Utc) });
+
             if (feature == "daily")
             {
                 await DailyRecordAsync(member, current: 1000 - index, maximum: 1000 - index);
@@ -92,6 +95,7 @@ public sealed partial class ScenarioData
     public async Task HeistBankAsync(int minimumRoll)
     {
         var json = JsonSerializer.Serialize(new[] { new { bankName = "Integration Vault", maximumUserCount = (int?)null, minimumRollForSuccess = minimumRoll, payoutMultiplier = "2" } });
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync("""
             INSERT INTO configuration.application_info (info_key, info_value) VALUES ('banks_json', @json)
@@ -125,11 +129,13 @@ public sealed partial class ScenarioData
         var departed = await UserAsync(taypoints: 5000, username: "Departed");
         await MemberAsync(guild, departed);
         await MemberLeftAsync(guild, departed);
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync("""
             UPDATE guilds.guild_members SET last_known_taypoint_count = 5000, message_count = 5000, minute_count = 5000
             WHERE guild_id = @GuildId AND user_id = @Id;
             """, new { GuildId = guild.Id, departed.Id });
+
         foreach (var user in new[] { outsider, departed })
         {
             if (feature == "daily")

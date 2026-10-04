@@ -48,55 +48,46 @@ public partial class MessagesTrackerDomainService(
         await textChannelMessageCountRepository.QueueIncrementMessageCountAsync(textChannel);
     }
 
-    public async Task StartPersistingTextChannelMessageCountAsync()
+    public async Task<TimeSpan> RunPersistingTextChannelMessageCountCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionPersistingTextChannelMessages(e);
-            }
-
-            await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages);
+            await textChannelMessageCountRepository.PersistQueuedMessageCountIncrementsAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionPersistingTextChannelMessages(e);
+        }
+
+        return messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingTextChannelMessages;
     }
 
-    public async Task StartPersistingMemberMessagesAndWordsAsync()
+    public async Task<TimeSpan> RunPersistingMemberMessagesAndWordsCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await messageRepository.PersistQueuedMessagesAndWordsAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionPersistingMemberMessages(e);
-            }
-
-            await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingMemberMessagesAndWords);
+            await messageRepository.PersistQueuedMessagesAndWordsAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionPersistingMemberMessages(e);
+        }
+
+        return messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingMemberMessagesAndWords;
     }
 
-    public async Task StartPersistingLastSpokeAsync()
+    public async Task<TimeSpan> RunPersistingLastSpokeCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionPersistingLastSpoke(e);
-            }
-
-            await Task.Delay(messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingLastSpoke);
+            await guildUserLastSpokeRepository.PersistQueuedLastSpokeUpdatesAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionPersistingLastSpoke(e);
+        }
+
+        return messagesTrackerOptions.CurrentValue.TimeSpanBetweenPersistingLastSpoke;
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception in PersistQueuedMessageCountIncrementsAsync.")]

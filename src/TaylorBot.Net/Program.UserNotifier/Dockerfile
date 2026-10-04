@@ -40,9 +40,6 @@ RUN dotnet new sln --name Tests --output .
 COPY ./Core/test ./Core/test
 RUN dotnet sln ./Tests.slnx add ./Core/src/**/*.csproj ./Core/test/**/*.csproj ./Program.UserNotifier/src/**/*.csproj
 
-COPY ./Program.UserNotifier/test ./Program.UserNotifier/test
-RUN dotnet sln ./Tests.slnx add ./Program.UserNotifier/test/**/*.csproj
-
 RUN --mount=type=secret,id=FEED_ACCESS_TOKEN \
     if test "${USE_TAYLORBOT_FEED}" = "true"; then \
         test -s /run/secrets/FEED_ACCESS_TOKEN || { echo "Private-feed builds require the FEED_ACCESS_TOKEN secret." >&2; exit 1; }; \

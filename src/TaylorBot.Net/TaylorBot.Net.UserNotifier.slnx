@@ -3,11 +3,11 @@
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
   </Folder>
+  <Folder Name="/Testing/" />
   <Folder Name="/Tests/">
     <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />
-    <Project Path="Program.UserNotifier/test/TaylorBot.Net.MessagesTracker.Domain.Tests/TaylorBot.Net.MessagesTracker.Domain.Tests.csproj" />
-    <Project Path="Program.UserNotifier/test/TaylorBot.Net.QuickStart.Domain.Tests/TaylorBot.Net.QuickStart.Domain.Tests.csproj" />
-    <Project Path="Program.UserNotifier/test/TaylorBot.Net.BirthdayReward.Domain.Tests/TaylorBot.Net.BirthdayReward.Domain.Tests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/TaylorBot.Net.UserNotifier.IntegrationTests.csproj" />
+    <Project Path="Testing/TaylorBot.Net.IntegrationTests.Shared/TaylorBot.Net.IntegrationTests.Shared.csproj" />
   </Folder>
   <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />
   <Project Path="Core/src/TaylorBot.Net.Core.Program/TaylorBot.Net.Core.Program.csproj" />

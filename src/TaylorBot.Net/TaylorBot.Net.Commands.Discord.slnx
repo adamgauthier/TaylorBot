@@ -3,6 +3,9 @@
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
   </Folder>
+  <Folder Name="/Testing/">
+    <Project Path="Testing/TaylorBot.Net.IntegrationTests.Shared/TaylorBot.Net.IntegrationTests.Shared.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Core/test/TaylorBot.Net.Commands.Tests/TaylorBot.Net.Commands.Tests.csproj" />
     <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />

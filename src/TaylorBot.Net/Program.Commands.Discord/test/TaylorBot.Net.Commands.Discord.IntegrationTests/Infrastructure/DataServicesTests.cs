@@ -2,9 +2,6 @@
 using FluentAssertions;
 using Xunit;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
-[assembly: AssemblyFixture(typeof(TaylorBot.Net.Commands.Discord.IntegrationTests.Infrastructure.DataServices))]
-
 namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Infrastructure;
 
 public sealed class DataServicesTests(DataServices services)
@@ -23,6 +20,25 @@ public sealed class DataServicesTests(DataServices services)
         isSuperuser.Should().BeFalse();
         users.Should().Be(0);
         (await database.Redis.PingAsync()).Should().BeGreaterThanOrEqualTo(TimeSpan.Zero);
+    }
+
+    [Fact]
+    public async Task SequentialConnections_ReuseBackendAndResetSession()
+    {
+        await using var database = await services.CreateDatabaseAsync();
+        int backend;
+        await using (var first = database.CreateConnection())
+        {
+            await first.OpenAsync(TestContext.Current.CancellationToken);
+            backend = first.ProcessID;
+            await first.ExecuteAsync("SET application_name = 'scenario-connection-probe';");
+        }
+
+        await using var second = database.CreateConnection();
+        await second.OpenAsync(TestContext.Current.CancellationToken);
+
+        second.ProcessID.Should().Be(backend);
+        (await second.QuerySingleAsync<string>("SHOW application_name;")).Should().BeEmpty();
     }
 
     [Fact]

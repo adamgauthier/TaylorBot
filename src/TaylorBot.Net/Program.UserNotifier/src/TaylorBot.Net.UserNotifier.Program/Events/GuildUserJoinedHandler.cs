@@ -9,14 +9,16 @@ namespace TaylorBot.Net.UserNotifier.Program.Events;
 public class GuildUserJoinedHandler : IGuildUserJoinedHandler
 {
     private readonly TaskExceptionLogger taskExceptionLogger;
+    private readonly BackgroundTasks backgroundTasks;
     private readonly EntityTrackerDomainService entityTrackerDomainService;
 
     public GuildUserJoinedHandler(
-        TaskExceptionLogger taskExceptionLogger,
+        TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks,
         EntityTrackerDomainService entityTrackerDomainService,
         GuildMemberJoinedLoggerService guildMemberJoinedLoggerService)
     {
         this.taskExceptionLogger = taskExceptionLogger;
+        this.backgroundTasks = backgroundTasks;
         this.entityTrackerDomainService = entityTrackerDomainService;
 
         this.entityTrackerDomainService.GuildMemberFirstJoinedEvent += guildMemberJoinedLoggerService.OnGuildMemberFirstJoinedAsync;
@@ -25,9 +27,9 @@ public class GuildUserJoinedHandler : IGuildUserJoinedHandler
 
     public Task GuildUserJoinedAsync(SocketGuildUser guildUser)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             entityTrackerDomainService.OnGuildUserJoinedAsync(guildUser), nameof(entityTrackerDomainService.OnGuildUserJoinedAsync)
-        ));
+        ), nameof(GuildUserJoinedHandler));
         return Task.CompletedTask;
     }
 }

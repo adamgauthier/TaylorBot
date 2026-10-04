@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="FluentAssertions" />
+    <Using Include="TaylorBot.Net.IntegrationTests.Shared.Infrastructure" />
+    <Using Include="TaylorBot.Net.UserNotifier.IntegrationTests.Hosting" />
+    <Using Include="Xunit" />
+    <AssemblyAttribute Include="Xunit.CollectionBehaviorAttribute">
+      <DisableTestParallelization>true</DisableTestParallelization>
+      <DisableTestParallelization_TypeName>System.Boolean</DisableTestParallelization_TypeName>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="Xunit.AssemblyFixtureAttribute">
+      <_Parameter1>TaylorBot.Net.IntegrationTests.Shared.Infrastructure.DataServices</_Parameter1>
+      <_Parameter1_TypeName>System.Type</_Parameter1_TypeName>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" PrivateAssets="all" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TaylorBot.Net.UserNotifier.Program\TaylorBot.Net.UserNotifier.Program.csproj" />
+    <ProjectReference Include="..\..\..\Testing\TaylorBot.Net.IntegrationTests.Shared\TaylorBot.Net.IntegrationTests.Shared.csproj" />
+    <None Include="..\..\..\..\taylorbot-postgres\sqitch\**\*" Link="Fixtures\Sqitch\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

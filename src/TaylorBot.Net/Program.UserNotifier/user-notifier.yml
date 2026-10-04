@@ -19,6 +19,7 @@ trigger:
   paths:
     include:
     - src/TaylorBot.Net
+    - src/taylorbot-postgres/sqitch
 
 pr:
   branches:
@@ -27,6 +28,7 @@ pr:
   paths:
     include:
     - src/TaylorBot.Net
+    - src/taylorbot-postgres/sqitch
 
 resources:
 - repo: self
@@ -41,5 +43,6 @@ stages:
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.UserNotifier/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
     deployAzureContainerScript: src/TaylorBot.Net/Program.UserNotifier/Deploy-UserNotifier.ps1
+    integrationTestProject: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/TaylorBot.Net.UserNotifier.IntegrationTests.csproj'
     pushImage: ${{ parameters.pushImage }}
     deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}

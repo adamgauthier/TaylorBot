@@ -14,23 +14,21 @@ public partial class TumblrNotifierService(
     ITumblrCheckerRepository tumblrCheckerRepository,
     TumblrClient tumblrClient,
     TumblrPostToEmbedMapper tumblrPostToEmbedMapper,
-    Lazy<ITaylorBotClient> taylorBotClient
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider
     )
 {
-    public async Task StartCheckingTumblrsAsync()
+    public async Task<TimeSpan> RunCheckingTumblrsCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await CheckAllTumblrsAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionCheckingTumblrs(e);
-            }
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await CheckAllTumblrsAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionCheckingTumblrs(e);
+        }
+        return optionsMonitor.CurrentValue.TimeSpanBetweenRequests;
     }
 
     public async ValueTask CheckAllTumblrsAsync()
@@ -57,7 +55,7 @@ public partial class TumblrNotifierService(
                 LogExceptionCheckingTumblr(exception, tumblrChecker);
             }
 
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests, timeProvider);
         }
     }
 

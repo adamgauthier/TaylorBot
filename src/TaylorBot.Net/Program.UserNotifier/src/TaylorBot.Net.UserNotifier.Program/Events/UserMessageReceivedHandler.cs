@@ -5,16 +5,16 @@ using TaylorBot.Net.MessagesTracker.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class UserMessageReceivedHandler(TaskExceptionLogger taskExceptionLogger, MessagesTrackerDomainService messagesTrackerDomainService) : IUserMessageReceivedHandler
+public class UserMessageReceivedHandler(TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks, MessagesTrackerDomainService messagesTrackerDomainService) : IUserMessageReceivedHandler
 {
     public Task UserMessageReceivedAsync(SocketUserMessage userMessage)
     {
         if (userMessage.Channel is SocketTextChannel textChannel && userMessage.Author is SocketGuildUser guildUser)
         {
-            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+            _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
                 messagesTrackerDomainService.OnGuildUserMessageReceivedAsync(textChannel, guildUser, userMessage),
                 nameof(messagesTrackerDomainService.OnGuildUserMessageReceivedAsync)
-            ));
+            ), nameof(UserMessageReceivedHandler));
         }
 
         return Task.CompletedTask;

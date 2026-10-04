@@ -15,38 +15,35 @@ public partial class MinutesTrackerDomainService(
     IOptionsMonitor<MinutesTrackerOptions> optionsMonitor,
     IMinuteRepository minuteRepository)
 {
-    public async Task StartMinutesAdderAsync()
+    private int _minuteCount = 1;
+
+    public async Task<TimeSpan> RunMinutesAdderCycleAsync()
     {
-        var minuteCount = 1;
+        var options = optionsMonitor.CurrentValue;
 
-        while (true)
+        try
         {
-            var options = optionsMonitor.CurrentValue;
-
-            try
+            // Every 6 minutes, also give a point
+            if (_minuteCount % 6 == 0)
             {
-                // Every 6 minutes, also give a point
-                if (minuteCount % 6 == 0)
-                {
-                    await minuteRepository.AddMinuteAndPointToActiveUsersAsync(options.MinimumTimeSpanSinceLastSpoke);
-                    minuteCount = 0;
-                    LogAddedMinuteAndPointToActiveUsers();
-                }
-                else
-                {
-                    await minuteRepository.AddMinuteToActiveUsersAsync(options.MinimumTimeSpanSinceLastSpoke);
-                    LogAddedMinuteToActiveUsers();
-                }
-
-                minuteCount++;
+                await minuteRepository.AddMinuteAndPointToActiveUsersAsync(options.MinimumTimeSpanSinceLastSpoke);
+                _minuteCount = 0;
+                LogAddedMinuteAndPointToActiveUsers();
             }
-            catch (Exception exception)
+            else
             {
-                LogExceptionAddingMinutes(exception);
+                await minuteRepository.AddMinuteToActiveUsersAsync(options.MinimumTimeSpanSinceLastSpoke);
+                LogAddedMinuteToActiveUsers();
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(1));
+            _minuteCount++;
         }
+        catch (Exception exception)
+        {
+            LogExceptionAddingMinutes(exception);
+        }
+
+        return TimeSpan.FromMinutes(1);
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Added a minute and point to active users")]

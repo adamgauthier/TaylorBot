@@ -1,4 +1,4 @@
-using Discord;
+﻿using Discord;
 using Discord.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -45,25 +45,23 @@ public partial class PatreonSyncDomainService(
     ILogger<PatreonSyncDomainService> logger,
     IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
     IPlusRepository plusRepository,
-    Lazy<ITaylorBotClient> taylorBotClient
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider
     )
 {
-    public async Task StartSyncingPatreonSupportersAsync()
+    public async Task<TimeSpan> RunSyncingPatreonSupportersCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                if (optionsMonitor.CurrentValue.Enabled)
-                    await SyncPatreonSupportersAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionSyncingPatreon(e);
-            }
-
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenSyncs);
+            if (optionsMonitor.CurrentValue.Enabled)
+                await SyncPatreonSupportersAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionSyncingPatreon(e);
+        }
+
+        return optionsMonitor.CurrentValue.TimeSpanBetweenSyncs;
     }
 
     private async ValueTask SyncPatreonSupportersAsync()
@@ -84,7 +82,7 @@ public partial class PatreonSyncDomainService(
                 {
                     var user = await taylorBotClient.Value.ResolveRequiredUserAsync(patron.DiscordUserId);
                     await user.SendMessageAsync(embed: embed);
-                    await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
+                    await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages, timeProvider);
                 }
             }
             catch (HttpException exception) when (DiscordDmError.IsUndeliverable(exception))

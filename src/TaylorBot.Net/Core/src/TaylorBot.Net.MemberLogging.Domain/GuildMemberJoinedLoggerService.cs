@@ -6,15 +6,15 @@ namespace TaylorBot.Net.MemberLogging.Domain;
 
 public class GuildMemberJoinedLoggerService(
     MemberLogChannelFinder memberLogChannelFinder,
-    TaskExceptionLogger taskExceptionLogger,
+    TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks,
     GuildMemberJoinedEmbedFactory guildMemberJoinedEmbedFactory)
 {
     public Task OnGuildMemberFirstJoinedAsync(IGuildUser guildUser)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             LogGuildMemberFirstJoinedAsync(guildUser),
             nameof(LogGuildMemberFirstJoinedAsync)
-        ));
+        ), nameof(GuildMemberJoinedLoggerService));
         return Task.CompletedTask;
     }
 
@@ -28,10 +28,10 @@ public class GuildMemberJoinedLoggerService(
 
     public Task OnGuildMemberRejoinedAsync(IGuildUser guildUser, DateTimeOffset firstJoinedAt)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             LogGuildMemberRejoinedAsync(guildUser, firstJoinedAt),
             nameof(LogGuildMemberRejoinedAsync)
-        ));
+        ), nameof(GuildMemberJoinedLoggerService));
         return Task.CompletedTask;
     }
 

@@ -9,24 +9,20 @@ public interface IBirthdayCalendarRepository
 
 public partial class BirthdayCalendarDomainService(ILogger<BirthdayCalendarDomainService> logger, IBirthdayCalendarRepository birthdayCalendarRepository)
 {
-    public async Task StartRefreshingBirthdayCalendarAsync()
+    public async Task<TimeSpan> RunRefreshingBirthdayCalendarCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                LogRefreshingBirthdayCalendar();
-                await birthdayCalendarRepository.RefreshBirthdayCalendarAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionRefreshingCalendar(e);
-                await Task.Delay(TimeSpan.FromSeconds(30));
-                continue;
-            }
-
-            await Task.Delay(TimeSpan.FromHours(12));
+            LogRefreshingBirthdayCalendar();
+            await birthdayCalendarRepository.RefreshBirthdayCalendarAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionRefreshingCalendar(e);
+            return TimeSpan.FromSeconds(30);
+        }
+
+        return TimeSpan.FromHours(12);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Refreshing birthday calendar")]

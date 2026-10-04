@@ -5,13 +5,13 @@ using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class UserUpdatedHandler(EntityTrackerDomainService entityTrackerDomainService, TaskExceptionLogger taskExceptionLogger) : IUserUpdatedHandler
+public class UserUpdatedHandler(EntityTrackerDomainService entityTrackerDomainService, TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks) : IUserUpdatedHandler
 {
     public Task UserUpdatedAsync(SocketUser oldUser, SocketUser newUser)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             entityTrackerDomainService.OnUserUpdatedAsync(oldUser, newUser), nameof(entityTrackerDomainService.OnUserUpdatedAsync)
-        ));
+        ), nameof(UserUpdatedHandler));
         return Task.CompletedTask;
     }
 }

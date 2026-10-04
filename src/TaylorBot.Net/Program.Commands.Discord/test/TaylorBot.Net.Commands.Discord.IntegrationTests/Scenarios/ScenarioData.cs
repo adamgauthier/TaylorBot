@@ -22,6 +22,7 @@ public sealed record ScenarioRole(string Id, string Name)
         ["flags"] = 0,
     };
 }
+
 public sealed record ScenarioGuild(string Id, string ChannelId)
 {
     internal List<ScenarioUser> Members { get; } = [];
@@ -45,11 +46,14 @@ public sealed partial class ScenarioData
     public async Task<ScenarioUser> UserAsync(long taypoints = 0, string username = "Alice", string? avatar = null, bool botOwner = false)
     {
         ScenarioUser user = new(botOwner ? "100000000000000002" : $"{Interlocked.Increment(ref _id)}", username, avatar);
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync(
             "INSERT INTO users.users (user_id, username, is_bot, taypoint_count, ignore_until) VALUES (@Id, @Username, false, @taypoints, CURRENT_TIMESTAMP - interval '1 day');",
             new { user.Id, user.Username, taypoints });
+
         _api.RegisterUser(user);
+
         return user;
     }
 
@@ -60,6 +64,7 @@ public sealed partial class ScenarioData
         ScenarioGuild guild = new(id ?? $"{Interlocked.Increment(ref _id)}", $"{Interlocked.Increment(ref _id)}");
         guild.Members.Add(user);
         guild.Members.Add(new(DiscordApi.ApplicationId, "IntegrationBot"));
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync(
             """
@@ -68,6 +73,7 @@ public sealed partial class ScenarioData
             VALUES (@Id, @UserId, @cachedTaypoints);
             """,
             new { guild.Id, UserId = user.Id, cachedTaypoints });
+
         await _dispatch("GUILD_CREATE", new
         {
             id = guild.Id,
@@ -100,7 +106,9 @@ public sealed partial class ScenarioData
             stage_instances = Array.Empty<object>(),
             guild_scheduled_events = Array.Empty<object>(),
         });
+
         _api.RegisterGuild(guild, roles ?? []);
+
         return guild;
     }
 
@@ -111,10 +119,13 @@ public sealed partial class ScenarioData
         {
             guild.Members.Add(user);
         }
+
         guild.MemberRoles[user.Id] = [.. roles.Select(role => role.Id)];
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync("INSERT INTO guilds.guild_members (guild_id, user_id) VALUES (@GuildId, @Id) ON CONFLICT DO NOTHING;",
             new { GuildId = guild.Id, user.Id });
+
         await _dispatch(existing ? "GUILD_MEMBER_UPDATE" : "GUILD_MEMBER_ADD", new
         {
             guild_id = guild.Id,
@@ -190,6 +201,7 @@ public sealed partial class ScenarioData
         await connection.ExecuteAsync("""
             INSERT INTO plus.plus_users (user_id, active, max_plus_guilds, source) VALUES (@Id, true, @maximumGuilds, 'manual_dont_reward');
             """, new { user.Id, maximumGuilds });
+
         foreach (var guild in activeGuilds)
         {
             await connection.ExecuteAsync("INSERT INTO plus.plus_guilds (guild_id, plus_user_id, state) VALUES (@GuildId, @Id, 'enabled');",
@@ -216,6 +228,7 @@ public sealed partial class ScenarioData
     {
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync("INSERT INTO moderation.mod_log_channels (guild_id, channel_id) VALUES (@Id, @ChannelId);", guild);
+
         _api.ExpectModerationLog(guild);
     }
 
@@ -242,6 +255,7 @@ public sealed partial class ScenarioData
             var user = await UserAsync(username: $"Member{index}");
             await MemberAsync(guild, user);
             await TextAttributeAsync(user, "gender", index < 5 ? "Male" : index < 8 ? "Female" : "Other");
+
             await using var connection = _database.CreateConnection();
             await connection.ExecuteAsync("INSERT INTO attributes.birthdays (user_id, birthday) VALUES (@Id, (CURRENT_DATE - @Age * interval '1 year')::date);",
                 new { user.Id, Age = ages[index] });

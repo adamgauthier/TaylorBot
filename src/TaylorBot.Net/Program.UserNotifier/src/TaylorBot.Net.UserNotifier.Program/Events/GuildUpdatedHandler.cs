@@ -5,13 +5,13 @@ using TaylorBot.Net.EntityTracker.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class GuildUpdatedHandler(EntityTrackerDomainService entityTrackerDomainService, TaskExceptionLogger taskExceptionLogger) : IGuildUpdatedHandler
+public class GuildUpdatedHandler(EntityTrackerDomainService entityTrackerDomainService, TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks) : IGuildUpdatedHandler
 {
     public Task GuildUpdatedAsync(SocketGuild oldGuild, SocketGuild newGuild)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             entityTrackerDomainService.OnGuildUpdatedAsync(oldGuild, newGuild), nameof(entityTrackerDomainService.OnGuildUpdatedAsync)
-        ));
+        ), nameof(GuildUpdatedHandler));
         return Task.CompletedTask;
     }
 }

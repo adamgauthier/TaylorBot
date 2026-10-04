@@ -14,24 +14,22 @@ public partial class ReminderNotifierDomainService(
     IOptionsMonitor<ReminderNotifierOptions> optionsMonitor,
     IReminderRepository reminderRepository,
     ReminderEmbedFactory reminderEmbedFactory,
-    Lazy<ITaylorBotClient> taylorBotClient
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider
     )
 {
-    public async Task StartCheckingRemindersAsync()
+    public async Task<TimeSpan> RunCheckingRemindersCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await RemindUsersAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionRemindingUsers(e);
-            }
-
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks);
+            await RemindUsersAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionRemindingUsers(e);
+        }
+
+        return optionsMonitor.CurrentValue.TimeSpanBetweenReminderChecks;
     }
 
     public async ValueTask RemindUsersAsync()
@@ -49,7 +47,7 @@ public partial class ReminderNotifierDomainService(
                 LogExceptionNotifyingReminder(exception, reminder);
             }
 
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenMessages, timeProvider);
         }
     }
 

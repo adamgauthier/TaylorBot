@@ -13,23 +13,21 @@ public partial class YoutubeNotifierService(
     IYoutubeCheckerRepository youtubeCheckerRepository,
     YouTubeService youtubeService,
     YoutubePostToEmbedMapper youtubePostToEmbedMapper,
-    Lazy<ITaylorBotClient> taylorBotClient
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider
     )
 {
-    public async Task StartCheckingYoutubesAsync()
+    public async Task<TimeSpan> RunCheckingYoutubesCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await CheckAllYoutubesAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionCheckingYoutubes(e);
-            }
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await CheckAllYoutubesAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionCheckingYoutubes(e);
+        }
+        return optionsMonitor.CurrentValue.TimeSpanBetweenRequests;
     }
 
     public async ValueTask CheckAllYoutubesAsync()
@@ -63,7 +61,7 @@ public partial class YoutubeNotifierService(
                 LogExceptionCheckingYoutube(exception, youtubeChecker);
             }
 
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests, timeProvider);
         }
     }
 

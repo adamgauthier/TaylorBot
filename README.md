@@ -62,7 +62,7 @@ Components define `.yml` files that represent build and deploy steps for [Azure 
 
 ### Development
 
-See the [.NET development guide](./src/TaylorBot.Net/README.md) for testing and code conventions. Commands-discord uses [integration tests](./src/TaylorBot.Net/Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.IntegrationTests/README.md) with isolated PostgreSQL and Redis containers and stubbed external APIs.
+See the [.NET development guide](./src/TaylorBot.Net/README.md) for testing and code conventions. Both applications use integration tests with isolated PostgreSQL and Redis containers and stubbed external APIs.
 
 ### Running the bot locally
 

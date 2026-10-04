@@ -5,7 +5,7 @@ using TaylorBot.Net.PatreonSync.Domain;
 
 namespace TaylorBot.Net.PatreonSync.Infrastructure;
 
-public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
+public class PatreonHttpClient(HttpClient httpClient, TimeProvider timeProvider) : IPatreonClient
 {
     private static readonly string GetPatronsQueryString = new Dictionary<string, string>() {
         { "include", "user" },
@@ -88,7 +88,7 @@ public class PatreonHttpClient(HttpClient httpClient) : IPatreonClient
 
         if (campaignMembers.links != null)
         {
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            await Task.Delay(TimeSpan.FromSeconds(5), timeProvider);
             return await FetchPatronsAsync(campaignMembers.links.next, newResult);
         }
         else

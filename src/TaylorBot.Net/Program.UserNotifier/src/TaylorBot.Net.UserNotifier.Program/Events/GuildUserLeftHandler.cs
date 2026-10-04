@@ -1,4 +1,4 @@
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.EntityTracker.Domain;
@@ -7,22 +7,22 @@ using TaylorBot.Net.MemberLogging.Domain;
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
 public class GuildUserLeftHandler(
-    TaskExceptionLogger taskExceptionLogger,
+    TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks,
     EntityTrackerDomainService entityTrackerDomainService,
     GuildMemberLeftLoggerService guildMemberLeftLoggerService
 ) : IGuildUserLeftHandler
 {
     public Task GuildUserLeftAsync(SocketGuild guild, SocketUser user)
     {
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             entityTrackerDomainService.OnGuildUserLeftAsync(guild, user),
             nameof(entityTrackerDomainService.OnGuildUserLeftAsync)
-        ));
+        ), nameof(GuildUserLeftHandler));
 
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             guildMemberLeftLoggerService.OnGuildMemberLeftAsync(guild, user),
             nameof(guildMemberLeftLoggerService.OnGuildMemberLeftAsync)
-        ));
+        ), nameof(GuildUserLeftHandler));
         return Task.CompletedTask;
     }
 }

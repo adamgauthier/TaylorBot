@@ -74,6 +74,17 @@ if ($Environment -eq "Azure") {
     [System.ArgumentException]::ThrowIfNullOrWhiteSpace($AzureConfigJson, "AzureConfigJson")
     $config = $AzureConfigJson | ConvertFrom-Json
 
+    $terminationArguments = @()
+    $terminationProperty = $config.PSObject.Properties["TerminationGracePeriodSeconds"]
+    if ($null -ne $terminationProperty) {
+        $terminationSeconds = $terminationProperty.Value
+        if (($terminationSeconds -isnot [int] -and $terminationSeconds -isnot [long]) -or $terminationSeconds -lt 0) {
+            throw "TerminationGracePeriodSeconds must be a non-negative JSON integer."
+        }
+        $terminationArguments = @("--termination-grace-period", "$terminationSeconds")
+        Write-Output "Configuring termination grace period: $terminationSeconds seconds"
+    }
+
     Write-Output "Checking if Azure Container App exists"
 
     $existingAppName = az containerapp show `
@@ -97,7 +108,8 @@ if ($Environment -eq "Azure") {
             --cpu $config.ContainerCpu `
             --memory $config.ContainerMemory `
             --min-replicas 1 `
-            --max-replicas 1
+            --max-replicas 1 `
+            @terminationArguments
     } else {
         Write-Output "Azure Container App doesn't exist, creating"
 
@@ -111,7 +123,8 @@ if ($Environment -eq "Azure") {
             --cpu $config.ContainerCpu `
             --memory $config.ContainerMemory `
             --min-replicas 1 `
-            --max-replicas 1
+            --max-replicas 1 `
+            @terminationArguments
     }
 }
 else {

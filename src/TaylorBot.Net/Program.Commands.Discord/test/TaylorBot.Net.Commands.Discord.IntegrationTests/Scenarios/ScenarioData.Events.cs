@@ -31,6 +31,7 @@ public sealed partial class ScenarioData
             ["giveaway_prize_min"] = "10",
             ["giveaway_prize_max"] = "20",
         };
+
         await using var connection = _database.CreateConnection();
         await connection.ExecuteAsync("""
             INSERT INTO valentines2026.config (config_key, config_value) VALUES (@Key, @Value)
@@ -63,6 +64,7 @@ public sealed partial class ScenarioData
             INSERT INTO configuration.application_info (info_key, info_value) VALUES ('recap_2025_count', '500')
             ON CONFLICT (info_key) DO UPDATE SET info_value = excluded.info_value;
             """);
+
         if (image != null)
         {
             await connection.ExecuteAsync("""

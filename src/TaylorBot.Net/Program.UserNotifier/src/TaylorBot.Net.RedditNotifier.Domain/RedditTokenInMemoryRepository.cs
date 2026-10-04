@@ -5,13 +5,13 @@ using TaylorBot.Net.Core.Http;
 
 namespace TaylorBot.Net.RedditNotifier.Domain;
 
-public partial class RedditTokenInMemoryRepository(IServiceProvider serviceProvider, ILogger<RedditTokenInMemoryRepository> logger)
+public partial class RedditTokenInMemoryRepository(IServiceProvider serviceProvider, ILogger<RedditTokenInMemoryRepository> logger, TimeProvider timeProvider)
 {
     private RedditToken? _token;
 
     public async Task<string> GetValidTokenAsync()
     {
-        if (_token?.ExpiresAt >= DateTimeOffset.UtcNow + TimeSpan.FromSeconds(5))
+        if (_token?.ExpiresAt >= timeProvider.GetUtcNow() + TimeSpan.FromSeconds(5))
         {
             return _token.AccessToken;
         }
@@ -30,13 +30,13 @@ public partial class RedditTokenInMemoryRepository(IServiceProvider serviceProvi
 
 public record RedditToken(string AccessToken, DateTimeOffset ExpiresAt);
 
-public class RedditAuthHttpClient(ILogger<RedditAuthHttpClient> logger, HttpClient httpClient)
+public class RedditAuthHttpClient(ILogger<RedditAuthHttpClient> logger, HttpClient httpClient, TimeProvider timeProvider)
 {
     private sealed record RedditTokenResponse(string access_token, int expires_in);
 
     public async Task<RedditToken> GetTokenAsync()
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = timeProvider.GetUtcNow();
 
         using FormUrlEncodedContent content = new([
             new("grant_type", "client_credentials"),

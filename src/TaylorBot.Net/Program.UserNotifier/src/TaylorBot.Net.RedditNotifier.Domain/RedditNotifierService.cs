@@ -13,23 +13,21 @@ public partial class RedditNotifierService(
     IOptionsMonitor<RedditNotifierOptions> optionsMonitor,
     IRedditCheckerRepository redditCheckerRepository,
     RedditPostToEmbedMapper redditPostToEmbedMapper,
-    Lazy<ITaylorBotClient> taylorBotClient
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider
     )
 {
-    public async Task StartCheckingRedditsAsync()
+    public async Task<TimeSpan> RunCheckingRedditsCycleAsync()
     {
-        while (true)
+        try
         {
-            try
-            {
-                await CheckAllRedditsAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionCheckingReddits(e);
-            }
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await CheckAllRedditsAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionCheckingReddits(e);
+        }
+        return optionsMonitor.CurrentValue.TimeSpanBetweenRequests;
     }
 
     public async ValueTask CheckAllRedditsAsync()
@@ -60,7 +58,7 @@ public partial class RedditNotifierService(
                 LogExceptionCheckingReddit(exception, redditChecker);
             }
 
-            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests);
+            await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenRequests, timeProvider);
         }
     }
 

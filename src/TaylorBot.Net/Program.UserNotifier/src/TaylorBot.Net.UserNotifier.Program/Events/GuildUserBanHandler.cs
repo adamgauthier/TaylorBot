@@ -5,21 +5,21 @@ using TaylorBot.Net.MemberLogging.Domain;
 
 namespace TaylorBot.Net.UserNotifier.Program.Events;
 
-public class GuildUserBanHandler(TaskExceptionLogger taskExceptionLogger, GuildMemberBanLoggerService guildMemberBanLoggerService) : IGuildUserBannedHandler, IGuildUserUnbannedHandler
+public class GuildUserBanHandler(TaskExceptionLogger taskExceptionLogger, BackgroundTasks backgroundTasks, GuildMemberBanLoggerService guildMemberBanLoggerService) : IGuildUserBannedHandler, IGuildUserUnbannedHandler
 {
     public Task GuildUserBannedAsync(SocketUser user, SocketGuild guild)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             guildMemberBanLoggerService.OnGuildMemberBannedAsync(user, guild), nameof(guildMemberBanLoggerService.OnGuildMemberBannedAsync)
-        ));
+        ), nameof(GuildUserBanHandler));
         return Task.CompletedTask;
     }
 
     public Task GuildUserUnbannedAsync(SocketUser user, SocketGuild guild)
     {
-        Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             guildMemberBanLoggerService.OnGuildMemberUnbannedAsync(user, guild), nameof(guildMemberBanLoggerService.OnGuildMemberUnbannedAsync)
-        ));
+        ), nameof(GuildUserBanHandler));
         return Task.CompletedTask;
     }
 }

@@ -1,0 +1,3 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "The scenario owns its database and disposes it on startup failure.", Scope = "member", Target = "~M:TaylorBot.Net.UserNotifier.IntegrationTests.Hosting.UserNotifierScenario.CreateAsync(TaylorBot.Net.IntegrationTests.Shared.Infrastructure.DataServices,System.Threading.CancellationToken,System.Nullable{TaylorBot.Net.UserNotifier.Program.Jobs.UserNotifierJob},System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})~System.Threading.Tasks.Task{TaylorBot.Net.UserNotifier.IntegrationTests.Hosting.UserNotifierScenario}")]

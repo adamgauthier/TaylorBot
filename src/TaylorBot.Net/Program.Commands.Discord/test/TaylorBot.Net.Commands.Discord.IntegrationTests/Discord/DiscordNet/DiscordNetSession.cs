@@ -23,6 +23,7 @@ internal sealed class DiscordNetSession(DiscordApi api)
             {
                 completion.SetResult();
             }
+
             return Task.CompletedTask;
         };
     }
@@ -58,6 +59,7 @@ internal sealed class DiscordNetSession(DiscordApi api)
             message = new(TaskCreationOptions.RunContinuationsAsynchronously);
             _messages.TryAdd(messageId, message);
         }
+
         var payload = JsonSerializer.Serialize(new
         {
             op = 0,
@@ -65,6 +67,7 @@ internal sealed class DiscordNetSession(DiscordApi api)
             t = eventName,
             d = data,
         });
+
         await _sockets.Single(socket => socket.IsConnected).ReceiveAsync(payload).WaitAsync(cancellationToken);
         if (message != null)
         {

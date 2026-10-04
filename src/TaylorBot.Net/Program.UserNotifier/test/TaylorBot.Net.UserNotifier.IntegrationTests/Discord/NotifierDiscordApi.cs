@@ -1,0 +1,108 @@
+﻿using System.Net;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using TaylorBot.Net.IntegrationTests.Shared.Discord;
+
+namespace TaylorBot.Net.UserNotifier.IntegrationTests.Discord;
+
+public sealed class NotifierDiscordApi : IDiscordApi
+{
+    public const string BotId = DiscordApiStub.ApplicationId;
+
+    private readonly Lock _lock = new();
+    private readonly DiscordApiStub _api;
+    private readonly Dictionary<string, object[]> _members = [];
+    private long _messageId = 100000000000090000;
+
+    public IReadOnlyList<DiscordRequest> Requests => _api.Requests;
+
+    public NotifierDiscordApi()
+    {
+        _api = new(_lock, Respond, matchQueryString: false);
+    }
+
+    public static object User(string id, string username = "Alice", bool bot = false) =>
+        DiscordApiStub.User(id, username, bot);
+
+    public static string DmChannel(string userId) => $"{ulong.Parse(userId) + 50000}";
+
+    public void Resource(string path, object payload, HttpStatusCode status = HttpStatusCode.OK) =>
+        _api.Resource(path, payload, status);
+
+    public void Members(string guildId, object[] members)
+    {
+        lock (_lock) { _members[guildId] = members; }
+    }
+
+    public JsonObject GetResource(string path)
+    {
+        lock (_lock)
+        {
+            var resource = _api.FindResource(path) ?? throw new KeyNotFoundException($"No Discord resource registered for '{path}'.");
+            return JsonSerializer.SerializeToNode(resource.Payload)!.AsObject();
+        }
+    }
+
+    public IReadOnlyList<object> MemberChunk(JsonElement request)
+    {
+        var guilds = request.GetProperty("guild_id");
+        var guildIds = guilds.ValueKind == JsonValueKind.Array ? guilds.EnumerateArray().Select(guild => guild.ToString()) : [guilds.ToString()];
+
+        lock (_lock)
+        {
+            return [.. guildIds.Select(guildId => (object)new
+            {
+                guild_id = guildId,
+                members = _members[guildId],
+                chunk_index = 0,
+                chunk_count = 1,
+                nonce = request.TryGetProperty("nonce", out var nonce) ? nonce.GetString() : null,
+            })];
+        }
+    }
+
+    public void Expect(string method, string path, object? response = null, HttpStatusCode status = HttpStatusCode.NoContent) =>
+        _api.Expect(method, path, _ => (status, response == null ? "" : JsonSerializer.Serialize(response)));
+
+    public void ExpectMessage(string channelId) => _api.Expect("POST", $"channels/{channelId}/messages", request =>
+    {
+        var content = JsonNode.Parse(request.Body!.Value.GetRawText())!.AsObject();
+        var message = DiscordMessageJson.CreateMessage(content, $"{Interlocked.Increment(ref _messageId)}", channelId, type: 0, uploads: request.Attachments);
+
+        return (HttpStatusCode.OK, message.ToJsonString());
+    });
+
+    public void RejectMessage(string channelId, int code = 50007) =>
+        Expect("POST", $"channels/{channelId}/messages", new { code, message = "Cannot send messages to this user" }, HttpStatusCode.Forbidden);
+
+    public InvalidOperationException UnexpectedRequest(string message) => _api.UnexpectedRequest(message);
+
+    public (HttpStatusCode Status, string Body) Send(string method, string endpoint, string? json = null, IReadOnlyList<DiscordAttachment>? attachments = null) =>
+        _api.Send(method, endpoint, json, attachments);
+
+    private (HttpStatusCode Status, string Body)? Respond(DiscordRequest request)
+    {
+        if (request.Method == "POST" && request.Path == "users/@me/channels")
+        {
+            var recipient = request.Body!.Value.GetProperty("recipient_id").GetString()!;
+            if (_api.FindResource($"users/{recipient}") is { Status: HttpStatusCode.OK } user)
+            {
+                return (HttpStatusCode.OK, JsonSerializer.Serialize(new { id = DmChannel(recipient), type = 1, recipients = new[] { user.Payload } }));
+            }
+        }
+
+        return null;
+    }
+
+    public void EnsureNoUnexpectedRequests() => _api.EnsureNoUnexpectedRequests();
+
+    public void EnsureExpectationsMet() => _api.EnsureExpectationsMet();
+}
+
+public sealed record DiscordOutput(IReadOnlyList<DiscordRequest> Requests)
+{
+    public IReadOnlyList<DiscordRequest> Messages => [.. Requests.Where(request => request.Method == "POST" && request.Path.EndsWith("/messages", StringComparison.Ordinal))];
+    public string Text => string.Join('\n', Messages.SelectMany(request => request.Body!.Value.TryGetProperty("embeds", out var embeds)
+        ? embeds.EnumerateArray().Select(embed => embed.TryGetProperty("description", out var description) ? description.GetString() : null)
+        : []));
+}

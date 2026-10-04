@@ -36,6 +36,7 @@ public static class SearchResponses
                 new { subpods = new[] { new { plaintext = "4", img = new { src = "https://example.invalid/result.png" } } } },
             });
         }
+
         api.Json("GET", "https://api.wolframalpha.com/v2/query?input=two%20plus%20two&appid=synthetic&output=json&ip=192.168.1.1&podindex=1,2",
             new JsonObject { ["queryresult"] = result });
     }

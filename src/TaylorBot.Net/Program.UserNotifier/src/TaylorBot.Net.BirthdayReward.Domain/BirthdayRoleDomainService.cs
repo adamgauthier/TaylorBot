@@ -30,27 +30,24 @@ public partial class BirthdayRoleDomainService(
     ILogger<BirthdayRoleDomainService> logger,
     IOptionsMonitor<BirthdayRoleOptions> optionsMonitor,
     IBirthdayRoleRepository birthdayRepository,
-    Lazy<ITaylorBotClient> taylorBotClient)
+    Lazy<ITaylorBotClient> taylorBotClient,
+    TimeProvider timeProvider)
 {
-    public async Task StartAddingBirthdayRolesAsync()
+    public async Task<TimeSpan> RunAddingBirthdayRolesCycleAsync()
     {
-        while (true)
+        var options = optionsMonitor.CurrentValue;
+
+        try
         {
-            var options = optionsMonitor.CurrentValue;
-
-            try
-            {
-                await AddBirthdayRolesAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionAddingBirthdayRoles(e);
-                await Task.Delay(TimeSpan.FromSeconds(10));
-                continue;
-            }
-
-            await Task.Delay(options.TimeSpanBetweenAdding!.Value);
+            await AddBirthdayRolesAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionAddingBirthdayRoles(e);
+            return TimeSpan.FromSeconds(10);
+        }
+
+        return options.TimeSpanBetweenAdding!.Value;
     }
 
     public async Task AddBirthdayRolesAsync()
@@ -74,7 +71,7 @@ public partial class BirthdayRoleDomainService(
                         var birthdayRole = rolesByGuild[guildId];
 
                         var lastTimeRoleGiven = await birthdayRepository.GetLastTimeRoleWasGivenAsync(birthdayUser, guildId);
-                        if (lastTimeRoleGiven is null || (DateTimeOffset.UtcNow - lastTimeRoleGiven.Value) >= TimeSpan.FromDays(360))
+                        if (lastTimeRoleGiven is null || (timeProvider.GetUtcNow() - lastTimeRoleGiven.Value) >= TimeSpan.FromDays(360))
                         {
                             var guild = taylorBotClient.Value.ResolveRequiredGuild(guildId);
 
@@ -96,7 +93,7 @@ public partial class BirthdayRoleDomainService(
                                         LogMemberAlreadyHasRole(member.FormatLog(), roleId);
                                     }
 
-                                    await birthdayRepository.CreateRoleGivenAsync(birthdayUser, birthdayRole, setAt: DateTimeOffset.UtcNow);
+                                    await birthdayRepository.CreateRoleGivenAsync(birthdayUser, birthdayRole, setAt: timeProvider.GetUtcNow());
                                     LogAddedBirthdayRoleToRemove(roleId, member.FormatLog());
                                 }
                                 else
@@ -110,7 +107,7 @@ public partial class BirthdayRoleDomainService(
                                 LogUserNotInGuild(birthdayUser, guild.FormatLog());
                             }
 
-                            await Task.Delay(TimeSpan.FromSeconds(1));
+                            await Task.Delay(TimeSpan.FromSeconds(1), timeProvider);
                         }
                         else
                         {
@@ -120,7 +117,7 @@ public partial class BirthdayRoleDomainService(
                     catch (Exception e)
                     {
                         LogExceptionAddingBirthdayRole(e, birthdayUser, guildId);
-                        await Task.Delay(TimeSpan.FromSeconds(1));
+                        await Task.Delay(TimeSpan.FromSeconds(1), timeProvider);
                     }
                 }
             }
@@ -131,25 +128,21 @@ public partial class BirthdayRoleDomainService(
         }
     }
 
-    public async Task StartRemovingBirthdayRolesAsync()
+    public async Task<TimeSpan> RunRemovingBirthdayRolesCycleAsync()
     {
-        while (true)
+        var options = optionsMonitor.CurrentValue;
+
+        try
         {
-            var options = optionsMonitor.CurrentValue;
-
-            try
-            {
-                await RemoveBirthdayRolesAsync();
-            }
-            catch (Exception e)
-            {
-                LogUnhandledExceptionRemovingBirthdayRoles(e);
-                await Task.Delay(TimeSpan.FromSeconds(10));
-                continue;
-            }
-
-            await Task.Delay(options.TimeSpanBetweenRemoving!.Value);
+            await RemoveBirthdayRolesAsync();
         }
+        catch (Exception e)
+        {
+            LogUnhandledExceptionRemovingBirthdayRoles(e);
+            return TimeSpan.FromSeconds(10);
+        }
+
+        return options.TimeSpanBetweenRemoving!.Value;
     }
 
     public async Task RemoveBirthdayRolesAsync()
@@ -170,7 +163,7 @@ public partial class BirthdayRoleDomainService(
                     {
                         if (member.RoleIds.Contains(roleId))
                         {
-                            var keptFor = DateTimeOffset.UtcNow - roleToRemove.set_at;
+                            var keptFor = timeProvider.GetUtcNow() - roleToRemove.set_at;
                             await member.RemoveRoleAsync(role, new RequestOptions { AuditLogReason = $"Removed birthday role after {keptFor.Humanize(maxUnit: TimeUnit.Hour)}" });
                             LogRemovedBirthdayRoleAfter(roleId, member.FormatLog(), keptFor);
                         }
@@ -196,7 +189,7 @@ public partial class BirthdayRoleDomainService(
                 LogExceptionRemovingBirthdayRole(e, roleToRemove);
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(1), timeProvider);
         }
     }
 

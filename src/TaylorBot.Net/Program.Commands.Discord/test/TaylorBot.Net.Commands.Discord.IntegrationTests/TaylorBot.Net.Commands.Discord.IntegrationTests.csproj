@@ -5,6 +5,21 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Using Include="TaylorBot.Net.IntegrationTests.Shared.Discord" />
+    <Using Include="TaylorBot.Net.IntegrationTests.Shared.Discord.DiscordNet" />
+    <Using Include="TaylorBot.Net.IntegrationTests.Shared.ExternalApis" />
+    <Using Include="TaylorBot.Net.IntegrationTests.Shared.Hosting" />
+    <Using Include="TaylorBot.Net.IntegrationTests.Shared.Infrastructure" />
+    <AssemblyAttribute Include="Xunit.CollectionBehaviorAttribute">
+      <DisableTestParallelization>true</DisableTestParallelization>
+      <DisableTestParallelization_TypeName>System.Boolean</DisableTestParallelization_TypeName>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="Xunit.AssemblyFixtureAttribute">
+      <_Parameter1>TaylorBot.Net.IntegrationTests.Shared.Infrastructure.DataServices</_Parameter1>
+      <_Parameter1_TypeName>System.Type</_Parameter1_TypeName>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" PrivateAssets="all" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -14,6 +29,7 @@
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Testing\TaylorBot.Net.IntegrationTests.Shared\TaylorBot.Net.IntegrationTests.Shared.csproj" />
     <ProjectReference Include="..\..\src\TaylorBot.Net.Commands.Discord.Program\TaylorBot.Net.Commands.Discord.Program.csproj" />
     <None Include="..\..\..\..\taylorbot-postgres\sqitch\**\*" Link="Fixtures\Sqitch\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\..\..\slash-commands\*.json" Link="Fixtures\Commands\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
