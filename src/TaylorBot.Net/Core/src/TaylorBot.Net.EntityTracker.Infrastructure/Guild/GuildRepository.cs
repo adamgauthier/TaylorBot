@@ -28,7 +28,7 @@ public class GuildRepository(PostgresConnectionFactory postgresConnectionFactory
             }
         );
 
-        return new GuildAddedResult(
+        return new(
             WasAdded: guildAddedOrUpdatedDto.was_inserted,
             WasGuildNameChanged: guildAddedOrUpdatedDto.guild_name_changed,
             PreviousGuildName: guildAddedOrUpdatedDto.previous_guild_name

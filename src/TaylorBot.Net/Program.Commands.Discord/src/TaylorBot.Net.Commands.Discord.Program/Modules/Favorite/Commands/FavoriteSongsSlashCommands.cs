@@ -53,7 +53,7 @@ public class FavoriteSongsShowSlashCommand(IFavoriteSongsRepository favoriteSong
 
             if (favoriteSongs != null)
             {
-                Embed embed = BuildDisplayEmbed(user, favoriteSongs.Value, favoriteSongs.SetAt);
+                var embed = BuildDisplayEmbed(user, favoriteSongs.Value, favoriteSongs.SetAt);
                 return new EmbedResult(embed);
             }
             else

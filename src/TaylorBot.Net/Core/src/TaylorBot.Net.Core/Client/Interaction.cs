@@ -160,7 +160,7 @@ public class InteractionMapper
 
     public static DiscordEmbed ToInteractionEmbed(Discord.Embed embed)
     {
-        return new DiscordEmbed(
+        return new(
             title: embed.Title,
             description: embed.Description,
             url: embed.Url,
@@ -176,7 +176,7 @@ public class InteractionMapper
 
     public static Discord.Embed ToDiscordEmbed(DiscordEmbed embed)
     {
-        var embedBuilder = new EmbedBuilder
+        EmbedBuilder embedBuilder = new()
         {
             Title = embed.title,
             Description = embed.description,
@@ -187,7 +187,7 @@ public class InteractionMapper
 
         if (embed.author != null)
         {
-            embedBuilder.Author = new EmbedAuthorBuilder
+            embedBuilder.Author = new()
             {
                 Name = embed.author.name,
                 Url = embed.author.url,
@@ -207,7 +207,7 @@ public class InteractionMapper
 
         if (embed.footer != null)
         {
-            embedBuilder.Footer = new EmbedFooterBuilder
+            embedBuilder.Footer = new()
             {
                 Text = embed.footer.text,
                 IconUrl = embed.footer.icon_url,

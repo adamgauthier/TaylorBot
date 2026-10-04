@@ -1,11 +1,13 @@
+# syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:10.0.302 AS build
 WORKDIR /app
 
-ARG FEED_ACCESS_TOKEN
-RUN if test -n "${FEED_ACCESS_TOKEN}" ; then \
-        curl -L https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | sh ; \
+ARG USE_TAYLORBOT_FEED=false
+RUN if test "${USE_TAYLORBOT_FEED}" = "true"; then \
+        curl -fsSL https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh -o /tmp/installcredprovider.sh && \
+        sh /tmp/installcredprovider.sh && rm /tmp/installcredprovider.sh; \
     fi
-ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESS_TOKEN}\"}]}"
+ENV NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED=false
 
 # copy csproj and restore as distinct layers
 COPY ./Directory.Build.props ./Directory.Build.props
@@ -18,7 +20,12 @@ RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Cor
 COPY ./Program.Commands.Discord/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Program.Commands.Discord/src/${file%.*}/ && mv $file Program.Commands.Discord/src/${file%.*}/; done
 
-RUN dotnet restore -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=$(test -n "${FEED_ACCESS_TOKEN}" && echo "true" || echo "false") ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
+RUN --mount=type=secret,id=FEED_ACCESS_TOKEN \
+    if test "${USE_TAYLORBOT_FEED}" = "true"; then \
+        test -s /run/secrets/FEED_ACCESS_TOKEN || { echo "Private-feed builds require the FEED_ACCESS_TOKEN secret." >&2; exit 1; }; \
+        export VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"$(cat /run/secrets/FEED_ACCESS_TOKEN)\"}]}"; \
+    fi && \
+    dotnet restore -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=${USE_TAYLORBOT_FEED} ./Program.Commands.Discord/src/TaylorBot.Net.Commands.Discord.Program/TaylorBot.Net.Commands.Discord.Program.csproj
 
 # copy and build app and libraries
 COPY ./Core/src ./Core/src
@@ -31,12 +38,15 @@ FROM build AS test
 RUN dotnet new sln --name Tests --output .
 
 COPY ./Core/test ./Core/test
-RUN dotnet sln ./Tests.slnx add ./Core/test/**/*.csproj
+RUN dotnet sln ./Tests.slnx add ./Core/src/**/*.csproj ./Core/test/**/*.csproj ./Program.Commands.Discord/src/**/*.csproj
 
-COPY ./Program.Commands.Discord/test ./Program.Commands.Discord/test
-RUN dotnet sln ./Tests.slnx add ./Program.Commands.Discord/test/**/*.csproj
-
-RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true ./Tests.slnx
+RUN --mount=type=secret,id=FEED_ACCESS_TOKEN \
+    if test "${USE_TAYLORBOT_FEED}" = "true"; then \
+        test -s /run/secrets/FEED_ACCESS_TOKEN || { echo "Private-feed builds require the FEED_ACCESS_TOKEN secret." >&2; exit 1; }; \
+        export VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"$(cat /run/secrets/FEED_ACCESS_TOKEN)\"}]}"; \
+    fi && \
+    dotnet build --configuration Release -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=${USE_TAYLORBOT_FEED} ./Tests.slnx
+RUN dotnet format style ./Tests.slnx --no-restore --verify-no-changes --diagnostics IDE0001 IDE0002 IDE2002 --severity warn --verbosity quiet
 
 ENTRYPOINT ["dotnet", "test", "Tests.slnx", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:XPlat Code Coverage"]
 

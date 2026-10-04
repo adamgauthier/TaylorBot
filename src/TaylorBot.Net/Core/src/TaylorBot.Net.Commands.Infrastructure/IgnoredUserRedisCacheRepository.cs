@@ -30,7 +30,7 @@ public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMul
             return getUserIgnoreUntilResult;
         }
 
-        return new GetUserIgnoreUntilResult(
+        return new(
             IgnoreUntil: DateTimeOffset.FromUnixTimeMilliseconds((long)cachedIgnoreUntil),
             WasAdded: false,
             WasUsernameChanged: false,

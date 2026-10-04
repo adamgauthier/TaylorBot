@@ -216,7 +216,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<IPatreonClient, PatreonHttpClient>((provider, client) =>
         {
             var options = provider.GetRequiredService<IOptionsMonitor<PatreonSyncOptions>>().CurrentValue;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", options.ApiKey);
+            client.DefaultRequestHeaders.Authorization = new("Bearer", options.ApiKey);
         });
 
         return services
@@ -232,7 +232,7 @@ public static class ServiceCollectionExtensions
             var options = provider.GetRequiredService<IOptionsMonitor<RedditAuthOptions>>().CurrentValue;
 
             var auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{options.AppId}:{options.AppSecret}"));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", auth);
+            client.DefaultRequestHeaders.Authorization = new("Basic", auth);
 
             client.DefaultRequestHeaders.UserAgent.ParseAdd("TaylorBot/1.0.0");
         });

@@ -30,7 +30,7 @@ public class MentionedUserTypeReaderTests
     [Fact]
     public async Task ReadAsync_WhenIUserMentionInChannel_ThenReturnsUser()
     {
-        var mentionedUserTypeReader = new MentionedUserTypeReader<IUser>(_userTracker);
+        MentionedUserTypeReader<IUser> mentionedUserTypeReader = new(_userTracker);
         var channel = A.Fake<IMessageChannel>(o => o.Strict());
         A.CallTo(() => _commandContext.Guild).Returns(null!);
         A.CallTo(() => _commandContext.Channel).Returns(channel);
@@ -46,7 +46,7 @@ public class MentionedUserTypeReaderTests
     [Fact]
     public async Task ReadAsync_WhenIGuildUserNotAMention_ThenReturnsParseFailed()
     {
-        var mentionedUserTypeReader = new MentionedUserTypeReader<IGuildUser>(_userTracker);
+        MentionedUserTypeReader<IGuildUser> mentionedUserTypeReader = new(_userTracker);
 
         var result = await mentionedUserTypeReader.ReadAsync(_commandContext, "Taylor Swift", _serviceProvider);
 
@@ -56,7 +56,7 @@ public class MentionedUserTypeReaderTests
     [Fact]
     public async Task ReadAsync_WhenIGuildUserMentionNotInGuild_ThenReturnsParseFailed()
     {
-        var mentionedUserTypeReader = new MentionedUserTypeReader<IGuildUser>(_userTracker);
+        MentionedUserTypeReader<IGuildUser> mentionedUserTypeReader = new(_userTracker);
         var guild = A.Fake<IGuild>(o => o.Strict());
         A.CallTo(() => _commandContext.Guild).Returns(guild);
         var taylorbotClient = A.Fake<ITaylorBotClient>(o => o.Strict());
@@ -72,7 +72,7 @@ public class MentionedUserTypeReaderTests
     [Fact]
     public async Task ReadAsync_WhenIGuildUserMentionInGuild_ThenReturnsIGuildUser()
     {
-        var mentionedUserTypeReader = new MentionedUserTypeReader<IGuildUser>(_userTracker);
+        MentionedUserTypeReader<IGuildUser> mentionedUserTypeReader = new(_userTracker);
         var guild = A.Fake<IGuild>(o => o.Strict());
         A.CallTo(() => _commandContext.Guild).Returns(guild);
         var taylorbotClient = A.Fake<ITaylorBotClient>(o => o.Strict());

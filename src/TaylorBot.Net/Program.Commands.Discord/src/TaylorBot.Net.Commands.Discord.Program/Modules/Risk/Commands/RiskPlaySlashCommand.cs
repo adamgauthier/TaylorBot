@@ -53,7 +53,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
 
             level ??= RiskLevel.Low;
 
-            int winThreshold = level switch
+            var winThreshold = level switch
             {
                 RiskLevel.Low => 51,
                 RiskLevel.Moderate => 76,
@@ -61,7 +61,7 @@ public class RiskPlaySlashCommand(TaypointAmountParser amountParser, IRiskStatsR
                 _ => throw new NotImplementedException(),
             };
 
-            var randomNumber = cryptoSecureRandom.GetInt32(1, 100);
+            var randomNumber = cryptoSecureRandom.GetInt32(fromInclusive: 1, toInclusive: 100);
 
             var won = randomNumber >= winThreshold;
 

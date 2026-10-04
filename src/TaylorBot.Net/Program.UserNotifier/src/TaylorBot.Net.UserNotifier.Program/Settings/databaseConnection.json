@@ -3,6 +3,7 @@
     "Database": "taylorbot",
     "ApplicationName": "user-notifier",
     "MaxPoolSize": 4,
+    "GssEncryptionMode": "Disable",
     "IncludeErrorDetail": false
   }
 }

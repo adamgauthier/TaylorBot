@@ -5,4 +5,5 @@ public class DiscordOptions
     public string Token { get; set; } = null!;
     public uint? ShardCount { get; set; }
     public uint? MessageCacheSize { get; set; }
+    public TimeSpan StartupDelay { get; set; } = TimeSpan.FromSeconds(5);
 }

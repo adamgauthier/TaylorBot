@@ -33,16 +33,16 @@ public class CustomRoleTypeReader<T> : TypeReader
     {
         if (context.Guild != null)
         {
-            var results = new Dictionary<ulong, RoleVal<T>>();
+            Dictionary<ulong, RoleVal<T>> results = [];
             var roles = context.Guild.Roles;
 
             // By Mention (1.0)
             if (MentionUtils.TryParseRole(input, out var id))
-                AddResultIfTypeMatches(results, context.Guild.GetRole(id), 1.00f);
+                AddResultIfTypeMatches(results, context.Guild.GetRole(id), score: 1.00f);
 
             // By Id (0.9)
             if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
-                AddResultIfTypeMatches(results, context.Guild.GetRole(id), 0.90f);
+                AddResultIfTypeMatches(results, context.Guild.GetRole(id), score: 0.90f);
 
             // By Name (0.5-0.8)
             foreach (var role in roles)
@@ -55,11 +55,11 @@ public class CustomRoleTypeReader<T> : TypeReader
                     }
                     else if (role.Name.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                     {
-                        AddResultIfTypeMatches(results, role, 0.60f);
+                        AddResultIfTypeMatches(results, role, score: 0.60f);
                     }
                     else
                     {
-                        AddResultIfTypeMatches(results, role, 0.50f);
+                        AddResultIfTypeMatches(results, role, score: 0.50f);
                     }
                 }
             }

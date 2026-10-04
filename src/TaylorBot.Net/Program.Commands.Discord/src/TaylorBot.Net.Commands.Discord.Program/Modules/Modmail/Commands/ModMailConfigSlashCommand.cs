@@ -129,13 +129,13 @@ public class ModMailConfigSetChannelHandler(
         ArgumentNullException.ThrowIfNull(guild);
 
         var selectedChannel = channelSelect.SelectedChannels.Single();
-        var textChannel = new GuildTextChannel(selectedChannel.Id, guild.Id, selectedChannel.Type);
+        GuildTextChannel textChannel = new(selectedChannel.Id, guild.Id, selectedChannel.Type);
 
         var modMailLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
 
         if (modMailLog != null)
         {
-            var content = new MessageContent(EmbedFactory.CreateWarning(
+            MessageContent content = new(EmbedFactory.CreateWarning(
                 $"""
                 Are you sure you want to change the Mod Mail channel to {selectedChannel.Mention}? ⚠️
                 The Mod Mail channel is currently set to {MentionUtils.MentionChannel(modMailLog.ChannelId)} 👈
@@ -196,7 +196,7 @@ public class ModMailConfigConfirmHandler(
             return;
         }
 
-        var textChannel = new GuildTextChannel(channelId, guild.Id, channel.ChannelType);
+        GuildTextChannel textChannel = new(channelId, guild.Id, channel.ChannelType);
         await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(textChannel);
 
         var embed = EmbedFactory.CreateSuccessEmbed(

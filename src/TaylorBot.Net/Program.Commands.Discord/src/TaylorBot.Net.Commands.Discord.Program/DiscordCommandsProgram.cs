@@ -113,37 +113,42 @@ using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Random;
 using TaylorBot.Net.Core.Tasks;
 
-var host = Host.CreateDefaultBuilder()
-    .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
-    {
-        var env = hostBuilderContext.HostingEnvironment;
-
-        appConfig
-            .AddTaylorBotApplication(env)
-            .AddDatabaseConnection(env)
-            .AddRedisConnection(env)
-            .AddCommandClient(env)
-            .AddJsonFile(path: "Settings/taypointWill.json", optional: false)
-            .AddJsonFile(path: "Settings/dailyPayout.json", optional: false)
-            .AddJsonFile(path: "Settings/lastFm.json", optional: false)
-            .AddJsonFile(path: "Settings/modMail.json", optional: false)
-            .AddJsonFile(path: "Settings/heist.json", optional: false)
-            .AddJsonFile(path: $"Settings/heist.{env.EnvironmentName}.json", optional: true)
-            ;
-
-        appConfig.AddEnvironmentVariables("TaylorBot_");
-    })
-    .ConfigureServices(DiscordCommandsProgram.ConfigureServices)
+var host = DiscordCommandsProgram.CreateHostBuilder(
+        DiscordCommandsProgram.AddApplicationConfiguration(Host.CreateDefaultBuilder()))
     .Build();
 
 await host.RunAsync();
 
 public static class DiscordCommandsProgram
 {
+    public static IHostBuilder CreateHostBuilder(IHostBuilder builder) => builder
+        .ConfigureServices(ConfigureServices);
+
+    public static IHostBuilder AddApplicationConfiguration(IHostBuilder builder) => builder
+        .ConfigureAppConfiguration((hostBuilderContext, appConfig) =>
+        {
+            var env = hostBuilderContext.HostingEnvironment;
+
+            appConfig
+                .AddTaylorBotApplication(env)
+                .AddDatabaseConnection(env)
+                .AddRedisConnection(env)
+                .AddCommandClient(env)
+                .AddJsonFile(path: "Settings/taypointWill.json", optional: false)
+                .AddJsonFile(path: "Settings/dailyPayout.json", optional: false)
+                .AddJsonFile(path: "Settings/lastFm.json", optional: false)
+                .AddJsonFile(path: "Settings/modMail.json", optional: false)
+                .AddJsonFile(path: "Settings/heist.json", optional: false)
+                .AddJsonFile(path: $"Settings/heist.{env.EnvironmentName}.json", optional: true);
+
+            appConfig.AddEnvironmentVariables("TaylorBot_");
+        });
+
     public static void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         var config = hostBuilderContext.Configuration;
         services
+            .AddSingleton(new CommandModuleAssembly(typeof(DiscordCommandsProgram).Assembly))
             .AddHttpClient()
             .AddMemoryCache()
             .AddTransient<TaylorBotHostedService>()
@@ -164,13 +169,16 @@ public static class DiscordCommandsProgram
             .AddTransient<IServerStatsRepository, ServerStatsRepositoryPostgresRepository>()
             .AddTransient<ILastFmUsernameRepository, LastFmUsernamePostgresRepository>()
             .ConfigureRequired<LastFmOptions>(config, "LastFm")
-            .AddTransient(provider =>
+            .AddHttpClient(nameof(LastfmClient))
+            .AddTypedClient((httpClient, provider) =>
             {
                 var options = provider.GetRequiredService<IOptionsMonitor<LastFmOptions>>().CurrentValue;
                 return new LastfmClient(
-                    apiKey: options.LastFmApiKey, apiSecret: options.LastFmApiSecret
+                    apiKey: options.LastFmApiKey,
+                    apiSecret: options.LastFmApiSecret,
+                    httpClient: httpClient
                 );
-            })
+            }).Services
             .AddTransient<LastFmPeriodStringMapper>()
             .AddTransient<LastFmCollageSize.Factory>()
             .AddTransient<ITaylorBotTypeReader, LastFmCollageSizeTypeReader>()
@@ -204,7 +212,7 @@ public static class DiscordCommandsProgram
             .AddTransient<IImageSearchClient>(provider =>
             {
                 var random = provider.GetRequiredService<IPseudoRandom>();
-                if (random.GetInt32Exclusive(0, 100) < 5)
+                if (random.GetInt32Exclusive(fromInclusive: 0, toExclusive: 100) < 5)
                 {
                     return provider.GetRequiredService<SerpApiImageSearchClient>();
                 }
@@ -463,7 +471,7 @@ public static class DiscordCommandsProgram
         services.AddHttpClient<IImgurClient, ImgurHttpClient>((provider, client) =>
         {
             var options = provider.GetRequiredService<IOptionsMonitor<ImgurOptions>>().CurrentValue;
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", options.ClientId);
+            client.DefaultRequestHeaders.Authorization = new("Client-ID", options.ClientId);
         });
     }
 }

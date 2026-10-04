@@ -25,7 +25,7 @@ public class DiceSlashCommand(ICryptoSecureRandom cryptoSecureRandom) : ISlashCo
                 var faces = options.faces.Value;
                 ArgumentOutOfRangeException.ThrowIfNegative(faces);
 
-                var randomNumber = cryptoSecureRandom.GetInt32(1, faces);
+                var randomNumber = cryptoSecureRandom.GetInt32(fromInclusive: 1, faces);
 
                 return new(new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)

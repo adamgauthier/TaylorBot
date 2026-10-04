@@ -28,7 +28,7 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom, CommandM
 
             var randomOption = cryptoSecureRandom.GetRandomElement(parsedOptions);
 
-            var description = new List<string> { randomOption };
+            List<string> description = [randomOption];
             EmbedBuilder embed = new();
 
             if (context.SlashCommand == null)

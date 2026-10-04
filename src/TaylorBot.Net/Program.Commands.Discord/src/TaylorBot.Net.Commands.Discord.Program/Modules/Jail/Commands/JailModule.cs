@@ -72,7 +72,7 @@ public class JailModule(
                         }
 
                         var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, new(Context.User), new(user), logEmbed => logEmbed
-                            .WithColor(new(95, 107, 120))
+                            .WithColor(new(r: 95, g: 107, b: 120))
                             .WithFooter("User jailed")
                         );
 
@@ -149,7 +149,7 @@ public class JailModule(
                         }
 
                         var wasLogged = await modChannelLogger.TrySendModLogAsync(Context.Guild, new(Context.User), new(user), logEmbed => logEmbed
-                            .WithColor(new(119, 136, 153))
+                            .WithColor(new(r: 119, g: 136, b: 153))
                             .WithFooter("User freed")
                         );
 

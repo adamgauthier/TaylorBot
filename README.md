@@ -43,11 +43,11 @@ graph TD
 
 ### user-notifier
 
-[taylorbot-user-notifier](./src/TaylorBot.Net) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are remembering usernames/joined dates, counting messages/minutes, sending out reminders, logging member joins/leaves/bans, logging messages and notifying of new social posts.
+[taylorbot-user-notifier](./src/TaylorBot.Net/README.md) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are remembering usernames/joined dates, counting messages/minutes, sending out reminders, logging member joins/leaves/bans, logging messages and notifying of new social posts.
 
 ### commands-discord
 
-[taylorbot-commands-discord](./src/TaylorBot.Net) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are responding to interactions (slash commands) and legacy prefixed commands.
+[taylorbot-commands-discord](./src/TaylorBot.Net/README.md) is a [.NET](https://dotnet.microsoft.com/) application based on [Discord.Net](https://github.com/discord-net/Discord.Net). Its main responsibilities are responding to interactions (slash commands) and legacy prefixed commands.
 
 ### slash-commands
 
@@ -59,6 +59,12 @@ Components define `.yml` files that represent build and deploy steps for [Azure 
 
 
 ## Get Started
+
+### Development
+
+See the [.NET development guide](./src/TaylorBot.Net/README.md) for testing and code conventions. Commands-discord uses [integration tests](./src/TaylorBot.Net/Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.IntegrationTests/README.md) with isolated PostgreSQL and Redis containers and stubbed external APIs.
+
+### Running the bot locally
 
 To run TaylorBot locally, make sure you [install Docker](https://docs.docker.com/engine/install/) and [install PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell) if you haven't already.
 
@@ -78,7 +84,7 @@ cd ./src/taylorbot-redis/
 ./Deploy-Redis.ps1
 ```
 
-Now that you have the data layer setup, the next step is to run TaylorBot. The best component to start with is [taylorbot-commands-discord](./src/TaylorBot.Net).
+Now that you have the data layer setup, the next step is to run TaylorBot. The best component to start with is [taylorbot-commands-discord](./src/TaylorBot.Net/README.md).
 
 Create a copy of [`template.commands-discord.secrets.env`](src/TaylorBot.Net/Program.Commands.Discord/template.commands-discord.secrets.env) and rename it to `commands-discord.local.secrets.env`. Edit the file to include the role password (`databasepassword=`) and the redis password (`redispassword=`) you created in the previous steps. Make sure you also include your Discord bot token (`discordtoken=`) for the account TaylorBot will be logging into. All other secrets are optional for now. Then, run in powershell:
 ```pwsh

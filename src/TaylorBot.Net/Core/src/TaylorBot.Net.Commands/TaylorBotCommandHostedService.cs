@@ -15,7 +15,10 @@ public interface ITaylorBotTypeReader
     Type ArgumentType { get; }
 }
 
-public partial class TaylorBotCommandHostedService(IServiceProvider services, ILogger<TaylorBotCommandHostedService> logger, TaylorBotHostedService taylorBotHostedService) : IHostedService
+public record CommandModuleAssembly(Assembly Assembly);
+
+public partial class TaylorBotCommandHostedService(IServiceProvider services, ILogger<TaylorBotCommandHostedService> logger,
+    TaylorBotHostedService taylorBotHostedService, CommandModuleAssembly commandModules) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -52,7 +55,7 @@ public partial class TaylorBotCommandHostedService(IServiceProvider services, IL
         LogAddingCommandModules();
 
         await commandService.AddModulesAsync(
-            assembly: Assembly.GetEntryAssembly(),
+            assembly: commandModules.Assembly,
             services: services
         );
 

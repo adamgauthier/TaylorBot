@@ -145,7 +145,6 @@ public class AccessibleRolesModule(
                             Use `{Context.CommandPrefix}roles add role-name` to add one!
                             """);
                     }
-
                 }
 
                 return new EmbedResult(embed.Build());

@@ -31,7 +31,7 @@ public class DisabledGuildCommandPostgresRepository(PostgresConnectionFactory po
         await using var connection = postgresConnectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(
-            "UPDATE guilds.guild_commands SET disabled = FALSE WHERE guild_id = @GuildId;",
+            "UPDATE guilds.guild_commands SET disabled = FALSE WHERE guild_id = @GuildId AND command_name = @CommandName;",
             new
             {
                 GuildId = $"{guild.Id}",
@@ -58,6 +58,6 @@ public class DisabledGuildCommandPostgresRepository(PostgresConnectionFactory po
             }
         );
 
-        return new GuildCommandDisabled(IsDisabled: disabled, WasCacheHit: false);
+        return new(IsDisabled: disabled, WasCacheHit: false);
     }
 }

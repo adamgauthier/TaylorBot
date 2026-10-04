@@ -37,7 +37,7 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
         await connection.OpenAsync();
         using var transaction = await connection.BeginTransactionAsync();
 
-        await AddRpsStatsAsync(connection, user, winCount: 1, 0, 0);
+        await AddRpsStatsAsync(connection, user, winCount: 1, drawCount: 0, loseCount: 0);
 
         await TaypointPostgresUtil.AddTaypointsAsync(connection, user.Id, taypointReward);
 
@@ -47,13 +47,13 @@ public class RpsStatsPostgresRepository(PostgresConnectionFactory postgresConnec
     public async Task DrawRpsAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        await AddRpsStatsAsync(connection, user, 0, drawCount: 1, 0);
+        await AddRpsStatsAsync(connection, user, winCount: 0, drawCount: 1, loseCount: 0);
     }
 
     public async Task LoseRpsAsync(DiscordUser user)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();
-        await AddRpsStatsAsync(connection, user, 0, 0, loseCount: 1);
+        await AddRpsStatsAsync(connection, user, winCount: 0, drawCount: 0, loseCount: 1);
     }
 
     public async Task<RpsProfile?> GetProfileAsync(DiscordUser user)

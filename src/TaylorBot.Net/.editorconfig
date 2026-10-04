@@ -24,7 +24,7 @@ csharp_style_expression_bodied_local_functions = false:silent
 csharp_style_throw_expression = true:suggestion
 csharp_style_prefer_null_check_over_type_check = true:suggestion
 csharp_prefer_simple_default_expression = true:suggestion
-csharp_style_implicit_object_creation_when_type_is_apparent = true:warn
+csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
 
 # Xml files
 [*.xml]
@@ -32,6 +32,28 @@ indent_size = 2
 
 [*.{cs,vb}]
 charset = utf-8-bom
+
+# Prefer target-typed new; use var for other inferred local declarations.
+roslynator_analyzers.enabled_by_default = false
+roslynator_object_creation_type_style = implicit
+roslynator_use_var_instead_of_implicit_object_creation = false
+roslynator_use_var = always
+dotnet_diagnostic.RCS1250.severity = warning
+dotnet_diagnostic.RCS1264.severity = warning
+dotnet_diagnostic.IDE0090.severity = warning
+dotnet_diagnostic.IDE0028.severity = warning
+# These IDE-only rules are verified by dotnet format in the test stages.
+dotnet_diagnostic.IDE0001.severity = warning
+dotnet_diagnostic.IDE0002.severity = warning
+dotnet_diagnostic.IDE2002.severity = warning
+csharp_style_allow_blank_lines_between_consecutive_braces_experimental = false:warning
+
+# Other Meziantou rules are disabled through MeziantouAnalysisMode.
+dotnet_diagnostic.MA0003.severity = warning
+MA0003.expression_kinds = Numeric, Boolean
+MA0003.minimum_method_parameters = 1
+MA0003.excluded_methods_regex = ^M:(FakeItEasy\.(ReturnValueConfigurationExtensions\.Returns|FakeObjectCallExtensions\.GetArgument|Configuration\.ArgumentCollection\.Get)|Humanizer\.TruncateExtensions\.Truncate|FluentAssertions\.[^(]+\.(Be|HaveCount|BeLessThanOrEqualTo|BeInRange)|System\.TimeSpan\.From(Days|Hours|Minutes|Seconds|Milliseconds|Microseconds|Ticks)|System\.Linq\.(Enumerable|Queryable|ParallelEnumerable|AsyncEnumerable)\.\w+|System\.Collections\.Generic\.(IDictionary|Dictionary)`2\.Add|System\.Collections\.Generic\.CollectionExtensions\.GetValueOrDefault|System\.Collections\.Concurrent\.ConcurrentDictionary`2\.TryAdd|Microsoft\.Extensions\.Caching\.Memory\.CacheExtensions\.Set|System\.Security\.Cryptography\.RandomNumberGenerator\.GetBytes|System\.ArgumentOutOfRangeException\.ThrowIfNotEqual|DotNet\.Testcontainers\.Containers\.(DockerContainer|IContainer)\.GetMappedPublicPort|StackExchange\.Redis\.[^(]+|TaylorBot\.Net\.Commands\.Discord\.Program\.Modules\.LastFm\.Commands\.LastFmCollageSize\.\x23ctor)\b
+
 #### Naming styles ####
 
 # Naming rules

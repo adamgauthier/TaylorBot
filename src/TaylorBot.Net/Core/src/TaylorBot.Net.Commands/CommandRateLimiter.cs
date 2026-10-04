@@ -41,7 +41,7 @@ public class CommandRateLimiter(
         }
         else
         {
-            return new RateLimitedResult(friendlyName, dailyUseCount, userLimit);
+            return new(friendlyName, dailyUseCount, userLimit);
         }
     }
 }

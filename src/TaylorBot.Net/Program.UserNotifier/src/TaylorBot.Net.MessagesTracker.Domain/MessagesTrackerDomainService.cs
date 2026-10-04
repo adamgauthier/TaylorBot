@@ -41,7 +41,7 @@ public partial class MessagesTrackerDomainService(
 
         if (!isSpam)
         {
-            await messageRepository.QueueAddMessagesAndWordsAsync(guildUser, 1, wordCounter.CountWords(message.Content));
+            await messageRepository.QueueAddMessagesAndWordsAsync(guildUser, messageCountToAdd: 1, wordCounter.CountWords(message.Content));
         }
 
         await guildUserLastSpokeRepository.QueueUpdateLastSpokeAsync(guildUser, message.Timestamp);

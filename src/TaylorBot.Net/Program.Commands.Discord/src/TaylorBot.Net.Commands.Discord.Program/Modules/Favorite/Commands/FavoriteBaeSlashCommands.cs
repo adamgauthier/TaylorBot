@@ -51,7 +51,7 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository, CommandMe
 
             if (favoriteBae != null)
             {
-                Embed embed = BuildDisplayEmbed(user, favoriteBae.Value, favoriteBae.SetAt);
+                var embed = BuildDisplayEmbed(user, favoriteBae.Value, favoriteBae.SetAt);
                 return new EmbedResult(embed);
             }
             else

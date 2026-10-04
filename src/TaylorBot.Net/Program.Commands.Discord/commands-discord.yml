@@ -19,6 +19,8 @@ trigger:
   paths:
     include:
     - src/TaylorBot.Net
+    - src/taylorbot-postgres/sqitch
+    - src/slash-commands
 
 pr:
   branches:
@@ -27,6 +29,8 @@ pr:
   paths:
     include:
     - src/TaylorBot.Net
+    - src/taylorbot-postgres/sqitch
+    - src/slash-commands
 
 resources:
 - repo: self
@@ -41,5 +45,6 @@ stages:
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.Commands.Discord/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
     deployAzureContainerScript: src/TaylorBot.Net/Program.Commands.Discord/Deploy-CommandsDiscord.ps1
+    integrationTestProject: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.IntegrationTests/TaylorBot.Net.Commands.Discord.IntegrationTests.csproj'
     pushImage: ${{ parameters.pushImage }}
     deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}

@@ -23,7 +23,7 @@ public class RiskProfileSlashCommand(IRiskStatsRepository riskStatsRepository) :
             async () =>
             {
                 var user = options.user.User;
-                var profile = (await riskStatsRepository.GetProfileAsync(user)) ?? new(0, 0, 0, 0);
+                var profile = (await riskStatsRepository.GetProfileAsync(user)) ?? new(risk_win_count: 0, risk_win_amount: 0, risk_lose_count: 0, risk_lose_amount: 0);
 
                 var totalRiskPlayed = profile.risk_win_count + profile.risk_lose_count;
                 var winRate = totalRiskPlayed != 0 ? (decimal)profile.risk_win_count / totalRiskPlayed : 0;

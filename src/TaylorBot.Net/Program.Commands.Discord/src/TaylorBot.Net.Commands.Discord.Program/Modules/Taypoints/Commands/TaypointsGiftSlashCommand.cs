@@ -17,7 +17,7 @@ public class TaypointsGiftSlashCommand(
     ITaypointTransferRepository taypointTransferRepository,
     TaypointAmountParser amountParser,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
-    TaskExceptionLogger taskExceptionLogger,
+    BackgroundTasks backgroundTasks,
     CommandMentioner mention) : ISlashCommand<TaypointsGiftSlashCommand.Options>
 {
     public static string CommandName => "taypoints gift";
@@ -98,7 +98,7 @@ public class TaypointsGiftSlashCommand(
 
     private List<CustomIdDataEntry> GetAmountCustomIdData(ITaypointAmount amount)
     {
-        var data = new List<CustomIdDataEntry>();
+        List<CustomIdDataEntry> data = [];
 
         if (amount is AbsoluteTaypointAmount abs)
         {
@@ -157,7 +157,7 @@ public class TaypointsGiftSlashCommand(
                 .Append(new(from.Id, fromBalance))
                 .ToList();
 
-            _ = taskExceptionLogger.LogOnError(
+            _ = backgroundTasks.Run(
                 async () => await taypointGuildCacheUpdater.UpdateLastKnownPointCountsAsync(context.Guild, updates),
                 nameof(taypointGuildCacheUpdater.UpdateLastKnownPointCountsAsync)
             );
@@ -214,4 +214,3 @@ public class TaypointsGiftConfirmButtonHandler(
         };
     }
 }
-

@@ -3,13 +3,16 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
+using TaylorBot.Net.Core.Program.Options;
 using TaylorBot.Net.Core.Tasks;
 
 namespace TaylorBot.Net.Core.Program;
 
-public partial class TaylorBotHostedService(IServiceProvider services, ILogger<TaylorBotHostedService> logger, TaskExceptionLogger taskExceptionLogger) : IHostedService
+public partial class TaylorBotHostedService(IServiceProvider services, ILogger<TaylorBotHostedService> logger, TaskExceptionLogger taskExceptionLogger,
+    IOptions<DiscordOptions> discordOptions, BackgroundTasks backgroundTasks) : IHostedService
 {
     private const GatewayIntents IntentMessageContent = (GatewayIntents)(1 << 15);
 
@@ -39,7 +42,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         }
 
         // Wait to login in case of a boot loop
-        await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+        await Task.Delay(discordOptions.Value.StartupDelay, cancellationToken);
 
         LogStartingClient(flaggedIntents, (int)flaggedIntents);
 
@@ -54,6 +57,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         if (_client != null)
         {
             await _client.StopAsync();
+            await backgroundTasks.DrainAsync(cancellationToken);
             LogClientsUnloaded();
         }
     }
@@ -76,7 +80,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var shardReadyHandlers = services.GetServices<IShardReadyHandler>().ToList();
         if (shardReadyHandlers.Count > 0)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.ShardReady += async (socketClient) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -94,7 +98,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var interactionHandler = services.GetService<IInteractionCreatedHandler>();
         if (interactionHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.InteractionCreated += async (interaction) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -110,7 +114,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var messageReceivedHandler = services.GetService<IMessageReceivedHandler>();
         if (messageReceivedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.MessageReceived += async (message) =>
                 {
@@ -125,7 +129,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var userMessageReceivedHandler = services.GetService<IUserMessageReceivedHandler>();
         if (userMessageReceivedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.MessageReceived += async (message) =>
                 {
@@ -143,7 +147,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var messageDeletedHandler = services.GetService<IMessageDeletedHandler>();
         if (messageDeletedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.MessageDeleted += async (message, channel) =>
                 {
@@ -159,7 +163,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var messageBulkDeletedHandler = services.GetService<IMessageBulkDeletedHandler>();
         if (messageBulkDeletedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.MessagesBulkDeleted += async (messages, channel) =>
                 {
@@ -174,7 +178,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var messageUpdatedHandler = services.GetService<IMessageUpdatedHandler>();
         if (messageUpdatedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.MessageUpdated += async (oldMessage, newMessage, channel) =>
                 {
@@ -192,7 +196,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var reactionAddedHandler = services.GetService<IReactionAddedHandler>();
         if (reactionAddedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.ReactionAdded += async (message, channel, reaction) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -205,7 +209,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var reactionRemovedHandler = services.GetService<IReactionRemovedHandler>();
         if (reactionRemovedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.ReactionRemoved += async (message, channel, reaction) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -220,7 +224,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
     {
         foreach (var joinedGuildHandler in services.GetServices<IJoinedGuildHandler>())
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.JoinedGuild += async (guild) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -233,7 +237,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var guildUpdatedHandler = services.GetService<IGuildUpdatedHandler>();
         if (guildUpdatedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.GuildUpdated += async (oldGuild, newGuild) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -246,7 +250,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var textChannelCreatedHandler = services.GetService<ITextChannelCreatedHandler>();
         if (textChannelCreatedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.ChannelCreated += async (socketChannel) =>
                 {
@@ -267,7 +271,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var userUpdatedHandler = services.GetService<IUserUpdatedHandler>();
         if (userUpdatedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.UserUpdated += async (oldUser, newUser) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -280,7 +284,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var guildUserJoinedHandler = services.GetService<IGuildUserJoinedHandler>();
         if (guildUserJoinedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.UserJoined += async (guildUser) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -293,7 +297,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var guildUserLeftHandler = services.GetService<IGuildUserLeftHandler>();
         if (guildUserLeftHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.UserLeft += async (guild, user) =>
                 {
@@ -311,7 +315,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var guildUserBannedHandler = services.GetService<IGuildUserBannedHandler>();
         if (guildUserBannedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.UserBanned += async (user, guild) =>
                     await taskExceptionLogger.LogOnError(async () =>
@@ -324,7 +328,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
         var guildUserUnbannedHandler = services.GetService<IGuildUserUnbannedHandler>();
         if (guildUserUnbannedHandler != null)
         {
-            yield return new EventHandlerRegistrar((client) =>
+            yield return new((client) =>
             {
                 client.DiscordShardedClient.UserUnbanned += async (user, guild) =>
                     await taskExceptionLogger.LogOnError(async () =>

@@ -21,7 +21,7 @@ public class CustomChannelTypeReaderChannelTests
 
     public CustomChannelTypeReaderChannelTests()
     {
-        _customChannelTypeReader = new CustomChannelTypeReader<IChannel>();
+        _customChannelTypeReader = new();
     }
 
     [Fact]

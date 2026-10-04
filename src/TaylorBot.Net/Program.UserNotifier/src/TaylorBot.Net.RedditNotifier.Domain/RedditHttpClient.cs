@@ -34,12 +34,12 @@ public class RedditHttpClient(ILogger<RedditHttpClient> logger, HttpClient httpC
 {
     public async Task<RedditPost> GetNewestPostAsync(string subreddit)
     {
-        using var request = new HttpRequestMessage
+        using HttpRequestMessage request = new()
         {
             Method = HttpMethod.Get,
             RequestUri = new($"https://oauth.reddit.com/r/{subreddit}/new.json?limit=1"),
         };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await redditTokenRepository.GetValidTokenAsync());
+        request.Headers.Authorization = new("Bearer", await redditTokenRepository.GetValidTokenAsync());
 
         var response = await httpClient.SendAsync(request);
         await response.EnsureSuccessAsync(logger);

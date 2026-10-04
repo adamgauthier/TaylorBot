@@ -13,7 +13,7 @@ public interface IApplicationCommandsRepository
     Task CacheCommandsAsync();
 }
 
-public class ApplicationCommandsRepository(TaskExceptionLogger taskExceptionLogger, IMemoryCache memoryCache, Lazy<ITaylorBotClient> taylorBotClient) : IApplicationCommandsRepository
+public class ApplicationCommandsRepository(BackgroundTasks backgroundTasks, IMemoryCache memoryCache, Lazy<ITaylorBotClient> taylorBotClient) : IApplicationCommandsRepository
 {
     private const string GlobalCacheKey = "global-application-commands";
 
@@ -24,7 +24,7 @@ public class ApplicationCommandsRepository(TaskExceptionLogger taskExceptionLogg
             return commandsLookup?.TryGetValue(name, out var commandId) == true ? commandId : null;
         }
 
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(CacheCommandsAsync, nameof(CacheCommandsAsync)));
+        _ = backgroundTasks.Queue(CacheCommandsAsync, nameof(CacheCommandsAsync));
         return null;
     }
 
@@ -36,8 +36,7 @@ public class ApplicationCommandsRepository(TaskExceptionLogger taskExceptionLogg
             return commandsLookup?.TryGetValue(name, out var commandId) == true ? commandId : null;
         }
 
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-            () => CacheGuildCommandsAsync(guildId), nameof(CacheGuildCommandsAsync)));
+        _ = backgroundTasks.Queue(() => CacheGuildCommandsAsync(guildId), nameof(CacheGuildCommandsAsync));
         return null;
     }
 

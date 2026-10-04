@@ -21,7 +21,7 @@ public class ModMailMessageModsSlashCommand(InGuildPrecondition.Factory inGuild)
 
     public IList<ICommandPrecondition> BuildPreconditions() => [inGuild.Create(botMustBeInGuild: true)];
 
-    public static readonly Color EmbedColor = new(255, 255, 240);
+    public static readonly Color EmbedColor = new(r: 255, g: 255, b: 240);
     public const string EmbedFooterText = "Mod mail received";
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions _)

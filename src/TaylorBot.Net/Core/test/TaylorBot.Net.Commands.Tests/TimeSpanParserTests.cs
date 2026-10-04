@@ -13,7 +13,7 @@ public class TimeSpanParserTests
     [Fact]
     public async Task ParseAsync_WhenSingleHourComponent_ThenParsedCorrectly()
     {
-        JsonElement element = CreateJsonElement("5h");
+        var element = CreateJsonElement("5h");
 
         var result = await _timeSpanParser.ParseAsync(null!, element, null!);
 
@@ -23,7 +23,7 @@ public class TimeSpanParserTests
     [Fact]
     public async Task ParseAsync_WhenMultipleComponents_ThenParsedCorrectly()
     {
-        JsonElement element = CreateJsonElement("1d 11h");
+        var element = CreateJsonElement("1d 11h");
 
         var result = await _timeSpanParser.ParseAsync(null!, element, null!);
 
@@ -33,7 +33,7 @@ public class TimeSpanParserTests
     [Fact]
     public async Task ParseAsync_WhenDuplicateComponents_ThenError()
     {
-        JsonElement element = CreateJsonElement("5m 10m");
+        var element = CreateJsonElement("5m 10m");
 
         var result = await _timeSpanParser.ParseAsync(null!, element, null!);
 

@@ -34,7 +34,9 @@ public sealed class InflatableLastFmClient(
                     TrackName: content.Name,
                     TrackUrl: content.Url.ToString(),
                     TrackImageUrl: content.Images.Large?.ToString(),
-                    Artist: new ScrobbleArtist(Name: content.ArtistName, Url: content.ArtistUrl.ToString()),
+                    Artist: new ScrobbleArtist(
+                        Name: content.ArtistName,
+                        Url: content.ArtistUrl?.ToString() ?? $"https://www.last.fm/music/{Uri.EscapeDataString(content.ArtistName)}"),
                     IsNowPlaying: content.IsNowPlaying == true
                 )
             );
@@ -244,11 +246,11 @@ public sealed class InflatableLastFmClient(
                 return new LastFmUserNotFound(status?.ToString(), lastFmUsername);
             }
 
-            return new LastFmGenericErrorResult(status?.ToString());
+            return new(status?.ToString());
         }
         else
         {
-            return new LastFmGenericErrorResult(null);
+            return new(null);
         }
     }
 }

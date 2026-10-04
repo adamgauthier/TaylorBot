@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using OperationResult;
+using System.Net;
 using System.Net.Http.Json;
 using static OperationResult.Helpers;
 
 namespace TaylorBot.Net.Core.Http;
 
-public record HttpError(Exception? Exception, string? Content, bool WasHttpSuccess);
+public record HttpError(Exception? Exception, string? Content, bool WasHttpSuccess, HttpStatusCode? StatusCode = null);
 
 public record HttpSuccess<T>(T Parsed, HttpResponseMessage Response);
 
@@ -47,11 +48,11 @@ public static partial class HttpExtensions
             catch (Exception stringException)
             {
                 LogUnhandledErrorParsingSuccessContent(logger, stringException, jsonException.Message);
-                return await handleErrorAsync(new HttpError(stringException, Content: null, WasHttpSuccess: true));
+                return await handleErrorAsync(new HttpError(stringException, Content: null, WasHttpSuccess: true, response.StatusCode));
             }
 
             LogUnhandledErrorHandlingSuccessContent(logger, jsonException, content);
-            return await handleErrorAsync(new HttpError(jsonException, content, WasHttpSuccess: true));
+            return await handleErrorAsync(new HttpError(jsonException, content, WasHttpSuccess: true, response.StatusCode));
         }
 
         try
@@ -88,7 +89,7 @@ public static partial class HttpExtensions
         catch (Exception e)
         {
             LogUnhandledErrorParsingContent(logger, e);
-            return Error(new HttpError(e, Content: null, WasHttpSuccess: true));
+            return Error(new HttpError(e, Content: null, WasHttpSuccess: true, response.StatusCode));
         }
     }
 
@@ -113,12 +114,12 @@ public static partial class HttpExtensions
             {
                 var content = await response.Content.ReadAsStringAsync();
                 LogErrorResponse(logger, response.StatusCode, content);
-                return Error(new HttpError(null, content, WasHttpSuccess: false));
+                return Error(new HttpError(null, content, WasHttpSuccess: false, response.StatusCode));
             }
             catch (Exception e)
             {
                 LogUnhandledErrorReadingErrorContent(logger, e, response.StatusCode);
-                return Error(new HttpError(e, Content: null, WasHttpSuccess: false));
+                return Error(new HttpError(e, Content: null, WasHttpSuccess: false, response.StatusCode));
             }
         }
 
@@ -166,10 +167,10 @@ public static partial class HttpExtensions
     private static partial void LogUnhandledErrorMakingRequest(ILogger logger, Exception exception);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Error response ({StatusCode}): {Content}")]
-    private static partial void LogErrorResponse(ILogger logger, System.Net.HttpStatusCode statusCode, string content);
+    private static partial void LogErrorResponse(ILogger logger, HttpStatusCode statusCode, string content);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Unhandled error when reading error content ({StatusCode})")]
-    private static partial void LogUnhandledErrorReadingErrorContent(ILogger logger, Exception exception, System.Net.HttpStatusCode statusCode);
+    private static partial void LogUnhandledErrorReadingErrorContent(ILogger logger, Exception exception, HttpStatusCode statusCode);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "{Message}: can't read content")]
     private static partial void LogCannotReadContent(ILogger logger, Exception exception, string message);

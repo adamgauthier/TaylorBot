@@ -19,7 +19,7 @@ public class TaypointsLeaderboardSlashCommand(
     ITaypointBalanceRepository taypointBalanceRepository,
     MemberNotInGuildUpdater memberNotInGuildUpdater,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
-    TaskExceptionLogger taskExceptionLogger,
+    BackgroundTasks backgroundTasks,
     PageMessageFactory pageMessageFactory,
     InGuildPrecondition.Factory inGuild) : ISlashCommand<NoOptions>
 {
@@ -81,7 +81,7 @@ public class TaypointsLeaderboardSlashCommand(
 
     private void UpdateLastKnownPointCountsInBackground(CommandGuild guild, IList<TaypointLeaderboardEntry> leaderboard)
     {
-        _ = taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Run(
             async () =>
             {
                 var updates = leaderboard

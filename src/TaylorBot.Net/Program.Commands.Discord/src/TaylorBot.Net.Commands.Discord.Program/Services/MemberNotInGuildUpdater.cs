@@ -7,14 +7,14 @@ using TaylorBot.Net.EntityTracker.Domain.Member;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
-public partial class MemberNotInGuildUpdater(ILogger<MemberNotInGuildUpdater> logger, ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, TaskExceptionLogger taskExceptionLogger)
+public partial class MemberNotInGuildUpdater(ILogger<MemberNotInGuildUpdater> logger, ITaylorBotClient taylorBotClient, IMemberRepository memberRepository, BackgroundTasks backgroundTasks)
 {
     public void UpdateMembersWhoLeftInBackground(string taskName, IGuild guild, IReadOnlyList<SnowflakeId> userIds)
     {
-        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Queue(
             async () => await UpdateMembersWhoLeft(taskName, guild, userIds),
             taskName
-        ));
+        );
     }
 
     private async Task UpdateMembersWhoLeft(string taskName, IGuild guild, IReadOnlyList<SnowflakeId> userIds)

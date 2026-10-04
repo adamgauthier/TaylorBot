@@ -25,7 +25,7 @@ public class RollPlaySlashCommand(IRollStatsRepository rollStatsRepository, IRat
             if (rateLimitResult != null)
                 return rateLimitResult;
 
-            var roll = cryptoSecureRandom.GetInt32(0, 1989);
+            var roll = cryptoSecureRandom.GetInt32(fromInclusive: 0, toInclusive: 1989);
 
             string color;
             int reward;

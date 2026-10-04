@@ -27,7 +27,7 @@ public class TimeSpanParser : IOptionParser<ParsedTimeSpan>
             return new(Error(new ParsingFailed(UnrecognizedFormatText)));
         }
 
-        var parsedComponents = new Dictionary<char, TimeSpan>();
+        Dictionary<char, TimeSpan> parsedComponents = [];
 
         foreach (var component in components)
         {

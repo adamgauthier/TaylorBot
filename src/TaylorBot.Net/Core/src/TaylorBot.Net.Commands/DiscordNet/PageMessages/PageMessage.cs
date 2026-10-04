@@ -18,7 +18,7 @@ public class PageMessage(PageMessageOptions options)
             allowedMentions: new AllowedMentions { MentionRepliedUser = false },
             text: string.IsNullOrWhiteSpace(rendered.Content) ? null : rendered.Content,
             embed: rendered.Embeds.Count > 0 ? rendered.Embeds[0] : null);
-        return new SentPageMessage(commandUser, sent, options);
+        return new(commandUser, sent, options);
     }
 }
 
@@ -34,7 +34,7 @@ public partial class SentPageMessage(IUser commandUser, IUserMessage sentMessage
 
     public async ValueTask SendReactionsAsync(PageMessageReactionsHandler pageMessageReactionsHandler, ILogger logger)
     {
-        var interactiveEmotes = new List<Emoji>();
+        List<Emoji> interactiveEmotes = [];
         if (options.Renderer.HasMultiplePages)
         {
             interactiveEmotes.AddRange([PreviousEmoji, NextEmoji]);
@@ -65,7 +65,7 @@ public partial class SentPageMessage(IUser commandUser, IUserMessage sentMessage
             {
                 if (interactiveEmotes.Count > 0)
                 {
-                    _unsubscribeTimer = new Timer(TimerCallback, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+                    _unsubscribeTimer = new(TimerCallback, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
                     void TimerCallback(object? state)
                     {
                         if (_lastInteractionAt == null ||

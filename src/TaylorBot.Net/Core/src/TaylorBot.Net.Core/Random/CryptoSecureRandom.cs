@@ -10,7 +10,7 @@ public interface IRandom
         GetInt32Exclusive(fromInclusive, toInclusive + 1);
 
     T GetRandomElement<T>(IReadOnlyList<T> list) =>
-        list[GetInt32Exclusive(0, list.Count)];
+        list[GetInt32Exclusive(fromInclusive: 0, list.Count)];
 }
 
 public interface ICryptoSecureRandom : IRandom

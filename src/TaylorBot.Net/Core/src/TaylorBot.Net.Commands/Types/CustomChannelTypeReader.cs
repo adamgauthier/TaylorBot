@@ -26,7 +26,7 @@ public class CustomChannelTypeReader<T> : TypeReader
 
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
-        var results = new Dictionary<ulong, ChannelVal<T>>();
+        Dictionary<ulong, ChannelVal<T>> results = [];
         var raw = (await context.Guild.GetChannelsAsync(CacheMode.CacheOnly)).ToList();
 
         var channels = context.Guild != null && context.User is IGuildUser user ?
@@ -46,11 +46,11 @@ public class CustomChannelTypeReader<T> : TypeReader
 
         // By Mention (1.0)
         if (MentionUtils.TryParseChannel(input, out var id) && channels.Any(c => c.Id == id))
-            AddResultIfTypeMatches(results, channels.Single(c => c.Id == id), 1.00f);
+            AddResultIfTypeMatches(results, channels.Single(c => c.Id == id), score: 1.00f);
 
         // By Id (0.9)
         if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id) && channels.Any(c => c.Id == id))
-            AddResultIfTypeMatches(results, channels.Single(c => c.Id == id), 0.90f);
+            AddResultIfTypeMatches(results, channels.Single(c => c.Id == id), score: 0.90f);
 
         // By Name (0.6-0.8)
         foreach (var channel in channels)
@@ -63,7 +63,7 @@ public class CustomChannelTypeReader<T> : TypeReader
                 }
                 else
                 {
-                    AddResultIfTypeMatches(results, channel, 0.60f);
+                    AddResultIfTypeMatches(results, channel, score: 0.60f);
                 }
             }
         }

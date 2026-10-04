@@ -20,7 +20,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
             {
                 if (score > currentVal.Score)
                 {
-                    results[casted.Id] = new UserVal<T>(
+                    results[casted.Id] = new(
                         new UserArgument<T>(casted, userTracker),
                         score
                     );
@@ -43,7 +43,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
 
     public override async Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
     {
-        var results = new Dictionary<ulong, UserVal<T>>();
+        Dictionary<ulong, UserVal<T>> results = [];
 
         var channelUsers = Flatten(context.Channel.GetUsersAsync(CacheMode.CacheOnly));
 
@@ -57,7 +57,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
         if (mentionned.Values != null)
         {
             var result = (IUserArgument<T>)mentionned.BestMatch;
-            results.Add(result.UserId, new UserVal<T>(result, 1.00f));
+            results.Add(result.UserId, new UserVal<T>(result, Score: 1.00f));
         }
 
         // By Id (0.9)
@@ -68,7 +68,7 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
                 await context.Channel.GetUserAsync(id, CacheMode.CacheOnly).ConfigureAwait(false);
 
             if (user != null)
-                AddResultIfTypeMatches(results, user, 0.90f);
+                AddResultIfTypeMatches(results, user, score: 0.90f);
         }
 
         // By Username + Discriminator (0.7-0.85)
@@ -111,11 +111,11 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
                     }
                     else if (u.Username.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                     {
-                        AddResultIfTypeMatches(results, u, 0.25f);
+                        AddResultIfTypeMatches(results, u, score: 0.25f);
                     }
                     else
                     {
-                        AddResultIfTypeMatches(results, u, 0.20f);
+                        AddResultIfTypeMatches(results, u, score: 0.20f);
                     }
                 }
             }
@@ -130,11 +130,11 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
                     }
                     else if (guildUser.Username.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                     {
-                        AddResultIfTypeMatches(results, guildUser, 0.15f);
+                        AddResultIfTypeMatches(results, guildUser, score: 0.15f);
                     }
                     else
                     {
-                        AddResultIfTypeMatches(results, guildUser, 0.10f);
+                        AddResultIfTypeMatches(results, guildUser, score: 0.10f);
                     }
                 }
             }
@@ -156,11 +156,11 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
                     }
                     else if (u.Nickname.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                     {
-                        AddResultIfTypeMatches(results, u, 0.25f);
+                        AddResultIfTypeMatches(results, u, score: 0.25f);
                     }
                     else
                     {
-                        AddResultIfTypeMatches(results, u, 0.20f);
+                        AddResultIfTypeMatches(results, u, score: 0.20f);
                     }
                 }
             }
@@ -175,11 +175,11 @@ public class CustomUserTypeReader<T>(MentionedUserTypeReader<T> mentionedUserTyp
                     }
                     else if (guildUser.Nickname.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                     {
-                        AddResultIfTypeMatches(results, guildUser, 0.15f);
+                        AddResultIfTypeMatches(results, guildUser, score: 0.15f);
                     }
                     else
                     {
-                        AddResultIfTypeMatches(results, guildUser, 0.10f);
+                        AddResultIfTypeMatches(results, guildUser, score: 0.10f);
                     }
                 }
             }

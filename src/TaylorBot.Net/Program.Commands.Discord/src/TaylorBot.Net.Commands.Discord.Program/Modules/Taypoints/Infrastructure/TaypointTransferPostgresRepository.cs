@@ -52,7 +52,7 @@ public class TaypointTransferPostgresRepository(PostgresConnectionFactory postgr
         }
 
         await transaction.CommitAsync();
-        return new TransferResult(removedTaypoint.original_count, removedTaypoint.gifted_count, recipients);
+        return new(removedTaypoint.original_count, removedTaypoint.gifted_count, recipients);
     }
 
     private sealed record RemoveTaypointDto(long original_count, long gifted_count);

@@ -49,7 +49,7 @@ public class LoveHistorySlashCommand(
                     var obtainedAsLines = chain.Select(o => $"{o.AcquiredAt:MMM d}: {o.FromName.MdUserLink(o.FromUserId)} 💌➡️ {o.ToUserName.MdUserLink(o.ToUserId)}");
 
                     var pages =
-                        obtainedAsLines.Chunk(size: 15)
+                        obtainedAsLines.Chunk(15)
                         .Select(lines => string.Join('\n', lines))
                         .ToList();
 

@@ -54,12 +54,12 @@ public sealed record InteractionComponent(
 {
     public static InteractionComponent CreateActionRow(params IReadOnlyList<InteractionComponent> components)
     {
-        return new InteractionComponent((byte)InteractionComponentType.ActionRow, components: components);
+        return new((byte)InteractionComponentType.ActionRow, components: components);
     }
 
     public static InteractionComponent CreateButton(InteractionButtonStyle style, string label, string custom_id, Emoji? emoji = null, bool? disabled = null)
     {
-        return new InteractionComponent(
+        return new(
             (byte)InteractionComponentType.Button,
             style: (byte)style,
             label: label,
@@ -71,7 +71,7 @@ public sealed record InteractionComponent(
 
     public static InteractionComponent CreateTextInput(string custom_id, InteractionTextInputStyle style, string label, int? min_length = null, int? max_length = null, bool? required = null, string? value = null, string? placeholder = null)
     {
-        return new InteractionComponent(
+        return new(
             (byte)InteractionComponentType.TextInput,
             style: (byte)style,
             label: label,

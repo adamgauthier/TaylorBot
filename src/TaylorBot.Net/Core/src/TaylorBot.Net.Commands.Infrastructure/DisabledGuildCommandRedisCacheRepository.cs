@@ -41,6 +41,6 @@ public class DisabledGuildCommandRedisCacheRepository(ConnectionMultiplexer conn
             return result;
         }
 
-        return new GuildCommandDisabled(IsDisabled: !(bool)isEnabled, WasCacheHit: true);
+        return new(IsDisabled: !(bool)isEnabled, WasCacheHit: true);
     }
 }

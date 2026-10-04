@@ -63,13 +63,13 @@ public class AccessibleRolePostgresRepository(PostgresConnectionFactory postgres
                         GroupName = accessibleRole.group_name,
                     }
                 );
-                return new AccessibleRoleWithGroup(
+                return new(
                     Group: new AccessibleRoleGroup(accessibleRole.group_name, [.. otherRoles.Select(r => new SnowflakeId(r.role_id))])
                 );
             }
             else
             {
-                return new AccessibleRoleWithGroup(
+                return new(
                     Group: null
                 );
             }

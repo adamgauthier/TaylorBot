@@ -8,13 +8,13 @@ public class PrefixedCommandRunner(ICommandRunner commandRunner)
         ITaylorBotCommandContext context,
         PrefixCommandInfo commandInfo)
     {
-        var command = new Command(
+        Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(context),
             () => throw new InvalidOperationException());
         var runContext = DiscordNetContextMapper.MapToRunContext(context, commandInfo);
 
         var result = await commandRunner.RunSlashCommandAsync(command, runContext);
 
-        return new TaylorBotResult(result, runContext);
+        return new(result, runContext);
     }
 }

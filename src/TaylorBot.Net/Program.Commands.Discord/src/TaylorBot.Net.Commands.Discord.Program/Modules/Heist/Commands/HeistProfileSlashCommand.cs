@@ -24,7 +24,7 @@ public class HeistProfileSlashCommand(IHeistStatsRepository heistStatsRepository
             async () =>
             {
                 var user = options.user.User;
-                var profile = await heistStatsRepository.GetProfileAsync(user) ?? new(0, 0, 0, 0);
+                var profile = await heistStatsRepository.GetProfileAsync(user) ?? new(heist_win_count: 0, heist_win_amount: 0, heist_lose_count: 0, heist_lose_amount: 0);
 
                 var totalHeistPlayed = profile.heist_win_count + profile.heist_lose_count;
                 var winRate = totalHeistPlayed != 0 ? (decimal)profile.heist_win_count / totalHeistPlayed : 0;

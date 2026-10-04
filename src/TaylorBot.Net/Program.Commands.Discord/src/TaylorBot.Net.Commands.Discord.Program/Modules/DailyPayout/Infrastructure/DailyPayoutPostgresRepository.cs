@@ -94,7 +94,7 @@ public class DailyPayoutPostgresRepository(PostgresConnectionFactory postgresCon
             var addResult = await TaypointPostgresUtil.AddTaypointsReturningAsync(connection, user.Id, pointsToAdd: payoutAmount + redeem.bonus_reward);
             await transaction.CommitAsync();
 
-            return new RedeemResult(
+            return new(
                 BonusAmount: redeem.bonus_reward,
                 TotalTaypointCount: addResult.taypoint_count,
                 CurrentDailyStreak: redeem.streak_count,

@@ -14,7 +14,7 @@ public partial class InteractionCreatedHandler(
     SlashCommandHandler slashCommandHandler,
     MessageComponentHandler messageComponentHandler,
     ModalInteractionHandler modalInteractionHandler,
-    TaskExceptionLogger taskExceptionLogger) : IInteractionCreatedHandler
+    BackgroundTasks backgroundTasks) : IInteractionCreatedHandler
 {
     private const int APPLICATION_COMMAND = 2;
     private const int MESSAGE_COMPONENT = 3;
@@ -25,7 +25,7 @@ public partial class InteractionCreatedHandler(
         switch (interaction.type)
         {
             case APPLICATION_COMMAND:
-                _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                _ = backgroundTasks.Queue(
                     async () =>
                     {
                         using var activity = commandActivityFactory.Create(CommandType.Slash);
@@ -40,11 +40,11 @@ public partial class InteractionCreatedHandler(
                         }
                     },
                     nameof(SlashCommandHandler)
-                ));
+                );
                 break;
 
             case MESSAGE_COMPONENT:
-                _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                _ = backgroundTasks.Queue(
                     async () =>
                     {
                         using var activity = commandActivityFactory.Create(CommandType.MessageComponent);
@@ -59,11 +59,11 @@ public partial class InteractionCreatedHandler(
                         }
                     },
                     nameof(MessageComponentHandler)
-                ));
+                );
                 break;
 
             case MODAL_SUBMIT:
-                _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                _ = backgroundTasks.Queue(
                     async () =>
                     {
                         using var activity = commandActivityFactory.Create(CommandType.ModalSubmit);
@@ -78,7 +78,7 @@ public partial class InteractionCreatedHandler(
                         }
                     },
                     nameof(ModalInteractionHandler)
-                ));
+                );
                 break;
 
             default:

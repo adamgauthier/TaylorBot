@@ -22,7 +22,7 @@ public class ModMailBlockSlashCommand(
 
     public record Options(ParsedUserNotAuthorAndBot user);
 
-    private static readonly Color EmbedColor = new(255, 100, 100);
+    private static readonly Color EmbedColor = new(r: 255, g: 100, b: 100);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
@@ -89,7 +89,7 @@ public class ModMailUnblockSlashCommand(
 
     public record Options(ParsedUserNotAuthorAndBot user);
 
-    private static readonly Color EmbedColor = new(205, 120, 230);
+    private static readonly Color EmbedColor = new(r: 205, g: 120, b: 230);
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {

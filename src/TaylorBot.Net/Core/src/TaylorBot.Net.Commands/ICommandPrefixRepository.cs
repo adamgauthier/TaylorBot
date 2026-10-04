@@ -13,7 +13,7 @@ public interface ICommandPrefixRepository
     ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix);
 }
 
-public class CommandPrefixDomainService(TaskExceptionLogger taskExceptionLogger, ICommandPrefixRepository commandPrefixRepository, GuildTrackerDomainService guildTrackerDomainService)
+public class CommandPrefixDomainService(BackgroundTasks backgroundTasks, ICommandPrefixRepository commandPrefixRepository, GuildTrackerDomainService guildTrackerDomainService)
 {
     public async Task<string> GetPrefixAsync(IGuild? guild)
     {
@@ -22,7 +22,7 @@ public class CommandPrefixDomainService(TaskExceptionLogger taskExceptionLogger,
             var result = await commandPrefixRepository.GetOrInsertGuildPrefixAsync(guild);
             if (result.GuildAdded.WasAdded || result.GuildAdded.WasGuildNameChanged)
             {
-                _ = taskExceptionLogger.LogOnError(
+                _ = backgroundTasks.Run(
                     async () => await guildTrackerDomainService.TrackGuildNameAsync(guild, result.GuildAdded),
                     nameof(guildTrackerDomainService.TrackGuildNameAsync)
                 );

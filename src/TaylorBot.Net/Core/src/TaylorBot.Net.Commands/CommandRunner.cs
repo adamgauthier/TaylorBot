@@ -64,7 +64,7 @@ public class RunContextFactory(
 
         var user = interaction.User;
 
-        RunContext.SlashCommandInfo? CreateSlashCommandInfo()
+        SlashCommandInfo? CreateSlashCommandInfo()
         {
             if (interaction.Raw.type is 2 or 4)
             {
@@ -83,7 +83,7 @@ public class RunContextFactory(
             return null;
         }
 
-        return new RunContext(
+        return new(
             CreatedAt: timeProvider.GetUtcNow(),
             User: new(
                 user.id,

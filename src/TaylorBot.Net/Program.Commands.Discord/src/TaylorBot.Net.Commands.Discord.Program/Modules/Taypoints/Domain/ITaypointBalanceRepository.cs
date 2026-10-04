@@ -51,44 +51,44 @@ public class TaypointAmountParser(StringParser stringParser, ITaypointBalanceRep
         switch (text.ToUpperInvariant())
         {
             case "ALL":
-                return new RelativeTaypointAmount(1);
+                return new RelativeTaypointAmount(Proportion: 1);
 
             case "HALF":
-                return new RelativeTaypointAmount(2);
+                return new RelativeTaypointAmount(Proportion: 2);
 
             case "THIRD":
-                return new RelativeTaypointAmount(3);
+                return new RelativeTaypointAmount(Proportion: 3);
 
             case "FOURTH":
-                return new RelativeTaypointAmount(4);
+                return new RelativeTaypointAmount(Proportion: 4);
 
             // TODO: Find a long-term solution for percentages
             case "1%":
-                return new RelativeTaypointAmount(100);
+                return new RelativeTaypointAmount(Proportion: 100);
 
             case "2%":
-                return new RelativeTaypointAmount(50);
+                return new RelativeTaypointAmount(Proportion: 50);
 
             case "4%":
-                return new RelativeTaypointAmount(25);
+                return new RelativeTaypointAmount(Proportion: 25);
 
             case "5%":
-                return new RelativeTaypointAmount(20);
+                return new RelativeTaypointAmount(Proportion: 20);
 
             case "10%":
-                return new RelativeTaypointAmount(10);
+                return new RelativeTaypointAmount(Proportion: 10);
 
             case "20%":
-                return new RelativeTaypointAmount(5);
+                return new RelativeTaypointAmount(Proportion: 5);
 
             case "25%":
-                return new RelativeTaypointAmount(4);
+                return new RelativeTaypointAmount(Proportion: 4);
 
             case "50%":
-                return new RelativeTaypointAmount(2);
+                return new RelativeTaypointAmount(Proportion: 2);
 
             case "100%":
-                return new RelativeTaypointAmount(1);
+                return new RelativeTaypointAmount(Proportion: 1);
 
             default:
                 if (long.TryParse(text, out var amount))

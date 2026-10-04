@@ -29,7 +29,7 @@ public class IgnoredUserPostgresRepository(PostgresConnectionFactory postgresCon
             }
         );
 
-        return new GetUserIgnoreUntilResult(
+        return new(
             IgnoreUntil: userAddedOrUpdatedDto.ignore_until,
             WasAdded: userAddedOrUpdatedDto.was_inserted,
             WasUsernameChanged: userAddedOrUpdatedDto.username_changed,

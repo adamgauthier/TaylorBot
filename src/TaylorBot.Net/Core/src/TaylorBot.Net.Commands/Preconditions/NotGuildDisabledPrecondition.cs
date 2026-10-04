@@ -14,7 +14,7 @@ public interface IDisabledGuildCommandRepository
 }
 
 public class DisabledGuildCommandDomainService(
-    TaskExceptionLogger taskExceptionLogger,
+    BackgroundTasks backgroundTasks,
     IDisabledGuildCommandRepository disabledGuildCommandRepository,
     GuildTrackerDomainService guildTrackerDomainService)
 {
@@ -24,7 +24,7 @@ public class DisabledGuildCommandDomainService(
         if (!result.WasCacheHit && guild.Fetched != null)
         {
             // Take advantage of the cache miss to track guild name changes in the background
-            _ = taskExceptionLogger.LogOnError(
+            _ = backgroundTasks.Run(
                 async () => await guildTrackerDomainService.TrackGuildAndNameAsync(guild.Fetched),
                 nameof(guildTrackerDomainService.TrackGuildAndNameAsync)
             );

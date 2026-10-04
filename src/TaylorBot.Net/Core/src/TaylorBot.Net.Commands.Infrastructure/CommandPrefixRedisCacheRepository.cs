@@ -20,7 +20,7 @@ public class CommandPrefixRedisCacheRepository(ConnectionMultiplexer connectionM
             return result;
         }
 
-        return new CommandPrefix(new(WasAdded: false, WasGuildNameChanged: false, PreviousGuildName: null), $"{cachedPrefix}");
+        return new(new(WasAdded: false, WasGuildNameChanged: false, PreviousGuildName: null), $"{cachedPrefix}");
     }
 
     public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)

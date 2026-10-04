@@ -29,7 +29,7 @@ public class UserRepository(PostgresConnectionFactory postgresConnectionFactory)
             }
         );
 
-        return new UserAddedResult(
+        return new(
             wasAdded: userAddedOrUpdatedDto.was_inserted,
             wasUsernameChanged: userAddedOrUpdatedDto.username_changed,
             previousUsername: userAddedOrUpdatedDto.previous_username

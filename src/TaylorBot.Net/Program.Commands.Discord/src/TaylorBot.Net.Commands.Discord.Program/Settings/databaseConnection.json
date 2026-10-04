@@ -3,6 +3,7 @@
     "Database": "taylorbot",
     "ApplicationName": "commands-discord",
     "MaxPoolSize": 6,
+    "GssEncryptionMode": "Disable",
     "IncludeErrorDetail": false
   }
 }

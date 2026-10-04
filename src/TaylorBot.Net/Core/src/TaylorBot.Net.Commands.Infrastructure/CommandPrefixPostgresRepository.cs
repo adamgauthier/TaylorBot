@@ -27,7 +27,7 @@ public class CommandPrefixPostgresRepository(PostgresConnectionFactory postgresC
             }
         );
 
-        return new CommandPrefix(new(dto.was_inserted, dto.guild_name_changed, dto.previous_guild_name), dto.prefix);
+        return new(new(dto.was_inserted, dto.guild_name_changed, dto.previous_guild_name), dto.prefix);
     }
 
     public async ValueTask ChangeGuildPrefixAsync(IGuild guild, string prefix)

@@ -152,7 +152,7 @@ public partial class ValentineGiveawayDomainService(
     public static Embed BuildGiveawayEmbed(Giveaway giveaway)
     {
         return new EmbedBuilder()
-            .WithColor(new(233, 30, 99))
+            .WithColor(new(r: 233, g: 30, b: 99))
             .WithTitle("Lover Giveaway 💝")
             .WithDescription(
                 $"""
@@ -196,7 +196,7 @@ public class ValentineGiveawayEnterHandler(
                         [new Button(InteractionCustomId.Create(CustomIdName).RawId, ButtonStyle.Primary, "Enter", "🎉")]
                     ));
 
-                    await Task.Delay(100);
+                    await Task.Delay(millisecondsDelay: 100);
 
                     await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
                         new(new(EmbedFactory.CreateSuccess("You are now entered into this giveaway! 🗳️")), IsPrivate: true));

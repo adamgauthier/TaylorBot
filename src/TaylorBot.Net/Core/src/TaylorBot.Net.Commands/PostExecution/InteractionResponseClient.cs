@@ -109,7 +109,7 @@ public class InteractionResponseClient(ILogger<IInteractionResponseClient> logge
 
     private static InteractionResponse.InteractionApplicationCommandCallbackData ToInteractionData(MessageResponse response)
     {
-        return new InteractionResponse.InteractionApplicationCommandCallbackData(
+        return new(
             content: response.Content.Content,
             embeds: [.. response.Content.Embeds.Select(InteractionMapper.ToInteractionEmbed)],
             components: response.Components,
@@ -133,7 +133,7 @@ public class InteractionResponseClient(ILogger<IInteractionResponseClient> logge
 
     private static MultipartFormDataContent CreateContentWithAttachments(IReadOnlyList<Attachment> attachments, JsonContent jsonContent)
     {
-        var content = new MultipartFormDataContent
+        MultipartFormDataContent content = new()
         {
             { jsonContent, "payload_json" },
         };

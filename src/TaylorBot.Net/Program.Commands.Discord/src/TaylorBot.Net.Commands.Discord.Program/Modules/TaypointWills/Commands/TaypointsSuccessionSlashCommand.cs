@@ -161,6 +161,6 @@ public class TaypointsSuccessionSlashCommand(
             custom_id: InteractionCustomId.Create(CustomIdNames.TaypointsSuccessionClaimSkip).RawId,
             label: "Skip");
 
-        return new MessageResult(new(new(embed), [InteractionComponent.CreateActionRow(claimButton, skipButton)]));
+        return new(new(new(embed), [InteractionComponent.CreateActionRow(claimButton, skipButton)]));
     }
 }

@@ -14,7 +14,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherSlashCommand we
         IUserArgument<IUser>? user = null
     )
     {
-        IUser u = user == null ?
+        var u = user == null ?
             Context.User :
             await user.GetTrackedUserAsync();
 
@@ -35,7 +35,7 @@ public class LocationModule(ICommandRunner commandRunner, WeatherSlashCommand we
         IUserArgument<IUser>? user = null
     )
     {
-        IUser u = user == null ?
+        var u = user == null ?
             Context.User :
             await user.GetTrackedUserAsync();
 

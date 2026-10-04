@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddHttpClient<IInteractionResponseClient, InteractionResponseClient>((provider, client) =>
         {
-            client.BaseAddress = new Uri("https://discord.com/api/v10/");
+            client.BaseAddress = new("https://discord.com/api/v10/");
         });
 
         return services

@@ -38,7 +38,7 @@ public class LoveReadySlashCommand(
                 });
 
                 var pages =
-                    obtainedAsLines.Chunk(size: 15)
+                    obtainedAsLines.Chunk(15)
                     .Select(lines => string.Join('\n', lines))
                     .ToList();
 

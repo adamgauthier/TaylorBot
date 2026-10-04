@@ -16,8 +16,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Events;
 
 public static class AnniversaryEvent
 {
-    public static readonly DateTimeOffset Start = new DateTimeOffset(2025, 11, 22, 0, 0, 0, TimeSpan.Zero) - TimeSpan.FromHours(12);
-    public static readonly DateTimeOffset End = new DateTimeOffset(2025, 11, 23, 0, 0, 0, TimeSpan.Zero) + TimeSpan.FromHours(12);
+    public static readonly DateTimeOffset Start = new DateTimeOffset(year: 2025, month: 11, day: 22, hour: 0, minute: 0, second: 0, TimeSpan.Zero) - TimeSpan.FromHours(12);
+    public static readonly DateTimeOffset End = new DateTimeOffset(year: 2025, month: 11, day: 23, hour: 0, minute: 0, second: 0, TimeSpan.Zero) + TimeSpan.FromHours(12);
 
     public static bool IsActive
     {
@@ -103,7 +103,7 @@ public class SignatureSlashCommand(
     {
         ArgumentNullException.ThrowIfNull(user.MemberInfo);
 
-        ServerJoined joined = await GetServerJoinedAsync(new(user, user.MemberInfo));
+        var joined = await GetServerJoinedAsync(new(user, user.MemberInfo));
 
         return joined.first_joined_at ?? throw new InvalidOperationException();
     }

@@ -28,7 +28,7 @@ public class OnGoingCommandInMemoryRepository : IOngoingCommandRepository
 
     public ValueTask<bool> HasAnyOngoingCommandAsync(DiscordUser user, string pool)
     {
-        return new ValueTask<bool>(
+        return new(
             ongoingCommands.TryGetValue(GetKey(user, pool), out var count) && count > 0
         );
     }

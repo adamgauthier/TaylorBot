@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         var applicationName = section.GetValue<string>("ApplicationName");
         var maxPoolSize = section.GetValue<uint?>("MaxPoolSize");
         var includeErrorDetail = section.GetValue<bool?>("IncludeErrorDetail") ?? false;
+        var gssEncryptionMode = section.GetValue<GssEncryptionMode?>("GssEncryptionMode");
 
         ArgumentNullException.ThrowIfNull(host);
         if (!port.HasValue)
@@ -70,6 +71,10 @@ public static class ServiceCollectionExtensions
         if (includeErrorDetail)
         {
             connectionStringParts.Add("Include Error Detail=true");
+        }
+        if (gssEncryptionMode.HasValue)
+        {
+            connectionStringParts.Add($"GSS Encryption Mode={gssEncryptionMode.Value}");
         }
 
         return string.Join(';', connectionStringParts);

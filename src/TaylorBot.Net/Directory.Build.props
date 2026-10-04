@@ -5,6 +5,7 @@
     <Features>strict</Features>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <AnalysisMode>All</AnalysisMode>
+    <MeziantouAnalysisMode>None</MeziantouAnalysisMode>
     <!-- Private feed for custom packages (off by default for external contributors) -->
     <UseTaylorBotFeed Condition="'$(UseTaylorBotFeed)' == ''">$([System.Environment]::GetEnvironmentVariable('USE_TAYLORBOT_FEED'))</UseTaylorBotFeed>
     <UseTaylorBotFeed Condition="'$(UseTaylorBotFeed)' == ''">false</UseTaylorBotFeed>

@@ -74,7 +74,7 @@ public class ModMailUserMessageReplyModalHandler(
         IsPrivateResponse: true,
         Preconditions: [userHasPermission.Create(GuildPermission.BanMembers)]);
 
-    public static readonly Color EmbedColor = new(255, 255, 240);
+    public static readonly Color EmbedColor = new(r: 255, g: 255, b: 240);
 
     public async Task HandleAsync(ModalSubmit submit, RunContext context)
     {

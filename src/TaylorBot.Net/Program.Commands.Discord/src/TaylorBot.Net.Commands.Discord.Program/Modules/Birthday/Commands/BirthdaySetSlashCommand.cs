@@ -86,7 +86,7 @@ public class BirthdaySetSlashCommand(
     {
         if (birthday.Year != UserBirthday.NoYearValue)
         {
-            int age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday);
+            var age = AgeCalculator.GetCurrentAge(context.CreatedAt, birthday);
 
             if (age < MinAge)
             {

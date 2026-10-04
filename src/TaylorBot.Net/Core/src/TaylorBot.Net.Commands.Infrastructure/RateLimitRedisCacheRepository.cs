@@ -10,7 +10,7 @@ public class RateLimitInMemoryRepository : IRateLimitRepository
     {
         var dailyUseCount = _dailyUsage.GetValueOrDefault(key, 0u) + 1;
         _dailyUsage[key] = dailyUseCount;
-        return new ValueTask<long>(dailyUseCount);
+        return new(dailyUseCount);
     }
 }
 

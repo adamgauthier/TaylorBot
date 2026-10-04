@@ -28,11 +28,11 @@ public class ServerNamesSlashCommand(
                 ArgumentNullException.ThrowIfNull(context.Guild);
                 var guild = context.Guild;
 
-                var guildNames = await guildNamesRepository.GetHistoryAsync(guild, 75);
+                var guildNames = await guildNamesRepository.GetHistoryAsync(guild, limit: 75);
 
                 var guildNamesAsLines = guildNames.Select(n => $"{n.ChangedAt:MMMM dd, yyyy}: {n.GuildName}");
 
-                var pages = guildNamesAsLines.Chunk(size: 15)
+                var pages = guildNamesAsLines.Chunk(15)
                     .Select(lines => string.Join('\n', lines))
                 .ToList();
 

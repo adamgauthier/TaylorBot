@@ -60,7 +60,7 @@ public class MemberRepository(PostgresConnectionFactory postgresConnectionFactor
 
         if (!memberAddedOrUpdatedDto.first_joined_at.HasValue || member.JoinedAt == memberAddedOrUpdatedDto.first_joined_at)
         {
-            return new MemberAddResult();
+            return new();
         }
         else
         {

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TaylorBot.Net.Core\TaylorBot.Net.Core.csproj" />
+    <ProjectReference Include="..\..\src\TaylorBot.Net.Core.Program\TaylorBot.Net.Core.Program.csproj" />
   </ItemGroup>
 
 </Project>

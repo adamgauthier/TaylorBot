@@ -121,7 +121,7 @@ public class KickSlashCommand(
                 logEmbed.AddField("Reason", reason);
 
             return logEmbed
-                .WithColor(new(222, 184, 135))
+                .WithColor(new(r: 222, g: 184, b: 135))
                 .WithFooter("User kicked");
         });
 
@@ -148,7 +148,7 @@ public class KickConfirmButtonHandler(Lazy<ITaylorBotClient> client, IInteractio
         var promptMessage = button.Interaction.Raw.message;
         ArgumentNullException.ThrowIfNull(promptMessage);
 
-        var reason = promptMessage.embeds[0].fields?.First(f => f.name.Contains(KickSlashCommand.ReasonFieldName, StringComparison.OrdinalIgnoreCase) == true)?.value;
+        var reason = promptMessage.embeds[0].fields?.FirstOrDefault(f => f.name.Contains(KickSlashCommand.ReasonFieldName, StringComparison.OrdinalIgnoreCase) == true)?.value;
 
         var userId = button.CustomId.ParsedData["user"];
 

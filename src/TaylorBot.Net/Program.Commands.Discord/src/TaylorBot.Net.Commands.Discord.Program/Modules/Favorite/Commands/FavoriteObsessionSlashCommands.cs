@@ -61,7 +61,7 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                         """));
                 }
 
-                Embed embed = BuildDisplayEmbed(user, favoriteObsession.Value, favoriteObsession.SetAt);
+                var embed = BuildDisplayEmbed(user, favoriteObsession.Value, favoriteObsession.SetAt);
                 return new EmbedResult(embed);
             }
             else

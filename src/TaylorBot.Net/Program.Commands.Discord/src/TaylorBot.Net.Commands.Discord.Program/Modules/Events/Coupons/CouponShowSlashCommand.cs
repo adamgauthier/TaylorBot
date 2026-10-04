@@ -36,7 +36,7 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandM
                 var couponsAsLines = coupons.Select(
                     c => $"{new DateTimeOffset(c.redeemed_at).FormatLongDate()}: {"taypoint".ToQuantity(c.coupon_reward, TaylorBotFormats.BoldReadable)} 🎫 ||{c.coupon_code}||");
 
-                var pages = couponsAsLines.Chunk(size: 15)
+                var pages = couponsAsLines.Chunk(15)
                     .Select(lines => string.Join('\n', lines))
                     .ToList();
 

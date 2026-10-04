@@ -37,11 +37,11 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
             }
             else
             {
-                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(user, 75);
+                var usernames = await usernameHistoryRepository.GetUsernameHistoryFor(user, count: 75);
 
                 var usernamesAsLines = usernames.Select(u => $"{u.ChangedAt.FormatLongDate()}: {u.Username}");
 
-                var pages = usernamesAsLines.Chunk(size: 15)
+                var pages = usernamesAsLines.Chunk(15)
                     .Select(lines => string.Join('\n', lines))
                     .ToList();
 

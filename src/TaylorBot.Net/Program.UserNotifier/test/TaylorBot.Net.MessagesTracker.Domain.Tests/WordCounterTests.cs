@@ -9,7 +9,7 @@ public class WordCounterTests
 
     public WordCounterTests()
     {
-        wordCounter = new WordCounter();
+        wordCounter = new();
     }
 
     [Fact]

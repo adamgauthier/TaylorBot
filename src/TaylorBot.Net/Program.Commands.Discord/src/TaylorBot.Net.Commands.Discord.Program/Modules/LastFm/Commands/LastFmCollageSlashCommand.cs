@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Discord;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.Discord.Program.Modules.LastFm.Domain;
@@ -27,6 +29,24 @@ public class LastFmCollageSlashCommand(
 
     private sealed record CollageRequest(string username, string period, string rowNum, string colNum, string type, string showName, string hideMissing);
     private sealed record CollageResponse(string downloadPath);
+    private sealed record CollageErrorResponse(string? message);
+
+    private static bool HasNoScrobbles(HttpError error)
+    {
+        if (error.StatusCode != HttpStatusCode.NotFound || error.Content == null)
+            return false;
+
+        try
+        {
+            return JsonSerializer.Deserialize<CollageErrorResponse>(error.Content)?.message ==
+                "The account does not have any scrobbles for the time period specified.";
+        }
+        catch (JsonException)
+        {
+            // The HTTP helper already logged the rejected response.
+            return false;
+        }
+    }
 
     private static string MapPeriodToCollageApi(LastFmPeriod period) => period switch
     {
@@ -91,7 +111,9 @@ public class LastFmCollageSlashCommand(
                         return new MessageResult(new(new MessageContent([embed], Attachments: [new(collage, filename)])));
                     },
                     error => Task.FromResult<ICommandResult>(new EmbedResult(EmbedFactory.CreateError(
-                        "The collage service is currently unavailable. Please try again later 😕"))),
+                        HasNoScrobbles(error)
+                            ? "No scrobbles were found for this period. Try a longer period, such as the last year or all time."
+                            : "The collage service is currently unavailable. Please try again later 😕"))),
                     logger
                 );
             }

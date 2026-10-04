@@ -32,8 +32,8 @@ public class CustomUserTypeReaderGuildUserTests
     {
         A.CallTo(() => _commandContext.Channel).Returns(_channel);
         A.CallTo(() => AGuildUser.Id).Returns(AnId);
-        _mentionedUserTypeReader = new MentionedUserTypeReader<IGuildUser>(_userTracker);
-        _customUserTypeReader = new CustomUserTypeReader<IGuildUser>(_mentionedUserTypeReader, _userTracker);
+        _mentionedUserTypeReader = new(_userTracker);
+        _customUserTypeReader = new(_mentionedUserTypeReader, _userTracker);
     }
 
     [Fact]

@@ -17,7 +17,7 @@ using TaylorBot.Net.Core.User;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Heist.Commands;
 
 public class HeistPlaySlashCommand(
-    TaskExceptionLogger taskExceptionLogger,
+    BackgroundTasks backgroundTasks,
     IOptionsMonitor<HeistOptions> options,
     IRateLimiter rateLimiter,
     IHeistRepository heistRepository,
@@ -74,13 +74,13 @@ public class HeistPlaySlashCommand(
             {
                 case HeistCreated:
                     {
-                        _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
+                        _ = backgroundTasks.Queue(
                             async () =>
                             {
                                 await Task.Delay(delay);
                                 await EndHeistAsync(fetched, guild, context);
                             },
-                            nameof(EndHeistAsync))
+                            nameof(EndHeistAsync)
                         );
 
                         var embed = new EmbedBuilder().WithColor(TaylorBotColors.SuccessColor).WithDescription(
@@ -130,7 +130,7 @@ public class HeistPlaySlashCommand(
         var heisters = await heistRepository.EndHeistAsync(commandGuild);
         var bank = await GetBankAsync(heisters.Count);
 
-        var roll = cryptoSecureRandom.GetInt32(1, 100);
+        var roll = cryptoSecureRandom.GetInt32(fromInclusive: 1, toInclusive: 100);
         var won = roll >= bank.minimumRollForSuccess;
 
         var results = won

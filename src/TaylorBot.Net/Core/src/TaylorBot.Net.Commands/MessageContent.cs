@@ -54,7 +54,7 @@ public record MessageResponse(MessageContent Content, IReadOnlyList<InteractionC
 
     public static MessageResponse CreatePrompt(MessageContent content, InteractionCustomId confirmButtonId)
     {
-        return new MessageResponse(content,
+        return new(content,
         [
             new Button(confirmButtonId.RawId, ButtonStyle.Success, Label: "Confirm"),
             new Button(InteractionCustomId.Create(CustomIdNames.GenericPromptCancel).RawId, ButtonStyle.Danger, Label: "Cancel"),

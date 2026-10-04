@@ -4,7 +4,7 @@ using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Birthday.Domain;
 
-public class AgeCalculator(TaskExceptionLogger taskExceptionLogger, Lazy<ITaylorBotClient> client, IBirthdayRepository birthdayRepository)
+public class AgeCalculator(BackgroundTasks backgroundTasks, Lazy<ITaylorBotClient> client, IBirthdayRepository birthdayRepository)
 {
     public static int GetCurrentAge(DateTimeOffset now, DateOnly birthday)
     {
@@ -38,9 +38,9 @@ public class AgeCalculator(TaskExceptionLogger taskExceptionLogger, Lazy<ITaylor
     {
         if (context.Guild?.Fetched != null && user.TryGetMember(out var member))
         {
-            _ = Task.Run(async () => await taskExceptionLogger.LogOnError(
-                TryAddAgeRolesAsync(member, age),
-                nameof(TryAddAgeRolesAsync))
+            _ = backgroundTasks.Queue(
+                () => TryAddAgeRolesAsync(member, age),
+                nameof(TryAddAgeRolesAsync)
             );
         }
     }

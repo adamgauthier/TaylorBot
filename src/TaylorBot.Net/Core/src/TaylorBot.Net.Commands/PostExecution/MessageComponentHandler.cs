@@ -115,7 +115,7 @@ public partial class MessageComponentHandler(
                     var handler = services.GetKeyedService<IButtonComponentHandler>(button.CustomId.Name);
                     if (handler != null)
                     {
-                        bool acknowledged = false;
+                        var acknowledged = false;
                         if (handler.Info is MessageHandlerInfo)
                         {
                             await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(button);
@@ -148,7 +148,7 @@ public partial class MessageComponentHandler(
                     var handler = services.GetKeyedService<IStringSelectComponentHandler>(stringSelect.CustomId.Name);
                     if (handler != null)
                     {
-                        bool acknowledged = false;
+                        var acknowledged = false;
                         if (handler.Info is MessageHandlerInfo)
                         {
                             await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(stringSelect);
@@ -181,7 +181,7 @@ public partial class MessageComponentHandler(
                     var handler = services.GetKeyedService<IUserSelectComponentHandler>(userSelect.CustomId.Name);
                     if (handler != null)
                     {
-                        bool acknowledged = false;
+                        var acknowledged = false;
                         if (handler.Info is MessageHandlerInfo)
                         {
                             await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(userSelect);
@@ -214,7 +214,7 @@ public partial class MessageComponentHandler(
                     var handler = services.GetKeyedService<IChannelSelectComponentHandler>(channelSelect.CustomId.Name);
                     if (handler != null)
                     {
-                        bool acknowledged = false;
+                        var acknowledged = false;
                         if (handler.Info is MessageHandlerInfo)
                         {
                             await CreateInteractionClient().SendComponentAckResponseWithoutLoadingMessageAsync(channelSelect);

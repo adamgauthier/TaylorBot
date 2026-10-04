@@ -39,7 +39,7 @@ public class OwnerShowCouponsSlashCommand(
                 var couponsAsLines = coupons.Select(
                     c => $"🎫 ||{c.code}|| ({"point".ToQuantity(c.taypoint_reward, TaylorBotFormats.BoldReadable)}): {c.used_count.ToString(TaylorBotFormats.Readable)}/{c.usage_limit?.ToString(TaylorBotFormats.Readable)}");
 
-                var pages = couponsAsLines.Chunk(size: 15)
+                var pages = couponsAsLines.Chunk(15)
                     .Select(lines => string.Join('\n', lines))
                     .ToList();
 

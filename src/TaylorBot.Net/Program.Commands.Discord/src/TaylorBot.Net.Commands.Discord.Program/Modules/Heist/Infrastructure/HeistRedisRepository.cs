@@ -116,7 +116,7 @@ public class HeistInMemoryRepository : IHeistRepository
     public Task<IEnterHeistResult> EnterHeistAsync(DiscordMember member, ITaypointAmount amount, TimeSpan heistDelay)
     {
         var wasUpdated = false;
-        var newHeist = new Heist(new([new(member.User.Id, amount)]));
+        Heist newHeist = new(new([new(member.User.Id, amount)]));
 
         var result = heistsByGuild.AddOrUpdate(
             member.Member.GuildId,

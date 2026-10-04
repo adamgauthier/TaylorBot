@@ -35,7 +35,7 @@ public class ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory p
             }
         );
 
-        return new AgeStats(ageStats.age_average, ageStats.age_median);
+        return new(ageStats.age_average, ageStats.age_median);
     }
 
     private sealed class GenderStatsDto
@@ -71,6 +71,6 @@ public class ServerStatsRepositoryPostgresRepository(PostgresConnectionFactory p
             }
         );
 
-        return new GenderStats(genderStats.total_count, genderStats.male_count, genderStats.female_count, genderStats.other_count);
+        return new(genderStats.total_count, genderStats.male_count, genderStats.female_count, genderStats.other_count);
     }
 }

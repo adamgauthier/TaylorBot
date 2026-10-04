@@ -5,9 +5,13 @@
     <CentralPackageVersionOverrideEnabled>false</CentralPackageVersionOverrideEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.290" />
+    <GlobalPackageReference Include="Roslynator.Analyzers" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.5.0" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.1" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.2" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="CSharp.OperationResult" Version="0.1.6" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
@@ -15,7 +19,7 @@
     <PackageVersion Include="FakeItEasy" Version="9.0.1" />
     <PackageVersion Include="FluentAssertions" Version="7.2.2" />
     <PackageVersion Include="Google.Apis.CustomSearchAPI.v1" Version="1.74.0.3520" />
-    <PackageVersion Include="Google.Apis.YouTube.v3" Version="1.75.0.4207" />
+    <PackageVersion Include="Google.Apis.YouTube.v3" Version="1.76.0.4262" />
     <PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
     <PackageVersion Include="Inflatable.Lastfm" Version="1.2.0" />
@@ -38,6 +42,8 @@
     <PackageVersion Include="OpenTelemetry.Extensions.Propagators" Version="1.17.0" />
     <PackageVersion Include="StackExchange.Redis" Version="2.13.17" />
     <PackageVersion Include="System.Threading.RateLimiting" Version="10.0.10" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.15.0" />
+    <PackageVersion Include="Testcontainers.Redis" Version="4.15.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
   </ItemGroup>

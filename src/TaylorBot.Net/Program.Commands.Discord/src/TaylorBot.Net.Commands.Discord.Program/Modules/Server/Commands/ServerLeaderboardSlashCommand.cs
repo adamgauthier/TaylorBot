@@ -76,7 +76,7 @@ public class ServerLeaderboardSlashCommand(
                         $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: **~{"message".ToQuantity(entry.message_count, $"{TaylorBotFormats.Readable}**")}"
                     ))).ToList();
 
-                    return new LeaderboardData("Message Leaderboard 📚", pages);
+                    return new("Message Leaderboard 📚", pages);
                 }
 
             case "minutes":
@@ -92,7 +92,7 @@ public class ServerLeaderboardSlashCommand(
                         $"{entry.rank}\\. {entry.username.MdUserLink(entry.user_id)}: {"minute".ToQuantity(entry.minute_count, TaylorBotFormats.BoldReadable)}"
                     ))).ToList();
 
-                    return new LeaderboardData("Active Time Leaderboard ⏳", pages);
+                    return new("Active Time Leaderboard ⏳", pages);
                 }
 
             default: throw new NotImplementedException();

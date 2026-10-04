@@ -28,7 +28,7 @@ public class RewardModule(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
             {
-                var trackedUsers = new List<IUser>();
+                List<IUser> trackedUsers = [];
                 foreach (var user in users)
                 {
                     trackedUsers.Add(await user.GetTrackedUserAsync());

@@ -30,7 +30,7 @@ public class WolframAlphaSlashCommand(IRateLimiter rateLimiter, IWolframAlphaCli
                 {
                     case WolframAlphaResult queryResult:
                         return new EmbedResult(new EmbedBuilder()
-                            .WithColor(255, 125, 0)
+                            .WithColor(r: 255, g: 125, b: 0)
                             .WithTitle(queryResult.InputPod.PlainText)
                             .WithImageUrl(queryResult.OutputPod.ImageUrl)
                             .WithFooter("Wolfram|Alpha", iconUrl: "https://i.imgur.com/aHl1jlS.png")

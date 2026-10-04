@@ -16,7 +16,7 @@ public class MentionedUsersNotAuthorTypeReader<T>(MentionedUserNotAuthorTypeRead
             .Where(i => i.Length > 0)
             .ToList();
 
-        var results = new List<IMentionedUserNotAuthor<T>>();
+        List<IMentionedUserNotAuthor<T>> results = [];
 
         foreach (var mention in split)
         {

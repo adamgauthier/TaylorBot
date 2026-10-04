@@ -14,7 +14,7 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
 
     public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
     {
-        return new ValueTask<Command>(new Command(
+        return new(new Command(
             new(Info.Name),
             async () =>
             {

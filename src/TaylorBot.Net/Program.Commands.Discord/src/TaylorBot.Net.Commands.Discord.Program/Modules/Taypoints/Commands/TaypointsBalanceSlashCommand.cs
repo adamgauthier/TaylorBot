@@ -18,7 +18,7 @@ public record TaypointBalance(long TaypointCount, int? ServerRank);
 public class TaypointsBalanceSlashCommand(
     ITaypointBalanceRepository taypointBalanceRepository,
     TaypointGuildCacheUpdater taypointGuildCacheUpdater,
-    TaskExceptionLogger taskExceptionLogger,
+    BackgroundTasks backgroundTasks,
     CommandMentioner mention) : ISlashCommand<TaypointsBalanceSlashCommand.Options>
 {
     public static string CommandName => "taypoints balance";
@@ -75,7 +75,7 @@ public class TaypointsBalanceSlashCommand(
 
     private void UpdateLastKnowPointCountInBackground(DiscordUser user, TaypointBalance balance)
     {
-        _ = taskExceptionLogger.LogOnError(
+        _ = backgroundTasks.Run(
             async () => await taypointGuildCacheUpdater.UpdateLastKnownPointCountAsync(user, balance.TaypointCount),
             nameof(UpdateLastKnowPointCountInBackground)
         );

@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddTaylorBotApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<BackgroundTasks>();
         services.AddSingleton<TaylorBotInstrumentation>();
 
         var builder = services
@@ -51,7 +52,7 @@ public static class ServiceCollectionExtensions
             {
                 var options = provider.GetRequiredService<IOptionsMonitor<DiscordOptions>>().CurrentValue;
 
-                var config = new DiscordSocketConfig { GatewayIntents = GatewayIntents.None };
+                DiscordSocketConfig config = new() { GatewayIntents = GatewayIntents.None };
 
                 if (options.ShardCount.HasValue)
                 {
