@@ -15,15 +15,15 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom, CommandM
 
     public Command Choose(string options, RunContext context) => new(
         context.SlashCommand != null ? Metadata : Metadata with { IsSlashCommand = false },
-        () =>
+        async () =>
         {
             var parsedOptions = options.Split(',').Select(o => o.Trim()).Where(o => !string.IsNullOrWhiteSpace(o)).ToList();
 
             if (parsedOptions.Count == 0)
             {
-                return new(new EmbedResult(EmbedFactory.CreateError(
+                return new EmbedResult(EmbedFactory.CreateError(
                     "Please provide at least one option to choose from! 😊"
-                )));
+                ));
             }
 
             var randomOption = cryptoSecureRandom.GetRandomElement(parsedOptions);
@@ -33,7 +33,7 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom, CommandM
 
             if (context.SlashCommand == null)
             {
-                description.AddRange(["", $"Use {mention.SlashCommand("choose", context)} instead! 😊"]);
+                description.AddRange(["", await mention.FormatAsync(context, $"Use {mention.Slash("choose")} instead! 😊")]);
             }
 
             embed
@@ -41,7 +41,7 @@ public class ChooseSlashCommand(ICryptoSecureRandom cryptoSecureRandom, CommandM
                 .WithTitle("I choose:")
                 .WithDescription(string.Join('\n', description));
 
-            return new(new EmbedResult(embed.Build()));
+            return new EmbedResult(embed.Build());
         }
     );
 

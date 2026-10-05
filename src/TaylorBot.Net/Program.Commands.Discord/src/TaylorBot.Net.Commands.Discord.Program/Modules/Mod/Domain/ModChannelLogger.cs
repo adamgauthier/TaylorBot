@@ -11,7 +11,7 @@ public interface IModChannelLogger
 {
     ValueTask<ITextChannel?> GetModLogAsync(IGuild guild);
     ValueTask<bool> TrySendModLogAsync(IGuild guild, DiscordUser moderator, DiscordUser user, Func<EmbedBuilder, EmbedBuilder> buildEmbed);
-    Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage);
+    Task<Embed> CreateResultEmbedAsync(RunContext context, bool wasLogged, string successMessage);
 }
 
 public partial class ModChannelLogger(
@@ -56,16 +56,16 @@ public partial class ModChannelLogger(
         return false;
     }
 
-    public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
+    public async Task<Embed> CreateResultEmbedAsync(RunContext context, bool wasLogged, string successMessage)
     {
         return wasLogged ?
             EmbedFactory.CreateSuccess(successMessage) :
             EmbedFactory.CreateWarning(
-                $"""
+                await mention.FormatAsync(context, $"""
                 {successMessage}
                 However, I was not able to log this action in your moderation log channel 😕
-                Make sure you set it up with {mention.SlashCommand("mod log set", context)} and TaylorBot has access to it 🛠️
-                """);
+                Make sure you set it up with {mention.Slash("mod log set")} and TaylorBot has access to it 🛠️
+                """));
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Error when sending mod log in {Channel}:")]

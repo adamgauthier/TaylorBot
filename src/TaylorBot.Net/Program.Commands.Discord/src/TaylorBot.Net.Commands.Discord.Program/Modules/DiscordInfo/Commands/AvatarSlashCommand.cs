@@ -19,7 +19,7 @@ public class AvatarSlashCommand(CommandMentioner mention) : ISlashCommand<Avatar
 
     public Command Avatar(DiscordUser user, AvatarType? type, RunContext context) => new(
         context.SlashCommand != null ? Metadata : Metadata with { IsSlashCommand = false },
-        () =>
+        async () =>
         {
             type ??= AvatarType.Guild;
             var avatarUrl = type.Value == AvatarType.Guild
@@ -33,10 +33,10 @@ public class AvatarSlashCommand(CommandMentioner mention) : ISlashCommand<Avatar
 
             if (context.SlashCommand == null)
             {
-                embed.WithDescription($"Use {mention.SlashCommand("avatar", context)} instead! 😊");
+                embed.WithDescription(await mention.FormatAsync(context, $"Use {mention.Slash("avatar")} instead! 😊"));
             }
 
-            return new(new EmbedResult(embed.Build()));
+            return new EmbedResult(embed.Build());
         }
     );
 

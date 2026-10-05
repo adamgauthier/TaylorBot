@@ -49,14 +49,14 @@ public class ChannelMessagesSlashCommand(
                     .AddField(
                         "Spam Status",
                         result.IsSpam ?
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             This channel is considered as spam. Users' messages and words are **NOT** counted. 🐟
-                             Use {mention.SlashCommand("mod spam remove", context)} to mark the channel as non-spam.
-                            """ :
-                            $"""
+                             Use {mention.Slash("mod spam remove")} to mark the channel as non-spam.
+                            """) :
+                            await mention.FormatAsync(context, $"""
                             This channel is not considered as spam. Users' messages and words are counted. ✅
-                            Use {mention.SlashCommand("mod spam add", context)} to mark the channel as spam.
-                            """,
+                            Use {mention.Slash("mod spam add")} to mark the channel as spam.
+                            """),
                         inline: true);
 
                 if (context.Guild?.Fetched != null)

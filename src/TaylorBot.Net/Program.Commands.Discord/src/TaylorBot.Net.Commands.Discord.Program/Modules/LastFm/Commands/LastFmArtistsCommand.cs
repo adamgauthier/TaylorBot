@@ -34,7 +34,7 @@ public class LastFmArtistsSlashCommand(
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
+                return await lastFmEmbedFactory.CreateLastFmNotSetEmbedResultAsync(user, context);
 
             var result = await lastFmClient.GetTopArtistsAsync(lastFmUsername.Username, period.Value);
 
@@ -65,7 +65,7 @@ public class LastFmArtistsSlashCommand(
                     }
 
                 case LastFmGenericErrorResult error:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(error, context);
+                    return await lastFmEmbedFactory.CreateLastFmErrorEmbedResultAsync(error, context);
 
                 default: throw new NotImplementedException();
             }

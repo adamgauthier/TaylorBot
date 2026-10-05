@@ -110,10 +110,10 @@ public class RecapSlashCommand(
                 {
                     var guild = context.Guild ?? throw new InvalidOperationException();
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         You must submit your Yearbook 2025 signature before viewing your recap 📝
-                        Use {mention.GuildSlashCommand("signature", guild.Id)} to upload your signature, then try again ✨
-                        """));
+                        Use {mention.GuildSlash("signature")} to upload your signature, then try again ✨
+                        """)));
                 }
 
                 var imageBytes = await memberActivityRepository.GetRecapImageForUserAsync(user);

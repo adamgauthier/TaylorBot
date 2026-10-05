@@ -56,10 +56,10 @@ public class BirthdayCalendarSlashCommand(IBirthdayRepository birthdayRepository
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             No upcoming birthdays in this server for the next 6 months.
-                            Members need to use {mention.SlashCommand("birthday set", context)}! 😊
-                            """
+                            Members need to use {mention.Slash("birthday set")}! 😊
+                            """)
                     )),
                     IsCancellable: true
                 ));

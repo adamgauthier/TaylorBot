@@ -206,10 +206,10 @@ public class ValentineGiveawayEnterHandler(
             {
                 await interactionResponseClient.SendFollowupResponseAsync(button.Interaction,
                     new(new(EmbedFactory.CreateError(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         You can't enter because you haven't spread love to **{config.GiveawayEntrySpreadRequirement}** people yet ({given.Count}/{config.GiveawayEntrySpreadRequirement})! ⛔
-                        Please use {mention.GuildSlashCommand("love spread", context.Guild?.Id ?? throw new InvalidOperationException())} to give the role to someone who doesn't have it 😊
-                        """)
+                        Please use {mention.GuildSlash("love spread")} to give the role to someone who doesn't have it 😊
+                        """))
                     ), IsPrivate: true));
             }
         }

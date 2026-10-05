@@ -37,6 +37,7 @@ using TaylorBot.Net.MinutesTracker.Domain;
 using TaylorBot.Net.MinutesTracker.Domain.Options;
 using TaylorBot.Net.MinutesTracker.Infrastructure;
 using TaylorBot.Net.PatreonSync.Domain;
+using TaylorBot.Net.PatreonSync.Domain.DiscordEmbed;
 using TaylorBot.Net.PatreonSync.Domain.Options;
 using TaylorBot.Net.PatreonSync.Infrastructure;
 using TaylorBot.Net.QuickStart.Domain;
@@ -231,6 +232,7 @@ public static class ServiceCollectionExtensions
         return services
             .ConfigureRequired<PatreonSyncOptions>(config, "PatreonSync")
             .AddTransient<IPlusRepository, PlusPostgresRepository>()
+            .AddTransient<PatreonUpdateEmbedFactory>()
             .AddTransient<PatreonSyncDomainService>();
     }
 

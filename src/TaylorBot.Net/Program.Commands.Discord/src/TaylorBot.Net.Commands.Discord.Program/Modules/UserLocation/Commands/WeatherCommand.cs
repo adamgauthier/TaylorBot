@@ -48,10 +48,10 @@ public class WeatherSlashCommand(
                 if (storedLocation == null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         {user.Mention}'s location is not set. 🚫
-                        They need to use {mention.SlashCommand("location set", context)} to set it first.
-                        """
+                        They need to use {mention.Slash("location set")} to set it first.
+                        """)
                     ));
                 }
                 location = storedLocation.Location;

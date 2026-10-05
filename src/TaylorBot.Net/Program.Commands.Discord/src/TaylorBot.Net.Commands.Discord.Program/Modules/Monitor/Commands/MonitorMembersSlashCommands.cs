@@ -69,10 +69,10 @@ public class MonitorMembersSetSlashCommand(
         await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
 
         return EmbedFactory.CreateSuccess(
-            $"""
+            await mention.FormatAsync(context, $"""
             Ok, I will now log member joins, leaves and bans in {channel.Mention} ✅
-            Use {mention.SlashCommand("monitor members show", context)} to see the current configuration ↩️
-            """);
+            Use {mention.Slash("monitor members show")} to see the current configuration ↩️
+            """));
     }
 }
 
@@ -149,19 +149,19 @@ public class MonitorMembersShowSlashCommand(
                     else
                     {
                         embed.WithDescription(
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             I can't find the previously configured member events logging channel in this server ❌
-                            Was it deleted? Use {mention.SlashCommand("monitor members set", context)} to log member events in another channel ↩️
-                            """);
+                            Was it deleted? Use {mention.Slash("monitor members set")} to log member events in another channel ↩️
+                            """));
                     }
                 }
                 else
                 {
                     embed.WithDescription(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         Member events monitoring is not configured in this server ❌
-                        Use {mention.SlashCommand("monitor members set", context)} to log member events in a specific channel  ↩️
-                        """);
+                        Use {mention.Slash("monitor members set")} to log member events in a specific channel  ↩️
+                        """));
                 }
 
                 return new MessageResult(new(new(embed.Build()), components));
@@ -199,10 +199,10 @@ public class MonitorMembersStopButtonHandler(
         await memberLogChannelRepository.RemoveMemberLogAsync(guild);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
-            $"""
+            await mention.FormatAsync(context, $"""
             Member event logging is now disabled in this server ✅
-            Use {mention.SlashCommand("monitor members set", context)} to re-enable it ↩️
-            """);
+            Use {mention.Slash("monitor members set")} to re-enable it ↩️
+            """));
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }

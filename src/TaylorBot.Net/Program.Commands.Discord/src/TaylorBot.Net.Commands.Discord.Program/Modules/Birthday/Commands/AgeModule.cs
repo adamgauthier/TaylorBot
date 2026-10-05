@@ -15,20 +15,29 @@ public class AgeModule(ICommandRunner commandRunner, PrefixedCommandRunner prefi
 
     [Command("setage")]
     [Alias("set age")]
-    public async Task<RuntimeResult> SetAgeAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
-        Context,
-        new(IsRemoved: true, RemovedMessage:
-            $"""
-            Setting age directly is not supported, please use {mention.SlashCommand("birthday set")} with the **year** option ⚠️
-            This way, your age will automatically update and you will get points on your birthday every year! 🎈
-            If you don't want to share your exact birthday, but want the points, horoscope and age commands, use {mention.SlashCommand("birthday set")} with the **privately** option 🕵️‍
-            """));
+    public async Task<RuntimeResult> SetAgeAsync([Remainder] string? _ = null)
+    {
+        var context = DiscordNetContextMapper.MapToRunContext(Context, prefixInfo: null);
+        var birthdaySet = mention.Slash("birthday set");
+        return await prefixedCommandRunner.RunAsync(
+            Context,
+            new(IsRemoved: true, RemovedMessage:
+                await mention.FormatAsync(context, $"""
+                Setting age directly is not supported, please use {birthdaySet} with the **year** option ⚠️
+                This way, your age will automatically update and you will get points on your birthday every year! 🎈
+                If you don't want to share your exact birthday, but want the points, horoscope and age commands, use {birthdaySet} with the **privately** option 🕵️‍
+                """)));
+    }
 
     [Command("clearage")]
     [Alias("clear age")]
-    public async Task<RuntimeResult> ClearAgeAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
-        Context,
-        new(IsRemoved: true, RemovedMessage: $"Your age is associated with your set birthday, you can use 👉 {mention.SlashCommand("birthday clear")} 👈 to clear it 😊"));
+    public async Task<RuntimeResult> ClearAgeAsync([Remainder] string? _ = null)
+    {
+        var context = DiscordNetContextMapper.MapToRunContext(Context, prefixInfo: null);
+        return await prefixedCommandRunner.RunAsync(
+            Context,
+            new(IsRemoved: true, RemovedMessage: await mention.FormatAsync(context, $"Your age is associated with your set birthday, you can use 👉 {mention.Slash("birthday clear")} 👈 to clear it 😊")));
+    }
 
     [Command("birthday")]
     [Alias("bd", "bday")]

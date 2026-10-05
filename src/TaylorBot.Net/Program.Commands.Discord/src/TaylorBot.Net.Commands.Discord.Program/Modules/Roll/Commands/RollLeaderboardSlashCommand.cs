@@ -62,10 +62,10 @@ public class RollLeaderboardSlashCommand(
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         No roll played by members of this server.
-                        Members need to use {mention.SlashCommand("roll play", context)}! 😊
-                        """)),
+                        Members need to use {mention.Slash("roll play")}! 😊
+                        """))),
                     IsCancellable: true
                 ));
             },

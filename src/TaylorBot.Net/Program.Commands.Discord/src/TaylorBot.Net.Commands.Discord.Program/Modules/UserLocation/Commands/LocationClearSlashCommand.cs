@@ -19,10 +19,10 @@ public class LocationClearSlashCommand(ILocationRepository locationRepository, C
                 await locationRepository.ClearLocationAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
-                    Your location has been cleared. {mention.SlashCommand("location time", context)} and {mention.SlashCommand("location weather", context)} will no longer work. ✅
-                    You can set it again with {mention.SlashCommand("location set", context)}.
-                    """));
+                    await mention.FormatAsync(context, $"""
+                    Your location has been cleared. {mention.Slash("location time")} and {mention.Slash("location weather")} will no longer work. ✅
+                    You can set it again with {mention.Slash("location set")}.
+                    """)));
             }
         ));
     }

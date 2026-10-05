@@ -67,10 +67,10 @@ public class ModLogSetSlashCommand(
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithDescription(
-                $"""
+                await mention.FormatAsync(context, $"""
                 Ok, I will now log moderation command usage in {channel.Mention} ✅
-                Use {mention.SlashCommand("mod log show", context)} to see the current configuration ↩️
-                """)
+                Use {mention.Slash("mod log show")} to see the current configuration ↩️
+                """))
         .Build();
     }
 }
@@ -148,19 +148,19 @@ public class ModLogShowSlashCommand(
                     else
                     {
                         embed.WithDescription(
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             I can't find the previously configured moderation command usage logging channel in this server ❌
-                            Was it deleted? Use {mention.SlashCommand("mod log set", context)} to log moderation command usage in another channel ↩️
-                            """);
+                            Was it deleted? Use {mention.Slash("mod log set")} to log moderation command usage in another channel ↩️
+                            """));
                     }
                 }
                 else
                 {
                     embed.WithDescription(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         There is no moderation command usage logging configured in this server ❌
-                        Use {mention.SlashCommand("mod log set", context)} to log moderation command usage in a specific channel ↩️
-                        """);
+                        Use {mention.Slash("mod log set")} to log moderation command usage in a specific channel ↩️
+                        """));
                 }
 
                 return new MessageResult(new(new(embed.Build()), components));
@@ -198,10 +198,10 @@ public class ModLogStopButtonHandler(
         await modLogChannelRepository.RemoveModLogAsync(guild);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
-            $"""
+            await mention.FormatAsync(context, $"""
             Moderation command usage logging is now disabled in this server ✅
-            Use {mention.SlashCommand("mod log set", context)} to re-enable it ↩️
-            """);
+            Use {mention.Slash("mod log set")} to re-enable it ↩️
+            """));
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }

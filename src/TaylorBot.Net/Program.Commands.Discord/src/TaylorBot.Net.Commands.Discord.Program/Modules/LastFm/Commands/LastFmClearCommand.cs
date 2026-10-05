@@ -24,10 +24,10 @@ public class LastFmClearSlashCommand(ILastFmUsernameRepository lastFmUsernameRep
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Your Last.fm username has been cleared. Last.fm commands will no longer work ✅
-                    You can set it again with {mention.SlashCommand("lastfm set", context)}.
-                    """);
+                    You can set it again with {mention.Slash("lastfm set")}.
+                    """));
 
             if (context.SlashCommand == null)
             {

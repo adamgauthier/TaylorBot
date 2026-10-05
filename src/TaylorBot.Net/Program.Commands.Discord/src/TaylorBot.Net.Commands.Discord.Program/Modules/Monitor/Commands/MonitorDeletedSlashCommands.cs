@@ -77,10 +77,10 @@ public class MonitorDeletedSetSlashCommand(
         await deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
 
         return EmbedFactory.CreateSuccess(
-            $"""
+            await mention.FormatAsync(context, $"""
             Ok, I will now log deleted messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {mention.SlashCommand("monitor deleted show", context)} to see the current configuration ↩️
-            """);
+            Use {mention.Slash("monitor deleted show")} to see the current configuration ↩️
+            """));
     }
 }
 
@@ -157,19 +157,19 @@ public class MonitorDeletedShowSlashCommand(
                     else
                     {
                         embed.WithDescription(
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             I can't find the previously configured deleted messages logging channel in this server ❌
-                            Was it deleted? Use {mention.SlashCommand("monitor deleted set", context)} to log deleted messages in another channel ↩️
-                            """);
+                            Was it deleted? Use {mention.Slash("monitor deleted set")} to log deleted messages in another channel ↩️
+                            """));
                     }
                 }
                 else
                 {
                     embed.WithDescription(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         Deleted message monitoring is not configured in this server ❌
-                        Use {mention.SlashCommand("monitor deleted set", context)} to log deleted messages in a specific channel ↩️
-                        """);
+                        Use {mention.Slash("monitor deleted set")} to log deleted messages in a specific channel ↩️
+                        """));
                 }
 
                 return new MessageResult(new(new(embed.Build()), components));
@@ -207,10 +207,10 @@ public class MonitorDeletedStopButtonHandler(
         await deletedLogChannelRepository.RemoveDeletedLogAsync(guild);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
-            $"""
+            await mention.FormatAsync(context, $"""
             Deleted message logging is now disabled in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {mention.SlashCommand("monitor deleted set", context)} to re-enable it ↩️
-            """);
+            Use {mention.Slash("monitor deleted set")} to re-enable it ↩️
+            """));
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }

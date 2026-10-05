@@ -13,6 +13,20 @@ namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Commands.Events;
 public sealed class CouponTests(DataServices data)
 {
     [Fact]
+    public async Task GuildMention_UsesInteractionIdWithoutLookup()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.EventGuildAsync(user);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "coupon show", guild);
+
+        response.ShouldBeSuccess();
+        response.Description.Should().Contain($"</coupon redeem:{scenario.DiscordApi.GetCommandId("coupon", guild.Id)}>");
+        scenario.DiscordApi.RequestsFor("GET", $"applications/{DiscordApi.ApplicationId}/guilds/{guild.Id}/commands").Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Redeem_RecordsRewardAndHistoryOnlyOnce()
     {
         await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);

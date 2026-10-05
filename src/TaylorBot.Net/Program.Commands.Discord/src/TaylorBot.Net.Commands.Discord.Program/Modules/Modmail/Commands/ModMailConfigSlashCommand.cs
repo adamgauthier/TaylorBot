@@ -65,15 +65,15 @@ public class ModMailConfigSlashCommand(
                 else
                 {
                     embed = EmbedFactory.CreateSuccess(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         ## What is Mod Mail? ✉️
                         Mod Mail is a feature that allows users to send messages to moderators.
-                        - Users send mail with {mention.SlashCommand("modmail message-mods", context)} 📨
+                        - Users send mail with {mention.Slash("modmail message-mods")} 📨
                         - TaylorBot will send the messages to a channel in this server 📬
                         - Moderators can respond to these messages anonymously 💌
 
                         Enable Mod Mail in your server by picking a channel for it below ⬇️
-                        """);
+                        """));
                 }
 
                 List<InteractionComponent> components = [CreateChannelSelect(modMailLog?.ChannelId)];
@@ -152,13 +152,13 @@ public class ModMailConfigSetChannelHandler(
             await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(textChannel);
 
             var embed = EmbedFactory.CreateSuccessEmbed(
-                $"""
+                await mention.FormatAsync(context, $"""
                 Mod Mail is now successfully enabled! ✅
-                - Tell your members to send mail with {mention.SlashCommand("modmail message-mods", context)} 📨
+                - Tell your members to send mail with {mention.Slash("modmail message-mods")} 📨
                 - TaylorBot will send the messages to {selectedChannel.Mention} 📬
 
-                Use {mention.SlashCommand("modmail config", context)} if you need to make some changes ⚙️
-                """);
+                Use {mention.Slash("modmail config")} if you need to make some changes ⚙️
+                """));
 
             await responseClient.EditOriginalResponseAsync(channelSelect.Interaction, embed);
         }
@@ -200,10 +200,10 @@ public class ModMailConfigConfirmHandler(
         await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(textChannel);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
-            $"""
+            await mention.FormatAsync(context, $"""
             Successfully changed the Mod Mail channel to {textChannel.Mention} ✅
-            Use {mention.SlashCommand("modmail config", context)} if you need to make some changes ⚙️
-            """);
+            Use {mention.Slash("modmail config")} if you need to make some changes ⚙️
+            """));
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }

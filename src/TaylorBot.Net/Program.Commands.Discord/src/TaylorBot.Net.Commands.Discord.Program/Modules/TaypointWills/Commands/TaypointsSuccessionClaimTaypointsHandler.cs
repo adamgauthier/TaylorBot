@@ -58,14 +58,14 @@ public class TaypointsSuccessionClaimTaypointsHandler(
             var ongoingSuccessions = willsAsBeneficiary.Where(w => w.OwnerLatestSpokeAt >= timeProvider.GetUtcNow().AddDays(-daysRequired)).ToList();
 
             var embed = EmbedFactory.CreateErrorEmbed(
-                $"""
+                (await mention.FormatAsync(context, $"""
                 None of the {"taypoint succession".ToQuantity(willsAsBeneficiary.Count)} you are successor of is ready to claim 🤔
                 {TaypointsSuccessionSlashCommand.FormatWillOwnersList(
                     [.. ongoingSuccessions.OrderBy(w => w.OwnerLatestSpokeAt)],
                     maxDisplayed: 5
                 )}
-                Use {mention.SlashCommand("taypoints succession", context)} to manage your succession 🔒
-                """.Truncate(EmbedBuilder.MaxDescriptionLength));
+                Use {mention.Slash("taypoints succession")} to manage your succession 🔒
+                """)).Truncate(EmbedBuilder.MaxDescriptionLength));
 
             await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
         }

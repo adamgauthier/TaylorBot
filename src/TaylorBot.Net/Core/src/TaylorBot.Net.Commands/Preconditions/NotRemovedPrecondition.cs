@@ -2,30 +2,34 @@
 
 public class NotRemovedPrecondition(CommandMentioner mention) : ICommandPrecondition
 {
-    public ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
+    public async ValueTask<ICommandResult> CanRunAsync(Command command, RunContext context)
     {
         if (context.PrefixCommand?.IsRemoved == true)
         {
-            var userReason = context.PrefixCommand.ReplacementSlashCommands != null ?
-                context.PrefixCommand.ReplacementSlashCommands.Count > 1 ?
+            FormattableString userReason = context.PrefixCommand.ReplacementSlashCommands switch
+            {
+                { Count: > 1 } replacements =>
                     $"""
                     This command has been moved to:
-                    {string.Join('\n', context.PrefixCommand.ReplacementSlashCommands.Select(c => $"👉 {mention.SlashCommand(c)} 👈"))}
+                    {mention.Join("\n", replacements.Select(c => (FormattableString)$"👉 {mention.Slash(c)} 👈"))}
                     Please use them instead! 😊
-                    """ :
+                    """,
+                { } replacements =>
                     $"""
-                    This command has been moved to 👉 {mention.SlashCommand(context.PrefixCommand.ReplacementSlashCommands[0])} 👈
+                    This command has been moved to 👉 {mention.Slash(replacements[0])} 👈
                     Please use it instead! 😊
-                    """ :
+                    """,
+                null =>
                     $"""
                     This command has been removed, sorry! 😕
                     {context.PrefixCommand.RemovedMessage}
-                    """;
+                    """,
+            };
 
-            return new(new PreconditionFailed(
+            return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is removed",
-                UserReason: new(userReason)));
+                UserReason: new(await mention.FormatAsync(context, userReason)));
         }
-        return new(new PreconditionPassed());
+        return new PreconditionPassed();
     }
 }

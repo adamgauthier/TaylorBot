@@ -14,7 +14,7 @@ public class TaylorBotOwnerPrecondition(CommandMentioner mention) : ICommandPrec
         {
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} can only be used by owner",
-                UserReason: new($"You can't use {mention.Command(command, context)} because it can only be used by the bot owner 🚫")
+                UserReason: new(await mention.FormatAsync(context, $"You can't use {mention.Command(command)} because it can only be used by the bot owner 🚫"))
             );
         }
     }

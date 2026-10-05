@@ -78,10 +78,10 @@ public class MonitorEditedSetSlashCommand(
         await editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
 
         return EmbedFactory.CreateSuccess(
-            $"""
+            await mention.FormatAsync(context, $"""
             Ok, I will now log edited messages in {channel.Mention}. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {mention.SlashCommand("monitor edited show", context)} to see the current configuration ↩️
-            """);
+            Use {mention.Slash("monitor edited show")} to see the current configuration ↩️
+            """));
     }
 }
 
@@ -158,19 +158,19 @@ public class MonitorEditedShowSlashCommand(
                     else
                     {
                         embed.WithDescription(
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             I can't find the previously configured edited messages logging channel in this server ❌
-                            Was it deleted? Use {mention.SlashCommand("monitor edited set", context)} to log edited messages in another channel ↩️
-                            """);
+                            Was it deleted? Use {mention.Slash("monitor edited set")} to log edited messages in another channel ↩️
+                            """));
                     }
                 }
                 else
                 {
                     embed.WithDescription(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         Edited message monitoring is not configured in this server ❌
-                        Use {mention.SlashCommand("monitor edited set", context)} to log edited messages in a specific channel ↩️
-                        """);
+                        Use {mention.Slash("monitor edited set")} to log edited messages in a specific channel ↩️
+                        """));
                 }
 
                 return new MessageResult(new(new(embed.Build()), components));
@@ -208,10 +208,10 @@ public class MonitorEditedStopButtonHandler(
         await editedLogChannelRepository.RemoveEditedLogAsync(guild);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
-            $"""
+            await mention.FormatAsync(context, $"""
             Edited message logging is now disabled in this server. **Please wait up to 5 minutes for changes to take effect** ⌚
-            Use {mention.SlashCommand("monitor edited set", context)} to re-enable it ↩️
-            """);
+            Use {mention.Slash("monitor edited set")} to re-enable it ↩️
+            """));
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
     }

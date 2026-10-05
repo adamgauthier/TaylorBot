@@ -45,7 +45,7 @@ public class HelpSlashCommand(IBotInfoRepository botInfoRepository, CommandCateg
                 {applicationInfo.Description}
                 {(context.PrefixCommand == null
                     ? "### Pick a command category below to learn more 👇"
-                    : $"### Use {mention.SlashCommand("help")} to learn more about commands! 💫")}
+                    : await mention.FormatAsync(context, $"### Use {mention.Slash("help")} to learn more about commands! 💫"))}
                 """)
             .Build();
 
@@ -103,7 +103,7 @@ public class HelpCategoryHandler(IInteractionResponseClient interactionResponseC
         var embed = EmbedFactory.CreateSuccess(
             $"""
             # {categoryInfo.Name} {categoryInfo.Emoji}
-            {mention.ReplaceSlashCommandMentions(categoryInfo.Description)}
+            {await mention.ReplaceSlashCommandMentionsAsync(categoryInfo.Description, context)}
             """);
         var selectMenu = await helpCommand.CreateCategorySelectAsync(categoryId);
 

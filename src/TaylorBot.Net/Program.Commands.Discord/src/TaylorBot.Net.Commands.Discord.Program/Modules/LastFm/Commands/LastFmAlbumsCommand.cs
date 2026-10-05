@@ -35,7 +35,7 @@ public class LastFmAlbumsSlashCommand(
 
             if (lastFmUsername == null)
             {
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
+                return await lastFmEmbedFactory.CreateLastFmNotSetEmbedResultAsync(user, context);
             }
 
             var result = await lastFmClient.GetTopAlbumsAsync(lastFmUsername.Username, period.Value);
@@ -71,7 +71,7 @@ public class LastFmAlbumsSlashCommand(
                     }
 
                 case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult, context);
+                    return await lastFmEmbedFactory.CreateLastFmErrorEmbedResultAsync(errorResult, context);
 
                 default: throw new NotImplementedException();
             }

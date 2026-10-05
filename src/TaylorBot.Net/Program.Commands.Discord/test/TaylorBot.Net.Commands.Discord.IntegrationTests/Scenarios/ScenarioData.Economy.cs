@@ -5,6 +5,16 @@ namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
+    public async Task DailyMessageAsync(string message)
+    {
+        await using var connection = _database.CreateConnection();
+        await connection.ExecuteAsync("""
+            UPDATE commands.messages_of_the_day SET priority_from = NULL, priority_to = NULL;
+            INSERT INTO commands.messages_of_the_day (id, message, priority_from, priority_to)
+            VALUES (@Id, @message, CURRENT_TIMESTAMP - interval '1 day', CURRENT_TIMESTAMP + interval '1 day');
+            """, new { Id = Guid.NewGuid(), message });
+    }
+
     public async Task DailyRecordAsync(ScenarioUser user, int current = 2, int maximum = 10)
     {
         await using var connection = _database.CreateConnection();

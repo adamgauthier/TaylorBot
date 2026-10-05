@@ -41,15 +41,15 @@ public class TaypointsBalanceSlashCommand(
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithUserAsAuthor(user)
                 .WithDescription(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     {user.Mention} has {"taypoint".ToQuantity(balance.TaypointCount, TaylorBotFormats.BoldReadable)} 🪙
-                    {(balance.ServerRank != null ? GetRankText(context, balance.ServerRank.Value) : "")}
-                    """)
+                    {(balance.ServerRank != null ? GetRankText(balance.ServerRank.Value) : null)}
+                    """))
             .Build());
         }
     );
 
-    private string GetRankText(RunContext context, int serverRank)
+    private FormattableString GetRankText(int serverRank)
     {
         var emoji = serverRank switch
         {
@@ -59,7 +59,7 @@ public class TaypointsBalanceSlashCommand(
             _ => "🏆",
         };
 
-        return $"{emoji} **{serverRank.Ordinalize(TaylorBotCulture.Culture)}** in this server's {mention.SlashCommand("taypoints leaderboard", context)}";
+        return $"{emoji} **{serverRank.Ordinalize(TaylorBotCulture.Culture)}** in this server's {mention.Slash("taypoints leaderboard")}";
     }
 
     private async Task<int?> GetServerRankAsync(DiscordUser user, CommandGuild? guild)

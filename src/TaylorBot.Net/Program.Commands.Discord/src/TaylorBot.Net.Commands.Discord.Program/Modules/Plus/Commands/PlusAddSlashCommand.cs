@@ -35,10 +35,10 @@ public class PlusAddSlashCommand(
                     embed
                         .WithColor(TaylorBotColors.ErrorColor)
                         .WithDescription(
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             Unfortunately you can't add more **TaylorBot Plus** servers with your current membership 😕
-                            Use {mention.SlashCommand("plus show", context)} to see your plus servers and maybe remove some with {mention.SlashCommand("plus remove", context)}
-                            """);
+                            Use {mention.Slash("plus show")} to see your plus servers and maybe remove some with {mention.Slash("plus remove")}
+                            """));
                 }
                 else
                 {

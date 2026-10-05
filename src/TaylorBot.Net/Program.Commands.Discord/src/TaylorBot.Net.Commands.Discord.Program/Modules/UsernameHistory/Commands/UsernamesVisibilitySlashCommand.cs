@@ -28,10 +28,10 @@ public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository username
                         return new EmbedResult(new EmbedBuilder()
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(
-                                $"""
-                                Your username history is now **public** (__can__ be viewed with {mention.SlashCommand("usernames show", context)}) ✅
-                                Use {mention.SlashCommand("usernames visibility", context)} again to make it private 🕵️
-                                """)
+                                await mention.FormatAsync(context, $"""
+                                Your username history is now **public** (__can__ be viewed with {mention.Slash("usernames show")}) ✅
+                                Use {mention.Slash("usernames visibility")} again to make it private 🕵️
+                                """))
                             .Build());
 
                     case "private":
@@ -40,10 +40,10 @@ public class UsernamesVisibilitySlashCommand(IUsernameHistoryRepository username
                         return new EmbedResult(new EmbedBuilder()
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithDescription(
-                                $"""
-                                Your username history is now **private** (__can't__ be viewed with {mention.SlashCommand("usernames show", context)}) ✅
-                                Use {mention.SlashCommand("usernames visibility", context)} again to make it public 📢
-                                """)
+                                await mention.FormatAsync(context, $"""
+                                Your username history is now **private** (__can't__ be viewed with {mention.Slash("usernames show")}) ✅
+                                Use {mention.Slash("usernames visibility")} again to make it public 📢
+                                """))
                             .Build());
 
                     default: throw new NotImplementedException();

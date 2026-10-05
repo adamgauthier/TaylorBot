@@ -20,17 +20,20 @@ public class NotGuildChannelDisabledPrecondition(IDisabledGuildChannelCommandRep
         var isDisabled = await disabledGuildChannelCommandRepository.IsGuildChannelCommandDisabledAsync(context.GuildTextChannel, command.Metadata);
 
         var canRun = await userHasPermission.Create(GuildPermission.ManageChannels).CanRunAsync(command, context);
+        FormattableString hint = canRun switch
+        {
+            PreconditionPassed => $"You can re-enable it by typing {mention.Slash("command channel-enable")} {command.Metadata.Name} ✅",
+            _ => $"Ask a moderator to re-enable it 🙏",
+        };
 
         return isDisabled ?
             new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is disabled in {context.Channel.Id} on {context.Guild.FormatLog()}",
                 UserReason: new(
-                    $"""
-                    You can't use {mention.Command(command, context)} because it is disabled in {context.Channel.Mention} 🚫
-                    {(canRun is PreconditionPassed
-                        ? $"You can re-enable it by typing {mention.SlashCommand("command channel-enable")} {command.Metadata.Name} ✅"
-                        : "Ask a moderator to re-enable it 🙏")}
-                    """
+                    await mention.FormatAsync(context, $"""
+                    You can't use {mention.Command(command)} because it is disabled in {context.Channel.Mention} 🚫
+                    {hint}
+                    """)
                 )
             ) :
             new PreconditionPassed();

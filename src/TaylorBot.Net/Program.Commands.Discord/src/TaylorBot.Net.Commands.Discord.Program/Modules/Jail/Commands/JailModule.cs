@@ -76,7 +76,7 @@ public class JailModule(
                             .WithFooter("User jailed")
                         );
 
-                        return new EmbedResult(modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
+                        return new EmbedResult(await modChannelLogger.CreateResultEmbedAsync(context, wasLogged, $"{user.FormatTagAndMention()} was successfully jailed. 👍"));
 
                     default: throw new NotImplementedException();
                 }
@@ -153,7 +153,7 @@ public class JailModule(
                             .WithFooter("User freed")
                         );
 
-                        return new EmbedResult(modChannelLogger.CreateResultEmbed(context, wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
+                        return new EmbedResult(await modChannelLogger.CreateResultEmbedAsync(context, wasLogged, $"{user.FormatTagAndMention()} was successfully freed. 👍"));
 
                     default: throw new NotImplementedException();
                 }

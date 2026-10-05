@@ -50,10 +50,10 @@ public class CouponShowSlashCommand(ICouponRepository couponRepository, CommandM
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             You've never redeemed a coupon before 😵
-                            You can get coupon codes from events and redeem them with {mention.GuildSlashCommand("coupon redeem", context.Guild?.Id ?? throw new InvalidOperationException())} for special rewards ✨
-                            """
+                            You can get coupon codes from events and redeem them with {mention.GuildSlash("coupon redeem")} for special rewards ✨
+                            """)
                     ))
                 ));
             }

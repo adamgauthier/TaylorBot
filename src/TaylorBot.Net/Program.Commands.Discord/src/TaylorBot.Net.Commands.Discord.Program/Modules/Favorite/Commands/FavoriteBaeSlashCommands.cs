@@ -57,10 +57,10 @@ public class FavoriteBaeShowSlashCommand(IBaeRepository baeRepository, CommandMe
             else
             {
                 return new EmbedResult(EmbedFactory.CreateError(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     {user.Mention}'s bae is not set. 🚫
-                    They need to use {mention.SlashCommand("favorite bae set", context)} to set it first.
-                    """));
+                    They need to use {mention.Slash("favorite bae set")} to set it first.
+                    """)));
             }
         }
     );
@@ -115,10 +115,10 @@ public class FavoriteBaeSetConfirmButtonHandler(IInteractionResponseClient respo
         await baeRepository.SetBaeAsync(context.User, baeEmbed.description);
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(EmbedFactory.CreateSuccess(
-            $"""
+            await mention.FormatAsync(context, $"""
             Your bae has been set successfully ✅
-            Others can now use {mention.SlashCommand("favorite bae show", context)} to see your bae ❤️
-            """)));
+            Others can now use {mention.Slash("favorite bae show")} to see your bae ❤️
+            """))));
     }
 }
 
@@ -137,10 +137,10 @@ public class FavoriteBaeClearSlashCommand(IBaeRepository baeRepository, CommandM
                 await baeRepository.ClearBaeAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Your bae has been cleared and is no longer visible. ✅
-                    You can set it again with {mention.SlashCommand("favorite bae set", context)}.
-                    """));
+                    You can set it again with {mention.Slash("favorite bae set")}.
+                    """)));
             }
         ));
     }

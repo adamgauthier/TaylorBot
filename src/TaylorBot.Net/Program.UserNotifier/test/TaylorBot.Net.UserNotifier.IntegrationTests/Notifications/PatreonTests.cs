@@ -26,16 +26,33 @@ public sealed class PatreonTests(DataServices data)
         await using var scenario = await CreateAsync();
         var active = await scenario.Given.UserAsync();
         var inactive = await scenario.Given.UserAsync(username: "Inactive");
+        var command = scenario.DiscordApi.GlobalCommand("plus");
         scenario.Patreon.Members([new(active), new(inactive, Active: false), new(null)], paginated: true);
         scenario.DiscordApi.ExpectMessage(NotifierDiscordApi.DmChannel(active.Id));
 
         var output = await scenario.RunJobAsync(UserNotifierJob.Patreon);
 
-        output.Text.Should().Contain("Welcome to TaylorBot Plus");
+        output.Text.Should().Contain("Welcome to TaylorBot Plus").And.Contain($"</plus show:{command}>");
         (await scenario.State.PatronAsync(active))!.Active.Should().BeTrue();
         (await scenario.State.PatronAsync(inactive))!.Active.Should().BeFalse();
         (await scenario.State.PatronCountAsync()).Should().Be(2);
         scenario.External.Requests.Should().HaveCount(2).And.OnlyContain(request => request.Headers["Authorization"] == "Bearer synthetic");
+    }
+
+    [Fact]
+    public async Task Welcome_UnavailableCommandFallsBackToPlainText()
+    {
+        await using var scenario = await CreateAsync();
+        var user = await scenario.Given.UserAsync();
+        scenario.DiscordApi.Resource($"applications/{NotifierDiscordApi.BotId}/commands", Array.Empty<object>());
+        scenario.Patreon.Members([new(user)]);
+        scenario.DiscordApi.ExpectMessage(NotifierDiscordApi.DmChannel(user.Id));
+
+        var output = await scenario.RunJobAsync(UserNotifierJob.Patreon);
+
+        output.Text.Should().Contain("Welcome to TaylorBot Plus").And.Contain("/plus show").And.NotContain("</plus show:");
+        scenario.Logs.ToString().Should().Contain("Could not resolve command plus in global");
+        (await scenario.State.PatronAsync(user))!.Active.Should().BeTrue();
     }
 
     [Fact]
@@ -79,6 +96,7 @@ public sealed class PatreonTests(DataServices data)
     {
         await using var scenario = await CreateAsync();
         var user = await scenario.Given.UserAsync();
+        scenario.DiscordApi.GlobalCommand("plus");
         scenario.Patreon.Members([new(user)]);
         scenario.DiscordApi.RejectMessage(NotifierDiscordApi.DmChannel(user.Id));
 

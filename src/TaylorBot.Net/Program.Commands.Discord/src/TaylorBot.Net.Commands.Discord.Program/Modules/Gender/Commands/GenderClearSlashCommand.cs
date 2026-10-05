@@ -19,10 +19,10 @@ public class GenderClearSlashCommand(IGenderRepository genderRepository, Command
                 await genderRepository.ClearGenderAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
-                    Your gender has been cleared. It will no longer be included in {mention.SlashCommand("server population", context)} stats ✅
-                    You can set it again with {mention.SlashCommand("gender set", context)}.
-                    """));
+                    await mention.FormatAsync(context, $"""
+                    Your gender has been cleared. It will no longer be included in {mention.Slash("server population")} stats ✅
+                    You can set it again with {mention.Slash("gender set")}.
+                    """)));
             }
         ));
     }

@@ -1,13 +1,14 @@
 ﻿using Discord;
 using Humanizer;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Colors;
 using TaylorBot.Net.Core.Number;
 
 namespace TaylorBot.Net.PatreonSync.Domain.DiscordEmbed;
 
-public sealed class PatreonUpdateEmbedFactory
+public sealed class PatreonUpdateEmbedFactory(SlashCommandMentioner mention)
 {
-    public static Embed? Create(IUpdatePlusUserResult result)
+    public async Task<Embed?> CreateAsync(IUpdatePlusUserResult result)
     {
         switch (result)
         {
@@ -15,13 +16,13 @@ public sealed class PatreonUpdateEmbedFactory
                 return new EmbedBuilder()
                     .WithColor(TaylorBotColors.DiamondBlueColor)
                     .WithDescription(
-                        $"""
+                        await mention.FormatAsync($"""
                         🥳 **Welcome to TaylorBot Plus** 🥳
                         I just detected that you are now supporting me on Patreon, thank you so much! 🥺
                         This gives you access to exclusive features for you and your favorite servers! ⚡
                         Patreon only charges you at the start of every month, and when that happens, you'll also receive taypoints! 🎁
-                        To learn more, take a look at your membership status by typing </plus show:1246970937321066608> 👀
-                        """)
+                        To learn more, take a look at your membership status by typing {mention.Slash("plus show")} 👀
+                        """))
                 .Build();
 
             case UserRewarded rewarded:

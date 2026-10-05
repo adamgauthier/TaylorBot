@@ -28,7 +28,7 @@ public class UserHasPermissionOrOwnerPrecondition(
         {
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} can only be used by a guild member",
-                UserReason: new($"You can't use {mention.Command(command, context)} because it can only be used in a server 🚫")
+                UserReason: new(await mention.FormatAsync(context, $"You can't use {mention.Command(command)} because it can only be used in a server 🚫"))
             );
         }
 
@@ -57,10 +57,10 @@ public class UserHasPermissionOrOwnerPrecondition(
                     return new PreconditionFailed(
                         PrivateReason: $"{command.Metadata.Name} can only be used with one of {string.Join(',', permissions)}",
                         UserReason: new(
-                            $"""
-                            You can't use {mention.Command(command, context)} because you need {permissionMessage} 🚫
+                            await mention.FormatAsync(context, $"""
+                            You can't use {mention.Command(command)} because you need {permissionMessage} 🚫
                             Ask someone with more permissions than you to use the command or to give you this permission in the server settings ⚙️
-                            """)
+                            """))
                     );
                 }
             }

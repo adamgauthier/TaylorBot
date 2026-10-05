@@ -73,7 +73,7 @@ public class ModMailMessageModsModalHandler(
         var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(guild);
         if (modLog == null)
         {
-            await responseClient.EditOriginalResponseAsync(submit.Interaction, new MessageResponse(modMailChannelLogger.CreateNotConfiguredModMailLogEmbed(context)));
+            await responseClient.EditOriginalResponseAsync(submit.Interaction, new MessageResponse(await modMailChannelLogger.CreateNotConfiguredModMailLogEmbedAsync(context)));
             return;
         }
 

@@ -56,24 +56,24 @@ public class CommandPrefixSlashCommand(
                 if (arePrefixCommandsDisabled)
                 {
                     description +=
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         Prefix commands are currently **disabled** in this server ⛔
-                        Users must use slash commands (e.g. {mention.SlashCommand("help")}) instead of prefix commands like `{currentPrefix}help` ✅
+                        Users must use slash commands (e.g. {mention.Slash("help")}) instead of prefix commands like `{currentPrefix}help` ✅
                         You can re-enable prefix commands using the button below ⬇️
-                        """;
+                        """);
                     button = CreateEnablePrefixButton();
                 }
                 else
                 {
                     description +=
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         While prefix commands used to be the only way to interact with bots on Discord, they have many downsides 🥲
                         Slash commands are now the preferred modern way to interact with bots, with many improvements such as buttons, modals, etc. 💪
-                        For example, you can use {mention.SlashCommand("help")} instead of typing `{currentPrefix}help` ⚡
+                        For example, you can use {mention.Slash("help")} instead of typing `{currentPrefix}help` ⚡
 
                         Some servers may want to disable prefix commands entirely to avoid confusion and encourage users to use slash commands instead 🐣
                         Use the button below to disable prefix commands in this server ⬇️
-                        """;
+                        """);
                     button = CreateDisablePrefixButton();
                 }
 
@@ -133,11 +133,11 @@ public class CommandPrefixToggleHandler(
             var currentPrefix = prefixResult.Prefix;
 
             var embed = EmbedFactory.CreateSuccessEmbed(
-                $"""
+                await mention.FormatAsync(context, $"""
                 Prefix commands are now enabled in this server ✅
                 Users can use prefix commands like `{currentPrefix}help` again 👴
-                You can disable prefix commands at any time using {mention.SlashCommand("command prefix")} ↩️
-                """);
+                You can disable prefix commands at any time using {mention.Slash("command prefix")} ↩️
+                """));
             await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
         }
         else
@@ -145,11 +145,11 @@ public class CommandPrefixToggleHandler(
             await disabledGuildCommandRepository.DisableInAsync(guild.Fetched, "all-prefix");
 
             var embed = EmbedFactory.CreateSuccessEmbed(
-                $"""
+                await mention.FormatAsync(context, $"""
                 Prefix commands are now disabled in this server ✅
                 Users will need to use slash commands instead 💪
-                You can re-enable prefix commands at any time using {mention.SlashCommand("command prefix")} ↩️
-                """);
+                You can re-enable prefix commands at any time using {mention.Slash("command prefix")} ↩️
+                """));
             await responseClient.EditOriginalResponseAsync(button.Interaction, embed);
         }
     }

@@ -72,7 +72,7 @@ public class LastFmCollageSlashCommand(
                 var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
                 if (lastFmUsername == null)
                 {
-                    return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
+                    return await lastFmEmbedFactory.CreateLastFmNotSetEmbedResultAsync(user, context);
                 }
 
                 using var client = clientFactory.CreateClient();

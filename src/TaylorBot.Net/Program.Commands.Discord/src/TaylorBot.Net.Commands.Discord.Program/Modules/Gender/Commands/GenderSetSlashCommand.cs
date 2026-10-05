@@ -21,11 +21,11 @@ public class GenderSetSlashCommand(IGenderRepository genderRepository, CommandMe
                 await genderRepository.SetGenderAsync(context.User, options.gender.Value);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Your gender has been set to {options.gender.Value} ✅
-                    You are now included in {mention.SlashCommand("server population", context)} stats for servers you're in 🧮
-                    People can now use {mention.SlashCommand("gender show", context)} to see your gender 👁️
-                    """));
+                    You are now included in {mention.Slash("server population")} stats for servers you're in 🧮
+                    People can now use {mention.Slash("gender show")} to see your gender 👁️
+                    """)));
             }
         ));
     }

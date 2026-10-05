@@ -40,13 +40,13 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
                             .AddField(
                                 "Plus Servers",
                                 plusUser.ActivePlusGuilds.Count > 0 ?
-                                    $"""
+                                    (await mention.FormatAsync(context, $"""
                                     These servers benefit from **TaylorBot Plus** features thanks to you!
                                     {string.Join('\n', plusUser.ActivePlusGuilds.Select(name => $"- {name}"))}
 
-                                    Use {mention.SlashCommand("plus add", context)} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
-                                    """.Truncate(EmbedFieldBuilder.MaxFieldValueLength) :
-                                    $"You don't have any plus server set, add one with {mention.SlashCommand("plus add", context)} (up to **{plusUser.MaxPlusGuilds}**)!"
+                                    Use {mention.Slash("plus add")} to add plus servers (up to **{plusUser.MaxPlusGuilds}**) 😳
+                                    """)).Truncate(EmbedFieldBuilder.MaxFieldValueLength) :
+                                    await mention.FormatAsync(context, $"You don't have any plus server set, add one with {mention.Slash("plus add")} (up to **{plusUser.MaxPlusGuilds}**)!")
                             );
                     }
                     else
@@ -82,10 +82,10 @@ public class PlusShowSlashCommand(IPlusRepository plusRepository, IPlusUserRepos
 
                     var text = isPlus ?
                         $"'{guild.Name}' is a **TaylorBot Plus** server ✅" :
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         '{guild.Name}' is not a **TaylorBot Plus** server ❌
-                        Use {mention.SlashCommand("plus add", context)} to give it access to exclusive perks ➕
-                        """;
+                        Use {mention.Slash("plus add")} to give it access to exclusive perks ➕
+                        """);
 
                     embed.AddField("This Server", text);
                 }

@@ -88,7 +88,7 @@ public class TaypointsGiftSlashCommand(
                     var description = await TransferAsync(context, author, recipients, amount);
                     if (amountString != null)
                     {
-                        description += $"\n\nCheck out {mention.SlashCommand("taypoints gift", context)}!";
+                        description += await mention.FormatAsync(context, $"\n\nCheck out {mention.Slash("taypoints gift")}!");
                     }
                     return new EmbedResult(EmbedFactory.CreateSuccess(description.Truncate(EmbedBuilder.MaxDescriptionLength)));
                 }

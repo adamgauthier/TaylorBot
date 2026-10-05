@@ -51,15 +51,19 @@ public class NotGuildDisabledPrecondition(
         var isDisabled = await disabledGuildCommandDomainService.IsGuildCommandDisabledAsync(context.Guild, command.Metadata, context);
         if (isDisabled)
         {
+            var canRun = await userHasManageGuild.CanRunAsync(command, context);
+            FormattableString hint = canRun switch
+            {
+                PreconditionPassed => $"You can re-enable it by typing {mention.Slash("command server-enable")} {command.Metadata.Name} ✅",
+                _ => $"Ask a moderator to re-enable it 🙏",
+            };
             return new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is disabled in {context.Guild.FormatLog()}",
                 UserReason: new(
-                    $"""
-                    You can't use {mention.Command(command, context)} because it is disabled in this server 🚫
-                    {(await userHasManageGuild.CanRunAsync(command, context) is PreconditionPassed
-                        ? $"You can re-enable it by typing {mention.SlashCommand("command server-enable")} {command.Metadata.Name} ✅"
-                        : "Ask a moderator to re-enable it 🙏")}
-                    """,
+                    await mention.FormatAsync(context, $"""
+                    You can't use {mention.Command(command)} because it is disabled in this server 🚫
+                    {hint}
+                    """),
                     HideInPrefixCommands: true)
             );
         }
@@ -70,17 +74,19 @@ public class NotGuildDisabledPrecondition(
             var arePrefixCommandsDisabled = result.IsDisabled;
             if (arePrefixCommandsDisabled)
             {
+                FormattableString hint = context.PrefixCommand.ReplacementSlashCommands switch
+                {
+                    { Count: > 1 } replacements => $"Use these slash commands instead ⚡\n{mention.Join("\n", replacements.Select(c => (FormattableString)$"👉 {mention.Slash(c)} 👈"))}",
+                    { Count: 1 } replacements => $"Use the slash command 👉 {mention.Slash(replacements[0])} 👈 instead ⚡",
+                    _ => $"Sorry, slash commands starting with **/** are the future of commands on Discord 😕",
+                };
                 return new PreconditionFailed(
                     PrivateReason: $"Prefix commands disabled in {context.Guild.FormatLog()}",
                     UserReason: new(
-                        $"""
-                        You can't use {mention.Command(command, context)} because prefix commands are disabled in this server 🚫
-                        {(context.PrefixCommand.ReplacementSlashCommands != null && context.PrefixCommand.ReplacementSlashCommands.Count > 1
-                            ? $"Use these slash commands instead ⚡\n{string.Join('\n', context.PrefixCommand.ReplacementSlashCommands.Select(c => $"👉 {mention.SlashCommand(c, context)} 👈"))}"
-                            : context.PrefixCommand.ReplacementSlashCommands != null && context.PrefixCommand.ReplacementSlashCommands.Count == 1
-                                ? $"Use the slash command 👉 {mention.SlashCommand(context.PrefixCommand.ReplacementSlashCommands[0], context)} 👈 instead ⚡"
-                                : $"Sorry, slash commands starting with **/** are the future of commands on Discord 😕")}
-                        """)
+                        await mention.FormatAsync(context, $"""
+                        You can't use {mention.Command(command)} because prefix commands are disabled in this server 🚫
+                        {hint}
+                        """))
                 );
             }
         }

@@ -41,10 +41,10 @@ public class GenderShowSlashCommand(IGenderRepository genderRepository, CommandM
             else
             {
                 return new EmbedResult(EmbedFactory.CreateError(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     {user.Mention}'s gender is not set. 🚫
-                    They need to use {mention.SlashCommand("gender set", context)} to set it first.
-                    """));
+                    They need to use {mention.Slash("gender set")} to set it first.
+                    """)));
             }
         }
     );

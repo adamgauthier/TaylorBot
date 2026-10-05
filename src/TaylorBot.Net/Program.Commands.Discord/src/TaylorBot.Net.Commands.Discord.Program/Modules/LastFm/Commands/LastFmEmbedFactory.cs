@@ -31,32 +31,32 @@ public class LastFmEmbedFactory(LastFmPeriodStringMapper lastFmPeriodStringMappe
         );
     }
 
-    public EmbedResult CreateLastFmNotSetEmbedResult(DiscordUser user, RunContext context)
+    public async Task<EmbedResult> CreateLastFmNotSetEmbedResultAsync(DiscordUser user, RunContext context)
     {
         return new(EmbedFactory.CreateError(
-            $"""
+            await mention.FormatAsync(context, $"""
             {user.Mention}'s Last.fm username is not set 🚫
             Last.fm can track your listening habits on any platform. You can create a Last.fm account by {"clicking here".DiscordMdLink("https://www.last.fm/join")}.
-            You can then link it to TaylorBot with {mention.SlashCommand("lastfm set", context)}.
-            """
+            You can then link it to TaylorBot with {mention.Slash("lastfm set")}.
+            """)
         ));
     }
 
-    private EmbedResult CreateLastFmNotFoundEmbedResult(LastFmUserNotFound notFound, RunContext context)
+    private async Task<EmbedResult> CreateLastFmNotFoundEmbedResultAsync(LastFmUserNotFound notFound, RunContext context)
     {
         return new(EmbedFactory.CreateError(
-            $"""
+            await mention.FormatAsync(context, $"""
             This Last.fm account ({notFound.Username}) can't be found 🚫
-            Make sure the username set with {mention.SlashCommand("lastfm set", context)} is an existing Last.fm account 👆
-            """
+            Make sure the username set with {mention.Slash("lastfm set")} is an existing Last.fm account 👆
+            """)
         ));
     }
 
-    public EmbedResult CreateLastFmErrorEmbedResult(LastFmGenericErrorResult error, RunContext context)
+    public async Task<EmbedResult> CreateLastFmErrorEmbedResultAsync(LastFmGenericErrorResult error, RunContext context)
     {
         if (error is LastFmUserNotFound notFound)
         {
-            return CreateLastFmNotFoundEmbedResult(notFound, context);
+            return await CreateLastFmNotFoundEmbedResultAsync(notFound, context);
         }
 
         return new(EmbedFactory.CreateError(

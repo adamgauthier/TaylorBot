@@ -62,10 +62,10 @@ public class RiskLeaderboardSlashCommand(
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         No risks played by members of this server.
-                        Members need to use {mention.SlashCommand("risk play", context)}! 😊
-                        """)),
+                        Members need to use {mention.Slash("risk play")}! 😊
+                        """))),
                     IsCancellable: true
                 ));
             },

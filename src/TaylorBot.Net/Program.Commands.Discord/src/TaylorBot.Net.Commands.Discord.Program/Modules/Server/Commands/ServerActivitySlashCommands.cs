@@ -85,7 +85,7 @@ public class ServerMinutesSlashCommand(
         {
             var minutes = await serverActivityRepository.GetMinutesAsync(member);
 
-            var bottomText = $"Check out {mention.SlashCommand("server leaderboard", context)} to see the most active server members! 📃";
+            var bottomText = await mention.FormatAsync(context, $"Check out {mention.Slash("server leaderboard")} to see the most active server members! 📃");
             if (member.Member.GuildId == 115332333745340416)
             {
                 var oldMinutes = await serverActivityRepository.GetOldMinutesAsync(member.User);

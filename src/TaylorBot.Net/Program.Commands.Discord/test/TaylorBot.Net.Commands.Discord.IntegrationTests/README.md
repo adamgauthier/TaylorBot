@@ -35,4 +35,6 @@ To confirm real API shapes, temporarily instrument a local development bot and c
 
 Add a class under `Commands/<feature>` (or `Framework` for cross-command behavior), constructor-inject `DataServices`, and create an `await using` scenario as shown in the [balance tests](./Commands/Taypoints/TaypointsBalanceTests.cs). Arrange through `Given` and `External`, act through `Discord`, and assert the response plus any relevant `State` effects; extend shared helpers when needed rather than adding plumbing to the test (see [succession tests](./Commands/Taypoints/SuccessionTests.cs) for components and [image tests](./Commands/Image/ImageTests.cs) for external responses).
 
+Use `configureDiscord` to arrange transport state before startup. For cache-expiry scenarios, [`ScenarioTimeProvider`](./Hosting/ScenarioTimeProvider.cs) advances application UTC time while keeping transport deadlines and timers real.
+
 Declare each deployed route genuinely exercised with `[Trait("Command", "taypoints balance")]` on its test class or method; the coverage guard compares these declarations against global and guild command definitions. Cover meaningful success, important rejection paths, and returned component flows rather than just checking that a command responds; disabled commands and obsolete migration-only aliases are outside this scope.

@@ -93,10 +93,10 @@ public class ValentinesVerifySlashCommand(
                     );
 
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""
-                        Your code is **NOT** the answer. Added 1 failed attempt to your {mention.GuildSlashCommand("valentines profile", context.Guild?.Id ?? throw new InvalidOperationException())}
+                        await mention.FormatAsync(context, $"""
+                        Your code is **NOT** the answer. Added 1 failed attempt to your {mention.GuildSlash("valentines profile")}
                         Better luck next time! 🤐
-                        """
+                        """)
                     ));
                 }
                 else
@@ -118,12 +118,12 @@ public class ValentinesVerifySlashCommand(
                     );
 
                     return new EmbedResult(EmbedFactory.CreateSuccess(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         Congrats, your code is right! 🎉
                         You solved {options.puzzle.Value} after {"attempt".ToQuantity(attemptCount, TaylorBotFormats.BoldReadable)} 🎊
-                        Your {mention.GuildSlashCommand("valentines profile", context.Guild?.Id ?? throw new InvalidOperationException())} has been updated! ✅
+                        Your {mention.GuildSlash("valentines profile")} has been updated! ✅
                         **IMPORTANT**: Make sure all your teammates verify this code as soon as possible to secure maximum points for your team!
-                        """
+                        """)
                     ));
                 }
             }

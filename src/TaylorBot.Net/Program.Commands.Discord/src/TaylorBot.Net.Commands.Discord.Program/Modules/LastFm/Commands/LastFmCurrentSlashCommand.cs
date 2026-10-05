@@ -37,7 +37,7 @@ public partial class LastFmCurrentSlashCommand(
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
+                return await lastFmEmbedFactory.CreateLastFmNotSetEmbedResultAsync(user, context);
 
             var result = await lastFmClient.GetMostRecentScrobbleAsync(lastFmUsername.Username);
 
@@ -85,7 +85,7 @@ public partial class LastFmCurrentSlashCommand(
                         """));
 
                 case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult, context);
+                    return await lastFmEmbedFactory.CreateLastFmErrorEmbedResultAsync(errorResult, context);
 
                 default: throw new NotImplementedException();
             }

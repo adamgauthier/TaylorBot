@@ -63,10 +63,10 @@ public class HeistLeaderboardSlashCommand(
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         No heists played by members of this server.
-                        Members need to use {mention.SlashCommand("heist play", context)}! 😊
-                        """)),
+                        Members need to use {mention.Slash("heist play")}! 😊
+                        """))),
                     IsCancellable: true
                 ));
             },

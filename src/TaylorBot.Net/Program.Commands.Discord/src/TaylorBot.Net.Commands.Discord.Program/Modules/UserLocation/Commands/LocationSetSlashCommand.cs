@@ -36,11 +36,11 @@ public class LocationSetSlashCommand(ILocationClient locationClient, ILocationRe
                         case TimeZoneResult timeZone:
                             await locationRepository.SetLocationAsync(context.User, new(location, timeZone.TimeZoneId, SetAt: default));
                             return new EmbedResult(EmbedFactory.CreateSuccess(
-                                $"""
+                                await mention.FormatAsync(context, $"""
                                 Your location has been set to **{location.FormattedAddress}** 🌍
-                                You can use {mention.SlashCommand("location weather", context)} to see the current weather at your location 🌦
-                                People can now use {mention.SlashCommand("location time", context)} to see what time it is for you 🕰️
-                                """));
+                                You can use {mention.Slash("location weather")} to see the current weather at your location 🌦
+                                People can now use {mention.Slash("location time")} to see what time it is for you 🕰️
+                                """)));
 
                         default: throw new NotImplementedException();
                     }

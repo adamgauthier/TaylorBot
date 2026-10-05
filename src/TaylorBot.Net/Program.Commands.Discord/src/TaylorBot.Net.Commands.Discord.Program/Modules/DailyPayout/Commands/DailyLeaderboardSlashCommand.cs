@@ -62,10 +62,10 @@ public class DailyLeaderboardSlashCommand(
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         No daily streaks in this server.
-                        Members need to use {mention.SlashCommand("daily claim", context)}! 😊
-                        """)),
+                        Members need to use {mention.Slash("daily claim")}! 😊
+                        """))),
                     IsCancellable: true
                 ));
             },

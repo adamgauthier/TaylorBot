@@ -26,10 +26,10 @@ public class LastFmSetSlashCommand(ILastFmUsernameRepository lastFmUsernameRepos
             var embed = new EmbedBuilder()
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithDescription(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Your Last.fm username has been set to {lastFmUsername.Username.DiscordMdLink(lastFmUsername.LinkToProfile)}. ✅
-                    You can now use Last.fm commands, get started with {mention.SlashCommand("lastfm current", context)}.
-                    """);
+                    You can now use Last.fm commands, get started with {mention.Slash("lastfm current")}.
+                    """));
 
             if (context.SlashCommand == null)
             {

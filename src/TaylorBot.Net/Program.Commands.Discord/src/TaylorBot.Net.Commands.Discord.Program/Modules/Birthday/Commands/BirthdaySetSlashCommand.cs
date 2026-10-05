@@ -103,20 +103,26 @@ public class BirthdaySetSlashCommand(
 
         await birthdayRepository.SetBirthdayAsync(context.User, new(birthday, isPrivate, SetAt: default));
 
+        FormattableString ageHint = birthday.Year switch
+        {
+            UserBirthday.NoYearValue => $"Consider setting your birthday with the **year** option for {mention.Slash("birthday age")} to work ❓",
+            _ => $"You can now use {mention.Slash("birthday age")} to display your age 🔢",
+        };
+        FormattableString calendarHint = isPrivate switch
+        {
+            true => $"Since your birthday is private, it won't show up in {mention.Slash("birthday calendar")} 🙈",
+            false => $"Your birthday will show up in {mention.Slash("birthday calendar")} 📅",
+        };
         var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
             .WithDescription(
-                $"""
+                await mention.FormatAsync(context, $"""
                 Your birthday has been set **{birthday.ToString("MMMM d", TaylorBotCulture.Culture)}** ✅
-                {(birthday.Year == UserBirthday.NoYearValue
-                    ? $"Consider setting your birthday with the **year** option for {mention.SlashCommand("birthday age", context)} to work ❓"
-                    : $"You can now use {mention.SlashCommand("birthday age", context)} to display your age 🔢")}
-                {(isPrivate
-                    ? $"Since your birthday is private, it won't show up in {mention.SlashCommand("birthday calendar", context)} 🙈"
-                    : $"Your birthday will show up in {mention.SlashCommand("birthday calendar", context)} 📅")}
-                You can now use {mention.SlashCommand("birthday horoscope", context)} to get your horoscope ✨
+                {ageHint}
+                {calendarHint}
+                You can now use {mention.Slash("birthday horoscope")} to get your horoscope ✨
                 You will get taypoints on your birthday every year 🎁
-                """);
+                """));
 
         return embed.Build();
     }

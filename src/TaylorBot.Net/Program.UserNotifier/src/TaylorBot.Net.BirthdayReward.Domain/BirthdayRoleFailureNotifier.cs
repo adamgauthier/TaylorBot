@@ -49,10 +49,10 @@ public partial class BirthdayRoleFailureNotifier(
 
             var action = operation == BirthdayRoleOperation.Assign ? "assign" : "remove";
             var description = missingRole
-                ? $"""
+                ? await mention.FormatAsync($"""
                 I couldn't {action} the **birthday role** because it no longer exists ⚠️
-                Use {await mention.SlashCommandAsync("birthday role")} to **re-create it** or **remove its configuration**.
-                """
+                Use {mention.Slash("birthday role")} to **re-create it** or **remove its configuration**.
+                """)
                 : $"""
                 I couldn't {action} the birthday role {MentionUtils.MentionRole(roleId.Id)} ⚠️
                 Check **Server Settings > Roles**:

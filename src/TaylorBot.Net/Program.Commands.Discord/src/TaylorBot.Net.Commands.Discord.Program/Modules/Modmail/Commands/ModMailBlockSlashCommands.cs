@@ -47,10 +47,10 @@ public class ModMailBlockSlashCommand(
                     if (blockedUserCount >= MaxBlockedUsersPerGuild)
                     {
                         return new EmbedResult(EmbedFactory.CreateError(
-                            $"""
+                            await mention.FormatAsync(context, $"""
                             You've reached the limit of blocked users ({MaxBlockedUsersPerGuild}) 😕
-                            Use {mention.SlashCommand("plus add", context)} to remove this limit 💎
-                            """));
+                            Use {mention.Slash("plus add")} to remove this limit 💎
+                            """)));
                     }
                 }
 
@@ -62,10 +62,10 @@ public class ModMailBlockSlashCommand(
                         .WithFooter("User blocked from sending mod mail")
                 );
 
-                return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
+                return new EmbedResult(await modMailChannelLogger.CreateResultEmbedAsync(context, wasLogged,
                     $"""
                     Blocked {user.FormatTagAndMention()} from sending mod mail in this server 👍
-                    You can undo this action with {mention.SlashCommand("mod mail unblock", context)} ↩️
+                    You can undo this action with {mention.Slash("mod mail unblock")} ↩️
                     """));
             },
             Preconditions: [
@@ -110,10 +110,10 @@ public class ModMailUnblockSlashCommand(
                         .WithFooter("User unblocked from sending mod mail")
                 );
 
-                return new EmbedResult(modMailChannelLogger.CreateResultEmbed(context, wasLogged,
+                return new EmbedResult(await modMailChannelLogger.CreateResultEmbedAsync(context, wasLogged,
                     $"""
                     Unblocked {user.FormatTagAndMention()} from sending mod mail in this server 👍
-                    You can block again with {mention.SlashCommand("mod mail block", context)} ↩️
+                    You can block again with {mention.Slash("mod mail block")} ↩️
                     """));
             },
             Preconditions: [

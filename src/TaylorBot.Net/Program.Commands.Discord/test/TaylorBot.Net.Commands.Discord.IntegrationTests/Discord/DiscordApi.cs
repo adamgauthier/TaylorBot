@@ -17,6 +17,7 @@ public sealed class DiscordApi : IDiscordApi
     };
 
     private readonly Dictionary<string, JsonObject> _commands = LoadCommands();
+    private readonly HashSet<string> _unavailableGlobalCommands = [];
     private readonly Dictionary<string, Dictionary<string, JsonObject>> _guildCommands = LoadGuildCommands();
     private readonly Lock _lock = new();
     private readonly DiscordApiStub _api;
@@ -29,15 +30,95 @@ public sealed class DiscordApi : IDiscordApi
     private readonly HashSet<(string Channel, string Message)> _messages = [];
     private readonly HashSet<string> _logChannels = [];
     private readonly Dictionary<(string Method, string Path), HttpStatusCode> _roleOperations = [];
+    private Func<CancellationToken, Task>? _beforeCommandLookup;
+    private Action? _onMessageSent;
 
     public DiscordApi()
     {
         _api = new(_lock, Respond);
     }
 
+    public CommandLookupGate PauseCommandLookups()
+    {
+        CommandLookupGate gate = new();
+        lock (_lock)
+        {
+            _beforeCommandLookup = gate.WaitAsync;
+            _onMessageSent = gate.MessageSent;
+        }
+        return gate;
+    }
+
+    public Task BeforeSendAsync(string method, string endpoint, CancellationToken cancellationToken)
+    {
+        Func<CancellationToken, Task>? beforeLookup;
+        lock (_lock) { beforeLookup = _beforeCommandLookup; }
+        return IsCommandLookup(method, endpoint) && beforeLookup != null ? beforeLookup(cancellationToken) : Task.CompletedTask;
+    }
+
+    public Dictionary<string, string> ResponseHeaders(string method, string endpoint, HttpStatusCode status) =>
+        IsCommandLookup(method, endpoint) ? new()
+        {
+            ["X-RateLimit-Limit"] = "1000",
+            ["X-RateLimit-Remaining"] = status == HttpStatusCode.TooManyRequests ? "0" : "999",
+            ["X-RateLimit-Reset-After"] = status == HttpStatusCode.TooManyRequests ? "60" : "0.1",
+        } : [];
+
+    private static bool IsCommandLookup(string method, string endpoint) =>
+        method == "GET" && endpoint.Split('?')[0].EndsWith("/commands", StringComparison.Ordinal);
+
+    public sealed class CommandLookupGate : IDisposable
+    {
+        private readonly TaskCompletionSource _requested = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource _release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource _messageSent = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _requests;
+        private int _cancellations;
+        public int Requests => Volatile.Read(ref _requests);
+        public int Cancellations => Volatile.Read(ref _cancellations);
+        public Task WaitForRequestAsync(CancellationToken cancellationToken) => _requested.Task.WaitAsync(TimeSpan.FromSeconds(15), cancellationToken);
+        public Task WaitForMessageAsync(TimeSpan timeout, CancellationToken cancellationToken) => _messageSent.Task.WaitAsync(timeout, cancellationToken);
+        internal void MessageSent() => _messageSent.TrySetResult();
+        internal async Task WaitAsync(CancellationToken cancellationToken)
+        {
+            Interlocked.Increment(ref _requests);
+            _requested.TrySetResult();
+            try
+            {
+                await _release.Task.WaitAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                Interlocked.Increment(ref _cancellations);
+                throw;
+            }
+        }
+        public void Dispose() => _release.TrySetResult();
+    }
+
     public void ExpectModerationLog(ScenarioGuild guild)
     {
         lock (_lock) { _logChannels.Add(guild.ChannelId); }
+    }
+
+    public void SetGlobalCommandAvailable(string name, bool available)
+    {
+        lock (_lock)
+        {
+            if (!_commands.ContainsKey(name))
+            {
+                throw new ArgumentException($"No command fixture exists for '{name}'.", nameof(name));
+            }
+
+            if (available)
+            {
+                _unavailableGlobalCommands.Remove(name);
+            }
+            else
+            {
+                _unavailableGlobalCommands.Add(name);
+            }
+        }
     }
 
     public IReadOnlyList<DiscordRequest> ModerationLogs(ScenarioGuild guild)
@@ -118,14 +199,17 @@ public sealed class DiscordApi : IDiscordApi
 
     internal string GetCommandId(string name, string? guildId = null)
     {
-        if (guildId != null && _guildCommands.TryGetValue(guildId, out var guildCommands) && guildCommands.TryGetValue(name, out var guildCommand))
+        lock (_lock)
         {
-            return guildCommand["id"]!.GetValue<string>();
-        }
+            if (guildId != null && _guildCommands.TryGetValue(guildId, out var guildCommands) && guildCommands.TryGetValue(name, out var guildCommand))
+            {
+                return guildCommand["id"]!.GetValue<string>();
+            }
 
-        return _commands.TryGetValue(name, out var command)
-            ? command["id"]!.GetValue<string>()
-            : throw new InvalidOperationException($"No deployed slash-command definition exists for '{name}' in guild '{guildId}'.");
+            return !_unavailableGlobalCommands.Contains(name) && _commands.TryGetValue(name, out var command)
+                ? command["id"]!.GetValue<string>()
+                : throw new InvalidOperationException($"No deployed slash-command definition exists for '{name}' in guild '{guildId}'.");
+        }
     }
 
     private static Dictionary<string, JsonObject> LoadCommands(string? guildId = null)
@@ -236,8 +320,22 @@ public sealed class DiscordApi : IDiscordApi
 
     public InvalidOperationException UnexpectedRequest(string message) => _api.UnexpectedRequest(message);
 
-    public (HttpStatusCode Status, string Body) Send(string method, string endpoint, string? json = null, IReadOnlyList<DiscordAttachment>? attachments = null) =>
-        _api.Send(method, endpoint, json, attachments);
+    public (HttpStatusCode Status, string Body) Send(string method, string endpoint, string? json = null, IReadOnlyList<DiscordAttachment>? attachments = null)
+    {
+        var result = _api.Send(method, endpoint, json, attachments);
+        Action? onMessageSent;
+        lock (_lock) { onMessageSent = _onMessageSent; }
+        if (onMessageSent != null && result.Status is >= HttpStatusCode.OK and < HttpStatusCode.MultipleChoices && method is "POST" or "PATCH" && json != null)
+        {
+            var body = JsonSerializer.Deserialize<JsonElement>(json);
+            var message = body.ValueKind == JsonValueKind.Object && body.TryGetProperty("data", out var data) ? data : body;
+            if (message.ValueKind == JsonValueKind.Object && (message.TryGetProperty("embeds", out _) || message.TryGetProperty("content", out _)))
+            {
+                onMessageSent();
+            }
+        }
+        return result;
+    }
 
     private (HttpStatusCode Status, string Body)? Respond(DiscordRequest request)
     {
@@ -254,7 +352,7 @@ public sealed class DiscordApi : IDiscordApi
 
         if (method == "GET" && path == $"applications/{ApplicationId}/commands")
         {
-            return (HttpStatusCode.OK, JsonSerializer.Serialize(_commands.Values));
+            return (HttpStatusCode.OK, JsonSerializer.Serialize(_commands.Where(command => !_unavailableGlobalCommands.Contains(command.Key)).Select(command => command.Value)));
         }
 
         if (method == "POST" && _callbacks.Contains(path))

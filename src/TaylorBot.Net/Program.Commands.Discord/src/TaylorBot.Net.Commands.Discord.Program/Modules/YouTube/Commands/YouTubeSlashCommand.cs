@@ -40,9 +40,10 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
                     }
                     else
                     {
+                        var hint = await mention.FormatAsync(context, $"Use {mention.Slash("youtube")} for a better command experience and higher daily limit.");
                         return new PageMessageResult(new PageMessage(new(
                             new TextPageMessageRenderer(new(
-                                [.. search.VideoUrls.Select(u => $"Use {mention.SlashCommand("youtube")} for a better command experience and higher daily limit.\n{u}")],
+                                [.. search.VideoUrls.Select(u => $"{hint}\n{u}")],
                                 emptyText: "No YouTube video found for your search 😕")),
                             Cancellable: true
                         )));

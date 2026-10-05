@@ -55,10 +55,10 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
                     !url.IsWellFormedOriginalString() || url.Scheme is not ("http" or "https"))
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         The obsession for this user is not a valid URL to a photo! 😕
-                        They need to use {mention.SlashCommand("favorite obsession set", context)} to update it.
-                        """));
+                        They need to use {mention.Slash("favorite obsession set")} to update it.
+                        """)));
                 }
 
                 var embed = BuildDisplayEmbed(user, favoriteObsession.Value, favoriteObsession.SetAt);
@@ -67,10 +67,10 @@ public class FavoriteObsessionShowSlashCommand(IObsessionRepository obsessionRep
             else
             {
                 return new EmbedResult(EmbedFactory.CreateError(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     {user.Mention}'s obsession is not set. 🚫
-                    They need to use {mention.SlashCommand("favorite obsession set", context)} to set it first.
-                    """));
+                    They need to use {mention.Slash("favorite obsession set")} to set it first.
+                    """)));
             }
         }
     );
@@ -133,10 +133,10 @@ public class FavoriteObsessionSetConfirmButtonHandler(IInteractionResponseClient
         await obsessionRepository.SetObsessionAsync(context.User, obsessionUrl);
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(EmbedFactory.CreateSuccess(
-            $"""
+            await mention.FormatAsync(context, $"""
             Your obsession has been set successfully ✅
-            Others can now use {mention.SlashCommand("favorite obsession show", context)} to see your obsession ❤️
-            """)));
+            Others can now use {mention.Slash("favorite obsession show")} to see your obsession ❤️
+            """))));
     }
 }
 
@@ -155,10 +155,10 @@ public class FavoriteObsessionClearSlashCommand(IObsessionRepository obsessionRe
                 await obsessionRepository.ClearObsessionAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Your obsession has been cleared and is no longer visible. ✅
-                    You can set it again with {mention.SlashCommand("favorite obsession set", context)}.
-                    """));
+                    You can set it again with {mention.Slash("favorite obsession set")}.
+                    """)));
             }
         ));
     }

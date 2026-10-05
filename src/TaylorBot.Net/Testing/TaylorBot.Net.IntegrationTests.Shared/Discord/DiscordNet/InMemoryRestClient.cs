@@ -12,24 +12,28 @@ public sealed class InMemoryRestClient(IDiscordApi api) : IRestClient
     public void SetCancelToken(CancellationToken cancelToken) => _cancelToken = cancelToken;
     public void Dispose() { }
 
-    public Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
+    public async Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
         IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
     {
         _cancelToken.ThrowIfCancellationRequested();
         cancelToken.ThrowIfCancellationRequested();
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancelToken, cancelToken);
+        await api.BeforeSendAsync(method, endpoint, cancellation.Token);
         var response = api.Send(method, endpoint);
 
-        return Task.FromResult(new RestResponse(response.Status, [], new MemoryStream(Encoding.UTF8.GetBytes(response.Body))));
+        return new(response.Status, api.ResponseHeaders(method, endpoint, response.Status), new MemoryStream(Encoding.UTF8.GetBytes(response.Body)));
     }
 
-    public Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
+    public async Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
         IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
     {
         _cancelToken.ThrowIfCancellationRequested();
         cancelToken.ThrowIfCancellationRequested();
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancelToken, cancelToken);
+        await api.BeforeSendAsync(method, endpoint, cancellation.Token);
         var response = api.Send(method, endpoint, json);
 
-        return Task.FromResult(new RestResponse(response.Status, [], new MemoryStream(Encoding.UTF8.GetBytes(response.Body))));
+        return new(response.Status, api.ResponseHeaders(method, endpoint, response.Status), new MemoryStream(Encoding.UTF8.GetBytes(response.Body)));
     }
 
     public Task<RestResponse> SendAsync(string method, string endpoint, IReadOnlyDictionary<string, object> multipartParams, CancellationToken cancelToken,

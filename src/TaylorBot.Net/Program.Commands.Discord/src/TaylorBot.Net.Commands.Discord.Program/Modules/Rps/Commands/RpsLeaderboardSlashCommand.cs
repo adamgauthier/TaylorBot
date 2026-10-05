@@ -62,10 +62,10 @@ public class RpsLeaderboardSlashCommand(
                         pages,
                         hasPageFooter: true,
                         emptyText:
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         No rps played by members of this server.
-                        Members need to use {mention.SlashCommand("rps play", context)}! 😊
-                        """)),
+                        Members need to use {mention.Slash("rps play")}! 😊
+                        """))),
                     IsCancellable: true
                 ));
             },

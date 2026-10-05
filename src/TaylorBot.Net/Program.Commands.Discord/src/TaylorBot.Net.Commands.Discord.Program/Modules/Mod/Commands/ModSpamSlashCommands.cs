@@ -28,10 +28,10 @@ public class ModSpamAddSlashCommand(
                 await spamChannelRepository.AddSpamChannelAsync(channel);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Users' messages and words in {options.channel.Channel.Mention} will no longer be counted. ✅
-                    Use {mention.SlashCommand("mod spam remove", context)} to revert and mark the channel as non-spam.
-                    """));
+                    Use {mention.Slash("mod spam remove")} to revert and mark the channel as non-spam.
+                    """)));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         ));
@@ -59,10 +59,10 @@ public class ModSpamRemoveSlashCommand(
                 await spamChannelRepository.RemoveSpamChannelAsync(channel);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Users' messages and words in {options.channel.Channel.Mention} are now counted. ✅
-                    Use {mention.SlashCommand("mod spam add", context)} to revert and mark the channel as spam.
-                    """));
+                    Use {mention.Slash("mod spam add")} to revert and mark the channel as spam.
+                    """)));
             },
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         ));

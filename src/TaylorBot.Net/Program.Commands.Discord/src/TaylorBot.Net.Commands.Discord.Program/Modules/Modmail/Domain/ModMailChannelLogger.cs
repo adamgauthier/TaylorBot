@@ -17,13 +17,13 @@ public partial class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, 
         var modLog = await modMailLogChannelRepository.GetModMailLogForGuildAsync(new(guild.Id, guild));
         if (modLog == null)
         {
-            return Error(CreateNotConfiguredModMailLogEmbed(context));
+            return Error(await CreateNotConfiguredModMailLogEmbedAsync(context));
         }
 
         var channel = (ITextChannel?)await guild.GetChannelAsync(modLog.ChannelId);
         if (channel == null)
         {
-            return Error(CreateChannelNotFoundModMailLogEmbed(context));
+            return Error(await CreateChannelNotFoundModMailLogEmbedAsync(context));
         }
 
         return Ok(channel);
@@ -54,34 +54,34 @@ public partial class ModMailChannelLogger(ILogger<ModMailChannelLogger> logger, 
         return false;
     }
 
-    public Embed CreateResultEmbed(RunContext context, bool wasLogged, string successMessage)
+    public async Task<Embed> CreateResultEmbedAsync(RunContext context, bool wasLogged, FormattableString successMessage)
     {
-        return wasLogged ?
-            EmbedFactory.CreateSuccess(successMessage) :
-            EmbedFactory.CreateWarning(
-                $"""
-                {successMessage}
-                However, I was not able to log this action in your moderation log channel 😕
-                Make sure you set it up with {mention.SlashCommand("modmail log-set", context)} and TaylorBot has access to it 🛠️
-                """);
+        var description = wasLogged ? successMessage :
+            $"""
+            {successMessage}
+            However, I was not able to log this action in your moderation log channel 😕
+            Make sure you set it up with {mention.Slash("modmail log-set")} and TaylorBot has access to it 🛠️
+            """;
+        var formatted = await mention.FormatAsync(context, description);
+        return wasLogged ? EmbedFactory.CreateSuccess(formatted) : EmbedFactory.CreateWarning(formatted);
     }
 
-    public Embed CreateNotConfiguredModMailLogEmbed(RunContext context)
+    public async Task<Embed> CreateNotConfiguredModMailLogEmbedAsync(RunContext context)
     {
         return EmbedFactory.CreateError(
-            $"""
+            await mention.FormatAsync(context, $"""
             Sorry, this server hasn't enabled TaylorBot Mod Mail 😕
-            Ask a moderator to set it up with {mention.SlashCommand("modmail log-set", context)} 🛠️
-            """);
+            Ask a moderator to set it up with {mention.Slash("modmail log-set")} 🛠️
+            """));
     }
 
-    public Embed CreateChannelNotFoundModMailLogEmbed(RunContext context)
+    public async Task<Embed> CreateChannelNotFoundModMailLogEmbedAsync(RunContext context)
     {
         return EmbedFactory.CreateError(
-            $"""
+            await mention.FormatAsync(context, $"""
             Sorry, this server's TaylorBot Mod Mail channel no longer exists or TaylorBot can't access it 😕
-            Ask a moderator to fix it with {mention.SlashCommand("modmail log-set", context)} and make sure TaylorBot has the right permissions 🛠️
-            """);
+            Ask a moderator to fix it with {mention.Slash("modmail log-set")} and make sure TaylorBot has the right permissions 🛠️
+            """));
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Error when sending mod mail log in {Channel}:")]

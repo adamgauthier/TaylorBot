@@ -30,10 +30,10 @@ public class PlusRemoveSlashCommand(
                 return new EmbedResult(new EmbedBuilder()
                     .WithColor(TaylorBotColors.SuccessColor)
                     .WithDescription(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         Successfully removed {context.Guild.Fetched?.Name ?? "this server"} from your plus servers ❌
-                        Use {mention.SlashCommand("plus add", context)} if you change your mind 😊
-                        """)
+                        Use {mention.Slash("plus add")} if you change your mind 😊
+                        """))
                     .Build()
                 );
             },

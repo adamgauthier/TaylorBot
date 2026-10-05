@@ -20,10 +20,10 @@ public class BirthdayClearSlashCommand(IBirthdayRepository birthdayRepository, C
                 await birthdayRepository.ClearBirthdayAsync(context.User);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     Your birthday has been cleared. Calendar, horoscope, age and birthday taypoints will no longer work. ✅
-                    You can set it again with {mention.SlashCommand("birthday set", context)}.
-                    """));
+                    You can set it again with {mention.Slash("birthday set")}.
+                    """)));
             }
         ));
     }

@@ -187,7 +187,7 @@ public class ModMailReplyConfirmButtonHandler(
             replyToMessageId
         );
 
-        var resultEmbed = modMailChannelLogger.CreateResultEmbed(context, wasLogged, $"Message sent to {user.FormatTagAndMention()} ✉️");
+        var resultEmbed = await modMailChannelLogger.CreateResultEmbedAsync(context, wasLogged, $"Message sent to {user.FormatTagAndMention()} ✉️");
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, message: new(resultEmbed));
     }

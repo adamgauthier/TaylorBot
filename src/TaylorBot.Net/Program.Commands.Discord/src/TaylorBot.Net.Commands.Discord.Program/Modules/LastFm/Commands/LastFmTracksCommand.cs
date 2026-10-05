@@ -34,14 +34,14 @@ public class LastFmTracksSlashCommand(
             var lastFmUsername = await lastFmUsernameRepository.GetLastFmUsernameAsync(user);
 
             if (lastFmUsername == null)
-                return lastFmEmbedFactory.CreateLastFmNotSetEmbedResult(user, context);
+                return await lastFmEmbedFactory.CreateLastFmNotSetEmbedResultAsync(user, context);
 
             var result = await lastFmClient.GetTopTracksAsync(lastFmUsername.Username, period.Value);
 
             switch (result)
             {
                 case LastFmGenericErrorResult errorResult:
-                    return lastFmEmbedFactory.CreateLastFmErrorEmbedResult(errorResult, context);
+                    return await lastFmEmbedFactory.CreateLastFmErrorEmbedResultAsync(errorResult, context);
 
                 case TopTracksResult success:
                     if (success.TopTracks.Count > 0)

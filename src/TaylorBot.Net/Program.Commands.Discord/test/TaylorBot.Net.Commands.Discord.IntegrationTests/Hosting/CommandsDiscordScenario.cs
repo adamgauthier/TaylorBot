@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -32,6 +33,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     public DiscordDriver Discord { get; }
     public DiscordApi DiscordApi => _api;
     public ExternalApi External { get; } = new();
+    public ScenarioLogs Logs => _logs;
 
     private CommandsDiscordScenario(DataServices dataServices, ScenarioDatabase database, CancellationToken cancellationToken)
     {
@@ -46,13 +48,14 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     }
 
     public static async Task<CommandsDiscordScenario> CreateAsync(DataServices data, CancellationToken cancellationToken, int dailyBonusInterval = 5,
-        IReadOnlyDictionary<string, string?>? settings = null)
+        IReadOnlyDictionary<string, string?>? settings = null, Action<DiscordApi>? configureDiscord = null, TimeProvider? timeProvider = null)
     {
         CommandsDiscordScenario scenario = new(data, await data.CreateDatabaseAsync(), cancellationToken);
 
         try
         {
-            await scenario.StartAsync(data, dailyBonusInterval, settings, cancellationToken);
+            configureDiscord?.Invoke(scenario.DiscordApi);
+            await scenario.StartAsync(data, dailyBonusInterval, settings, timeProvider, cancellationToken);
             return scenario;
         }
         catch (Exception startupFailure)
@@ -70,7 +73,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         }
     }
 
-    private async Task StartAsync(DataServices data, int dailyBonusInterval, IReadOnlyDictionary<string, string?>? settings, CancellationToken cancellationToken)
+    private async Task StartAsync(DataServices data, int dailyBonusInterval, IReadOnlyDictionary<string, string?>? settings, TimeProvider? timeProvider, CancellationToken cancellationToken)
     {
         NpgsqlConnectionStringBuilder connection = new(_database.ConnectionString);
         Dictionary<string, string?> configuration = new()
@@ -134,6 +137,10 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
             .ConfigureLogging(builder => builder.AddProvider(_logs).SetMinimumLevel(LogLevel.Debug)))
             .ConfigureServices(services =>
             {
+                if (timeProvider != null)
+                {
+                    services.Replace(ServiceDescriptor.Singleton(timeProvider));
+                }
                 var scheduledProducer = services.Single(descriptor => descriptor.ImplementationType == typeof(ValentineGiveawayReadyHandler));
                 services.Remove(scheduledProducer);
                 _session.Configure(services);

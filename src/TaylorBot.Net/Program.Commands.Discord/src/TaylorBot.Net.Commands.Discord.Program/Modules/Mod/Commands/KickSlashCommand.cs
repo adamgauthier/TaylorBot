@@ -125,7 +125,7 @@ public class KickSlashCommand(
                 .WithFooter("User kicked");
         });
 
-        return modChannelLogger.CreateResultEmbed(context, wasLogged, $"{member.FormatTagAndMention()} was successfully kicked 👢");
+        return await modChannelLogger.CreateResultEmbedAsync(context, wasLogged, $"{member.FormatTagAndMention()} was successfully kicked 👢");
     }
 
     private static IRole GetHighestRole(IGuildUser member)

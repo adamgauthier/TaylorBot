@@ -49,7 +49,7 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
 
                     if (context.SlashCommand == null)
                     {
-                        embed.Description += $"\nPlease use {mention.SlashCommand("birthday show", context)} instead! 😊";
+                        embed.Description += await mention.FormatAsync(context, $"\nPlease use {mention.Slash("birthday show")} instead! 😊");
                     }
 
                     return new EmbedResult(embed.Build());
@@ -57,19 +57,19 @@ public class BirthdayShowSlashCommand(IBirthdayRepository birthdayRepository, Ag
                 else
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         {user.Mention}'s birthday is private 🙅
-                        To set your birthday privately, use {mention.SlashCommand("birthday set", context)} with the **privately** option.
-                        """));
+                        To set your birthday privately, use {mention.Slash("birthday set")} with the **privately** option.
+                        """)));
                 }
             }
             else
             {
                 return new EmbedResult(EmbedFactory.CreateError(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     {user.Mention}'s birthday is not set 🚫
-                    They need to use {mention.SlashCommand("birthday set", context)} to set it first.
-                    """));
+                    They need to use {mention.Slash("birthday set")} to set it first.
+                    """)));
             }
         }
     );

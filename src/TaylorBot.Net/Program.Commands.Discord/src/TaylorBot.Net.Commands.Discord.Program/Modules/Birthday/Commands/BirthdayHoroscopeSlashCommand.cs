@@ -33,10 +33,10 @@ public class BirthdayHoroscopeSlashCommand(IRateLimiter rateLimiter, IZodiacSign
                 if (zodiac == null)
                 {
                     return new EmbedResult(EmbedFactory.CreateError(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         {user.Mention}'s birthday is not set 🚫
-                        They need to use {mention.SlashCommand("birthday set", context)} to set it first.
-                        """));
+                        They need to use {mention.Slash("birthday set")} to set it first.
+                        """)));
                 }
 
                 var horoscopeResult = await horoscopeClient.GetHoroscopeAsync(zodiac);

@@ -26,7 +26,7 @@ public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserReposi
             new PreconditionFailed(
                 PrivateReason: $"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}",
                 UserReason: new(
-                    $"You can't use {mention.Command(command, context)} because you are ignored until {getUserIgnoreUntilResult.IgnoreUntil.Humanize(culture: TaylorBotCulture.Culture)}.",
+                    await mention.FormatAsync(context, $"You can't use {mention.Command(command)} because you are ignored until {getUserIgnoreUntilResult.IgnoreUntil.Humanize(culture: TaylorBotCulture.Culture)}."),
                     HideInPrefixCommands: true
                 )
             ) :

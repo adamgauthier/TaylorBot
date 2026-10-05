@@ -35,10 +35,10 @@ public class PlusPrecondition(IPlusRepository plusRepository, CommandMentioner m
                     new PreconditionFailed(
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users",
                         UserReason: new(
-                            $"""
-                            You can't use {mention.Command(command, context)} because it is restricted to **TaylorBot Plus** members 😕
+                            await mention.FormatAsync(context, $"""
+                            You can't use {mention.Command(command)} because it is restricted to **TaylorBot Plus** members 😕
                             {PlusInfo()}
-                            """)
+                            """))
                     ),
 
             PlusRequirement.PlusGuild =>
@@ -47,10 +47,10 @@ public class PlusPrecondition(IPlusRepository plusRepository, CommandMentioner m
                     new PreconditionFailed(
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus guilds",
                         UserReason: new(
-                            $"""
-                            You can't use {mention.Command(command, context)} because it is restricted to **TaylorBot Plus** servers 😕
+                            await mention.FormatAsync(context, $"""
+                            You can't use {mention.Command(command)} because it is restricted to **TaylorBot Plus** servers 😕
                             {PlusInfo()}
-                            """)
+                            """))
                     ),
 
             PlusRequirement.PlusUserOrGuild =>
@@ -59,10 +59,10 @@ public class PlusPrecondition(IPlusRepository plusRepository, CommandMentioner m
                     new PreconditionFailed(
                         PrivateReason: $"{command.Metadata.Name} is restricted to plus users or guilds",
                         UserReason: new(
-                            $"""
-                            You can't use {mention.Command(command, context)} because it is restricted to **TaylorBot Plus** members or servers 😕
+                            await mention.FormatAsync(context, $"""
+                            You can't use {mention.Command(command)} because it is restricted to **TaylorBot Plus** members or servers 😕
                             {PlusInfo()}
-                            """)
+                            """))
                     ),
 
             _ => throw new NotImplementedException(),
@@ -74,12 +74,12 @@ public class PlusPrecondition(IPlusRepository plusRepository, CommandMentioner m
         return context.Guild != null && await plusRepository.IsActivePlusGuildAsync(context.Guild);
     }
 
-    private string PlusInfo()
+    private FormattableString PlusInfo()
     {
         return
             $"""
             TaylorBot is free and {"supported by the community on Patreon".DiscordMdLink("https://www.patreon.com/taylorbot")} 💖
-            Some features are exclusive to **TaylorBot Plus**, learn more with {mention.SlashCommand("plus show")} 💎
+            Some features are exclusive to **TaylorBot Plus**, learn more with {mention.Slash("plus show")} 💎
             """;
     }
 }

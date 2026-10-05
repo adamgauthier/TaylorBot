@@ -27,10 +27,10 @@ public class DailyStreakSlashCommand(IDailyPayoutRepository dailyPayoutRepositor
                 if (!streakInfo.HasValue)
                 {
                     return new EmbedResult(EmbedFactory.CreateSuccess(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         {user.Mention} has never claimed their daily reward! ❌
-                        Use {mention.SlashCommand("daily claim", context)} to claim your daily reward!
-                        """));
+                        Use {mention.Slash("daily claim")} to claim your daily reward!
+                        """)));
                 }
                 else if (streakInfo.Value.MaxStreak > streakInfo.Value.CurrentStreak)
                 {

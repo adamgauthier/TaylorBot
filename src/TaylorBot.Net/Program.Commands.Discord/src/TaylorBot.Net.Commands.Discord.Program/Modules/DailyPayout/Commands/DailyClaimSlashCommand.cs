@@ -57,7 +57,7 @@ public class DailyClaimSlashCommand(
                 .Build());
             }
 
-            var messageOfTheDay = await GetMessageOfTheDayAsync();
+            var messageOfTheDay = await GetMessageOfTheDayAsync(context);
 
             var nextStreakForBonus = redeemResult.CurrentDailyStreak - redeemResult.CurrentDailyStreak % redeemResult.DaysForBonus + redeemResult.DaysForBonus;
 
@@ -78,7 +78,7 @@ public class DailyClaimSlashCommand(
         }
     );
 
-    private async Task<string> GetMessageOfTheDayAsync()
+    private async Task<string> GetMessageOfTheDayAsync(RunContext context)
     {
         var defaultMessages = DailyMessages.Default;
         var databaseMessages = await messageOfTheDayRepository.GetAllMessagesAsync();
@@ -100,7 +100,7 @@ public class DailyClaimSlashCommand(
 
         var messageOfTheDay = messagesToConsider[now.DayOfYear % messagesToConsider.Count].Message;
 
-        return mention.ReplaceSlashCommandMentions(messageOfTheDay);
+        return await mention.ReplaceSlashCommandMentionsAsync(messageOfTheDay, context);
     }
 
     public ValueTask<Command> GetCommandAsync(RunContext context, NoOptions options)

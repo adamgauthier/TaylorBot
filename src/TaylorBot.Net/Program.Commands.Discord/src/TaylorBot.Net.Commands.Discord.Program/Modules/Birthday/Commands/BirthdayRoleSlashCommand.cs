@@ -55,10 +55,10 @@ public class BirthdayRoleSlashCommand(
                                 .WithColor(TaylorBotColors.SuccessColor)
                                 .WithGuildAsAuthor(guild)
                                 .WithDescription(
-                                    $"""
+                                    await mention.FormatAsync(context, $"""
                                     The birthday role for this server is {role.Mention} ✅
-                                    {HowItWorks(context)}
-                                    """)
+                                    {HowItWorks()}
+                                    """))
                                 .Build()),
                             [new Button(InteractionCustomId.Create(BirthdayRoleRemoveButtonHandler.CustomIdName).RawId, ButtonStyle.Danger, Label: "Remove birthday role", Emoji: "🗑️")]));
                     }
@@ -87,11 +87,11 @@ public class BirthdayRoleSlashCommand(
                             .WithColor(TaylorBotColors.SuccessColor)
                             .WithGuildAsAuthor(guild)
                             .WithDescription(
-                                $"""
+                                await mention.FormatAsync(context, $"""
                                 There is no birthday role in this server 😕
                                 Use the **button below** to **create one** ✅
-                                {HowItWorks(context)}
-                                """)
+                                {HowItWorks()}
+                                """))
                             .Build()),
                         [
                             new Button(InteractionCustomId.Create(BirthdayRoleCreateButtonHandler.CustomIdName).RawId, ButtonStyle.Primary, Label: "Create birthday role", Emoji: "🎂")
@@ -102,10 +102,10 @@ public class BirthdayRoleSlashCommand(
         ));
     }
 
-    public string HowItWorks(RunContext context) =>
+    public FormattableString HowItWorks() =>
         $"""
         ### How Does It Work ❓
-        - A member sets their birthday with {mention.SlashCommand("birthday set", context)} 🎂
+        - A member sets their birthday with {mention.Slash("birthday set")} 🎂
         - On their birthday, **they automatically get the role** 🎈
         - When the birthday is over, **the role is removed automatically** 🥲
 
@@ -117,7 +117,8 @@ public class BirthdayRoleSlashCommand(
 public class BirthdayRoleCreateButtonHandler(
     IInteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
-    BirthdayRoleSlashCommand birthdayRoleSlashCommand) : IButtonHandler
+    BirthdayRoleSlashCommand birthdayRoleSlashCommand,
+    CommandMentioner mention) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.BirthdayRoleCreate;
 
@@ -140,11 +141,11 @@ public class BirthdayRoleCreateButtonHandler(
             .WithColor(TaylorBotColors.SuccessColor)
             .WithGuildAsAuthor(guild)
             .WithDescription(
-                $"""
+                await mention.FormatAsync(context, $"""
                 Birthday role created: {role.Mention} ✅
                 Feel free to **change the name, color, order, etc.** 🖌️
-                {birthdayRoleSlashCommand.HowItWorks(context)}
-                """)
+                {birthdayRoleSlashCommand.HowItWorks()}
+                """))
             .Build();
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, InteractionMapper.ToInteractionEmbed(embed));
@@ -189,11 +190,11 @@ public partial class BirthdayRoleRemoveButtonHandler(
         }
 
         await responseClient.EditOriginalResponseAsync(button.Interaction, EmbedFactory.CreateSuccessEmbed(
-            $"""
+            await mention.FormatAsync(context, $"""
             Successfully **removed birthday role from this server** ✅
             Members will no longer automatically receive a role on their birthday 🎂
-            Use {mention.SlashCommand("birthday role", context)} again to re-create the role 🎈
-            """));
+            Use {mention.Slash("birthday role")} again to re-create the role 🎈
+            """)));
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception when deleting birthday role {RoleId} in {Guild}")]

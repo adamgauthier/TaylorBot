@@ -29,10 +29,10 @@ public class UsernamesShowSlashCommand(IUsernameHistoryRepository usernameHistor
             {
                 return new EmbedResult(BuildBaseEmbed()
                     .WithDescription(
-                        $"""
+                        await mention.FormatAsync(context, $"""
                         {user.Mention}'s username history is **private** and can't be viewed 🕵️
-                        Use {mention.SlashCommand("usernames visibility", context)} to change your username history visibility 🫣
-                        """)
+                        Use {mention.Slash("usernames visibility")} to change your username history visibility 🫣
+                        """))
                 .Build());
             }
             else

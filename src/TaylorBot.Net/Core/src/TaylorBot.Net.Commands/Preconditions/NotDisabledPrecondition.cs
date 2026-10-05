@@ -17,10 +17,10 @@ public class NotDisabledPrecondition(IDisabledCommandRepository disabledCommandR
             new PreconditionFailed(
                 PrivateReason: $"{command.Metadata.Name} is globally disabled",
                 UserReason: new(
-                    $"""
-                    You can't use {mention.Command(command, context)} because it is globally disabled right now 😕
+                    await mention.FormatAsync(context, $"""
+                    You can't use {mention.Command(command)} because it is globally disabled right now 😕
                     {disabledMessage}
-                    """)
+                    """))
             ) :
             new PreconditionPassed();
     }

@@ -57,12 +57,12 @@ public class ServerJoinedSlashCommand(
                 .WithColor(TaylorBotColors.SuccessColor)
                 .WithUserAsAuthor(member.User)
                 .WithDescription(
-                    $"""
+                    await mention.FormatAsync(context, $"""
                     {member.User.Mention} first joined on {joinedAt.FormatDetailedWithRelative()} 🚪
                     This was roughly **{sinceCreation.Humanize(maxUnit: TimeUnit.Year, culture: TaylorBotCulture.Culture)}** after the server was created 📆
 
-                    Check out {mention.SlashCommand("server timeline", context)} for a history of who joined first! 📃
-                    """);
+                    Check out {mention.Slash("server timeline")} for a history of who joined first! 📃
+                    """));
 
             return new EmbedResult(embed.Build());
         },

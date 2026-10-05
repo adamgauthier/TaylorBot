@@ -46,6 +46,7 @@ public partial class PatreonSyncDomainService(
     IOptionsMonitor<PatreonSyncOptions> optionsMonitor,
     IPlusRepository plusRepository,
     Lazy<ITaylorBotClient> taylorBotClient,
+    PatreonUpdateEmbedFactory embedFactory,
     TimeProvider timeProvider
     )
 {
@@ -76,7 +77,7 @@ public partial class PatreonSyncDomainService(
             {
                 var result = await plusRepository.AddOrUpdatePlusUserAsync(patron);
 
-                var embed = PatreonUpdateEmbedFactory.Create(result);
+                var embed = await embedFactory.CreateAsync(result);
 
                 if (embed != null)
                 {
