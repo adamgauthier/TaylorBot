@@ -6,6 +6,8 @@ This folder contains the commands-discord and user-notifier applications and the
 
 Commands-discord and user-notifier have integration tests requiring Docker running Linux containers and the SDK specified in their application Dockerfiles. See the [commands-discord](./Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.IntegrationTests/README.md) and [user-notifier](./Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/README.md) guides. Shared Core/Commands unit tests remain in their `test` folders.
 
+Use [Discord's OpenAPI specification](https://github.com/discord/discord-api-spec) to cross-check REST fixtures; follow the [developer docs](https://docs.discord.com/developers/intro) for Gateway events and when the preview specification disagrees.
+
 Run an application's integration and shared tests from this folder:
 
 ```pwsh
