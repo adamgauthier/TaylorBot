@@ -26,6 +26,7 @@ public sealed class CommandSettingsTests(DataServices data)
         var guild = await scenario.Given.GuildAsync(owner);
         await scenario.Given.MemberAsync(guild, user);
         await scenario.Given.KnownCommandAsync("avatar");
+        await scenario.Given.ModerationLogAsync(guild);
 
         var response = await scenario.Discord.InvokeSlashCommandAsync(user, route, guild,
             arguments: [SlashArgument.Text("command", "avatar")], permissions: "0");
@@ -34,6 +35,7 @@ public sealed class CommandSettingsTests(DataServices data)
         response.Description.Should().Contain("permission");
         (await scenario.State.ServerCommandDisabledAsync(guild, "avatar")).Should().BeFalse();
         (await scenario.State.ChannelCommandDisabledAsync(guild, "avatar")).Should().BeFalse();
+        scenario.DiscordApi.ModerationLogs(guild).Should().BeEmpty();
     }
 
     [Fact]

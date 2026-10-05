@@ -229,6 +229,7 @@ public static class DiscordCommandsProgram
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelLookup, ModLogChannelLookup>()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
+            .AddTransient<ConfigurationChangeLogger>()
             .AddTransient<ModMailChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand>()
             .AddButtonHandler<ModLogSetConfirmButtonHandler>()

@@ -16,7 +16,8 @@ public class ModLogSetSlashCommand(
     IModLogChannelRepository modLogChannelRepository,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : ISlashCommand<ModLogSetSlashCommand.Options>
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : ISlashCommand<ModLogSetSlashCommand.Options>
 {
     public static string CommandName => "mod log set";
 
@@ -62,7 +63,9 @@ public class ModLogSetSlashCommand(
 
     public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
+        var previous = await modLogChannelRepository.GetModLogForGuildAsync(context.Guild!.Fetched!);
         await modLogChannelRepository.AddOrUpdateModLogAsync(channel);
+        await audit.LogModLogAsync(context, previous?.ChannelId, channel.Id);
 
         return new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
@@ -178,7 +181,8 @@ public class ModLogStopButtonHandler(
     IInteractionResponseClient responseClient,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : IButtonHandler
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModLogStop;
 
@@ -195,7 +199,9 @@ public class ModLogStopButtonHandler(
         var guild = context.Guild;
         ArgumentNullException.ThrowIfNull(guild);
 
+        var previous = await modLogChannelRepository.GetModLogForGuildAsync(guild.Fetched!);
         await modLogChannelRepository.RemoveModLogAsync(guild);
+        await audit.LogModLogAsync(context, previous?.ChannelId, after: null);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
             await mention.FormatAsync(context, $"""

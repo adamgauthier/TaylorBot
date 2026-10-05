@@ -1,5 +1,6 @@
 using Discord;
 using Discord.Commands;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.DiscordNet;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Types;
@@ -11,7 +12,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Framework.Commands;
 public class FrameworkModule(
     ICommandRunner commandRunner,
     ICommandPrefixRepository commandPrefixRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : TaylorBotModule
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    ConfigurationChangeLogger audit) : TaylorBotModule
 {
     [Command("prefix")]
     [Alias("setprefix")]
@@ -20,6 +22,7 @@ public class FrameworkModule(
         Word? prefix = null
     )
     {
+        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         Command command = new(
             DiscordNetContextMapper.MapToCommandMetadata(Context),
             async () =>
@@ -28,7 +31,9 @@ public class FrameworkModule(
 
                 if (prefix != null)
                 {
+                    var previous = await commandPrefixRepository.GetOrInsertGuildPrefixAsync(Context.Guild);
                     await commandPrefixRepository.ChangeGuildPrefixAsync(Context.Guild, prefix.Value);
+                    await audit.LogAsync(context, "🔤 Command prefix", previous.Prefix, prefix.Value);
                     embed.WithDescription(
                         $"""
                         The command prefix for this server has been set to `{prefix.Value}`.
@@ -49,7 +54,6 @@ public class FrameworkModule(
             Preconditions: [userHasPermission.Create(GuildPermission.ManageGuild)]
         );
 
-        var context = DiscordNetContextMapper.MapToRunContext(Context, new());
         var result = await commandRunner.RunSlashCommandAsync(command, context);
 
         return new TaylorBotResult(result, context);

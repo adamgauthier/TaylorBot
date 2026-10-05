@@ -5,6 +5,22 @@ namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
+    public async Task<ScenarioGuild> TextChannelAsync(ScenarioGuild guild, string name)
+    {
+        var channel = guild with { ChannelId = $"{Interlocked.Increment(ref _id)}" };
+        await _dispatch("CHANNEL_CREATE", new
+        {
+            id = channel.ChannelId,
+            guild_id = guild.Id,
+            type = 0,
+            name,
+            position = 0,
+            permission_overwrites = Array.Empty<object>(),
+        });
+        _api.RegisterChannel(channel, name);
+        return channel;
+    }
+
     public async Task LogChannelAsync(ScenarioGuild guild, string kind, string? channelId = null)
     {
         var (table, column) = ModerationTables.Log(kind);

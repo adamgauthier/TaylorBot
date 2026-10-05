@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -9,7 +10,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 public class CommandServerDisableSlashCommand(
     ICommandRepository commandRepository,
     IDisabledGuildCommandRepository disabledGuildCommandRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandServerDisableSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    ConfigurationChangeLogger audit) : ISlashCommand<CommandServerDisableSlashCommand.Options>
 {
     public static string CommandName => "command server-disable";
 
@@ -44,7 +46,9 @@ public class CommandServerDisableSlashCommand(
                     return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
                 }
 
+                var previous = await disabledGuildCommandRepository.IsGuildCommandDisabledAsync(context.Guild!, new(command.Name));
                 await disabledGuildCommandRepository.DisableInAsync(guild, command.Name);
+                await audit.LogToggleAsync(context, $"🌐 Server command: **{command.Name}**", !previous.IsDisabled, after: false);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in this server ✅"));
             },
@@ -56,7 +60,8 @@ public class CommandServerDisableSlashCommand(
 public class CommandServerEnableSlashCommand(
     ICommandRepository commandRepository,
     IDisabledGuildCommandRepository disabledGuildCommandRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandServerEnableSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    ConfigurationChangeLogger audit) : ISlashCommand<CommandServerEnableSlashCommand.Options>
 {
     public static string CommandName => "command server-enable";
 
@@ -81,7 +86,9 @@ public class CommandServerEnableSlashCommand(
                     return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}' 😕"));
                 }
 
+                var previous = await disabledGuildCommandRepository.IsGuildCommandDisabledAsync(context.Guild!, new(command.Name));
                 await disabledGuildCommandRepository.EnableInAsync(guild, command.Name);
+                await audit.LogToggleAsync(context, $"🌐 Server command: **{command.Name}**", !previous.IsDisabled, after: true);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in this server ✅"));
             },
@@ -89,4 +96,3 @@ public class CommandServerEnableSlashCommand(
         ));
     }
 }
-

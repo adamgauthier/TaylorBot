@@ -179,7 +179,7 @@ public sealed class DiscordApi : IDiscordApi
     {
         lock (_lock)
         {
-            _api.Resource($"channels/{guild.ChannelId}", new { id = guild.ChannelId, guild_id = guild.Id, type = 0, name = "general", position = 0, permission_overwrites = Array.Empty<object>() });
+            RegisterChannel(guild);
             foreach (var member in guild.Members)
             {
                 RegisterUser(member);
@@ -196,6 +196,9 @@ public sealed class DiscordApi : IDiscordApi
             _api.Resource($"guilds/{guild.Id}/roles", () => roles.Select(role => role.Payload()).ToArray());
         }
     }
+
+    public void RegisterChannel(ScenarioGuild guild, string name = "general") =>
+        _api.Resource($"channels/{guild.ChannelId}", new { id = guild.ChannelId, guild_id = guild.Id, type = 0, name, position = 0, permission_overwrites = Array.Empty<object>() });
 
     internal string GetCommandId(string name, string? guildId = null)
     {

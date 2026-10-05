@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
@@ -17,7 +18,8 @@ public class MonitorEditedSetSlashCommand(
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     PlusPrecondition.Factory plusPrecondition,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : ISlashCommand<MonitorEditedSetSlashCommand.Options>
 {
     public static string CommandName => "monitor edited set";
 
@@ -75,7 +77,9 @@ public class MonitorEditedSetSlashCommand(
 
     public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
+        var previous = await editedLogChannelRepository.GetEditedLogForGuildAsync(context.Guild!.Fetched!);
         await editedLogChannelRepository.AddOrUpdateEditedLogAsync(channel);
+        await audit.LogChannelAsync(context, "✏️ Edited message monitoring", previous?.ChannelId, channel.Id);
 
         return EmbedFactory.CreateSuccess(
             await mention.FormatAsync(context, $"""
@@ -188,7 +192,8 @@ public class MonitorEditedStopButtonHandler(
     IInteractionResponseClient responseClient,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : IButtonHandler
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.MonitorEditedStop;
 
@@ -205,7 +210,9 @@ public class MonitorEditedStopButtonHandler(
         var guild = context.Guild;
         ArgumentNullException.ThrowIfNull(guild);
 
+        var previous = await editedLogChannelRepository.GetEditedLogForGuildAsync(guild.Fetched!);
         await editedLogChannelRepository.RemoveEditedLogAsync(guild);
+        await audit.LogChannelAsync(context, "✏️ Edited message monitoring", previous?.ChannelId, after: null);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
             await mention.FormatAsync(context, $"""

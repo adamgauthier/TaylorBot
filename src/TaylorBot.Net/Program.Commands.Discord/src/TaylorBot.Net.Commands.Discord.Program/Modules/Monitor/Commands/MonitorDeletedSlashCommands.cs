@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
@@ -17,7 +18,8 @@ public class MonitorDeletedSetSlashCommand(
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     PlusPrecondition.Factory plusPrecondition,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : ISlashCommand<MonitorDeletedSetSlashCommand.Options>
 {
     public static string CommandName => "monitor deleted set";
 
@@ -74,7 +76,9 @@ public class MonitorDeletedSetSlashCommand(
 
     public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
+        var previous = await deletedLogChannelRepository.GetDeletedLogForGuildAsync(context.Guild!.Fetched!);
         await deletedLogChannelRepository.AddOrUpdateDeletedLogAsync(channel);
+        await audit.LogChannelAsync(context, "🗑️ Deleted message monitoring", previous?.ChannelId, channel.Id);
 
         return EmbedFactory.CreateSuccess(
             await mention.FormatAsync(context, $"""
@@ -187,7 +191,8 @@ public class MonitorDeletedStopButtonHandler(
     IInteractionResponseClient responseClient,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : IButtonHandler
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.MonitorDeletedStop;
 
@@ -204,7 +209,9 @@ public class MonitorDeletedStopButtonHandler(
         var guild = context.Guild;
         ArgumentNullException.ThrowIfNull(guild);
 
+        var previous = await deletedLogChannelRepository.GetDeletedLogForGuildAsync(guild.Fetched!);
         await deletedLogChannelRepository.RemoveDeletedLogAsync(guild);
+        await audit.LogChannelAsync(context, "🗑️ Deleted message monitoring", previous?.ChannelId, after: null);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
             await mention.FormatAsync(context, $"""

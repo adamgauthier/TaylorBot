@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Monitor.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
@@ -17,7 +18,8 @@ public class MonitorMembersSetSlashCommand(
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     PlusPrecondition.Factory plusPrecondition,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : ISlashCommand<MonitorMembersSetSlashCommand.Options>
 {
     public static string CommandName => "monitor members set";
 
@@ -66,7 +68,9 @@ public class MonitorMembersSetSlashCommand(
 
     public async ValueTask<Embed> AddOrUpdateAsync(RunContext context, GuildTextChannel channel)
     {
+        var previous = await memberLogChannelRepository.GetMemberLogForGuildAsync(context.Guild!.Fetched!);
         await memberLogChannelRepository.AddOrUpdateMemberLogAsync(channel);
+        await audit.LogChannelAsync(context, "👥 Member monitoring", previous?.ChannelId, channel.Id);
 
         return EmbedFactory.CreateSuccess(
             await mention.FormatAsync(context, $"""
@@ -179,7 +183,8 @@ public class MonitorMembersStopButtonHandler(
     IInteractionResponseClient responseClient,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
     InGuildPrecondition.Factory inGuild,
-    CommandMentioner mention) : IButtonHandler
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.MonitorMembersStop;
 
@@ -196,7 +201,9 @@ public class MonitorMembersStopButtonHandler(
         var guild = context.Guild;
         ArgumentNullException.ThrowIfNull(guild);
 
+        var previous = await memberLogChannelRepository.GetMemberLogForGuildAsync(guild.Fetched!);
         await memberLogChannelRepository.RemoveMemberLogAsync(guild);
+        await audit.LogChannelAsync(context, "👥 Member monitoring", previous?.ChannelId, after: null);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
             await mention.FormatAsync(context, $"""

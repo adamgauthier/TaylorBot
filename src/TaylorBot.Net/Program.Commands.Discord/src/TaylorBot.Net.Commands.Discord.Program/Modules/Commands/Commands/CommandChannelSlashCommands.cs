@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
@@ -10,7 +11,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Commands.Commands;
 public class CommandChannelDisableSlashCommand(
     ICommandRepository commandRepository,
     IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandChannelDisableSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    ConfigurationChangeLogger audit) : ISlashCommand<CommandChannelDisableSlashCommand.Options>
 {
     public static string CommandName => "command channel-disable";
 
@@ -42,7 +44,9 @@ public class CommandChannelDisableSlashCommand(
                     return new EmbedResult(EmbedFactory.CreateError($"Please use **Discord's Server Settings > Apps > Integrations** to disable this command! 😕"));
                 }
 
+                var wasDisabled = await disabledGuildChannelCommandRepository.IsGuildChannelCommandDisabledAsync(options.channel.Channel, new(command.Name));
                 await disabledGuildChannelCommandRepository.DisableInAsync(options.channel.Channel, command.Name);
+                await audit.LogToggleAsync(context, $"📍 Channel command: **{command.Name}** in {options.channel.Channel.Mention}", !wasDisabled, after: false);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully disabled '{command.Name}' in {options.channel.Channel.Mention} ✅"));
             },
@@ -54,7 +58,8 @@ public class CommandChannelDisableSlashCommand(
 public class CommandChannelEnableSlashCommand(
     ICommandRepository commandRepository,
     IDisabledGuildChannelCommandRepository disabledGuildChannelCommandRepository,
-    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission) : ISlashCommand<CommandChannelEnableSlashCommand.Options>
+    UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
+    ConfigurationChangeLogger audit) : ISlashCommand<CommandChannelEnableSlashCommand.Options>
 {
     public static string CommandName => "command channel-enable";
 
@@ -77,7 +82,9 @@ public class CommandChannelEnableSlashCommand(
                     return new EmbedResult(EmbedFactory.CreateError($"Could not find command '{options.command.Value}' 😕"));
                 }
 
+                var wasDisabled = await disabledGuildChannelCommandRepository.IsGuildChannelCommandDisabledAsync(options.channel.Channel, new(command.Name));
                 await disabledGuildChannelCommandRepository.EnableInAsync(options.channel.Channel, command.Name);
+                await audit.LogToggleAsync(context, $"📍 Channel command: **{command.Name}** in {options.channel.Channel.Mention}", !wasDisabled, after: true);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess($"Successfully enabled '{command.Name}' in {options.channel.Channel.Mention} ✅"));
             },
@@ -85,4 +92,3 @@ public class CommandChannelEnableSlashCommand(
         ));
     }
 }
-

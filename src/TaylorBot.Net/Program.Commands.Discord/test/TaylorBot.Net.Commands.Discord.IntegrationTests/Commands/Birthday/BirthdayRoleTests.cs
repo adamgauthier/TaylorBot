@@ -1,6 +1,7 @@
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Hosting;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Infrastructure;
+using TaylorBot.Net.Commands.Discord.IntegrationTests.Scenarios;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Commands.Birthday;
@@ -46,16 +47,19 @@ public sealed class BirthdayRoleTests(DataServices data)
         var user = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.PlusAsync(user, maximumGuilds: 2, guild);
+        await scenario.Given.ModerationLogAsync(guild);
         var role = scenario.Given.Role("happy birthday");
         scenario.Given.BirthdayRoleCreation(guild, role);
         var prompt = await scenario.Discord.InvokeSlashCommandAsync(user, "birthday role", guild);
         prompt.Description.Should().Contain("no birthday role");
+        scenario.DiscordApi.ModerationLogs(guild).Should().BeEmpty();
 
         var response = await scenario.Discord.ClickAsync(user, prompt, "Create birthday role");
 
         response.ShouldBeSuccess();
         response.Description.Should().Contain(role.Id);
         (await scenario.State.BirthdayRoleAsync(guild)).Should().Be(role.Id);
+        scenario.DiscordApi.ShouldHaveConfigurationChanges(guild, user, ("Birthday role", "Not configured", $"<@&{role.Id}>"));
         scenario.DiscordApi.RequestsFor("POST", $"guilds/{guild.Id}/roles").Should().ContainSingle()
             .Which.Body!.Value.GetProperty("name").GetString().Should().Be("happy birthday");
     }
@@ -68,6 +72,7 @@ public sealed class BirthdayRoleTests(DataServices data)
         var role = scenario.Given.Role("happy birthday");
         var guild = await scenario.Given.GuildAsync(user, roles: [role]);
         await scenario.Given.PlusAsync(user, maximumGuilds: 2, guild);
+        await scenario.Given.ModerationLogAsync(guild);
         await scenario.Given.BirthdayRoleAsync(guild, role);
         await scenario.Given.BirthdayRoleAwardAsync(guild, user, role);
         scenario.Given.BirthdayRoleDeletion(guild, role);
@@ -79,6 +84,7 @@ public sealed class BirthdayRoleTests(DataServices data)
         response.ShouldBeSuccess();
         (await scenario.State.BirthdayRoleAsync(guild)).Should().BeNull();
         (await scenario.State.BirthdayRoleAwardsAsync(guild)).Should().Be(0);
+        scenario.DiscordApi.ShouldHaveConfigurationChanges(guild, user, ("Birthday role", $"<@&{role.Id}>", "Not configured"));
     }
 
     [Fact]
@@ -88,7 +94,9 @@ public sealed class BirthdayRoleTests(DataServices data)
         var user = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.PlusAsync(user, maximumGuilds: 2, guild);
-        await scenario.Given.BirthdayRoleAsync(guild, scenario.Given.Role("deleted"));
+        var previous = scenario.Given.Role("deleted");
+        await scenario.Given.BirthdayRoleAsync(guild, previous);
+        await scenario.Given.ModerationLogAsync(guild);
         var replacement = scenario.Given.Role("happy birthday");
         scenario.Given.BirthdayRoleCreation(guild, replacement);
         var prompt = await scenario.Discord.InvokeSlashCommandAsync(user, "birthday role", guild);
@@ -98,6 +106,7 @@ public sealed class BirthdayRoleTests(DataServices data)
 
         response.ShouldBeSuccess();
         (await scenario.State.BirthdayRoleAsync(guild)).Should().Be(replacement.Id);
+        scenario.DiscordApi.ShouldHaveConfigurationChanges(guild, user, ("Birthday role", $"<@&{previous.Id}>", $"<@&{replacement.Id}>"));
     }
 
     [Fact]
@@ -107,13 +116,16 @@ public sealed class BirthdayRoleTests(DataServices data)
         var user = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.PlusAsync(user, maximumGuilds: 2, guild);
-        await scenario.Given.BirthdayRoleAsync(guild, scenario.Given.Role("deleted"));
+        var previous = scenario.Given.Role("deleted");
+        await scenario.Given.BirthdayRoleAsync(guild, previous);
+        await scenario.Given.ModerationLogAsync(guild);
         var prompt = await scenario.Discord.InvokeSlashCommandAsync(user, "birthday role", guild);
 
         var response = await scenario.Discord.ClickAsync(user, prompt, "Remove birthday role");
 
         response.ShouldBeSuccess();
         (await scenario.State.BirthdayRoleAsync(guild)).Should().BeNull();
+        scenario.DiscordApi.ShouldHaveConfigurationChanges(guild, user, ("Birthday role", $"<@&{previous.Id}>", "Not configured"));
     }
 
     [Fact]

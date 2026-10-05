@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -106,7 +107,8 @@ public class CommandPrefixToggleHandler(
     CommandPrefixSlashCommand command,
     IDisabledGuildCommandRepository disabledGuildCommandRepository,
     CommandMentioner mention,
-    ICommandPrefixRepository commandPrefixRepository
+    ICommandPrefixRepository commandPrefixRepository,
+    ConfigurationChangeLogger audit
 ) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.CommandPrefixToggle;
@@ -124,10 +126,12 @@ public class CommandPrefixToggleHandler(
 
         var enable = button.CustomId.ParsedData.TryGetValue("enable", out var enableStr)
             && bool.TryParse(enableStr, out var parsed) && parsed == true;
+        var previous = await disabledGuildCommandRepository.IsGuildCommandDisabledAsync(guild, new("all-prefix"));
 
         if (enable)
         {
             await disabledGuildCommandRepository.EnableInAsync(guild.Fetched, "all-prefix");
+            await audit.LogToggleAsync(context, "⌨️ Prefix commands", !previous.IsDisabled, after: true);
 
             var prefixResult = await commandPrefixRepository.GetOrInsertGuildPrefixAsync(guild.Fetched);
             var currentPrefix = prefixResult.Prefix;
@@ -143,6 +147,7 @@ public class CommandPrefixToggleHandler(
         else
         {
             await disabledGuildCommandRepository.DisableInAsync(guild.Fetched, "all-prefix");
+            await audit.LogToggleAsync(context, "⌨️ Prefix commands", !previous.IsDisabled, after: false);
 
             var embed = EmbedFactory.CreateSuccessEmbed(
                 await mention.FormatAsync(context, $"""

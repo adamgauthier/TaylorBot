@@ -116,6 +116,7 @@ public sealed class ModmailTests(DataServices data)
         var moderator = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(moderator);
         await scenario.Given.LogChannelAsync(guild, "modmail", "100000000000000099");
+        await scenario.Given.ModerationLogAsync(guild);
 
         var config = await scenario.Discord.InvokeSlashCommandAsync(moderator, "modmail config", guild);
         var prompt = await scenario.Discord.SelectChannelAsync(moderator, config, guild);
@@ -123,6 +124,7 @@ public sealed class ModmailTests(DataServices data)
 
         response.Description.Should().ContainEquivalentOf("cancel");
         (await scenario.State.LogChannelAsync(guild, "modmail")).Should().Be("100000000000000099");
+        scenario.DiscordApi.ModerationLogs(guild).Should().BeEmpty();
     }
 
     [Fact]

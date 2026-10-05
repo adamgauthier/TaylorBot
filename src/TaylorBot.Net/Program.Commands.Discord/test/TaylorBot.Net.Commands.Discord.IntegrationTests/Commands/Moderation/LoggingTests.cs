@@ -44,6 +44,7 @@ public sealed class LoggingTests(DataServices data)
         var user = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.PlusAsync(user, activeGuilds: [guild]);
+        scenario.DiscordApi.ExpectModerationLog(guild);
 
         var set = await scenario.Discord.InvokeSlashCommandAsync(user, $"{route} set", guild);
         var show = await scenario.Discord.InvokeSlashCommandAsync(user, $"{route} show", guild);
@@ -99,6 +100,7 @@ public sealed class LoggingTests(DataServices data)
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.PlusAsync(user, activeGuilds: [guild]);
         await scenario.Given.LogChannelAsync(guild, kind, "100000000000000099");
+        scenario.DiscordApi.ExpectModerationLog(guild);
 
         var prompt = await scenario.Discord.InvokeSlashCommandAsync(user, $"{route} set", guild);
 

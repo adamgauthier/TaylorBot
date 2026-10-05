@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -10,7 +11,8 @@ namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Commands;
 public class ModSpamAddSlashCommand(
     ISpamChannelRepository spamChannelRepository,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
-    CommandMentioner mention) : ISlashCommand<ModSpamAddSlashCommand.Options>
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : ISlashCommand<ModSpamAddSlashCommand.Options>
 {
     public static string CommandName => "mod spam add";
 
@@ -25,7 +27,9 @@ public class ModSpamAddSlashCommand(
             async () =>
             {
                 var channel = options.channel.Channel;
+                var wasSpam = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(channel);
                 await spamChannelRepository.AddSpamChannelAsync(channel);
+                await audit.LogToggleAsync(context, $"🚧 Spam channel {channel.Mention}", wasSpam, after: true);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     await mention.FormatAsync(context, $"""
@@ -41,7 +45,8 @@ public class ModSpamAddSlashCommand(
 public class ModSpamRemoveSlashCommand(
     ISpamChannelRepository spamChannelRepository,
     UserHasPermissionOrOwnerPrecondition.Factory userHasPermission,
-    CommandMentioner mention) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : ISlashCommand<ModSpamRemoveSlashCommand.Options>
 {
     public static string CommandName => "mod spam remove";
 
@@ -56,7 +61,9 @@ public class ModSpamRemoveSlashCommand(
             async () =>
             {
                 var channel = options.channel.Channel;
+                var wasSpam = await spamChannelRepository.InsertOrGetIsSpamChannelAsync(channel);
                 await spamChannelRepository.RemoveSpamChannelAsync(channel);
+                await audit.LogToggleAsync(context, $"🚧 Spam channel {channel.Mention}", wasSpam, after: false);
 
                 return new EmbedResult(EmbedFactory.CreateSuccess(
                     await mention.FormatAsync(context, $"""

@@ -1,4 +1,5 @@
 ﻿using Discord;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Modmail.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
@@ -114,7 +115,8 @@ public class ModMailConfigSetChannelHandler(
     IModMailLogChannelRepository modMailLogChannelRepository,
     IInteractionResponseClient responseClient,
     CommandMentioner mention,
-    ModMailConfigSlashCommand command) : IChannelSelectHandler
+    ModMailConfigSlashCommand command,
+    ConfigurationChangeLogger audit) : IChannelSelectHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailConfigSetChannel;
 
@@ -150,6 +152,7 @@ public class ModMailConfigSetChannelHandler(
         else
         {
             await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(textChannel);
+            await audit.LogChannelAsync(context, "📬 Mod Mail channel", before: null, textChannel.Id);
 
             var embed = EmbedFactory.CreateSuccessEmbed(
                 await mention.FormatAsync(context, $"""
@@ -169,7 +172,8 @@ public class ModMailConfigConfirmHandler(
     IModMailLogChannelRepository modMailLogChannelRepository,
     IInteractionResponseClient responseClient,
     CommandMentioner mention,
-    ModMailConfigSlashCommand command) : IButtonHandler
+    ModMailConfigSlashCommand command,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailConfigConfirm;
 
@@ -197,7 +201,9 @@ public class ModMailConfigConfirmHandler(
         }
 
         GuildTextChannel textChannel = new(channelId, guild.Id, channel.ChannelType);
+        var previous = await modMailLogChannelRepository.GetModMailLogForGuildAsync(context.Guild!);
         await modMailLogChannelRepository.AddOrUpdateModMailLogAsync(textChannel);
+        await audit.LogChannelAsync(context, "📬 Mod Mail channel", previous?.ChannelId, channelId);
 
         var embed = EmbedFactory.CreateSuccessEmbed(
             await mention.FormatAsync(context, $"""
@@ -212,7 +218,8 @@ public class ModMailConfigConfirmHandler(
 public class ModMailConfigStopHandler(
     IModMailLogChannelRepository modMailLogChannelRepository,
     IInteractionResponseClient responseClient,
-    ModMailConfigSlashCommand command) : IButtonHandler
+    ModMailConfigSlashCommand command,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.ModMailConfigStop;
 
@@ -223,7 +230,9 @@ public class ModMailConfigStopHandler(
 
     public async Task HandleAsync(DiscordButtonComponent button, RunContext context)
     {
+        var previous = await modMailLogChannelRepository.GetModMailLogForGuildAsync(context.Guild!);
         await modMailLogChannelRepository.RemoveModMailLogAsync(context.Guild!);
+        await audit.LogChannelAsync(context, "📬 Mod Mail channel", previous?.ChannelId, after: null);
 
         var embed = EmbedFactory.CreateSuccess(
             $"""

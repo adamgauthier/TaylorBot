@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
+using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Commands.Preconditions;
@@ -118,7 +119,8 @@ public class BirthdayRoleCreateButtonHandler(
     IInteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
     BirthdayRoleSlashCommand birthdayRoleSlashCommand,
-    CommandMentioner mention) : IButtonHandler
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.BirthdayRoleCreate;
 
@@ -132,10 +134,12 @@ public class BirthdayRoleCreateButtonHandler(
         var guild = context.Guild?.Fetched;
         ArgumentNullException.ThrowIfNull(guild);
 
+        var previous = await birthdayRoleRepository.GetRoleForGuildAsync(guild);
         Emoji? emoji = guild.Features.HasRoleIcons ? new("🎂") : null;
         var role = await guild.CreateRoleAsync("happy birthday", color: DiscordColor.FromHexString("#3498DB"), isHoisted: true, emoji: emoji);
 
         await birthdayRoleRepository.AddRoleForGuildAsync(guild, role);
+        await audit.LogAsync(context, "🎂 Birthday role", previous != null ? MentionUtils.MentionRole(new SnowflakeId(previous)) : "Not configured", role.Mention);
 
         var embed = new EmbedBuilder()
             .WithColor(TaylorBotColors.SuccessColor)
@@ -157,7 +161,8 @@ public partial class BirthdayRoleRemoveButtonHandler(
     IInteractionResponseClient responseClient,
     IBirthdayRoleConfigRepository birthdayRoleRepository,
     BirthdayRoleSlashCommand birthdayRoleSlashCommand,
-    CommandMentioner mention
+    CommandMentioner mention,
+    ConfigurationChangeLogger audit
 ) : IButtonHandler
 {
     public static CustomIdNames CustomIdName => CustomIdNames.BirthdayRoleRemove;
@@ -176,6 +181,7 @@ public partial class BirthdayRoleRemoveButtonHandler(
         var role = roleId != null ? guild.GetRole(new SnowflakeId(roleId)) : null;
 
         await birthdayRoleRepository.RemoveRoleForGuildAsync(guild);
+        await audit.LogAsync(context, "🎂 Birthday role", roleId != null ? MentionUtils.MentionRole(new SnowflakeId(roleId)) : "Not configured", "Not configured");
 
         if (role != null)
         {
