@@ -1,9 +1,25 @@
-﻿using TaylorBot.Net.Core.Snowflake;
+﻿using System.Text;
+using TaylorBot.Net.Core.Snowflake;
 
 namespace TaylorBot.Net.Core.Strings;
 
 public static class StringExtensions
 {
+    public static string EscapeDiscordMarkdown(this string text)
+    {
+        StringBuilder escaped = new(text.Length);
+        foreach (var character in text)
+        {
+            if (character is '\\' or '*' or '_' or '~' or '`' or '.' or ':' or '/'
+                or '>' or '|' or '#' or '[' or '-' or '+' or '<')
+            {
+                escaped.Append('\\');
+            }
+            escaped.Append(character);
+        }
+        return escaped.ToString();
+    }
+
     public static string EscapeNewLines(this string toEscape)
     {
         return toEscape.Replace("\n", @"\n", StringComparison.InvariantCulture);

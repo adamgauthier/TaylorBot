@@ -153,11 +153,11 @@ public sealed class CommandSettingsTests(DataServices data)
 
         var updated = await scenario.Discord.InvokeSlashCommandAsync(user, "command prefix", guild);
         var enabled = await scenario.Discord.ClickAsync(user, updated, "Enable prefix commands");
-        var legacy = await scenario.Discord.SendMessageAsync(user, guild, "!choose Fearless");
+        var legacy = await scenario.Discord.SendMessageAsync(user, guild, "!prefix");
 
         enabled.ShouldBeSuccess();
         (await scenario.State.ServerCommandDisabledAsync(guild, "all-prefix")).Should().BeFalse();
-        legacy.Description.Should().StartWith("Fearless");
+        legacy.Description.Should().Contain("The command prefix for this server is `!`");
     }
 
     [Fact]
