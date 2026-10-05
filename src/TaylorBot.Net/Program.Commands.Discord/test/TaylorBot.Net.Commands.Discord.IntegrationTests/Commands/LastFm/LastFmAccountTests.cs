@@ -51,17 +51,21 @@ public sealed class LastFmAccountTests(DataServices data)
         (await scenario.State.LastFmAsync(user)).Should().Be("taylorswift");
     }
 
-    [Fact]
-    public async Task LegacyClear_RemovesLinkedAccount()
+    [Theory]
+    [InlineData("!lastfm clear")]
+    [InlineData("!fm clear")]
+    [InlineData("!np clear")]
+    [InlineData("!lastfm clear ignored")]
+    public async Task LegacyClear_RedirectsWithoutRemovingLinkedAccount(string message)
     {
         await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
         var user = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.LastFmAsync(user);
 
-        var response = await scenario.Discord.SendMessageAsync(user, guild, "!lastfm clear");
+        var response = await scenario.Discord.SendMessageAsync(user, guild, message);
 
-        response.ShouldBeSuccess();
-        (await scenario.State.LastFmAsync(user)).Should().BeNull();
+        response.Description.Should().Contain("has been moved").And.Contain("/lastfm clear");
+        (await scenario.State.LastFmAsync(user)).Should().Be("taylorswift");
     }
 }

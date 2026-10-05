@@ -14,7 +14,6 @@ public class LastFmModule(
     ICommandRunner commandRunner,
     LastFmCurrentSlashCommand lastFmCurrentCommand,
     LastFmSetSlashCommand lastFmSetCommand,
-    LastFmClearSlashCommand lastFmClearCommand,
     LastFmTracksSlashCommand lastFmTracksCommand,
     LastFmAlbumsSlashCommand lastFmAlbumsCommand,
     LastFmArtistsSlashCommand lastFmArtistsCommand,
@@ -52,16 +51,9 @@ public class LastFmModule(
     }
 
     [Command("clear")]
-    public async Task<RuntimeResult> ClearAsync()
-    {
-        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: LastFmClearSlashCommand.CommandName));
-        var result = await commandRunner.RunSlashCommandAsync(
-            lastFmClearCommand.Clear(context.User, context),
-            context
-        );
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> ClearAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: LastFmClearSlashCommand.CommandName, IsRemoved: true));
 
     [Command("artists")]
     public async Task<RuntimeResult> ArtistsAsync(
