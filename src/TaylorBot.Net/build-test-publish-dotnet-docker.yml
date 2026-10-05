@@ -34,7 +34,7 @@ stages:
     - job: build
       displayName: 'Run tests and build image'
       pool:
-        vmImage: 'ubuntu-latest'
+        vmImage: 'ubuntu-26.04'
       steps:
       - ${{ if ne(parameters.integrationTestProject, '') }}:
         - task: UseDotNet@2
@@ -126,6 +126,8 @@ stages:
     jobs:
       - deployment: deploy_component
         displayName: 'Deploy azure container app'
+        pool:
+          vmImage: 'ubuntu-26.04'
         environment: taylorbot
         strategy:
           runOnce:
