@@ -155,8 +155,6 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         await _host.StartAsync(startup.Token);
         await _session.WaitUntilReadyAsync(startup.Token);
         await DrainAsync(startup.Token);
-
-        _session.ObservePrefixCommands(_host.Services);
     }
 
     private async Task DispatchAsync(string eventName, object data)
@@ -209,7 +207,6 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
             if (_host != null)
             {
                 using CancellationTokenSource shutdown = new(OperationTimeout);
-                await _session.DrainPrefixCommandsAsync(shutdown.Token);
                 await _host.StopAsync(shutdown.Token);
             }
         }
@@ -230,7 +227,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         {
             _api.EnsureExpectationsMet();
             External.EnsureExpectationsMet();
-            _logs.EnsureNoErrors();
+            _logs.EnsureExpectationsMet();
         }
     }
 

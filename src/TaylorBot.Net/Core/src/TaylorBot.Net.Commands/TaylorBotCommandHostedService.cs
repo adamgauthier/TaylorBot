@@ -23,11 +23,15 @@ public partial class TaylorBotCommandHostedService(IServiceProvider services, IL
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var commandService = services.GetRequiredService<CommandService>();
-        var commandExecutedHandler = services.GetRequiredService<CommandExecutedHandler>();
         var commandServiceLogger = services.GetRequiredService<CommandServiceLogger>();
 
         commandService.Log += commandServiceLogger.OnCommandServiceLogAsync;
-        commandService.CommandExecuted += commandExecutedHandler.OnCommandExecutedAsync;
+        // Preserve Discord.Net's selected overload for usage errors; CommandHandler sends the reply.
+        commandService.CommandExecuted += (command, context, _) =>
+        {
+            ((ITaylorBotCommandContext)context).MatchedCommand = command;
+            return Task.CompletedTask;
+        };
 
         LogAddingTypeReaders();
 

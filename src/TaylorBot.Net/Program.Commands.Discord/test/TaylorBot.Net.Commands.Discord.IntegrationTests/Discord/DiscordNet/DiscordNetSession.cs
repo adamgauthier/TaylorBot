@@ -1,6 +1,4 @@
 ﻿using System.Text.Json;
-using System.Collections.Concurrent;
-using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,20 +11,6 @@ internal sealed class DiscordNetSession(DiscordApi api)
     private readonly List<InMemoryWebSocket> _sockets = [];
     private readonly ReadyHandler _ready = new();
     private int _sequence = 1;
-    private readonly ConcurrentDictionary<ulong, TaskCompletionSource> _messages = new();
-
-    public void ObservePrefixCommands(IServiceProvider services)
-    {
-        services.GetRequiredService<CommandService>().CommandExecuted += (_, context, _) =>
-        {
-            if (_messages.TryRemove(context.Message.Id, out var completion))
-            {
-                completion.SetResult();
-            }
-
-            return Task.CompletedTask;
-        };
-    }
 
     public void Configure(IServiceCollection services)
     {
@@ -46,20 +30,8 @@ internal sealed class DiscordNetSession(DiscordApi api)
 
     public Task WaitUntilReadyAsync(CancellationToken cancellationToken) => _ready.Completion.Task.WaitAsync(cancellationToken);
 
-    public Task DrainPrefixCommandsAsync(CancellationToken cancellationToken) =>
-        Task.WhenAll(_messages.Values.Select(completion => completion.Task)).WaitAsync(cancellationToken);
-
     public async Task DispatchAsync(string eventName, object data, CancellationToken cancellationToken)
     {
-        TaskCompletionSource? message = null;
-        ulong messageId = 0;
-        if (eventName == "MESSAGE_CREATE")
-        {
-            messageId = ulong.Parse(JsonSerializer.SerializeToElement(data).GetProperty("id").GetString()!);
-            message = new(TaskCreationOptions.RunContinuationsAsynchronously);
-            _messages.TryAdd(messageId, message);
-        }
-
         var payload = JsonSerializer.Serialize(new
         {
             op = 0,
@@ -69,10 +41,6 @@ internal sealed class DiscordNetSession(DiscordApi api)
         });
 
         await _sockets.Single(socket => socket.IsConnected).ReceiveAsync(payload).WaitAsync(cancellationToken);
-        if (message != null)
-        {
-            await message.Task.WaitAsync(cancellationToken);
-        }
     }
 
     private sealed class ReadyHandler : IShardReadyHandler

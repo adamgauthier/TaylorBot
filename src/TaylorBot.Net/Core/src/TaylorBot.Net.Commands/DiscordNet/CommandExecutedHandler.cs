@@ -18,7 +18,7 @@ public partial class CommandExecutedHandler(
     UserNotIgnoredPrecondition userNotIgnoredPrecondition,
     TimeProvider timeProvider)
 {
-    public async Task OnCommandExecutedAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
+    public async Task HandleResultAsync(Optional<CommandInfo> optCommandInfo, ICommandContext context, IResult result)
     {
         var commandContext = (ITaylorBotCommandContext)context;
 
@@ -167,15 +167,23 @@ public partial class CommandExecutedHandler(
                 }
             }
         }
+    }
 
-        if (commandContext.RunContext?.OnGoing.OnGoingCommandAddedToPool != null)
+    public async Task CleanupAsync(ITaylorBotCommandContext commandContext)
+    {
+        try
         {
-            await ongoingCommandRepository.RemoveOngoingCommandAsync(new(context.User), commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
+            if (commandContext.RunContext?.OnGoing.OnGoingCommandAddedToPool != null)
+            {
+                await ongoingCommandRepository.RemoveOngoingCommandAsync(new(commandContext.User), commandContext.RunContext.OnGoing.OnGoingCommandAddedToPool);
+            }
         }
-
-        if (commandContext.Activity.IsValueCreated)
+        finally
         {
-            commandContext.Activity.Value.Dispose();
+            if (commandContext.Activity.IsValueCreated)
+            {
+                commandContext.Activity.Value.Dispose();
+            }
         }
     }
 

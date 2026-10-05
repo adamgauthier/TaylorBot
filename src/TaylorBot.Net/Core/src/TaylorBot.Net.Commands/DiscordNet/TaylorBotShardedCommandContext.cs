@@ -10,6 +10,7 @@ public interface ITaylorBotCommandContext : ICommandContext
     Lazy<CommandActivity> Activity { get; }
     string CommandPrefix { get; }
     IList<CommandInfo> CommandInfos { get; }
+    Optional<CommandInfo> MatchedCommand { get; set; }
     RunContext? RunContext { get; set; }
     bool IsTestEnv { get; }
     ISelfUser CurrentUser { get; }
@@ -21,6 +22,7 @@ public class TaylorBotShardedCommandContext(DiscordShardedClient client, SocketU
     public Lazy<CommandActivity> Activity { get; } = activity;
     public string CommandPrefix { get; } = commandPrefix;
     public IList<CommandInfo> CommandInfos { get; } = [];
+    public Optional<CommandInfo> MatchedCommand { get; set; }
     public RunContext? RunContext { get; set; }
     public bool IsTestEnv { get; set; }
     public ISelfUser CurrentUser => Client.CurrentUser;

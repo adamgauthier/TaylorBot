@@ -38,7 +38,8 @@ public static class ServiceCollectionExtensions
             .AddTransient<CommandActivityFactory>()
             .AddSingleton(provider => new CommandService(new CommandServiceConfig
             {
-                DefaultRunMode = RunMode.Async,
+                // CommandHandler owns background execution and response handling.
+                DefaultRunMode = RunMode.Sync,
             }))
             .AddTransient<CommandPrefixDomainService>()
             .AddTransient<DisabledGuildCommandDomainService>()

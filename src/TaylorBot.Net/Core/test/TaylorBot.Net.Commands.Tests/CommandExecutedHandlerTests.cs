@@ -35,7 +35,7 @@ public class CommandExecutedHandlerTests
     }
 
     [Fact]
-    public async Task OnCommandExecutedAsync_WhenUnknownCommand_ThenNoLog()
+    public async Task HandleResultAsync_WhenUnknownCommand_ThenNoLog()
     {
         var commandContext = A.Fake<ITaylorBotCommandContext>(o => o.Strict());
         A.CallTo(() => commandContext.RunContext).Returns(null);
@@ -44,7 +44,8 @@ public class CommandExecutedHandlerTests
         var result = A.Fake<IResult>(o => o.Strict());
         A.CallTo(() => result.Error).Returns(CommandError.UnknownCommand);
 
-        await _commandExecutedHandler.OnCommandExecutedAsync(Optional.Create<CommandInfo>(), commandContext, result);
+        await _commandExecutedHandler.HandleResultAsync(Optional.Create<CommandInfo>(), commandContext, result);
+        await _commandExecutedHandler.CleanupAsync(commandContext);
 
         A.CallTo(_logger).Where(call => call.Method.Name == nameof(ILogger.Log)).MustNotHaveHappened();
     }

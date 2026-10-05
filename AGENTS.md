@@ -6,7 +6,7 @@ Keep instructions, documentation, and responses concise. Put essential guidance 
 
 Keep this file a short entry point, not a duplicate of the architecture or tooling configuration. Avoid restating volatile values such as SDK versions and timeouts. Use one source line per Markdown paragraph and link directly to README files, not their containing folders.
 
-Document the repository's steady-state usage and design, not session history, temporary workarounds, or task status; link to authoritative code or configuration for details that could drift.
+Document the repository's steady-state usage and design, not session history, temporary workarounds, tiny specific detail or task status; link to authoritative code or configuration for details that could drift.
 
 ## Coding
 
