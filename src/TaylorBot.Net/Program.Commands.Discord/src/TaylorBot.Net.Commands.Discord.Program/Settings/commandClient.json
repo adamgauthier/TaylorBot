@@ -24,10 +24,6 @@
         "MaxUsesForUser": 9,
         "MaxUsesForPlusUser": 19
       },
-      "youtube-search-legacy": {
-        "FriendlyName": "Searching YouTube (prefix command)",
-        "MaxUsesForUser": 1
-      },
       "horoscope": {
         "FriendlyName": "Fetching an horoscope",
         "MaxUsesForUser": 20

@@ -1,14 +1,12 @@
 ﻿using TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Domain;
-using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.PageMessages;
 using TaylorBot.Net.Commands.Parsers;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Embed;
-using TaylorBot.Net.Core.User;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 
-public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rateLimiter, PageMessageFactory pageMessageFactory, CommandMentioner mention) : ISlashCommand<YouTubeSlashCommand.Options>
+public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rateLimiter, PageMessageFactory pageMessageFactory) : ISlashCommand<YouTubeSlashCommand.Options>
 {
     public static string CommandName => "youtube";
 
@@ -16,54 +14,35 @@ public class YouTubeSlashCommand(IYouTubeClient youTubeClient, IRateLimiter rate
 
     public record Options(ParsedString search);
 
-    public Command Search(DiscordUser author, string query, RunContext context) => new(
-        new(Info.Name, IsSlashCommand: context.SlashCommand != null),
-        async () =>
-        {
-            var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(author, context.SlashCommand == null ? "youtube-search-legacy" : "youtube-search");
-            if (rateLimitResult != null)
-                return rateLimitResult;
-
-            var result = await youTubeClient.SearchAsync(query);
-
-            switch (result)
+    public ValueTask<Command> GetCommandAsync(RunContext context, Options options)
+    {
+        return new(new Command(
+            new(Info.Name),
+            async () =>
             {
-                case SuccessfulSearch search:
-                    if (context.SlashCommand != null)
-                    {
-                        return search.VideoUrls.Count > 0
-                            ? pageMessageFactory.Create(new(
-                                new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
-                                IsCancellable: true
-                            ))
-                            : new EmbedResult(EmbedFactory.CreateError("No YouTube video found for your search 😕"));
-                    }
-                    else
-                    {
-                        var hint = await mention.FormatAsync(context, $"Use {mention.Slash("youtube")} for a better command experience and higher daily limit.");
-                        return new PageMessageResult(new PageMessage(new(
-                            new TextPageMessageRenderer(new(
-                                [.. search.VideoUrls.Select(u => $"{hint}\n{u}")],
-                                emptyText: "No YouTube video found for your search 😕")),
-                            Cancellable: true
-                        )));
-                    }
+                var rateLimitResult = await rateLimiter.VerifyDailyLimitAsync(context.User, "youtube-search");
+                if (rateLimitResult != null)
+                    return rateLimitResult;
 
-                case GenericError error:
-                    return new EmbedResult(EmbedFactory.CreateError(
+                var result = await youTubeClient.SearchAsync(options.search.Value);
+
+                return result switch
+                {
+                    SuccessfulSearch search => search.VideoUrls.Count > 0
+                        ? pageMessageFactory.Create(new(
+                            new(new MessageTextEditor(search.VideoUrls, emptyText: "No YouTube video found for your search 😕")),
+                            IsCancellable: true
+                        ))
+                        : new EmbedResult(EmbedFactory.CreateError("No YouTube video found for your search 😕")),
+                    GenericError => new EmbedResult(EmbedFactory.CreateError(
                         """
                         YouTube returned an unexpected error. 😢
                         The site might be down. Try again later!
                         """
-                    ));
-
-                default:
-                    throw new InvalidOperationException(result.GetType().Name);
+                    )),
+                    _ => throw new InvalidOperationException(result.GetType().Name),
+                };
             }
-            ;
-        }
-    );
-
-    public ValueTask<Command> GetCommandAsync(RunContext context, Options options) =>
-        new(Search(context.User, options.search.Value, context));
+        ));
+    }
 }

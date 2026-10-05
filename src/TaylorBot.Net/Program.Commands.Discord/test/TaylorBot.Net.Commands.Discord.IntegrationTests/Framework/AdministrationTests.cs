@@ -16,11 +16,11 @@ public sealed class AdministrationTests(DataServices data)
         var guild = await scenario.Given.GuildAsync(user);
 
         var response = await scenario.Discord.SendMessageAsync(user, guild, "!prefix .");
-        var next = await scenario.Discord.SendMessageAsync(user, guild, ".choose Fearless");
+        var next = await scenario.Discord.SendMessageAsync(user, guild, ".prefix");
 
         response.ShouldBeSuccess();
         (await scenario.State.PrefixAsync(guild)).Should().Be(".");
-        next.Description.Should().StartWith("Fearless");
+        next.Description.Should().Contain("The command prefix for this server is `.`");
     }
 
     [Fact]

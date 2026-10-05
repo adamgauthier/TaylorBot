@@ -2,7 +2,6 @@
 using Discord.Commands;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Core.Embed;
 using TaylorBot.Net.Core.Globalization;
@@ -14,7 +13,6 @@ public partial class CommandExecutedHandler(
     ILogger<CommandExecutedHandler> logger,
     IOngoingCommandRepository ongoingCommandRepository,
     IIgnoredUserRepository ignoredUserRepository,
-    PageMessageReactionsHandler pageMessageReactionsHandler,
     UserNotIgnoredPrecondition userNotIgnoredPrecondition,
     TimeProvider timeProvider)
 {
@@ -40,13 +38,6 @@ public partial class CommandExecutedHandler(
                             allowedMentions: new AllowedMentions { MentionRepliedUser = false },
                             embed: embedResult.Embed
                         );
-                        break;
-
-                    case PageMessageResult pageResult:
-                        using (var sentPageMessage = await pageResult.PageMessage.SendAsync(context.User, context.Message))
-                        {
-                            await sentPageMessage.SendReactionsAsync(pageMessageReactionsHandler, logger);
-                        }
                         break;
 
                     case RateLimitedResult rateLimited:

@@ -34,6 +34,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     public DiscordApi DiscordApi => _api;
     public ExternalApi External { get; } = new();
     public ScenarioLogs Logs => _logs;
+    public int RequestedGatewayIntents => _session.RequestedIntents;
 
     private CommandsDiscordScenario(DataServices dataServices, ScenarioDatabase database, CancellationToken cancellationToken)
     {
@@ -116,7 +117,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
 
         foreach (var action in new[]
         {
-            "google-places-search", "youtube-search", "youtube-search-legacy", "horoscope", "urbandictionary-search",
+            "google-places-search", "youtube-search", "horoscope", "urbandictionary-search",
             "wolframalpha-query", "imgur-upload", "submit-signature", "redeem-coupon", "heist", "rps", "roll", "generate-recap",
         })
         {

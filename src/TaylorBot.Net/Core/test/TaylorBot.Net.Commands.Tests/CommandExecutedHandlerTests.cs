@@ -3,7 +3,6 @@ using Discord.Commands;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using TaylorBot.Net.Commands.DiscordNet;
-using TaylorBot.Net.Commands.Events;
 using TaylorBot.Net.Commands.Instrumentation;
 using TaylorBot.Net.Commands.Preconditions;
 using TaylorBot.Net.Commands.Tests.Helpers;
@@ -18,7 +17,6 @@ public class CommandExecutedHandlerTests
     private readonly ILogger<CommandExecutedHandler> _logger = A.Fake<ILogger<CommandExecutedHandler>>(o => o.Strict());
     private readonly IOngoingCommandRepository _ongoingCommandRepository = A.Fake<IOngoingCommandRepository>(o => o.Strict());
     private readonly IIgnoredUserRepository _ignoredUserRepository = A.Fake<IIgnoredUserRepository>(o => o.Strict());
-    private readonly PageMessageReactionsHandler _pageMessageReactionsHandler = new();
     private readonly UserNotIgnoredPrecondition _userNotIgnoredPrecondition = new(
         A.Fake<IIgnoredUserRepository>(o => o.Strict()),
         new UsernameTrackerDomainService(A.Fake<ILogger<UsernameTrackerDomainService>>(o => o.Strict()), A.Fake<IUsernameRepository>(o => o.Strict())),
@@ -30,7 +28,7 @@ public class CommandExecutedHandlerTests
     public CommandExecutedHandlerTests()
     {
         _commandExecutedHandler = new(
-            _logger, _ongoingCommandRepository, _ignoredUserRepository, _pageMessageReactionsHandler, _userNotIgnoredPrecondition, TimeProvider.System
+            _logger, _ongoingCommandRepository, _ignoredUserRepository, _userNotIgnoredPrecondition, TimeProvider.System
         );
     }
 

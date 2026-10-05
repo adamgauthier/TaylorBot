@@ -9,12 +9,6 @@ public sealed class DiscordApi : IDiscordApi
 {
     public const string ApplicationId = DiscordApiStub.ApplicationId;
     internal const string ResponseMessageId = "100000000000000020";
-    internal static IReadOnlyDictionary<string, string> PageReactions { get; } = new Dictionary<string, string>
-    {
-        ["Previous"] = "\u25c0",
-        ["Next"] = "\u25b6",
-        ["Cancel"] = "\u274c",
-    };
 
     private readonly Dictionary<string, JsonObject> _commands = LoadCommands();
     private readonly HashSet<string> _unavailableGlobalCommands = [];
@@ -148,18 +142,6 @@ public sealed class DiscordApi : IDiscordApi
     {
         lock (_lock) { _messages.Add((channel, message)); }
     }
-
-    public void ExpectLegacyPageControls(ScenarioGuild guild)
-    {
-        foreach (var emoji in PageReactions.Values)
-        {
-            ExpectRequest("PUT", $"channels/{guild.ChannelId}/messages/{ResponseMessageId}/reactions/{Uri.EscapeDataString(emoji).ToLowerInvariant()}/@me");
-        }
-    }
-
-    public void ExpectLegacyPageEdit(ScenarioGuild guild) =>
-        ExpectRequest("PATCH", $"channels/{guild.ChannelId}/messages/{ResponseMessageId}",
-            DiscordMessageJson.CreateMessage([], ResponseMessageId, guild.ChannelId, type: 0), HttpStatusCode.OK);
 
     public void ExpectRoleChange(ScenarioGuild guild, ScenarioUser user, ScenarioRole role, bool remove = false, bool forbidden = false)
     {

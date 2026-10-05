@@ -1,5 +1,4 @@
 ﻿using Discord;
-using TaylorBot.Net.Commands.DiscordNet.PageMessages;
 using TaylorBot.Net.Commands.PostExecution;
 
 namespace TaylorBot.Net.Commands;
@@ -12,9 +11,6 @@ public record EmbedResult(Embed Embed) : ICommandResult;
 public record EmptyResult() : ICommandResult;
 
 public record RateLimitedResult(string FriendlyLimitName, long Uses, uint Limit) : ICommandResult;
-
-public record PageMessageResult(PageMessage PageMessage) : ICommandResult;
-
 
 public record MessageResult(MessageResponse Message) : ICommandResult
 {

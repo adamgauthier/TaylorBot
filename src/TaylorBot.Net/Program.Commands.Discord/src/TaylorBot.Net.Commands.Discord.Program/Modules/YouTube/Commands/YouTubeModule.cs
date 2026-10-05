@@ -4,21 +4,11 @@ using TaylorBot.Net.Commands.DiscordNet;
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.YouTube.Commands;
 
 [Name("YouTube")]
-public class YouTubeModule(ICommandRunner commandRunner, YouTubeSlashCommand youTubeCommand) : TaylorBotModule
+public class YouTubeModule(PrefixedCommandRunner prefixedCommandRunner) : TaylorBotModule
 {
     [Command("youtube")]
     [Alias("yt")]
-    public async Task<RuntimeResult> SearchAsync(
-        [Remainder]
-        string text
-    )
-    {
-        var context = DiscordNetContextMapper.MapToRunContext(Context, new(ReplacementSlashCommand: YouTubeSlashCommand.CommandName));
-        var result = await commandRunner.RunSlashCommandAsync(
-            youTubeCommand.Search(context.User, text, context),
-            context
-        );
-
-        return new TaylorBotResult(result, context);
-    }
+    public async Task<RuntimeResult> SearchAsync([Remainder] string? _ = null) => await prefixedCommandRunner.RunAsync(
+        Context,
+        new(ReplacementSlashCommand: YouTubeSlashCommand.CommandName, IsRemoved: true));
 }

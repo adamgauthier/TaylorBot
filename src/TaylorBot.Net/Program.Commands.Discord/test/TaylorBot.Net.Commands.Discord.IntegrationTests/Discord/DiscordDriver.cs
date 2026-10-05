@@ -302,30 +302,6 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
 
         return new(api.ForMessage(guild.ChannelId, id), user, guild);
     }
-
-    public async Task<DiscordExchange> ReactAsync(ScenarioUser user, DiscordExchange previous, string control)
-    {
-        var guild = previous.Guild ?? throw new InvalidOperationException("Legacy reactions require a guild message.");
-        var emoji = DiscordApi.PageReactions[control];
-        var path = $"channels/{guild.ChannelId}/messages/{DiscordApi.ResponseMessageId}";
-        api.RequestsFor("PUT", $"{path}/reactions/{Uri.EscapeDataString(emoji).ToLowerInvariant()}/@me").Should().ContainSingle();
-        var method = control == "Cancel" ? "DELETE" : "PATCH";
-        var before = api.RequestsFor(method, path).Count;
-
-        await dispatch("MESSAGE_REACTION_ADD", new
-        {
-            user_id = user.Id,
-            channel_id = guild.ChannelId,
-            message_id = DiscordApi.ResponseMessageId,
-            guild_id = guild.Id,
-            emoji = new { id = (string?)null, name = emoji, animated = false },
-            member = new { user = UserPayload(user), roles = Array.Empty<string>(), joined_at = "2026-01-01T00:00:00Z", deaf = false, mute = false },
-            burst = false,
-            type = 0,
-        });
-
-        return new(api.RequestsFor(method, path).Skip(before).ToArray(), previous.Author, guild);
-    }
 }
 
 public sealed class DiscordExchange(IReadOnlyList<DiscordRequest> requests, ScenarioUser? author = null, ScenarioGuild? guild = null,

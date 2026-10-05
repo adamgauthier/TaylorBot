@@ -12,6 +12,9 @@ internal sealed class DiscordNetSession(DiscordApi api)
     private readonly ReadyHandler _ready = new();
     private int _sequence = 1;
 
+    public int RequestedIntents => _sockets.Single(socket => socket.IsConnected).RequestedIntents
+        ?? throw new InvalidOperationException("Gateway identification has not completed.");
+
     public void Configure(IServiceCollection services)
     {
         services.AddSingleton<IShardReadyHandler>(_ready);

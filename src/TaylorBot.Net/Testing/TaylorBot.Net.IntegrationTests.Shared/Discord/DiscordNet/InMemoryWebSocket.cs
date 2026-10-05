@@ -17,6 +17,7 @@ public sealed class InMemoryWebSocket : IWebSocketClient
     public Func<JsonElement, IReadOnlyList<object>>? MembersRequested { get; set; }
     public bool IsConnected { get; private set; }
     public int ShardId { get; private set; }
+    public int? RequestedIntents { get; private set; }
     private int _shardCount = 1;
 
     public object ReadyPayload => new
@@ -119,6 +120,7 @@ public sealed class InMemoryWebSocket : IWebSocketClient
 
     private Task IdentifyAsync(JsonElement identify)
     {
+        RequestedIntents = identify.GetProperty("intents").GetInt32();
         if (identify.TryGetProperty("shard", out var shard))
         {
             ShardId = shard[0].GetInt32();

@@ -193,19 +193,6 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
 
     private IEnumerable<EventHandlerRegistrar> GetReactionsRegistrars()
     {
-        var reactionAddedHandler = services.GetService<IReactionAddedHandler>();
-        if (reactionAddedHandler != null)
-        {
-            yield return new((client) =>
-            {
-                client.DiscordShardedClient.ReactionAdded += async (message, channel, reaction) =>
-                    await taskExceptionLogger.LogOnError(async () =>
-                        await reactionAddedHandler.ReactionAddedAsync(message, channel, reaction),
-                        nameof(IReactionAddedHandler)
-                    );
-            }, [GatewayIntents.GuildMessageReactions, GatewayIntents.DirectMessageReactions]);
-        }
-
         var reactionRemovedHandler = services.GetService<IReactionRemovedHandler>();
         if (reactionRemovedHandler != null)
         {

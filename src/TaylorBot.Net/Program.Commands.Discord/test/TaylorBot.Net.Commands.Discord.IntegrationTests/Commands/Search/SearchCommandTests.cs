@@ -164,10 +164,12 @@ public sealed class SearchCommandTests(DataServices data)
 
         var first = await scenario.Discord.InvokeSlashCommandAsync(user, "youtube", arguments: [SlashArgument.Text("search", "Taylor")]);
         var next = await scenario.Discord.ClickAsync(user, first, "Next");
-        var cancelled = await scenario.Discord.ClickAsync(user, next, "Cancel");
+        var previous = await scenario.Discord.ClickAsync(user, next, "Previous");
+        var cancelled = await scenario.Discord.ClickAsync(user, previous, "Cancel");
 
         first.Message.GetProperty("content").GetString().Should().Contain("https://youtu.be/synthetic01");
         next.Message.GetProperty("content").GetString().Should().Contain("https://youtu.be/synthetic02");
+        previous.Message.GetProperty("content").GetString().Should().Contain("https://youtu.be/synthetic01");
         cancelled.ShouldBeDeleted();
         scenario.External.Requests.Should().ContainSingle();
     }
@@ -204,27 +206,20 @@ public sealed class SearchCommandTests(DataServices data)
         scenario.External.Requests.Should().ContainSingle();
     }
 
-    [Fact]
-    public async Task LegacyYouTube_NavigatesReactionsAndDeletesCancelledMessage()
+    [Theory]
+    [InlineData("!youtube Taylor")]
+    [InlineData("!yt Taylor")]
+    [InlineData("!youtube")]
+    [InlineData("!yt")]
+    public async Task LegacyYouTube_RedirectsWithoutSearching(string message)
     {
         await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
         var user = await scenario.Given.UserAsync();
         var guild = await scenario.Given.GuildAsync(user);
-        scenario.External.YouTubeResults("synthetic01", "synthetic02");
-        scenario.DiscordApi.ExpectLegacyPageControls(guild);
-        scenario.DiscordApi.ExpectLegacyPageEdit(guild);
-        scenario.DiscordApi.ExpectLegacyPageEdit(guild);
-        scenario.DiscordApi.ExpectRequest("DELETE", $"channels/{guild.ChannelId}/messages/{DiscordApi.ResponseMessageId}");
 
-        var first = await scenario.Discord.SendMessageAsync(user, guild, "!youtube Taylor");
-        var next = await scenario.Discord.ReactAsync(user, first, "Next");
-        var previous = await scenario.Discord.ReactAsync(user, next, "Previous");
-        var cancelled = await scenario.Discord.ReactAsync(user, previous, "Cancel");
+        var response = await scenario.Discord.SendMessageAsync(user, guild, message);
 
-        first.Message.GetProperty("content").GetString().Should().Contain("https://youtu.be/synthetic01").And.Contain("higher daily limit");
-        next.Message.GetProperty("content").GetString().Should().Contain("https://youtu.be/synthetic02");
-        previous.Message.GetProperty("content").GetString().Should().Contain("https://youtu.be/synthetic01");
-        cancelled.Requests.Should().ContainSingle().Which.Method.Should().Be("DELETE");
-        scenario.External.Requests.Should().ContainSingle();
+        response.Description.Should().Contain("has been moved").And.Contain("/youtube");
+        scenario.External.Requests.Should().BeEmpty();
     }
 }
