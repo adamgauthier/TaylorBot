@@ -107,6 +107,8 @@ using TaylorBot.Net.Commands.Infrastructure;
 using TaylorBot.Net.Commands.Infrastructure.Options;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
+using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Extensions;
 using TaylorBot.Net.Core.Program.Events;
@@ -225,6 +227,7 @@ public static class DiscordCommandsProgram
             .AddTransient<IDeletedLogChannelRepository, DeletedLogChannelPostgresRepository>()
             .AddTransient<IMemberLogChannelRepository, MemberLogChannelPostgresRepository>()
             .AddTransient<IModLogChannelRepository, ModLogChannelPostgresRepository>()
+            .AddTransient<IModLogChannelLookup, ModLogChannelLookup>()
             .AddTransient<IModChannelLogger, ModChannelLogger>()
             .AddTransient<ModMailChannelLogger>()
             .AddSlashCommand<ModLogSetSlashCommand>()

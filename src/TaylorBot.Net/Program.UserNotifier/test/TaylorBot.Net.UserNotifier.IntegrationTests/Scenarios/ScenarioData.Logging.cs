@@ -4,6 +4,16 @@ namespace TaylorBot.Net.UserNotifier.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
+    public async Task ModLogAsync(ScenarioGuild guild, string? channelId = null)
+    {
+        await using var connection = database.CreateConnection();
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO moderation.mod_log_channels (guild_id, channel_id) VALUES (@Id, @ChannelId)
+            ON CONFLICT (guild_id) DO UPDATE SET channel_id = excluded.channel_id;
+            """, new { guild.Id, ChannelId = channelId ?? guild.ChannelId });
+    }
+
     public async Task ExpireLogChannelCacheAsync(ScenarioGuild guild)
     {
         await database.Redis.KeyDeleteAsync([$"deleted-logs:guild:{guild.Id}", $"edited-logs:guild:{guild.Id}"]);

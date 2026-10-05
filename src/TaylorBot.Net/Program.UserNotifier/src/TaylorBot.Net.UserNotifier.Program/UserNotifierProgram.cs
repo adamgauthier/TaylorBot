@@ -15,6 +15,8 @@ using TaylorBot.Net.BirthdayReward.Domain.Options;
 using TaylorBot.Net.BirthdayReward.Infrastructure;
 using TaylorBot.Net.Core.Configuration;
 using TaylorBot.Net.Core.Infrastructure.Configuration;
+using TaylorBot.Net.Core.Infrastructure;
+using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Program.Extensions;
@@ -212,6 +214,9 @@ public static class ServiceCollectionExtensions
             .ConfigureRequired<BirthdayRoleOptions>(config, "BirthdayRole")
             .AddSingleton<IValidateOptions<BirthdayRoleOptions>, BirthdayRoleOptionsValidator>()
             .AddTransient<IBirthdayRoleRepository, BirthdayRolePostgresRepository>()
+            .AddTransient<IModLogChannelLookup, ModLogChannelLookup>()
+            .AddTransient<IBirthdayRoleAlertRepository, BirthdayRoleAlertRedisRepository>()
+            .AddTransient<BirthdayRoleFailureNotifier>()
             .AddTransient<BirthdayRoleDomainService>();
     }
 

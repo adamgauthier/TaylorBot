@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,6 +31,7 @@ public partial class BirthdayRoleDomainService(
     ILogger<BirthdayRoleDomainService> logger,
     IOptionsMonitor<BirthdayRoleOptions> optionsMonitor,
     IBirthdayRoleRepository birthdayRepository,
+    BirthdayRoleFailureNotifier failureNotifier,
     Lazy<ITaylorBotClient> taylorBotClient,
     TimeProvider timeProvider)
 {
@@ -66,10 +68,13 @@ public partial class BirthdayRoleDomainService(
 
                 foreach (var guildId in await birthdayRepository.GetGuildsForUserAsync(birthdayUser.user_id, roles))
                 {
+                    if (!rolesByGuild.TryGetValue(guildId, out var birthdayRole))
+                    {
+                        continue;
+                    }
+
                     try
                     {
-                        var birthdayRole = rolesByGuild[guildId];
-
                         var lastTimeRoleGiven = await birthdayRepository.GetLastTimeRoleWasGivenAsync(birthdayUser, guildId);
                         if (lastTimeRoleGiven is null || (timeProvider.GetUtcNow() - lastTimeRoleGiven.Value) >= TimeSpan.FromDays(360))
                         {
@@ -100,6 +105,7 @@ public partial class BirthdayRoleDomainService(
                                 {
                                     LogBirthdayRoleDoesntExist(roleId, guild.FormatLog());
                                     rolesByGuild.Remove(guildId);
+                                    await failureNotifier.NotifyAsync(guildId, roleId, BirthdayRoleOperation.Assign, missingRole: true);
                                 }
                             }
                             else
@@ -117,6 +123,12 @@ public partial class BirthdayRoleDomainService(
                     catch (Exception e)
                     {
                         LogExceptionAddingBirthdayRole(e, birthdayUser, guildId);
+                        if (e is HttpException exception && BirthdayRoleFailureNotifier.IsActionable(exception))
+                        {
+                            await failureNotifier.NotifyAsync(guildId, birthdayRole.role_id, BirthdayRoleOperation.Assign,
+                                missingRole: exception.DiscordCode == DiscordErrorCode.UnknownRole);
+                        }
+
                         await Task.Delay(TimeSpan.FromSeconds(1), timeProvider);
                     }
                 }
@@ -187,6 +199,11 @@ public partial class BirthdayRoleDomainService(
             catch (Exception e)
             {
                 LogExceptionRemovingBirthdayRole(e, roleToRemove);
+                if (e is HttpException exception && BirthdayRoleFailureNotifier.IsActionable(exception))
+                {
+                    await failureNotifier.NotifyAsync(roleToRemove.guild_id, roleToRemove.role_id, BirthdayRoleOperation.Remove,
+                        missingRole: exception.DiscordCode == DiscordErrorCode.UnknownRole);
+                }
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1), timeProvider);

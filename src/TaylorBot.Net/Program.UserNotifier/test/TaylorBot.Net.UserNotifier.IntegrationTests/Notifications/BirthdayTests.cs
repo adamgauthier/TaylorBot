@@ -95,6 +95,7 @@ public sealed class BirthdayTests(DataServices data)
         var guild = await scenario.Given.GuildAsync(user);
         await scenario.Given.BirthdayAsync(user);
         var role = await scenario.Given.BirthdayRoleAsync(guild);
+        await scenario.Given.ModLogAsync(guild);
         scenario.DiscordApi.Expect("PUT", $"guilds/{guild.Id}/members/{user.Id}/roles/{role}");
 
         await scenario.RunJobAsync(UserNotifierJob.BirthdayRoleAdd);
@@ -113,6 +114,7 @@ public sealed class BirthdayTests(DataServices data)
         var guild = await scenario.Given.GuildAsync(user);
         var role = await scenario.Given.BirthdayRoleAsync(guild);
         await scenario.Given.BirthdayRoleGivenAsync(guild, user, role, hasRole: hasRole);
+        await scenario.Given.ModLogAsync(guild);
         if (hasRole)
         {
             scenario.DiscordApi.Expect("DELETE", $"guilds/{guild.Id}/members/{user.Id}/roles/{role}");

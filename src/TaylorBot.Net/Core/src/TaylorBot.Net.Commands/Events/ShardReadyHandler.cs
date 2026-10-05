@@ -1,4 +1,5 @@
 ﻿using Discord.WebSocket;
+using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program.Events;
 using TaylorBot.Net.Core.Tasks;
 

@@ -40,6 +40,14 @@ public sealed partial class ScenarioData
         return new ReversibleDatabaseChange(database, "ALTER MATERIALIZED VIEW attributes.integration_unavailable_calendar RENAME TO birthday_calendar_6months;");
     }
 
+    public async Task<IAsyncDisposable> UnavailableModLogConfigurationAsync()
+    {
+        await using var connection = database.CreateConnection();
+        await connection.ExecuteAsync("ALTER TABLE moderation.mod_log_channels RENAME TO integration_unavailable_mod_log;");
+
+        return new ReversibleDatabaseChange(database, "ALTER TABLE moderation.integration_unavailable_mod_log RENAME TO mod_log_channels;");
+    }
+
     private sealed class ReversibleDatabaseChange(ScenarioDatabase database, string undoSql) : IAsyncDisposable
     {
         private bool _disposed;

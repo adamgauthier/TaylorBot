@@ -22,6 +22,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<BackgroundTasks>();
         services.AddSingleton<TaylorBotInstrumentation>();
+        services.AddMemoryCache();
+        services.AddTransient<IApplicationCommandsRepository, ApplicationCommandsRepository>();
+        services.AddTransient<SlashCommandMentioner>();
+        services.AddSingleton<ApplicationCommandsRepository>();
 
         var builder = services
             .AddOpenTelemetry()

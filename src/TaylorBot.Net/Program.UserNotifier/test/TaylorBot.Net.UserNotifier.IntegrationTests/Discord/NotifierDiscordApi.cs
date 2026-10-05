@@ -29,6 +29,16 @@ public sealed class NotifierDiscordApi : IDiscordApi
     public void Resource(string path, object payload, HttpStatusCode status = HttpStatusCode.OK) =>
         _api.Resource(path, payload, status);
 
+    public string GlobalCommand(string name)
+    {
+        const string id = "100000000000080001";
+        Resource($"applications/{BotId}/commands", new[]
+        {
+            new { id, application_id = BotId, type = 1, name, description = "Scenario command", version = id },
+        });
+        return id;
+    }
+
     public void Members(string guildId, object[] members)
     {
         lock (_lock) { _members[guildId] = members; }

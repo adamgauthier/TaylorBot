@@ -2,12 +2,12 @@
 using Discord;
 using TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Domain;
 using TaylorBot.Net.Core.Infrastructure;
-using TaylorBot.Net.Core.Snowflake;
+using TaylorBot.Net.Core.Logging;
 using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Discord.Program.Modules.Mod.Infrastructure;
 
-public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory) : IModLogChannelRepository
+public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresConnectionFactory, IModLogChannelLookup modLogChannelLookup) : IModLogChannelRepository
 {
     public async ValueTask AddOrUpdateModLogAsync(GuildTextChannel textChannel)
     {
@@ -41,23 +41,10 @@ public class ModLogChannelPostgresRepository(PostgresConnectionFactory postgresC
         );
     }
 
-    private sealed record LogChannelDto(string channel_id);
-
     public async ValueTask<ModLog?> GetModLogForGuildAsync(IGuild guild)
     {
-        await using var connection = postgresConnectionFactory.CreateConnection();
+        var channelId = await modLogChannelLookup.GetChannelIdAsync(guild.Id);
 
-        var logChannel = await connection.QuerySingleOrDefaultAsync<LogChannelDto?>(
-            """
-            SELECT channel_id FROM moderation.mod_log_channels
-            WHERE guild_id = @GuildId;
-            """,
-            new
-            {
-                GuildId = $"{guild.Id}",
-            }
-        );
-
-        return logChannel != null ? new ModLog(new SnowflakeId(logChannel.channel_id)) : null;
+        return channelId == null ? null : new ModLog(channelId);
     }
 }

@@ -1,9 +1,17 @@
 ﻿using Dapper;
+using TaylorBot.Net.UserNotifier.Program.Jobs;
 
 namespace TaylorBot.Net.UserNotifier.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
+    public async Task ExpireBirthdayRoleAlertAsync(ScenarioGuild guild, UserNotifierJob job)
+    {
+        var key = ScenarioState.BirthdayRoleAlertKey(guild, job);
+        (await database.Redis.KeyExpireAsync(key, TimeSpan.Zero)).Should().BeTrue();
+        (await database.Redis.KeyExistsAsync(key)).Should().BeFalse();
+    }
+
     public async Task BirthdayAsync(ScenarioUser user, int daysAgo = 0, bool isPrivate = false, bool rewarded = false)
     {
         await using var connection = database.CreateConnection();
