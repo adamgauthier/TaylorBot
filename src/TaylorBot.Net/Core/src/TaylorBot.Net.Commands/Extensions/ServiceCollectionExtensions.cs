@@ -71,8 +71,6 @@ public static class ServiceCollectionExtensions
             .AddTransient<MentionedUserNotAuthorOrClientTypeReader<IGuildUser>>()
             .AddTransient<CustomRoleTypeReader<IRole>>()
             .AddTransient<RoleNotEveryoneTypeReader<IRole>>()
-            .AddTransient<CustomChannelTypeReader<IChannel>>()
-            .AddTransient<CustomChannelTypeReader<ITextChannel>>()
             .AddTransient<PositiveInt32.Factory>()
             .AddTransient<WordTypeReader>()
             .AddTransient<CommandTypeReader>()

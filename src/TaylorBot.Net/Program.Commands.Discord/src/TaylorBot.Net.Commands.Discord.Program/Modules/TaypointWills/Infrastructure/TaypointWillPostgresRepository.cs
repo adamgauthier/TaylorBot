@@ -32,8 +32,6 @@ public class TaypointWillPostgresRepository(PostgresConnectionFactory postgresCo
         ) : null;
     }
 
-    private sealed record WillAddDto(string beneficiary_user_id, string username);
-
     public async ValueTask AddWillAsync(DiscordUser owner, DiscordUser beneficiary)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();

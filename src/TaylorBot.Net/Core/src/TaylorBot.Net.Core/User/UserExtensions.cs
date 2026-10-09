@@ -26,11 +26,4 @@ public static class UserExtensions
                 ? CDN.GetDefaultUserAvatarUrl(user.DiscriminatorValue)
                 : CDN.GetDefaultUserAvatarUrl(user.Id));
     }
-
-    public static string GetGuildAvatarUrlOrDefault(this IUser user, ImageFormat format = ImageFormat.Auto, ushort size = 128)
-    {
-        return user is IGuildUser guildUser && guildUser.GuildAvatarId != null
-            ? CDN.GetGuildUserAvatarUrl(guildUser.Id, guildUser.Guild.Id, guildUser.GuildAvatarId, size, format)
-            : user.GetAvatarUrlOrDefault(format, size);
-    }
 }

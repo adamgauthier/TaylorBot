@@ -18,11 +18,6 @@ public partial class PlusPostgresRepository(ILogger<PlusPostgresRepository> logg
         public string state { get; set; } = null!;
     }
 
-    private sealed class RewardedUserDto
-    {
-        public long taypoint_count { get; set; }
-    }
-
     public async ValueTask<IUpdatePlusUserResult> AddOrUpdatePlusUserAsync(Patron patron)
     {
         await using var connection = postgresConnectionFactory.CreateConnection();

@@ -37,16 +37,11 @@ public partial class TaylorBotCommandHostedService(IServiceProvider services, IL
 
         commandService.AddTypeReader<IUserArgument<IUser>>(services.GetRequiredService<CustomUserTypeReader<IUser>>());
         commandService.AddTypeReader<IUserArgument<IGuildUser>>(services.GetRequiredService<CustomUserTypeReader<IGuildUser>>());
-        commandService.AddTypeReader<IMentionedUser<IUser>>(services.GetRequiredService<MentionedUserTypeReader<IUser>>());
-        commandService.AddTypeReader<IMentionedUser<IGuildUser>>(services.GetRequiredService<MentionedUserTypeReader<IGuildUser>>());
-        commandService.AddTypeReader<IMentionedUserNotAuthor<IUser>>(services.GetRequiredService<MentionedUserNotAuthorTypeReader<IUser>>());
         commandService.AddTypeReader<IReadOnlyList<IMentionedUserNotAuthor<IUser>>>(services.GetRequiredService<MentionedUsersNotAuthorTypeReader<IUser>>());
         commandService.AddTypeReader<IMentionedUserNotAuthor<IGuildUser>>(services.GetRequiredService<MentionedUserNotAuthorTypeReader<IGuildUser>>());
         commandService.AddTypeReader<IMentionedUserNotAuthorOrClient<IGuildUser>>(services.GetRequiredService<MentionedUserNotAuthorOrClientTypeReader<IGuildUser>>());
         commandService.AddTypeReader<RoleArgument<IRole>>(services.GetRequiredService<CustomRoleTypeReader<IRole>>());
         commandService.AddTypeReader<RoleNotEveryoneArgument<IRole>>(services.GetRequiredService<RoleNotEveryoneTypeReader<IRole>>());
-        commandService.AddTypeReader<IChannelArgument<IChannel>>(services.GetRequiredService<CustomChannelTypeReader<IChannel>>());
-        commandService.AddTypeReader<IChannelArgument<ITextChannel>>(services.GetRequiredService<CustomChannelTypeReader<ITextChannel>>());
         commandService.AddTypeReader<PositiveInt32>(new ConstrainedIntTypeReader<PositiveInt32.Factory>(PositiveInt32.Min));
         commandService.AddTypeReader<Word>(services.GetRequiredService<WordTypeReader>());
         commandService.AddTypeReader<ICommandRepository.Command>(services.GetRequiredService<CommandTypeReader>());

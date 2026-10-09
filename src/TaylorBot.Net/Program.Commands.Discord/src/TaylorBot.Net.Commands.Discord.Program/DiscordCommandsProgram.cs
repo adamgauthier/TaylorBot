@@ -182,8 +182,6 @@ public static class DiscordCommandsProgram
                 );
             }).Services
             .AddTransient<LastFmPeriodStringMapper>()
-            .AddTransient<LastFmCollageSize.Factory>()
-            .AddTransient<ITaylorBotTypeReader, LastFmCollageSizeTypeReader>()
             .AddTransient<ITaylorBotTypeReader, LastFmUsernameTypeReader>()
             .AddTransient<ITaylorBotTypeReader, LastFmPeriodTypeReader>()
             .AddTransient<ITaypointRewardRepository, TaypointRewardPostgresRepository>()
