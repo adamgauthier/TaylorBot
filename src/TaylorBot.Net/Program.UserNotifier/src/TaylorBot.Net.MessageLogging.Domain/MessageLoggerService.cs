@@ -9,7 +9,32 @@ namespace TaylorBot.Net.MessageLogging.Domain;
 public record CachedMessage(SnowflakeId Id, ICachedMessageData? Data);
 public interface ICachedMessageData { }
 public record DiscordNetCachedMessageData(IMessage Message) : ICachedMessageData;
-public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, MessageType? SystemMessageType, string? Content, string? ReplyingToId, IReadOnlyList<string>? AttachmentUrls) : ICachedMessageData;
+public record CachedAttachment(ulong Id, string Filename, string Url);
+public record TaylorBotCachedMessageData(string AuthorTag, string AuthorId, MessageType? SystemMessageType, string? Content, string? ReplyingToId, IReadOnlyList<string>? AttachmentUrls,
+    bool? IsPinned = null, bool? IsPublished = null, bool? EmbedsSuppressed = null, bool? HasThread = null,
+    IReadOnlyList<CachedAttachment>? Attachments = null, bool? SourceMessageDeleted = null, int? EmbedCount = null) : ICachedMessageData
+{
+    public static TaylorBotCachedMessageData FromMessage(IMessage message) => new(
+        AuthorTag: message.Author.Handle(),
+        AuthorId: $"{message.Author.Id}",
+        SystemMessageType: message is ISystemMessage systemMessage ? systemMessage.Type : null,
+        Content: message is IUserMessage userMessage ? userMessage.Content : null,
+        ReplyingToId: message.Reference?.MessageId.IsSpecified == true && message.Reference.ChannelId == message.Channel.Id
+            ? $"{message.Reference.MessageId.Value}"
+            : null,
+        AttachmentUrls: message.Attachments.Count > 0 ? message.Attachments.Select(a => a.ProxyUrl).ToList() : null,
+        IsPinned: message.IsPinned,
+        IsPublished: HasFlag(message, MessageFlags.Crossposted),
+        EmbedsSuppressed: HasFlag(message, MessageFlags.SuppressEmbeds),
+        HasThread: HasFlag(message, MessageFlags.HasThread),
+        Attachments: [.. message.Attachments.Select(a => new CachedAttachment(a.Id, a.Filename, a.ProxyUrl))],
+        SourceMessageDeleted: HasFlag(message, MessageFlags.SourceMessageDeleted),
+        EmbedCount: message.Embeds.Count
+    );
+
+    private static bool? HasFlag(IMessage message, MessageFlags flag) =>
+        message.Flags.HasValue ? (message.Flags.Value & flag) == flag : null;
+}
 
 public interface ICachedMessageRepository
 {
@@ -93,13 +118,12 @@ public class MessageLoggerService(MessageLogChannelFinder messageLogChannelFinde
                 var editedLogChannel = await messageLogChannelFinder.FindEditedLogChannelAsync(textChannel.Guild);
                 if (editedLogChannel != null)
                 {
-                    var isEmbedOnlyEdit = oldMessage.HasValue && oldMessage.Value.Content == newMessage.Content && newMessage.Embeds.Count != oldMessage.Value.Embeds.Count;
+                    CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
+                    var update = MessageUpdate.Compare(message.Data, newMessage);
 
-                    if (!isEmbedOnlyEdit)
+                    if (update.Actions.Count > 0)
                     {
-                        CachedMessage message = new(new(oldMessage.Id), await GetCachedMessageDataAsync(oldMessage));
-
-                        await editedLogChannel.Resolved.SendMessageAsync(embed: messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel));
+                        await editedLogChannel.Resolved.SendMessageAsync(embed: messageLogEmbedFactory.CreateMessageEdited(message, newMessage, textChannel, update));
                     }
 
                     await CacheMessageAsync(newMessage, editedLogChannel);
@@ -148,21 +172,10 @@ public class MessageLoggerService(MessageLogChannelFinder messageLogChannelFinde
 
     private async ValueTask CacheMessageAsync(IMessage newMessage, FoundChannel foundChannel)
     {
-        var author = newMessage.Author;
-
         await cachedMessageRepository.SaveMessageAsync(
             new(newMessage.Id),
             foundChannel.Channel.CacheExpiry ?? TimeSpan.FromMinutes(10),
-            new(
-                AuthorTag: author.Handle(),
-                AuthorId: $"{author.Id}",
-                SystemMessageType: newMessage is ISystemMessage systemMessage ? systemMessage.Type : null,
-                Content: newMessage is IUserMessage userMessage ? userMessage.Content : null,
-                ReplyingToId: newMessage.Reference?.MessageId.IsSpecified == true && newMessage.Reference.ChannelId == newMessage.Channel.Id
-                    ? $"{newMessage.Reference.MessageId.Value}"
-                    : null,
-                AttachmentUrls: newMessage.Attachments.Count > 0 ? newMessage.Attachments.Select(a => a.ProxyUrl).ToList() : null
-            )
+            TaylorBotCachedMessageData.FromMessage(newMessage)
         );
     }
 }

@@ -99,6 +99,11 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                         .WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})")
                         .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
 
+                    if (taylorBot.EmbedCount is > 0)
+                    {
+                        builder.AddField("Embed Count", taylorBot.EmbedCount.Value, inline: true);
+                    }
+
                     if (!string.IsNullOrWhiteSpace(taylorBot.ReplyingToId))
                     {
                         builder.AddField("Replying To", taylorBot.ReplyingToId.LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true);
@@ -143,15 +148,35 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
             .Build();
     }
 
-    public Embed CreateMessageEdited(CachedMessage cachedMessage, IMessage newMessage, ITextChannel channel)
+    public Embed CreateMessageEdited(CachedMessage cachedMessage, IMessage newMessage, ITextChannel channel, MessageUpdate update)
     {
         var options = optionsMonitor.CurrentValue;
+        IReadOnlyList<MessageUpdateAction> actions =
+            [.. update.Actions.Where(action => !update.ContentChanged || action != MessageUpdateAction.AttachmentsChanged)];
+        var threadCreated = actions.Contains(MessageUpdateAction.ThreadCreated);
+        var messageActions = string.Join(", ", actions.Where(action => action != MessageUpdateAction.ThreadCreated).Select(GetActionText));
+        var footerText = threadCreated ? "Thread create from message" : $"Message {messageActions}";
+        if (threadCreated && messageActions.Length > 0)
+        {
+            footerText += $", message {messageActions}";
+        }
+        var subtypeColor = actions[0] switch
+        {
+            MessageUpdateAction.Pinned => options.MessagePinnedEmbedColorHex,
+            MessageUpdateAction.Unpinned => options.MessageUnpinnedEmbedColorHex,
+            MessageUpdateAction.Published or MessageUpdateAction.PublishedSourceDeleted => options.MessagePublishedEmbedColorHex,
+            MessageUpdateAction.EmbedsSuppressed => options.MessageEmbedsSuppressedEmbedColorHex,
+            MessageUpdateAction.EmbedsRestored => options.MessageEmbedsRestoredEmbedColorHex,
+            MessageUpdateAction.AttachmentsChanged => options.MessageAttachmentsChangedEmbedColorHex,
+            MessageUpdateAction.ThreadCreated => options.MessageThreadCreatedEmbedColorHex,
+            _ => null,
+        };
 
         var builder = new EmbedBuilder()
-            .WithColor(DiscordColor.FromHexString(options.MessageEditedEmbedColorHex))
-            .WithFooter($"Message edited ({cachedMessage.Id})");
+            .WithColor(DiscordColor.FromHexString(subtypeColor ?? options.MessageEditedEmbedColorHex))
+            .WithFooter($"{footerText} ({cachedMessage.Id})");
 
-        if (newMessage.EditedTimestamp.HasValue)
+        if (actions.Count == 1 && actions[0] == MessageUpdateAction.Edited && newMessage.EditedTimestamp.HasValue)
         {
             builder.WithTimestamp(newMessage.EditedTimestamp.Value);
         }
@@ -160,70 +185,28 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
             builder.WithCurrentTimestamp();
         }
 
-        if (cachedMessage.Data != null)
+        var author = cachedMessage.Data is DiscordNetCachedMessageData discordNet && discordNet.Message.Author.Id != 0
+            ? discordNet.Message.Author
+            : newMessage.Author;
+        if (author.Id != 0)
         {
-            switch (cachedMessage.Data)
-            {
-                case DiscordNetCachedMessageData discordNet:
-                    var message = discordNet.Message;
-
-                    var author = message.Author.Id != 0 ?
-                        message.Author :
-                        newMessage.Author.Id != 0 ? newMessage.Author : null;
-
-                    if (author != null)
-                    {
-                        var avatarUrl = author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{author.Handle()} ({author.Id})", avatarUrl, avatarUrl);
-                    }
-
-                    if (message is IUserMessage userMessage && !string.IsNullOrEmpty(userMessage.Content) &&
-                        !string.IsNullOrEmpty(newMessage.Content) && userMessage.Content != newMessage.Content)
-                    {
-                        builder
-                            .WithTitle("Message Content Before Edit")
-                            .WithDescription(userMessage.Content.Truncate(EmbedBuilder.MaxDescriptionLength))
-                            .AddField("Message Content After Edit", newMessage.Content.Truncate(EmbedFieldBuilder.MaxFieldValueLength));
-                    }
-
-                    builder
-                        .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
-                        .AddField("Sent", message.Timestamp.FormatRelative(), inline: true);
-                    break;
-
-                case TaylorBotCachedMessageData taylorBot:
-                    if (newMessage.Author.Id != 0)
-                    {
-                        var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-                        builder.WithAuthor($"{newMessage.Author.Handle()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
-                    }
-                    else
-                    {
-                        builder.WithAuthor($"{taylorBot.AuthorTag} ({taylorBot.AuthorId})");
-                    }
-
-                    if (!string.IsNullOrEmpty(taylorBot.Content) && !string.IsNullOrEmpty(newMessage.Content) && taylorBot.Content != newMessage.Content)
-                    {
-                        builder
-                            .WithTitle("Message Content Before Edit")
-                            .WithDescription(taylorBot.Content.Truncate(EmbedBuilder.MaxDescriptionLength))
-                            .AddField("Message Content After Edit", newMessage.Content.Truncate(EmbedFieldBuilder.MaxFieldValueLength));
-                    }
-
-                    builder
-                        .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
-                        .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
-                    break;
-            }
+            var avatarUrl = author.GetAvatarUrlOrDefault();
+            builder.WithAuthor($"{author.Handle()} ({author.Id})", avatarUrl, avatarUrl);
         }
-        else
+        else if (update.Before != null)
         {
-            if (newMessage.Author.Id != 0)
-            {
-                var avatarUrl = newMessage.Author.GetAvatarUrlOrDefault();
-                builder.WithAuthor($"{newMessage.Author.Handle()} ({newMessage.Author.Id})", avatarUrl, avatarUrl);
-            }
+            builder.WithAuthor($"{update.Before.AuthorTag} ({update.Before.AuthorId})");
+        }
 
+        if (update.ContentChanged)
+        {
+            builder
+                .WithTitle("Message Content Before Edit")
+                .WithDescription(DisplayContent(update.Before!.Content).Truncate(EmbedBuilder.MaxDescriptionLength))
+                .AddField("Message Content After Edit", DisplayContent(newMessage.Content).Truncate(EmbedFieldBuilder.MaxFieldValueLength));
+        }
+        else if (update.Before?.Content == null)
+        {
             builder
                 .WithTitle("Unknown Message Content Before Edit")
                 .WithDescription(
@@ -232,18 +215,60 @@ public class MessageLogEmbedFactory(IOptionsMonitor<MessageDeletedLoggingOptions
                     This is likely because the message is too old.
                     """);
 
-            if (!string.IsNullOrEmpty(newMessage.Content))
-            {
-                builder.AddField("Message Content After Edit", newMessage.Content.Truncate(EmbedFieldBuilder.MaxFieldValueLength));
-            }
+            builder.AddField("Message Content After Edit", DisplayContent(newMessage.Content).Truncate(EmbedFieldBuilder.MaxFieldValueLength));
+        }
 
+        if (update.AttachmentsChanged)
+        {
             builder
-                .AddField("Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
-                .AddField("Sent", SnowflakeUtils.FromSnowflake(cachedMessage.Id).FormatRelative(), inline: true);
+                .AddField("Attachments Before", DisplayAttachments(update.Before!.Attachments!))
+                .AddField("Attachments After", DisplayAttachments(update.After.Attachments!));
+        }
+        if (threadCreated)
+        {
+            builder.AddField("Thread", MentionUtils.MentionChannel(newMessage.Id), inline: true);
+        }
+        var embedCount = actions.Contains(MessageUpdateAction.EmbedsSuppressed)
+            ? update.Before?.EmbedCount
+            : actions.Contains(MessageUpdateAction.EmbedsRestored) ? update.After.EmbedCount : null;
+        if (embedCount is int count)
+        {
+            builder.AddField("Embed Count", count, inline: true);
+        }
+
+        var sent = cachedMessage.Data is DiscordNetCachedMessageData cached
+            ? cached.Message.Timestamp
+            : SnowflakeUtils.FromSnowflake(cachedMessage.Id);
+        builder
+            .AddField(threadCreated ? "From" : "Link", $"{cachedMessage.Id}".LinkToMessage($"{channel.Id}", $"{channel.GuildId}"), inline: true)
+            .AddField("Sent", sent.FormatRelative(), inline: true);
+
+        if (builder.Description is { } description && builder.Length > EmbedBuilder.MaxEmbedLength)
+        {
+            builder.WithDescription(description.Truncate(EmbedBuilder.MaxEmbedLength - builder.Length + description.Length));
         }
 
         return builder.Build();
     }
+
+    private static string GetActionText(MessageUpdateAction action) => action switch
+    {
+        MessageUpdateAction.Edited => "edited",
+        MessageUpdateAction.Pinned => "pinned",
+        MessageUpdateAction.Unpinned => "unpinned",
+        MessageUpdateAction.Published => "published",
+        MessageUpdateAction.EmbedsSuppressed => "embeds suppressed",
+        MessageUpdateAction.EmbedsRestored => "embeds restored",
+        MessageUpdateAction.AttachmentsChanged => "attachments changed",
+        MessageUpdateAction.PublishedSourceDeleted => "published source deleted",
+        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Unknown message update action."),
+    };
+
+    private static string DisplayContent(string? content) => string.IsNullOrEmpty(content) ? "*No text*" : content;
+
+    private static string DisplayAttachments(IReadOnlyList<CachedAttachment> attachments) =>
+        attachments.Count == 0 ? "*None*" : string.Join('\n', attachments.Select(a => $"{Format.Sanitize(a.Filename)}: {a.Url}"))
+            .Truncate(EmbedFieldBuilder.MaxFieldValueLength);
 
     private static string GetSystemMessageTypeString(MessageType messageType)
     {

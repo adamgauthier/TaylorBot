@@ -10,6 +10,13 @@ public sealed record ScenarioMessage(string Id, ScenarioGuild Guild, ScenarioUse
     public int Type { get; init; }
     public string? AttachmentUrl { get; init; }
     public string? ReplyToId { get; init; }
+    public bool IsPinned { get; init; }
+    public int Flags { get; init; }
+    public DateTimeOffset? EditedTimestamp { get; init; }
+    public string? PreviewDescription { get; init; }
+    public int PreviewCount { get; init; } = 1;
+    public string AttachmentId { get; init; } = "100000000000070050";
+    public int ChannelType { get; init; }
 }
 
 public sealed class NotifierDriver(NotifierDiscordApi api, Func<string, object, Task> dispatch)
@@ -17,13 +24,16 @@ public sealed class NotifierDriver(NotifierDiscordApi api, Func<string, object, 
     private long _id = 100000000000080000;
 
     public async Task<ScenarioMessage> MessageAsync(ScenarioGuild guild, ScenarioUser user, string content, int type = 0,
-        string? attachmentUrl = null, ScenarioMessage? replyTo = null)
+        string? attachmentUrl = null, ScenarioMessage? replyTo = null, bool pinned = false, int flags = 0, int channelType = 0)
     {
         ScenarioMessage message = new($"{Interlocked.Increment(ref _id)}", guild, user, content, DateTimeOffset.UtcNow)
         {
             Type = type,
             AttachmentUrl = attachmentUrl,
             ReplyToId = replyTo?.Id,
+            IsPinned = pinned,
+            Flags = flags,
+            ChannelType = channelType,
         };
 
         await dispatch("MESSAGE_CREATE", MessagePayload(message));
@@ -54,20 +64,43 @@ public sealed class NotifierDriver(NotifierDiscordApi api, Func<string, object, 
         await dispatch("MESSAGE_CREATE", payload);
     }
 
-    public async Task<DiscordOutput> EditAsync(ScenarioMessage message, string content)
+    public Task<DiscordOutput> EditAsync(ScenarioMessage message, string content) =>
+        UpdateAsync(message with { Content = content, EditedTimestamp = DateTimeOffset.UtcNow });
+
+    public async Task<DiscordOutput> UpdateAsync(ScenarioMessage message)
     {
         var start = api.Requests.Count;
-        await dispatch("MESSAGE_UPDATE", MessagePayload(message with { Content = content }));
+        await dispatch("MESSAGE_UPDATE", MessagePayload(message));
 
         return new([.. api.Requests.Skip(start)]);
     }
 
-    public async Task<DiscordOutput> RefreshEmbedsAsync(ScenarioMessage message)
+    public Task<DiscordOutput> RefreshEmbedsAsync(ScenarioMessage message, string description = "Link preview", int count = 1) =>
+        UpdateAsync(message with { Flags = message.Flags | 1024, PreviewDescription = description, PreviewCount = count });
+
+    public Task<DiscordOutput> SuppressEmbedsAsync(ScenarioMessage message, bool suppressed) =>
+        UpdateAsync(message with { Flags = suppressed ? message.Flags | 4 : message.Flags & ~4 });
+
+    public Task<DiscordOutput> CreateThreadAsync(ScenarioMessage message) =>
+        UpdateAsync(message with { Flags = message.Flags | 32 });
+
+    public async Task<DiscordOutput> SetPinnedAsync(ScenarioMessage message, bool pinned, bool partial = false)
     {
         var start = api.Requests.Count;
-        var payload = MessagePayload(message);
-        payload["embeds"] = JsonSerializer.SerializeToNode(new[] { new { type = "rich", description = "Link preview" } });
+        var payload = partial
+            ? JsonSerializer.SerializeToNode(new { id = message.Id, guild_id = message.Guild.Id, channel_id = message.Guild.ChannelId, pinned })!.AsObject()
+            : MessagePayload(message with { IsPinned = pinned });
+        await dispatch("MESSAGE_UPDATE", payload);
 
+        return new([.. api.Requests.Skip(start)]);
+    }
+
+    public async Task<DiscordOutput> PublishAsync(ScenarioMessage message, bool partial = false)
+    {
+        var start = api.Requests.Count;
+        var payload = partial
+            ? JsonSerializer.SerializeToNode(new { id = message.Id, guild_id = message.Guild.Id, channel_id = message.Guild.ChannelId, flags = message.Flags | 1 })!.AsObject()
+            : MessagePayload(message with { Flags = message.Flags | 1 });
         await dispatch("MESSAGE_UPDATE", payload);
 
         return new([.. api.Requests.Skip(start)]);
@@ -172,27 +205,49 @@ public sealed class NotifierDriver(NotifierDiscordApi api, Func<string, object, 
             id = message.Id,
             guild_id = message.Guild.Id,
             channel_id = message.Guild.ChannelId,
+            channel_type = message.ChannelType,
             author = NotifierDiscordApi.User(message.User.Id, message.User.Username, bot: message.User.Id == NotifierDiscordApi.BotId),
             content = message.Content,
             timestamp = message.Timestamp,
-            edited_timestamp = (string?)null,
+            edited_timestamp = message.EditedTimestamp,
             type = message.Type,
             tts = false,
-            pinned = false,
+            pinned = message.IsPinned,
             mention_everyone = false,
             mentions = Array.Empty<object>(),
             mention_roles = Array.Empty<string>(),
             message_reference = message.ReplyToId == null ? null : new { message_id = message.ReplyToId, channel_id = message.Guild.ChannelId, guild_id = message.Guild.Id },
             attachments = message.AttachmentUrl == null ? [] : new[]
         {
-            new { id = "100000000000070050", filename = "photo.png", size = 1, url = message.AttachmentUrl, proxy_url = message.AttachmentUrl, content_type = "image/png", width = 1, height = 1 },
+            new { id = message.AttachmentId, filename = "photo.png", size = 1, url = message.AttachmentUrl, proxy_url = message.AttachmentUrl, content_type = "image/png", width = 1, height = 1 },
         },
-            embeds = Array.Empty<object>(),
+            embeds = message.PreviewDescription == null || (message.Flags & 4) != 0
+                ? []
+                : Enumerable.Range(start: 0, count: message.PreviewCount)
+                    .Select(index => new { type = "rich", title = $"Synthetic preview {index}", description = message.PreviewDescription, url = "https://example.invalid" }).ToArray(),
             components = Array.Empty<object>(),
-            flags = 0,
+            flags = message.Flags,
         })!.AsObject();
 
         DiscordMessageJson.RemoveNullProperties(payload);
+        payload["edited_timestamp"] = JsonSerializer.SerializeToNode(message.EditedTimestamp);
+        if (message.Guild.Id != "0")
+        {
+            payload["member"] = JsonSerializer.SerializeToNode(new
+            {
+                roles = Array.Empty<string>(),
+                joined_at = "2026-01-01T00:00:00Z",
+                nick = (string?)null,
+                avatar = (string?)null,
+                banner = (string?)null,
+                premium_since = (string?)null,
+                communication_disabled_until = (string?)null,
+                pending = false,
+                mute = false,
+                deaf = false,
+                flags = 0,
+            });
+        }
 
         return payload;
     }

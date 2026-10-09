@@ -10,7 +10,7 @@ public sealed record ScenarioGuild(string Id, string ChannelId, ScenarioUser Own
     public IReadOnlyDictionary<string, string> Channels { get; init; } = new Dictionary<string, string>();
 }
 
-public sealed record ScenarioChannel(string Name, bool EveryoneCanSend = true, bool BotCanSend = true);
+public sealed record ScenarioChannel(string Name, bool EveryoneCanSend = true, bool BotCanSend = true, int Type = 0);
 
 public sealed partial class ScenarioData(ScenarioDatabase database, NotifierDiscordApi api, Func<string, object, Task> dispatch)
 {
@@ -99,7 +99,7 @@ public sealed partial class ScenarioData(ScenarioDatabase database, NotifierDisc
     {
         id = guild.ChannelId,
         guild_id = guild.Id,
-        type = 0,
+        type = channel.Type,
         name = channel.Name,
         position = 0,
         permission_overwrites = new[]

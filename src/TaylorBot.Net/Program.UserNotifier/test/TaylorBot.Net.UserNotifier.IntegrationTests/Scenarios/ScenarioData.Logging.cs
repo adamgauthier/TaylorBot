@@ -1,9 +1,27 @@
 ﻿using Dapper;
+using System.Text.Json.Nodes;
+using TaylorBot.Net.UserNotifier.IntegrationTests.Discord;
 
 namespace TaylorBot.Net.UserNotifier.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
+    public async Task LegacyMessageCacheAsync(ScenarioMessage message)
+    {
+        var key = $"message-content:{message.Id}";
+        var cachedJson = (string?)await database.Redis.StringGetAsync(key)
+            ?? throw new InvalidOperationException("Message has not been cached.");
+        var cached = JsonNode.Parse(cachedJson)!.AsObject();
+        cached.Remove("IsPinned");
+        cached.Remove("IsPublished");
+        cached.Remove("EmbedsSuppressed");
+        cached.Remove("HasThread");
+        cached.Remove("Attachments");
+        cached.Remove("SourceMessageDeleted");
+        cached.Remove("EmbedCount");
+        await database.Redis.StringSetAsync(key, cached.ToJsonString(), TimeSpan.FromMinutes(10));
+    }
+
     public async Task ModLogAsync(ScenarioGuild guild, string? channelId = null)
     {
         await using var connection = database.CreateConnection();

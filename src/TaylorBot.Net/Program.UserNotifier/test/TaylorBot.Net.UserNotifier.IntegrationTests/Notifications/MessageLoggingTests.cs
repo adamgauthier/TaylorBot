@@ -3,6 +3,97 @@
 public sealed class MessageLoggingTests(DataServices data)
 {
     [Theory]
+    [InlineData(0, false, "Message pinned")]
+    [InlineData(100, false, "Message pinned")]
+    [InlineData(0, true, "Message unpinned")]
+    [InlineData(100, true, "Message unpinned")]
+    public async Task PinStateChange_IdentifiesAction(int messageCacheSize, bool initiallyPinned, string expectedAction)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, user, "Unchanged content", pinned: initiallyPinned);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.SetPinnedAsync(message, pinned: !initiallyPinned, partial: messageCacheSize > 0);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        var reversed = await scenario.Discord.SetPinnedAsync(message with { IsPinned = !initiallyPinned }, pinned: initiallyPinned);
+
+        output.Messages.Single().Body!.Value.GetProperty("embeds")[0].GetProperty("footer").GetProperty("text")
+            .GetString().Should().Be($"{expectedAction} ({message.Id})");
+        reversed.Messages.Single().Body!.Value.GetProperty("embeds")[0].GetProperty("footer").GetProperty("text")
+            .GetString().Should().Be($"Message {(initiallyPinned ? "pinned" : "unpinned")} ({message.Id})");
+    }
+
+    [Theory]
+    [InlineData(0, true, 0)]
+    [InlineData(100, true, 0)]
+    [InlineData(0, false, 1)]
+    [InlineData(100, false, 1)]
+    [InlineData(0, false, 2)]
+    [InlineData(100, false, 2)]
+    public async Task EditedMessage_WithExistingState_RemainsAnEdit(int messageCacheSize, bool pinned, int flags)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, user, "Original content", pinned: pinned, flags: flags);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.EditAsync(message, "Updated content");
+
+        output.Messages.Single().Body!.Value.GetProperty("embeds")[0].GetProperty("footer").GetProperty("text")
+            .GetString().Should().Be($"Message edited ({message.Id})");
+        output.Text.Should().Contain("Original content");
+    }
+
+    [Fact]
+    public async Task LegacyCacheWithoutMessageState_DoesNotGuessPublication()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = "0" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, user, "Announcement");
+        await scenario.Given.LegacyMessageCacheAsync(message);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.PublishAsync(message);
+
+        output.Messages.Single().Body!.Value.GetProperty("embeds")[0].GetProperty("footer").GetProperty("text")
+            .GetString().Should().Be($"Message edited ({message.Id})");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(100)]
+    public async Task PublishedMessage_IdentifiesAction(int messageCacheSize)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "edited");
+        var message = await scenario.Discord.MessageAsync(guild, user, "Announcement");
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+
+        var output = await scenario.Discord.PublishAsync(message, partial: messageCacheSize > 0);
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        var edited = await scenario.Discord.EditAsync(message with { Flags = 1 }, "Updated announcement");
+
+        output.Messages.Single().Body!.Value.GetProperty("embeds")[0].GetProperty("footer").GetProperty("text")
+            .GetString().Should().Be($"Message published ({message.Id})");
+        edited.Messages.Single().Body!.Value.GetProperty("embeds")[0].GetProperty("footer").GetProperty("text")
+            .GetString().Should().Be($"Message edited ({message.Id})");
+        edited.Text.Should().Contain("Announcement");
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(100)]
     public async Task DeletedMessage_UsesAvailableCache(int messageCacheSize)

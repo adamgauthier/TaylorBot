@@ -111,6 +111,16 @@ public sealed class NotifierDiscordApi : IDiscordApi
 
 public sealed record DiscordOutput(IReadOnlyList<DiscordRequest> Requests)
 {
+    public JsonElement Embed => Messages.Single().Body!.Value.GetProperty("embeds")[0];
+    public string? Footer => Embed.GetProperty("footer").GetProperty("text").GetString();
+    public int Color => Embed.GetProperty("color").GetInt32();
+    public int EmbedTextLength => TextLength(Embed, "title") + TextLength(Embed, "description") +
+        TextLength(Embed.GetProperty("author"), "name") + TextLength(Embed.GetProperty("footer"), "text") +
+        Embed.GetProperty("fields").EnumerateArray().Sum(item => TextLength(item, "name") + TextLength(item, "value"));
+    public string Field(string name) => Embed.GetProperty("fields").EnumerateArray()
+        .Single(field => field.GetProperty("name").GetString() == name).GetProperty("value").GetString()!;
+    private static int TextLength(JsonElement element, string property) =>
+        element.TryGetProperty(property, out var value) ? value.GetString()!.Length : 0;
     public IReadOnlyList<DiscordRequest> Messages => [.. Requests.Where(request => request.Method == "POST" && request.Path.EndsWith("/messages", StringComparison.Ordinal))];
     public string Text => string.Join('\n', Messages.SelectMany(request => request.Body!.Value.TryGetProperty("embeds", out var embeds)
         ? embeds.EnumerateArray().Select(embed => embed.TryGetProperty("description", out var description) ? description.GetString() : null)

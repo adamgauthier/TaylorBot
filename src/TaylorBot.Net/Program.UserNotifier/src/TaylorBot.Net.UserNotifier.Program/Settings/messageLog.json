@@ -3,7 +3,14 @@
     "MessageReactionRemovedEmbedColorHex": "#AB960F",
     "MessageDeletedEmbedColorHex": "#E3D729",
     "MessageBulkDeletedEmbedColorHex": "#BD9D0D",
-    "MessageEditedEmbedColorHex": "#FFF0AB",
+    "MessageEditedEmbedColorHex": "#9BBFEA",
+    "MessagePinnedEmbedColorHex": "#AAC9EF",
+    "MessageUnpinnedEmbedColorHex": "#BDD2EE",
+    "MessagePublishedEmbedColorHex": "#83AEE0",
+    "MessageEmbedsSuppressedEmbedColorHex": "#96B5DC",
+    "MessageEmbedsRestoredEmbedColorHex": "#AEC8EB",
+    "MessageAttachmentsChangedEmbedColorHex": "#91BDD9",
+    "MessageThreadCreatedEmbedColorHex": "#A7B9E2",
     "UseRedisCache": true
   }
 }
