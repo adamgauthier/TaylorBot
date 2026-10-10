@@ -101,11 +101,32 @@ public class MessageLoggerService(MessageLogChannelFinder messageLogChannelFinde
 
                 var embeds = messageLogEmbedFactory.CreateMessageBulkDeleted(messages, textChannel);
 
-                foreach (var chunk in embeds.Chunk(10))
+                foreach (var chunk in BatchEmbeds(embeds))
                 {
                     await logTextChannel.Resolved.SendMessageAsync(embeds: chunk);
                 }
             }
+        }
+    }
+
+    private static IEnumerable<Embed[]> BatchEmbeds(IEnumerable<Embed> embeds)
+    {
+        List<Embed> batch = [];
+        var length = 0;
+        foreach (var embed in embeds)
+        {
+            if (batch.Count > 0 && (batch.Count == 10 || length + embed.Length > EmbedBuilder.MaxEmbedLength))
+            {
+                yield return [.. batch];
+                batch.Clear();
+                length = 0;
+            }
+            batch.Add(embed);
+            length += embed.Length;
+        }
+        if (batch.Count > 0)
+        {
+            yield return [.. batch];
         }
     }
 

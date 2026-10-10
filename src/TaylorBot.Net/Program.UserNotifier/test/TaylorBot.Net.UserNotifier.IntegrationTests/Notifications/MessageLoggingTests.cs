@@ -172,6 +172,91 @@ public sealed class MessageLoggingTests(DataServices data)
         output.Text.Should().Contain("Message 12");
     }
 
+    [Theory]
+    [InlineData(0, 2000, 2)]
+    [InlineData(100, 2000, 2)]
+    [InlineData(0, 3000, 3)]
+    [InlineData(100, 3000, 3)]
+    public async Task BulkDeletion_LongMessagesRespectCombinedEmbedBudget(int messageCacheSize, int contentLength, int expectedBatches)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var messages = await scenario.Discord.MessagesAsync(guild, user, count: 3, content: new('a', contentLength));
+        for (var index = 0; index < expectedBatches; index++)
+        {
+            scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        }
+
+        var output = await scenario.Discord.BulkDeleteAsync(guild, messages);
+
+        output.Messages.Should().HaveCount(expectedBatches);
+        output.MessageEmbedTextLengths.Should().OnlyContain(length => length <= 6000);
+        output.Messages.SelectMany(message => message.Body!.Value.GetProperty("embeds").EnumerateArray())
+            .Select(embed => embed.GetProperty("description").GetString()).Should().Equal(messages.Select(message => message.Content));
+    }
+
+    [Theory]
+    [InlineData(0, 6000, 1)]
+    [InlineData(100, 6000, 1)]
+    [InlineData(0, 6001, 2)]
+    [InlineData(100, 6001, 2)]
+    public async Task BulkDeletion_SplitsOnlyWhenCombinedBudgetIsExceeded(int messageCacheSize, int combinedLength, int expectedBatches)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = $"{messageCacheSize}" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        var samples = await scenario.Discord.MessagesAsync(guild, user, count: 2, content: "a");
+        scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        var sampleOutput = await scenario.Discord.BulkDeleteAsync(guild, samples);
+        var metadataLength = sampleOutput.MessageEmbedTextLengths.Single() - 2;
+        var first = await scenario.Discord.MessageAsync(guild, user, new('a', count: 3000));
+        var second = await scenario.Discord.MessageAsync(guild, user, new('b', combinedLength - metadataLength - first.Content.Length));
+        for (var index = 0; index < expectedBatches; index++)
+        {
+            scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        }
+
+        var output = await scenario.Discord.BulkDeleteAsync(guild, [first, second]);
+
+        output.Messages.Should().HaveCount(expectedBatches);
+        output.MessageEmbedTextLengths.Sum().Should().Be(combinedLength);
+        output.MessageEmbedTextLengths.Should().OnlyContain(length => length <= 6000);
+        output.Messages.SelectMany(message => message.Body!.Value.GetProperty("embeds").EnumerateArray())
+            .Select(embed => embed.GetProperty("description").GetString()).Should().Equal(first.Content, second.Content);
+    }
+
+    [Theory]
+    [InlineData(0, 1)]
+    [InlineData(2, 3)]
+    public async Task BulkDeletion_PreservesUncachedAndCachedMessages(int cachedCount, int expectedBatches)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["Discord:MessageCacheSize"] = "0" });
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var uncached = await scenario.Discord.MessagesAsync(guild, user, count: 98);
+        await scenario.Given.LogChannelAsync(guild, "deleted");
+        await scenario.Given.ExpireLogChannelCacheAsync(guild);
+        var cached = await scenario.Discord.MessagesAsync(guild, user, cachedCount, content: new('a', count: 3000));
+        for (var index = 0; index < expectedBatches; index++)
+        {
+            scenario.DiscordApi.ExpectMessage(guild.ChannelId);
+        }
+
+        var output = await scenario.Discord.BulkDeleteAsync(guild, [.. uncached, .. cached]);
+
+        output.Messages.Should().HaveCount(expectedBatches);
+        output.MessageEmbedTextLengths.Should().OnlyContain(length => length <= 6000);
+        output.Text.Should().ContainAll(uncached.Select(message => message.Id));
+        output.Messages.SelectMany(message => message.Body!.Value.GetProperty("embeds").EnumerateArray())
+            .Skip(3).Select(embed => embed.GetProperty("description").GetString()).Should().Equal(cached.Select(message => message.Content));
+    }
+
     [Fact]
     public async Task DisabledPlusGuild_DoesNotSendConfiguredLogs()
     {

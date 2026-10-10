@@ -41,12 +41,12 @@ public sealed class NotifierDriver(NotifierDiscordApi api, Func<string, object, 
         return message;
     }
 
-    public async Task<IReadOnlyList<ScenarioMessage>> MessagesAsync(ScenarioGuild guild, ScenarioUser user, int count)
+    public async Task<IReadOnlyList<ScenarioMessage>> MessagesAsync(ScenarioGuild guild, ScenarioUser user, int count, string? content = null)
     {
         List<ScenarioMessage> messages = [];
         for (var index = 0; index < count; index++)
         {
-            messages.Add(await MessageAsync(guild, user, $"Message {index}"));
+            messages.Add(await MessageAsync(guild, user, content ?? $"Message {index}"));
         }
 
         return messages;

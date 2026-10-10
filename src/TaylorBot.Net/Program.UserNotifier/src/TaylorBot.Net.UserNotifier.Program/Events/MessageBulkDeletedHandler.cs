@@ -11,7 +11,7 @@ public class MessageBulkDeletedHandler(TaskExceptionLogger taskExceptionLogger, 
     {
         _ = backgroundTasks.Queue(async () => await taskExceptionLogger.LogOnError(
             messageDeletedLoggerService.OnMessageBulkDeletedAsync(cachedMessages, await channel.GetOrDownloadAsync()),
-            nameof(messageDeletedLoggerService.OnMessageDeletedAsync)
+            nameof(messageDeletedLoggerService.OnMessageBulkDeletedAsync)
         ), nameof(MessageBulkDeletedHandler));
         return default;
     }
