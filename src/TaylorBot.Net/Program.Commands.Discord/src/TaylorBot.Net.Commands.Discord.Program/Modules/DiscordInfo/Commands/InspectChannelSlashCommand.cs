@@ -1,5 +1,5 @@
 ﻿using Discord;
-using Humanizer;
+using System.Text;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
@@ -58,8 +58,11 @@ public class InspectChannelSlashCommand(Lazy<ITaylorBotClient> taylorBot, Channe
 
                         case ICategoryChannel category:
                             var channels = await category.Guild.GetChannelsAsync();
-                            var children = channels.OfType<INestedChannel>().Where(c => c.CategoryId.HasValue && c.CategoryId.Value == category.Id);
-                            embed.AddField("Channels", string.Join(", ", children.Select(c => c.Name)).Truncate(75));
+                            var children = channels.OfType<INestedChannel>()
+                                .Where(c => c.CategoryId == category.Id)
+                                .Select(c => $"https://discord.com/channels/{c.GuildId}/{c.Id}")
+                                .ToList();
+                            embed.AddField("Channels", FormatChannelLinks(children));
                             break;
 
                         default:
@@ -70,5 +73,36 @@ public class InspectChannelSlashCommand(Lazy<ITaylorBotClient> taylorBot, Channe
                 return new EmbedResult(embed.Build());
             }
         ));
+    }
+
+    private static string FormatChannelLinks(IReadOnlyList<string> links)
+    {
+        if (links.Count == 0)
+        {
+            return "None";
+        }
+
+        var complete = string.Join(' ', links);
+        if (complete.Length <= EmbedFieldBuilder.MaxFieldValueLength)
+        {
+            return complete;
+        }
+
+        const string suffix = " ...";
+        StringBuilder result = new();
+        foreach (var link in links)
+        {
+            var separatorLength = result.Length > 0 ? 1 : 0;
+            if (result.Length + separatorLength + link.Length + suffix.Length > EmbedFieldBuilder.MaxFieldValueLength)
+            {
+                break;
+            }
+            if (result.Length > 0)
+            {
+                result.Append(' ');
+            }
+            result.Append(link);
+        }
+        return result.Append(suffix).ToString();
     }
 }

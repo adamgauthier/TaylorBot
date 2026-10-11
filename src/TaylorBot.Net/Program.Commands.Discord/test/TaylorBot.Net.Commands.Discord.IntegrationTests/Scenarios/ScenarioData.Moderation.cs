@@ -5,17 +5,23 @@ namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
-    public async Task<ScenarioGuild> TextChannelAsync(ScenarioGuild guild, string name)
+    public Task<ScenarioGuild> TextChannelAsync(ScenarioGuild guild, string name) => ChannelAsync(guild, name);
+
+    public async Task<ScenarioGuild> ChannelAsync(ScenarioGuild guild, string name, int type = 0, string? parentId = null, bool obfuscated = false)
     {
         var channel = guild with { ChannelId = $"{Interlocked.Increment(ref _id)}" };
         await _dispatch("CHANNEL_CREATE", new
         {
             id = channel.ChannelId,
             guild_id = guild.Id,
-            type = 0,
+            type,
             name,
             position = 0,
-            permission_overwrites = Array.Empty<object>(),
+            parent_id = parentId,
+            flags = obfuscated ? 1 << 17 : 0,
+            permission_overwrites = obfuscated
+                ? new[] { new { id = guild.Id, type = 0, allow = "0", deny = "1024" } }
+                : [],
         });
         _api.RegisterChannel(channel, name);
         return channel;
