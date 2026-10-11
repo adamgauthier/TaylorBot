@@ -7,7 +7,7 @@ using TaylorBot.Net.EntityTracker.Domain.TextChannel;
 
 namespace TaylorBot.Net.Commands.Parsers.Channels;
 
-public record ParsedChannelOrCurrent(DiscordChannel Channel);
+public record ParsedChannelOrCurrent(DiscordChannel Channel, Interaction.PartialChannel? Metadata = null);
 
 public class ChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository, InteractionMapper interactionMapper) : IOptionParser<ParsedChannelOrCurrent>
 {
@@ -20,7 +20,7 @@ public class ChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository
             {
                 await TrackTextChannelAsync(context, resolvedChannel);
 
-                return new ParsedChannelOrCurrent(interactionMapper.ToChannel(resolvedChannel));
+                return new ParsedChannelOrCurrent(interactionMapper.ToChannel(resolvedChannel), resolvedChannel);
             }
             else
             {
@@ -29,7 +29,7 @@ public class ChannelOrCurrentParser(ISpamChannelRepository spamChannelRepository
         }
         else
         {
-            return new ParsedChannelOrCurrent(context.Channel);
+            return new ParsedChannelOrCurrent(context.Channel, context.ChannelMetadata);
         }
     }
 

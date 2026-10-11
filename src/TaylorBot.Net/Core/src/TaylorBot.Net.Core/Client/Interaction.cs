@@ -1,6 +1,7 @@
 ﻿using Discord;
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TaylorBot.Net.Core.Channel;
 using TaylorBot.Net.Core.Snowflake;
 using TaylorBot.Net.Core.User;
@@ -55,7 +56,10 @@ public record Interaction(
         IReadOnlyDictionary<string, PartialChannel>? channels,
         IReadOnlyDictionary<string, Attachment>? attachments);
 
-    public record PartialChannel(string id, byte type, string? guild_id);
+    public record PartialChannel(string id, byte type, string? guild_id, string? name = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] JsonElement topic = default,
+        bool? nsfw = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] JsonElement parent_id = default);
 
     public record Attachment(string id, string filename, string url, int size, string content_type);
 }

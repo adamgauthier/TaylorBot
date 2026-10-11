@@ -7,11 +7,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $repository = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$dockerfile = Get-Content (Join-Path $PSScriptRoot "..\Program.$Application\Dockerfile") -Raw
-if ($dockerfile -notmatch '(?m)^FROM\s+(mcr\.microsoft\.com/dotnet/sdk:\S+)\s+AS\s+build\s*$') {
-    throw "Cannot find the SDK build image in the $Application Dockerfile."
-}
-$sdkImage = $Matches[1]
+$sdkVersion = (Get-Content (Join-Path $PSScriptRoot "..\global.json") -Raw | ConvertFrom-Json).sdk.version
+$sdkImage = "mcr.microsoft.com/dotnet/sdk:$sdkVersion"
 $name = "taylorbot-integration-linux-$([Guid]::NewGuid().ToString('N'))"
 $networkCreated = $false
 $runAttempted = $false

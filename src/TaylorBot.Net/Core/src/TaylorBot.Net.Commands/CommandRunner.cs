@@ -32,7 +32,8 @@ public record RunContext(
     OnGoingState OnGoing,
     CommandActivity Activity,
     bool WasAcknowledged = true,
-    PrefixCommandInfo? PrefixCommand = null
+    PrefixCommandInfo? PrefixCommand = null,
+    Interaction.PartialChannel? ChannelMetadata = null
 )
 {
     public record SlashCommandInfo(string Id, string Name);
@@ -102,7 +103,8 @@ public class RunContextFactory(
             SlashCommand: CreateSlashCommandInfo(),
             OnGoing: new(),
             activity,
-            WasAcknowledged: wasAcknowledged
+            WasAcknowledged: wasAcknowledged,
+            ChannelMetadata: interaction.Channel.Partial
         );
     }
 }

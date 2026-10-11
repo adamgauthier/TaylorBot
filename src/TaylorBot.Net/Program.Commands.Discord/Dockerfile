@@ -1,5 +1,8 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/sdk:10.0.302 AS build
+# check=skip=InvalidDefaultArgInFrom
+# The required SDK argument is supplied from global.json by build entrypoints.
+ARG DOTNET_SDK_VERSION
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_VERSION} AS build
 WORKDIR /app
 
 ARG USE_TAYLORBOT_FEED=false
@@ -14,6 +17,7 @@ COPY ./Directory.Build.props ./Directory.Build.props
 COPY ./Directory.Packages.props ./Directory.Packages.props
 COPY ./NuGet.Config ./NuGet.Config
 COPY ./.editorconfig ./.editorconfig
+COPY ./global.json ./global.json
 COPY ./Core/src/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p Core/src/${file%.*}/ && mv $file Core/src/${file%.*}/; done
 
@@ -46,7 +50,7 @@ RUN --mount=type=secret,id=FEED_ACCESS_TOKEN \
         export VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"$(cat /run/secrets/FEED_ACCESS_TOKEN)\"}]}"; \
     fi && \
     dotnet build --configuration Release -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=${USE_TAYLORBOT_FEED} ./Tests.slnx
-RUN dotnet format style ./Tests.slnx --no-restore --verify-no-changes --diagnostics IDE0001 IDE0002 IDE2002 --severity warn --verbosity quiet
+RUN dotnet format style ./Tests.slnx --no-restore --verify-no-changes --severity warn --verbosity quiet
 
 ENTRYPOINT ["dotnet", "test", "Tests.slnx", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:XPlat Code Coverage"]
 

@@ -4,7 +4,7 @@ Scenarios run the real application with PostgreSQL, Redis, and the checked-in Sq
 
 ## Running
 
-With Docker running Linux containers and the SDK specified in the [application Dockerfile](../../Dockerfile), run `dotnet test` here or `dotnet test TaylorBot.Net.UserNotifier.slnx` from the .NET root. No Discord credentials or manual database setup are needed.
+With Docker running Linux containers and the SDK pinned in [`global.json`](../../../global.json), run `dotnet test` here or `dotnet test TaylorBot.Net.UserNotifier.slnx` from the .NET root. No Discord credentials or manual database setup are needed.
 
 For local Linux execution, run `.\Testing\Test-IntegrationLinux.ps1 -Application UserNotifier` from the .NET root. The [shared runner](../../../Testing/Test-IntegrationLinux.ps1) manages isolation and cleanup.
 

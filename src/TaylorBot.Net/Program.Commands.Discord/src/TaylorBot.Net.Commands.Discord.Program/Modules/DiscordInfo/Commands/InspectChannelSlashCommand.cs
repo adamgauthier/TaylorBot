@@ -1,5 +1,7 @@
 ﻿using Discord;
+using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using TaylorBot.Net.Commands.Discord.Program.Services;
 using TaylorBot.Net.Commands.Parsers.Channels;
 using TaylorBot.Net.Commands.PostExecution;
@@ -26,40 +28,59 @@ public class InspectChannelSlashCommand(Lazy<ITaylorBotClient> taylorBot, Channe
                 var c = options.channel.Channel;
                 var createdAt = SnowflakeUtils.FromSnowflake(c.Id);
 
-                var channel = await taylorBot.Value.ResolveRequiredChannelAsync(c.Id);
+                var metadata = options.channel.Metadata;
+                var channel = metadata?.name != null
+                    ? await ((IDiscordClient)taylorBot.Value.DiscordShardedClient).GetChannelAsync(c.Id, CacheMode.CacheOnly)
+                    : await taylorBot.Value.ResolveRequiredChannelAsync(c.Id);
+                var name = metadata?.name ?? channel?.Name
+                    ?? throw new InvalidOperationException($"No name available for channel '{c.Id}'.");
+                var nsfw = metadata?.nsfw ?? (channel is ITextChannel textChannel && textChannel.IsNsfw);
+                var guild = (channel as IGuildChannel)?.Guild ?? context.Guild?.Fetched;
 
                 var embed = new EmbedBuilder()
-                    .WithAuthor(c is ITextChannel t && t.IsNsfw ? $"{channel.Name} 🔞" : channel.Name)
+                    .WithAuthor(nsfw ? $"{name} 🔞" : name)
                     .WithColor(TaylorBotColors.SuccessColor)
                     .AddField("Id", $"`{c.Id}`", inline: true)
-                    .AddField("Type", channelTypeStringMapper.MapChannelToTypeString(channel), inline: true)
+                    .AddField("Type", channelTypeStringMapper.MapChannelToTypeString(c.Type), inline: true)
                     .AddField("Created", createdAt.FormatDetailedWithRelative());
 
-                if (channel is INestedChannel nested && nested.CategoryId.HasValue)
+                var parentId = metadata != null && metadata.parent_id.ValueKind != JsonValueKind.Undefined
+                    ? metadata.parent_id.ValueKind == JsonValueKind.Null
+                        ? null
+                        : ulong.Parse(metadata.parent_id.GetString()!, CultureInfo.InvariantCulture)
+                    : (channel as INestedChannel)?.CategoryId;
+                if (parentId.HasValue)
                 {
-                    var parent = await nested.Guild.GetChannelAsync(nested.CategoryId.Value);
-                    embed.AddField("Category", $"{parent.Name} (`{parent.Id}`)", inline: true);
+                    var parent = guild != null ? await guild.GetChannelAsync(parentId.Value, CacheMode.CacheOnly) : null;
+                    const ChannelFlags obfuscated = (ChannelFlags)(1 << 17);
+                    var category = parent != null && (parent.Flags & obfuscated) == 0
+                        ? $"{parent.Name} (`{parentId.Value}`)"
+                        : $"`{parentId.Value}`";
+                    embed.AddField("Category", category, inline: true);
                 }
 
-                if (channel is IGuildChannel guildChannel)
+                if (guild != null)
                 {
-                    embed.AddField("Server", $"{guildChannel.Guild.Name} (`{guildChannel.GuildId}`)", inline: true);
-                    switch (guildChannel)
+                    embed.AddField("Server", $"{guild.Name} (`{guild.Id}`)", inline: true);
+                    switch (c.Type)
                     {
-                        case IVoiceChannel voice:
+                        case ChannelType.Voice or ChannelType.Stage when channel is IVoiceChannel voice:
                             embed
                                 .AddField("Bitrate", $"{voice.Bitrate} bps", inline: true)
                                 .AddField("User Limit", voice.UserLimit.HasValue ? $"{voice.UserLimit.Value}" : "None", inline: true);
                             break;
 
-                        case ITextChannel text:
-                            embed.AddField("Topic", string.IsNullOrEmpty(text.Topic) ? "None" : text.Topic);
+                        case ChannelType.Text or ChannelType.News or ChannelType.NewsThread or ChannelType.PublicThread or ChannelType.PrivateThread:
+                            var topic = metadata != null && metadata.topic.ValueKind != JsonValueKind.Undefined
+                                ? metadata.topic.GetString()
+                                : (channel as ITextChannel)?.Topic;
+                            embed.AddField("Topic", string.IsNullOrEmpty(topic) ? "None" : topic);
                             break;
 
-                        case ICategoryChannel category:
-                            var channels = await category.Guild.GetChannelsAsync();
+                        case ChannelType.Category:
+                            var channels = await guild.GetChannelsAsync(CacheMode.CacheOnly);
                             var children = channels.OfType<INestedChannel>()
-                                .Where(c => c.CategoryId == category.Id)
+                                .Where(child => child.CategoryId == c.Id)
                                 .Select(c => $"https://discord.com/channels/{c.GuildId}/{c.Id}")
                                 .ToList();
                             embed.AddField("Channels", FormatChannelLinks(children));

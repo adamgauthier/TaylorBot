@@ -39,6 +39,168 @@ public sealed class DiscordInfoTests(DataServices data)
     }
 
     [Fact]
+    public async Task InspectChannel_UsesResolvedMetadataInsteadOfObfuscatedCache()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var channel = await scenario.Given.ChannelAsync(guild, "___hidden___", obfuscated: true);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Visible to user", Topic: "Visible topic", IncludeTopic: true))]);
+
+        response.Embed.GetProperty("author").GetProperty("name").GetString().Should().Be("Visible to user");
+        response.Field("Topic").Should().Be("Visible topic");
+    }
+
+    [Fact]
+    public async Task InspectCurrentChannel_UsesInteractionMetadata()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var channel = await scenario.Given.ChannelAsync(guild, "___hidden___", obfuscated: true);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", channel,
+            currentChannel: new(Name: "Current visible channel", Topic: "Current topic", IncludeTopic: true));
+
+        response.Embed.GetProperty("author").GetProperty("name").GetString().Should().Be("Current visible channel");
+        response.Field("Topic").Should().Be("Current topic");
+    }
+
+    [Theory]
+    [InlineData(false, null, "Cached topic")]
+    [InlineData(true, null, "None")]
+    [InlineData(true, "", "None")]
+    [InlineData(true, "Updated topic", "Updated topic")]
+    public async Task InspectChannel_UsesPresentTopicWithoutResurrectingClearedValues(bool includeTopic, string? topic, string expected)
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var channel = await scenario.Given.ChannelAsync(guild, "Cached channel", topic: "Cached topic");
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Topic: topic, IncludeTopic: includeTopic))]);
+
+        response.Embed.GetProperty("author").GetProperty("name").GetString().Should().Be("Cached channel");
+        response.Field("Topic").Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task InspectChannel_DoesNotRequireCachedSelectedChannel()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var channel = scenario.Given.UncachedChannel(guild);
+        var parent = scenario.Given.UncachedChannel(guild);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Resolved only", Topic: "Resolved topic", IncludeTopic: true,
+                ParentId: parent.ChannelId, IncludeParent: true))]);
+
+        response.Embed.GetProperty("author").GetProperty("name").GetString().Should().Be("Resolved only");
+        response.Field("Topic").Should().Be("Resolved topic");
+        response.Field("Server").Should().Contain(guild.Id);
+        response.Field("Category").Should().Contain(parent.ChannelId).And.NotContain("REST channel");
+        scenario.DiscordApi.RequestsFor("GET", $"channels/{channel.ChannelId}").Should().ContainSingle();
+        scenario.DiscordApi.RequestsFor("GET", $"channels/{parent.ChannelId}").Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task InspectChannel_UsesParentIdWithoutDisclosingHiddenCategoryName(bool obfuscatedParent)
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var parent = await scenario.Given.ChannelAsync(guild, "Parent category", type: 4, obfuscated: obfuscatedParent);
+        var channel = await scenario.Given.ChannelAsync(guild, "Child");
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Child", ParentId: parent.ChannelId, IncludeParent: true))]);
+
+        response.Field("Category").Should().Contain(parent.ChannelId);
+        response.Field("Category").Contains("Parent category", StringComparison.Ordinal).Should().Be(!obfuscatedParent);
+    }
+
+    [Fact]
+    public async Task InspectChannel_DoesNotResurrectClearedParent()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var parent = await scenario.Given.ChannelAsync(guild, "Old parent", type: 4);
+        var channel = await scenario.Given.ChannelAsync(guild, "Child", parentId: parent.ChannelId);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Child", IncludeParent: true))]);
+
+        response.Embed.GetProperty("fields").EnumerateArray().Select(field => field.GetProperty("name").GetString())
+            .Should().NotContain("Category");
+    }
+
+    [Fact]
+    public async Task InspectVoiceChannel_PreservesCachedVoiceDetails()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var channel = await scenario.Given.ChannelAsync(guild, "___hidden___", type: 2, obfuscated: true);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Voice visible to user", Type: 2))]);
+
+        response.Embed.GetProperty("author").GetProperty("name").GetString().Should().Be("Voice visible to user");
+        response.Field("Type").Should().Be("Voice");
+        response.Field("Bitrate").Should().Contain("64000");
+        response.Field("User Limit").Should().Be("7");
+    }
+
+    [Fact]
+    public async Task InspectChannel_UsesCachedParentWhenInteractionOmitsIt()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var parent = await scenario.Given.ChannelAsync(guild, "Cached parent", type: 4);
+        var channel = await scenario.Given.ChannelAsync(guild, "Child", parentId: parent.ChannelId);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Child"))]);
+
+        response.Field("Category").Should().Contain("Cached parent").And.Contain(parent.ChannelId);
+    }
+
+    [Fact]
+    public async Task InspectChannel_UsesInteractionNsfwFlagInsteadOfStaleCache()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var channel = await scenario.Given.ChannelAsync(guild, "Old name", nsfw: true);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
+            arguments: [SlashArgument.Channel("channel", channel, new(Name: "Updated channel", Nsfw: false))]);
+
+        response.Embed.GetProperty("author").GetProperty("name").GetString().Should().Be("Updated channel");
+    }
+
+    [Fact]
+    public async Task InspectDmChannel_PreservesLookupWithoutInteractionMetadata()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        scenario.DiscordApi.ExpectDmChannel(user);
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel");
+
+        response.Field("Type").Should().Be("DM");
+    }
+
+    [Fact]
     public async Task InspectRole_ShowsResolvedRoleId()
     {
         await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
@@ -72,7 +234,7 @@ public sealed class DiscordInfoTests(DataServices data)
         }
 
         var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect channel", guild,
-            arguments: [SlashArgument.Channel("channel", category)]);
+            arguments: [SlashArgument.Channel("channel", category, new(Name: "Category", Type: 4))]);
 
         var fields = response.Embed.GetProperty("fields").EnumerateArray()
             .Where(field => field.GetProperty("name").GetString()!.StartsWith("Channels", StringComparison.Ordinal)).ToList();

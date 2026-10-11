@@ -24,17 +24,34 @@ public sealed record SlashArgument(string Name, int Type, JsonNode Value, string
     public static SlashArgument User(string name, ScenarioUser user) =>
         new(name, Type: 6, JsonValue.Create(user.Id), "users", System.Text.Json.JsonSerializer.SerializeToNode(DiscordDriver.UserPayload(user)));
 
-    public static SlashArgument Channel(string name, ScenarioGuild guild) =>
-        new(name, Type: 7, JsonValue.Create(guild.ChannelId), "channels", new JsonObject
-        {
-            ["id"] = guild.ChannelId,
-            ["name"] = "general",
-            ["type"] = 0,
-            ["permissions"] = "8",
-            ["app_permissions"] = "8",
-            ["guild_id"] = guild.Id,
-        });
+    public static SlashArgument Channel(string name, ScenarioGuild guild, ChannelDetails? details = null) =>
+        new(name, Type: 7, JsonValue.Create(guild.ChannelId), "channels", (details ?? new(Name: "general")).Payload(guild));
 
     public static SlashArgument Role(string name, ScenarioRole role) =>
         new(name, Type: 8, JsonValue.Create(role.Id), "roles", role.Payload());
+}
+
+public sealed record ChannelDetails(string? Name = null, int Type = 0, string? Topic = null, bool IncludeTopic = false,
+    string? ParentId = null, bool IncludeParent = false, bool? Nsfw = null)
+{
+    public JsonObject Payload(ScenarioGuild guild)
+    {
+        JsonObject payload = new()
+        {
+            ["id"] = guild.ChannelId,
+            ["type"] = Type,
+            ["permissions"] = "8",
+            ["app_permissions"] = "8",
+            ["guild_id"] = guild.Id,
+        };
+        if (Name != null)
+            payload["name"] = Name;
+        if (IncludeTopic)
+            payload["topic"] = Topic;
+        if (IncludeParent)
+            payload["parent_id"] = ParentId;
+        if (Nsfw.HasValue)
+            payload["nsfw"] = Nsfw.Value;
+        return payload;
+    }
 }

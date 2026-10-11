@@ -2,9 +2,11 @@
 
 Tests send synthetic Discord Gateway events through the real application and inspect outgoing Discord requests. Handlers, repositories, PostgreSQL, and Redis remain real; external transports are stubbed.
 
+Keep this guide focused on conventions affecting most tests and the framework's overall architecture. Leave feature-specific details beside their tests or helpers, unless an unusual constraint warrants a prominent warning.
+
 ## Running
 
-With the SDK specified in the [application Dockerfile](../../Dockerfile) and Docker running Linux containers, run from this folder:
+With the SDK pinned in [`global.json`](../../../global.json) and Docker running Linux containers, run from this folder:
 
 ```pwsh
 dotnet test
@@ -14,7 +16,7 @@ No Discord credentials or manual database setup are needed. The suite manages is
 
 Data helpers reuse a scenario-owned PostgreSQL connection pool to avoid unnecessary TCP connection churn. The application and helper pools are disposed before dropping the scenario database.
 
-`dotnet test` runs on your current OS; CI runs it directly on a Linux agent. For a local Linux run, use the [Linux test script](../../Test-CommandsDiscordLinux.ps1), which runs the commands-discord solution using the Dockerfile's SDK image on an isolated Docker network and cleans up afterward.
+`dotnet test` runs on your current OS; CI runs it directly on a Linux agent. For a local Linux run, use the [Linux test script](../../Test-CommandsDiscordLinux.ps1), which runs the commands-discord solution using the pinned SDK image on an isolated Docker network and cleans up afterward.
 
 ## Design principles
 

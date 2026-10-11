@@ -4,16 +4,13 @@ namespace TaylorBot.Net.Commands.Discord.Program.Services;
 
 public class ChannelTypeStringMapper
 {
-    public string MapChannelToTypeString(IChannel channel)
+    public string MapChannelToTypeString(ChannelType type) => type switch
     {
-        return channel switch
-        {
-            IVoiceChannel _ => "Voice",
-            ITextChannel _ => "Text",
-            ICategoryChannel _ => "Category",
-            IDMChannel _ => "DM",
-            IForumChannel _ => "Forum",
-            _ => "Unknown",
-        };
-    }
+        ChannelType.Voice or ChannelType.Stage => "Voice",
+        ChannelType.Text or ChannelType.News or ChannelType.NewsThread or ChannelType.PublicThread or ChannelType.PrivateThread => "Text",
+        ChannelType.Category => "Category",
+        ChannelType.DM => "DM",
+        ChannelType.Forum => "Forum",
+        _ => "Unknown",
+    };
 }

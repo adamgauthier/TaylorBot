@@ -5,4 +5,6 @@ param (
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-docker build "$PSScriptRoot/.." --file "$PSScriptRoot/Dockerfile" --tag $ImageName
+$sdkVersion = (Get-Content (Join-Path $PSScriptRoot "..\global.json") -Raw | ConvertFrom-Json).sdk.version
+docker build (Join-Path $PSScriptRoot "..") --file (Join-Path $PSScriptRoot "Dockerfile") --tag $ImageName --build-arg "DOTNET_SDK_VERSION=$sdkVersion"
+if ($LASTEXITCODE -ne 0) { throw "Commands-discord image build failed (exit code $LASTEXITCODE)." }

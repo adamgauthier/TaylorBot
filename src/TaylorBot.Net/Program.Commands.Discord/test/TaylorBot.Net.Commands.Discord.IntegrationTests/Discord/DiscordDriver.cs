@@ -101,7 +101,8 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
 
     public async Task<DiscordExchange> InvokeSlashCommandAsync(
         ScenarioUser user, string command, ScenarioGuild? guild = null, ScenarioUser? selectedUser = null,
-        IReadOnlyList<SlashArgument>? arguments = null, string permissions = "8", ScenarioDm? dm = null)
+        IReadOnlyList<SlashArgument>? arguments = null, string permissions = "8", ScenarioDm? dm = null,
+        ChannelDetails? currentChannel = null)
     {
         var parts = command.Split(' ');
         var id = $"{Interlocked.Increment(ref _id)}";
@@ -136,6 +137,11 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
         }
 
         var payload = CreateInteraction(id, token, type: 2, user, guild, permissions, dm);
+        if (currentChannel != null)
+        {
+            ArgumentNullException.ThrowIfNull(guild);
+            payload["channel"] = currentChannel.Payload(guild);
+        }
         JsonObject data = new()
         {
             ["id"] = api.GetCommandId(parts[0], guild?.Id),

@@ -179,8 +179,16 @@ public sealed class DiscordApi : IDiscordApi
         }
     }
 
-    public void RegisterChannel(ScenarioGuild guild, string name = "general") =>
-        _api.Resource($"channels/{guild.ChannelId}", new { id = guild.ChannelId, guild_id = guild.Id, type = 0, name, position = 0, permission_overwrites = Array.Empty<object>() });
+    public void RegisterChannel(ScenarioGuild guild, string name = "general", int type = 0) =>
+        _api.Resource($"channels/{guild.ChannelId}", new { id = guild.ChannelId, guild_id = guild.Id, type, name, position = 0, permission_overwrites = Array.Empty<object>() });
+
+    public void ExpectDmChannel(ScenarioUser user) =>
+        ExpectRequest("GET", "channels/100000000000000004", new
+        {
+            id = "100000000000000004",
+            type = 1,
+            recipients = new[] { DiscordDriver.UserPayload(user) },
+        }, HttpStatusCode.OK);
 
     internal string GetCommandId(string name, string? guildId = null)
     {

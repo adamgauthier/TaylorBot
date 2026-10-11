@@ -45,6 +45,7 @@ dotnet_diagnostic.IDE0028.severity = warning
 # These IDE-only rules are verified by dotnet format in the test stages.
 dotnet_diagnostic.IDE0001.severity = warning
 dotnet_diagnostic.IDE0002.severity = warning
+dotnet_diagnostic.IDE0004.severity = warning
 dotnet_diagnostic.IDE2002.severity = warning
 csharp_style_allow_blank_lines_between_consecutive_braces_experimental = false:warning
 

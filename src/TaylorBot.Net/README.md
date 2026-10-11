@@ -4,7 +4,7 @@ This folder contains the commands-discord and user-notifier applications and the
 
 ## Tests
 
-Commands-discord and user-notifier have integration tests requiring Docker running Linux containers and the SDK specified in their application Dockerfiles. See the [commands-discord](./Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.IntegrationTests/README.md) and [user-notifier](./Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/README.md) guides. Shared Core/Commands unit tests remain in their `test` folders.
+Commands-discord and user-notifier have integration tests requiring Docker running Linux containers and the exact SDK pinned in [`global.json`](./global.json). See the [commands-discord](./Program.Commands.Discord/test/TaylorBot.Net.Commands.Discord.IntegrationTests/README.md) and [user-notifier](./Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/README.md) guides. Shared Core/Commands unit tests remain in their `test` folders.
 
 Use [Discord's OpenAPI specification](https://github.com/discord/discord-api-spec) to cross-check REST fixtures; follow the [developer docs](https://docs.discord.com/developers/intro) for Gateway events and when the preview specification disagrees.
 
@@ -18,6 +18,8 @@ dotnet test TaylorBot.Net.UserNotifier.slnx
 CI validates tests, formatting, and application builds. See [the shared pipeline](./build-test-publish-dotnet-docker.yml) for the current checks and configuration.
 
 ## Docker builds
+
+Use the application build scripts, which read `global.json` and supply Docker's `DOTNET_SDK_VERSION` build argument. Direct Docker builds must supply that argument too; the copied pin prevents a mismatched SDK from building. CI and the Linux test runner use the same pin.
 
 The application build scripts use public NuGet packages without credentials. CI enables the private feed with `--build-arg USE_TAYLORBOT_FEED=true` and passes its existing feed token through `--secret id=FEED_ACCESS_TOKEN,env=FEED_ACCESS_TOKEN`. Docker builds require BuildKit; credentials are mounted only for restore-capable steps, not stored in image environment variables or credential-provider caches.
 

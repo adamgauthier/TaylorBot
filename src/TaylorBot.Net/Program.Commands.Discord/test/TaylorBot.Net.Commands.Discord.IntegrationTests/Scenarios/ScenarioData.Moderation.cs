@@ -1,4 +1,4 @@
-using Dapper;
+﻿using Dapper;
 using System.Text.Json;
 
 namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Scenarios;
@@ -7,23 +7,39 @@ public sealed partial class ScenarioData
 {
     public Task<ScenarioGuild> TextChannelAsync(ScenarioGuild guild, string name) => ChannelAsync(guild, name);
 
-    public async Task<ScenarioGuild> ChannelAsync(ScenarioGuild guild, string name, int type = 0, string? parentId = null, bool obfuscated = false)
+    public ScenarioGuild UncachedChannel(ScenarioGuild guild)
     {
         var channel = guild with { ChannelId = $"{Interlocked.Increment(ref _id)}" };
-        await _dispatch("CHANNEL_CREATE", new
+        _api.RegisterChannel(channel, "REST channel");
+        return channel;
+    }
+
+    public async Task<ScenarioGuild> ChannelAsync(ScenarioGuild guild, string name, int type = 0, string? parentId = null,
+        bool obfuscated = false, string? topic = null, bool nsfw = false)
+    {
+        var channel = guild with { ChannelId = $"{Interlocked.Increment(ref _id)}" };
+        var payload = JsonSerializer.SerializeToNode(new
         {
             id = channel.ChannelId,
             guild_id = guild.Id,
             type,
             name,
+            topic,
+            nsfw,
             position = 0,
             parent_id = parentId,
             flags = obfuscated ? 1 << 17 : 0,
             permission_overwrites = obfuscated
                 ? new[] { new { id = guild.Id, type = 0, allow = "0", deny = "1024" } }
                 : [],
-        });
-        _api.RegisterChannel(channel, name);
+        })!.AsObject();
+        if (type == 2)
+        {
+            payload["bitrate"] = 64000;
+            payload["user_limit"] = 7;
+        }
+        await _dispatch("CHANNEL_CREATE", payload);
+        _api.RegisterChannel(channel, name, type);
         return channel;
     }
 
