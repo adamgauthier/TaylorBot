@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Humanizer;
 using TaylorBot.Net.Commands.Parsers.Roles;
 using TaylorBot.Net.Commands.PostExecution;
 using TaylorBot.Net.Core.Time;
@@ -43,8 +42,23 @@ public class InspectRoleSlashCommand : ISlashCommand<InspectRoleSlashCommand.Opt
                         .Where(m => m.RoleIds.Contains(role.id))
                         .ToList();
 
+                    var everyone = role.id.Id == guild.Id;
+                    var count = everyone ? members.Count : (await guild.GetRoleUserCountsAsync())[role.id];
+                    var mentions = string.Join(' ', members.Select(m => m.Mention));
+                    if (!everyone && members.Count < count)
+                    {
+                        mentions = mentions.Length == 0 ? "..." : $"{mentions} ...";
+                    }
+                    const int previewLimit = 100;
+                    if (mentions.Length > previewLimit)
+                    {
+                        const string suffix = " ...";
+                        var boundary = mentions.LastIndexOf(' ', startIndex: previewLimit - suffix.Length);
+                        mentions = $"{mentions[..boundary]}{suffix}";
+                    }
+
                     embed.AddField("Members",
-                        $"**({members.Count}+)**{(members.Count != 0 ? $" {string.Join(", ", members.Select(m => m.Nickname ?? m.Username)).Truncate(100)}" : "")}");
+                        $"**({count}{(everyone ? "+" : "")})**{(mentions.Length != 0 ? $" {mentions}" : "")}");
                 }
 
                 return new EmbedResult(embed.Build());

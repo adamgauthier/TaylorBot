@@ -6,7 +6,7 @@ public class TaylorBotOwnerPrecondition(CommandMentioner mention) : ICommandPrec
     {
         var application = await context.Client.GetApplicationInfoAsync();
 
-        if (context.User.Id == application.Owner.Id)
+        if (context.User.Id == (application.Team?.OwnerUserId ?? application.Owner.Id))
         {
             return new PreconditionPassed();
         }

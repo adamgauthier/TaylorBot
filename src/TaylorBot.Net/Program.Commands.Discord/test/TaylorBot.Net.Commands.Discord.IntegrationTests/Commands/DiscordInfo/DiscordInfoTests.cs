@@ -207,6 +207,7 @@ public sealed class DiscordInfoTests(DataServices data)
         var user = await scenario.Given.UserAsync();
         var role = scenario.Given.Role();
         var guild = await scenario.Given.GuildAsync(user, roles: [role]);
+        scenario.DiscordApi.ExpectRoleMemberCount(guild, role, count: 0);
 
         var response = await scenario.Discord.InvokeSlashCommandAsync(user, "inspect role", guild,
             arguments: [SlashArgument.Role("role", role)]);

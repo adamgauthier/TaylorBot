@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Discord;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Hosting;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Infrastructure;
@@ -119,7 +119,8 @@ public sealed class CommandSettingsTests(DataServices data)
 
     [Theory]
     [InlineData("command server-disable", "command prefix", "essential")]
-    [InlineData("command channel-disable", "owner reward", "essential")]
+    [InlineData("command channel-disable", "owner reward-user", "essential")]
+    [InlineData("command channel-disable", "owner reward-users", "essential")]
     [InlineData("command server-disable", "modmail message-mods", "Integrations")]
     [InlineData("command channel-disable", "modmail message-mods", "Integrations")]
     public async Task ProtectedCommand_CannotBeDisabled(string route, string command, string explanation)

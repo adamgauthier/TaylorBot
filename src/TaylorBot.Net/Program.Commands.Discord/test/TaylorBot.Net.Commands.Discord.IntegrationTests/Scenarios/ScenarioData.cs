@@ -59,6 +59,23 @@ public sealed partial class ScenarioData
 
     public ScenarioRole Role(string name = "Regulars") => new($"{Interlocked.Increment(ref _id)}", name);
 
+    public ScenarioUser UntrackedUser()
+    {
+        ScenarioUser user = new($"{Interlocked.Increment(ref _id)}", "Untracked recipient");
+        _api.RegisterUser(user);
+        return user;
+    }
+
+    public async Task<IReadOnlyList<ScenarioUser>> UsersAsync(int count, long taypoints = 0)
+    {
+        List<ScenarioUser> users = [];
+        for (var index = 0; index < count; index++)
+        {
+            users.Add(await UserAsync(taypoints));
+        }
+        return users;
+    }
+
     public async Task<ScenarioGuild> GuildAsync(ScenarioUser user, long cachedTaypoints = 0, IReadOnlyList<ScenarioRole>? roles = null, string? id = null)
     {
         ScenarioGuild guild = new(id ?? $"{Interlocked.Increment(ref _id)}", $"{Interlocked.Increment(ref _id)}");
@@ -110,6 +127,14 @@ public sealed partial class ScenarioData
         _api.RegisterGuild(guild, roles ?? []);
 
         return guild;
+    }
+
+    public async Task MembersAsync(ScenarioGuild guild, IReadOnlyList<ScenarioUser> users, params ScenarioRole[] roles)
+    {
+        foreach (var user in users)
+        {
+            await MemberAsync(guild, user, roles);
+        }
     }
 
     public async Task MemberAsync(ScenarioGuild guild, ScenarioUser user, params ScenarioRole[] roles)

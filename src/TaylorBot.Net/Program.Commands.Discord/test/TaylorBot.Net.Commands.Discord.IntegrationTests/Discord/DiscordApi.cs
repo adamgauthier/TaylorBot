@@ -9,6 +9,7 @@ public sealed class DiscordApi : IDiscordApi
 {
     public const string ApplicationId = DiscordApiStub.ApplicationId;
     internal const string ResponseMessageId = "100000000000000020";
+    private static readonly string[] TeamPermissions = ["*"];
 
     private readonly Dictionary<string, JsonObject> _commands = LoadCommands();
     private readonly HashSet<string> _unavailableGlobalCommands = [];
@@ -115,6 +116,35 @@ public sealed class DiscordApi : IDiscordApi
         }
     }
 
+    public void SetApplicationTeam(string ownerId, string memberId)
+    {
+        const string teamId = "100000000000000003";
+        _api.Resource("oauth2/applications/@me", new
+        {
+            id = ApplicationId,
+            name = "IntegrationBot",
+            description = "",
+            icon = (string?)null,
+            bot_public = true,
+            bot_require_code_grant = false,
+            verify_key = "synthetic",
+            owner = DiscordApiStub.User("100000000000000002", "Team placeholder", bot: true),
+            flags = 0,
+            team = new
+            {
+                id = teamId,
+                name = "Integration team",
+                icon = (string?)null,
+                owner_user_id = ownerId,
+                members = new[]
+                {
+                    new { membership_state = 2, permissions = TeamPermissions, team_id = teamId, user = DiscordApiStub.User(ownerId), role = "owner" },
+                    new { membership_state = 2, permissions = TeamPermissions, team_id = teamId, user = DiscordApiStub.User(memberId), role = "admin" },
+                },
+            },
+        });
+    }
+
     public IReadOnlyList<DiscordRequest> ModerationLogs(ScenarioGuild guild)
     {
         lock (_lock)
@@ -126,6 +156,10 @@ public sealed class DiscordApi : IDiscordApi
 
     public void ExpectRequest(string method, string path, object? response = null, HttpStatusCode status = HttpStatusCode.NoContent) =>
         _api.Expect(method, path, response, status);
+
+    public void ExpectRoleMemberCount(ScenarioGuild guild, ScenarioRole role, int count) =>
+        ExpectRequest("GET", $"guilds/{guild.Id}/roles/member-counts",
+            new Dictionary<string, int> { [role.Id] = count }, HttpStatusCode.OK);
 
     public IReadOnlyList<DiscordRequest> RequestsFor(string method, string path)
     {

@@ -30,8 +30,8 @@
       ]
     },
     {
-      "name": "reward",
-      "description": "Reward taypoints to users",
+      "name": "reward-user",
+      "description": "Reward taypoints to one user",
       "type": 1,
       "options": [
         {
@@ -41,58 +41,29 @@
           "required": true
         },
         {
-          "name": "user1",
-          "description": "A user to reward",
+          "name": "user",
+          "description": "The user to reward",
           "type": 6,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reward-users",
+      "description": "Reward taypoints to users from mentions or user IDs",
+      "type": 1,
+      "options": [
+        {
+          "name": "amount",
+          "description": "The amount of taypoints to reward to each user",
+          "type": 4,
           "required": true
         },
         {
-          "name": "user2",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user3",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user4",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user5",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user6",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user7",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user8",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
-        },
-        {
-          "name": "user9",
-          "description": "A user to reward",
-          "type": 6,
-          "required": false
+          "name": "users",
+          "description": "Space-separated user mentions or user IDs; each user is rewarded once",
+          "type": 3,
+          "required": true
         }
       ]
     },

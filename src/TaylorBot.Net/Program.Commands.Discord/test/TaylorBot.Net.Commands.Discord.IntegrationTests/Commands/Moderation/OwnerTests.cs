@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using System.Text.Json.Nodes;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Discord;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.ExternalApis;
@@ -10,7 +10,7 @@ using Xunit;
 namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Commands.Moderation;
 
 [Trait("Command", "owner ignore")]
-[Trait("Command", "owner reward")]
+[Trait("Command", "owner reward-user")]
 [Trait("Command", "owner diagnostic")]
 [Trait("Command", "owner addfeedbackusers")]
 [Trait("Command", "owner downloadavatars")]
@@ -63,20 +63,20 @@ public sealed class OwnerTests(DataServices data)
     }
 
     [Fact]
-    public async Task Reward_CreditsEachSelectedUserAndReportsBalances()
+    public async Task Reward_CreditsSelectedUserAndReportsBalance()
     {
         await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
         var owner = await scenario.Given.UserAsync(botOwner: true);
         var first = await scenario.Given.UserAsync(taypoints: 9);
-        var second = await scenario.Given.UserAsync(taypoints: 31);
 
-        var response = await scenario.Discord.InvokeSlashCommandAsync(owner, "owner reward", arguments:
-            [SlashArgument.Integer("amount", value: 13), SlashArgument.User("user1", first), SlashArgument.User("user2", second)]);
+        var response = await scenario.Discord.InvokeSlashCommandAsync(owner, "owner reward-user", arguments:
+            [SlashArgument.Integer("amount", value: 13), SlashArgument.User("user", first)]);
 
         response.ShouldBeSuccess();
-        response.Description.Should().Contain(first.Id).And.Contain(second.Id).And.Contain("22").And.Contain("44");
+        response.Description.Should().Contain(first.Id).And.Contain("22");
+        response.Description.Split('\n').Single(line => line.StartsWith($"<@{first.Id}>:", StringComparison.Ordinal))
+            .Should().Contain("9").And.Contain("22").And.Contain("taypoints");
         (await scenario.State.BalanceAsync(first)).Should().Be(22);
-        (await scenario.State.BalanceAsync(second)).Should().Be(44);
     }
 
     [Theory]
@@ -88,11 +88,26 @@ public sealed class OwnerTests(DataServices data)
         var owner = await scenario.Given.UserAsync(botOwner: true);
         var user = await scenario.Given.UserAsync(taypoints: 9);
 
-        var response = await scenario.Discord.InvokeSlashCommandAsync(owner, "owner reward",
-            arguments: [SlashArgument.Integer("amount", amount), SlashArgument.User("user1", user)]);
+        var response = await scenario.Discord.InvokeSlashCommandAsync(owner, "owner reward-user",
+            arguments: [SlashArgument.Integer("amount", amount), SlashArgument.User("user", user)]);
 
         response.ShouldBeError();
         (await scenario.State.BalanceAsync(user)).Should().Be(9);
+    }
+
+    [Fact]
+    public async Task Reward_TracksPreviouslyUnknownSelectedUser()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var owner = await scenario.Given.UserAsync(botOwner: true);
+        var recipient = scenario.Given.UntrackedUser();
+
+        var response = await scenario.Discord.InvokeSlashCommandAsync(owner, "owner reward-user",
+            arguments: [SlashArgument.Integer("amount", value: 13), SlashArgument.User("user", recipient)]);
+
+        response.ShouldBeSuccess();
+        response.Description.Should().Contain(recipient.Id).And.Contain("13");
+        (await scenario.State.BalanceAsync(recipient)).Should().Be(13);
     }
 
     [Fact]
@@ -102,8 +117,8 @@ public sealed class OwnerTests(DataServices data)
         var user = await scenario.Given.UserAsync();
         var recipient = await scenario.Given.UserAsync(taypoints: 9);
 
-        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "owner reward",
-            arguments: [SlashArgument.Integer("amount", value: 13), SlashArgument.User("user1", recipient)]);
+        var response = await scenario.Discord.InvokeSlashCommandAsync(user, "owner reward-user",
+            arguments: [SlashArgument.Integer("amount", value: 13), SlashArgument.User("user", recipient)]);
 
         response.ShouldBeError();
         response.Description.Should().Contain("owner");
