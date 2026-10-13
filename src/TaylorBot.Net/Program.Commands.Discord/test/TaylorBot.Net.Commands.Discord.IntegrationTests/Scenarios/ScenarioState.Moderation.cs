@@ -40,12 +40,22 @@ public sealed partial class ScenarioState
             "SELECT EXISTS(SELECT FROM moderation.mod_mail_blocked_users WHERE guild_id = @GuildId AND user_id = @Id);", new { GuildId = guild.Id, user.Id });
     }
 
-    public async Task<DateTimeOffset> IgnoredUntilAsync(ScenarioUser user)
+    public async Task<DateTimeOffset?> IgnoredUntilAsync(ScenarioUser user)
     {
         await using var connection = _database.CreateConnection();
-        var until = await connection.QuerySingleAsync<DateTime>("SELECT ignore_until FROM users.users WHERE user_id = @Id;", new { user.Id });
-        return new(DateTime.SpecifyKind(until, DateTimeKind.Utc));
+        var until = await connection.QuerySingleAsync<DateTime?>("SELECT ignore_until FROM users.users WHERE user_id = @Id;", new { user.Id });
+        return until.HasValue ? new(DateTime.SpecifyKind(until.Value, DateTimeKind.Utc)) : null;
     }
+
+    public async Task<DateTimeOffset> UserCreatedAtAsync(ScenarioUser user)
+    {
+        await using var connection = _database.CreateConnection();
+        var created = await connection.QuerySingleAsync<DateTime>("SELECT created_at FROM users.users WHERE user_id = @Id;", new { user.Id });
+        return new(DateTime.SpecifyKind(created, DateTimeKind.Utc));
+    }
+
+    public async Task<string?> CachedIgnoreUntilAsync(ScenarioUser user) =>
+        await _database.Redis.StringGetAsync($"ignore-until:user:{user.Id}");
 
     public async Task<JsonElement> YearbookAsync()
     {

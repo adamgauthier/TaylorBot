@@ -39,4 +39,6 @@ Add a class under `Commands/<feature>` (or `Framework` for cross-command behavio
 
 Use `configureDiscord` to arrange transport state before startup. For cache-expiry scenarios, [`ScenarioTimeProvider`](./Hosting/ScenarioTimeProvider.cs) advances application UTC time while keeping transport deadlines and timers real.
 
+Use untracked users when exercising insertion defaults; seeded users intentionally have an expired ignore timestamp. For deliberately silent prefix rejections, send with `expectResponse: false` and assert that no outgoing requests were produced. [Migration scenarios](./Infrastructure/UserIgnoreMigrationTests.cs) exercise the real Sqitch CLI against scenario-owned databases containing legacy rows.
+
 Declare each deployed route genuinely exercised with `[Trait("Command", "taypoints balance")]` on its test class or method; the coverage guard compares these declarations against global and guild command definitions. Cover meaningful success, important rejection paths, and returned component flows rather than just checking that a command responds; disabled commands and obsolete migration-only aliases are outside this scope.

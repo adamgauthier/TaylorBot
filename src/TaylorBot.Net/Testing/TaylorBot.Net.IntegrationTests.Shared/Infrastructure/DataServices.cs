@@ -92,6 +92,21 @@ public sealed class DataServices : IAsyncLifetime
             await templateAdmin.ExecuteAsync("CREATE EXTENSION pgcrypto; GRANT ALL ON SCHEMA public TO taylorbot;");
         }
 
+        await RunSqitchAsync(TemplateDatabase, ["deploy"], deadline.Token);
+
+        _redisConnection = await ConnectionMultiplexer.ConnectAsync($"{RedisHost}:{RedisPort},allowAdmin=true");
+    }
+
+    public Task RunSqitchAsync(ScenarioDatabase database, string command, params string[] arguments) =>
+        RunSqitchAsync(new NpgsqlConnectionStringBuilder(database.ConnectionString).Database
+            ?? throw new ArgumentException("Scenario connection must specify a database.", nameof(database)),
+            [command, .. arguments], TestContext.Current.CancellationToken);
+
+    private async Task RunSqitchAsync(string databaseName, string[] arguments, CancellationToken cancellationToken)
+    {
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(TimeSpan.FromMinutes(5));
+
         await using var sqitch = new ContainerBuilder(SqitchImage)
             .WithNetwork(_networkName)
             .WithResourceMapping(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "Fixtures", "Sqitch")), "/repo")
@@ -102,14 +117,12 @@ public sealed class DataServices : IAsyncLifetime
 
         await sqitch.StartAsync(deadline.Token);
         var deployment = await sqitch.ExecAsync(
-            ["sqitch", "deploy", $"db:pg://taylorbot:{_password}@{PostgresNetworkAlias}/{TemplateDatabase}"],
+            ["sqitch", .. arguments, $"db:pg://taylorbot:{_password}@{PostgresNetworkAlias}/{databaseName}"],
             deadline.Token);
         if (deployment.ExitCode != 0)
         {
-            throw new InvalidOperationException($"Sqitch deployment failed:\n{deployment.Stdout}\n{deployment.Stderr}");
+            throw new InvalidOperationException($"Sqitch {arguments[0]} failed:\n{deployment.Stdout}\n{deployment.Stderr}");
         }
-
-        _redisConnection = await ConnectionMultiplexer.ConnectAsync($"{RedisHost}:{RedisPort},allowAdmin=true");
     }
 
     public async Task<ScenarioDatabase> CreateDatabaseAsync()

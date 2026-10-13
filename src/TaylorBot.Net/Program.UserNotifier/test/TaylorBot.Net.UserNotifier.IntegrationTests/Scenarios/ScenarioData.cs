@@ -20,15 +20,20 @@ public sealed partial class ScenarioData(ScenarioDatabase database, NotifierDisc
 
     public async Task<ScenarioUser> UserAsync(string username = "Alice", long taypoints = 0)
     {
-        ScenarioUser user = new($"{Interlocked.Increment(ref _id)}", username);
+        var user = UntrackedUser(username);
 
         await using var connection = database.CreateConnection();
         await connection.ExecuteAsync(
             "INSERT INTO users.users (user_id, username, is_bot, taypoint_count) VALUES (@Id, @Username, false, @taypoints);",
             new { user.Id, user.Username, taypoints });
 
-        api.Resource($"users/{user.Id}", NotifierDiscordApi.User(user.Id, user.Username));
+        return user;
+    }
 
+    public ScenarioUser UntrackedUser(string username = "Alice")
+    {
+        ScenarioUser user = new($"{Interlocked.Increment(ref _id)}", username);
+        api.Resource($"users/{user.Id}", NotifierDiscordApi.User(user.Id, user.Username));
         return user;
     }
 

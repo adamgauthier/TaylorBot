@@ -8,11 +8,12 @@ public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMul
 {
     private static string GetKey(DiscordUser user) => $"ignore-until:user:{user.Id}";
 
-    private static async ValueTask CacheAsync(IDatabase redis, string key, DateTimeOffset ignoreUntil)
+    private static async ValueTask CacheAsync(IDatabase redis, string key, DateTimeOffset? ignoreUntil)
     {
+        // Zero caches "not ignored" while remaining readable as an expired timestamp by older clients.
         await redis.StringSetAsync(
             key,
-            ignoreUntil.ToUnixTimeMilliseconds(),
+            ignoreUntil?.ToUnixTimeMilliseconds() ?? 0,
             TimeSpan.FromHours(1)
         );
     }
@@ -30,8 +31,9 @@ public class IgnoredUserRedisCacheRepository(ConnectionMultiplexer connectionMul
             return getUserIgnoreUntilResult;
         }
 
+        var milliseconds = (long)cachedIgnoreUntil;
         return new(
-            IgnoreUntil: DateTimeOffset.FromUnixTimeMilliseconds((long)cachedIgnoreUntil),
+            IgnoreUntil: milliseconds == 0 ? null : DateTimeOffset.FromUnixTimeMilliseconds(milliseconds),
             WasAdded: false,
             WasUsernameChanged: false,
             PreviousUsername: null

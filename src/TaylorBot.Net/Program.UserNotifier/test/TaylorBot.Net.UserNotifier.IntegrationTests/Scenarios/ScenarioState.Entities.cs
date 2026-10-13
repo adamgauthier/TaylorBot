@@ -2,8 +2,17 @@
 
 namespace TaylorBot.Net.UserNotifier.IntegrationTests.Scenarios;
 
+public sealed record UserTimestamps(DateTime CreatedAt, DateTime? IgnoreUntil);
+
 public sealed partial class ScenarioState
 {
+    public async Task<UserTimestamps> UserTimestampsAsync(ScenarioUser user)
+    {
+        await using var connection = database.CreateConnection();
+        return await connection.QuerySingleAsync<UserTimestamps>(
+            "SELECT created_at AS CreatedAt, ignore_until AS IgnoreUntil FROM users.users WHERE user_id = @Id;", new { user.Id });
+    }
+
     public async Task<IReadOnlyList<string>> UsernamesAsync(ScenarioUser user)
     {
         await using var connection = database.CreateConnection();

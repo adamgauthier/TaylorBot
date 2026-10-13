@@ -22,7 +22,7 @@ public sealed class DiscordApi : IDiscordApi
     private readonly Dictionary<string, JsonObject> _interactionMetadata = [];
     private readonly Dictionary<string, int> _acknowledgements = [];
     private readonly Dictionary<DiscordRequest, JsonObject> _responseMessages = [];
-    private readonly HashSet<(string Channel, string Message)> _messages = [];
+    private readonly Dictionary<(string Channel, string Message), bool> _messages = [];
     private readonly HashSet<string> _logChannels = [];
     private readonly Dictionary<(string Method, string Path), HttpStatusCode> _roleOperations = [];
     private Func<CancellationToken, Task>? _beforeCommandLookup;
@@ -172,9 +172,14 @@ public sealed class DiscordApi : IDiscordApi
     public void RegisterUser(ScenarioUser user) =>
         _api.Resource($"users/{user.Id}", () => DiscordDriver.UserPayload(user));
 
-    public void ExpectMessage(string channel, string message)
+    public void ExpectMessage(string channel, string message, bool expectResponse = true)
     {
-        lock (_lock) { _messages.Add((channel, message)); }
+        lock (_lock) { _messages.Add((channel, message), expectResponse); }
+    }
+
+    public bool RequiresMessageResponse(string channel, string message)
+    {
+        lock (_lock) { return _messages[(channel, message)]; }
     }
 
     public void ExpectRoleChange(ScenarioGuild guild, ScenarioUser user, ScenarioRole role, bool remove = false, bool forbidden = false)
@@ -410,7 +415,7 @@ public sealed class DiscordApi : IDiscordApi
 
         var segments = path.Split('/');
         if (method == "POST" && segments is ["channels", var channel, "messages"] && body is { } messageBody &&
-            ((MessageReference(messageBody) is { } reference && _messages.Contains((channel, reference))) ||
+            ((MessageReference(messageBody) is { } reference && _messages.ContainsKey((channel, reference))) ||
             (MessageReference(messageBody) == null && _logChannels.Contains(channel))))
         {
             var message = DiscordMessageJson.CreateMessage(JsonNode.Parse(messageBody.GetRawText())!.AsObject(), ResponseMessageId, channel,

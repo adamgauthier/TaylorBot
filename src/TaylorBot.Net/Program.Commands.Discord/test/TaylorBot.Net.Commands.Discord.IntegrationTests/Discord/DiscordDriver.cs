@@ -281,10 +281,10 @@ public sealed class DiscordDriver(DiscordApi api, Func<string, object, Task> dis
         return new(api.ForInteraction(id, token), previous.Author, previous.Guild, JsonSerializer.SerializeToElement(message), dm: previous.Dm);
     }
 
-    public async Task<DiscordExchange> SendMessageAsync(ScenarioUser user, ScenarioGuild guild, string content)
+    public async Task<DiscordExchange> SendMessageAsync(ScenarioUser user, ScenarioGuild guild, string content, bool expectResponse = true)
     {
         var id = $"{Interlocked.Increment(ref _id)}";
-        api.ExpectMessage(guild.ChannelId, id);
+        api.ExpectMessage(guild.ChannelId, id, expectResponse);
         await dispatch("MESSAGE_CREATE", new
         {
             id,

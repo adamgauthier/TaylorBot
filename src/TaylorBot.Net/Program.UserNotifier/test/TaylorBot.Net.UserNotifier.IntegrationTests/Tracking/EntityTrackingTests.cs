@@ -2,6 +2,29 @@
 
 public sealed class EntityTrackingTests(DataServices data)
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task NewMember_IsNotIgnoredAndRetainsCreationTimeAfterRename(bool useRedisCache)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?> { ["EntityTracker:UseRedisCache"] = $"{useRedisCache}" });
+        var owner = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(owner);
+        var user = scenario.Given.UntrackedUser();
+        var before = DateTime.UtcNow;
+
+        await scenario.Discord.JoinAsync(guild, user);
+        var inserted = await scenario.State.UserTimestampsAsync(user);
+        await scenario.Discord.RenameUserAsync(guild, user, "Renamed");
+
+        inserted.IgnoreUntil.Should().BeNull();
+        inserted.CreatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(DateTime.UtcNow);
+        (await scenario.State.UserTimestampsAsync(user)).Should().Be(inserted);
+        (await scenario.State.MemberAsync(guild, user)).Alive.Should().BeTrue();
+        (await scenario.State.UsernamesAsync(user)).Should().Contain("Renamed");
+    }
+
     [Fact]
     public async Task GuildAndUserChanges_KeepNameHistory()
     {

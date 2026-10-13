@@ -6,7 +6,7 @@ using TaylorBot.Net.EntityTracker.Domain.User;
 
 namespace TaylorBot.Net.Commands.Preconditions;
 
-public record GetUserIgnoreUntilResult(DateTimeOffset IgnoreUntil, bool WasAdded, bool WasUsernameChanged, string? PreviousUsername) : IUserAddedResult;
+public record GetUserIgnoreUntilResult(DateTimeOffset? IgnoreUntil, bool WasAdded, bool WasUsernameChanged, string? PreviousUsername) : IUserAddedResult;
 
 public interface IIgnoredUserRepository
 {
@@ -22,11 +22,11 @@ public class UserNotIgnoredPrecondition(IIgnoredUserRepository ignoredUserReposi
 
         await usernameTrackerDomainService.AddUsernameAfterUserAddedAsync(context.User, getUserIgnoreUntilResult);
 
-        return context.CreatedAt < getUserIgnoreUntilResult.IgnoreUntil ?
+        return getUserIgnoreUntilResult.IgnoreUntil is { } until && context.CreatedAt < until ?
             new PreconditionFailed(
-                PrivateReason: $"user is ignored until {getUserIgnoreUntilResult.IgnoreUntil:o}",
+                PrivateReason: $"user is ignored until {until:o}",
                 UserReason: new(
-                    await mention.FormatAsync(context, $"You can't use {mention.Command(command)} because you are ignored until {getUserIgnoreUntilResult.IgnoreUntil.Humanize(culture: TaylorBotCulture.Culture)}."),
+                    await mention.FormatAsync(context, $"You can't use {mention.Command(command)} because you are ignored until {until.Humanize(culture: TaylorBotCulture.Culture)}."),
                     HideInPrefixCommands: true
                 )
             ) :

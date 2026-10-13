@@ -169,7 +169,9 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
         if (eventName == "MESSAGE_CREATE")
         {
             var message = System.Text.Json.JsonSerializer.SerializeToElement(data);
-            if (_api.ForMessage(message.GetProperty("channel_id").GetString()!, message.GetProperty("id").GetString()!).Count == 0)
+            var channel = message.GetProperty("channel_id").GetString()!;
+            var id = message.GetProperty("id").GetString()!;
+            if (_api.RequiresMessageResponse(channel, id) && _api.ForMessage(channel, id).Count == 0)
             {
                 throw new InvalidOperationException($"Prefix command completed without a response:\n{_logs}");
             }
