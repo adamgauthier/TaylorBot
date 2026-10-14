@@ -17,6 +17,9 @@ pr:
 resources:
 - repo: self
 
+pool:
+  vmImage: 'ubuntu-26.04'
+
 variables:
   artifactName: taylorbot-sqitch
   archiveName: taylorbot-sqitch-bundle.tgz
@@ -27,8 +30,6 @@ stages:
   jobs:
   - job: build
     displayName: 'Bundle, test and archive sqitch project'
-    pool:
-      vmImage: 'ubuntu-latest'
     variables:
       sqitchSourceFolderPath: '$(Build.SourcesDirectory)/src/taylorbot-postgres/sqitch'
       sqitchBundleOutputFolderName: taylorbot-sqitch-bundle

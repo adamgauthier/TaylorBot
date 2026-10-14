@@ -18,7 +18,7 @@ resources:
 - repo: self
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-26.04'
 
 variables:
   artifactName: slash-commands
