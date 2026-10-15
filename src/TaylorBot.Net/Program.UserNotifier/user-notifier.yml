@@ -43,6 +43,6 @@ stages:
     dockerfilePath: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.UserNotifier/Dockerfile'
     dockerBuildContext: '$(Build.SourcesDirectory)/src/TaylorBot.Net'
     deployAzureContainerScript: src/TaylorBot.Net/Program.UserNotifier/Deploy-UserNotifier.ps1
-    integrationTestProject: '$(Build.SourcesDirectory)/src/TaylorBot.Net/Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/TaylorBot.Net.UserNotifier.IntegrationTests.csproj'
+    testSolution: '$(Build.SourcesDirectory)/src/TaylorBot.Net/TaylorBot.Net.UserNotifier.slnx'
     pushImage: ${{ parameters.pushImage }}
     deployAzureContainerAppEnv: ${{ parameters.deployAzureContainerAppEnv }}

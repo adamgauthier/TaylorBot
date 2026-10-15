@@ -7,8 +7,8 @@ parameters:
     default: ''
   - name: deployAzureContainerScript
     default: ''
-  - name: integrationTestProject
-    default: ''
+  - name: testSolution
+    type: string
   - name: pushImage
     default: master-only
     values:
@@ -28,7 +28,6 @@ stages:
       imageTag: '$(Build.SourceVersion)'
       imageFullTag: '$(imageRepo):$(imageTag)'
       imageFilePath: '$(Build.ArtifactStagingDirectory)/${{ parameters.componentName }}.tar'
-      testImageFullTag: '$(imageRepo)-tests:$(imageTag)'
       testResultsPath: '$(Build.ArtifactStagingDirectory)/TestResults'
     jobs:
     - job: build
@@ -41,43 +40,29 @@ stages:
           Write-Host "##vso[task.setvariable variable=dotnetSdkVersion]$sdkVersion"
         displayName: 'Read shared .NET SDK version'
 
-      - ${{ if ne(parameters.integrationTestProject, '') }}:
-        - task: UseDotNet@2
-          displayName: 'Install integration test SDK'
-          inputs:
-            packageType: sdk
-            useGlobalJson: true
-            workingDirectory: '${{ parameters.dockerBuildContext }}'
-
-        - task: NuGetAuthenticate@1
-          displayName: 'Authenticate integration test restore'
-
-        - script: >
-            dotnet test "${{ parameters.integrationTestProject }}"
-            --configuration Release
-            -p:TreatWarningsAsErrors=true
-            -p:UseTaylorBotFeed=true
-            --logger trx
-            --results-directory "$(Build.ArtifactStagingDirectory)/IntegrationTestResults"
-            --collect:"XPlat Code Coverage" &&
-            dotnet format style "${{ parameters.integrationTestProject }}"
-            --no-restore --verify-no-changes
-            --severity warn --verbosity quiet
-          displayName: 'Run integration tests and verify style on host'
+      - task: UseDotNet@2
+        displayName: 'Install test SDK'
+        inputs:
+          packageType: sdk
+          useGlobalJson: true
           workingDirectory: '${{ parameters.dockerBuildContext }}'
 
-      - task: Docker@2
-        displayName: 'Build test image'
-        inputs:
-          command: build
-          dockerfile: ${{ parameters.dockerfilePath }}
-          buildContext: ${{ parameters.dockerBuildContext }}
-          arguments: '--target test --tag $(testImageFullTag) --build-arg DOTNET_SDK_VERSION=$(dotnetSdkVersion) --build-arg USE_TAYLORBOT_FEED=true --secret id=FEED_ACCESS_TOKEN,env=FEED_ACCESS_TOKEN'
-        env:
-          FEED_ACCESS_TOKEN: $(taylorbot_feed_access_token)
+      - task: NuGetAuthenticate@1
+        displayName: 'Authenticate test restore'
 
-      - script: docker run --rm --volume $(testResultsPath):/TestResults $(testImageFullTag) --verbosity normal
-        displayName: 'Run tests'
+      - script: >
+          dotnet test "${{ parameters.testSolution }}"
+          --configuration Release
+          -p:TreatWarningsAsErrors=true
+          -p:UseTaylorBotFeed=true
+          --logger trx
+          --results-directory "$(testResultsPath)"
+          --collect:"XPlat Code Coverage" &&
+          dotnet format style "${{ parameters.testSolution }}"
+          --no-restore --verify-no-changes
+          --severity warn --verbosity quiet
+        displayName: 'Run solution tests and verify style on host'
+        workingDirectory: '${{ parameters.dockerBuildContext }}'
 
       - task: PublishTestResults@2
         displayName: 'Publish tests results'
@@ -85,14 +70,14 @@ stages:
         inputs:
           testResultsFormat: 'VSTest'
           testResultsFiles: '**/*.trx'
-          searchFolder: $(Build.ArtifactStagingDirectory)
+          searchFolder: $(testResultsPath)
           failTaskOnFailedTests: true
 
       - task: PublishCodeCoverageResults@2
         displayName: 'Publish code coverage report'
         condition: succeededOrFailed()
         inputs:
-          summaryFileLocation: '$(Build.ArtifactStagingDirectory)/**/coverage.cobertura.xml'
+          summaryFileLocation: '$(testResultsPath)/**/coverage.cobertura.xml'
           pathToSources: ${{ parameters.dockerBuildContext }}
           failIfCoverageEmpty: true
 

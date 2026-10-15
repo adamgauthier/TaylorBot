@@ -36,24 +36,6 @@ COPY ./Core/src ./Core/src
 COPY ./Program.UserNotifier/src ./Program.UserNotifier/src
 RUN dotnet build --configuration Release -p:TreatWarningsAsErrors=true --no-restore ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 
-# test stage -- exposes optional entrypoint
-# target entrypoint with: docker build --target test
-FROM build AS test
-RUN dotnet new sln --name Tests --output .
-
-COPY ./Core/test ./Core/test
-RUN dotnet sln ./Tests.slnx add ./Core/src/**/*.csproj ./Core/test/**/*.csproj ./Program.UserNotifier/src/**/*.csproj
-
-RUN --mount=type=secret,id=FEED_ACCESS_TOKEN \
-    if test "${USE_TAYLORBOT_FEED}" = "true"; then \
-        test -s /run/secrets/FEED_ACCESS_TOKEN || { echo "Private-feed builds require the FEED_ACCESS_TOKEN secret." >&2; exit 1; }; \
-        export VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://pkgs.dev.azure.com/adamgauthier/TaylorBot/_packaging/taylorbot-feed/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"$(cat /run/secrets/FEED_ACCESS_TOKEN)\"}]}"; \
-    fi && \
-    dotnet build --configuration Release -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=${USE_TAYLORBOT_FEED} ./Tests.slnx
-RUN dotnet format style ./Tests.slnx --no-restore --verify-no-changes --severity warn --verbosity quiet
-
-ENTRYPOINT ["dotnet", "test", "Tests.slnx", "--no-build", "--configuration:Release", "--logger:trx", "--results-directory:/TestResults", "--collect:XPlat Code Coverage"]
-
 FROM build AS publish
 RUN dotnet publish --configuration Release --no-build --output out ./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/TaylorBot.Net.UserNotifier.Program.csproj
 

@@ -15,7 +15,7 @@ dotnet test TaylorBot.Net.Commands.Discord.slnx
 dotnet test TaylorBot.Net.UserNotifier.slnx
 ```
 
-CI validates tests, formatting, and application builds. See [the shared pipeline](./build-test-publish-dotnet-docker.yml) for the current checks and configuration.
+CI validates tests, formatting, coverage, and production images. See [the shared pipeline](./build-test-publish-dotnet-docker.yml) for configuration.
 
 ## Docker builds
 
