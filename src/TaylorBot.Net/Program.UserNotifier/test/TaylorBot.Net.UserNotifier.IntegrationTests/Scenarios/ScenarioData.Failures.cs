@@ -5,7 +5,13 @@ namespace TaylorBot.Net.UserNotifier.IntegrationTests.Scenarios;
 
 public sealed partial class ScenarioData
 {
-    public async Task<IAsyncDisposable> RejectTrackingWritesAsync(UserNotifierJob job, ScenarioUser? onlyUser = null)
+    public async Task<IAsyncDisposable> RejectTrackingAcknowledgementsAsync()
+    {
+        await database.Redis.ExecuteAsync("ACL", "SETUSER", "default", "-del", "-unlink");
+        return new ReversibleRedisChange(database);
+    }
+
+    public async Task<IAsyncDisposable> RejectTrackingWritesAsync(UserNotifierJob job, ScenarioUser? onlyUser = null, string? onlyChannel = null)
     {
         var (table, condition) = job switch
         {
@@ -24,6 +30,14 @@ public sealed partial class ScenarioData
             }
 
             condition += $" OR user_id <> '{ulong.Parse(onlyUser.Id)}'";
+        }
+        if (onlyChannel != null)
+        {
+            if (job != UserNotifierJob.ChannelMessages)
+            {
+                throw new ArgumentException("Only channel counters can be restricted to a channel.", nameof(onlyChannel));
+            }
+            condition += $" OR channel_id <> '{ulong.Parse(onlyChannel)}'";
         }
 
         await using var connection = database.CreateConnection();
@@ -61,5 +75,11 @@ public sealed partial class ScenarioData
                 _disposed = true;
             }
         }
+    }
+
+    private sealed class ReversibleRedisChange(ScenarioDatabase database) : IAsyncDisposable
+    {
+        public async ValueTask DisposeAsync() =>
+            await database.Redis.ExecuteAsync("ACL", "SETUSER", "default", "+del", "+unlink");
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using Npgsql;
 using StackExchange.Redis;
 using System.Globalization;
 using TaylorBot.Net.Core.Infrastructure;
@@ -16,7 +15,7 @@ public class GuildUserLastSpokePostgresRepository(PostgresConnectionFactory post
     {
         var redis = connectionMultiplexer.GetDatabase();
 
-        HashEntry entry = new($"guild:{guildUser.GuildId}:channel:{guildUser.Id}", lastSpokeAt.ToString("o"));
+        HashEntry entry = new($"guild:{guildUser.GuildId}:user:{guildUser.Id}", lastSpokeAt.ToString("o"));
 
         await redis.HashSetAsync(LastSpokeUpdatesHashKey, [entry]);
     }
@@ -25,62 +24,48 @@ public class GuildUserLastSpokePostgresRepository(PostgresConnectionFactory post
     {
         var redis = connectionMultiplexer.GetDatabase();
 
-        var tempKey = $"{LastSpokeUpdatesHashKey}:{Guid.NewGuid():N}";
-        var renameSucceeded = await TryRenameKeyAsync(redis, LastSpokeUpdatesHashKey, tempKey);
-
-        if (renameSucceeded)
+        await TrackingBatchPersistence.PersistAsync(postgresConnectionFactory, redis,
+            [LastSpokeUpdatesHashKey], (connection, transaction, hashes) =>
         {
-            var entries = await redis.HashGetAllAsync(tempKey);
-
-            try
-            {
-                await using var connection = postgresConnectionFactory.CreateConnection();
-                await connection.OpenAsync();
-                await using var transaction = await connection.BeginTransactionAsync();
-
-                foreach (var entry in entries)
+            var entries = hashes[0]
+                .Select(entry =>
                 {
                     var nameParts = entry.Name.ToString().Split(':');
-                    var guildId = nameParts[1];
-                    var userId = nameParts[3];
-                    var lastSpokeAt = DateTimeOffset.ParseExact($"{entry.Value}", "o", CultureInfo.InvariantCulture);
+                    return new
+                    {
+                        GuildId = nameParts[1],
+                        UserId = nameParts[3],
+                        LastSpokeAt = DateTimeOffset.ParseExact($"{entry.Value}", "o", CultureInfo.InvariantCulture).ToUniversalTime(),
+                    };
+                })
+                .OrderBy(entry => entry.GuildId, StringComparer.Ordinal)
+                .ThenBy(entry => entry.UserId, StringComparer.Ordinal)
+                .ToArray();
 
-                    await connection.ExecuteAsync(
-                        """
-                        UPDATE guilds.guild_members SET last_spoke_at = @LastSpokeAt
-                        WHERE guild_id = @GuildId AND user_id = @UserId;
-                        """,
-                        new
-                        {
-                            LastSpokeAt = lastSpokeAt.ToUniversalTime(),
-                            GuildId = guildId,
-                            UserId = userId,
-                        },
-                        transaction: transaction
-                    );
-                }
-                await transaction.CommitAsync();
-            }
-            catch (PostgresException failure)
-            {
-                await TrackingQueueRecovery.RestoreLastSpokeAsync(redis, failure, LastSpokeUpdatesHashKey, tempKey, entries);
-                throw;
-            }
-
-            await redis.KeyDeleteAsync(tempKey);
-        }
-    }
-
-    private static async ValueTask<bool> TryRenameKeyAsync(IDatabase redis, RedisKey key, RedisKey newKey)
-    {
-        try
-        {
-            await redis.KeyRenameAsync(key, newKey);
-            return true;
-        }
-        catch (RedisServerException e) when (e.Message == "ERR no such key")
-        {
-            return false;
-        }
+            return connection.ExecuteAsync(
+                    """
+                    WITH updates AS (
+                        SELECT guild_id, user_id, MAX(last_spoke_at) AS last_spoke_at
+                        FROM unnest(@GuildIds::text[], @UserIds::text[], @LastSpokeAt::timestamptz[])
+                            AS u(guild_id, user_id, last_spoke_at)
+                        GROUP BY guild_id, user_id
+                    ), locked AS MATERIALIZED (
+                        SELECT m.guild_id, m.user_id FROM guilds.guild_members m
+                        JOIN updates u USING (guild_id, user_id)
+                        ORDER BY m.guild_id COLLATE "C", m.user_id COLLATE "C"
+                        FOR NO KEY UPDATE OF m
+                    )
+                    UPDATE guilds.guild_members m
+                    SET last_spoke_at = GREATEST(m.last_spoke_at, u.last_spoke_at)
+                    FROM updates u JOIN locked l USING (guild_id, user_id)
+                    WHERE m.guild_id = l.guild_id AND m.user_id = l.user_id;
+                    """,
+                    new
+                    {
+                        GuildIds = entries.Select(entry => entry.GuildId).ToArray(),
+                        UserIds = entries.Select(entry => entry.UserId).ToArray(),
+                        LastSpokeAt = entries.Select(entry => entry.LastSpokeAt).ToArray(),
+                    }, transaction);
+        });
     }
 }

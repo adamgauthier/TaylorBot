@@ -16,6 +16,7 @@ public sealed class MessageTrackingTests(DataServices data)
         var guild = await scenario.Given.GuildAsync(user);
 
         var message = await scenario.Discord.MessageAsync(guild, user, content);
+        (await scenario.State.LastSpokeQueueFieldsAsync()).Should().Equal($"guild:{guild.Id}:user:{user.Id}");
         await scenario.RunJobAsync(UserNotifierJob.MemberMessages);
 
         var member = await scenario.State.MemberAsync(guild, user);
@@ -93,5 +94,40 @@ public sealed class MessageTrackingTests(DataServices data)
 
         (await scenario.State.MemberAsync(guild, user)).Messages.Should().Be(0);
         (await scenario.State.ChannelMessagesAsync(guild)).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task OlderLastSpokeUpdate_DoesNotReplacePersistedTimestamp()
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var message = await scenario.Discord.MessageAsync(guild, user, "Most recent message");
+        await scenario.RunJobAsync(UserNotifierJob.LastSpoke);
+
+        await scenario.Given.QueueOlderLastSpokeAsync(message);
+        await scenario.RunJobAsync(UserNotifierJob.LastSpoke);
+
+        (await scenario.State.MemberAsync(guild, user)).LastSpokeAt.Should()
+            .BeCloseTo(message.Timestamp.UtcDateTime, TimeSpan.FromMilliseconds(1));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task MixedLastSpokeFieldNames_PersistLatestTimestamp(bool legacyIsLatest)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+        var user = await scenario.Given.UserAsync();
+        var guild = await scenario.Given.GuildAsync(user);
+        var message = await scenario.Discord.MessageAsync(guild, user, "Latest message");
+        await scenario.Given.QueueMixedLastSpokeFieldNamesAsync(message, legacyIsLatest);
+
+        await scenario.RunJobAsync(UserNotifierJob.LastSpoke);
+
+        (await scenario.State.MemberAsync(guild, user)).LastSpokeAt.Should()
+            .BeCloseTo(message.Timestamp.UtcDateTime, TimeSpan.FromMilliseconds(1));
+        (await scenario.State.LastSpokeQueueFieldsAsync()).Should().BeEmpty();
+        (await scenario.State.LastSpokeQueueFieldsAsync(pending: true)).Should().BeEmpty();
     }
 }

@@ -18,6 +18,6 @@ Reuse the [shared support project](../../../Testing/TaylorBot.Net.IntegrationTes
 
 Exercise scheduled work through scenario clock helpers, not direct domain-job calls. Fake time does not advance PostgreSQL time or Redis expiry, so arrange database eligibility relative to database time.
 
-Use transport gates rather than sleeps or replacement SDK clients to simulate in-flight work; see the [lifecycle scenarios](./Lifecycle/ScheduledJobsTests.cs).
+Use transport gates rather than sleeps or replacement SDK clients to simulate in-flight work; see the [lifecycle](./Lifecycle/ScheduledJobsTests.cs) and [tracking recovery](./Tracking/TrackingFailureTests.cs) scenarios.
 
 Let scenario disposal own shutdown and cleanup. A shutdown timeout is a failure, not proof that work stopped; unsafe resources must not be reused. Unexpected requests, unused expectations, and application errors must fail scenarios. Declare intentional errors with narrowly matched, counted log expectations.

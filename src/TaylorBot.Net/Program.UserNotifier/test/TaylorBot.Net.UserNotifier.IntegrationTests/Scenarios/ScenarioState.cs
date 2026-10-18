@@ -37,4 +37,8 @@ public sealed partial class ScenarioState(ScenarioDatabase database)
 
     public async Task<long> QueuedMessagesAsync(ScenarioGuild guild, ScenarioUser user) =>
         (long)(await database.Redis.HashGetAsync("member-message-count-increments", $"guild:{guild.Id}:user:{user.Id}"));
+
+    public async Task<string[]> LastSpokeQueueFieldsAsync(bool pending = false) =>
+        [.. (await database.Redis.HashGetAllAsync(pending ? "guild-user-last-spoke-updates:pending" : "guild-user-last-spoke-updates"))
+            .Select(entry => entry.Name.ToString())];
 }

@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Discord;
-using Npgsql;
 using StackExchange.Redis;
 using TaylorBot.Net.Core.Infrastructure;
 using TaylorBot.Net.MessagesTracker.Domain;
@@ -30,29 +29,10 @@ public class MessagesPostgresRepository(PostgresConnectionFactory postgresConnec
     {
         var redis = connectionMultiplexer.GetDatabase();
 
-        var messageTempKey = $"{MessageCountIncrementsHashKey}:{Guid.NewGuid():N}";
-        var wordTempKey = $"{WordCountIncrementsHashKey}:{Guid.NewGuid():N}";
-        var renamed = (bool)await redis.ScriptEvaluateAsync(
-            """
-            local messages = redis.call('EXISTS', KEYS[1])
-            local words = redis.call('EXISTS', KEYS[2])
-            if messages == 0 and words == 0 then return 0 end
-            if messages ~= words then return redis.error_reply('Message and word tracking queues are incomplete') end
-            redis.call('RENAME', KEYS[1], KEYS[3])
-            redis.call('RENAME', KEYS[2], KEYS[4])
-            return 1
-            """,
-            [MessageCountIncrementsHashKey, WordCountIncrementsHashKey, messageTempKey, wordTempKey]);
-
-        if (renamed)
+        await TrackingBatchPersistence.PersistAsync(postgresConnectionFactory, redis,
+            [MessageCountIncrementsHashKey, WordCountIncrementsHashKey], (connection, transaction, hashes) =>
         {
-            var messageEntries = await redis.HashGetAllAsync(messageTempKey);
-            var wordEntries = await redis.HashGetAllAsync(wordTempKey);
-
-            var grouped = messageEntries.GroupJoin(wordEntries,
-                messageEntry => messageEntry.Name,
-                wordEntry => wordEntry.Name,
-                (messageEntry, wordEntry) =>
+            var grouped = hashes[0].Zip(hashes[1], (messageEntry, wordEntry) =>
                 {
                     var nameParts = messageEntry.Name.ToString().Split(':');
                     return new
@@ -60,54 +40,36 @@ public class MessagesPostgresRepository(PostgresConnectionFactory postgresConnec
                         GuildId = nameParts[1],
                         UserId = nameParts[3],
                         MessageIncrement = (long)messageEntry.Value,
-                        WordIncrement = (long)wordEntry.Single().Value,
+                        WordIncrement = (long)wordEntry.Value,
                     };
                 }
-            ).ToList();
+            ).OrderBy(entry => entry.GuildId, StringComparer.Ordinal)
+                .ThenBy(entry => entry.UserId, StringComparer.Ordinal)
+                .ToArray();
 
-            try
-            {
-                await using var connection = postgresConnectionFactory.CreateConnection();
-                await connection.OpenAsync();
-                await using var postgresTransaction = await connection.BeginTransactionAsync();
-
-                foreach (var entry in grouped)
-                {
-                    await connection.ExecuteAsync(
-                        """
-                        UPDATE guilds.guild_members SET
-                            message_count = message_count + @MessageCountToAdd,
-                            word_count = word_count + @WordCountToAdd
-                        WHERE guild_id = @GuildId AND user_id = @UserId;
-                        """,
-                        new
-                        {
-                            MessageCountToAdd = entry.MessageIncrement,
-                            WordCountToAdd = entry.WordIncrement,
-                            GuildId = entry.GuildId,
-                            UserId = entry.UserId,
-                        },
-                        transaction: postgresTransaction
-                    );
-                }
-                await postgresTransaction.CommitAsync();
-            }
-            catch (PostgresException failure)
-            {
-                await TrackingQueueRecovery.RestoreCountsAsync(redis, failure,
-                    (MessageCountIncrementsHashKey, messageTempKey, messageEntries),
-                    (WordCountIncrementsHashKey, wordTempKey, wordEntries));
-                throw;
-            }
-
-            var transaction = redis.CreateTransaction();
-
-            _ = transaction.KeyDeleteAsync(messageTempKey);
-            _ = transaction.KeyDeleteAsync(wordTempKey);
-
-            var wasCommitted = await transaction.ExecuteAsync();
-            if (!wasCommitted)
-                throw new InvalidOperationException($"Transaction was not committed for deleting keys {messageTempKey},{wordTempKey}.");
-        }
+            return connection.ExecuteAsync(
+                    """
+                    WITH updates AS (
+                        SELECT * FROM unnest(@GuildIds::text[], @UserIds::text[], @Messages::bigint[], @Words::bigint[])
+                            AS u(guild_id, user_id, messages, words)
+                    ), locked AS MATERIALIZED (
+                        SELECT m.guild_id, m.user_id FROM guilds.guild_members m
+                        JOIN updates u USING (guild_id, user_id)
+                        ORDER BY m.guild_id COLLATE "C", m.user_id COLLATE "C"
+                        FOR NO KEY UPDATE OF m
+                    )
+                    UPDATE guilds.guild_members m
+                    SET message_count = m.message_count + u.messages, word_count = m.word_count + u.words
+                    FROM updates u JOIN locked l USING (guild_id, user_id)
+                    WHERE m.guild_id = l.guild_id AND m.user_id = l.user_id;
+                    """,
+                    new
+                    {
+                        GuildIds = grouped.Select(entry => entry.GuildId).ToArray(),
+                        UserIds = grouped.Select(entry => entry.UserId).ToArray(),
+                        Messages = grouped.Select(entry => entry.MessageIncrement).ToArray(),
+                        Words = grouped.Select(entry => entry.WordIncrement).ToArray(),
+                    }, transaction);
+        });
     }
 }

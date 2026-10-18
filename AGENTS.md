@@ -4,9 +4,11 @@
 
 Keep instructions, documentation, and responses concise. Put essential guidance first and link to details near the relevant code. Read linked guidance when it applies to the task rather than loading every document upfront.
 
-Keep this file a short entry point, not a duplicate of the architecture or tooling configuration. Avoid restating volatile values such as SDK versions and timeouts. Use one source line per Markdown paragraph and link directly to README files, not their containing folders.
+Keep this file a short entry point, not a duplicate of the architecture or tooling configuration. Use one source line per Markdown paragraph and link directly to README files, not their containing folders.
 
-Document the repository's steady-state usage and design, not session history, temporary workarounds, tiny specific detail or task status; link to authoritative code or configuration for details that could drift.
+## Documentation
+
+Document steady-state usage and design, not the current task or session. Keep one-off rollout or migration instructions, legacy-version comparisons, temporary workarounds, and task status out of READMEs unless explicitly requested. Keep explanations high-level; link to authoritative code or configuration instead of restating implementation details or volatile values such as SDK versions and timeouts.
 
 ## Coding
 

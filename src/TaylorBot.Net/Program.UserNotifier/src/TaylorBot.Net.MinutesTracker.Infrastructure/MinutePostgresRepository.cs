@@ -12,10 +12,17 @@ public class MinutePostgresRepository(PostgresConnectionFactory postgresConnecti
 
         await connection.ExecuteAsync(
             """
-            UPDATE guilds.guild_members
+            WITH active_members AS MATERIALIZED (
+                SELECT guild_id, user_id FROM guilds.guild_members
+                WHERE last_spoke_at IS NOT NULL
+                AND last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke
+                ORDER BY guild_id COLLATE "C", user_id COLLATE "C"
+                FOR NO KEY UPDATE
+            )
+            UPDATE guilds.guild_members m
             SET minute_count = minute_count + 1
-            WHERE last_spoke_at IS NOT NULL
-            AND last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke;
+            FROM active_members a
+            WHERE m.guild_id = a.guild_id AND m.user_id = a.user_id;
             """,
             new
             {
@@ -31,18 +38,30 @@ public class MinutePostgresRepository(PostgresConnectionFactory postgresConnecti
 
         await connection.ExecuteAsync(
             """
-            WITH active_users AS (
-                UPDATE guilds.guild_members
+            WITH active_members AS MATERIALIZED (
+                SELECT guild_id, user_id FROM guilds.guild_members
+                WHERE last_spoke_at IS NOT NULL
+                AND last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke
+                ORDER BY guild_id COLLATE "C", user_id COLLATE "C"
+                FOR NO KEY UPDATE
+            ), active_users AS (
+                UPDATE guilds.guild_members m
                 SET
                     minute_count = minute_count + 1,
                     experience = experience + 1
-                WHERE last_spoke_at IS NOT NULL
-                AND last_spoke_at > CURRENT_TIMESTAMP - @MinimumTimeSpanSinceLastSpoke
-                RETURNING user_id
+                FROM active_members a
+                WHERE m.guild_id = a.guild_id AND m.user_id = a.user_id
+                RETURNING m.user_id
+            ), locked_users AS MATERIALIZED (
+                SELECT u.user_id FROM users.users u
+                WHERE u.user_id IN (SELECT user_id FROM active_users)
+                ORDER BY u.user_id COLLATE "C"
+                FOR NO KEY UPDATE OF u
             )
-            UPDATE users.users
+            UPDATE users.users u
             SET taypoint_count = taypoint_count + 1
-            WHERE user_id IN (SELECT DISTINCT(user_id) FROM active_users);
+            FROM locked_users l
+            WHERE u.user_id = l.user_id;
             """,
             new
             {
