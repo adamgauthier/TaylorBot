@@ -18,6 +18,10 @@ Reuse the [shared support project](../../../Testing/TaylorBot.Net.IntegrationTes
 
 Exercise scheduled work through scenario clock helpers, not direct domain-job calls. Fake time does not advance PostgreSQL time or Redis expiry, so arrange database eligibility relative to database time.
 
+Gateway health scenarios enable `gatewayHealthLogs` when creating a scenario. Other scenarios retain errors but omit routine health summaries so large fake-time advances do not crowd their recent log history.
+
+Clock advances normally acknowledge real SDK heartbeats before running periodic health checks. Use `automaticHeartbeats: false` for explicit heartbeat failures and recovery, and `runUntilShutdown: true` to exercise the entry-point lifecycle and exit result without terminating the test runner. See the [watchdog scenarios](./Lifecycle/GatewayWatchdogTests.cs) for startup, partial-outage, resumption, and graceful-shutdown coverage.
+
 Use transport gates rather than sleeps or replacement SDK clients to simulate in-flight work; see the [lifecycle](./Lifecycle/ScheduledJobsTests.cs) and [tracking recovery](./Tracking/TrackingFailureTests.cs) scenarios.
 
 Let scenario disposal own shutdown and cleanup. A shutdown timeout is a failure, not proof that work stopped; unsafe resources must not be reused. Unexpected requests, unused expectations, and application errors must fail scenarios. Declare intentional errors with narrowly matched, counted log expectations.

@@ -65,10 +65,27 @@ namespace TaylorBot.Net.UserNotifier.Program;
 
 public sealed class UserNotifierProgram
 {
-    public static async Task Main()
+    public static async Task<int> Main()
     {
         using var host = CreateHostBuilder(AddApplicationConfiguration(Host.CreateDefaultBuilder())).Build();
-        await host.RunAsync();
+        return await RunAsync(host);
+    }
+
+    public static async Task<int> RunAsync(IHost host, CancellationToken cancellationToken = default)
+    {
+        var watchdog = host.Services.GetRequiredService<UserNotifierGatewayWatchdog>();
+        try
+        {
+            await host.StartAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (watchdog.ExitCode != 0 &&
+            host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.IsCancellationRequested)
+        {
+            await host.StopAsync(CancellationToken.None);
+            return watchdog.ExitCode;
+        }
+        await host.WaitForShutdownAsync(cancellationToken);
+        return watchdog.ExitCode;
     }
 
     public static IHostBuilder AddApplicationConfiguration(IHostBuilder builder) => builder
@@ -109,6 +126,8 @@ public sealed class UserNotifierProgram
                 services
                     .AddSingleton<UserNotifierJobs>()
                     .AddHostedService(provider => provider.GetRequiredService<UserNotifierJobs>())
+                    .AddSingleton<UserNotifierGatewayWatchdog>()
+                    .AddHostedService(provider => provider.GetRequiredService<UserNotifierGatewayWatchdog>())
                     .AddHostedService<TaylorBotHostedService>()
                     .AddTaylorBotApplicationServices(config)
                     .AddPostgresConnection(config, withTracing: false)

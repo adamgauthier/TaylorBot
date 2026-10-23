@@ -7,17 +7,26 @@ public sealed class InMemoryRestClient(IDiscordApi api) : IRestClient
 {
     private readonly Dictionary<string, string> _headers = [];
     private CancellationToken _cancelToken;
+    private readonly CancellationTokenSource _disposed = new();
+    private int _isDisposed;
 
     public void SetHeader(string key, string value) => _headers[key] = value;
     public void SetCancelToken(CancellationToken cancelToken) => _cancelToken = cancelToken;
-    public void Dispose() { }
+    public void Dispose()
+    {
+        if (Interlocked.Exchange(ref _isDisposed, value: 1) == 0)
+        {
+            _disposed.Cancel();
+            _disposed.Dispose();
+        }
+    }
 
     public async Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
         IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
     {
         _cancelToken.ThrowIfCancellationRequested();
         cancelToken.ThrowIfCancellationRequested();
-        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancelToken, cancelToken);
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancelToken, cancelToken, _disposed.Token);
         await api.BeforeSendAsync(method, endpoint, cancellation.Token);
         var response = api.Send(method, endpoint);
 
@@ -29,7 +38,7 @@ public sealed class InMemoryRestClient(IDiscordApi api) : IRestClient
     {
         _cancelToken.ThrowIfCancellationRequested();
         cancelToken.ThrowIfCancellationRequested();
-        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancelToken, cancelToken);
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancelToken, cancelToken, _disposed.Token);
         await api.BeforeSendAsync(method, endpoint, cancellation.Token);
         var response = api.Send(method, endpoint, json);
 

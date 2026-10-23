@@ -13,6 +13,7 @@ internal sealed class NotifierGateway(NotifierDiscordApi api)
 {
     private readonly ConcurrentBag<InMemoryWebSocket> _sockets = [];
     private readonly ReadyHandler _ready = new();
+    private TaskCompletionSource[] _identified = [];
 
     public void Configure(IServiceCollection services)
     {
@@ -21,15 +22,23 @@ internal sealed class NotifierGateway(NotifierDiscordApi api)
         {
             var configuration = provider.GetRequiredService<IConfiguration>();
             _ready.Shards = configuration.GetValue("Discord:ShardCount", defaultValue: 1);
+            _identified = [.. Enumerable.Range(0, _ready.Shards).Select(_ => new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously))];
 
             return new DiscordSocketConfig
             {
-                TotalShards = _ready.Shards,
+                TotalShards = configuration.GetValue<bool>("TestGateway:HoldShardInitialization") ? null : _ready.Shards,
                 MessageCacheSize = configuration.GetValue("Discord:MessageCacheSize", defaultValue: 0),
                 RestClientProvider = _ => new InMemoryRestClient(api),
                 WebSocketProvider = () =>
                 {
-                    InMemoryWebSocket socket = new() { MembersRequested = api.MemberChunk };
+                    InMemoryWebSocket socket = new()
+                    {
+                        MembersRequested = api.MemberChunk,
+                        HoldHeartbeatAcknowledgements = configuration.GetValue<bool>("TestGateway:HoldHeartbeatAcknowledgements"),
+                        HoldReadyForShard = configuration.GetValue<int?>("TestGateway:HoldReadyForShard"),
+                        HeartbeatIntervalMilliseconds = configuration.GetValue("TestGateway:HeartbeatIntervalMilliseconds", defaultValue: 45000),
+                        Identified = id => _identified[id].TrySetResult(),
+                    };
                     _sockets.Add(socket);
                     return socket;
                 },
@@ -38,6 +47,25 @@ internal sealed class NotifierGateway(NotifierDiscordApi api)
     }
 
     public Task WaitUntilReadyAsync(CancellationToken cancellationToken) => _ready.Completion.Task.WaitAsync(cancellationToken);
+    public Task WaitForShardReadyAsync(int shardId, CancellationToken cancellationToken) => _ready.WaitForShardAsync(shardId, cancellationToken);
+    public Task WaitUntilIdentifiedAsync(CancellationToken cancellationToken) =>
+        Task.WhenAll(_identified.Select(identified => identified.Task)).WaitAsync(cancellationToken);
+
+    public void HoldHeartbeats()
+    {
+        foreach (var socket in _sockets)
+        {
+            socket.HoldHeartbeatAcknowledgements = true;
+        }
+    }
+
+    public async Task AcknowledgeHeartbeatAsync(CancellationToken cancellationToken)
+    {
+        foreach (var socket in _sockets.Where(socket => socket.IsConnected))
+        {
+            await socket.AcknowledgeHeartbeatAsync(cancellationToken);
+        }
+    }
 
     public Task DispatchAsync(string name, object data, CancellationToken cancellationToken)
     {
@@ -64,9 +92,27 @@ internal sealed class NotifierGateway(NotifierDiscordApi api)
     {
         private readonly Lock _lock = new();
         private readonly HashSet<int> _ready = [];
+        private TaskCompletionSource _changed = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public int Shards { get; set; } = 1;
         public TaskCompletionSource Completion { get; private set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public async Task WaitForShardAsync(int shardId, CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                Task changed;
+                lock (_lock)
+                {
+                    if (_ready.Contains(shardId))
+                    {
+                        return;
+                    }
+                    changed = _changed.Task;
+                }
+                await changed.WaitAsync(cancellationToken);
+            }
+        }
 
         public void BeginRound()
         {
@@ -82,6 +128,9 @@ internal sealed class NotifierGateway(NotifierDiscordApi api)
             lock (_lock)
             {
                 _ready.Add(shardClient.ShardId);
+                var changed = _changed;
+                _changed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                changed.TrySetResult();
                 if (_ready.Count == Shards)
                 {
                     Completion.TrySetResult();

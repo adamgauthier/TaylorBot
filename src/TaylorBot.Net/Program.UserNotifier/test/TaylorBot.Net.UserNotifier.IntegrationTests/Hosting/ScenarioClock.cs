@@ -8,13 +8,61 @@ internal sealed class ScenarioClock : TimeProvider
     private readonly Lock _lock = new();
     private readonly HashSet<ObservedTimer> _timers = [];
     private TaskCompletionSource _changed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private HashSet<ObservedTimer>? _deferredPeriodic;
     private long _version;
 
     public override DateTimeOffset GetUtcNow() => _clock.GetUtcNow();
     public override long GetTimestamp() => _clock.GetTimestamp();
     public override long TimestampFrequency => _clock.TimestampFrequency;
     public override TimeZoneInfo LocalTimeZone => _clock.LocalTimeZone;
-    public void Advance(TimeSpan elapsed) => _clock.Advance(elapsed);
+
+    public async Task<bool> AdvanceAsync(TimeSpan elapsed, Func<Task> updateTransports)
+    {
+        lock (_lock)
+        {
+            if (_deferredPeriodic != null)
+            {
+                throw new InvalidOperationException("Concurrent scenario clock advances are not supported.");
+            }
+            _deferredPeriodic = [];
+        }
+        ObservedTimer[] deferred;
+        try
+        {
+            _clock.Advance(elapsed);
+            await updateTransports();
+        }
+        finally
+        {
+            lock (_lock)
+            {
+                deferred = [.. _deferredPeriodic!];
+                _deferredPeriodic = null;
+            }
+            foreach (var timer in deferred)
+            {
+                timer.Fire();
+            }
+        }
+        return deferred.Length != 0;
+    }
+
+    public async Task WaitForPeriodicTimersAsync(int count, CancellationToken cancellationToken)
+    {
+        while (true)
+        {
+            Task changed;
+            lock (_lock)
+            {
+                if (_timers.Count(timer => timer.IsPeriodic) >= count)
+                {
+                    return;
+                }
+                changed = _changed.Task;
+            }
+            await changed.WaitAsync(cancellationToken);
+        }
+    }
 
     public override ITimer CreateTimer(TimerCallback callback, object? state, TimeSpan dueTime, TimeSpan period)
     {
@@ -27,7 +75,8 @@ internal sealed class ScenarioClock : TimeProvider
     {
         lock (_lock)
         {
-            return (_version, [.. _timers.Select(timer => timer.DueAt!.Value)]);
+            // Periodic infrastructure does not drive finite work to completion.
+            return (_version, [.. _timers.Where(timer => !timer.IsPeriodic).Select(timer => timer.DueAt!.Value)]);
         }
     }
 
@@ -57,6 +106,7 @@ internal sealed class ScenarioClock : TimeProvider
         private bool _disposed;
 
         public DateTimeOffset? DueAt { get; private set; }
+        public bool IsPeriodic => _period > TimeSpan.Zero;
 
         public ObservedTimer(ScenarioClock owner, TimerCallback callback, object? state)
         {
@@ -104,8 +154,18 @@ internal sealed class ScenarioClock : TimeProvider
                 }
 
                 _owner.Changed();
+                if (IsPeriodic && _owner._deferredPeriodic != null)
+                {
+                    _owner._deferredPeriodic.Add(this);
+                    return;
+                }
             }
 
+            Fire();
+        }
+
+        public void Fire()
+        {
             _callback(_state);
         }
 

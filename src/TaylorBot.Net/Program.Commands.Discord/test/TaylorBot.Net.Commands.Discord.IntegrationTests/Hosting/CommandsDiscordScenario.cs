@@ -35,6 +35,7 @@ public sealed class CommandsDiscordScenario : IAsyncDisposable
     public ExternalApi External { get; } = new();
     public ScenarioLogs Logs => _logs;
     public int RequestedGatewayIntents => _session.RequestedIntents;
+    public IReadOnlyList<Type> HostedServiceTypes => [.. _host!.Services.GetServices<IHostedService>().Select(service => service.GetType())];
 
     private CommandsDiscordScenario(DataServices dataServices, ScenarioDatabase database, CancellationToken cancellationToken)
     {

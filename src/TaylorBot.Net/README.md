@@ -35,6 +35,10 @@ Prefer collection expressions (`[]`), then target-typed `new()`, and use `var` o
 
 ## Background work
 
+Both applications check per-shard Gateway health independently of scheduled jobs, logging initial status, health transitions, and periodic summaries with connection state, heartbeat freshness, latency, and the last observed readiness and disconnect details. Disconnected shards and stale heartbeats produce warnings; recovery returns to informational logging. These summaries do not include message payloads or prove that an individual moderation report was delivered. See the [health service](./Core/src/TaylorBot.Net.Core.Program/DiscordGatewayHealthService.cs) for cadence and warning thresholds.
+
+User-notifier's [Gateway watchdog](./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/UserNotifierGatewayWatchdog.cs) requests graceful shutdown with a non-zero process result when any required shard misses its startup deadline or remains unhealthy. Recovery resets the affected shard's failure window, including successful session resumption. The container platform is responsible for restarting the process; there is no application-level restart cap. Commands-discord reports health without this exit policy.
+
 Register finite detached work with [`BackgroundTasks.Run`](./Core/src/TaylorBot.Net.Core/Tasks/BackgroundTasks.cs) to start inline or `Queue` to use the thread pool. Shutdown drains registered work, including nested tasks; failures are logged without abandoning siblings. A shutdown deadline cancels the wait, not the work. Do not register infinite producers.
 
 User-notifier's [job coordinator](./Program.UserNotifier/src/TaylorBot.Net.UserNotifier.Program/Jobs/UserNotifierJobs.cs) owns scheduled loops separately, starting them once after Gateway readiness. Shutdown interrupts idle scheduling, waits for active cycles, then flushes queued tracking after Gateway and finite work have stopped. Cycles retain their own cadence and retry decisions; managed delays use `TimeProvider`.

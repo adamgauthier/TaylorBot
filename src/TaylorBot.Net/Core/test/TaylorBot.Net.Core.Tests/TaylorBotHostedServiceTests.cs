@@ -1,4 +1,4 @@
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,6 +72,8 @@ public sealed class TaylorBotHostedServiceTests
                 .AddSingleton(tasks)
                 .AddSingleton<DiscordSocketConfig>()
                 .AddSingleton<TaskExceptionLogger>()
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<DiscordGatewayHealthService>()
                 .AddSingleton(A.Fake<IInteractionCreatedHandler>())
                 .Configure<DiscordOptions>(options => options.StartupDelay = TimeSpan.Zero)
                 .AddHostedService<TaylorBotHostedService>())

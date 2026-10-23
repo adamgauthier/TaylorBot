@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using TaylorBot.Net.Core.Tasks;
+using TaylorBot.Net.Core.Client;
+using TaylorBot.Net.Core.Program;
 using TaylorBot.Net.IntegrationTests.Shared.ExternalApis;
 using TaylorBot.Net.IntegrationTests.Shared.Hosting;
 using TaylorBot.Net.UserNotifier.IntegrationTests.Discord;
@@ -25,6 +28,8 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     private readonly NotifierGateway _gateway;
     private IHost? _host;
     private Task? _shutdown;
+    private Task<int>? _run;
+    private bool _automaticHeartbeats;
     private bool _stopped;
     private bool _disposed;
 
@@ -38,6 +43,9 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     public PatreonFixtures Patreon { get; }
     public JobsStatus Jobs => _host!.Services.GetRequiredService<UserNotifierJobs>().GetStatus();
     public DateTimeOffset Now => _time.GetUtcNow();
+    public bool ShutdownRequested => _host!.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.IsCancellationRequested;
+    public int ExitCode => _host!.Services.GetRequiredService<UserNotifierGatewayWatchdog>().ExitCode;
+    public DiscordGatewayHealthService.Snapshot GatewayHealth => _host!.Services.GetRequiredService<DiscordGatewayHealthService>().GetSnapshot();
 
     private UserNotifierScenario(DataServices services, ScenarioDatabase database, CancellationToken cancellationToken)
     {
@@ -54,13 +62,15 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     }
 
     public static async Task<UserNotifierScenario> CreateAsync(DataServices services, CancellationToken cancellationToken,
-        UserNotifierJob? job = null, IReadOnlyDictionary<string, string?>? settings = null)
+        UserNotifierJob? job = null, IReadOnlyDictionary<string, string?>? settings = null, bool gatewayHealthLogs = false,
+        bool automaticHeartbeats = true, bool runUntilShutdown = false, bool waitForReady = true)
     {
         UserNotifierScenario scenario = new(services, await services.CreateDatabaseAsync(), cancellationToken);
 
         try
         {
-            await scenario.StartAsync(job, settings);
+            scenario._automaticHeartbeats = automaticHeartbeats;
+            await scenario.StartAsync(job, settings, gatewayHealthLogs, runUntilShutdown, waitForReady);
             return scenario;
         }
         catch (Exception startupFailure)
@@ -78,20 +88,25 @@ public sealed class UserNotifierScenario : IAsyncDisposable
         }
     }
 
-    private async Task StartAsync(UserNotifierJob? job, IReadOnlyDictionary<string, string?>? settings)
+    private async Task StartAsync(UserNotifierJob? job, IReadOnlyDictionary<string, string?>? settings, bool gatewayHealthLogs,
+        bool runUntilShutdown, bool waitForReady)
     {
         var configuration = ScenarioConfiguration.Create(_services, new NpgsqlConnectionStringBuilder(_database.ConnectionString), job);
+        configuration["TestGateway:HeartbeatIntervalMilliseconds"] = _automaticHeartbeats ? "100" : "1000";
         if (settings != null)
         {
             foreach (var setting in settings)
             {
                 configuration[setting.Key] = setting.Value;
             }
+            DiscordApi.HoldGatewayInitialization = bool.Parse(configuration.GetValueOrDefault("TestGateway:HoldShardInitialization") ?? "false");
         }
 
         _host = UserNotifierProgram.CreateHostBuilder(new HostBuilder()
             .ConfigureAppConfiguration(builder => builder.AddInMemoryCollection(configuration))
-            .ConfigureLogging(builder => builder.AddProvider(Logs).SetMinimumLevel(LogLevel.Debug)))
+            .ConfigureLogging(builder => builder.AddProvider(Logs).SetMinimumLevel(LogLevel.Debug)
+                .AddFilter<ScenarioLogs>(typeof(DiscordGatewayHealthService).FullName,
+                    gatewayHealthLogs ? LogLevel.Debug : LogLevel.Error)))
             .ConfigureServices(services =>
             {
                 services.Replace(ServiceDescriptor.Singleton<TimeProvider>(_time));
@@ -101,8 +116,45 @@ public sealed class UserNotifierScenario : IAsyncDisposable
             .Build();
 
         using var deadline = Deadline();
-        await _host.StartAsync(deadline.Token);
-        await _gateway.WaitUntilReadyAsync(deadline.Token);
+        if (runUntilShutdown)
+        {
+            TaskCompletionSource started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var registration = _host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(() => started.TrySetResult());
+            _run = UserNotifierProgram.RunAsync(_host, _cancellationToken);
+            if (DiscordApi.HoldGatewayInitialization)
+            {
+                await DiscordApi.WaitForInitializationAsync(deadline.Token);
+                await _time.WaitForPeriodicTimersAsync(count: 1, deadline.Token);
+                return;
+            }
+            await Task.WhenAny(started.Task, _run).WaitAsync(deadline.Token);
+            if (_run.IsCompleted)
+            {
+                await _run;
+                throw new InvalidOperationException("Notifier exited before startup completed.");
+            }
+        }
+        else
+        {
+            await _host.StartAsync(deadline.Token);
+        }
+        await _time.WaitForPeriodicTimersAsync(count: 2, deadline.Token);
+        if (waitForReady)
+        {
+            await _gateway.WaitUntilReadyAsync(deadline.Token);
+        }
+        else
+        {
+            await _gateway.WaitUntilIdentifiedAsync(deadline.Token);
+        }
+        if (!bool.Parse(configuration.GetValueOrDefault("TestGateway:HoldHeartbeatAcknowledgements") ?? "false"))
+        {
+            await _gateway.AcknowledgeHeartbeatAsync(deadline.Token);
+        }
+        if (!_automaticHeartbeats)
+        {
+            _gateway.HoldHeartbeats();
+        }
         await SettleAsync(deadline.Token);
     }
 
@@ -135,7 +187,7 @@ public sealed class UserNotifierScenario : IAsyncDisposable
 
             var drained = drain.IsCompleted;
             var status = jobs.GetStatus();
-            if (drained && status.Jobs.Count == Enum.GetValues<UserNotifierJob>().Length &&
+            if (drained && (status.Jobs.Count == 0 || status.Jobs.Count == Enum.GetValues<UserNotifierJob>().Length) &&
                 status.Jobs.All(job => !job.IsRunning && job.NextRunAt > _time.GetUtcNow()))
             {
                 await drain;
@@ -162,7 +214,7 @@ public sealed class UserNotifierScenario : IAsyncDisposable
 
         if (timers.DueTimes.Count > 0)
         {
-            _time.Advance(timers.DueTimes.Min() - _time.GetUtcNow());
+            await AdvanceClockAsync(timers.DueTimes.Min() - _time.GetUtcNow(), cancellationToken);
             return;
         }
 
@@ -176,9 +228,41 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     {
         var start = DiscordApi.Requests.Count;
         using var deadline = Deadline();
-        _time.Advance(elapsed);
-        await SettleAsync(deadline.Token);
+        await AdvanceClockAsync(elapsed, deadline.Token);
+        if (!_stopped && !ShutdownRequested)
+        {
+            await SettleAsync(deadline.Token);
+        }
         return new([.. DiscordApi.Requests.Skip(start)]);
+    }
+
+    private async Task AdvanceClockAsync(TimeSpan elapsed, CancellationToken cancellationToken)
+    {
+        var watchdog = _host!.Services.GetRequiredService<UserNotifierGatewayWatchdog>();
+        var version = watchdog.CheckVersion;
+        var checkedHealth = await _time.AdvanceAsync(elapsed, () => RefreshGatewayHeartbeatAsync(cancellationToken));
+        if (checkedHealth && !ShutdownRequested)
+        {
+            await watchdog.WaitForCheckAsync(version, cancellationToken);
+        }
+    }
+
+    private async Task RefreshGatewayHeartbeatAsync(CancellationToken cancellationToken)
+    {
+        if (!_automaticHeartbeats || _stopped || ShutdownRequested)
+        {
+            return;
+        }
+        var stopping = _host!.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, stopping);
+        try
+        {
+            await _gateway.AcknowledgeHeartbeatAsync(cancellation.Token);
+        }
+        catch (OperationCanceledException) when (stopping.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            // Intentional shutdown can stop the SDK heartbeat while finite work is settling.
+        }
     }
 
     public Task<DiscordOutput> RunJobAsync(UserNotifierJob job)
@@ -205,6 +289,92 @@ public sealed class UserNotifierScenario : IAsyncDisposable
         await SettleAsync(deadline.Token);
     }
 
+    public async Task WaitForShardReadyAsync(int shardId)
+    {
+        using var deadline = Deadline();
+        await _gateway.WaitForShardReadyAsync(shardId, deadline.Token);
+        await SettleAsync(deadline.Token);
+    }
+
+    public async Task StopGatewayAsync(int? shardId = null)
+    {
+        using var deadline = Deadline();
+        var client = _host!.Services.GetRequiredService<ITaylorBotClient>();
+        var remaining = client.DiscordShardedClient.Shards.Where(shard => shardId == null || shard.ShardId == shardId)
+            .Select(shard => shard.ShardId).ToHashSet();
+        Lock disconnectedLock = new();
+        TaskCompletionSource disconnected = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task OnDisconnectedAsync(Exception? exception, DiscordSocketClient shard)
+        {
+            lock (disconnectedLock)
+            {
+                remaining.Remove(shard.ShardId);
+                if (remaining.Count == 0)
+                {
+                    disconnected.TrySetResult();
+                }
+            }
+            return Task.CompletedTask;
+        }
+        client.DiscordShardedClient.ShardDisconnected += OnDisconnectedAsync;
+        try
+        {
+            await (shardId == null ? client.StopAsync().AsTask() : client.DiscordShardedClient.GetShard(shardId.Value).StopAsync()).WaitAsync(deadline.Token);
+            await disconnected.Task.WaitAsync(deadline.Token);
+        }
+        finally
+        {
+            client.DiscordShardedClient.ShardDisconnected -= OnDisconnectedAsync;
+        }
+    }
+
+    public async Task ResumeGatewayAsync(int shardId = 0)
+    {
+        using var deadline = Deadline();
+        var shard = _host!.Services.GetRequiredService<ITaylorBotClient>().DiscordShardedClient.GetShard(shardId);
+        TaskCompletionSource connected = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task OnConnectedAsync()
+        {
+            connected.TrySetResult();
+            return Task.CompletedTask;
+        }
+        shard.Connected += OnConnectedAsync;
+        try
+        {
+            await shard.StartAsync().WaitAsync(deadline.Token);
+            await connected.Task.WaitAsync(deadline.Token);
+            await AcknowledgeHeartbeatAsync();
+        }
+        finally
+        {
+            shard.Connected -= OnConnectedAsync;
+        }
+    }
+
+    public async Task<int> WaitForExitAsync()
+    {
+        var run = _run ?? throw new InvalidOperationException("Scenario is not running the application entry-point lifecycle.");
+        if (!ShutdownRequested)
+        {
+            throw new InvalidOperationException("Application shutdown has not been requested.");
+        }
+        await StopAsync();
+        return await run;
+    }
+
+    public async Task AcknowledgeHeartbeatAsync()
+    {
+        using var deadline = Deadline();
+        await _gateway.AcknowledgeHeartbeatAsync(deadline.Token);
+        await SettleAsync(deadline.Token);
+    }
+
+    public async Task WaitForLogAsync(string message, int count = 1)
+    {
+        using var deadline = Deadline();
+        await Logs.WaitForMessageAsync(message, deadline.Token, count);
+    }
+
     public async Task ReloadAsync(string key, string value)
     {
         var configuration = _host!.Services.GetRequiredService<IConfiguration>();
@@ -219,9 +389,8 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     {
         var jobs = _host!.Services.GetRequiredService<UserNotifierJobs>();
         var before = Jobs.Jobs.Single(status => status.Name == job);
-        _time.Advance(before.NextRunAt!.Value - Now);
-
         using var deadline = Deadline();
+        await AdvanceClockAsync(before.NextRunAt!.Value - Now, deadline.Token);
         while (true)
         {
             var status = jobs.GetStatus();
@@ -255,21 +424,21 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     public async Task RunUntilRequestAsync(UserNotifierJob job, ExternalApi.ResponseGate gate)
     {
         var due = Jobs.Jobs.Single(status => status.Name == job).NextRunAt!.Value;
-        _time.Advance(due - Now);
         using var deadline = Deadline();
+        await AdvanceClockAsync(due - Now, deadline.Token);
         await gate.WaitForRequestAsync(deadline.Token);
     }
 
     public async Task AdvanceWhileRequestBlockedAsync(UserNotifierJob job, TimeSpan elapsed)
     {
-        _time.Advance(elapsed);
         var jobs = _host!.Services.GetRequiredService<UserNotifierJobs>();
         using var deadline = Deadline();
+        await AdvanceClockAsync(elapsed, deadline.Token);
 
         while (true)
         {
             var status = jobs.GetStatus();
-            if (status.Jobs.Where(status => status.Name != job).All(status => !status.IsRunning && status.NextRunAt > Now))
+            if (ShutdownRequested || status.Jobs.Where(status => status.Name != job).All(status => !status.IsRunning && status.NextRunAt > Now))
             {
                 return;
             }
@@ -282,7 +451,15 @@ public sealed class UserNotifierScenario : IAsyncDisposable
     {
         if (_shutdown == null || _shutdown.IsCompleted && !_shutdown.IsCompletedSuccessfully)
         {
-            _shutdown = _host?.StopAsync(cancellationToken) ?? Task.CompletedTask;
+            if (_run != null)
+            {
+                _host!.Services.GetRequiredService<IHostApplicationLifetime>().StopApplication();
+                _shutdown = _run;
+            }
+            else
+            {
+                _shutdown = _host?.StopAsync(cancellationToken) ?? Task.CompletedTask;
+            }
         }
 
         return _shutdown;

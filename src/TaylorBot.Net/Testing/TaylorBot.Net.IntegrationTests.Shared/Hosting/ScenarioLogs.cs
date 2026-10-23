@@ -8,18 +8,43 @@ public sealed class ScenarioLogs : ILoggerProvider
     private readonly Queue<string> _messages = [];
     private readonly List<string> _errors = [];
     private readonly List<ExpectedError> _expected = [];
+    private TaskCompletionSource _changed = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public ILogger CreateLogger(string categoryName) => new Logger(this, categoryName);
     public void Dispose() { }
 
+    public async Task WaitForMessageAsync(string message, CancellationToken cancellationToken, int count = 1)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(count);
+        while (true)
+        {
+            Task changed;
+            lock (_lock)
+            {
+                if (_messages.Count(entry => entry.Contains(message, StringComparison.Ordinal)) >= count)
+                {
+                    return;
+                }
+                changed = _changed.Task;
+            }
+            await changed.WaitAsync(cancellationToken);
+        }
+    }
+
     public void ExpectError<T>(string message, int count = 1)
     {
+        ExpectError(typeof(T).FullName!, message, count);
+    }
+
+    public void ExpectError(string category, string message, int count = 1)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(category);
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(count);
 
         lock (_lock)
         {
-            _expected.Add(new(typeof(T).FullName!, message, count));
+            _expected.Add(new(category, message, count));
         }
     }
 
@@ -72,6 +97,9 @@ public sealed class ScenarioLogs : ILoggerProvider
                 {
                     owner._messages.Dequeue();
                 }
+                var changed = owner._changed;
+                owner._changed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                changed.TrySetResult();
 
                 if (logLevel >= LogLevel.Error)
                 {

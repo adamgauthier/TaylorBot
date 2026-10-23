@@ -13,8 +13,31 @@ public sealed class NotifierDiscordApi : IDiscordApi
     private readonly DiscordApiStub _api;
     private readonly Dictionary<string, object[]> _members = [];
     private long _messageId = 100000000000090000;
+    private readonly TaskCompletionSource _initializationRequested = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly TaskCompletionSource _initializationCancelled = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public IReadOnlyList<DiscordRequest> Requests => _api.Requests;
+    public bool HoldGatewayInitialization { get; set; }
+
+    public Task WaitForInitializationAsync(CancellationToken cancellationToken) => _initializationRequested.Task.WaitAsync(cancellationToken);
+    public bool GatewayInitializationCancelled => _initializationCancelled.Task.IsCompletedSuccessfully;
+
+    public async Task BeforeSendAsync(string method, string endpoint, CancellationToken cancellationToken)
+    {
+        if (HoldGatewayInitialization && method == "GET" && endpoint.EndsWith("gateway/bot", StringComparison.Ordinal))
+        {
+            _initializationRequested.TrySetResult();
+            try
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                _initializationCancelled.TrySetResult();
+                throw;
+            }
+        }
+    }
 
     public NotifierDiscordApi()
     {

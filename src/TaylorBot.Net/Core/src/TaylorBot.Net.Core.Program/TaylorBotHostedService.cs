@@ -17,6 +17,7 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
     private const GatewayIntents IntentMessageContent = (GatewayIntents)(1 << 15);
 
     private ITaylorBotClient? _client;
+    private Task? _startup;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -46,7 +47,9 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
 
         LogStartingClient(flaggedIntents, (int)flaggedIntents);
 
-        await _client.StartAsync();
+        services.GetRequiredService<DiscordGatewayHealthService>().Observe(_client.DiscordShardedClient);
+        _startup = _client.StartAsync().AsTask();
+        await _startup.WaitAsync(cancellationToken);
     }
 
     [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Starting client with intents: {Intents} ({Value})")]
@@ -56,7 +59,14 @@ public partial class TaylorBotHostedService(IServiceProvider services, ILogger<T
     {
         if (_client != null)
         {
-            await _client.StopAsync();
+            if (_startup is { IsCompleted: false })
+            {
+                await _client.DiscordShardedClient.DisposeAsync().AsTask().WaitAsync(cancellationToken);
+            }
+            else
+            {
+                await _client.StopAsync();
+            }
             await backgroundTasks.DrainAsync(cancellationToken);
             LogClientsUnloaded();
         }

@@ -1,13 +1,23 @@
-using Discord;
+﻿using Discord;
 using FluentAssertions;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Hosting;
 using TaylorBot.Net.Commands.Discord.IntegrationTests.Infrastructure;
+using TaylorBot.Net.Core.Program;
 using Xunit;
 
 namespace TaylorBot.Net.Commands.Discord.IntegrationTests.Framework;
 
 public sealed class GatewayIntentTests(DataServices data)
 {
+    [Fact]
+    public async Task Startup_RegistersHealthReportingWithoutNotifierRecovery()
+    {
+        await using var scenario = await CommandsDiscordScenario.CreateAsync(data, TestContext.Current.CancellationToken);
+
+        scenario.HostedServiceTypes.Should().Contain(typeof(DiscordGatewayHealthService));
+        scenario.HostedServiceTypes.Should().NotContain(type => type.Name == "UserNotifierGatewayWatchdog");
+    }
+
     [Fact]
     public async Task Startup_RequestsMessagesButNotReactions()
     {

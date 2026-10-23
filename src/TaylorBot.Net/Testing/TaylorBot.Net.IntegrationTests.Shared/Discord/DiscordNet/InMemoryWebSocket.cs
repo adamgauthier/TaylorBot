@@ -7,14 +7,21 @@ namespace TaylorBot.Net.IntegrationTests.Shared.Discord.DiscordNet;
 
 public sealed class InMemoryWebSocket : IWebSocketClient
 {
-    private readonly Channel<(string Payload, TaskCompletionSource? Delivered)> _inbound =
+    private Channel<(string Payload, TaskCompletionSource? Delivered)> _inbound =
         Channel.CreateUnbounded<(string, TaskCompletionSource?)>(new UnboundedChannelOptions { SingleReader = true });
     private Task? _pump;
     private CancellationToken _cancelToken;
     private readonly Dictionary<string, string> _headers = [];
+    private readonly Lock _heartbeatLock = new();
+    private TaskCompletionSource? _requestedHeartbeat;
+    private int _pendingHeartbeats;
     private int _sequence = 1;
 
     public Func<JsonElement, IReadOnlyList<object>>? MembersRequested { get; set; }
+    public bool HoldHeartbeatAcknowledgements { get; set; }
+    public int HeartbeatIntervalMilliseconds { get; init; } = 45000;
+    public int? HoldReadyForShard { get; init; }
+    public Action<int>? Identified { get; init; }
     public bool IsConnected { get; private set; }
     public int ShardId { get; private set; }
     public int? RequestedIntents { get; private set; }
@@ -41,6 +48,10 @@ public sealed class InMemoryWebSocket : IWebSocketClient
 
     public Task ConnectAsync(string host)
     {
+        if (_inbound.Reader.Completion.IsCompleted)
+        {
+            _inbound = Channel.CreateUnbounded<(string, TaskCompletionSource?)>(new UnboundedChannelOptions { SingleReader = true });
+        }
         IsConnected = true;
         _pump = Task.Run(async () =>
         {
@@ -63,7 +74,51 @@ public sealed class InMemoryWebSocket : IWebSocketClient
             }
         });
 
-        return EnqueueAsync("""{"op":10,"d":{"heartbeat_interval":45000}}""");
+        return EnqueueAsync(JsonSerializer.Serialize(new { op = 10, d = new { heartbeat_interval = HeartbeatIntervalMilliseconds } }));
+    }
+
+    public async Task AcknowledgeHeartbeatAsync(CancellationToken cancellationToken)
+    {
+        Task? heartbeat = null;
+        lock (_heartbeatLock)
+        {
+            if (_pendingHeartbeats > 0)
+            {
+                _pendingHeartbeats--;
+            }
+            else
+            {
+                _requestedHeartbeat ??= new(TaskCreationOptions.RunContinuationsAsynchronously);
+                heartbeat = _requestedHeartbeat.Task;
+            }
+        }
+        if (heartbeat != null)
+        {
+            await heartbeat.WaitAsync(cancellationToken);
+        }
+        else
+        {
+            await ReceiveAsync("""{"op":11,"d":null}""").WaitAsync(cancellationToken);
+        }
+    }
+
+    private Task HeartbeatAsync()
+    {
+        lock (_heartbeatLock)
+        {
+            if (_requestedHeartbeat != null)
+            {
+                var delivered = _requestedHeartbeat;
+                _requestedHeartbeat = null;
+                return _inbound.Writer.WriteAsync(("""{"op":11,"d":null}""", delivered)).AsTask();
+            }
+            if (HoldHeartbeatAcknowledgements)
+            {
+                _pendingHeartbeats++;
+                return Task.CompletedTask;
+            }
+        }
+        return EnqueueAsync("""{"op":11,"d":null}""");
     }
 
     private Task EnqueueAsync(string payload) => _inbound.Writer.WriteAsync((payload, null)).AsTask();
@@ -89,6 +144,12 @@ public sealed class InMemoryWebSocket : IWebSocketClient
     public async Task DisconnectAsync(int closeCode = 1000)
     {
         IsConnected = false;
+        lock (_heartbeatLock)
+        {
+            _pendingHeartbeats = 0;
+            _requestedHeartbeat?.TrySetCanceled();
+            _requestedHeartbeat = null;
+        }
         _inbound.Writer.TryComplete();
 
         if (_pump != null)
@@ -110,9 +171,10 @@ public sealed class InMemoryWebSocket : IWebSocketClient
         using var message = JsonDocument.Parse(Encoding.UTF8.GetString(data, index, count));
         return message.RootElement.GetProperty("op").GetInt32() switch
         {
-            1 => EnqueueAsync("""{"op":11,"d":null}"""),
+            1 => HeartbeatAsync(),
             2 => IdentifyAsync(message.RootElement.GetProperty("d")),
             3 => Task.CompletedTask,
+            6 => EnqueueAsync(JsonSerializer.Serialize(new { op = 0, s = Interlocked.Increment(ref _sequence), t = "RESUMED", d = new { } })),
             8 when MembersRequested != null => EnqueueMembersAsync(message.RootElement.GetProperty("d")),
             var op => throw new InvalidOperationException($"Unexpected Gateway opcode {op}."),
         };
@@ -126,8 +188,10 @@ public sealed class InMemoryWebSocket : IWebSocketClient
             ShardId = shard[0].GetInt32();
             _shardCount = shard[1].GetInt32();
         }
+        Identified?.Invoke(ShardId);
 
-        return EnqueueAsync(JsonSerializer.Serialize(new { op = 0, s = 1, t = "READY", d = ReadyPayload }));
+        return HoldReadyForShard == ShardId ? Task.CompletedTask :
+            EnqueueAsync(JsonSerializer.Serialize(new { op = 0, s = 1, t = "READY", d = ReadyPayload }));
     }
 
     private async Task EnqueueMembersAsync(JsonElement request)

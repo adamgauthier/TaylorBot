@@ -80,6 +80,8 @@ public static class ServiceCollectionExtensions
             })
             .AddTransient<TaskExceptionLogger>()
             .AddSingleton<ITaylorBotClient, TaylorBotClient>()
-            .AddTransient<Lazy<ITaylorBotClient>>(provider => new(() => provider.GetRequiredService<ITaylorBotClient>()));
+            .AddTransient<Lazy<ITaylorBotClient>>(provider => new(() => provider.GetRequiredService<ITaylorBotClient>()))
+            .AddSingleton<DiscordGatewayHealthService>()
+            .AddHostedService(provider => provider.GetRequiredService<DiscordGatewayHealthService>());
     }
 }
