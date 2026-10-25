@@ -23,7 +23,9 @@ For synthetic Gateway load, constrained-container memory measurements, and optio
 
 Use the application build scripts, which read `global.json` and supply Docker's `DOTNET_SDK_VERSION` build argument. Direct Docker builds must supply that argument too; the copied pin prevents a mismatched SDK from building. CI and the Linux test runner use the same pin.
 
-The application build scripts use public NuGet packages without credentials. CI enables the private feed with `--build-arg USE_TAYLORBOT_FEED=true` and passes its existing feed token through `--secret id=FEED_ACCESS_TOKEN,env=FEED_ACCESS_TOKEN`. Docker builds require BuildKit; credentials are mounted only for restore-capable steps, not stored in image environment variables or credential-provider caches.
+Private versions in the [central package manifest](./Directory.Packages.props) require authenticated access to the TaylorBot Azure Artifacts feed. For local .NET commands, use the Azure Artifacts credential provider and set `USE_TAYLORBOT_FEED=true`; `dotnet restore -p:UseTaylorBotFeed=true --interactive` can complete sign-in when needed. The [source mappings](./NuGet.Config) cover the complete Discord.Net package family.
+
+The application build scripts and isolated test/load runners use public sources and require publicly available package versions. For Docker builds using private packages, enable the feed with `--build-arg USE_TAYLORBOT_FEED=true` and pass its token through `--secret id=FEED_ACCESS_TOKEN,env=FEED_ACCESS_TOKEN`, as CI does. Docker builds require BuildKit; credentials are mounted only for restore-capable steps, not stored in image environment variables or credential-provider caches.
 
 ## Azure deployment
 
