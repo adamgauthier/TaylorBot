@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+# check=skip=InvalidDefaultArgInFrom
+ARG DOTNET_SDK_VERSION
+ARG RUNTIME_IMAGE
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_VERSION} AS build
+WORKDIR /repo
+COPY Directory.Build.props Directory.Packages.props NuGet.Config .editorconfig global.json ./
+COPY Core/src Core/src
+COPY Program.UserNotifier/src Program.UserNotifier/src
+COPY Testing/TaylorBot.Net.IntegrationTests.Shared Testing/TaylorBot.Net.IntegrationTests.Shared
+COPY Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadTests Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadTests
+COPY Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadController Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadController
+COPY --from=load-sqitch . load-sqitch
+RUN dotnet publish Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadController \
+    --configuration Release -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=false \
+    -p:SqitchDirectory=/repo/load-sqitch --output /controller
+RUN dotnet publish Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadTests \
+    --configuration Release -p:TreatWarningsAsErrors=true -p:UseTaylorBotFeed=false --output /worker
+
+FROM ${RUNTIME_IMAGE} AS worker
+WORKDIR /app
+COPY --from=build /worker ./
+ENTRYPOINT ["dotnet", "TaylorBot.Net.UserNotifier.LoadTests.dll"]
+
+FROM ${RUNTIME_IMAGE} AS controller
+WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:8080
+COPY --from=build /controller ./
+ENTRYPOINT ["dotnet", "TaylorBot.Net.UserNotifier.LoadController.dll"]
+
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_VERSION} AS profiler
+RUN dotnet tool install --tool-path /tools dotnet-gcdump

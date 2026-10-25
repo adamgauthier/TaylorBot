@@ -1,0 +1,13 @@
+{
+  "Guilds": 5430,
+  "ChannelsPerGuild": 20,
+  "CachedMembersPerGuild": 100,
+  "EventsPerSecond": 20,
+  "SteadySeconds": 30,
+  "BurstSeconds": 10,
+  "CooldownSeconds": 30,
+  "StartupGuildDelayMilliseconds": 0,
+  "Reconnect": false,
+  "FreshSession": false,
+  "DeadlineSeconds": 900
+}

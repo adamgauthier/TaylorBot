@@ -152,4 +152,10 @@ public sealed partial class ScenarioData(ScenarioDatabase database, NotifierDisc
             "UPDATE guilds.guild_members SET last_spoke_at = CURRENT_TIMESTAMP - @age WHERE guild_id = @GuildId AND user_id = @Id;",
             new { GuildId = guild.Id, user.Id, age = active ? TimeSpan.Zero : TimeSpan.FromDays(1) });
     }
+
+    public async Task ForgetMembersAsync(ScenarioGuild guild)
+    {
+        await using var connection = database.CreateConnection();
+        await connection.ExecuteAsync("DELETE FROM guilds.guild_members WHERE guild_id = @Id;", new { guild.Id });
+    }
 }

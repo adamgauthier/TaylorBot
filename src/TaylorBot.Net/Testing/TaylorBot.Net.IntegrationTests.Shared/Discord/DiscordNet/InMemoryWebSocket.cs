@@ -174,6 +174,7 @@ public sealed class InMemoryWebSocket : IWebSocketClient
             1 => HeartbeatAsync(),
             2 => IdentifyAsync(message.RootElement.GetProperty("d")),
             3 => Task.CompletedTask,
+            4 when message.RootElement.GetProperty("d").GetProperty("channel_id").ValueKind == JsonValueKind.Null => Task.CompletedTask,
             6 => EnqueueAsync(JsonSerializer.Serialize(new { op = 0, s = Interlocked.Increment(ref _sequence), t = "RESUMED", d = new { } })),
             8 when MembersRequested != null => EnqueueMembersAsync(message.RootElement.GetProperty("d")),
             var op => throw new InvalidOperationException($"Unexpected Gateway opcode {op}."),

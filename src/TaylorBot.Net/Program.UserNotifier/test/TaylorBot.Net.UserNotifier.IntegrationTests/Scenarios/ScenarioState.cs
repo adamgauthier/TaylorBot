@@ -6,6 +6,12 @@ public sealed record MemberCounts(int Messages, int Words, int Minutes, long Exp
 
 public sealed partial class ScenarioState(ScenarioDatabase database)
 {
+    public async Task<int> MemberCountAsync(ScenarioGuild guild)
+    {
+        await using var connection = database.CreateConnection();
+        return await connection.QuerySingleAsync<int>("SELECT COUNT(*)::int FROM guilds.guild_members WHERE guild_id = @Id;", new { guild.Id });
+    }
+
     public async Task<MemberCounts> MemberAsync(ScenarioGuild guild, ScenarioUser user)
     {
         await using var connection = database.CreateConnection();

@@ -7,6 +7,17 @@ public sealed partial class BackgroundTasks(ILogger<BackgroundTasks> logger)
     private readonly Lock _lock = new();
     private readonly Dictionary<Task, string> _pending = [];
 
+    public int PendingCount
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return _pending.Count;
+            }
+        }
+    }
+
     public Task Queue(Func<Task> action, string name) => Run(() => Task.Run(action), name);
 
     public Task Run(Func<Task> action, string name)

@@ -60,8 +60,15 @@ public partial class EntityTrackerDomainService(
     {
         LogStartingStartupSequence(shardClient.ShardId);
 
-        foreach (var guild in shardClient.Guilds.Where(g => ((IGuild)g).Available))
+        // A fresh READY replaces the Discord.Net cache while this paced sequence may still be running.
+        var guildIds = shardClient.Guilds.Select(guild => guild.Id).ToArray();
+        foreach (var guildId in guildIds)
         {
+            var guild = shardClient.GetGuild(guildId);
+            if (guild == null || !guild.IsConnected)
+            {
+                continue;
+            }
             await OnGuildJoinedAsync(guild, downloadAllUsers: false);
             await Task.Delay(optionsMonitor.CurrentValue.TimeSpanBetweenGuildProcessedInReady, timeProvider);
         }

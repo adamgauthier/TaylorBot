@@ -17,6 +17,8 @@ dotnet test TaylorBot.Net.UserNotifier.slnx
 
 CI validates tests, formatting, coverage, and production images. See [the shared pipeline](./build-test-publish-dotnet-docker.yml) for configuration.
 
+For synthetic Gateway load, constrained-container memory measurements, and optional local profiling, see the [user-notifier load-testing guide](./Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadTests/README.md).
+
 ## Docker builds
 
 Use the application build scripts, which read `global.json` and supply Docker's `DOTNET_SDK_VERSION` build argument. Direct Docker builds must supply that argument too; the copied pin prevents a mismatched SDK from building. CI and the Linux test runner use the same pin.

@@ -32,12 +32,14 @@ public sealed class BackgroundTasksTests
         TaskCompletionSource release = new(TaskCreationOptions.RunContinuationsAsynchronously);
         var work = tasks.Queue(() => release.Task, "queued");
 
+        tasks.PendingCount.Should().Be(1);
         var drain = tasks.DrainAsync(TestContext.Current.CancellationToken);
 
         drain.IsCompleted.Should().BeFalse();
         release.SetResult();
         await drain;
         await work;
+        tasks.PendingCount.Should().Be(0);
     }
 
     [Fact]

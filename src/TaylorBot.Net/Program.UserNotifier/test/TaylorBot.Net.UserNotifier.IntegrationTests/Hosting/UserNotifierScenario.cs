@@ -8,6 +8,7 @@ using Npgsql;
 using TaylorBot.Net.Core.Tasks;
 using TaylorBot.Net.Core.Client;
 using TaylorBot.Net.Core.Program;
+using TaylorBot.Net.EntityTracker.Domain;
 using TaylorBot.Net.IntegrationTests.Shared.ExternalApis;
 using TaylorBot.Net.IntegrationTests.Shared.Hosting;
 using TaylorBot.Net.UserNotifier.IntegrationTests.Discord;
@@ -261,7 +262,7 @@ public sealed class UserNotifierScenario : IAsyncDisposable
         }
         catch (OperationCanceledException) when (stopping.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
-            // Intentional shutdown can stop the SDK heartbeat while finite work is settling.
+            // Intentional shutdown can stop the Discord.Net heartbeat while finite work is settling.
         }
     }
 
@@ -287,6 +288,41 @@ public sealed class UserNotifierScenario : IAsyncDisposable
         using var deadline = Deadline();
         await _gateway.RepeatReadyAsync(deadline.Token);
         await SettleAsync(deadline.Token);
+    }
+
+    public async Task StartEntityTrackingUntilPacingAsync()
+    {
+        if (_host == null)
+        {
+            throw new InvalidOperationException("Notifier has not started.");
+        }
+        _ = _host.Services.GetRequiredService<BackgroundTasks>().Queue(
+            () => _host.Services.GetRequiredService<EntityTrackerDomainService>().OnShardReadyAsync(
+                _host.Services.GetRequiredService<ITaylorBotClient>().DiscordShardedClient.GetShard(id: 0)),
+            nameof(EntityTrackerDomainService.OnShardReadyAsync));
+
+        using var deadline = Deadline();
+        while (true)
+        {
+            var jobs = Jobs;
+            var timers = _time.GetStatus();
+            foreach (var waiting in jobs.Jobs.Where(job => job.NextRunAt != null))
+            {
+                timers.DueTimes.Remove(waiting.NextRunAt!.Value);
+            }
+            if (timers.DueTimes.Count > 0)
+            {
+                return;
+            }
+            await Task.WhenAny(_time.WaitForChangeAsync(timers.Version, deadline.Token),
+                _host.Services.GetRequiredService<UserNotifierJobs>().WaitForChangeAsync(jobs.Version, deadline.Token)).WaitAsync(deadline.Token);
+        }
+    }
+
+    public async Task RemoveGuildWhileTrackingAsync(string guildId, bool unavailable)
+    {
+        using var deadline = Deadline();
+        await _gateway.DispatchAsync("GUILD_DELETE", new { id = guildId, unavailable }, deadline.Token);
     }
 
     public async Task WaitForShardReadyAsync(int shardId)

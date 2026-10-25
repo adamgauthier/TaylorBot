@@ -7,6 +7,8 @@
   <Folder Name="/Tests/">
     <Project Path="Core/test/TaylorBot.Net.Core.Tests/TaylorBot.Net.Core.Tests.csproj" />
     <Project Path="Program.UserNotifier/test/TaylorBot.Net.UserNotifier.IntegrationTests/TaylorBot.Net.UserNotifier.IntegrationTests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadTests/TaylorBot.Net.UserNotifier.LoadTests.csproj" />
+    <Project Path="Program.UserNotifier/test/TaylorBot.Net.UserNotifier.LoadController/TaylorBot.Net.UserNotifier.LoadController.csproj" />
     <Project Path="Testing/TaylorBot.Net.IntegrationTests.Shared/TaylorBot.Net.IntegrationTests.Shared.csproj" />
   </Folder>
   <Project Path="Core/src/TaylorBot.Net.Core.Infrastructure/TaylorBot.Net.Core.Infrastructure.csproj" />

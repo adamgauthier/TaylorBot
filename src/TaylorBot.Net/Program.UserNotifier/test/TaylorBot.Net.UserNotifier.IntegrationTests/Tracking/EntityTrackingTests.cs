@@ -5,6 +5,35 @@ public sealed class EntityTrackingTests(DataServices data)
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public async Task StartupTracking_SkipsGuildsNoLongerAvailable(bool unavailable)
+    {
+        await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
+            settings: new Dictionary<string, string?>
+            {
+                ["EntityTracker:UseRedisCache"] = "false",
+                ["EntityTracker:TimeSpanBetweenGuildProcessedInReady"] = "00:00:03",
+            });
+        var owner = await scenario.Given.UserAsync();
+        var first = await scenario.Given.GuildAsync(owner);
+        var second = await scenario.Given.GuildAsync(owner);
+        var third = await scenario.Given.GuildAsync(owner);
+
+        await scenario.StartEntityTrackingUntilPacingAsync();
+        foreach (var guild in new[] { first, second, third })
+        {
+            await scenario.RemoveGuildWhileTrackingAsync(guild.Id, unavailable);
+            await scenario.Given.ForgetMembersAsync(guild);
+        }
+        await scenario.AdvanceAsync(TimeSpan.FromSeconds(3));
+
+        (await scenario.State.MemberCountAsync(first)).Should().Be(0);
+        (await scenario.State.MemberCountAsync(second)).Should().Be(0);
+        (await scenario.State.MemberCountAsync(third)).Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public async Task NewMember_IsNotIgnoredAndRetainsCreationTimeAfterRename(bool useRedisCache)
     {
         await using var scenario = await UserNotifierScenario.CreateAsync(data, TestContext.Current.CancellationToken,
